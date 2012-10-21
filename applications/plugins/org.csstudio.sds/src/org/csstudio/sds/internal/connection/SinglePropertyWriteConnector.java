@@ -3,8 +3,8 @@ package org.csstudio.sds.internal.connection;
 import org.csstudio.dal.ResponseEvent;
 import org.csstudio.dal.ResponseListener;
 import org.csstudio.dal.simple.ConnectionParameters;
+import org.csstudio.dal.simple.ISimpleDalBroker;
 import org.csstudio.dal.simple.RemoteInfo;
-import org.csstudio.dal.simple.SimpleDALBroker;
 import org.csstudio.platform.model.pvs.IProcessVariableAddress;
 import org.csstudio.platform.model.pvs.ValueType;
 import org.csstudio.sds.model.DynamicsDescriptor;
@@ -15,11 +15,11 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("unchecked")
 public class SinglePropertyWriteConnector implements IPropertyChangeListener {
 	private IProcessVariableAddress pv;
-	private SimpleDALBroker broker;
+	private ISimpleDalBroker broker;
 	private ValueType valueType;
     private static final Logger LOG = LoggerFactory.getLogger(SinglePropertyWriteConnector.class);
 
-	public SinglePropertyWriteConnector(IProcessVariableAddress pv, ValueType valueType, SimpleDALBroker broker) {
+	public SinglePropertyWriteConnector(IProcessVariableAddress pv, ValueType valueType, ISimpleDalBroker broker) {
 		assert pv != null;
 		assert valueType != null;
 //		assert broker != null;

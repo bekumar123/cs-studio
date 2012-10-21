@@ -3,9 +3,9 @@ package org.csstudio.sds.model;
 import java.util.Collections;
 import java.util.Map;
 
+import org.csstudio.dal.simple.ISimpleDalBroker;
 import org.csstudio.sds.internal.runmode.RunModeBoxInput;
 import org.eclipse.core.runtime.IPath;
-import org.csstudio.dal.simple.SimpleDALBroker;
 
 /**
  * Collects runtime information for a display.
@@ -21,7 +21,7 @@ public class RuntimeContext {
 	private IPath _displayFilePath;
 	private Map<String, String> _aliases;
 	private RunModeBoxInput _runModeBoxInput;
-	private SimpleDALBroker _broker;
+	private ISimpleDalBroker _broker;
 
 	/**
 	 * Constructor.
@@ -64,11 +64,11 @@ public class RuntimeContext {
 		_runModeBoxInput = runModeBoxInput;
 	}
 
-	public void setBroker(SimpleDALBroker broker) {
+	public void setBroker(ISimpleDalBroker broker) {
 		_broker = broker;
 	}
 
-	public SimpleDALBroker getBroker() {
+	public ISimpleDalBroker getBroker() {
 		return _broker;
 	}
 }

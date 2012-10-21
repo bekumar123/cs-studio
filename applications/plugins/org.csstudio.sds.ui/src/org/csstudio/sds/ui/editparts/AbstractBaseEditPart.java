@@ -28,6 +28,7 @@ import java.util.concurrent.Semaphore;
 
 import org.csstudio.dal.simple.ChannelListener;
 import org.csstudio.dal.simple.ConnectionParameters;
+import org.csstudio.dal.simple.ISimpleDalBroker;
 import org.csstudio.dal.simple.SimpleDALBroker;
 import org.csstudio.platform.model.pvs.IProcessVariableAddress;
 import org.csstudio.platform.model.pvs.IProcessVariableAdressProvider;
@@ -836,7 +837,7 @@ public abstract class AbstractBaseEditPart extends AbstractGraphicalEditPart
 					// SimpleDAL we have to take care of it ourselves)
 					for (SimpleDalListenerInfo info : registeredSimpleDalListeners) {
 						try {
-							SimpleDALBroker broker = getBroker();
+							ISimpleDalBroker broker = getBroker();
 
 							if (broker != null) {
 								broker.deregisterListener(info.getParameters(),
@@ -1027,7 +1028,7 @@ public abstract class AbstractBaseEditPart extends AbstractGraphicalEditPart
 	public void register(final ConnectionParameters parameters,
 			final ChannelListener listener) {
 		try {
-			SimpleDALBroker broker = getBroker();
+			ISimpleDalBroker broker = getBroker();
 
 			if (broker != null) {
 				// remember listeners
@@ -1060,8 +1061,8 @@ public abstract class AbstractBaseEditPart extends AbstractGraphicalEditPart
 	 * 
 	 * @return the {@link SimpleDALBroker}
 	 */
-	protected SimpleDALBroker getBroker() {
-		SimpleDALBroker broker = getRuntimeContext().getBroker();
+	protected ISimpleDalBroker getBroker() {
+		ISimpleDalBroker broker = getRuntimeContext().getBroker();
 		return broker;
 	}
 

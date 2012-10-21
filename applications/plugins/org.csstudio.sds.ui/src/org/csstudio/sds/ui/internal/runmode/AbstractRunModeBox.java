@@ -32,7 +32,7 @@ import java.util.Map;
 
 import org.csstudio.dal.CssApplicationContext;
 import org.csstudio.dal.simple.IRealtimeDataServiceFactory;
-import org.csstudio.dal.simple.SimpleDALBroker;
+import org.csstudio.dal.simple.ISimpleDalBroker;
 import org.csstudio.sds.internal.persistence.DisplayModelLoadAdapter;
 import org.csstudio.sds.internal.persistence.PersistenceUtil;
 import org.csstudio.sds.internal.runmode.RunModeBoxInput;
@@ -160,7 +160,7 @@ public abstract class AbstractRunModeBox {
 						// .. we create a separate broker instance for each running display 
 						//runtimeContext.setBroker(SimpleDALBroker.newInstance(new CssApplicationContext("CSS")));
 						
-						runtimeContext.setBroker((SimpleDALBroker) ServiceLocator.getService(IRealtimeDataServiceFactory.class).getNewDataService(new CssApplicationContext("CSS")));
+						runtimeContext.setBroker(ServiceLocator.getService(IRealtimeDataServiceFactory.class).getNewDataService(new CssApplicationContext("CSS")));
 						
 						LOG.info("SimpleDALBroker instance created");
 						
@@ -315,7 +315,7 @@ public abstract class AbstractRunModeBox {
 			RuntimeContext context = _displayModel.getRuntimeContext();
 			
 			if(context!=null) {
-				SimpleDALBroker broker = context.getBroker();
+				ISimpleDalBroker broker = context.getBroker();
 				broker.releaseAll();
 				context.setBroker(null);
 				LOG.info("SimpleDALBroker instance released.");

@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.csstudio.dal.CssApplicationContext;
+import org.csstudio.dal.simple.IRealtimeDataServiceFactory;
 import org.csstudio.dal.simple.SimpleDALBroker;
 import org.csstudio.sds.internal.persistence.DisplayModelLoadAdapter;
 import org.csstudio.sds.internal.persistence.PersistenceUtil;
@@ -47,6 +48,7 @@ import org.csstudio.sds.ui.internal.editor.dnd.ProcessVariablesDragSourceListene
 import org.csstudio.sds.ui.internal.editparts.WidgetEditPartFactory;
 import org.csstudio.sds.ui.internal.viewer.PatchedGraphicalViewer;
 import org.csstudio.sds.ui.runmode.IDisplayLoadedCallback;
+import org.csstudio.servicelocator.ServiceLocator;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -156,7 +158,10 @@ public abstract class AbstractRunModeBox {
 						runtimeContext.setRunModeBoxInput(_input);
 						
 						// .. we create a separate broker instance for each running display 
-						runtimeContext.setBroker(SimpleDALBroker.newInstance(new CssApplicationContext("CSS")));
+						//runtimeContext.setBroker(SimpleDALBroker.newInstance(new CssApplicationContext("CSS")));
+						
+						runtimeContext.setBroker((SimpleDALBroker) ServiceLocator.getService(IRealtimeDataServiceFactory.class).getNewDataService(new CssApplicationContext("CSS")));
+						
 						LOG.info("SimpleDALBroker instance created");
 						
 						_displayModel.setRuntimeContext(runtimeContext);

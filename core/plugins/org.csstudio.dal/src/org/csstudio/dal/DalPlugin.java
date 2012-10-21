@@ -22,12 +22,15 @@
  package org.csstudio.dal;
 
 import org.csstudio.dal.context.AbstractApplicationContext;
+import org.csstudio.dal.simple.IRealtimeDataServiceFactory;
+import org.csstudio.dal.simple.RealtimeDataServiceFactory;
 import org.csstudio.dal.simple.SimpleDALBroker;
 import org.csstudio.dal.spi.DefaultPropertyFactoryService;
 import org.csstudio.dal.spi.LinkPolicy;
 import org.csstudio.dal.spi.Plugs;
 import org.csstudio.dal.spi.PropertyFactory;
 import org.csstudio.dal.spi.PropertyFactoryService;
+import org.csstudio.servicelocator.ServiceLocatorFactory;
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
@@ -103,6 +106,13 @@ public class DalPlugin extends Plugin implements PropertyFactoryService {
 			applicationContext.destroy();
 		}
 		super.stop(context);
+	}
+	
+	@Override
+	public void start(BundleContext context) throws Exception {
+		super.start(context);
+		
+		ServiceLocatorFactory.registerServiceWithTracker("Dataservice factory for realtime channeldata", context, IRealtimeDataServiceFactory.class, new RealtimeDataServiceFactory());
 	}
 
 	/**

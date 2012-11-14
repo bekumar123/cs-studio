@@ -1,0 +1,90 @@
+--------------------------------------------
+ A QUICK GUIDE TO THIS PLUG-IN SOURCE CODE
+  created by tslamic on 2. september 2010
+ mail: tadej.slamic@{cosylab.com, gmail.com}
+--------------------------------------------
+
+	1. WHERE TO START
+
+/1.1/ org.csstudio.config.ioconfiguration.tree.model
+
+To get in the flow of the source code, it is probably best to start in this
+package. The tree-like data model which is presented is used throughout other 
+packages.
+
+
+
+/1.2/ org.csstudio.config.ioconfiguration.tree.model.impl
+
+The next logical step is to look at the model implementation. 
+ControllerSubtreeNode implementation contains subtle error which is mentioned
+in the class Javadoc, so this may be the first class in need of refactoring.
+
+
+
+/1.3/ org.csstudio.config.ioconfigurator.property.ioc
+
+This package contains two enum classes. 
+ControllerProperty contains the IOC properties which are hard-coded. 
+This was an easy way out but has dire consequences since every time 
+the properties are added/removed a change in the source code is necessary. 
+The Validators enum is just a helper class which provides the ability to 
+validate the user input when changing the IOC property values. 
+
+	2. A QUICK GLANCE OF OTHER PACKAGES
+	
+Let ~ denote org.csstudio.config.ioconfigurator.
+
+~actions 		      contains classes that extend Action. All classes are package-private
+		 	          and only used in the ControllerActionCache class, which then creates
+		 	          the menu for the plug-in (and it should provide the method to populate
+		 			  the ToolBar)
+
+~activator			  contains the Activator class for this plug-in.
+
+~icons 				  includes icons which were supposed to be implemented in the plug-in
+  	   		          but were not. No dependencies anywhere, so this package can be easily 
+  	   				  deleted. 
+
+~ldap  				  contains the utility class that provides methods to make the 
+	   				  modification of the LDAP server easier using the data model described in
+	   				 ~model and ~model.impl.
+	   
+~property 			  contains the IAdaptorFactory and IPropertySource implementations
+					  used to show the properties of IControllerLeafs (IOC's) in the
+					  Property View. 
+			
+~property.ioc.wizard  contains the WizardPages and a Wizard to create a new IOC
+					  Implementation is needed!!!
+					  
+~ui					  includes the ILabelProvider and ITreeContentProvider 
+					  implementation for the TreeViewer which is then build in the
+					  ControllerTreeViewer class.
+					  
+~view 				  includes the default plug-in view.
+	
+	3. IMPORTANT TODO'S
+
+Todo's are generally set in the source code, but here are some important ones:
+
+- Fix the model so that setParent works as expected.
+
+- Weird NullPointerException that occurs from time to time when running CSS
+  and it "disables" the property source. I haven't figured out yet why or
+  how it was produced, but it could be the outcome of a missing view of 
+  another CSS plug-in and maybe it has nothing to do with my app.
+  
+- Some action implementations 
+
+- Wizard for creating a new IOC.
+
+- ToolBar menu
+  
+
+
+
+ 
+
+
+
+ 

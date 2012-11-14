@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerLeaf;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerNode;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerSubtreeNode;
-import org.csstudio.utility.ldap.model.LdapEpicsControlsConfiguration;
+import org.csstudio.utility.ldap.treeconfiguration.LdapEpicsControlsConfiguration;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.IWorkbenchPartSite;

@@ -23,10 +23,6 @@
  */
 package org.csstudio.config.ioconfigurator.ldap;
 
-import static org.csstudio.utility.ldap.model.LdapEpicsControlsConfiguration.IOC;
-import static org.csstudio.utility.ldap.model.LdapEpicsControlsConfiguration.ROOT;
-import static org.csstudio.utility.ldap.utils.LdapUtils.any;
-import static org.csstudio.utility.ldap.utils.LdapUtils.createLdapQuery;
 
 import java.util.Collection;
 
@@ -50,10 +46,8 @@ import org.csstudio.config.ioconfigurator.tree.model.IControllerNode;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerSubtreeNode;
 import org.csstudio.config.ioconfigurator.tree.model.impl.ControllerLeaf;
 import org.csstudio.config.ioconfigurator.tree.model.impl.ControllerSubtreeNode;
-import org.csstudio.utility.ldap.model.LdapEpicsControlsConfiguration;
-import org.csstudio.utility.ldap.model.builder.LdapContentModelBuilder;
-import org.csstudio.utility.ldap.reader.LdapSearchResult;
 import org.csstudio.utility.ldap.service.ILdapService;
+import org.csstudio.utility.ldap.treeconfiguration.LdapEpicsControlsConfiguration;
 import org.csstudio.utility.treemodel.ContentModel;
 import org.csstudio.utility.treemodel.CreateContentModelException;
 import org.csstudio.utility.treemodel.INodeComponent;

@@ -640,6 +640,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 								if (tries >= TRIES)
 								{
 									context.getLogger().warning("Failed to send message to " + socketAddress + " - buffer full, will retry.");
+								    return;
 								}
 								
 								// flush & wait for a while...

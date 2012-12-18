@@ -616,7 +616,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 					int bufferLimit = buffer.limit();
 	
 					// TODO remove?!
-					context.getLogger().finest("Sending " + bufferLimit + " bytes to " + socketAddress + ".");
+					context.getLogger().warning("Sending " + bufferLimit + " bytes to " + socketAddress + ".");
 	
 					// limit sending large buffers, split the into parts
 					int parts = (buffer.limit()-1) / SEND_BUFFER_LIMIT + 1;
@@ -625,7 +625,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 						if (parts > 1)
 						{
 							buffer.limit(Math.min(part * SEND_BUFFER_LIMIT, bufferLimit));
-							context.getLogger().finest("[Parted] Sending (part " + part + "/" + parts + ") " + (buffer.limit()-buffer.position()) + " bytes to " + socketAddress + ".");
+							context.getLogger().warning("[Parted] Sending (part " + part + "/" + parts + ") " + (buffer.limit()-buffer.position()) + " bytes to " + socketAddress + ".");
 						}
 						
 						final int TRIES = 10;
@@ -639,12 +639,12 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 							{
 								if (tries >= TRIES)
 								{
-									context.getLogger().warning("Failed to send message to " + socketAddress + " - buffer full, will retry.");
-								    return;
+									context.getLogger().warning("Failed to send message to " + socketAddress + " - buffer full, will retry. Buffer:  "+ buffer.toString() );
+									break;
 								}
 								
 								// flush & wait for a while...
-								context.getLogger().finest("Send buffer full for " + socketAddress + ", waiting...");
+								context.getLogger().warning("Send buffer full for "  + socketAddress + ", waiting...");
 								channel.socket().getOutputStream().flush();
 								try {
 									Thread.sleep(Math.min(15000,10+tries*100));

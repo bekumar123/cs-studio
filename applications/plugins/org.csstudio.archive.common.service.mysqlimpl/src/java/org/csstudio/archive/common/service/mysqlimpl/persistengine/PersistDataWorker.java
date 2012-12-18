@@ -141,22 +141,22 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
                                               @Nonnull final Collection<T> elements,
                                               @Nonnull final PreparedStatement stmt,
                                               @Nonnull final List<T> rescueDataList) {
+        PreparedStatement myStmt=stmt;
         try {
-            for (final T element : elements) {
-                addElementToBatchAndRescueList(handler, stmt, element, rescueDataList);
-                executeBatchAndClearListOnCondition(handler, stmt, rescueDataList, 1000);
-            }
-           if(stmt==null || stmt.isClosed()){
-                final PreparedStatement myStmt= handler.createNewStatement( _connectionHandler.getThreadLocalConnection());
-                rescueDataList.clear();
-                processBatchForStatement(handler, elements, myStmt, rescueDataList);
-            }
-            executeBatchAndClearListOnCondition(handler, stmt, rescueDataList, 1);
+
+           for (final T element : elements) {
+               if(myStmt==null || myStmt.isClosed()){
+                   myStmt = handler.createNewStatement( _connectionHandler.getThreadLocalConnection());
+                   }
+               addElementToBatchAndRescueList(handler, myStmt, element, rescueDataList);
+               executeBatchAndClearListOnCondition(handler, myStmt, rescueDataList, 1000);
+           }
+            executeBatchAndClearListOnCondition(handler, myStmt, rescueDataList, 1);
         } catch (final Throwable t) {
                handler.getQueue().addAll(elements);
                handleThrowable(t, handler, rescueDataList);
         } finally {
-            closeStatement(stmt);
+            closeStatement(myStmt);
 
           }
     }

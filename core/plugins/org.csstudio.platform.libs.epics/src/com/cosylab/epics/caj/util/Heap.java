@@ -44,7 +44,7 @@ public class Heap {
 	 * @param cmp comparator instance.
 	 * @exception IllegalArgumentException if capacity less or equal to zero
 	 **/
-	public Heap(int capacity, Comparator cmp) throws IllegalArgumentException {
+	public Heap(int capacity, Comparator  cmp) throws IllegalArgumentException {
 		if (capacity <= 0)
 			throw new IllegalArgumentException();
 		nodes_ = new Object[capacity];

@@ -97,7 +97,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	/**
 	 * Send queue.
 	 */
-	private LinkedList sendQueue;
+	private LinkedList<ByteBuffer> sendQueue;
 	
 	/**
 	 * Remote side transport revision.
@@ -107,7 +107,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	/**
 	 * Owners (users) of the transport.
 	 */
-	private Map owners;
+	private Map<TransportClient, Object>  owners;
 	
 	/**
 	 * Send sync. object lock.
@@ -175,10 +175,10 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 		socketBuffer = ByteBuffer.allocateDirect(CAConstants.MAX_TCP_RECV);
 		
 		// initialize owners list, send queue
-		owners = new HashMap();
+		owners = new HashMap<TransportClient, Object>();
 		acquire(client);
 
-		sendQueue = new LinkedList();
+		sendQueue = new LinkedList<ByteBuffer>();
 		bufferAllocator = context.getCachedBufferAllocator();
 		sendBuffer = bufferAllocator.get();
 		
@@ -614,7 +614,6 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	
 					final int SEND_BUFFER_LIMIT = 16000;
 					int bufferLimit = buffer.limit();
-	
 					// TODO remove?!
 					context.getLogger().warning("Sending " + bufferLimit + " bytes to " + socketAddress + ".");
 	
@@ -627,22 +626,30 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 							buffer.limit(Math.min(part * SEND_BUFFER_LIMIT, bufferLimit));
 							context.getLogger().warning("[Parted] Sending (part " + part + "/" + parts + ") " + (buffer.limit()-buffer.position()) + " bytes to " + socketAddress + ".");
 						}
-						
+					
 						final int TRIES = 10;
 						for (int tries = 0; /* tries <= TRIES */ ; tries++)
 						{
-							
+						
 							// send
 							/*int bytesSent =*/ channel.write(buffer);
 							// bytesSend == buffer.position(), so there is no need for flip()
 							if (buffer.position() != buffer.limit())
 							{
+							
 								if (tries >= TRIES)
 								{
-									context.getLogger().warning("Failed to send message to " + socketAddress + " - buffer full, will retry. Buffer:  "+ buffer.toString() );
+									context.getLogger().warning("Failed to send message to " + socketAddress + " - buffer full, will retry. Buffer:  "+ buffer.asCharBuffer().toString() );
 									break;
 								}
+								String s="";
+								if(buffer.hasArray()){
+								for(int it=0;it<buffer.limit(); it++){
+									s+=(buffer.array()[it]);
+								}
 								
+								}
+								context.getLogger().warning("Send "+s );
 								// flush & wait for a while...
 								context.getLogger().warning("Send buffer full for "  + socketAddress + ", waiting...");
 								channel.socket().getOutputStream().flush();
@@ -1002,11 +1009,11 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 		{
 		    unresponsiveTransport = false;
 			synchronized (owners)
-			{
-				TransportClient[] clients = new TransportClient[owners.size()];
+			{   
+			   TransportClient[] clients = new TransportClient[owners.size()];
 				owners.keySet().toArray(clients);
 				for (int i = 0; i < clients.length; i++)
-				{
+				{  
 					try
 					{
 						clients[i].transportResponsive(this);
@@ -1015,6 +1022,13 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 					{
 						// TODO remove
 						logger.log(Level.SEVERE, "", th);
+					}
+					if(i%100==99){
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						// noop
+					}
 					}
 				}
 			}

@@ -47,7 +47,7 @@ public class ProcessVariableEventDispatcher implements ProcessVariableEventCallb
 	/**
 	 * List of listeners.
 	 */
-	protected ArrayList listeners = new ArrayList();
+	protected ArrayList<ProcessVariableEventCallback> listeners = new ArrayList<ProcessVariableEventCallback>();
 	protected ProcessVariableEventCallback[] cachedList = EMPTY_LIST;
 	
 	/**

@@ -46,13 +46,13 @@ public class NamedLockPattern {
 	/**
 	 * Map of (named) locks.
 	 */
-	private Map namedLocks;
+	private Map<Object, ReferenceCountingLock> namedLocks;
 
 	/**
 	 * Default constructor. 
 	 */
 	public NamedLockPattern() {
-		namedLocks = new HashMap();
+		namedLocks = new HashMap<Object, ReferenceCountingLock>();
 	}
 
 	/**

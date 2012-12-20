@@ -26,7 +26,7 @@ public class DefaultServerImpl implements Server
 	/**
 	 * Map of PVs.
 	 */
-	protected Map pvs = new HashMap();
+	protected Map<String, ProcessVariable> pvs = new HashMap<String, ProcessVariable>();
 	
 	/**
 	 * Convenience method to create and register new in-memory process variables.

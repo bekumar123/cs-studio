@@ -28,6 +28,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+
+
 /**
  * Implementation of reactor pattern using <code>java.nio.channels.Selector</code>.
  * @author <a href="mailto:matej.sekoranjaATcosylab.com">Matej Sekoranja</a>
@@ -195,22 +197,22 @@ public class Reactor {
 	/**
 	 * List of pending registration request(s).
 	 */
-	private LinkedList registrationRequests = new LinkedList(); 
+	private LinkedList<RegistrationRequest> registrationRequests = new LinkedList<RegistrationRequest>(); 
 	
 	/**
 	 * List of pending registration request(s).
 	 */
-	private LinkedList deregistrationRequests = new LinkedList(); 
+	private LinkedList<DeregistrationRequest> deregistrationRequests = new LinkedList<DeregistrationRequest>(); 
 
 	/**
 	 * List of pending registration request(s).
 	 */
-	private LinkedList interestOpsChangeRequests = new LinkedList(); 
+	private LinkedList<InterestOpsChangeRequest> interestOpsChangeRequests = new LinkedList<InterestOpsChangeRequest>(); 
 
 	/**
 	 * Map of disabled keys, pairs (SelectionKey key, Integer interestOps). 
 	 */
-	private HashMap disabledKeys = new HashMap(); 
+	private HashMap<SelectionKey, Integer> disabledKeys = new HashMap<SelectionKey, Integer>(); 
 
 	/**
 	 * Selector status.
@@ -250,7 +252,7 @@ public class Reactor {
 	 * Also takes care of sync.
 	 * @param list	list of interal requests to be processed.
 	 */
-	private static void processInternalRequest(LinkedList list)
+	private static void processInternalRequest(LinkedList<?> list)
 	{
 		if (!list.isEmpty())
 		{
@@ -371,7 +373,7 @@ public class Reactor {
 			//System.out.println();
 			//System.out.println("[Selector selected # keys: " + numSelectedKeys + "]");
 
-			Iterator selectedKeys = selector.selectedKeys().iterator();
+			Iterator<?> selectedKeys = selector.selectedKeys().iterator();
 			
 			// process only one request per select (to support concurrent processing)
 			SelectionKey selectedKey = (SelectionKey) selectedKeys.next();

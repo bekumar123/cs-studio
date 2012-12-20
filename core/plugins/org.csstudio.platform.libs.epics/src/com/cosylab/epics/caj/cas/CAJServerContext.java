@@ -176,13 +176,13 @@ public class CAJServerContext extends ServerContext implements CAContext, Config
 	 * List of context message listeners.
 	 */
 	// TODO consider using weak references
-	protected ArrayList contextMessageListeners = new ArrayList();
+	protected ArrayList<ContextMessageListener> contextMessageListeners = new ArrayList<ContextMessageListener>();
 
 	/**
 	 * List of context exception listeners.
 	 */
 	// TODO consider using weak references
-	protected ArrayList contextExceptionListeners = new ArrayList();
+	protected ArrayList<ContextExceptionListener> contextExceptionListeners = new ArrayList<ContextExceptionListener>();
 
 
 	/**

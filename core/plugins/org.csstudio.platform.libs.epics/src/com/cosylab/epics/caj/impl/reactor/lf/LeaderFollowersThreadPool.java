@@ -66,7 +66,7 @@ public class LeaderFollowersThreadPool {
         // unbounded queue is OK, since its naturally limited (threadPoolSize + # of transports (used for flushing))
         executor = new ThreadPoolExecutor(threadPoolSize, threadPoolSize,
         								  Long.MAX_VALUE, TimeUnit.NANOSECONDS,
-        								  new LinkedBlockingQueue());
+        								  new LinkedBlockingQueue<Runnable>());
         executor.prestartAllCoreThreads();
     }
 

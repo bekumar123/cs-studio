@@ -173,13 +173,13 @@ public class CAJContext extends Context implements CAContext, CAJConstants, Conf
 	 * List of context message listeners.
 	 */
 	// TODO consider using weak references
-	protected ArrayList contextMessageListeners = new ArrayList();
+	protected ArrayList<ContextMessageListener> contextMessageListeners = new ArrayList<ContextMessageListener>();
 
 	/**
 	 * List of context exception listeners.
 	 */
 	// TODO consider using weak references
-	protected ArrayList contextExceptionListeners = new ArrayList();
+	protected ArrayList<ContextExceptionListener> contextExceptionListeners = new ArrayList<ContextExceptionListener>();
 
 
 	/**
@@ -254,7 +254,7 @@ public class CAJContext extends Context implements CAContext, CAJConstants, Conf
 	 * Map of channels (keys are names).
 	 */
 	// TODO consider using WeakHashMap (and call Channel.destroy() in finalize() method).
-	protected Map channelsByName = new HashMap();
+	protected Map<String, CAJChannel> channelsByName = new HashMap<String, CAJChannel>();
 
 	/**
 	 * Last CID cache. 
@@ -297,7 +297,7 @@ public class CAJContext extends Context implements CAContext, CAJConstants, Conf
 	/**
 	 * Beacon handler map.
 	 */
-	protected Map beaconHandlers = new HashMap();
+	protected Map<InetSocketAddress, CABeaconHandler> beaconHandlers = new HashMap<InetSocketAddress, CABeaconHandler>();
 
 	/**
 	 * Last UDP recived sequence number.

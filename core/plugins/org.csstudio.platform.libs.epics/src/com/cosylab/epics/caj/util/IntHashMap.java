@@ -16,6 +16,9 @@ package com.cosylab.epics.caj.util;
 
 import java.util.ArrayList;
 
+
+
+
 /**
  * <p>A hash map that uses primitive ints for the key instead of objects. Also Entry objects are reusable.</p>
  * NOTE: this implementatio is not synced, client has to care of that.
@@ -107,7 +110,7 @@ public class IntHashMap {
     	 * Pool of reusable objects.
     	 */
     	// TODO get rid of class casts
-    	private ArrayList pool;
+    	private ArrayList<Entry> pool;
     	private int lastPos = -1;
     	
     	/**
@@ -115,7 +118,7 @@ public class IntHashMap {
     	 * @param initialCapacity	initial capacity of the pool.
     	 */
     	public EntryObjectPool(int initialCapacity) {
-    		pool = new ArrayList(initialCapacity);
+    		pool = new ArrayList<Entry>(initialCapacity);
     	}
     	
     	/**

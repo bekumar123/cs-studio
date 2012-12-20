@@ -38,7 +38,7 @@ public class InetAddressUtilV6 {
 	 * @return array of broadcast addresses with given port.
 	 */
 	public static InetSocketAddress[] getBroadcastAddresses(int port) {
-		Enumeration nets;
+		Enumeration<?> nets;
 		try {
 			nets = NetworkInterface.getNetworkInterfaces();
 		} catch (SocketException se) {
@@ -46,15 +46,15 @@ public class InetAddressUtilV6 {
 			return new InetSocketAddress[] { new InetSocketAddress("255.255.255.255", port) };
 		}
 
-		ArrayList list = new ArrayList(10);
+		ArrayList<InetSocketAddress> list = new ArrayList<InetSocketAddress>(10);
 
 			while (nets.hasMoreElements())
 			{
 				NetworkInterface net = (NetworkInterface)nets.nextElement();
 				//if (net.isUp())
 				{
-					List interfaceAddresses = net.getInterfaceAddresses();
-					Iterator iter = interfaceAddresses.iterator();
+					List<InterfaceAddress> interfaceAddresses = net.getInterfaceAddresses();
+					Iterator<InterfaceAddress> iter = interfaceAddresses.iterator();
 					while (iter.hasNext())
 					{
 						InterfaceAddress addr = (InterfaceAddress)iter.next();

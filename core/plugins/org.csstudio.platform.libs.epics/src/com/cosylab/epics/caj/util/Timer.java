@@ -51,7 +51,7 @@ public class Timer extends Thread  {
   	public void timeout(long timeToRun);  
   }
 
-  private static class TaskNode implements Comparable {
+  private static class TaskNode implements Comparable<Object> {
 	final TimerRunnable command;   // The command to run
 	final long period;        // The cycle period, or -1 if not periodic
 	private long timeToRun_;  // The time to run command

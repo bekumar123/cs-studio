@@ -40,7 +40,7 @@ public class JNIRepeater {
 	    if (System.getProperties().containsKey(JNI_DISABLE_REPEATER))
 	        return;
 	    
-		PrivilegedAction action = new PrivilegedAction() {
+		PrivilegedAction<?> action = new PrivilegedAction<Object>() {
 			
 			public Object run() {
 				try {

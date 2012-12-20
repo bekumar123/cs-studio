@@ -90,7 +90,7 @@ public class InetAddressUtil {
 	 */
 	public static InetSocketAddress[] getSocketAddressList(String list, int defaultPort, InetSocketAddress[] appendList)
 	{
-		ArrayList al = new ArrayList();
+		ArrayList<InetSocketAddress> al = new ArrayList<InetSocketAddress>();
 		
 		// parse string
 		StringTokenizer st = new StringTokenizer(list);

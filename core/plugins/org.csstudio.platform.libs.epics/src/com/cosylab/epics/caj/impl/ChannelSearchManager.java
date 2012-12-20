@@ -485,7 +485,7 @@ public class ChannelSearchManager {
     /**
      * Set of registered channels.
      */
-    private Set channels = new HashSet();
+    private Set<CAJChannel> channels = new HashSet<CAJChannel>();
     
     /**
 	 * Constructor.

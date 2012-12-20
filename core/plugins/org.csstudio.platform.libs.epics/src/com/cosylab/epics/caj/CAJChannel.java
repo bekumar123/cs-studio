@@ -114,14 +114,14 @@ public class CAJChannel extends Channel implements TransportClient {
 	 */
 	// TODO consider using weak references
 	// TODO use them
-	protected ArrayList connectionListeners = new ArrayList();
+	protected ArrayList<ConnectionListener> connectionListeners = new ArrayList<ConnectionListener>();
 
 	/**
 	 * List of access rights listeners.
 	 */
 	// TODO consider using weak references
 	// TODO use them
-	protected ArrayList accessRightsListeners = new ArrayList();
+	protected ArrayList<AccessRightsListener> accessRightsListeners = new ArrayList<AccessRightsListener>();
 
 	/**
 	 * Sync. connection (i.e. w/ callback) flag.
@@ -138,12 +138,12 @@ public class CAJChannel extends Channel implements TransportClient {
 	 * Lazy initialization used, since not all channel will have monitors.
 	 */
 	// TODO consider using WeakHashMap (and call Channel.destroy() in finalize() method).
-	protected Map monitors = null;
+	protected Map<Integer, CAJMonitor> monitors = null;
 
 	/**
 	 * List of all channels pending requests. 
 	 */
-	protected Map responseRequests = new HashMap();
+	protected Map<ResponseRequest, Object> responseRequests = new HashMap<ResponseRequest, Object>();
 	
 	/**
 	 * Number of channel search tries. 
@@ -560,7 +560,7 @@ public class CAJChannel extends Channel implements TransportClient {
 		synchronized (connectionListeners)
 		{
 			ConnectionListener[] listeners = new ConnectionListener[connectionListeners.size()];
-			return (ConnectionListener[])connectionListeners.toArray(listeners);
+			return connectionListeners.toArray(listeners);
 		}
 	}
 
@@ -646,7 +646,7 @@ public class CAJChannel extends Channel implements TransportClient {
 		synchronized (accessRightsListeners)
 		{
 			AccessRightsListener[] listeners = new AccessRightsListener[accessRightsListeners.size()];
-			return (AccessRightsListener[])accessRightsListeners.toArray(listeners);
+			return accessRightsListeners.toArray(listeners);
 		}
 	}
 
@@ -1132,7 +1132,7 @@ public class CAJChannel extends Channel implements TransportClient {
 			synchronized (this)
 			{
 				if (monitors == null)
-					monitors = new HashMap();
+					monitors = new HashMap<Integer, CAJMonitor>();
 			}
 		}
 			

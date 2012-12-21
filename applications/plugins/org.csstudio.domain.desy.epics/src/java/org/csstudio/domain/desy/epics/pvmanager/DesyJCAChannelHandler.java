@@ -298,10 +298,7 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
         public void monitorChanged(final MonitorEvent event) {
             synchronized(DesyJCAChannelHandler.this) {
                 DBR metadata = null;
-                final Channel channel = (Channel) event.getSource();
-                //testen um deadlock
-               // connectionState=channel.getConnectionState();
-                if (getLastMessagePayload() != null) {
+                   if (getLastMessagePayload() != null) {
                     metadata = getLastMessagePayload().getMetadata();
                 }
                 processMessage(new DesyJCAMessagePayload(metadata, event));

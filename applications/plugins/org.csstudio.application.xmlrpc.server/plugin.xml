@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         id="ServerApplication"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="org.csstudio.application.xmlrpc.server.ServerApplication">
+         </run>
+      </application>
+   </extension>
+   <extension
+         point="org.csstudio.remote.managementCommands">
+      <command
+            class="org.csstudio.application.xmlrpc.server.management.Stop"
+            id="org.csstudio.application.xmlrpc.server.Stop"
+            label="Stop">
+         <stringParameter
+               id="org.csstudio.application.xmlrpc.server.StopParameter"
+               label="Password">
+         </stringParameter>
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.equinox.preferences.preferences">
+      <initializer
+            class="org.csstudio.application.xmlrpc.server.internal.PreferenceInitializer">
+      </initializer>
+   </extension>
+
+</plugin>

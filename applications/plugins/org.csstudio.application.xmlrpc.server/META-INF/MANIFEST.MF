@@ -1,0 +1,26 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XMLRPC Server
+Bundle-SymbolicName: org.csstudio.application.xmlrpc.server; singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.csstudio.application.xmlrpc.server.ServerActivator
+Bundle-Vendor: Markus Moeller <markus.moeller@desy.de>
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.core.resources;bundle-version="3.7.101",
+ org.eclipse.osgi.services;bundle-version="3.3.0",
+ org.csstudio.domain.desy;bundle-version="1.0.0",
+ org.csstudio.archive.common.service;bundle-version="1.0.0",
+ org.csstudio.archive.common.requesttype;bundle-version="1.0.0",
+ org.remotercp.common;bundle-version="1.0.0",
+ org.remotercp.util;bundle-version="1.0.0",
+ org.remotercp.service.connection;bundle-version="1.0.1",
+ org.eclipse.ecf.identity;bundle-version="3.1.100",
+ org.csstudio.remote;bundle-version="3.1.0",
+ org.slf4j;bundle-version="1.7.2",
+ com.google.common;bundle-version="10.0.1"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .,
+ lib/commons-logging-1.1.1.jar,
+ lib/ws-commons-util-1.0.2.jar,
+ lib/xmlrpc-3.1.jar

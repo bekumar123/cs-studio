@@ -42,7 +42,8 @@ public class ArchiveEnginePreferencesService {
      * @param <T> the type of the preference
      */
     private static final class ArchiveEnginePreference<T> extends AbstractPreference<T>{
-
+        public static final ArchiveEnginePreference<Integer> REG_GROUP_ID =
+                new ArchiveEnginePreference<Integer>("regGroupId", Integer.valueOf(0));
         public static final ArchiveEnginePreference<Integer> WRITE_PERIOD_IN_S =
             new ArchiveEnginePreference<Integer>("writePeriodInS", Integer.valueOf(5));
         public static final ArchiveEnginePreference<Integer> HEARTBEAT_PERIOD_IN_S =
@@ -95,6 +96,10 @@ public class ArchiveEnginePreferencesService {
     @Nonnull
     public Integer getWritePeriodInS() {
         return ArchiveEnginePreference.WRITE_PERIOD_IN_S.getValue();
+    }
+    @Nonnull
+    public Integer getRegGroupId() {
+        return ArchiveEnginePreference.REG_GROUP_ID.getValue();
     }
     @Nonnull
     public Integer getHeartBeatPeriodInS() {

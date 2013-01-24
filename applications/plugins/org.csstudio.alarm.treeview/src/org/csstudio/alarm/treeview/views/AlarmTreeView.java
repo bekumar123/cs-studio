@@ -197,11 +197,6 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
     private ViewerFilter _currentAlarmFilter;
     
     /**
-     * Whether the filter is active.
-     */
-    private Boolean _isFilterActive = Boolean.FALSE;
-    
-    /**
      * The root node of this alarm tree. Shall only be generated once per view!
      */
     private final IAlarmSubtreeNode _rootNode;
@@ -217,6 +212,8 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
     
     // Listener for the remote command telling the view to reload the configuration
     private IAlarmService.IListener _configurationUpdateListener;
+
+	private Action _unacknowledgedAlarmFilterAction;
     
     /**
      * Constructor.
@@ -292,6 +289,7 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
                                @Nonnull final AlarmMessageListener alarmListener,
                                @Nonnull final IWorkbenchPartSite site,
                                @Nonnull final ViewerFilter currentAlarmFilter,
+                               @Nonnull final ViewerFilter unacknowledgedAlarmFilter,
                                @Nonnull final Queue<ITreeModificationItem> modificationItems) {
         
         _reloadAction = AlarmTreeViewActionFactory
@@ -346,7 +344,9 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
                 .createShowMessageAreaAction(_myMessageArea);
         
         _toggleFilterAction = AlarmTreeViewActionFactory
-                .createToggleFilterAction(this, viewer, currentAlarmFilter);
+                .createToggleFilterAction(viewer, currentAlarmFilter);
+        
+        _unacknowledgedAlarmFilterAction = AlarmTreeViewActionFactory.createToggleUnacknowledgedAlarmFilterAction(viewer, unacknowledgedAlarmFilter);
         
         _saveAsXmlFileAction = AlarmTreeViewActionFactory.createSaveAsXmlFileAction(site, viewer);
         
@@ -389,6 +389,7 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
                       _alarmListener,
                       getSite(),
                       _currentAlarmFilter,
+                      new UnacknowledgedAlarmFilter(),
                       _ldapModificationItems);
         
         createAndRegisterReloadCommand();
@@ -513,6 +514,7 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
      * @param manager the menu manager.
      */
     private void fillLocalToolBar(@Nonnull final IToolBarManager manager) {
+    	manager.add(_unacknowledgedAlarmFilterAction);
         manager.add(_toggleFilterAction);
         manager.add(new Separator());
         manager.add(_showPropertyViewAction);
@@ -532,11 +534,6 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
     @CheckForNull
     public AlarmMessageListener getAlarmListener() {
         return _alarmListener;
-    }
-    
-    @Nonnull
-    public Boolean getIsFilterActive() {
-        return _isFilterActive;
     }
     
     /**
@@ -769,10 +766,6 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
     @Override
     public void setFocus() {
         _viewer.getControl().setFocus();
-    }
-    
-    public void setIsFilterActive(@Nonnull final Boolean isFilterActive) {
-        _isFilterActive = isFilterActive;
     }
     
     /**

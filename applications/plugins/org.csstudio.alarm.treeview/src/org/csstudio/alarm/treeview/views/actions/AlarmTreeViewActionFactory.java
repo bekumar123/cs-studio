@@ -451,16 +451,32 @@ public final class AlarmTreeViewActionFactory {
      * @return
      */
     @Nonnull
-    public static Action createToggleFilterAction(@Nonnull final AlarmTreeView alarmTreeView,
-                                                  @Nonnull final TreeViewer viewer,
+    public static Action createToggleFilterAction(@Nonnull final TreeViewer viewer,
                                                   @Nonnull final ViewerFilter currentAlarmFilter) {
-        final Action toggleFilterAction = new ToggleFilterAction(Messages.AlarmTreeViewActionFactory_ShowOnlyAlarms_Text, IAction.AS_CHECK_BOX, alarmTreeView, currentAlarmFilter, viewer);
+        final Action toggleFilterAction = new ToggleFilterAction(Messages.AlarmTreeViewActionFactory_ShowOnlyAlarms_Text, IAction.AS_CHECK_BOX, currentAlarmFilter, viewer);
         toggleFilterAction.setToolTipText(Messages.AlarmTreeViewActionFactory_ShowOnlyAlarms_TooltipText);
-        toggleFilterAction.setChecked(alarmTreeView.getIsFilterActive().booleanValue());
         toggleFilterAction.setImageDescriptor(AlarmTreePlugin.getImageDescriptor(AlarmTreePreference.RES_ICON_PATH.getValue() +
                                                                                  "/no_alarm_filter.png")); //$NON-NLS-1$
 
         return toggleFilterAction;
+    }
+    
+    /**
+     *
+     * @param alarmTreeView
+     * @param viewer
+     * @param currentAlarmFilter
+     * @return
+     */
+    @Nonnull
+    public static Action createToggleUnacknowledgedAlarmFilterAction(@Nonnull final TreeViewer viewer,
+    		@Nonnull final ViewerFilter currentAlarmFilter) {
+    	final Action toggleFilterAction = new ToggleFilterAction(Messages.AlarmTreeViewActionFactory_ShowOnlyUnacknowledgedAlarms_Text, IAction.AS_CHECK_BOX, currentAlarmFilter, viewer);
+    	toggleFilterAction.setToolTipText(Messages.AlarmTreeViewActionFactory_ShowOnlyUnacknowledgedAlarms_TooltipText);
+    	toggleFilterAction.setImageDescriptor(AlarmTreePlugin.getImageDescriptor(AlarmTreePreference.RES_ICON_PATH.getValue() +
+    			"/unacknowledged_alarm_filter.png")); //$NON-NLS-1$
+    			
+    	return toggleFilterAction;
     }
 
     /**

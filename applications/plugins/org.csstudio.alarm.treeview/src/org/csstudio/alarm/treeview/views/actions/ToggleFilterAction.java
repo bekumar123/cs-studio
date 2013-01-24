@@ -18,6 +18,8 @@
  */
 package org.csstudio.alarm.treeview.views.actions;
 
+import java.util.Arrays;
+
 import javax.annotation.Nonnull;
 
 import org.csstudio.alarm.treeview.views.AlarmTreeView;
@@ -34,7 +36,6 @@ import org.eclipse.jface.viewers.ViewerFilter;
  * @since 17.06.2010
  */
 public final class ToggleFilterAction extends Action {
-    private final AlarmTreeView _alarmTreeView;
     private final ViewerFilter _currentAlarmFilter;
     private final TreeViewer _viewer;
 
@@ -48,11 +49,9 @@ public final class ToggleFilterAction extends Action {
      */
     ToggleFilterAction(@Nonnull final String text,
                        @Nonnull final int style,
-                       @Nonnull final AlarmTreeView alarmTreeView,
                        @Nonnull final ViewerFilter currentAlarmFilter,
                        @Nonnull final TreeViewer viewer) {
         super(text, style);
-        _alarmTreeView = alarmTreeView;
         _currentAlarmFilter = currentAlarmFilter;
         _viewer = viewer;
     }
@@ -62,12 +61,11 @@ public final class ToggleFilterAction extends Action {
      */
     @Override
     public void run() {
-        if (_alarmTreeView.getIsFilterActive()) {
+    	ViewerFilter[] filters = _viewer.getFilters();
+        if (Arrays.asList(filters).contains(_currentAlarmFilter)) {
             _viewer.removeFilter(_currentAlarmFilter);
-            _alarmTreeView.setIsFilterActive(Boolean.FALSE);
         } else {
             _viewer.addFilter(_currentAlarmFilter);
-            _alarmTreeView.setIsFilterActive(Boolean.TRUE);
         }
     }
 }

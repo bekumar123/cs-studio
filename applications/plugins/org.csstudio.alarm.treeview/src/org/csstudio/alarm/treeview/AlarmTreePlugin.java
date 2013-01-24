@@ -22,6 +22,7 @@ import javax.annotation.CheckForNull;
 
 import javax.annotation.Nonnull;
 
+import org.csstudio.alarm.treeview.preferences.AlarmTreePreferenceChangeListener;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -36,6 +37,8 @@ public final class AlarmTreePlugin extends AbstractUIPlugin {
     public static final String PLUGIN_ID = "org.csstudio.alarm.treeview";
     
     private static AlarmTreePlugin INSTANCE;
+
+	private AlarmTreePreferenceChangeListener alarmTreePreferenceChangeListener;
     
     // Returns the shared instance.
     @Nonnull
@@ -58,10 +61,13 @@ public final class AlarmTreePlugin extends AbstractUIPlugin {
     @Override
     public void start(@Nonnull final BundleContext context) throws Exception {
     	super.start(context);
+    	this.alarmTreePreferenceChangeListener = new AlarmTreePreferenceChangeListener();
+		getPreferenceStore().addPropertyChangeListener(alarmTreePreferenceChangeListener);
     }
     
     @Override
     public void stop(@Nonnull final BundleContext context) throws Exception {
+    	getPreferenceStore().removePropertyChangeListener(alarmTreePreferenceChangeListener);
     	super.stop(context);
     }
     

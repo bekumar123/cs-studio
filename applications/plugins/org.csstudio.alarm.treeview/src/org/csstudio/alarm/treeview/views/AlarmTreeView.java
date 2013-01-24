@@ -17,7 +17,6 @@
 package org.csstudio.alarm.treeview.views;
 
 import java.util.ArrayList;
-
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -31,6 +30,7 @@ import javax.annotation.Nullable;
 import org.csstudio.alarm.service.declaration.AlarmPreference;
 import org.csstudio.alarm.service.declaration.IAlarmConnection;
 import org.csstudio.alarm.service.declaration.IAlarmService;
+import org.csstudio.alarm.treeview.AlarmTreePlugin;
 import org.csstudio.alarm.treeview.jobs.ConnectionJob;
 import org.csstudio.alarm.treeview.jobs.JobFactory;
 import org.csstudio.alarm.treeview.localization.Messages;
@@ -41,6 +41,7 @@ import org.csstudio.alarm.treeview.model.IProcessVariableNodeListener;
 import org.csstudio.alarm.treeview.model.ProcessVariableNode;
 import org.csstudio.alarm.treeview.model.SubtreeNode;
 import org.csstudio.alarm.treeview.model.TreeNodeSource;
+import org.csstudio.alarm.treeview.preferences.AlarmTreePreference;
 import org.csstudio.alarm.treeview.service.AlarmMessageListener;
 import org.csstudio.alarm.treeview.views.actions.AlarmTreeViewActionFactory;
 import org.csstudio.auth.ui.security.AbstractUserDependentAction;
@@ -59,6 +60,8 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.util.DelegatingDragAdapter;
 import org.eclipse.jface.util.DelegatingDropAdapter;
 import org.eclipse.jface.viewers.ISelection;
@@ -69,6 +72,9 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -402,8 +408,8 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
         viewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         
         viewer.setContentProvider(new AlarmTreeContentProvider());
-        viewer.setLabelProvider(new AlarmTreeLabelProvider());
-        //viewer.setComparator(new ViewerComparator());
+        AlarmTreeLabelProvider labelProvider = new AlarmTreeLabelProvider();
+		viewer.setLabelProvider(labelProvider);
         
         final ISelectionChangedListener selectionChangedListener = new ISelectionChangedListener() {
             @SuppressWarnings("synthetic-access")
@@ -413,6 +419,17 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
             }
         };
         viewer.addSelectionChangedListener(selectionChangedListener);
+        
+        final IPreferenceStore preferenceStore = AlarmTreePlugin.getDefault().getPreferenceStore();
+        FontData fontData = PreferenceConverter.getFontData(preferenceStore, AlarmTreePreference.FONT.getKeyAsString());
+        Font font = new Font(Display.getDefault(), fontData);
+		viewer.getTree().setFont(font);
+        
+        GC gc = new GC(parent);
+		gc.setFont(font);
+		int height = gc.getFontMetrics().getAscent();
+		gc.dispose();
+		labelProvider.setImagePixelHeight(height);
         
         return viewer;
     }

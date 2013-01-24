@@ -25,6 +25,8 @@ import javax.annotation.Nonnull;
 
 import org.csstudio.alarm.treeview.AlarmTreePlugin;
 import org.csstudio.domain.desy.preferences.AbstractPreference;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.widgets.Display;
 
 /**
  * Constant definitions for alarm tree preferences (mimicked enum with inheritance).
@@ -46,6 +48,8 @@ public final class AlarmTreePreference<T> extends AbstractPreference<T> {
 
     public static final AlarmTreePreference<String> ALARM_DISPLAY_ALIAS =
         new AlarmTreePreference<String>("alarmDisplayAlias", "chan");
+
+	public static final AlarmTreePreference<Font> FONT = new AlarmTreePreference<Font>("font", Display.getCurrent().getSystemFont());
     
     /**
      * Constructor.

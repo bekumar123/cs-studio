@@ -22,6 +22,7 @@ import gov.aps.jca.event.ContextVirtualCircuitExceptionEvent;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
@@ -274,8 +275,8 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 			for(TransportClient t: owners.keySet()){
 				number++;
 				try {
-					if(number%100==99)
-					Thread.sleep(100);
+					if(number%50==49)
+					Thread.sleep(50);
 				} catch (InterruptedException e) {
 					// noop
 				}
@@ -645,8 +646,6 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 					final int SEND_BUFFER_LIMIT = 16000;
 					int bufferLimit = buffer.limit();
 					// TODO remove?!
-					context.getLogger().warning("Sending " + bufferLimit + " bytes to " + socketAddress + ".");
-	
 					// limit sending large buffers, split the into parts
 					int parts = (buffer.limit()-1) / SEND_BUFFER_LIMIT + 1;
 					for (int part = 1; part <= parts; part++)
@@ -664,22 +663,23 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 							// send
 							/*int bytesSent =*/ channel.write(buffer);
 							// bytesSend == buffer.position(), so there is no need for flip()
-							if (buffer.position() != buffer.limit())
+							if (buffer.position() < buffer.limit())
 							{
+								String s="";
+								for(int it=0;it<buffer.limit(); it++){
+									   byte b=buffer.get(it);
+									   if(b>30)
+										s+="  "+ (char)b;
+									   else 	s+="  "+ b;;
+									}
 							
 								if (tries >= TRIES)
 								{
-									context.getLogger().warning("Failed to send message to " + socketAddress + " - buffer full, will retry. Buffer:  "+ buffer.asCharBuffer().toString() );
+									context.getLogger().warning("Failed to send message to " + socketAddress + " - buffer full, will retry. Buffer:  "+s+"  "+ buffer.asCharBuffer().toString() );
 									break;
 								}
-								String s="";
-								if(buffer.hasArray()){
-								for(int it=0;it<buffer.limit(); it++){
-									s+=(buffer.array()[it]);
-								}
-								
-								}
-								context.getLogger().warning("Send "+s );
+							
+								context.getLogger().warning("Send "+ s );
 								// flush & wait for a while...
 								context.getLogger().warning("Send buffer full for "  + socketAddress + ", waiting...");
 								channel.socket().getOutputStream().flush();
@@ -702,6 +702,8 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 				// close connection
 				close(true);
 				throw ioex;
+			}catch (NotYetConnectedException e){
+				
 			}
 		}
 	}
@@ -1056,7 +1058,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 					
 					catch (Throwable th)
 					{
-						// TODO remove
+					   // TODO remove
 						logger.log(Level.SEVERE, "", th);
 					}
 				}

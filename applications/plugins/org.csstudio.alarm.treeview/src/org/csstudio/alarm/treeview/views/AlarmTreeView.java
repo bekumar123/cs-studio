@@ -68,6 +68,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
@@ -986,4 +987,30 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
         }
 
     }
+
+	public void select(String pvName) {
+		Object object = _viewer.getInput();
+		if (object instanceof IAlarmSubtreeNode) {
+			List<IAlarmTreeNode> leafs = getLeafNodes(((IAlarmSubtreeNode) object).getChildren(), pvName);
+			for (IAlarmTreeNode iAlarmTreeNode : leafs) {
+				_viewer.expandToLevel(iAlarmTreeNode, TreeViewer.ALL_LEVELS);
+			}
+			if (leafs.size() > 0) {
+				_viewer.setSelection(new StructuredSelection(leafs.get(0)));
+			}
+		}
+		
+	}
+	
+	private List<IAlarmTreeNode> getLeafNodes(List<IAlarmTreeNode> nodes, String pvName) {
+		List<IAlarmTreeNode> result = new ArrayList<IAlarmTreeNode>();
+		for (IAlarmTreeNode iAlarmTreeNode : nodes) {
+			if (iAlarmTreeNode instanceof IAlarmSubtreeNode) {
+				result.addAll(getLeafNodes(((IAlarmSubtreeNode) iAlarmTreeNode).getChildren(), pvName));
+			} else if (iAlarmTreeNode instanceof IAlarmProcessVariableNode && iAlarmTreeNode.getName().equals(pvName)) {
+				result.add(iAlarmTreeNode);
+			}
+		}
+		return result;
+	}
 }

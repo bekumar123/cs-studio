@@ -96,16 +96,17 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
      */
     @Override
     public void measuredRun() {
+
         LOG.info("RUN");
         try {
-
-            processBatchHandlers(null, _handlerProvider, _rescueDataList);
+          processBatchHandlers(_connectionHandler.getThreadLocalConnection(), _handlerProvider, _rescueDataList);
 
         } catch (final Throwable t) {
             LOG.error("Unknown throwable in thread {}.", _name);
             t.printStackTrace();
             EMAIL_LOG.info("Unknown throwable in thread {}. See event.log for more info.", _name);
         }
+
     }
 
     @SuppressWarnings("unchecked")
@@ -117,7 +118,7 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
             ((BatchQueueHandlerSupport<T>) handler).getQueue().drainTo(elements);
             if (!elements.isEmpty()) {
                 PreparedStatement stmt = null;
-                try {//bei jeges Mal SQL Statement erzeugen, connection neue prüfen, ob die Connection closed ist
+                try {//bei jedes Mal SQL Statement erzeugen, connection neue prüfen, ob die Connection closed ist
                     if(connection==null || connection.isClosed() ) {
                         connection = _connectionHandler.getThreadLocalConnection();
                     }
@@ -143,15 +144,50 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
                                               @Nonnull final List<T> rescueDataList) {
         PreparedStatement myStmt=stmt;
         try {
-
+            int size=0;
            for (final T element : elements) {
-               if(myStmt==null || myStmt.isClosed()){
+               if(myStmt.getConnection()==null ||  myStmt==null || myStmt.isClosed()){
                    myStmt = handler.createNewStatement( _connectionHandler.getThreadLocalConnection());
                    }
                addElementToBatchAndRescueList(handler, myStmt, element, rescueDataList);
-               executeBatchAndClearListOnCondition(handler, myStmt, rescueDataList, 1000);
+              // executeBatchAndClearListOnCondition(handler, myStmt, rescueDataList, 1000);
+               size = rescueDataList.size();
+               if (size >= 1000) {
+                   try {
+                       _watch.restart();
+                //   int iii[] = stmt.executeBatch();
+                       LOG.info("{}",stmt.executeBatch().length);
+
+                     //  stmt.execute();
+                      // stmt.executeUpdate();
+                       LOG.info("{}ms for {}x {}", new Object[] {_watch.getElapsedTimeInMillis(), size, handler.getHandlerType().getSimpleName()});
+                   } catch (final Throwable t) {
+                       handler.getQueue().addAll(elements);
+                       handleThrowable(t, handler, rescueDataList);
+                   }finally {
+                       rescueDataList.clear();
+                   }
+                }
+
            }
-            executeBatchAndClearListOnCondition(handler, myStmt, rescueDataList, 1);
+          //  executeBatchAndClearListOnCondition(handler, myStmt, rescueDataList, 1);
+            size = rescueDataList.size();
+            if (size >= 1) {
+                try {
+                    _watch.restart();
+             //   int iii[] = stmt.executeBatch();
+                    LOG.info("{}",stmt.executeBatch().length);
+
+                  //  stmt.execute();
+                   // stmt.executeUpdate();
+                    LOG.info("{}ms for {}x {}", new Object[] {_watch.getElapsedTimeInMillis(), size, handler.getHandlerType().getSimpleName()});
+                } catch (final Throwable t) {
+                    handler.getQueue().addAll(elements);
+                    handleThrowable(t, handler, rescueDataList);
+                }finally {
+                    rescueDataList.clear();
+                }
+             }
         } catch (final Throwable t) {
                handler.getQueue().addAll(elements);
                handleThrowable(t, handler, rescueDataList);
@@ -178,7 +214,11 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
         if (size >= minBatchSize) {
             try {
                 _watch.restart();
-                stmt.executeBatch();
+         //   int iii[] = stmt.executeBatch();
+                LOG.info("{}",stmt.executeBatch().length);
+
+              //  stmt.execute();
+               // stmt.executeUpdate();
                 LOG.info("{}ms for {}x {}", new Object[] {_watch.getElapsedTimeInMillis(), size, handler.getHandlerType().getSimpleName()});
             } finally {
                 rescueDataList.clear();

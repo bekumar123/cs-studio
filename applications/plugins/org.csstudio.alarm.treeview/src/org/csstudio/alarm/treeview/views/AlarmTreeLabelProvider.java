@@ -26,6 +26,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.csstudio.alarm.treeview.AlarmTreePlugin;
+import org.csstudio.alarm.treeview.model.IAlarmProcessVariableNode;
 import org.csstudio.alarm.treeview.model.IAlarmTreeNode;
 import org.csstudio.alarm.treeview.model.TreeNodeSource;
 import org.csstudio.alarm.treeview.preferences.AlarmTreePreference;
@@ -80,12 +81,19 @@ public class AlarmTreeLabelProvider extends LabelProvider {
 		return "";
 	}
 
+	@SuppressWarnings("deprecation")
 	@Nonnull
 	private String getName(@Nonnull final IAlarmTreeNode node) {
 		String result = node.getName();
 		if (isDirectChildOfRoot(node)
 				&& (node.getSource() == TreeNodeSource.XML)) {
 			result = result + " [XML]";
+		}
+		if (node instanceof IAlarmProcessVariableNode) {
+			String status = ((IAlarmProcessVariableNode) node).getAlarm().getStatus();
+			if (!status.isEmpty()) {
+				result += " (" + status + ")";
+			}
 		}
 		return result;
 	}

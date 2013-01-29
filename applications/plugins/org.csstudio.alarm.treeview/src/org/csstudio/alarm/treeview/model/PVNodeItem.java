@@ -67,7 +67,7 @@ public class PVNodeItem implements IAlarmInitItem {
         // TODO (jpenning) Review access to alarm message properties
         final String name = alarmMessage.getString(AlarmMessageKey.NAME);
         if (name != null) {
-            final Alarm alarm = new Alarm(name, alarmMessage.getSeverity(), alarmMessage
+            final Alarm alarm = new Alarm(name, alarmMessage.getSeverity(), alarmMessage.getString(AlarmMessageKey.STATUS), alarmMessage
                     .getEventtimeOrCurrentTime());
             _pvNode.updateAlarm(alarm);
         } else {
@@ -84,6 +84,8 @@ public class PVNodeItem implements IAlarmInitItem {
     public void notFound(@Nonnull final String pvName) {
         final Alarm alarm = new Alarm(pvName,
                                       EpicsAlarmSeverity.UNKNOWN,
+                                      // TODO (gs,fz) error msg as status?
+                                      "",
                                       new Date(System.currentTimeMillis()));
         _pvNode.updateAlarm(alarm);
     }

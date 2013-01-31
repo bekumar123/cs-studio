@@ -665,13 +665,14 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 							// bytesSend == buffer.position(), so there is no need for flip()
 							if (buffer.position() < buffer.limit())
 							{
-								String s="";
+								String s= "";
 								for(int it=0;it<buffer.limit(); it++){
 									   byte b=buffer.get(it);
 									   if(b>30)
-										s+="  "+ (char)b;
-									   else 	s+="  "+ b;;
+										s+="  "+(int)(b & 0xFF);
+									   else 	s+="  "+(int)(b & 0xFF);
 									}
+							
 							
 								if (tries >= TRIES)
 								{
@@ -1003,9 +1004,9 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 				else
 				{
 					// transport is responsive
+					responsiveTransport();
 					probeTimeoutDetected = false;
 					probeResponsePending = false;
-					responsiveTransport();
 					rescheduleTimer(connectionTimeout);
 				}
 			}
@@ -1019,7 +1020,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 		synchronized(probeLock)
 		{
 			probeTimeoutDetected = false;
-			probeResponsePending = remoteTransportRevision >= 3;
+			probeResponsePending = remoteTransportRevision >= 6;
 			try
 			{
 				new EchoRequest(this).submit();
@@ -1039,19 +1040,11 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	{
 		if (unresponsiveTransport)
 		{
-		    unresponsiveTransport = false;
+		  
 			synchronized (owners)
 			{   
-				int number=0;
 				for(TransportClient t: owners.keySet()){
-					number++;
-					try {
-						if(number%100==99)
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						// noop
-					}
-					try
+				try
 					{
 						t.transportResponsive(this);
 					}
@@ -1062,6 +1055,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 						logger.log(Level.SEVERE, "", th);
 					}
 				}
+			  unresponsiveTransport = false;
 			 /*  TransportClient[] clients = new TransportClient[owners.size()];
 				owners.keySet().toArray(clients);
 				for (int i = 0; i < clients.length; i++)
@@ -1096,7 +1090,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	{
 		if (!unresponsiveTransport)
 		{
-		    unresponsiveTransport = true;
+		  
 
 		    ContextVirtualCircuitExceptionEvent cvcee =
 		    	new ContextVirtualCircuitExceptionEvent((Context)context, socketAddress.getAddress(), CAStatus.UNRESPTMO);
@@ -1116,15 +1110,9 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 		    
 			synchronized (owners)
 			{
-				int number=0;
+			
 				for(TransportClient t: owners.keySet()){
-					number++;
-					try {
-						if(number%100==99)
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						// noop
-					}
+					
 					try
 					{
 						t.transportUnresponsive();
@@ -1136,6 +1124,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 						logger.log(Level.SEVERE, "", th);
 					}
 				}
+				  unresponsiveTransport = true;
 			/*	TransportClient[] clients = new TransportClient[owners.size()];
 				owners.keySet().toArray(clients);
 			
@@ -1171,15 +1160,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	{
 		synchronized (owners)
 		{
-			int number=0;
 			for(TransportClient t: owners.keySet()){
-				number++;
-				try {
-					if(number%100==99)
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					// noop
-				}
 				try
 				{
 					t.transportChanged();

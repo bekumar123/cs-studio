@@ -1270,7 +1270,7 @@ public class CAJChannel extends Channel implements TransportClient {
 				catch (Throwable th)
 				{
 					// TODO remove
-					logger.log(Level.SEVERE, "", th);
+					logger.log(Level.SEVERE, this.getName()+ "   " +getHostName() , th);
 				}
 			}
 		}

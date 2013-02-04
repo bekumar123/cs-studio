@@ -18,7 +18,6 @@
  */
 package org.csstudio.alarm.treeview.views;
 
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,14 +25,16 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.csstudio.alarm.treeview.AlarmTreePlugin;
+import org.csstudio.alarm.treeview.model.IAlarmProcessVariableNode;
 import org.csstudio.alarm.treeview.model.IAlarmTreeNode;
 import org.csstudio.alarm.treeview.model.TreeNodeSource;
 import org.csstudio.alarm.treeview.preferences.AlarmTreePreference;
-import org.csstudio.alarm.treeview.AlarmTreePlugin;
 import org.csstudio.domain.desy.epics.alarm.EpicsAlarmSeverity;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.progress.PendingUpdateAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,107 +44,121 @@ import org.slf4j.LoggerFactory;
  */
 public class AlarmTreeLabelProvider extends LabelProvider {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AlarmTreeLabelProvider.class);
+	private static final Logger LOG = LoggerFactory
+			.getLogger(AlarmTreeLabelProvider.class);
 
-    /**
-     * Cache for Image objects.
-     */
-    private final Map<String, Image> _imageCache;
+	/**
+	 * Cache for Image objects.
+	 */
+	private final Map<String, Image> _imageCache;
 
-    /**
-     * Creates a new alarm tree label provider.
-     */
-    public AlarmTreeLabelProvider() {
-        _imageCache = new HashMap<String, Image>();
-    }
+	private int imagePixelHeight;
 
-    /**
-     * Returns the element's name.
-     *
-     * @param element
-     *            the element.
-     * @return the element's name, or an empty string if the element doesn't have a name.
-     */
-    @Override
-    @Nonnull
-    public final String getText(@Nullable final Object element) {
-        if (element instanceof IAlarmTreeNode) {
-            return getName((IAlarmTreeNode) element);
-        }
-        if (element instanceof PendingUpdateAdapter) {
-            return ((PendingUpdateAdapter) element).getLabel(element);
-        }
-        return "";
-    }
+	/**
+	 * Creates a new alarm tree label provider.
+	 */
+	public AlarmTreeLabelProvider() {
+		_imageCache = new HashMap<String, Image>();
+	}
 
-    @Nonnull
-    private String getName(@Nonnull final IAlarmTreeNode node) {
-        String result = node.getName();
-        if (isDirectChildOfRoot(node) && (node.getSource() == TreeNodeSource.XML)) {
-            result = result + " [XML]";
-        }
-        return result;
-    }
+	/**
+	 * Returns the element's name.
+	 * 
+	 * @param element
+	 *            the element.
+	 * @return the element's name, or an empty string if the element doesn't
+	 *         have a name.
+	 */
+	@Override
+	@Nonnull
+	public final String getText(@Nullable final Object element) {
+		if (element instanceof IAlarmTreeNode) {
+			return getName((IAlarmTreeNode) element);
+		}
+		if (element instanceof PendingUpdateAdapter) {
+			return ((PendingUpdateAdapter) element).getLabel(element);
+		}
+		return "";
+	}
 
-    private boolean isDirectChildOfRoot(@Nonnull final IAlarmTreeNode node) {
-        IAlarmTreeNode parent = node.getParent();
-        return (parent != null) && (parent.getSource() == TreeNodeSource.ROOT);
-    }
+	@SuppressWarnings("deprecation")
+	@Nonnull
+	private String getName(@Nonnull final IAlarmTreeNode node) {
+		String result = node.getName();
+		if (isDirectChildOfRoot(node)
+				&& (node.getSource() == TreeNodeSource.XML)) {
+			result = result + " [XML]";
+		}
+		if (node instanceof IAlarmProcessVariableNode) {
+			String status = ((IAlarmProcessVariableNode) node).getAlarm().getStatus();
+			if (!status.isEmpty()) {
+				result += " (" + status + ")";
+			}
+		}
+		return result;
+	}
 
-    /**
-     * Returns the character that represents the given alarm severity in the icon's filename.
-     *
-     * @param alarmSeverity
-     *            the severity.
-     * @return the character that represents the given severity.
-     */
-    @Nonnull
-    private String getIconName(@Nonnull final EpicsAlarmSeverity alarmSeverity) {
-        switch (alarmSeverity) {
-            case UNKNOWN:
-                return "grey";
-            case NO_ALARM:
-                return "green";
-            case INVALID:
-                return "blue";
-            case MINOR:
-                return "yellow";
-            case MAJOR:
-                return "red";
-            default:
-                throw new IllegalStateException("Alarm severity of unhandled type.");
-        }
-    }
+	private boolean isDirectChildOfRoot(@Nonnull final IAlarmTreeNode node) {
+		IAlarmTreeNode parent = node.getParent();
+		return (parent != null) && (parent.getSource() == TreeNodeSource.ROOT);
+	}
 
-    /**
-     * Returns the names of the two icons that should be displayed for the given severities.
-     * package-scoped for testing.
-     *
-     * @param activeAlarmSeverity
-     *            the severity of the currently active alarm.
-     * @param unacknowledgedAlarmSeverity
-     *            the severity of the highest unacknowledged alarm.
-     * @return the names of the icons.
-     */
-    @Nonnull
-    String[] getIconNames(@Nonnull final EpicsAlarmSeverity activeAlarmSeverity,
-                                  @Nonnull final EpicsAlarmSeverity unacknowledgedAlarmSeverity) {
+	/**
+	 * Returns the character that represents the given alarm severity in the
+	 * icon's filename.
+	 * 
+	 * @param alarmSeverity
+	 *            the severity.
+	 * @return the character that represents the given severity.
+	 */
+	@Nonnull
+	private String getIconName(@Nonnull final EpicsAlarmSeverity alarmSeverity) {
+		switch (alarmSeverity) {
+		case UNKNOWN:
+			return "grey";
+		case NO_ALARM:
+			return "green";
+		case INVALID:
+			return "blue";
+		case MINOR:
+			return "yellow";
+		case MAJOR:
+			return "red";
+		default:
+			throw new IllegalStateException("Alarm severity of unhandled type.");
+		}
+	}
 
-        final String iconName = getIconName(activeAlarmSeverity);
+	/**
+	 * Returns the names of the two icons that should be displayed for the given
+	 * severities. package-scoped for testing.
+	 * 
+	 * @param activeAlarmSeverity
+	 *            the severity of the currently active alarm.
+	 * @param unacknowledgedAlarmSeverity
+	 *            the severity of the highest unacknowledged alarm.
+	 * @return the names of the icons.
+	 */
+	@Nonnull
+	String[] getIconNames(
+			@Nonnull final EpicsAlarmSeverity activeAlarmSeverity,
+			@Nonnull final EpicsAlarmSeverity unacknowledgedAlarmSeverity) {
 
-        if (activeAlarmSeverity == unacknowledgedAlarmSeverity) {
-            // If the active and unack severity are the same, only the active
-            // alarm is displayed.
-            return new String[] {iconName};
-        } else if (activeAlarmSeverity != EpicsAlarmSeverity.NO_ALARM &&
-                   hasUnackSeverityToDisplay(unacknowledgedAlarmSeverity)) {
-            // There is an active alarm which is acknowledged.
-            return new String[] {iconName, "checked"};
-        } else {
-            final String iconName2 = getIconName(unacknowledgedAlarmSeverity);
-            return new String[] {iconName2, iconName};
-        }
-    }
+		final String iconName = getIconName(activeAlarmSeverity);
+
+		if (activeAlarmSeverity == unacknowledgedAlarmSeverity) {
+			// If the active and unack severity are the same, only the active
+			// alarm is displayed.
+			return new String[] { iconName };
+		} else if (activeAlarmSeverity != EpicsAlarmSeverity.NO_ALARM
+				&& hasUnackSeverityToDisplay(unacknowledgedAlarmSeverity)) {
+			// There is an active alarm which is acknowledged.
+			return new String[] { iconName, "checked" };
+		} else {
+			final String iconName2 = getIconName(unacknowledgedAlarmSeverity);
+			return new String[] { iconName2, iconName };
+		}
+	}
 
 	private boolean hasUnackSeverityToDisplay(
 			final EpicsAlarmSeverity unacknowledgedAlarmSeverity) {
@@ -151,71 +166,72 @@ public class AlarmTreeLabelProvider extends LabelProvider {
 				|| (unacknowledgedAlarmSeverity == EpicsAlarmSeverity.NO_ALARM);
 	}
 
-    /**
-     * Returns the icon for the given element.
-     *
-     * @param element
-     *            the element.
-     * @return the icon for the element, or {@code null} if there is no icon for the element.
-     */
-    @Override
-    @CheckForNull
-    public final Image getImage(@Nullable final Object element) {
-        if (element instanceof IAlarmTreeNode) {
-            return getAlarmImageFor((IAlarmTreeNode) element);
-        }
-        return null;
-    }
+	/**
+	 * Returns the icon for the given element.
+	 * 
+	 * @param element
+	 *            the element.
+	 * @return the icon for the element, or {@code null} if there is no icon for
+	 *         the element.
+	 */
+	@Override
+	@CheckForNull
+	public final Image getImage(@Nullable final Object element) {
+		if (element instanceof IAlarmTreeNode) {
+			return getAlarmImageFor((IAlarmTreeNode) element);
+		}
+		return null;
+	}
 
-    /**
-     * Returns the image for the given node if that node is in an alarm state.
-     *
-     * @param node
-     *            the node.
-     * @return the image.
-     */
-    @Nonnull
-    private Image getAlarmImageFor(@Nonnull final IAlarmTreeNode node) {
-        final EpicsAlarmSeverity activeAlarmSeverity = node.getAlarmSeverity();
-        final EpicsAlarmSeverity unacknowledgedAlarmSeverity = node.getUnacknowledgedAlarmSeverity();
-        final String[] iconNames = getIconNames(activeAlarmSeverity, unacknowledgedAlarmSeverity);
-        return createImage(iconNames);
-    }
+	/**
+	 * Returns the image for the given node if that node is in an alarm state.
+	 * 
+	 * @param node
+	 *            the node.
+	 * @return the image.
+	 */
+	@Nonnull
+	private Image getAlarmImageFor(@Nonnull final IAlarmTreeNode node) {
+		final EpicsAlarmSeverity activeAlarmSeverity = node.getAlarmSeverity();
+		final EpicsAlarmSeverity unacknowledgedAlarmSeverity = node
+				.getUnacknowledgedAlarmSeverity();
+		final String[] iconNames = getIconNames(activeAlarmSeverity,
+				unacknowledgedAlarmSeverity);
+		return createImage(iconNames);
+	}
 
-    /**
-     * Loads an image. The image is added to a cache kept by this provider and is disposed of when
-     * this provider is disposed of.
-     *
-     * @param name
-     *            the image file name.
-     * @return the image.
-     */
-    @CheckForNull
-    private Image loadImage(@Nonnull final String name) {
-        if (_imageCache.containsKey(name)) {
-            return _imageCache.get(name);
-        }
-        try {
-            final Image image = AlarmTreePlugin.getImageDescriptor(name).createImage();
-            _imageCache.put(name, image);
-            return image;
-        } catch (final NullPointerException e) {
-            LOG.error("Error while loading image " + name, e);
-        }
-        return null;
-    }
+	/**
+	 * Loads an image. The image is added to a cache kept by this provider and
+	 * is disposed of when this provider is disposed of.
+	 * 
+	 * @param name
+	 *            the image file name.
+	 * @return the image.
+	 */
+	@CheckForNull
+	private Image loadImage(@Nonnull final String name) {
+		if (_imageCache.containsKey(name)) {
+			return _imageCache.get(name);
+		}
+		try {
+			return AlarmTreePlugin.getImageDescriptor(name).createImage();
+		} catch (final NullPointerException e) {
+			LOG.error("Error while loading image " + name, e);
+		}
+		return null;
+	}
 
-    /**
-     * Create an image. The image is added to a cache kept by this provider and is disposed of when
-     * this provider is disposed of.
-     *
-     * @param name
-     *            the image name.
-     * @param rightImage
-     * @param leftImage
-     * @return the image.
-     */
-    @Nonnull
+	/**
+	 * Create an image. The image is added to a cache kept by this provider and
+	 * is disposed of when this provider is disposed of.
+	 * 
+	 * @param name
+	 *            the image name.
+	 * @param rightImage
+	 * @param leftImage
+	 * @return the image.
+	 */
+	@Nonnull
     private Image createImage(@Nonnull final String[] names) {
         final StringBuilder builder = new StringBuilder();
         for (final String string : names) {
@@ -227,46 +243,68 @@ public class AlarmTreeLabelProvider extends LabelProvider {
             return _imageCache.get(name);
         }
 
-        Image leftImage;
-        Image rightImage;
-        int width;
-        Image dualImage;
+        int width = imagePixelHeight / 3 + 2 + imagePixelHeight;
+        Image scaledImage = new Image(Display.getDefault(), width, imagePixelHeight);
+        final GC gc = new GC(scaledImage);
 
-        if (names.length == 2) {
-            leftImage = loadImage(AlarmTreePreference.RES_ICON_PATH.getValue() + "/" + names[0] + ".gif");
-            rightImage = loadImage(AlarmTreePreference.RES_ICON_PATH.getValue() + "/" + names[1] + ".gif");
-            width = leftImage.getBounds().width / 3 + 2 + rightImage.getBounds().width;
-            dualImage = new Image(leftImage.getDevice(), width, leftImage.getBounds().height);
-            final GC gc = new GC(dualImage);
-            if (names[1].equals("checked")) {
-                gc.drawImage(leftImage, leftImage.getBounds().width / 3 + 2, 0);
-                gc.drawImage(rightImage, 2, 0);
-            } else {
-                gc.drawImage(leftImage, 0, 0);
-                gc.drawImage(rightImage, leftImage.getBounds().width / 3 + 2, 0);
-            }
-            gc.dispose();
-        } else {
-            leftImage = loadImage(AlarmTreePreference.RES_ICON_PATH.getValue() + "/" + names[0] + ".gif");
-            width = leftImage.getBounds().width / 3 + 2 + leftImage.getBounds().width;
-            dualImage = new Image(leftImage.getDevice(), width, leftImage.getBounds().height);
-            final GC gc = new GC(dualImage);
-            gc.drawImage(leftImage, leftImage.getBounds().width / 3 + 2, 0);
-            gc.dispose();
-
+        try {
+			if (names.length == 2) {
+				Image leftImage = loadImage(AlarmTreePreference.RES_ICON_PATH
+						.getValue() + "/" + names[0] + ".png");
+				Image rightImage = loadImage(AlarmTreePreference.RES_ICON_PATH
+						.getValue() + "/" + names[1] + ".png");
+				if (names[1].equals("checked")) {
+					gc.drawImage(leftImage, 0, 0, leftImage.getBounds().width,
+							leftImage.getBounds().height,
+							imagePixelHeight / 3 + 2, 0, imagePixelHeight,
+							imagePixelHeight);
+					gc.drawImage(rightImage, 0, 0,
+							rightImage.getBounds().width,
+							rightImage.getBounds().height,
+							imagePixelHeight / 4, 0, imagePixelHeight,
+							imagePixelHeight);
+				} else {
+					gc.drawImage(leftImage, 0, 0, leftImage.getBounds().width,
+							leftImage.getBounds().height, 0, 0,
+							imagePixelHeight, imagePixelHeight);
+					gc.drawImage(rightImage, 0, 0,
+							rightImage.getBounds().width,
+							rightImage.getBounds().height,
+							imagePixelHeight / 3 + 2, 0, imagePixelHeight,
+							imagePixelHeight);
+				}
+				leftImage.dispose();
+				rightImage.dispose();
+			} else {
+				Image image = loadImage(AlarmTreePreference.RES_ICON_PATH
+						.getValue() + "/" + names[0] + ".png");
+				gc.drawImage(image, 0, 0, image.getBounds().width,
+						image.getBounds().height, imagePixelHeight / 3 + 2, 0,
+						imagePixelHeight, imagePixelHeight);
+				image.dispose();
+			}
+			_imageCache.put(name, scaledImage);
+        } finally {
+        	gc.dispose();
         }
-        _imageCache.put(name, dualImage);
-        return dualImage;
+        return scaledImage;
     }
 
-    /**
-     * Disposes of the images created by this label provider.
-     */
-    @Override
-    public final void dispose() {
-        for (final Image image : _imageCache.values()) {
-            image.dispose();
-        }
-        super.dispose();
-    }
+	/**
+	 * Disposes of the images created by this label provider.
+	 */
+	@Override
+	public final void dispose() {
+		for (final Image image : _imageCache.values()) {
+			image.dispose();
+		}
+		super.dispose();
+	}
+
+	public void setImagePixelHeight(int imageHeight) {
+		if (imageHeight != this.imagePixelHeight) {
+			_imageCache.clear();
+		}
+		this.imagePixelHeight = imageHeight;
+	}
 }

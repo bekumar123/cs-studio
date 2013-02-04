@@ -205,9 +205,10 @@ public class AlarmMessageListener implements IAlarmListener {
 
             final EpicsAlarmSeverity severity = message.getSeverity();
             final Date eventtime = message.getEventtimeOrCurrentTime();
+            final String status = message.getString(AlarmMessageKey.STATUS);
 //            LOG.debug("received alarm: name=" + name + ", severity=" + severity + ", eventtime="
 //                    + eventtime);
-            _queueWorker.enqueue(AbstractPendingUpdate.createAlarmUpdate(name, severity, eventtime, _treeRoot));
+            _queueWorker.enqueue(AbstractPendingUpdate.createAlarmUpdate(name, severity, status, eventtime, _treeRoot));
         }
     }
 

@@ -58,7 +58,7 @@ public final class AcknowledgeSecureAction extends AbstractUserDependentAction {
      * @param viewer
      */
     AcknowledgeSecureAction(@Nonnull final TreeViewer viewer) {
-        super(RIGHT_ID);
+        super(RIGHT_ID, false);
         _viewer = viewer;
     }
 

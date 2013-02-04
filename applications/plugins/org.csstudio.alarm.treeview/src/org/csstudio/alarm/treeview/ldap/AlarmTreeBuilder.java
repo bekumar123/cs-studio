@@ -126,7 +126,7 @@ public final class AlarmTreeBuilder {
         if (RECORD.equals(modelNode.getType())) {
             guardForNameClash(parentNode, simpleName);
             newNode = new ProcessVariableNode.Builder(simpleName, source).setParent(parentNode).setListener(pvNodeListener).build();
-            ((IAlarmProcessVariableNode) newNode).updateAlarm(new Alarm(simpleName, EpicsAlarmSeverity.UNKNOWN, new Date(0L)));
+            ((IAlarmProcessVariableNode) newNode).updateAlarm(new Alarm(simpleName, EpicsAlarmSeverity.UNKNOWN, "", new Date(0L)));
         } else {
             newNode = parentNode.getChild(simpleName);
             if (newNode == null) { // do not create a new subtree node if it already exists

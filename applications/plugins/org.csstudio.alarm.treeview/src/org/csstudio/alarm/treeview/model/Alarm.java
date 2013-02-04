@@ -55,19 +55,27 @@ public final class Alarm {
 	 */
 	private final Date _eventtime;
 
+	/**
+	 * The status of this alarm.
+	 */
+	private final String _status;
+
 
 	/**
 	 * Creates a new alarm.
 	 *
 	 * @param objectName the name of the object on which this alarm occured.
 	 * @param severity the severity of the alarm.
+	 * @param status the status of the alarm.
 	 * @param eventtime the time at which the alarm event occured.
 	 */
 	public Alarm(@Nonnull final String objectName,
 	             @Nonnull final EpicsAlarmSeverity severity,
+	             @Nonnull final String status, 
 	             @Nonnull final Date eventtime) {
 		_objectName = objectName;
 		_severity = severity;
+		_status = status;
 		_eventtime = (Date) eventtime.clone();
 	}
 
@@ -79,6 +87,11 @@ public final class Alarm {
 	@Nonnull
 	public EpicsAlarmSeverity getSeverity() {
 		return _severity;
+	}
+	
+	@Nonnull
+	public String getStatus() {
+		return _status;
 	}
 
 

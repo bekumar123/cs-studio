@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2012 Stiftung Deutsches Elektronen-Synchrotron,
+ * Copyright (c) 2013 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -21,54 +21,30 @@
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
  */
 
-package org.csstudio.application.xmlrpc.server;
+package org.csstudio.application.xmlrpc.server.command;
 
-import java.util.Collection;
+import java.util.Hashtable;
+import org.csstudio.application.xmlrpc.server.ServerCommandException;
 
 /**
  * @author mmoeller
- * @since 27.12.2012
+ * @since 08.01.2013
  */
-public interface IArchiveService {
+public class ArchivesCommand extends AbstractServerCommand {
+    
+    public ArchivesCommand(String name) {
+        super(name);
+    }
     
     /**
-     * Returns information about the server.
-     * 
-     * @return Collection containing the result
+     * {@inheritDoc}
      */
-    Collection<Object> info();
-    
-    /**
-     * 
-     * @param key - Just for compatibility, the value will be ignored.
-     * @param pattern - String containing the pattern of the channel name(s).
-     * 
-     * @return
-     */
-    Collection<Object> names(Integer key, Object pattern);
-    
-    /**
-     * Returns the provided archives. Just for compatibility. This method returns always the
-     * same data because the MySQL archiv only provides one archive.
-     * 
-     * @return
-     */
-    Collection<Object> archives();
-    
-    /**
-     * Returns the values of the channels for the given time interval.
-     * 
-     * @param key
-     * @param name
-     * @param startSec
-     * @param startNano
-     * @param endSec
-     * @param endNano
-     * @param count
-     * @param how
-     * 
-     * @return
-     */
-    Collection<Object> values(Integer key, Object[] name, Integer startSec, Integer startNano,
-                              Integer endSec, Integer endNano, Integer count, Integer how);
+    @Override
+    public MapResult executeCommand(ServerCommandParams params) throws ServerCommandException {
+        Hashtable<String, Object> archive = new Hashtable<String, Object>();
+        archive.put("key", new Integer(1));
+        archive.put("name", "MySQL Archive");
+        archive.put("path", "krynfs.desy.de");
+        return new MapResult(archive);
+    }
 }

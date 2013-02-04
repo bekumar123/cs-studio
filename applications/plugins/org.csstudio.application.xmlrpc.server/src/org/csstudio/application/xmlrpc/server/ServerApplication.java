@@ -71,6 +71,8 @@ public class ServerApplication implements IApplication,
 	@Override
     public Object start(IApplicationContext context) throws Exception {
 		
+	    // -agentpath:"C:\Program Files (x86)\YourKit Java Profiler 11.0.9\bin\win32\yjpagent.dll"
+	    
         final IPreferencesService prefs = Platform.getPreferencesService();
         final String xmppUser = prefs.getString(ServerActivator.PLUGIN_ID,
                 PreferenceConstants.XMPP_USER_NAME, "anonymous", null);

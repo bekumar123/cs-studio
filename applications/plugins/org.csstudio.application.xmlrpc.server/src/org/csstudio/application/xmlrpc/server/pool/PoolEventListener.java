@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2012 Stiftung Deutsches Elektronen-Synchrotron,
+ * Copyright (c) 2013 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -21,41 +21,14 @@
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
  */
 
-package org.csstudio.application.xmlrpc.server.command;
+package org.csstudio.application.xmlrpc.server.pool;
 
-import java.util.Hashtable;
-import java.util.Map;
+import java.util.EventListener;
 
 /**
  * @author mmoeller
- * @since 21.12.2012
+ * @since 07.01.2013
  */
-public class MapResult implements IServerCommandResult<Map<String, Object>> {
-
-    private Map<String, Object> content;
-    
-    public MapResult() {
-        content = new Hashtable<String, Object>();
-    }
-    
-    public MapResult(Map<String, Object> o) {
-        this();
-        content.putAll(o);
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setCommandResult(Map<String, Object> o) {
-        content = o;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Map<String, Object> getCommandResult() {
-        return content;
-    }
+public interface PoolEventListener extends EventListener {
+    void objectReleased(PoolEventObject o);
 }

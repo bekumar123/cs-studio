@@ -55,7 +55,6 @@ public class NamesCommand extends AbstractServerCommand {
      */
     @Override
     public StringCollectionResult executeCommand(ServerCommandParams params) throws ServerCommandException {
-        Collection<String> channels = null;
         String pattern = null;
         if (params.containsParameter("pattern")) {
             pattern = (String) params.getParameter("pattern");
@@ -63,6 +62,7 @@ public class NamesCommand extends AbstractServerCommand {
             // Get all channel names
             pattern = ".";
         }
+        Collection<String> channels = null;
         try {
             channels = archiveReader.getChannelsByNamePattern(Pattern.compile(pattern));
         } catch (ArchiveServiceException e) {

@@ -61,14 +61,16 @@ public class MySqlXmlRpcServer extends Thread {
         
         LOG.info("{} is running.", this.getName());
         
+        ArchiverRequestProcessorFactoryFactory arpff =
+                new ArchiverRequestProcessorFactoryFactory(archiveReader);
         WebServer webServer = new WebServer(serverPort);
         XmlRpcServer rpcServer = webServer.getXmlRpcServer();
-
-        PropertyHandlerMapping phm = new PropertyHandlerMapping();
-        ArchiveReaderService service = new ArchiveReaderService(archiveReader);
+        rpcServer.setWorkerFactory(new XmlRpcMySqlWorkerFactory(rpcServer));
         
         try {
-            phm.setRequestProcessorFactoryFactory(new ArchiverRequestProcessorFactoryFactory(service));
+            PropertyHandlerMapping phm = new PropertyHandlerMapping();
+
+            phm.setRequestProcessorFactoryFactory(arpff);
             phm.setVoidMethodEnabled(true);
             phm.addHandler("archiver", IArchiveService.class);
             rpcServer.setHandlerMapping(phm);
@@ -77,7 +79,7 @@ public class MySqlXmlRpcServer extends Thread {
             serverConfig.setEnabledForExtensions(true);
             serverConfig.setContentLengthOptional(false);
         } catch (XmlRpcException e) {
-            e.printStackTrace();
+            LOG.error("[*** XmlRpcException ***]: {}", e);
         }
 
         LOG.info("Start Server on port {}.", serverPort);

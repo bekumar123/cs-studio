@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2012 Stiftung Deutsches Elektronen-Synchrotron,
+ * Copyright (c) 2013 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -23,52 +23,42 @@
 
 package org.csstudio.application.xmlrpc.server;
 
-import java.util.Collection;
+import org.apache.xmlrpc.XmlRpcException;
+import org.apache.xmlrpc.XmlRpcHandler;
+import org.apache.xmlrpc.XmlRpcRequest;
+import org.apache.xmlrpc.common.XmlRpcController;
+import org.apache.xmlrpc.common.XmlRpcWorker;
+import org.apache.xmlrpc.server.XmlRpcHandlerMapping;
+import org.apache.xmlrpc.server.XmlRpcServer;
 
 /**
  * @author mmoeller
- * @since 27.12.2012
+ * @since 04.01.2013
  */
-public interface IArchiveService {
+public class XmlRpcMySqlWorker implements XmlRpcWorker {
+    
+    private final XmlRpcMySqlWorkerFactory factory;
+    
+    public XmlRpcMySqlWorker(XmlRpcMySqlWorkerFactory pFactory) {
+        factory = pFactory;
+    }
     
     /**
-     * Returns information about the server.
-     * 
-     * @return Collection containing the result
+     * {@inheritDoc}
      */
-    Collection<Object> info();
+    @Override
+    public XmlRpcController getController() {
+        return factory.getController();
+    }
     
     /**
-     * 
-     * @param key - Just for compatibility, the value will be ignored.
-     * @param pattern - String containing the pattern of the channel name(s).
-     * 
-     * @return
+     * {@inheritDoc}
      */
-    Collection<Object> names(Integer key, Object pattern);
-    
-    /**
-     * Returns the provided archives. Just for compatibility. This method returns always the
-     * same data because the MySQL archiv only provides one archive.
-     * 
-     * @return
-     */
-    Collection<Object> archives();
-    
-    /**
-     * Returns the values of the channels for the given time interval.
-     * 
-     * @param key
-     * @param name
-     * @param startSec
-     * @param startNano
-     * @param endSec
-     * @param endNano
-     * @param count
-     * @param how
-     * 
-     * @return
-     */
-    Collection<Object> values(Integer key, Object[] name, Integer startSec, Integer startNano,
-                              Integer endSec, Integer endNano, Integer count, Integer how);
+    @Override
+    public Object execute(XmlRpcRequest pRequest) throws XmlRpcException {
+        XmlRpcServer server = (XmlRpcServer) getController();
+        XmlRpcHandlerMapping mapping = server.getHandlerMapping();
+        XmlRpcHandler handler = mapping.getHandler(pRequest.getMethodName());
+        return handler.execute(pRequest);
+    }
 }

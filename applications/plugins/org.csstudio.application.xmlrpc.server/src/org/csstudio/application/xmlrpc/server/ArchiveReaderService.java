@@ -24,11 +24,9 @@
 package org.csstudio.application.xmlrpc.server;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Map;
 import java.util.Vector;
-import org.csstudio.application.xmlrpc.server.command.AbstractServerCommand;
+import org.csstudio.application.xmlrpc.server.command.ArchivesCommand;
 import org.csstudio.application.xmlrpc.server.command.InfoCommand;
 import org.csstudio.application.xmlrpc.server.command.MapResult;
 import org.csstudio.application.xmlrpc.server.command.NamesCommand;
@@ -36,6 +34,7 @@ import org.csstudio.application.xmlrpc.server.command.ServerCommandParams;
 import org.csstudio.application.xmlrpc.server.command.StringCollectionResult;
 import org.csstudio.application.xmlrpc.server.command.ValuesCommand;
 import org.csstudio.archive.common.service.IArchiveReaderFacade;
+import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,21 +46,19 @@ public class ArchiveReaderService implements IArchiveService {
  
     private static final Logger LOG = LoggerFactory.getLogger(ArchiveReaderService.class);
 
-    private HashMap<String, AbstractServerCommand> commands;
-    
     private IArchiveReaderFacade archiveReader;
     
     public ArchiveReaderService(IArchiveReaderFacade reader) {
         archiveReader = reader;
-        commands = new HashMap<String, AbstractServerCommand>();
-        commands.put("info", new InfoCommand("info", archiveReader));
-        commands.put("names", new NamesCommand("names", archiveReader));
-        commands.put("values", new ValuesCommand("values", archiveReader));
     }
     
+    /**
+     * 
+     * {@inheritDoc}
+     */
     @Override
-    public Map<String, Object> info() {
-        InfoCommand command = (InfoCommand) commands.get("info");
+    public Collection<Object> info() {
+        InfoCommand command = new InfoCommand("info", archiveReader);
         MapResult commandResult = null;
         try {
             commandResult = command.executeCommand(null);
@@ -69,40 +66,70 @@ public class ArchiveReaderService implements IArchiveService {
             LOG.error("[*** ServerCommandException ***]: {}", e.getMessage());
             commandResult = new MapResult();
         }
-        Hashtable<String, Object> result = new Hashtable<String, Object>();
-        result.putAll(commandResult.getCommandResult());
+        Hashtable<String, Object> resultValue = new Hashtable<String, Object>();
+        resultValue.putAll(commandResult.getCommandResult());
+        Vector<Object> result = new Vector<Object>();
+        result.add(0, resultValue);
         return result;
     }
 
     @Override
-    public Collection<Object> names(Object pattern) {
-        NamesCommand command = (NamesCommand) commands.get("names");
-        StringCollectionResult result = null;
+    public Collection<Object> archives() {
+        ArchivesCommand command = new ArchivesCommand("archives");
+        MapResult commandResult = null;
         try {
-            ServerCommandParams params = new ServerCommandParams();
-            params.addParameter("pattern", pattern);
-            result = command.executeCommand(params);
+            commandResult = command.executeCommand(null);
         } catch (ServerCommandException e) {
             LOG.error("[*** ServerCommandException ***]: {}", e.getMessage());
-            result = new StringCollectionResult();
+            commandResult = new MapResult();
         }
-        return new Vector<Object>(result.getCommandResult());
-    }
-    
-    @Override
-    public Collection<Object> archives() {
         Vector<Object> result = new Vector<Object>();
-        Hashtable<String, Object> archive = new Hashtable<String, Object>();
-        archive.put("name", "MySQL Archive");
-        archive.put("host", "krynfsa.desy.de");
-        result.add(0, archive);
+        result.add(0, commandResult.getCommandResult());
         return result;
     }
     
     @Override
-    public Collection<Object> values(Object[] name, Integer startSec, Integer startNano,
-                                     Integer endSec, Integer endNano, Integer count, Integer how) {
+    public Collection<Object> names(Integer key, Object pattern) {
+        NamesCommand command = new NamesCommand("names", archiveReader);
+        StringCollectionResult commandResult = null;
+        try {
+            ServerCommandParams params = new ServerCommandParams();
+            params.addParameter("pattern", pattern);
+            commandResult = command.executeCommand(params);
+        } catch (ServerCommandException e) {
+            LOG.error("[*** ServerCommandException ***]: {}", e.getMessage());
+            commandResult = new StringCollectionResult();
+        }
         Vector<Object> result = new Vector<Object>();
+        result.add(0, commandResult.getCommandResult());
+        return result;
+    }
+    
+    @Override
+    public Collection<Object> values(Integer key, Object[] name, Integer startSec, Integer startNano,
+                                     Integer endSec, Integer endNano, Integer count, Integer how) {
+        ValuesCommand command = new ValuesCommand("values", archiveReader);
+        MapResult commandResult = null;
+        try {
+            ServerCommandParams params = new ServerCommandParams();
+            String[] names = new String[name.length];
+            for (int i = 0;i < name.length;i++) {
+                if (name[i].getClass().getSimpleName().equalsIgnoreCase("String")) {
+                    names[i] = new String((String) name[i]);
+                }
+            }
+            params.addParameter("name", names);
+            params.addParameter("start", TimeInstantBuilder.fromMillis((startSec * 1000L) + startNano));
+            params.addParameter("end", TimeInstantBuilder.fromMillis((endSec * 1000L) + endNano));
+            params.addParameter("count", count);
+            params.addParameter("how", how);
+            commandResult = command.executeCommand(params);
+        } catch (ServerCommandException e) {
+            LOG.error("[*** ServerCommandException ***]: {}", e.getMessage());
+            commandResult = new MapResult();
+        }
+        Vector<Object> result = new Vector<Object>();
+        result.add(0, commandResult.getCommandResult());
         return result;
     }
 }

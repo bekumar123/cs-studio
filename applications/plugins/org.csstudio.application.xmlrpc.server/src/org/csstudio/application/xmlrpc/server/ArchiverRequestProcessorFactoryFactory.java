@@ -26,6 +26,7 @@ package org.csstudio.application.xmlrpc.server;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.XmlRpcRequest;
 import org.apache.xmlrpc.server.RequestProcessorFactoryFactory;
+import org.csstudio.archive.common.service.IArchiveReaderFacade;
 
 /**
  * This class is responsible for creating the MySqlArchiveReader object. We need to
@@ -35,14 +36,14 @@ import org.apache.xmlrpc.server.RequestProcessorFactoryFactory;
  * @author mmoeller
  * @since 27.12.2012
  */
-public class ArchiverRequestProcessorFactoryFactory implements RequestProcessorFactoryFactory  {
+public class ArchiverRequestProcessorFactoryFactory implements RequestProcessorFactoryFactory {
     
     private final RequestProcessorFactory factory = new ArchiverRequestProcessorFactory();
     
-    private final ArchiveReaderService archiveService;
+    private IArchiveReaderFacade readerFacade;
     
-    public ArchiverRequestProcessorFactoryFactory(ArchiveReaderService service) {
-        archiveService = service;
+    public ArchiverRequestProcessorFactoryFactory(IArchiveReaderFacade facade) {
+        readerFacade = facade;
     }
     
     /**
@@ -55,7 +56,8 @@ public class ArchiverRequestProcessorFactoryFactory implements RequestProcessorF
     }
 
     protected ArchiveReaderService getArchiveReaderService() {
-        return archiveService;
+        // TODO: Implentation of an object pool to avoid new instantiation for every request.
+        return new ArchiveReaderService(readerFacade);
     }
     
     private class ArchiverRequestProcessorFactory implements RequestProcessorFactory {

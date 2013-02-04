@@ -21,6 +21,7 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
+ lib/commons-pool-1.6.jar,
  lib/commons-logging-1.1.1.jar,
  lib/ws-commons-util-1.0.2.jar,
  lib/xmlrpc-3.1.jar

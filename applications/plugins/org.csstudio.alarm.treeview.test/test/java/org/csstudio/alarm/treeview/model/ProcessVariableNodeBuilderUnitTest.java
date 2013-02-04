@@ -44,7 +44,7 @@ public class ProcessVariableNodeBuilderUnitTest {
     
     @Test
     public void testBuilder() {
-        Alarm alarm = new Alarm("alarm", EpicsAlarmSeverity.NO_ALARM, Date.valueOf("2011-02-01"));
+        Alarm alarm = new Alarm("alarm", EpicsAlarmSeverity.NO_ALARM, "status", Date.valueOf("2011-02-01"));
         ProcessVariableNode.Builder builder = new ProcessVariableNode.Builder("node0",
                                                                               TreeNodeSource.LDAP)
                 .setHighestUnacknowledgedAlarm(alarm);

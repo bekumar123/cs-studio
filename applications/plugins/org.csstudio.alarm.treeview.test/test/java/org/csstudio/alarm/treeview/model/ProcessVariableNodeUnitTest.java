@@ -78,47 +78,47 @@ public class ProcessVariableNodeUnitTest {
     
     @Test
     public void testAlarmIncreasesSeverityAndUnacknowledgedSeverity() throws Exception {
-        _node.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, date1));
+        _node.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, "status", date1));
         assertEquals(EpicsAlarmSeverity.MINOR, _node.getAlarmSeverity());
         assertEquals(EpicsAlarmSeverity.MINOR, _node.getUnacknowledgedAlarmSeverity());
     }
     
     @Test
     public void testMajorAlarmIncreasesSeverityAfterMinorAlarm() throws Exception {
-        _node.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, date1));
-        _node.updateAlarm(new Alarm("", EpicsAlarmSeverity.MAJOR, date2));
+        _node.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, "status", date1));
+        _node.updateAlarm(new Alarm("", EpicsAlarmSeverity.MAJOR, "status", date2));
         assertEquals(EpicsAlarmSeverity.MAJOR, _node.getAlarmSeverity());
         assertEquals(EpicsAlarmSeverity.MAJOR, _node.getUnacknowledgedAlarmSeverity());
     }
     
     @Test
     public void testMinorAfterMajorLowersSeverityButKeepsUnacknowledgedSeverity() throws Exception {
-        _node.updateAlarm(new Alarm("", EpicsAlarmSeverity.MAJOR, date1));
-        _node.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, date2));
+        _node.updateAlarm(new Alarm("", EpicsAlarmSeverity.MAJOR, "status", date1));
+        _node.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, "status", date2));
         assertEquals(EpicsAlarmSeverity.MINOR, _node.getAlarmSeverity());
         assertEquals(EpicsAlarmSeverity.MAJOR, _node.getUnacknowledgedAlarmSeverity());
     }
     
     @Test
     public void testMinorAfterAcknowledgeMajorShowsMinor() throws Exception {
-        _node.updateAlarm(new Alarm("", EpicsAlarmSeverity.MAJOR, date1));
+        _node.updateAlarm(new Alarm("", EpicsAlarmSeverity.MAJOR, "status", date1));
         _node.acknowledgeAlarm();
-        _node.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, date3));
+        _node.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, "status", date3));
         assertEquals(EpicsAlarmSeverity.MINOR, _node.getAlarmSeverity());
         assertEquals(EpicsAlarmSeverity.MINOR, _node.getUnacknowledgedAlarmSeverity());
     }
 
     @Test
     public void testNoAlarmAfterAlarmKeepsUnacknowledged() throws Exception {
-        _node.updateAlarm(new Alarm("", EpicsAlarmSeverity.MAJOR, date1));
-        _node.updateAlarm(new Alarm("", EpicsAlarmSeverity.NO_ALARM, date2));
+        _node.updateAlarm(new Alarm("", EpicsAlarmSeverity.MAJOR, "status", date1));
+        _node.updateAlarm(new Alarm("", EpicsAlarmSeverity.NO_ALARM, "status", date2));
         assertEquals(EpicsAlarmSeverity.NO_ALARM, _node.getAlarmSeverity());
         assertEquals(EpicsAlarmSeverity.MAJOR, _node.getUnacknowledgedAlarmSeverity());
     }
     
     @Test
     public void testAcknowledgeAlarm() throws Exception {
-        _node.updateAlarm(new Alarm("", EpicsAlarmSeverity.MAJOR, date1));
+        _node.updateAlarm(new Alarm("", EpicsAlarmSeverity.MAJOR, "status", date1));
         _node.acknowledgeAlarm();
         assertEquals(EpicsAlarmSeverity.MAJOR, _node.getAlarmSeverity());
         assertEquals(EpicsAlarmSeverity.UNKNOWN, _node.getUnacknowledgedAlarmSeverity());

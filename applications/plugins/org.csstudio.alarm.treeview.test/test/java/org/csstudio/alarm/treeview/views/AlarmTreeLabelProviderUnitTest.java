@@ -63,6 +63,8 @@ public class AlarmTreeLabelProviderUnitTest {
     @Test
     public void testTextCreation() throws Exception {
         Assert.assertEquals("A node", _labelProvider.getText(_node));
+        _node.updateAlarm(createAlarm(EpicsAlarmSeverity.MAJOR));
+        Assert.assertEquals("A node (status)", _labelProvider.getText(_node));
     }
     
     @Test
@@ -200,6 +202,6 @@ public class AlarmTreeLabelProviderUnitTest {
     @Nonnull
     private Alarm createAlarm(@Nonnull final EpicsAlarmSeverity severity) {
         // the date creation ensures useful timestamps
-        return new Alarm("test", severity, new Date(++DATE_PARAM));
+        return new Alarm("test", severity, "status", new Date(++DATE_PARAM));
     }
 }

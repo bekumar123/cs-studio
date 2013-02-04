@@ -117,7 +117,7 @@ public class PersistEngineDataManager {
                                                                   "PERIODIC Worker: " + workerId.getAndIncrement(),
                                                                   prefPeriodInMS,
                                                                   handlerProvider);
-        System.out.println("PersistEngineDataManager.submitNewPersistDataWorker()  create new Threads ");
+      //  System.out.println("PersistEngineDataManager.submitNewPersistDataWorker()  create new Threads ");
       /*  executor.scheduleAtFixedRate(newWorker,
                                      0L,
                                      newWorker.getPeriodInMS(),

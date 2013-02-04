@@ -210,6 +210,9 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
                     }*/
                 }
                 _ringBuffer.add(sample);
+                if(_ringBuffer.isEmpty() || !_ringBuffer.equals(_ringBuffer.get(_ringBuffer.size()-1))){} else {
+
+                }
                 return _buffer.add(sample);
 
             }

@@ -84,6 +84,8 @@ public abstract class AbstractPendingUpdate {
      *            the name of the node to which the alarm will apply.
      * @param severity
      *            the severity of the alarm.
+     * @param status
+     *            the status of the alarm. 
      * @param eventtime
      *            the eventtime of the alarm.
      * @param treeRoot
@@ -92,13 +94,14 @@ public abstract class AbstractPendingUpdate {
     @Nonnull
     public static AbstractPendingUpdate createAlarmUpdate(@Nonnull final String name,
                                                           @Nonnull final EpicsAlarmSeverity severity,
+                                                          @Nonnull final String status, 
                                                           @Nonnull final Date eventtime,
                                                           @Nonnull final IAlarmSubtreeNode treeRoot) {
         return new AbstractPendingUpdate() {
             @Override
             public void apply() {
                 for (final IAlarmProcessVariableNode node : treeRoot.findProcessVariableNodes(name)) {
-                    final Alarm alarm = new Alarm(name, severity, eventtime);
+                    final Alarm alarm = new Alarm(name, severity, status, eventtime);
                     node.updateAlarm(alarm);
                 }
                 refreshView();
@@ -108,7 +111,7 @@ public abstract class AbstractPendingUpdate {
             @Nonnull
             public String toString() {
                 return new StringBuilder("PendingUpdate[Alarm,name=").append(name)
-                        .append(",severity=").append(severity).append("]").toString();
+                        .append(",severity=").append(severity).append(",status=").append(status).append("]").toString();
             }
         };
     }

@@ -22,85 +22,50 @@
 package org.csstudio.alarm.treeview.preferences;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 
 import org.csstudio.alarm.treeview.AlarmTreePlugin;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.FontFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 /**
  * Preference page for the alarm tree.
  */
-public class AlarmTreePreferencePage extends FieldEditorPreferencePage implements
-        IWorkbenchPreferencePage {
-    
-    /**
-     * Creates a new alarm tree preference page.
-     */
-    public AlarmTreePreferencePage() {
-        super(GRID);
-        setPreferenceStore(AlarmTreePlugin.getDefault().getPreferenceStore());
-        setDescription("Alarm tree preferences");
-    }
-    
-    /**
-     * Creates the field editors. Field editors are abstractions of
-     * the common GUI blocks needed to manipulate various types
-     * of preferences. Each field editor knows how to save and
-     * restore itself.
-     */
-    @Override
-    public final void createFieldEditors() {
-        addField(new StringFieldEditor(AlarmTreePreference.JMS_QUEUE.getKeyAsString(),
-                                       "Topics:",
-                                       newJmsGroup()));
-        addField(new StringFieldEditor(AlarmTreePreference.ALARM_DISPLAY_ALIAS.getKeyAsString(),
-                                       "Alias:",
-                                       newAlarmAliasGroup()));
-    }
-    
-    @Nonnull
-    private Group newJmsGroup() {
-        final Group result = newGroup();
-        result.setText("JMS Settings");
-        result.setLayoutData(newGridData());
-        result.setLayout(newGridLayout());
-        return result;
-    }
+public class AlarmTreePreferencePage extends FieldEditorPreferencePage
+		implements IWorkbenchPreferencePage {
 
-    @Nonnull
-    private Group newAlarmAliasGroup() {
-        final Group result = newGroup();
-        result.setText("Alarm Display Alias");
-        result.setLayoutData(newGridData());
-        result.setLayout(newGridLayout());
-        return result;
-    }
-    
-    @Nonnull
-    private Group newGroup() {
-        return new Group(getFieldEditorParent(), SWT.SHADOW_ETCHED_IN);
-    }
-    
-    @Nonnull
-    private GridLayout newGridLayout() {
-        return new GridLayout(2, false);
-    }
-    
-    @Nonnull
-    private GridData newGridData() {
-        return new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1);
-    }
-    
-    @Override
-    public void init(@CheckForNull final IWorkbench workbench) {
-        // Nothing to do
-    }
-    
+	/**
+	 * Creates a new alarm tree preference page.
+	 */
+	public AlarmTreePreferencePage() {
+		super(GRID);
+		setPreferenceStore(AlarmTreePlugin.getDefault().getPreferenceStore());
+		setDescription("Alarm tree preferences");
+	}
+
+	/**
+	 * Creates the field editors. Field editors are abstractions of the common
+	 * GUI blocks needed to manipulate various types of preferences. Each field
+	 * editor knows how to save and restore itself.
+	 */
+	@Override
+	public final void createFieldEditors() {
+		addField(new StringFieldEditor(
+				AlarmTreePreference.JMS_QUEUE.getKeyAsString(), "JMS Topics:",
+				getFieldEditorParent()));// newJmsGroup()));
+		addField(new StringFieldEditor(
+				AlarmTreePreference.ALARM_DISPLAY_ALIAS.getKeyAsString(),
+				"Alarm Display Alias:", getFieldEditorParent()));// newAlarmAliasGroup()));
+
+		addField(new FontFieldEditor(AlarmTreePreference.FONT.getKeyAsString(),
+				"Font:", getFieldEditorParent()));
+	}
+
+	@Override
+	public void init(@CheckForNull final IWorkbench workbench) {
+		// Nothing to do
+	}
+
 }

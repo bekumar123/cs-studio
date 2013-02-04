@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class OpenScreenshotAction extends Action {
+    
     private static final Logger LOG = LoggerFactory.getLogger(OpenScreenshotAction.class);
 
     public OpenScreenshotAction() {
@@ -44,6 +45,7 @@ public class OpenScreenshotAction extends Action {
         this.setEnabled(true);
     }
     
+    @Override
     public void run()   {
         try {
             PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("screenshotView");

@@ -42,15 +42,16 @@ public class AlarmUnitTest {
 
 	@Test
 	public void testAlarm() throws Exception {
-		final Alarm alarm = new Alarm("foo", EpicsAlarmSeverity.MINOR, t1);
+		final Alarm alarm = new Alarm("foo", EpicsAlarmSeverity.MINOR, "status", t1);
 		assertEquals("foo", alarm.getObjectName());
 		assertEquals(EpicsAlarmSeverity.MINOR, alarm.getSeverity());
+		assertEquals("status", alarm.getStatus());
 	}
 
 	@Test
 	public void testEventtimeComparison() throws Exception {
-		final Alarm a1 = new Alarm("foo", EpicsAlarmSeverity.MINOR, t1);
-		final Alarm a2 = new Alarm("foo", EpicsAlarmSeverity.MINOR, t2);
+		final Alarm a1 = new Alarm("foo", EpicsAlarmSeverity.MINOR, "", t1);
+		final Alarm a2 = new Alarm("foo", EpicsAlarmSeverity.MINOR, "", t2);
 
 		assertTrue(a2.occuredAfter(a1));
 

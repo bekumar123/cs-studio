@@ -17,10 +17,20 @@
  -->
 
 <ou name="EpicsAlarmcfg">
-  <efan name="Example">
+  <efan name="Root1">
+  	<ecom name="Sub1">
+  		<eren name="TrainIoc:Alarm:RAMPA_calc" />
+  	</ecom>
+    <ecom name="Sub2">
+    	<eren name="TrainIoc:Alarm:RAMPA_calc" />
+  		<eren name="TrainIoc:Alarm:RAMPC_calc" />
+  	</ecom>
+  	<eren name="TrainIoc:Alarm:RAMPB_calc" />
+  </efan>
+  <efan name="Root2">
+  	<eren name="TrainIoc:Alarm:RAMPC_calc" />
     <eren name="TrainIoc:Alarm:RAMPA_calc" />
     <eren name="TrainIoc:Alarm:RAMPB_calc" />
-    <eren name="TrainIoc:Alarm:RAMPC_calc" />
     <eren name="TrainIoc:Alarm:TEST1A_ai" />
   </efan>
 </ou>

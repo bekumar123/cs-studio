@@ -58,7 +58,7 @@ public class SubtreeNodeUnitTest {
     public void testAlarmAggregationOfNormal() {
     	_subtreeNode.addChild(_node0);
 
-    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.NO_ALARM, date1));
+    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.NO_ALARM, "status", date1));
     	assertEquals(EpicsAlarmSeverity.NO_ALARM, _subtreeNode.getAlarmSeverity());
     	assertEquals(EpicsAlarmSeverity.NO_ALARM, _subtreeNode.getUnacknowledgedAlarmSeverity());
     	
@@ -68,7 +68,7 @@ public class SubtreeNodeUnitTest {
     public void testAlarmAggregationOfMinor() {
     	_subtreeNode.addChild(_node0);
     	
-    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, date1));
+    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, "status", date1));
     	assertEquals(EpicsAlarmSeverity.MINOR, _subtreeNode.getAlarmSeverity());
     	assertEquals(EpicsAlarmSeverity.MINOR, _subtreeNode.getUnacknowledgedAlarmSeverity());
     	
@@ -78,7 +78,7 @@ public class SubtreeNodeUnitTest {
     public void testAlarmAggregationOfMajor() {
     	_subtreeNode.addChild(_node0);
     	
-    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MAJOR, date1));
+    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MAJOR, "status", date1));
     	assertEquals(EpicsAlarmSeverity.MAJOR, _subtreeNode.getAlarmSeverity());
     	assertEquals(EpicsAlarmSeverity.MAJOR, _subtreeNode.getUnacknowledgedAlarmSeverity());
     }
@@ -87,8 +87,8 @@ public class SubtreeNodeUnitTest {
     public void testAlarmAggregationMinorAfterMajor() {
         _subtreeNode.addChild(_node0);
 
-    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MAJOR, date3));
-    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, date4));
+    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MAJOR, "status", date3));
+    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, "status", date4));
     	assertEquals(EpicsAlarmSeverity.MINOR, _subtreeNode.getAlarmSeverity());
     	assertEquals(EpicsAlarmSeverity.MAJOR, _subtreeNode.getUnacknowledgedAlarmSeverity());
     }
@@ -97,8 +97,8 @@ public class SubtreeNodeUnitTest {
     public void testAlarmAggregationNormalAfterMinor() {
     	_subtreeNode.addChild(_node0);
     	
-    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, date3));
-    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.NO_ALARM, date4));
+    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, "status", date3));
+    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.NO_ALARM, "status", date4));
     	assertEquals(EpicsAlarmSeverity.NO_ALARM, _subtreeNode.getAlarmSeverity());
     	assertEquals(EpicsAlarmSeverity.MINOR, _subtreeNode.getUnacknowledgedAlarmSeverity());
     }
@@ -107,8 +107,8 @@ public class SubtreeNodeUnitTest {
     public void testAlarmAggregationNormalAfterMajor() {
     	_subtreeNode.addChild(_node0);
     	
-    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MAJOR, date3));
-    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.NO_ALARM, date4));
+    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MAJOR, "status", date3));
+    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.NO_ALARM, "status", date4));
     	assertEquals(EpicsAlarmSeverity.NO_ALARM, _subtreeNode.getAlarmSeverity());
     	assertEquals(EpicsAlarmSeverity.MAJOR, _subtreeNode.getUnacknowledgedAlarmSeverity());
     }
@@ -118,20 +118,20 @@ public class SubtreeNodeUnitTest {
     	_subtreeNode.addChild(_node0);
     	_subtreeNode.addChild(_node1);
     	
-    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.NO_ALARM, date1));
-    	_node1.updateAlarm(new Alarm("", EpicsAlarmSeverity.NO_ALARM, date1));
+    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.NO_ALARM, "status", date1));
+    	_node1.updateAlarm(new Alarm("", EpicsAlarmSeverity.NO_ALARM, "status", date1));
     	assertEquals(EpicsAlarmSeverity.NO_ALARM, _subtreeNode.getAlarmSeverity());
     	assertEquals(EpicsAlarmSeverity.NO_ALARM, _subtreeNode.getUnacknowledgedAlarmSeverity());
     	
-    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, date2));
+    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, "status", date2));
     	assertEquals(EpicsAlarmSeverity.MINOR, _subtreeNode.getAlarmSeverity());
     	assertEquals(EpicsAlarmSeverity.MINOR, _subtreeNode.getUnacknowledgedAlarmSeverity());
     	
-    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MAJOR, date3));
+    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MAJOR, "status", date3));
     	assertEquals(EpicsAlarmSeverity.MAJOR, _subtreeNode.getAlarmSeverity());
     	assertEquals(EpicsAlarmSeverity.MAJOR, _subtreeNode.getUnacknowledgedAlarmSeverity());
     	
-    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, date4));
+    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, "status", date4));
     	assertEquals(EpicsAlarmSeverity.MINOR, _subtreeNode.getAlarmSeverity());
     	assertEquals(EpicsAlarmSeverity.MAJOR, _subtreeNode.getUnacknowledgedAlarmSeverity());
     }
@@ -141,24 +141,24 @@ public class SubtreeNodeUnitTest {
     	_subtreeNode.addChild(_node0);
     	_subtreeNode.addChild(_node1);
     	
-    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.NO_ALARM, date1));
-    	_node1.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, date1));
+    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.NO_ALARM, "status", date1));
+    	_node1.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, "status", date1));
     	assertEquals(EpicsAlarmSeverity.MINOR, _subtreeNode.getAlarmSeverity());
     	assertEquals(EpicsAlarmSeverity.MINOR, _subtreeNode.getUnacknowledgedAlarmSeverity());
     	
-    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, date2));
+    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, "status", date2));
     	assertEquals(EpicsAlarmSeverity.MINOR, _subtreeNode.getAlarmSeverity());
     	assertEquals(EpicsAlarmSeverity.MINOR, _subtreeNode.getUnacknowledgedAlarmSeverity());
     	
-    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MAJOR, date3));
+    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MAJOR, "status", date3));
     	assertEquals(EpicsAlarmSeverity.MAJOR, _subtreeNode.getAlarmSeverity());
     	assertEquals(EpicsAlarmSeverity.MAJOR, _subtreeNode.getUnacknowledgedAlarmSeverity());
     	
-    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, date4));
+    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, "status", date4));
     	assertEquals(EpicsAlarmSeverity.MINOR, _subtreeNode.getAlarmSeverity());
     	assertEquals(EpicsAlarmSeverity.MAJOR, _subtreeNode.getUnacknowledgedAlarmSeverity());
 
-    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.NO_ALARM, date1));
+    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.NO_ALARM, "status", date1));
     	assertEquals(EpicsAlarmSeverity.MINOR, _subtreeNode.getAlarmSeverity());
     	assertEquals(EpicsAlarmSeverity.MAJOR, _subtreeNode.getUnacknowledgedAlarmSeverity());
     }
@@ -171,7 +171,7 @@ public class SubtreeNodeUnitTest {
     	assertEquals(EpicsAlarmSeverity.UNKNOWN, _subtreeNode.getAlarmSeverity());
     	assertEquals(EpicsAlarmSeverity.UNKNOWN, _subtreeNode.getUnacknowledgedAlarmSeverity());
 
-    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.NO_ALARM, date1));
+    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.NO_ALARM, "status", date1));
     	assertEquals(EpicsAlarmSeverity.NO_ALARM, _subtreeNode.getAlarmSeverity());
     	assertEquals(EpicsAlarmSeverity.NO_ALARM, _subtreeNode.getUnacknowledgedAlarmSeverity());
 
@@ -179,7 +179,7 @@ public class SubtreeNodeUnitTest {
     	assertEquals(EpicsAlarmSeverity.NO_ALARM, _subtreeNode.getAlarmSeverity());
     	assertEquals(EpicsAlarmSeverity.UNKNOWN, _subtreeNode.getUnacknowledgedAlarmSeverity());
     	
-    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, date2));
+    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, "status", date2));
     	assertEquals(EpicsAlarmSeverity.MINOR, _subtreeNode.getAlarmSeverity());
     	assertEquals(EpicsAlarmSeverity.MINOR, _subtreeNode.getUnacknowledgedAlarmSeverity());
     	
@@ -193,8 +193,8 @@ public class SubtreeNodeUnitTest {
     	_subtreeNode.addChild(_node0);
     	_subtreeNode.addChild(_node1);
     	
-    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.NO_ALARM, date1));
-    	_node1.updateAlarm(new Alarm("", EpicsAlarmSeverity.NO_ALARM, date1));
+    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.NO_ALARM, "status", date1));
+    	_node1.updateAlarm(new Alarm("", EpicsAlarmSeverity.NO_ALARM, "status", date1));
     	assertEquals(EpicsAlarmSeverity.NO_ALARM, _subtreeNode.getAlarmSeverity());
     	assertEquals(EpicsAlarmSeverity.NO_ALARM, _subtreeNode.getUnacknowledgedAlarmSeverity());
     	
@@ -202,7 +202,7 @@ public class SubtreeNodeUnitTest {
     	assertEquals(EpicsAlarmSeverity.NO_ALARM, _subtreeNode.getAlarmSeverity());
     	assertEquals(EpicsAlarmSeverity.UNKNOWN, _subtreeNode.getUnacknowledgedAlarmSeverity());
     	
-    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, date2));
+    	_node0.updateAlarm(new Alarm("", EpicsAlarmSeverity.MINOR, "status", date2));
     	assertEquals(EpicsAlarmSeverity.MINOR, _subtreeNode.getAlarmSeverity());
     	assertEquals(EpicsAlarmSeverity.MINOR, _subtreeNode.getUnacknowledgedAlarmSeverity());
     	

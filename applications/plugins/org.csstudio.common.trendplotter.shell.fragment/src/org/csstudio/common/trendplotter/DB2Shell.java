@@ -7,6 +7,7 @@ import org.csstudio.common.trendplotter.editor.DataBrowserEditor;
 import org.csstudio.common.trendplotter.model.Model;
 import org.csstudio.common.trendplotter.ui.Controller;
 import org.csstudio.common.trendplotter.ui.Plot;
+import org.csstudio.domain.desy.ui.action.OpenScreenshotAction;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;

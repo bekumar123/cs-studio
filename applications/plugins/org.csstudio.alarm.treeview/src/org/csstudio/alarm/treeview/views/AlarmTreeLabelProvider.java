@@ -89,12 +89,13 @@ public class AlarmTreeLabelProvider extends LabelProvider {
 				&& (node.getSource() == TreeNodeSource.XML)) {
 			result = result + " [XML]";
 		}
-		if (node instanceof IAlarmProcessVariableNode) {
-			String status = ((IAlarmProcessVariableNode) node).getAlarm().getStatus();
-			if (!status.isEmpty()) {
-				result += " (" + status + ")";
-			}
-		}
+		// append the status of the alarm
+//		if (node instanceof IAlarmProcessVariableNode) {
+//			String status = ((IAlarmProcessVariableNode) node).getAlarm().getStatus();
+//			if (!status.isEmpty()) {
+//				result += " (" + status + ")";
+//			}
+//		}
 		return result;
 	}
 

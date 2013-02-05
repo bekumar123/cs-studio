@@ -1,27 +1,27 @@
 package org.csstudio.common.trendplotter;
 
 import java.util.logging.Level;
-
-
 import org.csstudio.common.trendplotter.Activator;
 import org.csstudio.common.trendplotter.Messages;
 import org.csstudio.common.trendplotter.editor.DataBrowserEditor;
-import org.csstudio.common.trendplotter.model.HistoricSamples;
 import org.csstudio.common.trendplotter.model.Model;
 import org.csstudio.common.trendplotter.ui.Controller;
 import org.csstudio.common.trendplotter.ui.Plot;
+import org.csstudio.domain.desy.ui.action.OpenScreenshotAction;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Decorations;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Open a db2 trend in a shell. Most parts are from class {@link DataBrowserEditor}
@@ -36,14 +36,39 @@ import org.slf4j.LoggerFactory;
  */
 public class DB2Shell {
     
-    private static final Logger LOG = LoggerFactory.getLogger(HistoricSamples.class);
-
     private IFile _file;
     private Shell _shell;
     private Model model;
     
     public DB2Shell(IFile file) {
         _file = file;
+        createMenuBar();
+    }
+    
+    private void createMenuBar() {
+        
+        MenuManager menuManager = new MenuManager();
+        
+        // Added by Markus Moeller, 2009-01-26
+        // Search for the screenshot plugin
+        IExtensionRegistry extReg = Platform.getExtensionRegistry();
+        IConfigurationElement[] confElements = extReg
+                .getConfigurationElementsFor("org.csstudio.utility.screenshot.ImageWorker");
+        
+        if (confElements.length > 0) {
+            for (int i = 0; i < confElements.length; i++) {
+                if (confElements[i].getContributor().getName()
+                        .compareToIgnoreCase("org.csstudio.utility.screenshot") == 0) {
+                    MenuManager captureManager = new MenuManager("Screenshot");
+                    
+                    captureManager.add(new OpenScreenshotAction());
+                    menuManager.add(captureManager);
+                    
+                    Menu menuBar = menuManager.createMenuBar(new Decorations(_shell, SWT.BAR));
+                    _shell.setMenuBar(menuBar);
+                }
+            }
+        }
     }
     
     public void openShell() {
@@ -73,26 +98,15 @@ public class DB2Shell {
         Plot plot = Plot.forCanvas(plot_box);
         
         // Create and start controller
-        final Controller controller = new Controller(_shell, model, plot);
+        Controller controller = new Controller(_shell, model, plot);
         try {
             controller.start();
         } catch (Exception ex) {
             MessageDialog.openError(_shell, Messages.Error, NLS.bind(Messages.ControllerStartErrorFmt, ex.getMessage()));
         }
         
-        // add dispose listener
-        _shell.addDisposeListener(new DisposeListener() {
-            /**
-             * {@inheritDoc}
-             */
-            public void widgetDisposed(final DisposeEvent e) {
-                controller.stop();
-            }
-        });
-        
         // open the shell
         _shell.open();
         
     }
-    
 }

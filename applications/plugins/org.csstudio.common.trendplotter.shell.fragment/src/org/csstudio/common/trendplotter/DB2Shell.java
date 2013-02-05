@@ -42,6 +42,10 @@ public class DB2Shell {
     
     public DB2Shell(IFile file) {
         _file = file;
+        _shell = new Shell();
+        _shell.setText(_file.getName());
+        _shell.setLocation(10, 10);
+        _shell.setSize(800, 600);
         createMenuBar();
     }
     
@@ -64,18 +68,15 @@ public class DB2Shell {
                     captureManager.add(new OpenScreenshotAction());
                     menuManager.add(captureManager);
                     
-                    Menu menuBar = menuManager.createMenuBar(new Decorations(_shell, SWT.BAR));
-                    _shell.setMenuBar(menuBar);
+//                    Menu menuBar = menuManager.createMenuBar(new Decorations(_shell, SWT.BAR));
+                    Menu menu = menuManager.createMenuBar(_shell);
+                    _shell.setMenuBar(menu);
                 }
             }
         }
     }
     
     public void openShell() {
-        _shell = new Shell();
-        _shell.setText(_file.getName());
-        _shell.setLocation(10, 10);
-        _shell.setSize(800, 600);
         model = new Model();
         // If it's a file, load content into Model
         final IFile file = _file;

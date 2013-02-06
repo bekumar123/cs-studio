@@ -25,6 +25,7 @@
 package org.csstudio.alarm.jms2ora;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import javax.annotation.Nonnull;
@@ -93,6 +94,9 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
      */
     @Override
     public Object start(@Nonnull final IApplicationContext context) throws Exception {
+
+        System.setOut(new PrintStream(new File("./stdout.txt")));
+        System.setErr(new PrintStream(new File("./stderr.txt")));
 
         CommandLine cmd = null;
         String[] args = null;

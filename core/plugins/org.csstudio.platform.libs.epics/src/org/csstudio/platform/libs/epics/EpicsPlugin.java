@@ -118,6 +118,7 @@ public class EpicsPlugin extends Plugin
     @Override
     public final void start(final BundleContext context) throws Exception {
         super.start(context);
+        getLogger().log(Level.SEVERE, "----------- Epics plugin start");
 
         //If it is in rap, set server preference in lookup order.
         if(Platform.getBundle("org.eclipse.rap.ui") != null) //$NON-NLS-1$
@@ -131,11 +132,12 @@ public class EpicsPlugin extends Plugin
 
         if (!use_pure_java)
         {
+        	getLogger().log(Level.SEVERE, "----------- Using JNI");
             final String jni_target = JNITargetArch.getTargetArch();
             // this property must be unset, because JCA might mistakenly use it
             final String path = "gov.aps.jca.jni.epics."
                                  .concat(jni_target).concat(".library.path");
-            System.out.println("--------" + path);
+            getLogger().log(Level.SEVERE, "----------- path: " + path);
             System.setProperty(path, "");
             // In case we have a dependency to Com and ca,
             // try to load those.
@@ -145,6 +147,7 @@ public class EpicsPlugin extends Plugin
             // without further dependencies, in which case it's
             // OK for the following two calls to fail:
             Throwable com_ca_exception = null;
+            getLogger().log(Level.SEVERE, "----------- try loading com and ca ");
             try
             {
                 System.loadLibrary("Com");
@@ -156,9 +159,11 @@ public class EpicsPlugin extends Plugin
                 // jca load error.
                 // On the other hand, if jca loads OK, we can ignore this one.
                 com_ca_exception = ex;
+                getLogger().log(Level.SEVERE, "----------- exception lading com, ca: " + ex);
             }
             // Load the JCA library.
             // This better works out OK.
+            getLogger().log(Level.SEVERE, "----------- try loading jca");
             try
             {
                 System.loadLibrary("jca");

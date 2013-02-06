@@ -41,6 +41,9 @@ public class DefaultDisplayPreference<T> extends AbstractPreference<T> {
 
     public static final DefaultDisplayPreference<IPath> DEFAULT_DISPLAY_PATH =
         new DefaultDisplayPreference<IPath>("PROP_DEFAULT_DISPLAY_FILE", ResourcesPlugin.getWorkspace().getRoot().getFullPath(), IPath.class);
+
+    public static final DefaultDisplayPreference<IPath> DEFAULT_DISPLAY_PATH_NO_RTYP =
+    		new DefaultDisplayPreference<IPath>("PROP_DEFAULT_DISPLAY_FILE_NO_RTYP", ResourcesPlugin.getWorkspace().getRoot().getFullPath(), IPath.class);
     
     public static final DefaultDisplayPreference<Boolean> OPEN_AS_SHELL =
         new DefaultDisplayPreference<Boolean>("PROP_DEFAULT_DISPLAY_OPEN_AS_SHELL", true, Boolean.class);

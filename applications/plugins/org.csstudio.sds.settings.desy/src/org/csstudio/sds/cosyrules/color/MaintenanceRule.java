@@ -63,9 +63,7 @@ public class MaintenanceRule implements IRule {
                     String rtyp = (String) obj;
                     //get type if rtyp is a record name
                     if(rtyp.contains("_")) {
-                    	int beginTypeTag = rtyp.lastIndexOf("_");
-                    	int endTypeTag = rtyp.indexOf(" ");
-                    	rtyp = rtyp.substring(beginTypeTag+1, endTypeTag);
+                    	rtyp = getTypeFromName(rtyp);
                     }
                     int indexOf = _preFileName.toLowerCase().indexOf("{rtyp}");
                     if(indexOf >= 0) {
@@ -90,6 +88,22 @@ public class MaintenanceRule implements IRule {
         }
         return iPath;
     }
+
+	private String getTypeFromName(String rtyp) {
+		int beginTypeSuffix = rtyp.lastIndexOf("_");
+		int endTypeSuffix;
+		//check for field extension in record name
+		int lastIndexOfDots  = rtyp.lastIndexOf("\\.");
+		if((lastIndexOfDots < 0) || (lastIndexOfDots < beginTypeSuffix)) {
+			//no field
+			endTypeSuffix = rtyp.length();
+		} else {
+			//record name contains field
+			endTypeSuffix = lastIndexOfDots-1;
+		}
+		rtyp = rtyp.substring(beginTypeSuffix+1, endTypeSuffix);
+		return rtyp;
+	}
     
     /* (non-Javadoc)
      * @see org.csstudio.sds.model.IRule#getDescription()

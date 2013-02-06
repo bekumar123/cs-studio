@@ -700,4 +700,14 @@
          fragment="true"
          unpack="false"/>
 
+   <plugin
+         id="org.csstudio.platform.libs.epics.solaris"
+         os="solaris"
+         arch="sparc"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"
+         unpack="false"/>
+
 </feature>

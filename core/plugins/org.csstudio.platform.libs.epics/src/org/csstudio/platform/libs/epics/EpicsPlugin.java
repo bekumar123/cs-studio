@@ -135,6 +135,7 @@ public class EpicsPlugin extends Plugin
             // this property must be unset, because JCA might mistakenly use it
             final String path = "gov.aps.jca.jni.epics."
                                  .concat(jni_target).concat(".library.path");
+            System.out.println("--------" + path);
             System.setProperty(path, "");
             // In case we have a dependency to Com and ca,
             // try to load those.

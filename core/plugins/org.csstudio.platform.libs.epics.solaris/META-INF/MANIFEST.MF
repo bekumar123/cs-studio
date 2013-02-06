@@ -8,4 +8,4 @@ Fragment-Host: org.csstudio.platform.libs.epics;bundle-version="3.1.1"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-PlatformFilter: (| (osgi.os=solaris))
 Bundle-NativeCode: 
- lib/solaris/sparc/libjca.so; osname=sunos; processor=sparc
+ lib/solaris/sparc/libjca.so; osname=solaris; processor=sparc

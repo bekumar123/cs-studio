@@ -42,6 +42,8 @@ import org.osgi.framework.BundleContext;
 @SuppressWarnings("nls")
 public class EpicsPlugin extends Plugin
 {
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(EpicsPlugin.class);
+
     public static final String ID = "org.csstudio.platform.libs.epics";
 
     /** Singleton instance */
@@ -118,7 +120,7 @@ public class EpicsPlugin extends Plugin
     @Override
     public final void start(final BundleContext context) throws Exception {
         super.start(context);
-        getLogger().log(Level.SEVERE, "----------- Epics plugin start");
+        LOG.error("----------- Epics plugin start");
 
         //If it is in rap, set server preference in lookup order.
         if(Platform.getBundle("org.eclipse.rap.ui") != null) //$NON-NLS-1$
@@ -132,12 +134,12 @@ public class EpicsPlugin extends Plugin
 
         if (!use_pure_java)
         {
-        	getLogger().log(Level.SEVERE, "----------- Using JNI");
+        	LOG.error("----------- Using JNI");
             final String jni_target = JNITargetArch.getTargetArch();
             // this property must be unset, because JCA might mistakenly use it
             final String path = "gov.aps.jca.jni.epics."
                                  .concat(jni_target).concat(".library.path");
-            getLogger().log(Level.SEVERE, "----------- path: " + path);
+            LOG.error("----------- path: " + path);
             System.setProperty(path, "");
             // In case we have a dependency to Com and ca,
             // try to load those.
@@ -147,7 +149,7 @@ public class EpicsPlugin extends Plugin
             // without further dependencies, in which case it's
             // OK for the following two calls to fail:
             Throwable com_ca_exception = null;
-            getLogger().log(Level.SEVERE, "----------- try loading com and ca ");
+            LOG.error("----------- try loading com and ca ");
             try
             {
                 System.loadLibrary("Com");
@@ -159,11 +161,11 @@ public class EpicsPlugin extends Plugin
                 // jca load error.
                 // On the other hand, if jca loads OK, we can ignore this one.
                 com_ca_exception = ex;
-                getLogger().log(Level.SEVERE, "----------- exception lading com, ca: " + ex);
+                LOG.error("----------- exception lading com, ca: " + ex);
             }
             // Load the JCA library.
             // This better works out OK.
-            getLogger().log(Level.SEVERE, "----------- try loading jca");
+            LOG.error("----------- try loading jca");
             try
             {
                 System.loadLibrary("jca");
@@ -176,7 +178,7 @@ public class EpicsPlugin extends Plugin
                         + "Could be a problem if JCA binary depends on them",
                         com_ca_exception);
                 // This is an error for sure:
-                getLogger().log(Level.SEVERE, "Cannot load JCA binary", ex);
+                LOG.error("Cannot load JCA binary", ex);
             }
         }
     }

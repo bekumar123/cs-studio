@@ -44,9 +44,6 @@ public class EpicsIoNameExporter implements IExporter {
 				Map<String, String> fields = ResolutionUtil.resolveFields(record);
 				
 				inpString = fields.get("INP");
-//				for (String key : fields.keySet()) {
-//					String v = fields.get(key) != null ? fields.get(key) : "";
-//				}
 			} catch (AliasResolutionException e) {
 				LOG.error("Error resolving epics name " + e.getMessage());
 			}

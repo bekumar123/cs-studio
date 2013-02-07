@@ -2,7 +2,7 @@
 <feature
       id="org.csstudio.desy.platform.base.feature"
       label="CSS Platform Base Feature"
-      version="1.0.0.201302061100"
+      version="1.0.0.201302071400"
       provider-name="Desy, Jan Hatje &lt;jan.hatje@desy.de&gt;">
 
    <description url="http://www.example.com/description">
@@ -32,7 +32,8 @@
          id="org.csstudio.platform.libs.epics"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
          id="org.csstudio.platform.libs.epics.ui"

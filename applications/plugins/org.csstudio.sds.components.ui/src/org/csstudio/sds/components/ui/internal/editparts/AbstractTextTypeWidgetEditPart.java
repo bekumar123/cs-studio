@@ -75,7 +75,7 @@ public abstract class AbstractTextTypeWidgetEditPart extends AbstractWidgetEditP
      */
     protected static final int INPUT_FIELD_BRIGHTNESS = 10;
 
-    private final NumberFormat numberFormat = NumberFormat.getInstance(Locale.US);
+    private final NumberFormat numberFormat = NumberFormat.getInstance();
 
 
     /**
@@ -301,7 +301,8 @@ public abstract class AbstractTextTypeWidgetEditPart extends AbstractWidgetEditP
 //                }
                 numberFormat.setMinimumFractionDigits(min);
                 numberFormat.setMaximumFractionDigits(model.getPrecision());
-                return numberFormat.format(d);
+                String format = numberFormat.format(d);
+				return format;
             } catch (final Exception e) {
                 return text;
             }

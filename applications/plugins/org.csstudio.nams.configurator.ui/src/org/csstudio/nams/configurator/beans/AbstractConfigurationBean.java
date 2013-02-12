@@ -22,7 +22,7 @@ import java.beans.PropertyChangeSupport;
  * @param <T>
  */
 public abstract class AbstractConfigurationBean<T extends AbstractConfigurationBean<T> & IConfigurationBean>
-		implements IConfigurationBean, Comparable<T> {
+		implements IConfigurationBean {
 
 	public static enum AbstractPropertyNames {
 		rubrikName
@@ -47,11 +47,6 @@ public abstract class AbstractConfigurationBean<T extends AbstractConfigurationB
 
 	public void clearPropertyChangeListeners() {
 		this.pcs = new PropertyChangeSupport(this);
-	}
-
-	@Override
-    public int compareTo(final T o) {
-		return this.getDisplayName().compareTo(o.getDisplayName());
 	}
 
 	@Override

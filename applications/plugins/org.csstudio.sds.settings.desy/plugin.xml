@@ -140,6 +140,30 @@
          </parameterDescription>
       </rule>
       <rule
+            class="org.csstudio.sds.cosyrules.color.SwitchStateMapping"
+            compatibleProperties="sds.integer"
+            name="Switch State Mapping"
+            ruleId="org.csstudio.sds.cosyrules.color.SwitchStateMapping">
+         <parameterDescription
+               name="Value">
+         </parameterDescription>
+         <parameterDescription
+               name="Unknown (-1)">
+         </parameterDescription>
+         <parameterDescription
+               name="Aus (0)">
+         </parameterDescription>
+         <parameterDescription
+               name="Ein (1)">
+         </parameterDescription>
+         <parameterDescription
+               name="Schaltet (6)">
+         </parameterDescription>
+         <parameterDescription
+               name="Gestoert (8)">
+         </parameterDescription>
+      </rule>
+      <rule
             class="org.csstudio.sds.cosyrules.color.BIN_0rt_1gn"
             compatibleProperties="sds.color"
             name="BIN_0rt_1gn color rule"

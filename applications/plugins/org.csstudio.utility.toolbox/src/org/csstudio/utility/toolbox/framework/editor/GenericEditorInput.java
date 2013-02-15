@@ -24,7 +24,6 @@ import org.apache.commons.lang.Validate;
 import org.csstudio.utility.toolbox.AppLogger;
 import org.csstudio.utility.toolbox.common.Dialogs;
 import org.csstudio.utility.toolbox.common.Environment;
-import org.csstudio.utility.toolbox.entities.Firma;
 import org.csstudio.utility.toolbox.framework.annotations.InputLength;
 import org.csstudio.utility.toolbox.framework.annotations.ReadOnly;
 import org.csstudio.utility.toolbox.framework.binding.BindingEntity;

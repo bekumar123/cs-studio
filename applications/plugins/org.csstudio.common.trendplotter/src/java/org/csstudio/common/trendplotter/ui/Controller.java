@@ -253,21 +253,26 @@ public class Controller implements ArchiveFetchJobListener
                 }
                 else
                 {   // Received PV name
+                    // Offer potential PV name in dialog so user can edit/cancel
+                    final AddPVAction add = new AddPVAction(plot.getOperationsManager(), shell, model, false);
 
-                    // Add the given PV to the model anyway even if the same PV
-                    // exists in the model.
-                    final OperationsManager operations_manager = plot.getOperationsManager();
-
-                    // Add to first empty axis, or create new axis
-                    AxisConfig axis = model.getEmptyAxis();
-                    if (axis == null)
-                        axis = new AddAxisCommand(operations_manager, model).getAxis();
-
-                    // Add new PV
-                    AddModelItemCommand.forPV(shell, operations_manager,
-                            model, name.getName(), Preferences.getScanPeriod(),
-                            axis, archive);
-                    return;
+                    //TODO (jhatje): operators want to select the axis also for dropped pvs. Using the method from 
+                    //dropping strings is the easiest solution.
+                    add.runWithSuggestedName(name.getName(), null);
+//                    // Add the given PV to the model anyway even if the same PV
+//                    // exists in the model.
+//                    final OperationsManager operations_manager = plot.getOperationsManager();
+//
+//                    // Add to first empty axis, or create new axis
+//                    AxisConfig axis = model.getEmptyAxis();
+//                    if (axis == null)
+//                        axis = new AddAxisCommand(operations_manager, model).getAxis();
+//
+//                    // Add new PV
+//                    AddModelItemCommand.forPV(shell, operations_manager,
+//                            model, name.getName(), Preferences.getScanPeriod(),
+//                            axis, archive);
+//                    return;
                 }
             }
 

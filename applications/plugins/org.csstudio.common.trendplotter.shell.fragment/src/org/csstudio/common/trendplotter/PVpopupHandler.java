@@ -36,9 +36,10 @@ import org.eclipse.ui.handlers.HandlerUtil;
 public class PVpopupHandler extends AbstractHandler {
     
     private Shell _shell;
-    private Model _model = new Model();
+    private Model _model;
 
     public Object execute(ExecutionEvent event) throws ExecutionException {
+        _model = new Model();
         _shell = new Shell();
         _shell.setText("Trendplotter Shell");
         _shell.setLocation(10, 10);
@@ -81,6 +82,7 @@ public class PVpopupHandler extends AbstractHandler {
              */
             public void widgetDisposed(final DisposeEvent e) {
                 controller.stop();
+                _model = null;
             }
         });
 

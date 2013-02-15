@@ -23,6 +23,7 @@
 
 package org.csstudio.common.trendplotter;
 
+import org.csstudio.common.trendplotter.model.AxisConfig;
 import org.csstudio.common.trendplotter.model.Model;
 import org.csstudio.common.trendplotter.model.ModelItem;
 import org.eclipse.jface.action.Action;
@@ -62,5 +63,11 @@ public class RemovePvAction extends Action {
             String selection = dlg.getNameToDelete();
             LOG.debug("Remove pv from trendplotter shell: " + selection);
             _model.removeItem(_model.getItem(selection));
+            AxisConfig axis = _model.getEmptyAxis();
+            while (axis != null)
+            {
+                _model.removeAxis(axis);
+                axis = _model.getEmptyAxis();
+            }
     }
 }

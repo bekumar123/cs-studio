@@ -38,7 +38,7 @@ public class DB2Shell {
     
     private IFile _file;
     private Shell _shell;
-    private Model model;
+    private Model model = new Model();
     
     public DB2Shell(IFile file) {
         _file = file;
@@ -52,6 +52,11 @@ public class DB2Shell {
     private void createMenuBar() {
         
         MenuManager menuManager = new MenuManager();
+        
+        MenuManager plotMenu = new MenuManager("Plot");
+        
+        plotMenu.add(new RemovePvAction(model));
+        menuManager.add(plotMenu);
         
         // Added by Markus Moeller, 2009-01-26
         // Search for the screenshot plugin
@@ -68,16 +73,15 @@ public class DB2Shell {
                     captureManager.add(new OpenScreenshotAction());
                     menuManager.add(captureManager);
                     
-//                    Menu menuBar = menuManager.createMenuBar(new Decorations(_shell, SWT.BAR));
-                    Menu menu = menuManager.createMenuBar(_shell);
-                    _shell.setMenuBar(menu);
                 }
             }
         }
+//                    Menu menuBar = menuManager.createMenuBar(new Decorations(_shell, SWT.BAR));
+        Menu menu = menuManager.createMenuBar(_shell);
+        _shell.setMenuBar(menu);
     }
     
     public void openShell() {
-        model = new Model();
         // If it's a file, load content into Model
         final IFile file = _file;
         if (file != null) {

@@ -36,6 +36,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 public class PVpopupHandler extends AbstractHandler {
     
     private Shell _shell;
+    private Model _model = new Model();
 
     public Object execute(ExecutionEvent event) throws ExecutionException {
         _shell = new Shell();
@@ -44,13 +45,12 @@ public class PVpopupHandler extends AbstractHandler {
         _shell.setSize(800, 600);
         createMenuBar();
         
-        final Model model = new Model();
         
         final ISelection selection = HandlerUtil.getActiveMenuSelection(event);
         final ProcessVariable[] pvs = AdapterUtil.convert(selection, ProcessVariable.class);
         for (ProcessVariable pv : pvs) {
             try {
-                add(model, pv, null);
+                add(_model, pv, null);
             } catch (final Exception ex) {
                 MessageDialog.openError(_shell, Messages.Error, NLS.bind(Messages.ControllerStartErrorFmt, ex.getMessage()));
             }
@@ -67,7 +67,7 @@ public class PVpopupHandler extends AbstractHandler {
         final Plot plot = Plot.forCanvas(plot_box);
         
         // Create and start controller
-        final Controller controller = new Controller(_shell, model, plot);
+        final Controller controller = new Controller(_shell, _model, plot);
         try {
             controller.start();
         } catch (final Exception ex) {
@@ -113,6 +113,10 @@ public class PVpopupHandler extends AbstractHandler {
         
         MenuManager menuManager = new MenuManager();
         
+        MenuManager plotMenu = new MenuManager("Plot");
+        
+        plotMenu.add(new RemovePvAction(_model));
+        menuManager.add(plotMenu);
         // Added by Markus Moeller, 2009-01-26
         // Search for the screenshot plugin
         IExtensionRegistry extReg = Platform.getExtensionRegistry();
@@ -128,11 +132,11 @@ public class PVpopupHandler extends AbstractHandler {
                     captureManager.add(new OpenScreenshotAction());
                     menuManager.add(captureManager);
                     
-//                    Menu menuBar = menuManager.createMenuBar(new Decorations(_shell, SWT.BAR));
-                    Menu menu = menuManager.createMenuBar(_shell);
-                    _shell.setMenuBar(menu);
                 }
             }
         }
+//                    Menu menuBar = menuManager.createMenuBar(new Decorations(_shell, SWT.BAR));
+        Menu menu = menuManager.createMenuBar(_shell);
+        _shell.setMenuBar(menu);
     }
 }

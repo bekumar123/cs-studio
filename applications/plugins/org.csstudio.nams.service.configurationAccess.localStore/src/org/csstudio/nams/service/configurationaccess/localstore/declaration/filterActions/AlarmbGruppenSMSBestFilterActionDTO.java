@@ -10,6 +10,6 @@ public class AlarmbGruppenSMSBestFilterActionDTO extends
 		AbstAlarmbGruppenFilterActionDTO {
 
 	public AlarmbGruppenSMSBestFilterActionDTO() {
-		this.filterActionType = AlarmbGruppenFilterActionType.SMS;
+		this.filterActionType = AlarmbGruppenFilterActionType.SMS_Best;
 	}
 }

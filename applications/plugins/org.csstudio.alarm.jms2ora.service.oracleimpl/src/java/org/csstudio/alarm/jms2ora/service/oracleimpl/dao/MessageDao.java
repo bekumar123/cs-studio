@@ -181,7 +181,13 @@ public class MessageDao implements IMessageArchiveDao {
                 
                 messageStatement.setLong(1, messageId);
                 messageStatement.setLong(2, 0L); // Type ID is allways 0
-                messageStatement.setString(3, o.getPropertyValue("EVENTTIME"));
+                String eventTime = o.getPropertyValue("EVENTTIME");
+                if (eventTime == null) {
+                    LOG.warn("Message does not have an event time and will be ignored: ");
+                    LOG.warn("{}", o.toString());
+                    continue;
+                }
+                messageStatement.setString(3, eventTime);
 
                 for (int i = 0;i < n;i++) {
                     messageStatement.setString((i + 4), o.getPropertyValue(keys[i]));

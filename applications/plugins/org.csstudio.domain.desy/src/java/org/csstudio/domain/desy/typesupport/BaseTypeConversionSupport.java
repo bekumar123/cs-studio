@@ -36,6 +36,7 @@ import org.csstudio.domain.desy.system.ISystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
 import org.epics.pvmanager.TypeSupport;
+import org.epics.util.time.Timestamp;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -89,6 +90,15 @@ public abstract class BaseTypeConversionSupport<T> extends AbstractTypeSupport<T
         return TimestampFactory.createTimestamp(ti.getSeconds(), ti.getFractalSecondsInNanos());
     }
 
+    @Nonnull
+    public static TimeInstant toTimeInstant(@Nonnull final Timestamp ts) {
+        return TimeInstantBuilder.fromSeconds(ts.getSec()).plusNanosPerSecond(ts.getNanoSec());
+    }
+
+    @Nonnull
+    public static Timestamp toTimestamp1(@Nonnull final TimeInstant ti) {
+        return  Timestamp.of(ti.getSeconds(),(int) ti.getFractalSecondsInNanos());
+    }
     /**
      * Tries to create a {@link Class} object for the given dataType string, iteratively
      * over the given array of package names (basic package names are appended

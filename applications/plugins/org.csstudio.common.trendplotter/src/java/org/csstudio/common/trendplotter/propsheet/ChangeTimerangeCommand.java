@@ -11,10 +11,9 @@ import java.util.Calendar;
 
 import org.csstudio.common.trendplotter.Messages;
 import org.csstudio.common.trendplotter.model.Model;
-import org.csstudio.data.values.ITimestamp;
-import org.csstudio.data.values.TimestampFactory;
 import org.csstudio.swt.xygraph.undo.IUndoableCommand;
 import org.csstudio.swt.xygraph.undo.OperationsManager;
+import org.epics.util.time.Timestamp;
 
 /** Undo-able command to change time axis
  *  @author Kay Kasemir
@@ -23,7 +22,7 @@ public class ChangeTimerangeCommand implements IUndoableCommand
 {
     final private Model model;
     final private boolean old_scroll, new_scroll;
-    final private ITimestamp old_start, new_start, old_end, new_end;
+    final private Timestamp old_start, new_start, old_end, new_end;
 
     /** Register and perform the command
      *  @param model Model
@@ -40,8 +39,8 @@ public class ChangeTimerangeCommand implements IUndoableCommand
         this.old_start = model.getStartTime();
         this.old_end = model.getEndTime();
         this.new_scroll = scroll;
-        this.new_start = TimestampFactory.fromCalendar(start);
-        this.new_end = TimestampFactory.fromCalendar(end);
+        this.new_start = Timestamp.of(start.getTime());
+        this.new_end = Timestamp.of(end.getTime());
         operationsManager.addCommand(this);
         redo();
     }
@@ -65,12 +64,12 @@ public class ChangeTimerangeCommand implements IUndoableCommand
      *  @param start
      *  @param end
      */
-    private void apply(final boolean scroll, final ITimestamp start, final ITimestamp end)
+    private void apply(final boolean scroll, final Timestamp start, final Timestamp end)
     {
         if (scroll)
         {
             model.enableScrolling(true);
-            final double time_span = end.toDouble() - start.toDouble();
+            final double time_span = end.getSec() - start.getSec();
             model.setTimespan(time_span);
         }
         else

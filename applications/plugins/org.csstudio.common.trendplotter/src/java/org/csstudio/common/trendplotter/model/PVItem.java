@@ -20,12 +20,18 @@ import org.csstudio.apputil.xml.DOMHelper;
 import org.csstudio.apputil.xml.XMLWriter;
 import org.csstudio.archive.common.service.ArchiveServiceException;
 import org.csstudio.archive.reader.ArchiveReader;
+import org.csstudio.archive.vtype.ArchiveVNumberArray;
+import org.csstudio.archive.vtype.ArchiveVString;
+import org.csstudio.archive.vtype.TimestampHelper;
+import org.csstudio.archive.vtype.VTypeHelper;
 import org.csstudio.common.trendplotter.Messages;
 import org.csstudio.common.trendplotter.imports.ImportArchiveReaderFactory;
 import org.csstudio.common.trendplotter.preferences.Preferences;
 import org.csstudio.data.values.IDoubleValue;
+import org.csstudio.data.values.IEnumeratedValue;
 import org.csstudio.data.values.ILongValue;
 import org.csstudio.data.values.INumericMetaData;
+import org.csstudio.data.values.IStringValue;
 import org.csstudio.data.values.IValue;
 import org.csstudio.domain.desy.epics.name.EpicsChannelName;
 import org.csstudio.domain.desy.epics.name.EpicsNameSupport;
@@ -37,6 +43,14 @@ import org.csstudio.utility.pv.PV;
 import org.csstudio.utility.pv.PVFactory;
 import org.csstudio.utility.pv.PVListener;
 import org.eclipse.swt.widgets.Display;
+import org.epics.util.text.NumberFormats;
+import org.epics.util.time.Timestamp;
+import org.epics.vtype.Alarm;
+import org.epics.vtype.AlarmSeverity;
+import org.epics.vtype.Time;
+import org.epics.vtype.VType;
+import org.epics.vtype.ValueFactory;
+import org.epics.vtype.ValueUtil;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +80,7 @@ public class PVItem extends ModelItem implements PVListener {
     private PV pv_deadband = null;
 
     /** Most recently received value */
-    private volatile IValue current_value;
+    private volatile VType current_value;
 
     /** Scan period in seconds, &le;0 to 'monitor' */
     private double _period;
@@ -420,21 +434,44 @@ public class PVItem extends ModelItem implements PVListener {
             }
         }
     }
-
+    VType getVTypeValue( IValue value){
+         VType aval;
+   //      Display display = ValueFactory.newDisplay(0.0, 0.0, 0.0, "", NumberFormats.format(0), 0.0, 0.0, 10.0, 0.0, 10.0);
+         Timestamp t=Timestamp.of((value.getTime()).seconds(), (int)value.getTime().nanoseconds());
+         AlarmSeverity  alarm=null;
+         if(value.getSeverity().isOK()) alarm=AlarmSeverity.NONE;
+         if(value.getSeverity().isInvalid()) alarm=AlarmSeverity.INVALID;
+         if(value.getSeverity().isMajor()) alarm=AlarmSeverity.MAJOR;
+         if(value.getSeverity().isMinor()) alarm=AlarmSeverity.MINOR;
+         if(!value.getSeverity().hasValue()) alarm=AlarmSeverity.UNDEFINED;
+        // System.out.println("PVItem.getVTypeValue() "+value.getClass());
+         if(value instanceof IDoubleValue){
+             return  new ArchiveVNumberArray(t,alarm, alarm.toString(),  ValueFactory.newDisplay(0.0, 0.0, 0.0, "", NumberFormats.format(0), 0.0, 0.0, 10.0, 0.0, 10.0),((IDoubleValue)value).getValues());
+        }
+         if(value instanceof ILongValue){
+             return  new ArchiveVNumberArray(t,alarm, alarm.toString(),  ValueFactory.newDisplay(0.0, 0.0, 0.0, "", NumberFormats.format(0), 0.0, 0.0, 10.0, 0.0, 10.0),((ILongValue)value).getValues());
+        }
+         if(value instanceof IStringValue){
+             return  new ArchiveVString(t,alarm, alarm.toString(),((IStringValue)value).getValue());
+        }
+         if(value instanceof IEnumeratedValue){
+             return  new ArchiveVString(t,alarm, alarm.toString(),((IEnumeratedValue)value).getMetaData().getStates().toString());
+        }
+        return null;
+    }
     // PVListener
     @Override
     @SuppressWarnings("nls")
     public void pvValueUpdate(final PV new_pv) {
-        final IValue value = new_pv.getValue();
-
-        onConnect(value);
-
+        final IValue value =new_pv.getValue();
+         onConnect(value);
+     
         // Cache most recent for 'scanned' operation
-        current_value = value;
+        current_value =  getVTypeValue( value);;
 
         // In 'monitor' mode, add to live sample buffer
         if (_period <= 0) {
-            samples.addLiveSample(value);
+            samples.addLiveSample(current_value);
             LOG.trace(pv.getName() + " : " + samples.getLiveSampleSize() + " live samples");
         }
     }
@@ -443,13 +480,13 @@ public class PVItem extends ModelItem implements PVListener {
      *  using 'now' as time stamp.
      */
     private void logCurrentValue() {
-        final IValue value = current_value;
+        final VType value = current_value;
         if (value == null) {
             logDisconnected();
             return;
         }
         // Transform value to have 'now' as time stamp
-        samples.addLiveSample(ValueButcher.changeTimestampToNow(value));
+        samples.addLiveSample(VTypeHelper.transformTimestampToNow(value));
     }
 
     /** Add one(!) 'disconnected' sample */
@@ -457,7 +494,7 @@ public class PVItem extends ModelItem implements PVListener {
         synchronized (samples) {
             final int size = samples.getSize();
             if (size > 0) {
-                final String last = samples.getSample(size - 1).getValue().getStatus();
+                final String last = VTypeHelper.getMessage(samples.getSample(size - 1).getValue());
                 // Does last sample already have 'disconnected' status?
                 if (last != null && last.equals(Messages.Model_Disconnected)) {
                     return;
@@ -475,7 +512,7 @@ public class PVItem extends ModelItem implements PVListener {
      * @throws OsgiServiceUnavailableException
      */
     synchronized public void mergeArchivedSamples(final ArchiveReader reader,
-                                                  final List<IValue> result,
+                                                  final List<VType> result,
                                                   final RequestType requestType) throws OsgiServiceUnavailableException,
                                                                                 ArchiveServiceException {
         samples.mergeArchivedData(getName(), reader, requestType, result);

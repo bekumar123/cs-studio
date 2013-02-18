@@ -201,7 +201,7 @@ public class LiveSamplesCompressor {
         if (Double.compare(min.getYValue(), max.getYValue()) == 0) {
             result.add(min); // they feature the same value - so take just one (it's a min max compressor!)
             //System.out.println(min);
-        } else if (min.getTime().isLessThan(max.getTime())) {
+        } else if (min.getTime().getSec()<(max.getTime()).getSec()) {
             result.add(min);
             //System.out.println(min);
             result.add(max);

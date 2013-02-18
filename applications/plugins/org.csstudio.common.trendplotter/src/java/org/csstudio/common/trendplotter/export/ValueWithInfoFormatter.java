@@ -7,9 +7,12 @@
  ******************************************************************************/
 package org.csstudio.common.trendplotter.export;
 
+import org.csstudio.archive.vtype.Style;
 import org.csstudio.common.trendplotter.Messages;
-import org.csstudio.data.values.IValue;
-import org.csstudio.data.values.IValue.Format;
+
+import org.epics.vtype.VType;
+import org.csstudio.archive.vtype.VTypeHelper;
+
 
 /** Format an IValue to show the value as well as the severity/status
  *  @author Kay Kasemir
@@ -20,28 +23,29 @@ public class ValueWithInfoFormatter extends ValueFormatter
      *  @param format Number format to use
      *  @param precision Precision
      */
-    public ValueWithInfoFormatter(final Format format, final int precision)
+    public ValueWithInfoFormatter(final Style style, final int precision)
     {
-        super(format, precision);
+        super(style, precision);
     }
 
     /** {@inheritDoc} */
     @Override
     public String getHeader()
     {
-        return Messages.ValueColumn + Messages.Export_Delimiter + Messages.SeverityColumn +
+        return super.getHeader() + Messages.Export_Delimiter + Messages.SeverityColumn +
             Messages.Export_Delimiter + Messages.StatusColumn;
     }
 
     /** {@inheritDoc} */
     @Override
-    public String format(final IValue value)
+    public String format(final VType value)
     {
-        if (value == null)
-            return Messages.Export_NoValueMarker +
+        if (Double.isNaN(VTypeHelper.toDouble(value)))
+            return super.format(null) +
                 Messages.Export_Delimiter + Messages.Export_NoValueMarker +
                 Messages.Export_Delimiter + Messages.Export_NoValueMarker;
         return super.format(value) + Messages.Export_Delimiter +
-            value.getSeverity() + Messages.Export_Delimiter + value.getStatus();
+            VTypeHelper.getSeverity(value) + Messages.Export_Delimiter +
+            VTypeHelper.getMessage(value);
     }
 }

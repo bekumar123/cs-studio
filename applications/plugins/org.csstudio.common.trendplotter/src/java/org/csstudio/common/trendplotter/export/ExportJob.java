@@ -19,11 +19,11 @@ import org.csstudio.common.trendplotter.model.ArchiveDataSource;
 import org.csstudio.common.trendplotter.model.Model;
 import org.csstudio.common.trendplotter.model.ModelItem;
 import org.csstudio.common.trendplotter.model.PVItem;
-import org.csstudio.data.values.ITimestamp;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.epics.util.time.Timestamp;
 
 /** Base for Eclipse Job for exporting data from Model to file
  *  @author Kay Kasemir
@@ -34,7 +34,7 @@ abstract public class ExportJob extends Job
     final protected static int PROGRESS_UPDATE_LINES = 1000;
     final protected String comment;
     final protected Model model;
-    final protected ITimestamp start, end;
+    final protected Timestamp start, end;
     final protected Source source;
     final protected int optimize_count;
     final protected String filename;
@@ -88,7 +88,7 @@ abstract public class ExportJob extends Job
      *  @param error_handler Callback for errors
      */
     public ExportJob(final String comment, final Model model,
-        final ITimestamp start, final ITimestamp end, final Source source,
+        final Timestamp start, final Timestamp end, final Source source,
         final int optimize_count,
         final String filename,
         final ExportErrorHandler error_handler)

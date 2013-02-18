@@ -53,13 +53,16 @@ public class RawMessage {
 
         content = new Hashtable<String, String>();
 
-        String key;
-
         try {
             final Enumeration<?> keys = message.getMapNames();
             while (keys.hasMoreElements()) {
-                key = (String) keys.nextElement();
-                content.put(key, message.getString(key));
+                String key = (String) keys.nextElement();
+                if (key != null) {
+                    String value = message.getString(key);
+                    if (value != null) {
+                        content.put(key, value);
+                    }
+                }
             }
         } catch (final JMSException jmse) {
             content.clear();

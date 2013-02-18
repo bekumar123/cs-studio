@@ -82,11 +82,7 @@ public final class MessageFilter {
     }
 
     public synchronized boolean shouldBeBlocked(final ArchiveMessage mc) {
-        boolean blockIt = false;
-
-        blockIt = messageContainer.addMessageContent(mc);
-
-        return blockIt;
+        return messageContainer.addMessageContent(mc);
     }
 
     public synchronized void stopWorking() {

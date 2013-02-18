@@ -78,48 +78,54 @@ public class MessageFilterContainer {
     public boolean addMessageContent(final ArchiveMessage mc) {
         String data = null;
         boolean blockIt = false;
-        long id = 0;
-        int count = 0;
+        long idValue = 0;
+        int countValue = 0;
 
         // Get the string containing the content without EVENTTIME
         data = mc.toStringWithoutEventtime();
         if(messages.containsKey(data)) {
             // This kind of message was stored before.
             // Get the id.
-            id = messages.get(data);
-
-            // Refresh the message time
-            messageTime.put(id, System.currentTimeMillis());
-
-            count = messageCount.get(id);
-            if(count >= sendBound) {
-                // Do not block the message because now we have a bundle of messages.
-                // For 100 received messages that are identical, send only one message.
-                blockIt = false;
-
-                count = 0;
-            } else if(count <= maxSentMessages) {
-                // The message should not be blocked.
-                blockIt = false;
-            } else {
-                // The message should be blocked.
-                blockIt = true;
+            Long id = messages.get(data);
+            if (id != null) {
+                idValue = id.longValue();
+    
+                // Refresh the message time
+                messageTime.put(idValue, System.currentTimeMillis());
+                
+                Integer count = messageCount.get(idValue);
+                if (count != null) {
+                    countValue = count.intValue();
+                    if(countValue >= sendBound) {
+                        // Do not block the message because now we have a bundle of messages.
+                        // For 100 received messages that are identical, send only one message.
+                        blockIt = false;
+        
+                        countValue = 0;
+                    } else if(countValue <= maxSentMessages) {
+                        // The message should not be blocked.
+                        blockIt = false;
+                    } else {
+                        // The message should be blocked.
+                        blockIt = true;
+                    }
+        
+                    // Increment the counter for this message
+                    messageCount.put(idValue, ++countValue);
+                }
             }
-
-            // Increment the counter for this message
-            messageCount.put(id, ++count);
         } else {
             if(!freeIds.isEmpty()) {
-                id = freeIds.lastElement().longValue();
+                idValue = freeIds.lastElement().longValue();
                 freeIds.remove(freeIds.lastElement());
             } else {
-                id = nextId++;
+                idValue = nextId++;
             }
 
             // A new message is put into the hash table
-            messages.put(data, id);
-            messageTime.put(id, System.currentTimeMillis());
-            messageCount.put(id, 1);
+            messages.put(data, idValue);
+            messageTime.put(idValue, System.currentTimeMillis());
+            messageCount.put(idValue, 1);
 
             // Do not block the message
             blockIt = false;

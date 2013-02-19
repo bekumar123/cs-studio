@@ -350,6 +350,13 @@
                style="push"
                tooltip="Open in default display">
          </command>
+         <command
+               commandId="org.csstudio.sds.ui.opendisplaynortyp.command"
+               icon="icons/run.gif"
+               label="Open in Display (no Rtyp)"
+               style="push"
+               tooltip="Open in default display without Rtyp (Epics 3.13)">
+         </command>
       </menuContribution>
       </extension>
   <extension
@@ -415,6 +422,11 @@
            defaultHandler="org.csstudio.sds.ui.internal.actions.OpenPvInDefaultDisplayAction"
            id="org.csstudio.sds.ui.opendisplay.command"
            name="OpenDefaultDisplay"/>
+     <command
+           description="OpenDefaultDisplayNoRtyp"
+           defaultHandler="org.csstudio.sds.ui.internal.actions.OpenPvInDefaultDisplayNoRtypAction"
+           id="org.csstudio.sds.ui.opendisplaynortyp.command"
+           name="OpenDefaultDisplayNoRtyp"/>
      <command
            categoryId="org.eclipse.ui.category.edit"
            description="Copy Widgets"

@@ -202,6 +202,7 @@ public class FilterEditor extends AbstractEditor<DefaultFilterBean> {
 	}
 
 	private final FilterTreeContentProvider filterTreeContentProvider = new FilterTreeContentProvider();
+	private Text _idTextEntry;
 	private Text _nameTextEntry;
 	private Combo _rubrikComboEntry;
 	private Text _defaultMessageTextEntry;
@@ -213,7 +214,6 @@ public class FilterEditor extends AbstractEditor<DefaultFilterBean> {
 	private ScrolledForm mainForm;
 
 	private TableViewer actionTableViewer;
-
 	public FilterEditor() {
 		super();
 
@@ -230,6 +230,7 @@ public class FilterEditor extends AbstractEditor<DefaultFilterBean> {
 		final Composite main = new Composite(outerFormMain, SWT.NONE);
 		main.setLayout(new GridLayout(this.NUM_COLUMNS, false));
 		this.addSeparator(main);
+		_idTextEntry = this.createTextEntry(main, "ID", false);
 		this._nameTextEntry = this.createTextEntry(main, Messages.FilterEditor_name, true);
 		this._rubrikComboEntryViewer = this.createComboEntry(main, Messages.FilterEditor_category,
 				true, AbstractEditor.getConfigurationBeanService()
@@ -473,6 +474,10 @@ public class FilterEditor extends AbstractEditor<DefaultFilterBean> {
 	protected void initDataBinding() {
 		final DataBindingContext context = new DataBindingContext();
 
+		final IObservableValue idTextObservable = BeansObservables
+				.observeValue(this.getWorkingCopyOfEditorInput(),
+						FilterBean.PropertyNames.filterID.name());
+		
 		final IObservableValue nameTextObservable = BeansObservables
 				.observeValue(this.getWorkingCopyOfEditorInput(),
 						FilterBean.PropertyNames.name.name());
@@ -490,6 +495,9 @@ public class FilterEditor extends AbstractEditor<DefaultFilterBean> {
 						FilterBean.AbstractPropertyNames.rubrikName.name());
 
 		// bind observables
+		context.bindValue(SWTObservables.observeText(this._idTextEntry,
+				SWT.Modify), idTextObservable, null, null);
+		
 		context.bindValue(SWTObservables.observeText(this._nameTextEntry,
 				SWT.Modify), nameTextObservable, new UpdateValueStrategy() {
 

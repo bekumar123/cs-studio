@@ -39,27 +39,49 @@
       <plugin id="org.apache.log4j"/>
       <plugin id="org.apache.tools.ant"/>
       <plugin id="org.apache.tools.ant.junit"/>
+      <plugin id="org.csstudio.alarm.dal2jms.log4j" fragment="true"/>
+      <plugin id="org.csstudio.alarm.jms2ora.log4j" fragment="true"/>
+      <plugin id="org.csstudio.ams.application.deliverysystem.log4j" fragment="true"/>
+      <plugin id="org.csstudio.ams.log4j" fragment="true"/>
+      <plugin id="org.csstudio.archive.common.engine.product.log4j" fragment="true"/>
+      <plugin id="org.csstudio.archive.sdds.server.log4j" fragment="true"/>
       <plugin id="org.csstudio.csdata"/>
       <plugin id="org.csstudio.data"/>
+      <plugin id="org.csstudio.data.test" fragment="true"/>
       <plugin id="org.csstudio.desy.common.product.log4j" fragment="true"/>
+      <plugin id="org.csstudio.desy.css.product.log4j" fragment="true"/>
+      <plugin id="org.csstudio.diag.interconnectionserver.log4j" fragment="true"/>
       <plugin id="org.csstudio.domain.common"/>
+      <plugin id="org.csstudio.domain.common.test" fragment="true"/>
       <plugin id="org.csstudio.domain.desy"/>
+      <plugin id="org.csstudio.domain.desy.test" fragment="true"/>
       <plugin id="org.csstudio.email"/>
       <plugin id="org.csstudio.platform"/>
       <plugin id="org.csstudio.platform.libs.epics"/>
+      <plugin id="org.csstudio.platform.libs.epics.linux" fragment="true"/>
+      <plugin id="org.csstudio.platform.libs.epics.macosx" fragment="true"/>
+      <plugin id="org.csstudio.platform.libs.epics.win32" fragment="true"/>
       <plugin id="org.csstudio.platform.libs.jmock"/>
       <plugin id="org.csstudio.platform.libs.jms"/>
+      <plugin id="org.csstudio.platform.test" fragment="true"/>
       <plugin id="org.csstudio.platform.utility.jms"/>
       <plugin id="org.csstudio.remote"/>
+      <plugin id="org.csstudio.remote.test" fragment="true"/>
       <plugin id="org.csstudio.servicelocator"/>
+      <plugin id="org.csstudio.servicelocator.test" fragment="true"/>
+      <plugin id="org.csstudio.testsuite"/>
       <plugin id="org.csstudio.utility.jms"/>
       <plugin id="org.csstudio.utility.ldap.service"/>
       <plugin id="org.csstudio.utility.ldap.service.impl"/>
+      <plugin id="org.csstudio.utility.ldap.service.impl.test" fragment="true"/>
+      <plugin id="org.csstudio.utility.ldap.service.test" fragment="true"/>
       <plugin id="org.csstudio.utility.ldap.treeconfiguration"/>
       <plugin id="org.csstudio.utility.ldapupdater"/>
+      <plugin id="org.csstudio.utility.ldapupdater.test" fragment="true"/>
       <plugin id="org.csstudio.utility.namespace.utility"/>
       <plugin id="org.csstudio.utility.pvmanager"/>
       <plugin id="org.csstudio.utility.treemodel"/>
+      <plugin id="org.csstudio.utility.treemodel.test" fragment="true"/>
       <plugin id="org.csstudio.workspace"/>
       <plugin id="org.custommonkey.xmlunit"/>
       <plugin id="org.eclipse.ant.core"/>
@@ -110,10 +132,12 @@
       <plugin id="org.eclipse.equinox.security"/>
       <plugin id="org.eclipse.equinox.security.macosx" fragment="true"/>
       <plugin id="org.eclipse.equinox.security.win32.x86" fragment="true"/>
+      <plugin id="org.eclipse.equinox.security.win32.x86_64" fragment="true"/>
       <plugin id="org.eclipse.equinox.simpleconfigurator"/>
       <plugin id="org.eclipse.equinox.simpleconfigurator.manipulator"/>
       <plugin id="org.eclipse.equinox.util"/>
       <plugin id="org.eclipse.help"/>
+      <plugin id="org.eclipse.jdt.junit.core"/>
       <plugin id="org.eclipse.jface"/>
       <plugin id="org.eclipse.jface.databinding"/>
       <plugin id="org.eclipse.osgi"/>
@@ -122,7 +146,9 @@
       <plugin id="org.eclipse.swt.carbon.macosx" fragment="true"/>
       <plugin id="org.eclipse.swt.cocoa.macosx" fragment="true"/>
       <plugin id="org.eclipse.swt.cocoa.macosx.x86_64" fragment="true"/>
+      <plugin id="org.eclipse.swt.gtk.aix.ppc" fragment="true"/>
       <plugin id="org.eclipse.swt.gtk.aix.ppc64" fragment="true"/>
+      <plugin id="org.eclipse.swt.gtk.hpux.ia64_32" fragment="true"/>
       <plugin id="org.eclipse.swt.gtk.linux.ppc64" fragment="true"/>
       <plugin id="org.eclipse.swt.gtk.linux.s390" fragment="true"/>
       <plugin id="org.eclipse.swt.gtk.linux.s390x" fragment="true"/>
@@ -139,13 +165,16 @@
       <plugin id="org.eclipse.ui.workbench"/>
       <plugin id="org.eclipse.update.configurator"/>
       <plugin id="org.epics.util"/>
+      <plugin id="org.hamcrest"/>
       <plugin id="org.hamcrest.core"/>
       <plugin id="org.jdom"/>
       <plugin id="org.jivesoftware.smack"/>
       <plugin id="org.joda.time"/>
       <plugin id="org.junit"/>
       <plugin id="org.junit4"/>
+      <plugin id="org.mockito"/>
       <plugin id="org.remotercp.common"/>
+      <plugin id="org.remotercp.common.test" fragment="true"/>
       <plugin id="org.remotercp.domain.authorization"/>
       <plugin id="org.remotercp.libs.mockito"/>
       <plugin id="org.remotercp.service.authorization"/>

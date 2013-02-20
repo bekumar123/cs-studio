@@ -37,6 +37,7 @@ public class AlarmtopicEditor extends AbstractEditor<FilterBean> {
 	private FormToolkit formToolkit;
 
 	private ScrolledForm mainForm;
+	private Text _idTextEntry;
 
 	@Override
 	public void createPartControl(final Composite parent) {
@@ -46,6 +47,7 @@ public class AlarmtopicEditor extends AbstractEditor<FilterBean> {
 		main.setBackground(parent.getBackground());
 		main.setLayout(new GridLayout(this.NUM_COLUMNS, false));
 		this.addSeparator(main);
+		_idTextEntry = this.createTextEntry(main, "ID", false);
 		this._topicIdTextEntry = this.createTextEntry(main, Messages.AlarmtopicEditor_name, true);
 		this._rubrikComboEntryViewer = this.createComboEntry(main, Messages.AlarmtopicEditor_category,
 				true, AbstractEditor.getConfigurationBeanService()
@@ -78,6 +80,10 @@ public class AlarmtopicEditor extends AbstractEditor<FilterBean> {
 	protected void initDataBinding() {
 		final DataBindingContext context = new DataBindingContext();
 
+		final IObservableValue idTextObservable = BeansObservables
+				.observeValue(this.getWorkingCopyOfEditorInput(),
+						AlarmtopicBean.PropertyNames.topicID.name());
+		
 		final IObservableValue nameTextObservable = BeansObservables
 				.observeValue(this.getWorkingCopyOfEditorInput(),
 						AlarmtopicBean.PropertyNames.humanReadableName.name());
@@ -95,6 +101,9 @@ public class AlarmtopicEditor extends AbstractEditor<FilterBean> {
 						AlarmtopicBean.AbstractPropertyNames.rubrikName.name());
 
 		// bind observables
+		context.bindValue(SWTObservables.observeText(this._idTextEntry,
+				SWT.Modify), idTextObservable, null, null);
+		
 		context.bindValue(SWTObservables.observeText(this._topicIdTextEntry,
 				SWT.Modify), nameTextObservable, null, null);
 

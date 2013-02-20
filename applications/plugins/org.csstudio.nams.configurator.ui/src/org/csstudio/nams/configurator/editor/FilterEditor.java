@@ -453,6 +453,9 @@ public class FilterEditor extends AbstractEditor<FilterBean> {
 		// enthält.
 		this.getWorkingCopyOfEditorInput().updateState(
 				this.getOriginalEditorInput());
+		
+		this.actionTableViewer.setInput(this.getWorkingCopyOfEditorInput()
+				.getActions().toArray());
 	}
 
 	@Override

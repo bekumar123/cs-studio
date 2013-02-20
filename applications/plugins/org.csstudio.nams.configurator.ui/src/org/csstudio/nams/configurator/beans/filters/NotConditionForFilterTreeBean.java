@@ -8,21 +8,6 @@ public class NotConditionForFilterTreeBean extends FilterbedingungBean {
 	private FilterbedingungBean bean;
 
 	@Override
-	public int compareTo(final FilterbedingungBean o) {
-		if (o instanceof NotConditionForFilterTreeBean) {
-			return this.compareTo((NotConditionForFilterTreeBean) o);
-		}
-		return -1;
-	}
-
-	public int compareTo(final NotConditionForFilterTreeBean o) {
-		if (this == o) {
-			return 0;
-		}
-		return this.bean.compareTo(o.bean);
-	}
-
-	@Override
 	public boolean equals(final Object obj) {
 		if (obj instanceof NotConditionForFilterTreeBean) {
 			return this.bean.equals(((NotConditionForFilterTreeBean) obj).bean);

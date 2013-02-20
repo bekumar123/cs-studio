@@ -2,6 +2,7 @@
 package org.csstudio.nams.configurator.composite;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -117,7 +118,12 @@ public abstract class FilterableBeanList {
 			this.gruppenCombo.setSelection(new StructuredSelection(Messages.FilterableBeanList_all),
 					true);
 		}
-		Arrays.sort(tableInput);
+		Arrays.sort(tableInput, new Comparator<IConfigurationBean>() {
+			@Override
+			public int compare(IConfigurationBean o1, IConfigurationBean o2) {
+				return o1.getDisplayName().compareTo(o2.getDisplayName());
+			}
+		});
 		this.table.setInput(tableInput);
 	}
 

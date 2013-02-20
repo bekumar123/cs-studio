@@ -30,6 +30,7 @@ public class AlarmbearbeiterEditor extends AbstractEditor<AlarmbearbeiterBean> {
 		return AlarmbearbeiterEditor.EDITOR_ID;
 	}
 
+	private Text _idTextEntry;
 	private Text _nameTextEntry;
 	private Text _emailTextEntry;
 	private Combo _rubrikComboEntry;
@@ -47,7 +48,7 @@ public class AlarmbearbeiterEditor extends AbstractEditor<AlarmbearbeiterBean> {
 	private FormToolkit formToolkit;
 
 	private ScrolledForm mainForm;
-
+	
 	@Override
 	public void createPartControl(final Composite parent) {
 		this.formToolkit = new FormToolkit(parent.getDisplay());
@@ -56,6 +57,9 @@ public class AlarmbearbeiterEditor extends AbstractEditor<AlarmbearbeiterBean> {
 		main.setBackground(parent.getBackground());
 		main.setLayout(new GridLayout(this.NUM_COLUMNS, false));
 		this.addSeparator(main);
+		
+		_idTextEntry = this.createTextEntry(main, "ID", false);
+		
 		this._nameTextEntry = this.createTextEntry(main, Messages.AlarmbearbeiterEditor_name, true);
 		this._rubrikComboEntryViewer = this.createComboEntry(main, Messages.AlarmbearbeiterEditor_category,
 				true, AbstractEditor.getConfigurationBeanService()
@@ -108,6 +112,10 @@ public class AlarmbearbeiterEditor extends AbstractEditor<AlarmbearbeiterBean> {
 				.observeValue(this.getWorkingCopyOfEditorInput(),
 						AlarmbearbeiterBean.PropertyNames.name.name());
 
+		final IObservableValue userIdTextObservable = BeansObservables
+				.observeValue(this.getWorkingCopyOfEditorInput(),
+						AlarmbearbeiterBean.PropertyNames.userID.name());
+		
 		final IObservableValue emailTextObservable = BeansObservables
 				.observeValue(this.getWorkingCopyOfEditorInput(),
 						AlarmbearbeiterBean.PropertyNames.email.name());
@@ -146,6 +154,9 @@ public class AlarmbearbeiterEditor extends AbstractEditor<AlarmbearbeiterBean> {
 		context.bindValue(SWTObservables.observeText(this._nameTextEntry,
 				SWT.Modify), nameTextObservable, null, null);
 
+		context.bindValue(SWTObservables.observeText(this._idTextEntry,
+				SWT.Modify), userIdTextObservable, null, null);
+		
 		context.bindValue(SWTObservables.observeText(this._emailTextEntry,
 				SWT.Modify), emailTextObservable, null, null);
 

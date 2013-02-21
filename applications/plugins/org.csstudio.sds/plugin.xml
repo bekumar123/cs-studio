@@ -77,6 +77,13 @@
          <parameterDescription name="Value"/>
       </rule>
       <rule
+            class="org.csstudio.sds.internal.rules.DefaultValueRule"
+            compatibleProperties="sds.path"
+            name="Dafault Value Rule"
+            ruleId="defaultValue">
+         <parameterDescription name="Value"/>
+      </rule>
+      <rule
             class="org.csstudio.sds.internal.rules.SimpleColorRule"
             compatibleProperties="sds.color"
             name="Simple Color Rule"

@@ -35,6 +35,8 @@ import org.csstudio.sds.internal.rules.RuleService;
 import org.csstudio.sds.model.AbstractWidgetModel;
 import org.csstudio.sds.model.DynamicsDescriptor;
 import org.csstudio.sds.model.WidgetProperty;
+import org.csstudio.sds.util.ChannelReferenceValidationException;
+import org.csstudio.sds.util.ChannelReferenceValidationUtil;
 import org.csstudio.dal.simple.ConnectionParameters;
 import org.csstudio.dal.simple.RemoteInfo;
 import org.csstudio.dal.simple.SimpleDALBroker;
@@ -128,14 +130,26 @@ public final class ConnectionUtilNew {
 											.getConnectionStateDependentPropertyValues(),
 									dynamicsDescriptor
 											.getConditionStateDependentPropertyValues());
-
-							final String characteristic = processVariable
-									.getCharacteristic();
-
-							final SinglePropertyReadConnector connector = new SinglePropertyReadConnector(
-									processor, valueType, characteristic);
-
-							registry.register(cparam, connector);
+							if (ruleDescriptor.getRuleId().equalsIgnoreCase("defaultValue")) {
+								if (p.getValue()!=null && p.getValue()!="") {
+									String canonicalName = "";
+									try {
+										canonicalName = ChannelReferenceValidationUtil.createCanonicalName(p.getValue(), aliases);
+									} catch (ChannelReferenceValidationException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+									processor.valueChanged(canonicalName);
+								}
+							} else {
+								final String characteristic = processVariable
+										.getCharacteristic();
+	
+								final SinglePropertyReadConnector connector = new SinglePropertyReadConnector(
+										processor, valueType, characteristic);
+	
+								registry.register(cparam, connector);
+							}
 						}
 					}
 				}

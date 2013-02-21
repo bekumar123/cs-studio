@@ -26,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.csstudio.sds.internal.persistence.DisplayModelLoadAdapter;
 import org.csstudio.sds.internal.persistence.PersistenceUtil;
@@ -36,6 +37,8 @@ import org.csstudio.sds.model.LabelModel;
 import org.csstudio.sds.model.LinkingContainerModel;
 import org.csstudio.sds.ui.CheckedUiRunnable;
 import org.csstudio.sds.ui.figures.LinkingContainerFigure;
+import org.csstudio.sds.util.ChannelReferenceValidationException;
+import org.csstudio.sds.util.ChannelReferenceValidationUtil;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -44,6 +47,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.gef.EditPart;
@@ -52,6 +56,8 @@ import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.editpolicies.XYLayoutEditPolicy;
 import org.eclipse.gef.requests.CreateRequest;
 import org.eclipse.ui.progress.IJobRunnable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Controller for the linking container widget. The controller mediates between
@@ -61,6 +67,9 @@ import org.eclipse.ui.progress.IJobRunnable;
  *
  */
 public final class LinkingContainerEditPart extends AbstractContainerEditPart {
+	
+    private static final Logger LOG = LoggerFactory.getLogger(LinkingContainerEditPart.class);
+
 	private IProgressMonitor _runningMonitor;
 
 	/**
@@ -123,8 +132,10 @@ public final class LinkingContainerEditPart extends AbstractContainerEditPart {
 		((LinkingContainerFigure) getFigure()).updateZoom();
 	}
 
-	private void loadResource(final IPath resource,
+	private void loadResource(IPath resource,
 			final LinkingContainerFigure figure) {
+		//TODO (jhatje): Replace aliases in static resource property. Find a better/more generic solution.
+		resource = replaceAliases(resource);
 		if (_runningMonitor != null) {
 			_runningMonitor.setCanceled(true);
 		}
@@ -136,6 +147,26 @@ public final class LinkingContainerEditPart extends AbstractContainerEditPart {
 
 		job.run(_runningMonitor);
 
+	}
+
+	/**
+	 * Replace all aliases in given resource. The alias in static field separated by '§' because
+	 * '$' is used to select predefined values.  
+	 * @param resource
+	 * @return
+	 */
+	private IPath replaceAliases(IPath resource) {
+		Map<String, String> allInheritedAliases = getWidgetModel().getAllInheritedAliases();
+		String pathAsString = resource.toString();
+		pathAsString = pathAsString.replace("§", "$");
+		String createCanonicalName = "";
+		try {
+			createCanonicalName = ChannelReferenceValidationUtil.createCanonicalName(pathAsString, allInheritedAliases);
+		} catch (ChannelReferenceValidationException e) {
+			LOG.error("error replacing alias in linking container", e.toString());
+		}
+		resource = Path.fromOSString(createCanonicalName);
+		return resource;
 	}
 
 	/**

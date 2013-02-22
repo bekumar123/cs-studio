@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="CSS" uid="csstudioDESY" id="org.csstudio.desy.product.product" application="org.csstudio.desy.product.application" version="1.5.0.201302211400" useFeatures="true" includeLaunchers="true">
+<product name="CSS" uid="csstudioDESY" id="org.csstudio.desy.product.product" application="org.csstudio.desy.product.application" version="1.5.0.201302311400" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/org.csstudio.desy.product/resources/css64x64.gif"/>
@@ -181,7 +181,7 @@ HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
       <feature id="org.csstudio.desy.sds.feature" version="1.0.0.201302211400"/>
       <feature id="org.csstudio.desy.dct.feature" version="1.0.0.201302211400"/>
       <feature id="org.csstudio.desy.pv.feature" version="1.0.0.201302181100"/>
-      <feature id="org.csstudio.desy.alarm.feature" version="1.0.0.201302181100"/>
+      <feature id="org.csstudio.desy.alarm.feature" version="1.0.0.201302381100"/>
       <feature id="org.csstudio.desy.desytools.feature" version="1.0.0.201302071400"/>
       <feature id="org.csstudio.desy.development.feature" version="1.0.0.201212201100"/>
    </features>

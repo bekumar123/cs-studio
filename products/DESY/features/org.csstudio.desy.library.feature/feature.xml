@@ -41,40 +41,7 @@
          version="0.0.0"/>
 
    <plugin
-         id="org.csstudio.email.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="org.csstudio.logbook"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.csstudio.logbook.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.csstudio.swt.chart"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.csstudio.swt.widgets"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.csstudio.swt.xygraph"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -137,25 +104,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.csstudio.utility.pvmanager.epics"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.csstudio.archive.reader"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.csstudio.archive.reader.channelarchiver"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="org.csstudio.domain.desy"
          download-size="0"
          install-size="0"
@@ -164,13 +112,6 @@
 
    <plugin
          id="org.csstudio.utility.treemodel"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.csstudio.utility.namespace.utility"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -246,14 +187,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.csstudio.swt.xygraph.rcp"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"
-         unpack="false"/>
-
-   <plugin
          id="org.csstudio.dal.ui"
          download-size="0"
          install-size="0"
@@ -289,13 +222,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.csstudio.utility.pvmanager.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.epics.util"
          download-size="0"
          install-size="0"
@@ -304,13 +230,6 @@
 
    <plugin
          id="org.csstudio.domain.desy.epics"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.csstudio.alarm.service"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -331,49 +250,28 @@
          unpack="false"/>
 
    <plugin
-         id="org.csstudio.archive.common.reader"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.csstudio.archive.common.service"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.csstudio.archive.common.service.mysqlimpl"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.csstudio.archive.reader.aapi"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.csstudio.archive.reader.archiverecord"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.csstudio.archive.common.requesttype"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.csstudio.utility.screenshot"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.csstudio.alarm.service"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.csstudio.swt.xygraph"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.csstudio.utility.namespace.utility"
          download-size="0"
          install-size="0"
          version="0.0.0"

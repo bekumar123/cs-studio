@@ -99,17 +99,17 @@ public class Probe extends ViewPart implements PVListener, ISelectionProvider
 	 * Id of the save value command.
 	 */
 	private static final String SAVE_VALUE_COMMAND_ID =
-		"org.csstudio.platform.ui.commands.saveValue"; //$NON-NLS-1$
+		"org.csstudio.config.savevalue.ui.commands.saveValue"; //$NON-NLS-1$
 	/**
 	 * Id of the PV parameter to the save value command.
 	 */
 	private static final String PV_PARAMETER_ID =
-		"org.csstudio.platform.ui.commands.saveValue.pv"; //$NON-NLS-1$
+		"org.csstudio.config.savevalue..ui.commands.saveValue.pv"; //$NON-NLS-1$
 	/**
 	 * Id of the value parameter to the save value command.
 	 */
 	private static final String VALUE_PARAMETER_ID =
-		"org.csstudio.platform.ui.commands.saveValue.value"; //$NON-NLS-1$
+		"org.csstudio.config.savevalue.ui.commands.saveValue.value"; //$NON-NLS-1$
 
     private static final String SECURITY_ID = "operating"; //$NON-NLS-1$
 

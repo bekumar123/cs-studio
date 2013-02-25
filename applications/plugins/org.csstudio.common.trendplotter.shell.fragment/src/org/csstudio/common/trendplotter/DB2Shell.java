@@ -4,6 +4,7 @@ import java.util.logging.Level;
 import org.csstudio.common.trendplotter.Activator;
 import org.csstudio.common.trendplotter.Messages;
 import org.csstudio.common.trendplotter.editor.DataBrowserEditor;
+import org.csstudio.common.trendplotter.model.AxisConfig;
 import org.csstudio.common.trendplotter.model.Model;
 import org.csstudio.common.trendplotter.ui.Controller;
 import org.csstudio.common.trendplotter.ui.Plot;
@@ -92,6 +93,15 @@ public class DB2Shell {
             } catch (Exception ex) {
                 Activator.getLogger().log(Level.SEVERE, "Error reading file", ex); //$NON-NLS-1$
             }
+        }
+        
+        //remove empty axis (Sometimes there are empty axis in plt config file and
+        //then DnD to first empty axis produces strange behaviour)
+        AxisConfig axis = _model.getEmptyAxis();
+        while (axis != null)
+        {
+            _model.removeAxis(axis);
+            axis = _model.getEmptyAxis();
         }
         
         // Create GUI elements (Plot)

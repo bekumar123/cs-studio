@@ -1093,7 +1093,7 @@ public class Model
                 final double min = DOMHelper.getSubelementDouble(item, Model.TAG_MIN, axis.getMin());
                 final double max = DOMHelper.getSubelementDouble(item, Model.TAG_MAX, axis.getMax());
                 axis.setRange(min, max);
-                model_item.setMinMaxFromFile(true);
+//                model_item.getAxis().setMinMaxInitialized(true);
                 item = DOMHelper.findNextElementNode(item, TAG_PV);
             }
             // Load Formulas

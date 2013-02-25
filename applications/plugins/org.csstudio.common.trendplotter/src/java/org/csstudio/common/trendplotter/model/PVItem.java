@@ -83,7 +83,7 @@ public class PVItem extends ModelItem implements PVListener {
     /** Internal flag to store the 'on first connection/value update' info */
     private boolean first_pv_update = true;
 
-    private boolean _minMaxFromFile;
+//    private boolean _minMaxFromFile;
 
     /** Waveform Index */
     private int waveform_index = 0;
@@ -403,7 +403,8 @@ public class PVItem extends ModelItem implements PVListener {
     private void onConnect(@Nonnull final IValue value) {
         if (first_pv_update) {
             first_pv_update = false;
-            if (!_minMaxFromFile) {
+            if (!this.getAxis().isMinMaxInitialized()) {
+                this.getAxis().setMinMaxInitialized(true);
                 if (value.getMetaData() instanceof INumericMetaData) {
 
                     final INumericMetaData meta = (INumericMetaData) value.getMetaData();
@@ -588,12 +589,12 @@ public class PVItem extends ModelItem implements PVListener {
         return mdel_pv;
     }
 
-    /**
-     * @param b
-     */
-    public void setMinMaxFromFile(final boolean minMaxFromFile) {
-        _minMaxFromFile = minMaxFromFile;
-    }
+//    /**
+//     * @param b
+//     */
+//    public void setMinMaxFromFile(final boolean minMaxFromFile) {
+//        _minMaxFromFile = minMaxFromFile;
+//    }
 
     /**
      * 

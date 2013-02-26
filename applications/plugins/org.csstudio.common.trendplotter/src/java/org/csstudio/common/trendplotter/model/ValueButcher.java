@@ -7,6 +7,7 @@
  ******************************************************************************/
 package org.csstudio.common.trendplotter.model;
 
+import org.csstudio.archive.vtype.TimestampHelper;
 import org.csstudio.data.values.IDoubleValue;
 import org.csstudio.data.values.IEnumeratedMetaData;
 import org.csstudio.data.values.IEnumeratedValue;
@@ -19,7 +20,9 @@ import org.csstudio.data.values.ITimestamp;
 import org.csstudio.data.values.IValue;
 import org.csstudio.data.values.IValue.Quality;
 import org.csstudio.data.values.TimestampFactory;
-import org.csstudio.data.values.ValueFactory;
+import org.epics.util.time.Timestamp;
+import org.epics.vtype.ValueFactory;
+import org.epics.vtype.VType;
 
 /** Helper for transforming samples/values
  *  @author Kay Kasemir
@@ -31,10 +34,10 @@ public class ValueButcher
      *  @param time Desired time stamp
      *  @return New value with given time stamp
      */
-    public static IValue changeTimestamp(final IValue value,
-            final ITimestamp time)
+    public static VType changeTimestamp(final VType value,
+            final Timestamp time)
     {
-        final ISeverity severity = value.getSeverity();
+      /*  final ISeverity severity = value.getSeverity();
         final String status = value.getStatus();
         final Quality quality = value.getQuality();
         final IMetaData meta = value.getMetaData();
@@ -55,16 +58,17 @@ public class ValueButcher
                             quality, ((IStringValue)value).getValues());
         // Else: Log unknown data type as text
         return ValueFactory.createStringValue(time, severity, status,
-                quality, new String[] { value.toString() });
+                quality, new String[] { value.toString() });*/
+        return null;
     }
 
     /** Create new value with 'now' as time stamp
      *  @param value Original Value
      *  @return New value with 'now' as time stamp
      */
-    public static IValue changeTimestampToNow(final IValue value)
+    public static  VType changeTimestampToNow(final VType value)
     {
-        return changeTimestamp(value, TimestampFactory.now());
+        return changeTimestamp(value, Timestamp.now());
     }
 
     /** Create new sample with 'now' as time stamp

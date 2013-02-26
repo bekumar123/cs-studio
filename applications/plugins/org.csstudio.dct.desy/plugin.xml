@@ -23,6 +23,13 @@
             icon="icons/exporter.png"
             id="DbStatisticExporter">
       </exporter>
+      <exporter
+            class="org.csstudio.dct.export.internal.EpicsIoNameExporter"
+            default="false"
+            description="List of Epics and Io Names"
+            icon="icons/exporter.png"
+            id="org.csstudio.dct.export.internal.EpicsIoNameExporter">
+      </exporter>
    </extension>
 
 </plugin>

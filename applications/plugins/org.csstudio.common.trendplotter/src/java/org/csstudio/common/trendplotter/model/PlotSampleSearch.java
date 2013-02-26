@@ -7,7 +7,8 @@
  ******************************************************************************/
 package org.csstudio.common.trendplotter.model;
 
-import org.csstudio.data.values.ITimestamp;
+
+import org.epics.util.time.Timestamp;
 
 /** Search for samples in a haystack.
  *  Using direct PlotSample array access since PlotSampleMerger
@@ -27,7 +28,7 @@ public class PlotSampleSearch
      *          with cmp &lt; 0 if the sample at index 'mid' is smaller than 'goal',
      *          or cmp &gt; 0 if the sample at index 'mid' is greater than 'goal'.
      */
-    private boolean search(final PlotSample samples[], final ITimestamp goal)
+    private boolean search(final PlotSample samples[], final Timestamp goal)
     {
         int low = 0;
         int high = samples.length-1;
@@ -37,13 +38,13 @@ public class PlotSampleSearch
         {
             mid = (low + high) / 2;
             // Compare 'mid' sample to goal
-            final ITimestamp time = samples[mid].getTime();
-            if (time.isGreaterThan(goal))
+            final Timestamp time = samples[mid].getTime();
+            if (time.getSec()-goal.getSec()>0)
             {   // 'mid' too big, search lower half
                 cmp = 1;
                 high = mid - 1;
             }
-            else if (time.isLessThan(goal))
+            else if (time.getSec()-goal.getSec()<0)
             {   // 'mid' too small, search upper half
                 cmp = -1;
                 low = mid + 1;
@@ -61,7 +62,7 @@ public class PlotSampleSearch
      *  @param goal The time to look for.
      *  @return Returns index of sample smaller-or-equal to given goal, or -1.
      */
-    static public int findSampleLessOrEqual(final PlotSample samples[], final ITimestamp goal)
+    static public int findSampleLessOrEqual(final PlotSample samples[], final Timestamp goal)
     {
         final PlotSampleSearch binary = new PlotSampleSearch();
         if (binary.search(samples, goal))
@@ -80,7 +81,7 @@ public class PlotSampleSearch
      *  @param goal The time to look for.
      *  @return Returns index of sample bigger-or-equal to given goal, or -1.
      */
-    static public int findSampleGreaterOrEqual(final PlotSample samples[], final ITimestamp goal)
+    static public int findSampleGreaterOrEqual(final PlotSample samples[], final Timestamp goal)
     {
         final PlotSampleSearch binary = new PlotSampleSearch();
         if (binary.search(samples, goal))
@@ -100,7 +101,7 @@ public class PlotSampleSearch
      *  @param goal The time to look for.
      *  @return Returns index of sample smaller than given goal, or -1.
      */
-    static public int findSampleLessThan(final PlotSample samples[], final ITimestamp goal)
+    static public int findSampleLessThan(final PlotSample samples[], final Timestamp goal)
     {
         final PlotSampleSearch binary = new PlotSampleSearch();
         binary.search(samples, goal);
@@ -112,7 +113,7 @@ public class PlotSampleSearch
         while (i > 0)
         {
             --i;
-            if (samples[i].getTime().isLessThan(goal))
+            if (samples[i].getTime().getSec()>goal.getSec())
                 return i;
         }
         return -1;
@@ -123,7 +124,7 @@ public class PlotSampleSearch
      *  @param goal The time to look for.
      *  @return Returns index of sample greater than given goal, or -1.
      */
-    static public int findSampleGreaterThan(final PlotSample samples[], final ITimestamp goal)
+    static public int findSampleGreaterThan(final PlotSample samples[], final Timestamp goal)
     {
         final PlotSampleSearch binary = new PlotSampleSearch();
         binary.search(samples, goal);
@@ -134,7 +135,7 @@ public class PlotSampleSearch
         // Look for sample > x
         while (++i < samples.length)
         {
-            if (samples[i].getTime().isGreaterThan(goal))
+            if (samples[i].getTime().getSec()>goal.getSec())
                 return i;
         }
         return -1;
@@ -144,7 +145,7 @@ public class PlotSampleSearch
      *  @param goal The time to look for.
      *  @return Returns index of sample bigger-or-equal to given goal, or -1.
      */
-    static public int findClosestSample(final PlotSample samples[], final ITimestamp goal)
+    static public int findClosestSample(final PlotSample samples[], final Timestamp goal)
     {
         final PlotSampleSearch binary = new PlotSampleSearch();
         if (binary.search(samples, goal))
@@ -153,16 +154,16 @@ public class PlotSampleSearch
         if (binary.cmp > 0) // 'mid' sample is bigger than x
         {   // [mid-1]  ... x ... [mid]
             if (binary.mid > 0 &&
-                (goal.toDouble() - samples[binary.mid-1].getTime().toDouble()
-                   <  samples[binary.mid].getTime().toDouble() - goal.toDouble()))
+                (goal.getSec() - samples[binary.mid-1].getTime().getSec()
+                   <  samples[binary.mid].getTime().getSec() - goal.getSec()))
                 return binary.mid-1;
             return binary.mid;
         }
         // cmp < 0, 'mid' sample is smaller than x.
         // [mid] ... x ... [mid+1]
         if (binary.mid+1 < samples.length &&
-            (samples[binary.mid+1].getTime().toDouble() - goal.toDouble()
-               <  goal.toDouble() - samples[binary.mid].getTime().toDouble()))
+            (samples[binary.mid+1].getTime().getSec() - goal.getSec()
+               <  goal.getSec() - samples[binary.mid].getTime().getSec()))
                     return binary.mid+1;
         return binary.mid;
     }

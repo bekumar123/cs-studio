@@ -7,11 +7,11 @@
  ******************************************************************************/
 package org.csstudio.common.trendplotter.export;
 
-import org.csstudio.archive.reader.ValueIterator;
 import org.csstudio.common.trendplotter.model.ModelItem;
 import org.csstudio.common.trendplotter.model.PlotSamples;
-import org.csstudio.data.values.ITimestamp;
-import org.csstudio.data.values.IValue;
+import org.epics.util.time.Timestamp;
+import org.epics.vtype.VType;
+
 
 /** Iterator for the samples in a ModelItem, not fetching archived data
  *  @author Kay Kasemir
@@ -23,10 +23,10 @@ public class ModelSampleIterator// implements ValueIterator
     final private PlotSamples samples;
 
     /** End time */
-    final private ITimestamp end;
+    final private Timestamp end;
 
     /** The value returned by 'next' or undefined for 'index' < 0 */
-    private IValue value;
+    private VType value;
 
     /** Index of 'value' in 'samples', -1 for end-of-sequence */
     private int index;
@@ -36,8 +36,8 @@ public class ModelSampleIterator// implements ValueIterator
     /** @param start Start time
     /** @param end End time
      */
-    public ModelSampleIterator(final ModelItem item, final ITimestamp start,
-            final ITimestamp end)
+    public ModelSampleIterator(final ModelItem item, final Timestamp start,
+            final Timestamp end)
     {
         this.samples = item.getSamples();
         this.end = end;
@@ -47,7 +47,7 @@ public class ModelSampleIterator// implements ValueIterator
             if (samples.getSize() <= 0)
                 index = -1;
             // All data after start time?
-            else if (samples.getSample(0).getValue().getTime().isGreaterOrEqual(start))
+            else if (samples.getSample(index).getTime().getSec()>=start.getSec())
                 index = 0;
             else
             {   // There is data before the start time. Find sample just before start time.
@@ -57,7 +57,7 @@ public class ModelSampleIterator// implements ValueIterator
             if (index >= 0)
             {
                 value = samples.getSample(index).getValue();
-                if (value.getTime().isGreaterThan(end))
+                if (samples.getSample(index).getTime().getSec()>end.getSec())
                     index = -1;
             }
         }
@@ -66,7 +66,7 @@ public class ModelSampleIterator// implements ValueIterator
     /** @param start Start time
      *  @return Index sample with time stamp at-or-before start time, or -1.
      */
-    private int findSampleLessOrEqual(final ITimestamp start)
+    private int findSampleLessOrEqual(final Timestamp start)
     {
         // Would like to use PlotSampleSearch, but that operates on array
         // of PlotSample[]
@@ -78,13 +78,13 @@ public class ModelSampleIterator// implements ValueIterator
         {
             mid = (low + high) / 2;
             // Compare 'mid' sample to goal
-            final ITimestamp time = samples.getSample(mid).getTime();
-            if (time.isGreaterThan(start))
+            final Timestamp time = samples.getSample(mid).getTime();
+            if (time.getSec()>(start.getSec()))
             {   // 'mid' too big, search lower half
                 cmp = 1;
                 high = mid - 1;
             }
-            else if (time.isLessThan(start))
+            else if (time.getSec()<(start.getSec()))
             {   // 'mid' too small, search upper half
                 cmp = -1;
                 low = mid + 1;
@@ -112,12 +112,12 @@ public class ModelSampleIterator// implements ValueIterator
     }
 
     /** {@inheritDoc} */
-    public IValue next() throws Exception
+    public VType next() throws Exception
     {
         if (index < 0)
             throw new Exception("End of samples"); //$NON-NLS-1$
         // Remember value, prepare the next value
-        final IValue result = value;
+        final VType result = value;
         synchronized (samples)
         {
             ++index;
@@ -126,7 +126,7 @@ public class ModelSampleIterator// implements ValueIterator
             else
             {
                 value = samples.getSample(index).getValue();
-                if (value.getTime().isGreaterThan(end))
+                if (samples.getSample(index).getTime().getSec()>end.getSec())
                     index = -1; // Beyond end time
             }
         }
@@ -138,4 +138,6 @@ public class ModelSampleIterator// implements ValueIterator
     {
         // NOP
     }
+
+
 }

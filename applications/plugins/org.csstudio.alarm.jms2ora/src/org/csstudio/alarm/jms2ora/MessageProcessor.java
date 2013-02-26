@@ -27,8 +27,10 @@ package org.csstudio.alarm.jms2ora;
 import java.util.Collection;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
+
 import org.csstudio.alarm.jms2ora.service.ArchiveMessage;
 import org.csstudio.alarm.jms2ora.service.IMessageWriter;
 import org.csstudio.alarm.jms2ora.service.IPersistenceHandler;
@@ -72,7 +74,7 @@ public class MessageProcessor extends Thread implements IMessageProcessor {
 
     /** The class logger */
     private static final Logger LOG = LoggerFactory.getLogger(MessageProcessor.class);
-    
+
     /** Time to wait for the thread MessageProcessor in ms */
     private static final long WAITFORTHREAD = 20000;
 
@@ -92,7 +94,7 @@ public class MessageProcessor extends Thread implements IMessageProcessor {
 
     /** Time to sleep in ms */
     private long msgProcessorSleepingTime;
-    
+
     /** Min. waiting (in sec.) time before a new storage will be started */
     private int timeBetweenStorage;
 
@@ -109,7 +111,7 @@ public class MessageProcessor extends Thread implements IMessageProcessor {
     private boolean stoppedClean;
 
     private boolean logStatistic;
-    
+
     /**
      * The constructor
      *
@@ -118,7 +120,7 @@ public class MessageProcessor extends Thread implements IMessageProcessor {
     public MessageProcessor(long sleepingTime, int storageWaitTime, boolean log) throws ServiceNotAvailableException {
 
         this.setUncaughtExceptionHandler(ThreadExceptionHandler.getInstance());
-        
+
         try {
             writerService = Jms2OraActivator.getDefault().getMessageWriterService();
             if (writerService.isServiceReady()) {
@@ -131,7 +133,7 @@ public class MessageProcessor extends Thread implements IMessageProcessor {
             LOG.error(e.getMessage());
             throw new ServiceNotAvailableException("Database writer service not available: " + e.getMessage());
         }
-        
+
         try {
             persistenceService = Jms2OraActivator.getDefault().getPersistenceWriterService();
             LOG.info("Persistence service available.");
@@ -139,14 +141,14 @@ public class MessageProcessor extends Thread implements IMessageProcessor {
             LOG.error("Persistence service NOT available.");
             throw new ServiceNotAvailableException("Persistence writer service not available: " + e.getMessage());
         }
-        
-        
+
+
         collector = new StatisticCollector();
         messageConverter = new MessageConverter(this, collector);
-        
+
         timeBetweenStorage = storageWaitTime;
         msgProcessorSleepingTime = sleepingTime;
-        
+
         nextStorageTime = new LocalDateTime();
         nextStorageTime = nextStorageTime.plusSeconds(timeBetweenStorage);
 
@@ -156,7 +158,7 @@ public class MessageProcessor extends Thread implements IMessageProcessor {
         stoppedClean = false;
         initialized = false;
         logStatistic = log;
-        
+
         this.setName("MessageProcessor-Thread");
     }
 
@@ -173,7 +175,9 @@ public class MessageProcessor extends Thread implements IMessageProcessor {
      */
     @Override
     public final synchronized void putArchiveMessages(@Nonnull final Collection<ArchiveMessage> m) {
-        archiveMessages.addAll(m);
+        if (m != null) {
+            archiveMessages.addAll(m);
+        }
     }
 
     private int checkForDiskMessages() {
@@ -196,7 +200,7 @@ public class MessageProcessor extends Thread implements IMessageProcessor {
         }
         return written;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -213,7 +217,7 @@ public class MessageProcessor extends Thread implements IMessageProcessor {
         checkForDiskMessages();
 
         while(running) {
-            
+
             final LocalDateTime now = new LocalDateTime();
 
             if ((now.isAfter(nextStorageTime) || archiveMessages.size() >= 1000) && running) {
@@ -235,11 +239,11 @@ public class MessageProcessor extends Thread implements IMessageProcessor {
                         checkForDiskMessages();
                         collector.addStoredMessages(number);
                     }
-                    
+
                     storeMe.clear();
                     storeMe = null;
                 }
-                
+
                 if (logStatistic) {
                     LOG.info(createStatisticString());
                 }
@@ -248,7 +252,7 @@ public class MessageProcessor extends Thread implements IMessageProcessor {
             if (now.isAfter(nextStorageTime)) {
                 nextStorageTime = nextStorageTime.plusSeconds(timeBetweenStorage);
             }
-            
+
             if(running) {
                 synchronized (this) {
                     try {
@@ -272,14 +276,14 @@ public class MessageProcessor extends Thread implements IMessageProcessor {
         } catch (InterruptedException e) {
             LOG.warn("[*** InterruptedException ***]: {}", e.getMessage());
         }
-        } while ((waitCount-- > 0) && !messageConverter.stoppedClean());
-        
+        } while (waitCount-- > 0 && !messageConverter.stoppedClean());
+
         LOG.info("MessageConverter stopped clean: {}", messageConverter.stoppedClean());
-        
+
         // Process the remaining messages
         LOG.info("Remaining archive messages: {}", archiveMessages.size());
         LOG.info("Remaining   raw   messages: {}", messageConverter.getQueueSize());
-        
+
         int writtenToDb = 0;
         int writtenToHd = 0;
 
@@ -299,13 +303,13 @@ public class MessageProcessor extends Thread implements IMessageProcessor {
                 writtenToDb = storeMe.size();
             }
         }
-        
+
         // TODO
         // Store the remaining raw messages
 //        if (messageConverter.getQueueSize() > 0) {
-//            
+//
 //        }
-        
+
         if (writerService != null) {
             writerService.close();
         }

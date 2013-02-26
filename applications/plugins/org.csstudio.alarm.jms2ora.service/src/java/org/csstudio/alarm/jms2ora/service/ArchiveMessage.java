@@ -70,7 +70,7 @@ public class ArchiveMessage implements Serializable {
     }
 
     public void put(@Nonnull final Long key, @Nonnull final String name, @Nonnull final String value) {
-        if ((key != null) && (name != null)) {
+        if (key != null && name != null && value != null) {
             msgIdContent.put(key, value);
             msgNameContent.put(name, value);
         }

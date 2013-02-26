@@ -28,7 +28,9 @@ import java.io.File;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URI;
+
 import javax.annotation.Nonnull;
+
 import org.csstudio.alarm.jms2ora.management.GetNumberOfMessageFiles;
 import org.csstudio.alarm.jms2ora.management.GetQueueSize;
 import org.csstudio.alarm.jms2ora.management.GetVersionMgmtCommand;
@@ -62,7 +64,7 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
 
     /** Time to wait for the thread MessageProcessor in ms */
     private static final long WAITFORTHREAD = 60000;
-    
+
     /** The MessageProcessor does all the work on messages */
     private MessageProcessor messageProcessor;
 
@@ -72,8 +74,7 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
     /** Object that holds the credentials for XMPP login */
     private XmppInfo xmppInfo;
 
-    /** The ECF service */
-    private ISessionService xmppService;
+    private XmppSessionHandler xmppSessionHandler;
 
     /** Flag that indicates whether or not the application is/should running */
     private boolean running;
@@ -82,9 +83,9 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
     private boolean shutdown;
 
     public Jms2OraApplication() {
+        xmppSessionHandler = new XmppSessionHandler();
         lock = new Object();
         xmppInfo = null;
-        xmppService = null;
         running = true;
         shutdown = false;
     }
@@ -98,12 +99,9 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
         System.setOut(new PrintStream(new File("./stdout.txt")));
         System.setErr(new PrintStream(new File("./stderr.txt")));
 
-        CommandLine cmd = null;
-        String[] args = null;
-        String host = null;
-        String user = null;
+        xmppSessionHandler.connect(this);
 
-        args = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
+        String[] args = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
 
         final IPreferencesService prefs = Platform.getPreferencesService();
         final String xmppUser = prefs.getString(Jms2OraActivator.PLUGIN_ID,
@@ -119,7 +117,7 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
          *  Applikationsoptionen, um den Check zu starten
          *  -check -host krynfs -username archiver
          */
-        cmd = new CommandLine(args);
+        CommandLine cmd = new CommandLine(args);
         if(cmd.exists("help") || cmd.exists("h") || cmd.exists("?")) {
 
             System.out.println(VersionInfo.getAll());
@@ -132,6 +130,9 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
 
             return IApplication.EXIT_OK;
         }
+
+        String host = null;
+        String user = null;
 
         if(cmd.exists("stop")) {
 
@@ -156,7 +157,7 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
             user = cmd.value("username", "");
 
             final ApplicationChecker checker = new ApplicationChecker();
-            
+
             try {
                 final boolean success = checker.checkExternInstance("jms2oracle", host, user);
                 if(success) {
@@ -175,17 +176,17 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
                                    PreferenceConstants.MESSAGE_PROCESSOR_SLEEPING_TIME,
                                    30000L,
                                    null);
-        
+
         int storageWait = prefs.getInt(Jms2OraActivator.PLUGIN_ID,
                                        PreferenceConstants.TIME_BETWEEN_STORAGE,
                                        60,
                                        null);
-        
+
         boolean logStatistic = prefs.getBoolean(Jms2OraActivator.PLUGIN_ID,
                                                 PreferenceConstants.LOG_STATISTIC,
                                                 true,
                                                 null);
-        
+
         // Create an object from this class
         messageProcessor = new MessageProcessor(sleep, storageWait, logStatistic);
         messageProcessor.start();
@@ -202,7 +203,19 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
                     LOG.info("lock.wait() has been interrupted.");
                 }
             }
-
+            // Check XMPP connection
+            if (xmppSessionHandler.isConnected()) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("XMPP connection is working.");
+                }
+            } else {
+                LOG.warn("XMPP connection is broken! Try to re-connect.");
+                try {
+                    xmppSessionHandler.reconnect();
+                } catch (XmppSessionException e) {
+                    xmppSessionHandler.connect(this);
+                }
+            }
             // TODO: Check the worker...
             if (LOG.isDebugEnabled()) {
                 LOG.debug("TODO: Check the worker...");
@@ -222,21 +235,12 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
                 } catch(final InterruptedException ie) {
                     LOG.info("messageProcessor.join(WAITFORTHREAD) has been interrupted.");
                 }
-            } while ((waitCount-- > 0) && !messageProcessor.stoppedClean());
-            
+            } while (waitCount-- > 0 && !messageProcessor.stoppedClean());
+
             LOG.info("Restart/Exit: MessageProcessor stopped clean: {}", messageProcessor.stoppedClean());
         }
 
-        if (xmppService != null) {
-            synchronized (xmppService) {
-                try {
-                    xmppService.wait(500);
-                } catch (InterruptedException ie) {
-                    LOG.info("xmppService.wait(500) has been interrupted.");
-                }
-            }
-            xmppService.disconnect();
-        }
+        xmppSessionHandler.disconnect();
 
         Integer exitCode;
         if (shutdown) {
@@ -269,7 +273,7 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
             try {
                 path = uri.toURL().getPath();
                 if (path != null) {
-                    
+
                     LOG.info("Path to version file: {}", path);
                     GetVersionMgmtCommand.injectStaticObject(path);
                 }
@@ -282,7 +286,7 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
 
     	try {
 			sessionService.connect(xmppInfo.getXmppUser(), xmppInfo.getXmppPassword(), xmppInfo.getXmppServer());
-			xmppService = sessionService;
+			xmppSessionHandler.setSessionService(sessionService);
     	} catch (final Exception e) {
 		    LOG.warn("XMPP connection is not available: {}", e.toString());
 		}

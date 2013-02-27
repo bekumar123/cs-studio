@@ -69,4 +69,4 @@ Export-Package: net.sf.ehcache,
  net.sf.ehcache.writer.writebehind.operations,
  net.sf.ehcache.writer.writethrough
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: org.slf4j;bundle-version="1.6.1"
+Require-Bundle: org.slf4j;bundle-version="1.7.2"

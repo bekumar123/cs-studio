@@ -14,7 +14,7 @@ import java.io.PrintStream;
 
 import org.csstudio.email.encoder.Base64Encoder;
 
-import sun.net.smtp.SmtpClient;
+//import sun.net.smtp.SmtpClient;
 
 /** Send EMail with text or image attachments.
  *  <p>
@@ -31,8 +31,8 @@ public class EMailSender
     /** Message boundary marker */
     final private static String boundary = "==XOXOX-ThisIsTheMessageBoundary-XOXOX==";
 
-    /** SMPT client connection */
-    final private SmtpClient smtp;
+//    /** SMPT client connection */
+//    final private SmtpClient smtp;
 
     /** Stream for the message content */
     final private PrintStream message;
@@ -53,19 +53,20 @@ public class EMailSender
     public EMailSender(final String host, final String from, final String to,
                        final String subject) throws IOException
     {
-        smtp = new SmtpClient(host);
-        smtp.from(from);
-        smtp.to(to);
-        message = smtp.startMessage();
-
-        message.println("To: " + to);
-        message.println("From: " + from);
-        message.println("Subject: " + subject);
-
-        message.println("Content-Type: multipart/mixed; boundary=\"" + boundary + "\"");
-        message.println();
-        message.println("This is a multi-part message in MIME format.");
-        message.println();
+    	message=null;
+//        smtp = new SmtpClient(host);
+//        smtp.from(from);
+//        smtp.to(to);
+//        message = smtp.startMessage();
+//
+//        message.println("To: " + to);
+//        message.println("From: " + from);
+//        message.println("Subject: " + subject);
+//
+//        message.println("Content-Type: multipart/mixed; boundary=\"" + boundary + "\"");
+//        message.println();
+//        message.println("This is a multi-part message in MIME format.");
+//        message.println();
     }
 
     /**
@@ -135,6 +136,6 @@ public class EMailSender
     public void close() throws IOException
     {
         message.println("--" + boundary + "--");
-        smtp.closeServer();
+//        smtp.closeServer();
     }
 }

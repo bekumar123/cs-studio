@@ -78,8 +78,7 @@ public class JaasLoginModule implements ILoginModule {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
-    public User login(final ILoginCallbackHandler handler) {
+    public User login(ILoginCallbackHandler handler) {
 		// Determine which JAAS configuration entry to use
 		//final IPreferencesService service = Platform.getPreferencesService();
 		//final String contextName = service.getString(Activator.PLUGIN_ID,
@@ -192,7 +191,6 @@ public class JaasLoginModule implements ILoginModule {
 	 * support logout.
 	 * @throws UnsupportedOperationException always thrown.
 	 */
-	@Override
     public void logout() {
 		/*
 		 * Note: to do logout, we would have to store the jaas login context and
@@ -214,8 +212,7 @@ public class JaasLoginModule implements ILoginModule {
 		 * Handles username and password callbacks by returning the username
 		 * and password of the credentials. Other callbacks are not supported.
 		 */
-		@Override
-        public void handle(final Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+        public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
 			for (Callback c : callbacks) {
 				if (c instanceof NameCallback) {
 					// return the username

@@ -778,16 +778,17 @@ class InfoLabelDragger extends MouseMotionListener.Stub implements MouseListener
 	}
 	
 }
-	
+
+@SuppressWarnings("deprecation")
 class Pointer extends Figure{
 	
 	class PointerDragger extends MouseMotionListener.Stub implements MouseListener{		
 		
 		private MovingAnnotationCommand command;
+		
 		@Override
 		public void mouseDragged(MouseEvent me) {
 			//System.out.println("Annotation.Pointer.PointerDragger.mouseDragged()");
-			
 			//free
 			if(trace == null){
 				setCurrentPosition(me.getLocation(), 

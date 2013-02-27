@@ -8,15 +8,12 @@ Bundle-Description: Application User Interface utilities for Dialogs, ...
 Require-Bundle: org.junit4,
  org.eclipse.core.runtime,
  org.eclipse.jface;resolution:=optional;visibility:=reexport,
- org.eclipse.rap.jface;resolution:=optional;visibility:=reexport,
  org.eclipse.help;bundle-version="3.4.1",
  org.eclipse.ui;resolution:=optional;visibility:=reexport,
- org.eclipse.rap.ui;resolution:=optional;visibility:=reexport,
  org.eclipse.equinox.security;bundle-version="1.0.0",
  org.csstudio.apputil;bundle-version="3.0.0";visibility:=reexport,
  org.csstudio.logbook,
- org.csstudio.ui.util;bundle-version="3.1.0";resolution:=optional;visibility:=reexport,
- org.csstudio.rap.ui.util;bundle-version="1.0.0";resolution:=optional;visibility:=reexport
+ org.csstudio.ui.util;bundle-version="3.1.0";resolution:=optional;visibility:=reexport
 Export-Package: org.csstudio.apputil.ui.dialog,
  org.csstudio.apputil.ui.elog,
  org.csstudio.apputil.ui.formula,

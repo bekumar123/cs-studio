@@ -84,10 +84,8 @@ public class RoleInformationToolbar extends WorkbenchWindowControlContribution {
         /**
          * {@inheritDoc}
          */
-        @Override
         public void handleUserManagementEvent(final UserManagementEvent event) {
             Display.getDefault().asyncExec(new Runnable() {
-                @Override
                 public void run() {
                     // Force an update of the contribution manager. This will
                     // cause the contribution manager to ask the contribution
@@ -154,14 +152,12 @@ public class RoleInformationToolbar extends WorkbenchWindowControlContribution {
             button.setCursor(new Cursor(null, SWT.CURSOR_HELP));
             button.addSelectionListener(new SelectionListener() {
                 
-                @Override
                 public void widgetSelected(SelectionEvent e) {
                     MessageDialog.openInformation(null,
                                                   Messages.RoleInformationToolbar_Head,
                                                   stringBuilder(roles));
                 }
                 
-                @Override
                 public void widgetDefaultSelected(SelectionEvent e) {
                     MessageDialog.openInformation(null,
                                                   Messages.RoleInformationToolbar_Head,

@@ -124,7 +124,7 @@ public class EpicsPreferencePage
 	}
 
     /** {@inheritDoc} */
-	@Override
+	//@Override
     public void init(IWorkbench workbench)
     { /* NOP */ }
 

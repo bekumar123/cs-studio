@@ -61,7 +61,6 @@ public class LdapAuthorizationReader implements IAuthorizationProvider {
 	/* (non-Javadoc)
 	 * @see org.csstudio.platform.internal.ldapauthorization.IAuthorizationProvider#getRights(org.csstudio.platform.security.User)
 	 */
-	@Override
     public RightSet getRights(User user) {
 		String username = user.getUsername();
 		// If the user was authenticated via Kerberos, the username may be a
@@ -114,7 +113,6 @@ public class LdapAuthorizationReader implements IAuthorizationProvider {
 	 * 
 	 * <p>Syntax errors in configuration files are ignored.</p>
 	 */
-	@Override
     public RightSet getRights(String actionId) {
 		synchronized (this) {
 			if (actionsrights == null) {

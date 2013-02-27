@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.csstudio.dct.model.IVisitor;
+import org.csstudio.dct.model.internal.AbstractPropertyContainer;
 import org.junit.Before;
 import org.junit.Test;
 

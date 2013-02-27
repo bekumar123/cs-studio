@@ -1,178 +1,227 @@
 package org.csstudio.dct.model.internal;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.csstudio.dct.model.IContainer;
+import org.csstudio.dct.model.IFolder;
 import org.csstudio.dct.model.IInstance;
 import org.csstudio.dct.model.IPrototype;
 import org.csstudio.dct.model.IRecord;
 import org.csstudio.dct.model.IVisitor;
+import org.csstudio.dct.util.Immutable;
+import org.csstudio.dct.util.NotNull;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * Standard implementation of {@link IPrototype}.
  * 
+ * A Prototype has no parent.
+ * 
  * @author Sven Wende
  */
 public final class Prototype extends AbstractContainer implements IPrototype {
-	private static final long serialVersionUID = 2845048590453820494L;
-	
-	private List<Parameter> parameters;
+    private static final long serialVersionUID = 2845048590453820494L;
 
-	public Prototype() {
-	}
-	
-	/**
-	 * Constructor.
-	 * @param name the name
-	 * @param id the id
-	 */
-	public Prototype(String name, UUID id) {
-		super(name, null, id);
-		this.parameters = new ArrayList<Parameter>();
-	}
+    @NotNull
+    private List<Parameter> parameters = new ArrayList<Parameter>();
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public List<Parameter> getParameters() {
-		return parameters;
-	}
+    public Prototype() {
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void addParameter(Parameter parameter) {
-		parameters.add(parameter);
-	}
+    public Prototype(@NotNull String name, @NotNull UUID id) {
+        super(name, null, id);
+        checkNotNull(name);
+        checkNotNull(id);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void addParameter(int index, Parameter parameter) {
-		parameters.add(index, parameter);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public @Immutable
+    List<Parameter> getParameters() {
+        return ImmutableList.copyOf(parameters);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void removeParameter(Parameter parameter) {
-		parameters.remove(parameter);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void addParameter(@NotNull Parameter parameter) {
+        checkNotNull(parameter);
+        parameters.add(parameter);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void removeParameter(int index) {
-		parameters.remove(index);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void addParameter(int index, @NotNull Parameter parameter) {
+        checkArgument(index >= 0);
+        checkNotNull(parameter);
+        parameters.add(index, parameter);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean hasParameter(String key) {
-		boolean result = false;
-		for (Parameter p : parameters) {
-			if (p.getName().equals(key)) {
-				result = true;
-			}
-		}
-		return result;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void removeParameter(@NotNull Parameter parameter) {
+        checkNotNull(parameter);
+        parameters.remove(parameter);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Map<String, String> getParameterValues() {
-		Map<String, String> result = new HashMap<String, String>();
+    /**
+     * {@inheritDoc}
+     */
+    public void removeParameter(int index) {
+        checkArgument(index >= 0);
+        parameters.remove(index);
+    }
 
-		for (Parameter p : parameters) {
-			result.put(p.getName(), p.getDefaultValue());
-		}
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasParameter(@NotNull String key) {
+        checkNotNull(key);
+        boolean result = false;
+        for (Parameter p : parameters) {
+            if (p.getName().equals(key)) {
+                result = true;
+            }
+        }
+        return result;
+    }
 
-		return result;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public Map<String, String> getParameterValues() {
+        Map<String, String> result = new HashMap<String, String>();
 
-	/**
-	 *{@inheritDoc}
-	 */
-	public boolean isInherited() {
-		return false;
-	}
+        for (Parameter p : parameters) {
+            result.put(p.getName(), p.getDefaultValue());
+        }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void accept(IVisitor visitor) {
-		visitor.visit(this);
+        return result;
+    }
 
-		for (IInstance instance : getInstances()) {
-			instance.accept(visitor);
-		}
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isInherited() {
+        return false;
+    }
 
-		for (IRecord record : getRecords()) {
-			record.accept(visitor);
-		}
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void accept(@NotNull IVisitor visitor) {
+        checkNotNull(visitor);
+        visitor.visit(this);
+        for (IInstance instance : getInstances()) {
+            instance.accept(visitor);
+        }
+        for (IRecord record : getRecords()) {
+            record.accept(visitor);
+        }
+    }
 
-	/**
-	 *{@inheritDoc}
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		boolean result = false;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        boolean result = false;
+        if (obj instanceof Prototype) {
+            Prototype prototype = (Prototype) obj;
+            if (super.equals(obj)) {
+                // .. parameters
+                if (getParameters().equals(prototype.getParameters())) {
+                    result = true;
+                }
+            }
+        }
+        return result;
+    }
 
-		if (obj instanceof Prototype) {
-			Prototype prototype = (Prototype) obj;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
 
-			if (super.equals(obj)) {
-				// .. parameters
-				if (getParameters().equals(prototype.getParameters())) {
-					result = true;
-				}
-			}
-		}
+    }
 
-		return result;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public String getParameterValue(@NotNull String key) {
+        checkNotNull(key);
+        return getParameterValues().get(key);
+    }
 
-	/**
-	 *{@inheritDoc}
-	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-//		result = prime * result + ((parameters == null) ? 0 : parameters.hashCode());
-		return getId().hashCode();
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasParameterValue(@NotNull String key) {
+        checkNotNull(key);
+        return getParameterValues().get(key) != null;
+    }
 
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void setParameterValue(@NotNull String key, @NotNull String value) {
+        checkNotNull(key);
+        checkNotNull(value);
+        for (Parameter p : parameters) {
+            if (key.equals(p.getName())) {
+                p.setDefaultValue(value);
+            }
+        }
+    }
 
-	/**
-	 *{@inheritDoc}
-	 */
-	public String getParameterValue(String key) {
-		return getParameterValues().get(key);
-	}
+    @Override
+    public void switchParameters(int moveFrom, int moveTo) {
+        Parameter first = parameters.get(moveFrom);
+        parameters.set(moveFrom, parameters.get(moveTo));
+        parameters.set(moveTo, first);
+    }
 
-	/**
-	 *{@inheritDoc}
-	 */
-	public boolean hasParameterValue(String key) {
-		return getParameterValues().get(key) != null;
-	}
+    @Override
+    public IFolder getRootFolder() {
+        IContainer container = getFirstContainerWithParentFolder();
+        if (container == null) {
+            container = this;
+        }
+        IFolder folder = container.getParentFolder();
+        return folder.getRootFolder();
+    }
+    
+    private IContainer getFirstContainerWithParentFolder() {
+        IContainer container = getContainer();
+        while ((container != null) && (container.getParentFolder() == null)) {
+            container = container.getContainer();
+        }        
+        return container;
+    }
+   
+ //   public IFolder getRootFolder() {
+   //     return this.getParentFolder();
+    //}
 
-	/**
-	 *{@inheritDoc}
-	 */
-	public void setParameterValue(String key, String value) {
-		for (Parameter p : parameters) {
-			if (key.equals(p.getName())) {
-				p.setDefaultValue(value);
-			}
-		}
-	}
-	
+    public String toString() {
+        // @formatter::off
+        return com.google.common.base.Objects.toStringHelper(this).add("name", this.getName()).add("id", this.getId())
+                .add("container", this.getContainer()).toString();
+        // @formatter::on
+    }
+
 }

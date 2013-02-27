@@ -6,6 +6,7 @@ package org.csstudio.dct.model.internal;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
+import org.csstudio.dct.model.internal.Parameter;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,6 +20,7 @@ public final class ParameterTest {
 	private Parameter parameter;
 	private String name;
 	private String defaultValue;
+    private String descripion;
 	
 	/**
 	 * @throws java.lang.Exception
@@ -27,7 +29,8 @@ public final class ParameterTest {
 	public void setUp() throws Exception {
 		name = "name";
 		defaultValue = "defaultValue";
-		parameter = new Parameter(name, defaultValue);
+		descripion = "descriptionValue";
+		parameter = new Parameter(name, defaultValue, descripion);
 	}
 
 	/**
@@ -36,16 +39,6 @@ public final class ParameterTest {
 	@Test
 	public void testGetName() {
 		assertEquals(name, parameter.getName());
-	}
-
-	/**
-	 * Test method for {@link org.csstudio.dct.model.internal.Parameter#setName(java.lang.String)}.
-	 */
-	@Test
-	public void testSetName() {
-		assertEquals(name, parameter.getName());
-		parameter.setName("name2");
-		assertEquals("name2", parameter.getName());
 	}
 
 	/**
@@ -71,8 +64,8 @@ public final class ParameterTest {
 	 */
 	@Test
 	public void testEquals() {
-		assertEquals(parameter, new Parameter(parameter.getName(), parameter.getDefaultValue()));
-		assertNotSame(parameter, new Parameter(parameter.getName()+"x", parameter.getDefaultValue()));
-		assertNotSame(parameter, new Parameter(parameter.getName(), parameter.getDefaultValue()+"x"));
+		assertEquals(parameter, new Parameter(parameter.getName(), parameter.getDefaultValue(), ""));
+		assertNotSame(parameter, new Parameter(parameter.getName()+"x", parameter.getDefaultValue(), ""));
+		assertNotSame(parameter, new Parameter(parameter.getName(), parameter.getDefaultValue()+"x", ""));
 	}
 }

@@ -9,6 +9,7 @@ import static org.junit.Assert.assertNotSame;
 import java.util.UUID;
 
 import org.csstudio.dct.model.IVisitor;
+import org.csstudio.dct.model.internal.AbstractElement;
 import org.junit.Before;
 import org.junit.Test;
 

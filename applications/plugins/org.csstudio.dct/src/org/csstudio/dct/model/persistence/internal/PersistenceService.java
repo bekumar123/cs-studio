@@ -17,13 +17,14 @@ import org.csstudio.dct.metamodel.internal.MenuDefinition;
 import org.csstudio.dct.metamodel.internal.RecordDefinition;
 import org.csstudio.dct.model.internal.Project;
 import org.csstudio.dct.model.persistence.IPersistenceService;
+import org.csstudio.dct.model.persistence.internal.xml.XmlDomUpdater;
 import org.csstudio.dct.model.visitors.RecordFunctionPropertiesVisitor;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.jdom.Document;
-import org.jdom.input.SAXBuilder;
+import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.slf4j.Logger;
@@ -36,6 +37,7 @@ import com.cosylab.vdct.dbd.DBDFieldData;
 import com.cosylab.vdct.dbd.DBDMenuData;
 import com.cosylab.vdct.dbd.DBDRecordData;
 import com.cosylab.vdct.dbd.DBDResolver;
+import com.google.common.base.Optional;
 
 /**
  * Default persistence service implementation.
@@ -44,179 +46,183 @@ import com.cosylab.vdct.dbd.DBDResolver;
  * 
  */
 public final class PersistenceService implements IPersistenceService {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(PersistenceService.class);
+
+    /**
+     * {@inheritDoc}
+     */
+    public void saveProject(IFile file, Project project) throws Exception {
+        file.setContents(getAsStream(project), true, false, new NullProgressMonitor());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+
+    public InputStream getAsStream(Project project) throws Exception {
+        Format format = Format.getPrettyFormat();
+        // format.setEncoding("ISO-8859-1");
+
+        XMLOutputter outp = new XMLOutputter();
+        outp.setFormat(format);
+        ProjectToXml projectToXml = new ProjectToXml(project);
+
+        Document doc = projectToXml.createDocument();
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        outp.output(doc, bos);
+
+        return new ByteArrayInputStream(bos.toByteArray());
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Project loadProject(Document doc, Optional<Document> libraryDocument) throws Exception {
     
-	/**
-	 *{@inheritDoc}
-	 */
-	public void saveProject(IFile file, Project project) throws Exception {
-		file.setContents(getAsStream(project), true, false, new NullProgressMonitor());
-	}
+        if (libraryDocument.isPresent()) {
+            XmlDomUpdater xmlHelper = new XmlDomUpdater(doc, libraryDocument);
+            xmlHelper.addPrototypesFromLibrary();
+        }
+        
+        XmlToProject xmlToProject = new XmlToProject(doc);
+        Project p = xmlToProject.createProject();
+        p.accept(new RecordFunctionPropertiesVisitor(ExtensionPointUtil.getRecordAttributes()));
+        
+        return p;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public IDatabaseDefinition loadDatabaseDefinition(String path) {
+        IDatabaseDefinition result = null;
 
-	/**
-	 *{@inheritDoc}
-	 */
+        if (path != null && path.length() > 0) {
 
-	public InputStream getAsStream(Project project) throws Exception {
-		Format format = Format.getPrettyFormat();
-//		format.setEncoding("ISO-8859-1");
+            // .. file system search
+            File file = new File(path);
 
-		XMLOutputter outp = new XMLOutputter();
-		outp.setFormat(format);
-		ProjectToXml projectToXml = new ProjectToXml(project);
+            if (file.exists()) {
+                result = doLoadDatabaseDefinition(file.getAbsolutePath());
+            }
 
-		Document doc = projectToXml.createDocument();
+            // .. workspace search
+            if (result == null) {
+                IFile workspaceFile = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(path));
 
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		outp.output(doc, bos);
-		
-		return new ByteArrayInputStream(bos.toByteArray());
-		
-	}
+                if (workspaceFile != null && workspaceFile.getLocation() != null) {
+                    result = doLoadDatabaseDefinition(workspaceFile.getLocation().toOSString());
+                }
+            }
+        }
 
-	/**
-	 *{@inheritDoc}
-	 */
-	public Project loadProject(IFile file) throws Exception {
-		SAXBuilder builder = new SAXBuilder();
-		Document doc = builder.build(file.getContents());
+        return result;
+    }
 
-		XmlToProject xmlToProject = new XmlToProject(doc);
+    /**
+     * Loads a database definition from a dbd file using an API of the VDCT
+     * software.
+     * 
+     * @param path
+     *            the absolute path to the dbd file
+     * @return the database definition (meta model)
+     */
+    @SuppressWarnings({ "unchecked" })
+    private IDatabaseDefinition doLoadDatabaseDefinition(String path) {
+        DatabaseDefinition databaseDefinition = new DatabaseDefinition("1.0");
 
-		Project p = xmlToProject.getProject();
+        // .. redirect the VDCT console
+        Console.setInstance(new ConsoleInterface() {
 
-		p.accept(new RecordFunctionPropertiesVisitor(ExtensionPointUtil.getRecordAttributes()));
+            public void flush() {
 
-		return p;
-	}
+            }
 
-	/**
-	 *{@inheritDoc}
-	 */
-	public IDatabaseDefinition loadDatabaseDefinition(String path) {
-		IDatabaseDefinition result = null;
+            public void print(String text) {
+                LOG.info(text);
+            }
 
-		if (path != null && path.length() > 0) {
+            public void println() {
+                LOG.info("\r\n");
+            }
 
-			// .. file system search
-			File file = new File(path);
+            public void println(String text) {
+                LOG.info(text);
+            }
 
-			if (file.exists()) {
-				result = doLoadDatabaseDefinition(file.getAbsolutePath());
-			}
+            public void println(Throwable thr) {
+                LOG.error("", thr);
+            }
 
-			// .. workspace search
-			if (result == null) {
-				IFile workspaceFile = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(path));
+            public void silent(String text) {
+                LOG.debug(text);
+            }
 
-				if (workspaceFile != null && workspaceFile.getLocation() != null) {
-					result = doLoadDatabaseDefinition(workspaceFile.getLocation().toOSString());
-				}
-			}
-		}
+        });
 
-		return result;
-	}
+        // .. use the VDCT parser
+        DBDData data = new DBDData();
+        DBDResolver.resolveDBD(data, path);
 
-	/**
-	 * Loads a database definition from a dbd file using an API of the VDCT
-	 * software.
-	 * 
-	 * @param path
-	 *            the absolute path to the dbd file
-	 * @return the database definition (meta model)
-	 */
-	@SuppressWarnings( { "unchecked" })
-	private IDatabaseDefinition doLoadDatabaseDefinition(String path) {
-		DatabaseDefinition databaseDefinition = new DatabaseDefinition("1.0");
+        // .. transform the VDCT dbd model to our CSS-DCTs meta model
 
-		// .. redirect the VDCT console
-		Console.setInstance(new ConsoleInterface() {
+        // .. menus
 
-			public void flush() {
+        // .. records
 
-			}
+        Enumeration<String> it = data.getRecordNames();
+        while (it.hasMoreElements()) {
+            String n = it.nextElement();
+            DBDRecordData recordData = data.getDBDRecordData(n);
 
-			public void print(String text) {
-				LOG.info(text);
-			}
+            RecordDefinition recordDefinition = new RecordDefinition(n);
+            databaseDefinition.addRecordDefinition(recordDefinition);
 
-			public void println() {
-				LOG.info("\r\n");
-			}
+            Iterator<DBDFieldData> it2 = recordData.getFieldsV().iterator();
 
-			public void println(String text) {
-				LOG.info(text);
-			}
-			
-			public void println(Throwable thr) {
-				LOG.error("",thr);
-			}
+            while (it2.hasNext()) {
+                DBDFieldData fieldData = it2.next();
+                String fieldName = fieldData.getName();
 
-			public void silent(String text) {
-				LOG.debug(text);
-			}
+                LOG.debug(fieldName);
 
-		});
+                FieldDefinition fieldDefinition = new FieldDefinition(fieldName, DBDResolver.getFieldType(fieldData
+                        .getField_type()));
 
-		// .. use the VDCT parser
-		DBDData data = new DBDData();
-		DBDResolver.resolveDBD(data, path);
+                // .. prompt group
+                fieldDefinition.setPromptGroup(PromptGroup.findByType(fieldData.getGUI_type()));
 
-		// .. transform the VDCT dbd model to our CSS-DCTs meta model
+                // .. prompt
+                fieldDefinition.setPrompt(fieldData.getPrompt_value());
 
-		// .. menus
+                // .. menu
+                String menuName = fieldData.getMenu_name();
 
-		// .. records
+                if (menuName != null && menuName.length() > 0) {
+                    DBDMenuData menuData = data.getDBDMenuData(menuName);
 
-		Enumeration<String> it = data.getRecordNames();
-		while (it.hasMoreElements()) {
-			String n = it.nextElement();
-			DBDRecordData recordData = data.getDBDRecordData(n);
+                    if (menuData != null) {
+                        MenuDefinition menuDefinition = new MenuDefinition(menuName);
 
-			RecordDefinition recordDefinition = new RecordDefinition(n);
-			databaseDefinition.addRecordDefinition(recordDefinition);
+                        for (Choice c : menuData.getChoicesForCssDct()) {
+                            menuDefinition.addChoice(c);
+                        }
 
-			Iterator<DBDFieldData> it2 = recordData.getFieldsV().iterator();
+                        fieldDefinition.setMenuDefinition(menuDefinition);
+                    }
+                }
 
-			while (it2.hasNext()) {
-				DBDFieldData fieldData = it2.next();
-				String fieldName = fieldData.getName();
-				LOG.info(fieldName);
+                // .. initial value
+                fieldDefinition.setInitial(fieldData.getInit_value());
 
-				FieldDefinition fieldDefinition = new FieldDefinition(fieldName, DBDResolver.getFieldType(fieldData.getField_type()));
+                recordDefinition.addFieldDefinition(fieldDefinition);
+            }
+        }
 
-				// .. prompt group
-				fieldDefinition.setPromptGroup(PromptGroup.findByType(fieldData.getGUI_type()));
+        return databaseDefinition;
+    }
 
-				// .. prompt
-				fieldDefinition.setPrompt(fieldData.getPrompt_value());
-
-				// .. menu
-				String menuName = fieldData.getMenu_name();
-
-				if (menuName != null && menuName.length() > 0) {
-					DBDMenuData menuData = data.getDBDMenuData(menuName);
-
-					if (menuData != null) {
-						MenuDefinition menuDefinition = new MenuDefinition(menuName);
-
-						for (Choice c : menuData.getChoicesForCssDct()) {
-							menuDefinition.addChoice(c);
-						}
-
-						fieldDefinition.setMenuDefinition(menuDefinition);
-					}
-				}
-
-				// .. initial value
-				fieldDefinition.setInitial(fieldData.getInit_value());
-
-				recordDefinition.addFieldDefinition(fieldDefinition);
-			}
-		}
-
-		return databaseDefinition;
-	}
 }

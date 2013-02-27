@@ -15,7 +15,6 @@ import org.csstudio.dct.model.IRecord;
 import org.csstudio.dct.model.IVisitor;
 import org.csstudio.dct.model.internal.AbstractElement;
 import org.csstudio.dct.model.internal.Record;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -24,13 +23,10 @@ import org.junit.Test;
  */
 public class CompareUtilTest {
 
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@Before
-	public void setUp() throws Exception {
-	}
-
+    private String EXAMPLE_FILE = "/Users/roger/Documents/desy-git/cs-studio/applications/"
+            + "plugins/org.csstudio.dct/beispiel/unit-test.css-dct";
+    
+    
 	/**
 	 * Test method for
 	 * {@link org.csstudio.dct.util.CompareUtil#equals(java.lang.String, java.lang.String)}
@@ -59,7 +55,9 @@ public class CompareUtilTest {
 	public final void testIdsEquals() {
 		UUID id1 = UUID.randomUUID();
 		UUID id2 = UUID.randomUUID();
+		
 		IElement element1 = new AbstractElement("e1", id1) {
+			private static final long serialVersionUID = 1L;
 			public void accept(IVisitor visitor) {
 			}
 
@@ -69,9 +67,9 @@ public class CompareUtilTest {
 		};
 
 		IElement element2 = new AbstractElement("e2", id2) {
+			private static final long serialVersionUID = 1L;
 			public void accept(IVisitor visitor) {
 			}
-
 			public boolean isInherited() {
 				return false;
 			}
@@ -86,7 +84,7 @@ public class CompareUtilTest {
 	}
 
 	public final void testContainsOnly() {
-		List list = new ArrayList();
+		List<Object> list = new ArrayList<Object>();
 		list.add("a");
 		list.add("b");
 		
@@ -106,5 +104,9 @@ public class CompareUtilTest {
 		assertFalse(CompareUtil.containsOnly(String.class, list));
 		assertTrue(CompareUtil.containsOnly(Object.class, list));
 		assertTrue(CompareUtil.containsOnly(IRecord.class, list));
+	}
+	
+	public void testIsRootOfPrototype() {
+	    
 	}
 }

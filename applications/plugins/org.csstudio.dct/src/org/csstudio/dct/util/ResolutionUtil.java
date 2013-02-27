@@ -42,7 +42,6 @@ public final class ResolutionUtil {
 		}
 
 		String result = DctActivator.getDefault().getFieldFunctionService().resolve(source, aliases);
-
 		return result;
 	}
 

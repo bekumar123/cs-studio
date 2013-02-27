@@ -13,6 +13,7 @@ import org.eclipse.gef.commands.Command;
  * @author Sven Wende
  * 
  */
+@Deprecated
 public final class DisableRecordAction extends AbstractOutlineAction {
 
 	/**

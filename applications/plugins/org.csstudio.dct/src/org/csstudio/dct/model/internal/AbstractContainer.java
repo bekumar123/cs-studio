@@ -1,5 +1,8 @@
 package org.csstudio.dct.model.internal;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,6 +21,11 @@ import org.csstudio.dct.model.IPrototype;
 import org.csstudio.dct.model.IRecord;
 import org.csstudio.dct.model.IRecordContainer;
 import org.csstudio.dct.util.CompareUtil;
+import org.csstudio.dct.util.Immutable;
+import org.csstudio.dct.util.NotNull;
+import org.csstudio.dct.util.Nullable;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * Standard implementation for {@link IContainer}. Base class for
@@ -27,53 +35,53 @@ import org.csstudio.dct.util.CompareUtil;
  */
 public abstract class AbstractContainer extends AbstractPropertyContainer implements IContainer, IFolderMember {
 
+	private static final long serialVersionUID = 1L;
+
+	@Nullable
 	private IContainer container;
 
 	/**
 	 * The parent in the inheritance hierarchy.
 	 */
+	@Nullable
 	private IContainer parent;
 
 	/**
-	 * The folder, this contain resides in. May be null.
+	 * The folder, this container resides in. 
 	 */
+	@NotNull
 	private transient IFolder folder;
 
 	/**
 	 * All containers (instances or prototypes) that inherit from this
 	 * container.
 	 */
+	@NotNull
 	private transient Set<IContainer> dependentContainers = new HashSet<IContainer>();
 
 	/**
 	 * Contained instances.
 	 */
+	@NotNull
 	private List<IInstance> instances = new ArrayList<IInstance>();
 
 	/**
 	 * Contained records.
 	 */
+	@NotNull
 	private List<IRecord> records = new ArrayList<IRecord>();
 
 	public AbstractContainer() {
-		dependentContainers = new HashSet<IContainer>();
-		instances = new ArrayList<IInstance>();
-		records = new ArrayList<IRecord>();
 	}
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param name
-	 *            the name
-	 * @param parent
-	 *            the parent container
-	 * @param id
-	 *            the id
-	 */
-	public AbstractContainer(String name, IContainer parent, UUID id) {
+	public AbstractContainer(@Nullable String name, @Nullable IContainer parent, @NotNull UUID id) {
 		super(name, id);
-		assert (parent != null) || (this instanceof IPrototype) || (this instanceof IFolder) : "Each instance must have a parent. Only prototypes and folders have no parent.";
+		checkNotNull(id);
+		if (this instanceof IPrototype || this instanceof IFolder) {
+			checkArgument(parent == null, "only prototypes and folders have no parent");			
+		} else {
+			checkNotNull(parent, "each instance must have a parent");
+		}
 		this.parent = parent;
 	}
 
@@ -101,8 +109,8 @@ public abstract class AbstractContainer extends AbstractPropertyContainer implem
 	/**
 	 * {@inheritDoc}
 	 */
-	public final List<IInstance> getInstances() {
-		return instances;
+	public final @Immutable List<IInstance> getInstances() {
+		return ImmutableList.copyOf(instances);
 	}
 
 	/**
@@ -123,8 +131,8 @@ public abstract class AbstractContainer extends AbstractPropertyContainer implem
 	 * {@inheritDoc}
 	 */
 	public final void addDependentContainer(IContainer container) {
-		assert container != null;
-		assert container.getParent() == this : "Container must inherit from here.";
+		checkNotNull(container);
+		checkArgument(container.getParent() == this);
 		dependentContainers.add(container);
 	}
 
@@ -132,8 +140,8 @@ public abstract class AbstractContainer extends AbstractPropertyContainer implem
 	 * {@inheritDoc}
 	 */
 	public final void removeDependentContainer(IContainer container) {
-		assert container != null;
-		assert container.getParent() == this : "Container must inherit from here.";
+		checkNotNull(container);
+		checkArgument(container.getParent() == this);
 		dependentContainers.remove(container);
 	}
 
@@ -141,9 +149,9 @@ public abstract class AbstractContainer extends AbstractPropertyContainer implem
 	 * {@inheritDoc}
 	 */
 	public final void addInstance(IInstance instance) {
-		assert instance.getParent() != null : "Instance must have a hierarchical parent.";
-		assert instance.getContainer() == null : "Instance must not be in a container yet.";
-
+		checkNotNull(instance);
+		checkNotNull(instance.getParent(), "Instance must have a hierarchical parent");
+		checkArgument(instance.getContainer() == null, "Instance must not be in a container yet");
 		instances.add(instance);
 	}
 
@@ -151,14 +159,13 @@ public abstract class AbstractContainer extends AbstractPropertyContainer implem
 	 * {@inheritDoc}
 	 */
 	public final void setInstance(int index, IInstance instance) {
-		assert instance.getParent() != null : "Instance must have a hierarchical parent.";
-		assert instance.getContainer() == null : "Instance must not be in a container yet.";
-
+		checkNotNull(instance);
+		checkNotNull(instance.getParent(), "Instance must have a hierarchical parent");
+		checkArgument(instance.getContainer() == null, "Instance must not be in a container yet");
 		// .. fill with nulls
 		while (index >= instances.size()) {
 			instances.add(null);
 		}
-
 		instances.set(index, instance);
 	}
 
@@ -166,9 +173,9 @@ public abstract class AbstractContainer extends AbstractPropertyContainer implem
 	 * {@inheritDoc}
 	 */
 	public final void addInstance(int index, IInstance instance) {
-		assert instance.getParent() != null : "Instance must have a hierarchical parent.";
-		assert instance.getContainer() == null : "Instance must not be in a container yet.";
-
+		checkNotNull(instance);
+		checkNotNull(instance.getParent(), "Instance must have a hierarchical parent");
+		checkArgument(instance.getContainer() == null, "Instance must not be in a container yet");
 		instances.add(index, instance);
 	}
 
@@ -176,10 +183,11 @@ public abstract class AbstractContainer extends AbstractPropertyContainer implem
 	 * {@inheritDoc}
 	 */
 	public final void removeInstance(IInstance instance) {
-		assert instance.getParent() != null;
-
+		checkNotNull(instance);
 		if (instance.getContainer() != null && instance.getContainer() != this) {
-			assert instance.getContainer() == this : "The physical container must equal this.";
+			if (!(instance.getContainer() == this)) {
+				throw new IllegalStateException("The physical container must equal this");
+			}
 		}
 		instances.remove(instance);
 	}
@@ -187,16 +195,15 @@ public abstract class AbstractContainer extends AbstractPropertyContainer implem
 	/**
 	 * {@inheritDoc}
 	 */
-	public final List<IRecord> getRecords() {
-		return records;
+	public final @Immutable List<IRecord> getRecords() {
+		return ImmutableList.copyOf(records);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public final void addRecord(IRecord record) {
-		assert record.getContainer() == null : "Record must not be part of another container.";
-
+		checkArgument(record.getContainer() == null, "Record must not be part of another container");
 		records.add(record);
 	}
 
@@ -204,13 +211,11 @@ public abstract class AbstractContainer extends AbstractPropertyContainer implem
 	 * {@inheritDoc}
 	 */
 	public final void setRecord(int index, IRecord record) {
-		assert record.getContainer() == null : "Record must not be part of another container.";
-
+		checkArgument(record.getContainer() == null, "Record must not be part of another container");
 		// .. fill with nulls
 		while (index >= records.size()) {
 			records.add(null);
 		}
-
 		records.set(index, record);
 	}
 
@@ -218,7 +223,7 @@ public abstract class AbstractContainer extends AbstractPropertyContainer implem
 	 * {@inheritDoc}
 	 */
 	public final void addRecord(int index, IRecord record) {
-		assert record.getContainer() == null : "Record must not be part of another container.";
+		checkArgument(record.getContainer() == null, "Record must not be part of another container");
 		records.add(index, record);
 	}
 
@@ -226,8 +231,7 @@ public abstract class AbstractContainer extends AbstractPropertyContainer implem
 	 * {@inheritDoc}
 	 */
 	public final void removeRecord(IRecord record) {
-		assert record.getContainer() == this : "Record must not be part of this container.";
-
+		checkArgument(record.getContainer() == this, "Record must be part of this container");
 		records.remove(record);
 	}
 
@@ -246,12 +250,15 @@ public abstract class AbstractContainer extends AbstractPropertyContainer implem
 
 		if (folder != null) {
 			f = folder;
-
 			while (f != null && f.getParentFolder() != null) {
 				f = f.getParentFolder();
 			}
-			assert f != null;
-			assert f instanceof IProject;
+			if (f == null) {
+				throw new IllegalStateException("f must not be null");
+			}
+			if (!(f instanceof IProject)) {
+				throw new IllegalStateException("f must be of type IProject");
+			}
 			return (IProject) f;
 		} else {
 			return parent.getProject();
@@ -319,8 +326,8 @@ public abstract class AbstractContainer extends AbstractPropertyContainer implem
 	/**
 	 * {@inheritDoc}
 	 */
-	public final List<IRecordContainer> getDependentRecordContainers() {
-		return new ArrayList<IRecordContainer>(dependentContainers);
+	public final @Immutable List<IRecordContainer> getDependentRecordContainers() {
+		return ImmutableList.copyOf(new ArrayList<IRecordContainer>(dependentContainers));
 	}
 
 	/**

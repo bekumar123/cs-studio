@@ -1,0 +1,8 @@
+2012-12-28 16:28:02,437 INFO  [Thread-1] InitLogging: Initializing slf4j over log4j logging
+2012-12-28 16:28:02,443 INFO  [Thread-1] InitLogging: Watching log4j properties in file /Users/roger/Documents/desy-git/cs-studio/applications/plugins/org.csstudio.ams.application.deliverysystem.log4j/log4j.properties
+2012-12-28 16:28:02,449 INFO  [Thread-1] InitLogging: Installed bridge from java.util.logging to sl4j
+2012-12-28 16:28:02,500 INFO  [Thread-1] LoginContext: No login module provided. The system acts as anonymous login
+2012-12-28 16:28:24,039 INFO  [Thread-1] InitLogging: Initializing slf4j over log4j logging
+2012-12-28 16:28:24,049 INFO  [Thread-1] InitLogging: Watching log4j properties in file /Users/roger/Documents/desy-git/cs-studio/applications/plugins/org.csstudio.ams.application.deliverysystem.log4j/log4j.properties
+2012-12-28 16:28:24,055 INFO  [Thread-1] InitLogging: Installed bridge from java.util.logging to sl4j
+2012-12-28 16:28:24,101 INFO  [Thread-1] LoginContext: No login module provided. The system acts as anonymous login

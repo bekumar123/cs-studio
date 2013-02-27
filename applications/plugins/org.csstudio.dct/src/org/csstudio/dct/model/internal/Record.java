@@ -1,5 +1,8 @@
 package org.csstudio.dct.model.internal;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -14,50 +17,55 @@ import org.csstudio.dct.model.IPrototype;
 import org.csstudio.dct.model.IRecord;
 import org.csstudio.dct.model.IVisitor;
 import org.csstudio.dct.util.CompareUtil;
+import org.csstudio.dct.util.NotNull;
+import org.csstudio.dct.util.Nullable;
+import org.csstudio.dct.util.Unique;
 
 /**
  * Standard implementation of {@link IRecord}.
+ * 
+ * Nas no parent only a parentRecord.
  * 
  * @author Sven Wende
  */
 public final class Record extends AbstractPropertyContainer implements IRecord {
 	private static final long serialVersionUID = -909182136862019398L;
+
+	@NotNull
 	private String type;
+
+	@Nullable
 	private String epicsName;
+
+	@NotNull
 	private Map<String, String> fields = new HashMap<String, String>();
+
+	@Nullable
 	private IRecord parentRecord;
+
+	@Nullable
 	private transient IContainer container;
+
+	@NotNull
 	private transient List<IRecord> inheritingRecords = new ArrayList<IRecord>();
+
+	@Nullable
 	private Boolean disabled;
 
 	public Record() {
 	}
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param name
-	 *            the name
-	 * @param type
-	 *            the type
-	 * @param id
-	 *            the id
-	 */
-	public Record(String name, String type, UUID id) {
+	public Record(@NotNull String name, @NotNull String type, @NotNull @Unique UUID id) {
 		super(name, id);
+		checkNotNull(name);
+		checkNotNull(type);
+		checkNotNull(id);
 		this.type = type;
 	}
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param parentRecord
-	 *            the parent record
-	 * @param id
-	 *            the id
-	 */
 	public Record(IRecord parentRecord, UUID id) {
 		super(null, id);
+		checkNotNull(id);
 		this.parentRecord = parentRecord;
 	}
 
@@ -65,14 +73,17 @@ public final class Record extends AbstractPropertyContainer implements IRecord {
 	 * {@inheritDoc}
 	 */
 	public String getType() {
-		assert type != null || parentRecord != null : "type!=null || parentRecord!=null";
+		if ((type == null) && (parentRecord == null)) {
+			throw new IllegalStateException(
+					"either type or parentRecord must be != null");
+		}
 		return type != null ? type : parentRecord.getType();
 	}
 
 	public void setType(String type) {
 		this.type = type;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -95,6 +106,8 @@ public final class Record extends AbstractPropertyContainer implements IRecord {
 	 * {@inheritDoc}
 	 */
 	public void addField(String key, String value) {
+		checkNotNull(key);
+		checkNotNull(value);
 		fields.put(key, value);
 	}
 
@@ -102,6 +115,7 @@ public final class Record extends AbstractPropertyContainer implements IRecord {
 	 * {@inheritDoc}
 	 */
 	public String getField(String key) {
+		checkNotNull(key);
 		return fields.get(key);
 	}
 
@@ -109,6 +123,7 @@ public final class Record extends AbstractPropertyContainer implements IRecord {
 	 * {@inheritDoc}
 	 */
 	public void removeField(String key) {
+		checkNotNull(key);
 		fields.remove(key);
 	}
 
@@ -116,6 +131,7 @@ public final class Record extends AbstractPropertyContainer implements IRecord {
 	 * {@inheritDoc}
 	 */
 	public void setFields(Map<String, String> fields) {
+		checkNotNull(fields);
 		this.fields = fields;
 	}
 
@@ -166,21 +182,21 @@ public final class Record extends AbstractPropertyContainer implements IRecord {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public String getEpicsName() {
 		return epicsName;
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
-	public void setEpicsName(String epicsName) {
+	public void setEpicsName(@Nullable String epicsName) {
 		this.epicsName = epicsName;
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public String getEpicsNameFromHierarchy() {
 		String name = "unknown";
@@ -215,35 +231,39 @@ public final class Record extends AbstractPropertyContainer implements IRecord {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void setParentRecord(IRecord parentRecord) {
+	public void setParentRecord(@Nullable IRecord parentRecord) {
 		this.parentRecord = parentRecord;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void setContainer(IContainer container) {
+	public void setContainer(@Nullable IContainer container) {
 		this.container = container;
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public boolean isAbstract() {
 		return getRootContainer(getContainer()) instanceof IPrototype;
 	}
 
-	public void setDisabled(Boolean disabled) {
+	public void setDisabled(@Nullable Boolean disabled) {
 		this.disabled = disabled;
 	}
-	
+
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public Boolean getDisabled() {
 		return disabled;
 	}
 
+	public IContainer getRootContainer() {
+	    return getRootContainer(getContainer());
+	}
+	
 	/**
 	 * Recursive helper method which determines the root container.
 	 * 
@@ -253,6 +273,9 @@ public final class Record extends AbstractPropertyContainer implements IRecord {
 	 * @return the root container of the specified starting container
 	 */
 	private IContainer getRootContainer(IContainer container) {
+		if (container == null) {
+			throw new IllegalStateException("container must not be null");
+		}
 		if (container.getContainer() != null) {
 			return getRootContainer(container.getContainer());
 		} else {
@@ -265,7 +288,7 @@ public final class Record extends AbstractPropertyContainer implements IRecord {
 	 */
 	public boolean isInherited() {
 		IRecord p = getParentRecord();
-		boolean result = p!=null && !(p instanceof BaseRecord);
+		boolean result = p != null && !(p instanceof BaseRecord);
 		return result;
 	}
 
@@ -273,8 +296,8 @@ public final class Record extends AbstractPropertyContainer implements IRecord {
 	 * {@inheritDoc}
 	 */
 	public void addDependentRecord(IRecord record) {
-		assert record != null;
-		assert record.getParentRecord() == this : "Record must inherit from here.";
+		checkNotNull(record);
+		checkArgument(record.getParentRecord() == this);
 		inheritingRecords.add(record);
 	}
 
@@ -289,8 +312,8 @@ public final class Record extends AbstractPropertyContainer implements IRecord {
 	 * {@inheritDoc}
 	 */
 	public void removeDependentRecord(IRecord record) {
-		assert record != null;
-		assert record.getParentRecord() == this : "Record must inherit from here.";
+		checkNotNull(record);
+		checkArgument(record.getParentRecord() == this);
 		inheritingRecords.remove(record);
 	}
 
@@ -306,11 +329,12 @@ public final class Record extends AbstractPropertyContainer implements IRecord {
 	 * {@inheritDoc}
 	 */
 	public void accept(IVisitor visitor) {
+		checkNotNull(visitor);
 		visitor.visit(this);
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	@Override
 	public int hashCode() {
@@ -319,7 +343,7 @@ public final class Record extends AbstractPropertyContainer implements IRecord {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean equals(Object obj) {
@@ -335,10 +359,12 @@ public final class Record extends AbstractPropertyContainer implements IRecord {
 					if (getFields().equals(record.getFields())) {
 						// .. parent record id (we check the id only, to prevent
 						// stack overflows)
-						if (CompareUtil.idsEqual(getParentRecord(), record.getParentRecord())) {
+						if (CompareUtil.idsEqual(getParentRecord(),
+								record.getParentRecord())) {
 							// .. container (we check the id only, to prevent
 							// stack overflows)
-							if (CompareUtil.idsEqual(getContainer(), record.getContainer())) {
+							if (CompareUtil.idsEqual(getContainer(),
+									record.getContainer())) {
 								result = true;
 							}
 						}
@@ -349,7 +375,7 @@ public final class Record extends AbstractPropertyContainer implements IRecord {
 
 		return result;
 	}
-
+ 
 	/**
 	 * Collect all parent records in a stack. On top of the returned stack is
 	 * the parent that resides at the top of the hierarchy.

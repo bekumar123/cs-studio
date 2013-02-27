@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.csstudio.dct.model.IElement;
+import org.csstudio.dct.model.IFolder;
 import org.csstudio.dct.model.IInstance;
 import org.csstudio.dct.model.IProject;
 import org.csstudio.dct.model.IPrototype;
@@ -61,6 +62,7 @@ public final class OutlinePage extends ContentOutlinePage implements CommandStac
 		dndHandlers.put(IPrototype.class, new PrototypeDndHandler());
 		dndHandlers.put(IRecord.class, new RecordDndHandler());
 		dndHandlers.put(IInstance.class, new InstanceDndHandler());
+		dndHandlers.put(IFolder.class, new FolderDndHandler());
 	}
 
 	/**
@@ -70,10 +72,9 @@ public final class OutlinePage extends ContentOutlinePage implements CommandStac
 	 *            the project to display
 	 */
 	public void setInput(final IProject input) {
-		this.input = input;
-
+		//this.input = input;
 		if (getTreeViewer() != null) {
-			getTreeViewer().setInput(input);
+			//getTreeViewer().setInput(input);
 		}
 	}
 
@@ -92,8 +93,9 @@ public final class OutlinePage extends ContentOutlinePage implements CommandStac
 
 		viewer.setInput(new WorkbenchAdapter() {
 			@Override
-            public Object[] getChildren(final Object o) {
-				return new Object[] { input };
+           public Object[] getChildren(final Object o) {
+			    return new Object[] { 	    	        
+	    	        input };
 			}
 		});
 
@@ -129,13 +131,13 @@ public final class OutlinePage extends ContentOutlinePage implements CommandStac
 				event.data = "do_not_delete_because_its_empty_but_important";
 
 			}
-
+			
 			public void dragStart(final DragSourceEvent event) {
 				// .. save current selection in local var
-				final IStructuredSelection sel = (IStructuredSelection) viewer.getSelection();
-
-				if (sel != null && sel.toList().size()==1 && sel.getFirstElement() instanceof IElement) {
-					dndSource = (IElement) sel.getFirstElement();
+				final IStructuredSelection sel = (IStructuredSelection) viewer.getSelection();    
+				if (sel != null && sel.toList().size()==1 && sel.getFirstElement() instanceof IElement) {				    
+				    Object element =  sel.getFirstElement();				   				    
+					dndSource = (IElement) element;
 					event.doit = getDndHandler(dndSource) != null;
 				} else {
 					dndSource = null;
@@ -149,7 +151,6 @@ public final class OutlinePage extends ContentOutlinePage implements CommandStac
 		viewer.addDropSupport(DND.DROP_MOVE | DND.DROP_COPY, new Transfer[] { TextTransfer.getInstance() }, new DropTargetListener() {
 			private void updateFeedback(final DropTargetEvent event) {
 				final AbstractDnDHandler handler = getDndHandler(dndSource);
-
 				// .. determine drop target element
 				final TreeItem item = (TreeItem) event.item;
 

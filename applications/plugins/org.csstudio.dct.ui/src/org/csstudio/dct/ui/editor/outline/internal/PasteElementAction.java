@@ -25,7 +25,7 @@ public class PasteElementAction extends AbstractOutlineAction {
 	@Override
 	protected Command createCommand(List<IElement> selection) {
 		Clipboard clipboard = new Clipboard(Display.getCurrent());
-
+		
 		for (TransferData td : clipboard.getAvailableTypes()) {
 			for (AbstractElementTransfer transfer : transferTypes) {
 				if (transfer.isSupportedType(td)) {

@@ -1,34 +1,4 @@
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 *CVS/
 .git/*
 
@@ -43,8 +13,10 @@ build/ext/
 # ignore all log files ?
 logs/*.log
 log/*.log
-
-
+.sonar/*
+.sonar
+sonar-project.properties
+sonar.sh
 # SNS, KEK Products: Ignore output of headless build
 # syntax: glob
 products/SNS/product/org.csstudio.sns.updatesite/build/*

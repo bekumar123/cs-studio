@@ -16,6 +16,9 @@ import java.util.UUID;
 import org.csstudio.dct.metamodel.internal.RecordDefinition;
 import org.csstudio.dct.model.IPrototype;
 import org.csstudio.dct.model.IRecord;
+import org.csstudio.dct.model.internal.BaseRecord;
+import org.csstudio.dct.model.internal.Prototype;
+import org.csstudio.dct.model.internal.Record;
 import org.junit.Before;
 import org.junit.Test;
 

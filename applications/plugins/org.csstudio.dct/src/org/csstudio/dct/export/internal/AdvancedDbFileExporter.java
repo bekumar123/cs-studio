@@ -1,5 +1,6 @@
 package org.csstudio.dct.export.internal;
 
+import java.util.List;
 import java.util.Map;
 
 import org.csstudio.dct.export.IExporter;
@@ -82,6 +83,15 @@ public final class AdvancedDbFileExporter implements IExporter {
 		return sb.toString();
 	}
 
+	public String export(List<IRecord> records) {
+	    StringBuffer sb = new StringBuffer();
+        for (IRecord r : records) {
+            sb.append(render(r));
+            sb.append("\r\n\r\n");
+        }
+        return sb.toString();    
+	}
+	
 	public String export(IProject project) {
 		StringBuffer sb = new StringBuffer();
 		for (IRecord r : project.getFinalRecords()) {

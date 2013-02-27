@@ -47,7 +47,7 @@ public final class DataLinkFieldFunction implements IFieldFunction {
 			sb.append(parameters[3]);
 			result = sb.toString();
 		} else {
-			result = "No Record found";
+			result = "%%% No Record found";
 		}
 
 		return result;

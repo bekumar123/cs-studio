@@ -1,0 +1,2 @@
+2013-02-25 10:28:41,113 INFO  [Component Resolve Thread] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: Remote command service implementation
+2013-02-25 10:29:00,675 INFO  [Component Resolve Thread] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: Remote command service implementation

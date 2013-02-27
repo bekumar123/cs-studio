@@ -1,0 +1,17 @@
+2012-12-28 15:58:13,014 DEBUG [Component Resolve Thread] org.csstudio.platform.CSSPlatformPlugin: Plugin with ID org.csstudio.platform started
+2012-12-28 15:58:13,040 INFO  [Component Resolve Thread] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: Remote command service implementation
+2012-12-28 15:58:14,735 DEBUG [Thread-1] org.csstudio.platform.CSSPlatformPlugin: Plugin with ID org.csstudio.platform stopped
+2012-12-28 15:59:02,350 DEBUG [Component Resolve Thread] org.csstudio.platform.CSSPlatformPlugin: Plugin with ID org.csstudio.platform started
+2012-12-28 15:59:02,372 INFO  [Component Resolve Thread] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: Remote command service implementation
+2012-12-28 15:59:13,591 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: LogbookDocumentService
+2012-12-28 15:59:13,595 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: InternId2IONameImplemation
+2012-12-28 15:59:13,598 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: ProcessVariable2IONameImplemation
+2012-12-28 15:59:13,599 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: ProfiBusIoNameService
+2012-12-28 15:59:13,601 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: ProfibusSensorService
+2012-12-28 15:59:14,779 DEBUG [Thread-1] org.csstudio.platform.CSSPlatformPlugin: Plugin with ID org.csstudio.platform stopped
+2012-12-28 16:05:52,411 DEBUG [Component Resolve Thread] org.csstudio.platform.CSSPlatformPlugin: Plugin with ID org.csstudio.platform started
+2012-12-28 16:05:52,451 INFO  [Component Resolve Thread] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: Remote command service implementation
+2012-12-28 16:05:54,027 DEBUG [Thread-1] org.csstudio.platform.CSSPlatformPlugin: Plugin with ID org.csstudio.platform stopped
+2012-12-28 16:26:22,821 DEBUG [Component Resolve Thread] org.csstudio.platform.CSSPlatformPlugin: Plugin with ID org.csstudio.platform started
+2012-12-28 16:26:22,852 INFO  [Component Resolve Thread] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: Remote command service implementation
+2012-12-28 16:26:24,388 DEBUG [Thread-1] org.csstudio.platform.CSSPlatformPlugin: Plugin with ID org.csstudio.platform stopped

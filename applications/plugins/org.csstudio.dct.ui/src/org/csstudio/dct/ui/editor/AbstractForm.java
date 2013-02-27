@@ -165,6 +165,14 @@ public abstract class AbstractForm<E extends IElement> implements CommandStackLi
 	}
 
 	/**
+	 * Returns the table wrapper for the comon settings.
+	 * @return the table wrapper for the comon settings
+	 */
+    protected ConvenienceTableWrapper getCommonTable() {
+        return commonTable;
+    }
+
+	/**
 	 * Sets the input object for this editing form.
 	 * 
 	 * @param in
@@ -191,6 +199,8 @@ public abstract class AbstractForm<E extends IElement> implements CommandStackLi
 			
 			// call subclasses
 			doSetInput(input);
+			
+			
 		}
 
 	}

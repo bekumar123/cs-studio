@@ -1,7 +1,7 @@
 /**
  *
  */
-package org.csstudio.dct.model.persistence.internal;
+package org.csstudio.dct.model.persistence;
 
 import static org.junit.Assert.assertEquals;
 
@@ -23,6 +23,8 @@ import org.csstudio.dct.model.internal.Project;
 import org.csstudio.dct.model.internal.ProjectFactory;
 import org.csstudio.dct.model.internal.Prototype;
 import org.csstudio.dct.model.internal.RecordFactory;
+import org.csstudio.dct.model.persistence.internal.ProjectToXml;
+import org.csstudio.dct.model.persistence.internal.XmlToProject;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.Format;
@@ -101,11 +103,10 @@ public final class ProjectToXmlTest {
 
 		// .. convert back to model
 		final XmlToProject xmlToProject = new XmlToProject(document);
-		final Project newProject = xmlToProject.getProject();
+		final Project newProject = xmlToProject.createProject();
 
 		counter = 0;
 		traverseElement(project);
-		System.out.println("-------------------");
 		counter = 0;
 		traverseElement(newProject);
 

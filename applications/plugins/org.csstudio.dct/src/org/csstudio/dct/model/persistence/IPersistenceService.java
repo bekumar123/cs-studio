@@ -5,6 +5,9 @@ import java.io.InputStream;
 import org.csstudio.dct.metamodel.IDatabaseDefinition;
 import org.csstudio.dct.model.internal.Project;
 import org.eclipse.core.resources.IFile;
+import org.jdom.Document;
+
+import com.google.common.base.Optional;
 
 /**
  * Persistence services for CSS-DCT.
@@ -43,8 +46,9 @@ public interface IPersistenceService {
 	 * 
 	 * @throws Exception
 	 */
-	Project loadProject(IFile file) throws Exception;
-
+	Project loadProject(Document doc, Optional<Document> libraryDocument) throws Exception;
+	
+	 
 	/**
 	 * Loads a database definition (meta model) from a file (dbd).
 	 * 

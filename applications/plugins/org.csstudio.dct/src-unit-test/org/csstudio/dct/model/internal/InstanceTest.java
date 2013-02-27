@@ -14,7 +14,11 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.csstudio.dct.model.IContainer;
+import org.csstudio.dct.model.IFolder;
 import org.csstudio.dct.model.IPrototype;
+import org.csstudio.dct.model.internal.Instance;
+import org.csstudio.dct.model.internal.Prototype;
+import org.csstudio.dct.model.internal.Record;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -184,4 +188,18 @@ public final class InstanceTest {
 		assertEquals(prototype2, instance.getPrototype());
 	}
 
+    /**
+     * Test method for
+     * Test method for {@link org.csstudio.dct.model.internal.Instance#getRootFolder()}.
+     */
+    @Test
+    public void testRootFolder() {
+        Folder folder = Folder.INSTANCES;
+        UUID uid = UUID.randomUUID();
+        Instance i1 = new Instance(prototype1, uid);
+        folder.addMember(i1);
+        i1.setParentFolder(folder);
+        IFolder rootFolder = i1.getRootFolder();
+        assertTrue(rootFolder.isInstancesFolder());
+    }
 }

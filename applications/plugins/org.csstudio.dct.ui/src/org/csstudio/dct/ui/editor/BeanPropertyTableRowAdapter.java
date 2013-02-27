@@ -82,7 +82,7 @@ public final class BeanPropertyTableRowAdapter extends AbstractTableRowAdapter<I
 			try {
 				// type conversions
 				PropertyUtilsBean util = new PropertyUtilsBean();
-				Class clazz = util.getPropertyDescriptor(delegate, property).getPropertyType();
+				Class<?> clazz = util.getPropertyDescriptor(delegate, property).getPropertyType();
 
 				if(clazz == Boolean.class || "boolean".equalsIgnoreCase(clazz.getName())) {
 					value2set = Boolean.parseBoolean(value.toString());

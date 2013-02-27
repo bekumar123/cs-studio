@@ -1,5 +1,8 @@
 package org.csstudio.dct.model.internal;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -8,170 +11,207 @@ import org.csstudio.dct.model.IFolder;
 import org.csstudio.dct.model.IFolderMember;
 import org.csstudio.dct.model.IProject;
 import org.csstudio.dct.model.IVisitor;
+import org.csstudio.dct.util.NotNull;
+import org.csstudio.dct.util.NotUnique;
+import org.csstudio.dct.util.Nullable;
+import org.csstudio.dct.util.Unique;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * Standard implementation of {@link IFolder}.
  * 
+ * A folder has no parent, but a folder has a parentFolder.
+ * 
  * @author Sven Wende
  */
 public class Folder extends AbstractElement implements IFolderMember, IFolder {
-	private List<IFolderMember> members;
-	private IFolder parentFolder;
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param name
-	 *            the name
-	 */
-	public Folder(String name) {
-		super(name);
-		members = new ArrayList<IFolderMember>();
-	}
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param name
-	 *            the name
-	 * 
-	 * @param id
-	 *            the id
-	 */
-	public Folder(String name, UUID id) {
-		super(name, id);
-		members = new ArrayList<IFolderMember>();
-	}
+    private static final String INSTANCES_FOLDER_NAME = "Instances";
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public final List<IFolderMember> getMembers() {
-		return members;
-	}
+    private static final String PROTOTYPES_FOLDER_NAME = "Prototypes";
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public final void addMember(IFolderMember member) {
-		assert member != null;
-		assert member.getParentFolder() == null;
-		members.add(member);
-	}
+    private static final String LIBRARY_FOLDER_NAME = "Library";
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public final void setMember(int index, IFolderMember member) {
-		assert member != null;
+    public static final Folder INSTANCES = new Folder(INSTANCES_FOLDER_NAME);
 
-		// .. fill with nulls
-		while (index >= members.size()) {
-			members.add(null);
-		}
+    public static final Folder PROTOTYPES = new Folder(PROTOTYPES_FOLDER_NAME);
 
-		members.set(index, member);
-	}
+    public static final Folder LIBRARY = new Folder(LIBRARY_FOLDER_NAME);
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public final void addMember(int index, IFolderMember member) {
-		assert member.getParentFolder() == null;
-		members.add(index, member);
-	}
+    @NotNull
+    private List<IFolderMember> members = new ArrayList<IFolderMember>();
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public final void removeMember(IFolderMember member) {
-		assert member.getParentFolder() == this : "member.getParentFolder()==this";
-		members.remove(member);
-	}
+    @Nullable
+    private IFolder parentFolder;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public final void removeMember(int index) {
-		IFolderMember member = members.remove(index);
+    public Folder(@NotNull @NotUnique String name) {
+        super(name);
+        checkNotNull(name);
+    }
 
-		assert member.getParentFolder() == this : "member.getParentFolder()==this";
-	}
+    public Folder(@NotNull @NotUnique String name, @NotNull @Unique UUID id) {
+        super(name, id);
+        checkNotNull(name);
+        checkNotNull(id);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public final IFolder getParentFolder() {
-		return parentFolder;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public final List<IFolderMember> getMembers() {
+        return ImmutableList.copyOf(members);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public final void setParentFolder(IFolder folder) {
-		parentFolder = folder;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public final void addMember(IFolderMember member) {
+        checkNotNull(member);
+        checkArgument(member.getParentFolder() == null);
+        members.add(member);
+    }
 
-	/**
-	 *{@inheritDoc}
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		boolean result = false;
+    /**
+     * {@inheritDoc}
+     */
+    public final void setMember(int index, IFolderMember member) {
+        checkArgument(index >= 0);
+        checkNotNull(member);
+        // .. fill with nulls
+        while (index >= members.size()) {
+            members.add(null);
+        }
+        members.set(index, member);
+    }
 
-		if (obj instanceof Folder) {
-			Folder instance = (Folder) obj;
+    /**
+     * {@inheritDoc}
+     */
+    public final void addMember(int index, IFolderMember member) {
+        checkArgument(index >= 0);
+        checkNotNull(member);
+        checkArgument(member.getParentFolder() == null);
+        members.add(index, member);
+    }
 
-			if (super.equals(obj)) {
-				// .. members
-				if (getMembers().equals(instance.getMembers())) {
-					result = true;
-				}
-			}
-		}
+    /**
+     * {@inheritDoc}
+     */
+    public final void removeMember(IFolderMember member) {
+        checkArgument(member.getParentFolder() == this);
+        members.remove(member);
+    }
 
-		return result;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public final void removeMember(int index) {
+        IFolderMember member = members.remove(index);
+        checkArgument(member.getParentFolder() == this);
+    }
 
-	/**
-	 *{@inheritDoc}
-	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((members == null) ? 0 : members.hashCode());
-		return result;
+    /**
+     * {@inheritDoc}
+     */
+    @Nullable
+    public final IFolder getParentFolder() {
+        return parentFolder;
+    }
 
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public final void setParentFolder(@Nullable IFolder folder) {
+        parentFolder = folder;
+    }
 
-	/**
-	 *{@inheritDoc}
-	 */
-	public final boolean isInherited() {
-		return false;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        boolean result = false;
+        if (obj instanceof Folder) {
+            Folder instance = (Folder) obj;
+            if (super.equals(obj)) {
+                // .. members
+                if (getMembers().equals(instance.getMembers())) {
+                    result = true;
+                }
+            }
+        }
+        return result;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public final void accept(IVisitor visitor) {
-		visitor.visit((Folder) this);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((members == null) ? 0 : members.hashCode());
+        return result;
+    }
 
-		for (IFolderMember member : getMembers()) {
-			member.accept(visitor);
-		}
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public final boolean isInherited() {
+        return false;
+    }
 
-	/**
-	 *{@inheritDoc}
-	 */
-	public IProject getProject() {
-		if(this instanceof IProject) {
-			return (IProject) this;
-		} else {
-			return parentFolder.getProject();
-		}
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public final void accept(IVisitor visitor) {
+        checkNotNull(visitor);
+        visitor.visit((Folder) this);
+        for (IFolderMember member : getMembers()) {
+            member.accept(visitor);
+        }
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    public IProject getProject() {
+        if (this instanceof IProject) {
+            return (IProject) this;
+        } else {
+            return parentFolder.getProject();
+        }
+    }
+
+    @Override
+    public boolean isPrototypesFolder() {
+        return this.getName().equals(Folder.PROTOTYPES.getName());
+    }
+
+    @Override
+    public boolean isInstancesFolder() {
+        return this.getName().equals(Folder.INSTANCES.getName());
+    }
+
+    @Override
+    public boolean isLibraryFolder() {
+        return this.getName().equals(Folder.LIBRARY.getName());
+    }
+
+    @Override
+    public IFolder getRootFolder() {
+        IFolder folder = this;
+        while ((folder != null) && (!folder.isRootFolder())) {
+            folder = folder.getParentFolder();
+        }
+        return folder;
+    }
+
+    @Override
+    public boolean isRootFolder() {
+        return isPrototypesFolder() || isInstancesFolder() || isLibraryFolder();
+    }
 }

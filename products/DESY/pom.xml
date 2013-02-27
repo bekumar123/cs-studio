@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <!--
+	PARENT
+  -->
+  <parent>
+    <groupId>org.csstudio</groupId>
+    <artifactId>master</artifactId>
+    <version>BUILD-VERSION</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <!--
+	ARTIFACT
+  -->
+  <groupId>org.csstudio</groupId>
+  <artifactId>parent</artifactId>
+  <packaging>pom</packaging>
+  <!--
+	DESCRIPTION
+  -->
+  <name>CSS</name>
+  <description>
+	CSS for DESY
+  </description>
+  <url>http://www.desy.de</url>
+  <!--
+	LICENSES
+  <licenses>
+    <license>
+      <name>EPL v1.0</name>
+      <url>http://www.eclipse.org/legal/epl-v10.html</url>
+    </license> 
+  </licenses>
+  -->
+  <!--
+	DEVELOPERS
+  <developers>
+    <developer>
+      <id>eselmeister</id>
+      <name>Philip Wenig</name>
+      <email>philip.wenig [at] gmx.net</email>
+      <timezone>+1</timezone>
+      <roles>
+        <role>Developer</role>
+      </roles>
+    </developer>
+  </developers>
+  -->
+  <!--
+	MODULES
+  -->
+  <modules>
+    <!--
+	Plug-ins (org.csstudio.desy.library.feature)
+    -->
+    <module>../../applications/plugins/org.csstudio.swt.xygraph</module>
+    <!--
+	Plug-ins (org.csstudio.desy.platform.eclipse.feature)
+    -->
+    <module>../../applications/plugins/org.ehcache</module>
+	<module>../../applications/plugins/org.apache.tools.ant</module>
+	<module>../../applications/plugins/org.apache.tools.ant.junit</module>
+	<!--
+	Plug-ins (org.csstudio.desy.platform.base.feature)
+    -->
+	<!-- applications/plugins/ -->
+	<module>../../applications/plugins/org.slf4j</module>
+	<module>../../applications/plugins/org.slf4j-log4j12</module>
+	<module>../../applications/plugins/org.slf4j.bridge</module>
+	<module>../../applications/plugins/com.google.common</module>
+	<module>../../applications/plugins/com.google.inject</module>
+	<module>../../applications/plugins/com.google.inject.guice.v3</module>
+	<module>../../applications/plugins/com.google.protobuf</module>
+	<module>../../applications/plugins/commons-beanutils.v1.8.0</module>
+	<module>../../applications/plugins/javax.annotation</module>
+	<module>../../applications/plugins/javax.mail</module>
+	<module>../../applications/plugins/net.miginfocom.layout</module>
+	<module>../../applications/plugins/org.apache.commons.lang</module>
+	<module>../../applications/plugins/org.apache.log4j</module>
+	<module>../../applications/plugins/org.mockito</module>
+	<module>../../applications/plugins/org.joda.time</module>
+	<module>../../applications/plugins/org.jdom</module>
+	<module>../../applications/plugins/org.hibernate.v4.1.3.Final</module>
+	<module>../../applications/plugins/org.hibernate.validator.v4.3.Final</module>
+	<module>../../applications/plugins/org.hamcrest</module>
+	<module>../../applications/plugins/org.custommonkey.xmlunit</module>
+	<module>../../applications/plugins/org.csstudio.utility.product</module>	
+	<module>../../applications/plugins/org.csstudio.ui.menu.app</module>
+	<module>../../applications/plugins/org.csstudio.servicelocator</module>		
+	<module>../../applications/plugins/org.csstudio.desy.logging.ui</module>
+	<module>../../applications/plugins/org.csstudio.utility.jms</module>
+	<!-- core/plugins/ -->
+	<module>../../core/plugins/org.antlr.runtime</module>	
+	<module>../../core/plugins/org.csstudio.auth</module>
+	<module>../../core/plugins/org.csstudio.auth.ui</module>
+	<module>../../core/plugins/org.csstudio.csdata</module>
+	<module>../../core/plugins/org.csstudio.dal</module>
+	<module>../../core/plugins/org.csstudio.dal.epics</module>
+	<module>../../core/plugins/org.csstudio.data</module>
+	<module>../../core/plugins/org.csstudio.platform.libs.easymock</module>
+	<module>../../core/plugins/org.csstudio.platform.libs.epics</module>
+	<module>../../core/plugins/org.csstudio.platform.libs.epics.ui</module>
+	<module>../../core/plugins/org.csstudio.platform.libs.jdbc</module>
+	<module>../../core/plugins/org.csstudio.platform.libs.jmock</module>
+	<module>../../core/plugins/org.csstudio.platform.libs.jms</module>
+	<module>../../core/plugins/org.csstudio.platform.utility.rdb</module>
+	<module>../../core/plugins/org.csstudio.startup</module>
+	<module>../../core/plugins/org.csstudio.workspace</module>
+	<module>../../core/plugins/org.csstudio.java</module>
+	<module>../../core/plugins/org.csstudio.ui.util</module>
+	<module>../../core/plugins/org.csstudio.ui.preferences</module>
+	<module>../../core/plugins/org.csstudio.openfile</module>
+	<module>../../core/plugins/org.csstudio.logging</module>
+	<module>../../core/plugins/org.csstudio.logging.ui</module>
+	<module>../../core/plugins/org.csstudio.ui.menu</module>
+	<module>../../core/plugins/org.csstudio.remote</module>
+	<module>../../core/plugins/org.csstudio.platform.utility.jms</module>
+	<module>../../core/plugins/org.csstudio.platform.utility.jms.ui</module>
+	<module>../../core/plugins/org.csstudio.platform.libs.epics.win32</module>
+	<!-- products/DESY/plugins/ -->
+	<module>./plugins/org.csstudio.desy.startuphelper</module>
+	<module>./plugins/org.csstudio.desy.css.product.log4j</module>	
+	<module>./plugins/org.csstudio.desy.product</module>
+	<!--
+	Plug-ins (org.csstudio.desy.platform.user.feature)
+    -->
+	<!-- core/plugins/ -->
+    <module>../../core/plugins/org.csstudio.platform.jaasAuthentication</module>
+    <module>../../core/plugins/org.csstudio.platform.jaasAuthentication.ui</module>
+    <module>../../core/plugins/org.csstudio.platform.ldapAuthorization</module>
+    <module>../../core/plugins/org.csstudio.platform.ldapAuthorization.ui</module>
+	<!--
+	Plug-ins (org.csstudio.desy.library.feature)
+    -->
+	<!-- applications/plugins/ -->
+	<module>../../applications/plugins/com.mysql.jdbc</module>
+	<module>../../applications/plugins/org.csstudio.alarm.service</module>
+	<module>../../applications/plugins/org.csstudio.apputil</module>
+	<module>../../applications/plugins/org.csstudio.apputil.ui</module>
+	<module>../../applications/plugins/org.csstudio.config.savevalue.service</module>
+	<module>../../applications/plugins/org.csstudio.domain.common</module>
+	<module>../../applications/plugins/org.csstudio.domain.desy</module>
+	<module>../../applications/plugins/org.csstudio.domain.desy.epics</module>
+	<module>../../applications/plugins/org.csstudio.domain.desy.softioc</module>
+	<module>../../applications/plugins/org.csstudio.domain.desy.ui</module>
+	<module>../../applications/plugins/org.csstudio.email</module>
+	<module>../../applications/plugins/org.csstudio.logbook</module>
+	<module>../../applications/plugins/org.csstudio.persister</module>
+	<module>../../applications/plugins/org.csstudio.utility.httpd</module>
+	<module>../../applications/plugins/org.csstudio.utility.ldap.service</module>
+	<module>../../applications/plugins/org.csstudio.utility.ldap.service.impl</module>
+	<module>../../applications/plugins/org.csstudio.utility.ldap.treeconfiguration</module>
+	<module>../../applications/plugins/org.csstudio.utility.ldap.ui</module>
+	<module>../../applications/plugins/org.csstudio.utility.namespace.utility</module>
+	<module>../../applications/plugins/org.csstudio.utility.pv.ui</module>
+	<module>../../applications/plugins/org.csstudio.utility.screenshot</module>
+	<module>../../applications/plugins/org.csstudio.utility.treemodel</module>
+	<module>../../applications/plugins/</module>
+	<!-- core/plugins/ -->
+	<module>../../core/plugins/org.csstudio.dal.ui</module>
+	<module>../../core/plugins/org.csstudio.platform.libs.hibernate</module>
+	<module>../../core/plugins/org.csstudio.platform.simpledal</module>
+	<module>../../core/plugins/org.csstudio.utility.pv</module>
+	<module>../../core/plugins/org.csstudio.utility.pv.epics</module>
+	<module>../../core/plugins/org.csstudio.utility.pvmanager</module>
+	<module>../../core/plugins/org.epics.util</module>
+	<module>../../core/plugins/</module>
+	<!-- products/DESY/plugins/ -->
+	<module>./plugins/de.desy.language.editor.core</module>
+	<module>./plugins/de.desy.language.editor.details</module>
+	<module>./plugins/de.desy.language.editor.ui</module>
+	<module>./plugins/de.desy.language.libraries</module>
+	<module>./plugins/</module>
+	<!--
+	Plug-ins (org.csstudio.desy.sds.feature)
+    -->
+	<!-- applications/plugins/ -->
+	<module>../../applications/plugins/org.csstudio.sds</module>
+	<module>../../applications/plugins/org.csstudio.sds.components</module>
+	<module>../../applications/plugins/org.csstudio.sds.components.epics</module>
+	<module>../../applications/plugins/org.csstudio.sds.components.ui</module>
+	<module>../../applications/plugins/org.csstudio.sds.importer</module>
+	<module>../../applications/plugins/org.csstudio.sds.importer.ui</module>
+	<module>../../applications/plugins/org.csstudio.sds.intro</module>
+	<module>../../applications/plugins/org.csstudio.sds.language.script</module>
+	<module>../../applications/plugins/org.csstudio.sds.language.script.ui</module>
+	<module>../../applications/plugins/org.csstudio.sds.samples</module>
+	<module>../../applications/plugins/org.csstudio.sds.service.pvvalidation.mkk</module>
+	<module>../../applications/plugins/org.csstudio.sds.settings.desy</module>
+	<module>../../applications/plugins/org.csstudio.sds.ui</module>
+	<module>../../applications/plugins/org.csstudio.utility.adlConverter</module>
+	<module>../../applications/plugins/org.csstudio.utility.displaybrowser</module><!-- ACHTUNG: Package-Name -->
+	<module>../../applications/plugins/org.csstudio.utility.quickstart</module>
+	<!--
+	Plug-ins (org.csstudio.desy.dct.feature)
+    -->
+	<!-- applications/plugins/ -->
+   	<module>../../applications/plugins/org.csstudio.dct</module>
+	<module>../../applications/plugins/org.csstudio.dct.intro</module>
+   	<module>../../applications/plugins/org.csstudio.dct.treemodelexporter</module>
+   	<module>../../applications/plugins/org.csstudio.dct.ui</module>
+   	<module>../../applications/plugins/org.csstudio.utility.epicsDataBaseCompare</module>
+	<!--
+		Product
+    -->
+	<module>./plugins/org.csstudio.desy.product.compilation/pom.xml</module>
+	
+	<!--
+	<module>../../applications/plugins/org.hamcrest.core</module>
+	<module>../../applications/plugins/org.eclipse.ecf</module>
+	<module>../../applications/plugins/org.eclipse.ecf.filetransfer</module>
+	<module>../../applications/plugins/org.eclipse.ecf.identity</module>
+	<module>../../applications/plugins/org.eclipse.ecf.provider.filetransfer</module>
+	<module>../../applications/plugins/org.eclipse.ecf.provider.filetransfer.ssl</module>
+	<module>../../applications/plugins/org.eclipse.ecf.ssl</module>
+	<module>../../applications/plugins/org.eclipse.equinox.ds</module>
+	<module>../../applications/plugins/org.eclipse.equinox.util</module>
+-->
+    <!--
+	Features
+	-->
+    <module>./features/org.csstudio.desy.platform.eclipse.feature</module>
+    <module>./features/org.csstudio.desy.platform.eclipse.team.feature</module>
+    <module>./features/org.csstudio.desy.platform.base.feature</module>
+    <module>./features/org.csstudio.desy.platform.user.feature</module>
+    <module>./features/org.csstudio.desy.library.feature</module>
+    <module>./features/org.csstudio.desy.sds.feature</module>
+    <module>./features/org.csstudio.desy.dct.feature</module>
+  </modules>
+  <!--
+	SOURCE CODE MANAGEMENT
+  <scm>
+    <connection>scm:git:git://openchrom.git.sourceforge.net/gitroot/openchrom/openchrom</connection>
+    <developerConnection>scm:git:ssh://openchrom.git.sourceforge.net/gitroot/openchrom/openchrom</developerConnection>
+    <url>http://openchrom.git.sourceforge.net/git/gitweb-index.cgi</url>
+  </scm>
+  -->  
+</project>

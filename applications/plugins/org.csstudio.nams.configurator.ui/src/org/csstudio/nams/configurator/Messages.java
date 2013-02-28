@@ -13,6 +13,7 @@ public class Messages extends NLS {
 	public static String AbstractNamsView_reload_question_title;
 	public static String AbstractNamsView_reload_toolTipText;
 	public static String AlarmbearbeiterBean_without_name;
+	public static String AlarmbearbeiterEditor_active_filters;
 	public static String AlarmbearbeiterEditor_category;
 	public static String AlarmbearbeiterEditor_confirm_code;
 	public static String AlarmbearbeiterEditor_email;

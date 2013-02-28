@@ -30,6 +30,8 @@ import javax.annotation.Nonnull;
 import org.csstudio.domain.common.collection.LimitedArrayCircularQueue;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.typesupport.BaseTypeConversionSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
@@ -42,7 +44,7 @@ import com.google.common.collect.Ordering;
  * @since 12.09.2011
  */
 public class LiveSamplesCompressor {
-
+	private static final Logger LOG = LoggerFactory.getLogger(LiveSamplesCompressor.class);
     private List<Long> _windowLengthsMS;
     private int _noUncompressed;
 
@@ -150,16 +152,15 @@ public class LiveSamplesCompressor {
             return samples;
         }
 
-        PlotSample next = samples.peek();
+        PlotSample next = samples.poll();
         PlotSample min = next;
         PlotSample max = next;
         long nextWindowEnd = Math.min(startOfCompressionMS + windowLengthMS, endOfCompressionMS);
         //System.out.println("-w: " + nextWindowEnd);
-
         List<PlotSample> result = Lists.newLinkedList();
-
+        int count=0;
         while ( next != null ) {
-
+            count++;
             if (!isSampleBefore(next, nextWindowEnd)) {
                 nextWindowEnd = Math.min(nextWindowEnd + windowLengthMS, endOfCompressionMS);
                 //System.out.println("-w: " + nextWindowEnd);
@@ -172,9 +173,11 @@ public class LiveSamplesCompressor {
             min = next.getYValue() < min.getYValue() ? next : min;
             max = next.getYValue() > max.getYValue() ? next : max;
 
-            samples.remove();
-
-            next = samples.peek();
+            next = samples.poll();
+            if(count>10000){ 
+                LOG.info("Stop Compress stage manuel {}. Sample count : ",samples.size()); 
+                break;
+            }
             if (!isSampleBefore(next, nextWindowEnd)) {
                 result = storeMinMax(min, max, result);
                 min = next;

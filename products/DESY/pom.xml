@@ -54,7 +54,6 @@
     <!--
 	Plug-ins (org.csstudio.desy.library.feature)
     -->
-    <module>../../applications/plugins/org.csstudio.swt.xygraph</module>
     <!--
 	Plug-ins (org.csstudio.desy.platform.eclipse.feature)
     -->
@@ -134,6 +133,7 @@
 	Plug-ins (org.csstudio.desy.library.feature)
     -->
 	<!-- applications/plugins/ -->
+    <module>../../applications/plugins/org.csstudio.swt.xygraph</module>
 	<module>../../applications/plugins/com.mysql.jdbc</module>
 	<module>../../applications/plugins/org.csstudio.alarm.service</module>
 	<module>../../applications/plugins/org.csstudio.apputil</module>

@@ -1,5 +1,7 @@
 package org.csstudio.dct.ui.editor.outline.internal;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.List;
 
 import org.csstudio.dct.model.IElement;
@@ -13,7 +15,7 @@ public final class DisableElements extends AbstractOutlineAction {
      */
     @Override
     protected Command createCommand(List<IElement> selection) {
-        assert selection != null;
+        checkNotNull(selection);
         return EnableDisableActionHelper.createEnableDisableCommand(selection, true);
     }
 

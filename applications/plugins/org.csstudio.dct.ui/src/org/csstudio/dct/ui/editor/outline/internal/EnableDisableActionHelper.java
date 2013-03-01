@@ -1,5 +1,7 @@
 package org.csstudio.dct.ui.editor.outline.internal;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.List;
 
 import org.csstudio.dct.model.IElement;
@@ -14,6 +16,7 @@ import org.eclipse.gef.commands.CompoundCommand;
 public class EnableDisableActionHelper {
 
     public static Command createEnableDisableCommand(List<IElement> selection, boolean value) {
+        checkNotNull(selection);
         if (CompareUtil.containsOnly(IRecord.class, selection)) {
             CompoundCommand chain = new CompoundCommand();
             for (IElement singleSelection: selection) {
@@ -37,10 +40,12 @@ public class EnableDisableActionHelper {
     }
 
     public static boolean isValidSelectionForEnable(List<IElement> selection) {
+        checkNotNull(selection);
         return EnableDisableActionHelper.isValidSelection(selection, false);
     }
 
     public static boolean isValidSelectionForDisable(List<IElement> selection) {
+        checkNotNull(selection);
         return EnableDisableActionHelper.isValidSelection(selection, true);
     }
 

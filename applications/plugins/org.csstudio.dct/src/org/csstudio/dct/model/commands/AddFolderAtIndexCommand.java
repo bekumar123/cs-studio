@@ -1,5 +1,8 @@
 package org.csstudio.dct.model.commands;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import org.csstudio.dct.model.IFolder;
 import org.eclipse.gef.commands.Command;
 
@@ -18,8 +21,9 @@ public class AddFolderAtIndexCommand extends Command {
      *            then name of the new folder
      */
     public AddFolderAtIndexCommand(IFolder parentFolder, IFolder folder, int index) {
-        assert parentFolder != null;
-        assert folder!=null;
+        checkNotNull(parentFolder);
+        checkNotNull(folder);
+        checkArgument(index >= 0);
         this.parentFolder = parentFolder;
         this.folder = folder;
         this.index= index;

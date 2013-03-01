@@ -1,5 +1,7 @@
 package org.csstudio.dct.export.internal;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.List;
 import java.util.Map;
 
@@ -84,6 +86,7 @@ public final class AdvancedDbFileExporter implements IExporter {
 	}
 
 	public String export(List<IRecord> records) {
+	    checkNotNull(records);
 	    StringBuffer sb = new StringBuffer();
         for (IRecord r : records) {
             sb.append(render(r));

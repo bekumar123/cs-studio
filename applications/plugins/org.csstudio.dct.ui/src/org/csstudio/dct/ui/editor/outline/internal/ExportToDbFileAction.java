@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.csstudio.dct.export.internal.AdvancedDbFileExporter;
 import org.csstudio.dct.model.IElement;
-import org.csstudio.dct.model.IFolder;
 import org.csstudio.dct.model.IInstance;
 import org.csstudio.dct.model.IRecord;
 import org.csstudio.dct.model.commands.GenericCommand;
@@ -56,7 +55,6 @@ public final class ExportToDbFileAction extends AbstractOutlineAction {
 
                         if (file.canWrite()) {
                             final FileWriter writer = new FileWriter(file);
-
                             writer.write(advancedDbFileExporter.export(getListOfRecords(selection)));
                             writer.close();
                         }
@@ -79,7 +77,7 @@ public final class ExportToDbFileAction extends AbstractOutlineAction {
     protected void afterSelectionChanged(List<IElement> selection, IAction action) {
         super.afterSelectionChanged(selection, action);
 
-        if (selection.size() < 0) {
+        if (selection.size() <= 0) {
             action.setEnabled(false);
             return;
         }

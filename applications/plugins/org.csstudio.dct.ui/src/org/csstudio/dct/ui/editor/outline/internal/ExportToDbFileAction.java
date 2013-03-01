@@ -34,8 +34,15 @@ public final class ExportToDbFileAction extends AbstractOutlineAction {
                 IInstance instance = (IInstance) selection.get(0);
 
                 final FileDialog dialog = new FileDialog(Display.getCurrent().getActiveShell(), SWT.SAVE);
-                dialog.setFileName(instance.getName() + ".db");
-
+                String fileName;
+                if (instance.getName() == null) {
+                    fileName = instance.getParent().getName();                 
+                } else {
+                    fileName = instance.getName();
+                }
+                fileName = fileName.replaceAll(" ", "_");
+                dialog.setFileName(fileName + ".db");
+                
                 final String path = dialog.open();
                 AdvancedDbFileExporter advancedDbFileExporter = new AdvancedDbFileExporter();
 

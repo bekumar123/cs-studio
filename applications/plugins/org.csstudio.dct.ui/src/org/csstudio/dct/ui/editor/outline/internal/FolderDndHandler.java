@@ -36,17 +36,26 @@ public class FolderDndHandler extends AbstractDnDHandler<IElement> {
 
         if (dndTarget instanceof IFolder) {
             destFolder = (IFolder) dndTarget;
+            destFolder = destFolder.getParentFolder();
         } else {
             destFolder = ((IContainer) dndTarget).getParentFolder();            
-            index = destFolder.getMembers().indexOf(dndTarget);
-            int tmp = destFolder.getMembers().indexOf(destFolder);
-            if(tmp>-1 && tmp<index) {
-                index--;
-            }
         }
 
+        index = destFolder.getMembers().indexOf(dndTarget);
+        int tmp = destFolder.getMembers().indexOf(dndSource);
+
+        if(tmp > -1 && tmp < index) {
+            System.out.println(index);
+            System.out.println(tmp);
+           index--;
+        }
+       
         assert destFolder != null;
 
+        if (!folder.getParentFolder().equals(destFolder)) {
+            return null;
+        }
+        
         // .. create command
         CompoundCommand cmd = new CompoundCommand();
         cmd.add(new RemoveFolderCommand(folder));
@@ -56,17 +65,13 @@ public class FolderDndHandler extends AbstractDnDHandler<IElement> {
 
     @Override
     public int updateDragFeedback(IElement dndSource, IElement dndTarget, DropTargetEvent event) {
-        if ((dndSource == dndTarget) || (event.detail == DND.DROP_COPY)) {
+        if (dndSource == dndTarget) {
             event.feedback = DND.FEEDBACK_NONE;
         } else if (event.detail == DND.DROP_COPY) {
-            if (dndTarget instanceof IFolder) {
-                event.feedback = DND.FEEDBACK_SELECT;
-            } else {
-                event.feedback = DND.FEEDBACK_NONE;
-            }
+            event.feedback = DND.FEEDBACK_NONE;
         } else if (event.detail == DND.DROP_MOVE) {
             if (dndTarget instanceof IFolder) {
-                event.feedback = DND.FEEDBACK_SELECT;
+                event.feedback = DND.FEEDBACK_INSERT_BEFORE;
             } else if (dndTarget instanceof IContainer) {
                 IContainer container = (IContainer) dndTarget;
                 if (container.getParentFolder() != null) {

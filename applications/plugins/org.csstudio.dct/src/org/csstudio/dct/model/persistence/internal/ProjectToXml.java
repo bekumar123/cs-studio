@@ -15,6 +15,8 @@ import org.csstudio.domain.common.strings.StringUtil;
 import org.jdom.Document;
 import org.jdom.Element;
 
+import com.google.common.base.Strings;
+
 /**
  * Converts a {@link Project} to XML format.
  * 
@@ -110,8 +112,7 @@ public final class ProjectToXml {
             folderXmlElement.setAttribute("index", "" + folder.getParentFolder().getMembers().indexOf(folder));
         }
 
-        if (!folder.isLibraryFolder()) {
-
+        if ((!folder.isLibraryFolder()) || Strings.isNullOrEmpty(project.getLibraryPath())) {
             for (IFolderMember m : folder.getMembers()) {
                 Element childElement = createElement((IElement) m);
                 if (childElement != null) {

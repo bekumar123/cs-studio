@@ -372,11 +372,13 @@ public class EPICS_V3_PV extends PlatformObject
      */
     private void connect() throws Exception
     {
+    	Activator.getLogger().log(Level.SEVERE, "-------------- start connecting");
         state = State.Connecting;
         // Already attempted a connection?
         synchronized (this)
         {
             if (channel_ref == null)
+            	Activator.getLogger().log(Level.SEVERE, "-------------- getChannel from PV Context");
                 channel_ref = PVContext.getChannel(name, EPICS_V3_PV.this);
 		}
         if (channel_ref.getChannel().getConnectionState()
@@ -513,6 +515,7 @@ public class EPICS_V3_PV extends PlatformObject
     @Override
     public void start() throws Exception
     {
+    	Activator.getLogger().log(Level.SEVERE, "------------- start channel");
         if (running) {
             return;
         }

@@ -29,6 +29,8 @@ import gov.aps.jca.*;
 import gov.aps.jca.dbr.*;
 
 import java.security.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.io.*;
 
 class JNI {
@@ -61,6 +63,8 @@ class JNI {
   static private boolean _initialized=false;
   
   static public void init() throws CAException {
+	  Logger.getLogger("jca").log(Level.SEVERE, "------------ JNI init");
+
     if(_initialized) return;
     
     PrivilegedAction action= new PrivilegedAction() {
@@ -71,9 +75,11 @@ class JNI {
           try {
             
             String targetArch=JNITargetArch.getTargetArch();
+            Logger.getLogger("jca").log(Level.SEVERE, "------------ target Arch: " + targetArch);
             //            System.out.println("TargetArch: "+targetArch);
             JCALibrary jca=JCALibrary.getInstance();
             
+            Logger.getLogger("jca").log(Level.SEVERE, "------------ target Arch: " + targetArch);
             
             String libPath=jca.getProperty( "gov.aps.jca.jni.epics."+targetArch+
             ".library.path", "" );
@@ -97,7 +103,9 @@ class JNI {
             //            System.out.println(ex2);
           }
           //          System.out.println("Loading jca2");
+          Logger.getLogger("jca").log(Level.SEVERE, "------------ trying load jca: ");
           System.loadLibrary( "jca" );
+          Logger.getLogger("jca").log(Level.SEVERE, "------------ jca loaded: ");
           
           return null; // nothing to return
         } catch( Exception ex1 ) {

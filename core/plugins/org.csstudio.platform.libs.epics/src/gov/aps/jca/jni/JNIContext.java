@@ -146,11 +146,14 @@ abstract public class JNIContext extends Context {
     assertState(!isInitialized(), "Context Already Initialized");
     
     try {
+  	  Logger.getLogger("jca").log(Level.SEVERE, "------------ JNI Context initialize");
+
       JNI.init();
 
       setCtxtID( contextInitialize() );
 
       _initialized=true;
+      Logger.getLogger("jca").log(Level.SEVERE, "------------ JNI Context initialize finished");
 
       addContextMessageListener( new DefaultContextMessageListener() );
       addContextExceptionListener( new DefaultContextExceptionListener() );

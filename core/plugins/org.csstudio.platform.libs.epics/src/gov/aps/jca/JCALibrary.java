@@ -28,6 +28,8 @@ import gov.aps.jca.dbr.DBRType;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The JCALibrary class is the entry point to all JCA enabled application.
@@ -88,7 +90,9 @@ public final class JCALibrary {
    */
   protected JCALibrary() {
 
-	// initialize DBR types  
+	// initialize DBR types
+	  Logger.getLogger("jca").log(Level.SEVERE, "------------ JCA Library");
+
 	DBRType.initialize();
     
     String fileSep=System.getProperty( "file.separator" );

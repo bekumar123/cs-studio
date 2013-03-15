@@ -31,7 +31,9 @@ import gov.aps.jca.event.*;
 import gov.aps.jca.configuration.*;
 
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 final public class SingleThreadedContext extends JNIContext implements Configurable {
   
@@ -307,6 +309,7 @@ final public class SingleThreadedContext extends JNIContext implements Configura
   }
   
   public Channel createChannel( String name, ConnectionListener l, short priority ) throws CAException, IllegalStateException {
+	  Logger.getLogger("jca").log(Level.SEVERE, "------------ SingleThreaded Context: create channe");
     _initialize();
     assertState(isValid(), "Invalid context");
     if( name==null|| ( name=name.trim() ).equals( "" ) ) {

@@ -156,7 +156,9 @@ abstract public class JNIContext extends Context {
       Logger.getLogger("jca").log(Level.SEVERE, "------------ JNI Context initialize finished");
 
       addContextMessageListener( new DefaultContextMessageListener() );
+      Logger.getLogger("jca").log(Level.SEVERE, "------------ DefaultContextMessageListener added");
       addContextExceptionListener( new DefaultContextExceptionListener() );
+      Logger.getLogger("jca").log(Level.SEVERE, "------------ DefaultContextExceptionListener added");
 
     } catch( Throwable th ) {
 //      if(getLogger()!=null) getLogger().log(Level.SEVERE, "Unable to initialize context", th);

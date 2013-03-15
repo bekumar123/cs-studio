@@ -160,14 +160,17 @@ public class PVContext
         RefCountedChannel channel_ref = channels.get(name);
         if (channel_ref == null)
         {
-            Activator.getLogger().log(Level.FINER, "Creating CA channel {0}", name);
+            Activator.getLogger().log(Level.SEVERE, "Creating CA channel {0}", name);
             final Channel channel = jca_context.createChannel(name, conn_callback);
             if (channel == null)
                 throw new Exception("Cannot create channel '" + name + "'");
+            Activator.getLogger().log(Level.SEVERE, "create RefCountedChannel");
             channel_ref = new RefCountedChannel(channel);
+            Activator.getLogger().log(Level.SEVERE, "create RefCountedChannel");
             channels.put(name, channel_ref);
             // Start the command thread after the first channel is created.
             // This starts it in any case, but follow-up calls are NOPs.
+            Activator.getLogger().log(Level.SEVERE, "start thread");
             command_thread.start();
         }
         else

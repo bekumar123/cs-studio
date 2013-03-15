@@ -384,6 +384,7 @@ public class EPICS_V3_PV extends PlatformObject
         if (channel_ref.getChannel().getConnectionState()
             == ConnectionState.CONNECTED)
         {
+        	Activator.getLogger().log(Level.SEVERE, "-------------- channel connected");
             Activator.getLogger().log(Level.FINEST, "{0} is immediately connected", name);
             handleConnected(channel_ref.getChannel());
         }
@@ -521,6 +522,7 @@ public class EPICS_V3_PV extends PlatformObject
         }
         running = true;
         connect();
+        Activator.getLogger().log(Level.SEVERE, "------------- channel started");
     }
 
     /** {@inheritDoc} */

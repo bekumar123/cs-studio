@@ -25,32 +25,36 @@
 
 package org.csstudio.alarm.jms2ora.management;
 
-import org.csstudio.alarm.jms2ora.Jms2OraActivator;
-import org.csstudio.alarm.jms2ora.preferences.PreferenceConstants;
+import org.csstudio.alarm.jms2ora.RemotelyAccesible;
 import org.csstudio.remote.management.CommandParameters;
 import org.csstudio.remote.management.CommandResult;
 import org.csstudio.remote.management.IManagementCommand;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.preferences.IPreferencesService;
 
 /**
  * @author Markus Moeller
- * @version 
+ * @version
  * @since 22.06.2011
  */
 public class GetDescription implements IManagementCommand {
-    
+
+    private static RemotelyAccesible object = null;
+
     /**
      * @see org.csstudio.platform.management.IManagementCommand#execute(org.csstudio.platform.management.CommandParameters)
      */
     @Override
     public CommandResult execute(CommandParameters parameters) {
-        
-        IPreferencesService prefs = Platform.getPreferencesService();
-        String desc = prefs.getString(Jms2OraActivator.PLUGIN_ID,
-                                      PreferenceConstants.DESCRIPTION,
-                                      "I am a simple but happy application.", null);
-        
-        return CommandResult.createMessageResult(desc);
+        CommandResult result = null;
+        if (object != null) {
+            String desc = object.getDescription() + "\n\nStarting time: " + object.getStartingTimeAsString();
+            result = CommandResult.createMessageResult(desc);
+        } else {
+            result = CommandResult.createFailureResult("No description available. The application reference is null!");
+        }
+        return result;
+    }
+
+    public static void staticInject(RemotelyAccesible o) {
+        object = o;
     }
 }

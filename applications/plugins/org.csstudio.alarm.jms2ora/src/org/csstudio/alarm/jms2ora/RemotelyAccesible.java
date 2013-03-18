@@ -25,20 +25,24 @@
 package org.csstudio.alarm.jms2ora;
 
 /**
- * TODO (mmoeller) : 
- * 
+ * TODO (mmoeller) :
+ *
  * @author mmoeller
  * @version 1.0
  * @since 19.08.2011
  */
 public interface RemotelyAccesible {
-    
+
     /**
      * Returns the number of messages that are stored in the message queue
-     * 
+     *
      * @return Number of messages in the queue
      */
     int getMessageQueueSize();
-    
+
     int getNumberOfMessageFiles();
+
+    String getStartingTimeAsString();
+
+    String getDescription();
 }

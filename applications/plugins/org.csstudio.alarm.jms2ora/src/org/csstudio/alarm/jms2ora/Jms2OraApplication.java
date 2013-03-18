@@ -31,6 +31,7 @@ import java.net.URI;
 
 import javax.annotation.Nonnull;
 
+import org.csstudio.alarm.jms2ora.management.GetDescription;
 import org.csstudio.alarm.jms2ora.management.GetNumberOfMessageFiles;
 import org.csstudio.alarm.jms2ora.management.GetQueueSize;
 import org.csstudio.alarm.jms2ora.management.GetVersionMgmtCommand;
@@ -41,6 +42,9 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.remotercp.common.tracker.IGenericServiceListener;
 import org.remotercp.service.connection.session.ISessionService;
 import org.slf4j.Logger;
@@ -76,6 +80,8 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
 
     private XmppSessionHandler xmppSessionHandler;
 
+    private DateTime startTime;
+
     /** Flag that indicates whether or not the application is/should running */
     private boolean running;
 
@@ -95,6 +101,8 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
      */
     @Override
     public Object start(@Nonnull final IApplicationContext context) throws Exception {
+
+        startTime = new DateTime();
 
         System.setOut(new PrintStream(new File("./stdout.txt")));
         System.setErr(new PrintStream(new File("./stderr.txt")));
@@ -266,6 +274,7 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
 
     	GetQueueSize.staticInject(this);
     	GetNumberOfMessageFiles.staticInject(this);
+    	GetDescription.staticInject(this);
         final File file = new File(".eclipseproduct");
         if (file.exists()) {
             final URI uri = file.toURI();
@@ -340,5 +349,26 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
     @Override
     public int getNumberOfMessageFiles() {
         return messageProcessor.getNumberOfMessageFiles();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getStartingTimeAsString() {
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+        return dtf.print(startTime);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDescription() {
+        IPreferencesService prefs = Platform.getPreferencesService();
+        String desc = prefs.getString(Jms2OraActivator.PLUGIN_ID,
+                                      PreferenceConstants.DESCRIPTION,
+                                      "I am a simple but happy application.", null);
+        return desc;
     }
 }

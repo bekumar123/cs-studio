@@ -742,14 +742,16 @@ public class Probe extends ViewPart implements PVListener, ISelectionProvider
     @Override
     public void pvValueUpdate(final PV pv)
     {
-        logger.log(Level.FINE, "Probe pvValueUpdate: {0}", pv.getName()); //$NON-NLS-1$
+        logger.log(Level.SEVERE, "------------- Probe pvValueUpdate: {0}", pv.getName()); //$NON-NLS-1$
 
         // We might receive events after the view is already disposed or we're already looking at a different PV ....
         if (pv != this.pv  ||  lbl_value.isDisposed())
             return;
         try
         {
+        	logger.log(Level.SEVERE, "------------- pv is valid"); //$NON-NLS-1$
             final IValue newVal = pv.getValue();
+            logger.log(Level.SEVERE, "------------- set new value to probe"); //$NON-NLS-1$
             value.update(newVal);
             // Perform update in GUI thread.
             Display.getDefault().asyncExec(update_value);

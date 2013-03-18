@@ -794,6 +794,7 @@ public class EPICS_V3_PV extends PlatformObject
 	/** Notify all listeners. */
     private void fireValueUpdate()
     {
+    	Activator.getLogger().log(Level.SEVERE, "----------- fire value update");
         for (final PVListener listener : listeners) {
             listener.pvValueUpdate(this);
         }

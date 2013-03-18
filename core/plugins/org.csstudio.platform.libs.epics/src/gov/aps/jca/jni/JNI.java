@@ -229,6 +229,7 @@ class JNI {
   JNIAccessRightsCallback
   callback ) throws JNIException {
 //    synchronized( _lock ) {
+      Logger.getLogger("jca").log(Level.SEVERE, "------------ ch_set AccessRightsCallback: ");
       _ch_setAccessRightsCallback( channelID, callback );
 //    }
   }

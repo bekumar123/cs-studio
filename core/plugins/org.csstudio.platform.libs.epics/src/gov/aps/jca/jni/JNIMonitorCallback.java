@@ -31,6 +31,8 @@ import gov.aps.jca.event.*;
 import gov.aps.jca.dbr.*;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 class JNIMonitorCallback extends JNICallback {
@@ -43,6 +45,7 @@ class JNIMonitorCallback extends JNICallback {
 
   public void fire(int type, int count, long dbrid, int status) {
 	  try {
+          Logger.getLogger("jca").log(Level.SEVERE, "------------ fir from jni ");
             // dbrid, the actual value, can be null if for example
             // the server's EPICS_CA_MAX_ARRAY_BYTES is too small
             // to send an array.

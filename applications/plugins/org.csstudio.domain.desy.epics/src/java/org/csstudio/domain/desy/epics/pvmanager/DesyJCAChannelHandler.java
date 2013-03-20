@@ -244,7 +244,7 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
         }
 
         // Flush the entire context (it's the best we can do)
-     //   channel.getContext().flushIO();
+        channel.getContext().flushIO();
     }
 
     private final ConnectionListener connectionListener = new ConnectionListener() {

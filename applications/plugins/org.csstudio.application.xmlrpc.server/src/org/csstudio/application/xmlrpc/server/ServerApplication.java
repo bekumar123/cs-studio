@@ -24,35 +24,40 @@
 package org.csstudio.application.xmlrpc.server;
 
 import org.csstudio.application.xmlrpc.server.internal.PreferenceConstants;
+import org.csstudio.application.xmlrpc.server.management.GetInfo;
 import org.csstudio.archive.common.service.IArchiveReaderFacade;
 import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
+import org.csstudio.headless.common.xmpp.XmppCredentials;
+import org.csstudio.headless.common.xmpp.XmppSessionException;
+import org.csstudio.headless.common.xmpp.XmppSessionHandler;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.remotercp.common.tracker.IGenericServiceListener;
-import org.remotercp.service.connection.session.ISessionService;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * This class controls all aspects of the application's execution
  */
-public class ServerApplication implements IApplication,
-                                          IGenericServiceListener<ISessionService> {
+public class ServerApplication implements IApplication, RemotelyAccesible {
 
     private static final Logger LOG = LoggerFactory.getLogger(ServerApplication.class);
 
-    private MySqlXmlRpcServer xmlrpcServer;
-    
-    /** The ECF service */
-    private ISessionService xmppService;
+    private final long APPLICATION_WAIT_TIME = 10000L;
 
-    /** Object that holds the credentials for XMPP login */
-    private XmppInfo xmppInfo;
+    private MySqlXmlRpcServer xmlrpcServer;
+
+    /** The ECF service */
+    private XmppSessionHandler xmppHandler;
+
+    private DateTime startTime;
 
     private boolean running;
-    
+
     public ServerApplication() {
         IArchiveReaderFacade reader = null;
         try {
@@ -64,15 +69,17 @@ public class ServerApplication implements IApplication,
         }
         xmlrpcServer = new MySqlXmlRpcServer(reader, 8080);
     }
-    
-	/* (non-Javadoc)
+
+	/**
 	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
 	 */
 	@Override
     public Object start(IApplicationContext context) throws Exception {
-		
+
 	    // -agentpath:"C:\Program Files (x86)\YourKit Java Profiler 11.0.9\bin\win32\yjpagent.dll"
-	    
+
+	    startTime = new DateTime();
+
         final IPreferencesService prefs = Platform.getPreferencesService();
         final String xmppUser = prefs.getString(ServerActivator.PLUGIN_ID,
                 PreferenceConstants.XMPP_USER_NAME, "anonymous", null);
@@ -81,77 +88,81 @@ public class ServerApplication implements IApplication,
         final String xmppServer = prefs.getString(ServerActivator.PLUGIN_ID,
                 PreferenceConstants.XMPP_SERVER, "krynfs.desy.de", null);
 
-        xmppInfo = new XmppInfo(xmppServer, xmppUser, xmppPassword);
-        
-        ServerActivator.getBundle().addSessionServiceListener(this);
+        XmppCredentials xmppCredentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
+        xmppHandler = new XmppSessionHandler(ServerActivator.getContext(), xmppCredentials);
+
+        GetInfo.staticInject(this);
+        try {
+            xmppHandler.connect();
+        } catch (XmppSessionException e) {
+            LOG.warn("Cannot connect to the XMPP server.");
+        }
+
 	    xmlrpcServer.start();
 	    context.applicationRunning();
-	    
+
 	    LOG.info("XmlRpcServer has been started and initialized.");
-	    
-	    if (running) {
+
+	    while (running) {
 	        synchronized (this) {
 	            try {
-	                this.wait();
+	                this.wait(APPLICATION_WAIT_TIME);
 	            } catch (InterruptedException e) {
 	                LOG.warn("INTERRUPTED");
 	            }
 	        }
+	        if (!xmppHandler.isConnected()) {
+	            LOG.warn("XMPP service is not connected. Try to reconnect.");
+	            try {
+	                xmppHandler.connect();
+	            } catch (XmppSessionException e) {
+	                LOG.warn("Cannot connect to the XMPP server.");
+	            }
+	        } else {
+	            if (LOG.isDebugEnabled()) {
+	                LOG.debug("XMPP service is connected.");
+	            }
+	        }
 	    }
-	    
+
 	    if (xmlrpcServer.isAlive()) {
 	        xmlrpcServer.interrupt();
 	    }
-	    
-        if (xmppService != null) {
-            synchronized (xmppService) {
-                try {
-                    xmppService.wait(500);
-                } catch (InterruptedException ie) {
-                    LOG.info("xmppService.wait(500) has been interrupted.");
-                }
-            }
-            xmppService.disconnect();
-        }
+
+	    xmppHandler.disconnect();
 
         LOG.info("MySQL-XmlRpc-Server is stopping.");
 
 		return IApplication.EXIT_OK;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.eclipse.equinox.app.IApplication#stop()
 	 */
 	@Override
     public void stop() {
 		LOG.info("I have received the command to stop.");
 		synchronized (this) {
+		    running = false;
 		    this.notify();
 		}
 	}
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void bindService(ISessionService service) {
-        if (xmppInfo == null) {
-            LOG.warn("XMPP credentials are not available.");
-            return;
-        }
-        try {
-            service.connect(xmppInfo.getXmppUser(), xmppInfo.getXmppPassword(), xmppInfo.getXmppServer());
-            xmppService = service;
-        } catch (Exception e) {
-            LOG.warn("XMPP connection is not available: {}", e.toString());
-        }
+    public String getStartingTimeAsString() {
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+        return dtf.print(startTime);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void unbindService(ISessionService service) {
-        //  Nothing to do
+    public String getInfo() {
+        IPreferencesService prefs = Platform.getPreferencesService();
+        String info = prefs.getString(ServerActivator.PLUGIN_ID,
+                                      PreferenceConstants.INFO,
+                                      "I am a simple but happy application.", null);
+        return info;
     }
 }

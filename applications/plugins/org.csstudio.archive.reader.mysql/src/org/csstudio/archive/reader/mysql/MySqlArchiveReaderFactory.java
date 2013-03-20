@@ -27,7 +27,7 @@ import org.csstudio.archive.reader.ArchiveReader;
 import org.csstudio.archive.reader.ArchiveReaderFactory;
 
 /**
- * TODO (mmoeller) :
+ * The factory for the archive reader that gets its data from the MySQL server.
  *
  * @author mmoeller
  * @since 14.03.2013
@@ -35,18 +35,10 @@ import org.csstudio.archive.reader.ArchiveReaderFactory;
 public class MySqlArchiveReaderFactory implements ArchiveReaderFactory {
 
     /**
-     * Constructor.
-     */
-    public MySqlArchiveReaderFactory() {
-        // TODO Auto-generated constructor stub
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
     public ArchiveReader getArchiveReader(String url) throws Exception {
-        // TODO Auto-generated method stub
-        return null;
+        return new MySqlArchiveReader(url);
     }
 }

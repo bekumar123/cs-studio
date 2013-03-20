@@ -33,10 +33,9 @@ public class PreferenceConstants {
     public static final String XMPP_PASSWORD = "xmppPassword";
     public static final String XMPP_SERVER = "xmppServer";
     public static final String XMPP_SHUTDOWN_PASSWORD = "xmppShutdownPassword";
-
     public static final String XML_RCP_SERVER_PORT = "xmlRcpServerPort";
-
     public static final String ASK_CONTROLSYSTEM_FOR_META = "askCntrlSysForMeta";
+    public static final String INFO = "info";
 
     private PreferenceConstants() {
         // Avoid instantiation

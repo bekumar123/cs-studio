@@ -22,6 +22,11 @@
                label="Password">
          </stringParameter>
       </command>
+      <command
+            class="org.csstudio.application.xmlrpc.server.management.GetInfo"
+            id="org.csstudio.application.xmlrpc.server.GetInfo"
+            label="Get Info">
+      </command>
    </extension>
    <extension
          point="org.eclipse.equinox.preferences.preferences">

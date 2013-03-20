@@ -14,13 +14,12 @@ Require-Bundle: org.eclipse.core.runtime,
  org.csstudio.archive.common.requesttype;bundle-version="1.0.0",
  org.csstudio.platform.libs.epics;bundle-version="3.1.1",
  org.csstudio.platform.simpledal;bundle-version="1.0.0",
- org.remotercp.common;bundle-version="1.0.0",
+ org.csstudio.headless.common;bundle-version="1.0.0",
  org.remotercp.util;bundle-version="1.0.0",
- org.remotercp.service.connection;bundle-version="1.0.1",
- org.eclipse.ecf.identity;bundle-version="3.1.100",
  org.csstudio.remote;bundle-version="3.1.0",
  org.slf4j;bundle-version="1.7.2",
- com.google.common;bundle-version="10.0.1"
+ com.google.common;bundle-version="10.0.1",
+ org.joda.time;bundle-version="1.6.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,

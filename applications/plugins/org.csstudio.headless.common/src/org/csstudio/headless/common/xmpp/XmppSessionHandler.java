@@ -82,6 +82,11 @@ public class XmppSessionHandler implements IGenericServiceListener<ISessionServi
         }
     }
 
+    public void reconnect() throws XmppSessionException {
+        disconnect();
+        connect();
+    }
+
     /**
      * {@inheritDoc}
      */

@@ -25,13 +25,14 @@
 
 package org.csstudio.nams.application.department.decision;
 
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.List;
-
 import org.csstudio.domain.common.statistic.Collector;
+import org.csstudio.headless.common.xmpp.XmppCredentials;
+import org.csstudio.headless.common.xmpp.XmppSessionException;
+import org.csstudio.headless.common.xmpp.XmppSessionHandler;
 import org.csstudio.nams.application.department.decision.management.Restart;
 import org.csstudio.nams.application.department.decision.management.Stop;
 import org.csstudio.nams.application.department.decision.office.decision.AlarmEntscheidungsBuero;
@@ -75,8 +76,6 @@ import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.osgi.framework.BundleActivator;
-import org.remotercp.common.tracker.IGenericServiceListener;
-import org.remotercp.service.connection.session.ISessionService;
 
 /**
  * <p>
@@ -105,7 +104,7 @@ import org.remotercp.service.connection.session.ISessionService;
  * @version 0.2.0-2008-06-10 (MZ): Change to use {@link AbstractBundleActivator}.
  */
 public class DecisionDepartmentActivator extends AbstractBundleActivator
-        implements IApplication, RemotelyStoppable, IGenericServiceListener<ISessionService> {
+        implements IApplication, RemotelyStoppable {
 
     private static final int DEFAULT_THREAD_COUNT = 10;
 
@@ -193,7 +192,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
     private static LocalStoreConfigurationService localStoreConfigurationService;
 
     private static String managementPassword;
-    
+
     /**
      * Versucht via dem Distributor eine Synchronisation auszufürehn. Das
      * Ergebnis gibt an, ob weitergearbeitet werden soll.
@@ -272,7 +271,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
     private volatile boolean _continueWorking;
 
     private boolean restart;
-    
+
     /**
      * Referenz auf den Thread, welcher die JMS Nachrichten anfragt. Wird
      * genutzt um den Thread zu "interrupten". Wird nur von der Application
@@ -287,7 +286,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
      */
     // private Consumer extAlarmConsumer;
     private Consumer[] extAlarmConsumer;
-    
+
     /**
      * Consumer zum Lesen auf externer-Komando-Quelle.
      */
@@ -330,8 +329,8 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
 
     /** Class that collects statistic informations. Query it via XMPP. */
     private Collector ackMessages = null;
-    
-    private ISessionService xmppService;
+
+    private XmppSessionHandler xmppService;
 
     /**
      * Indicating that application is in restart process caused bz syunchr.
@@ -347,13 +346,13 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
      * @see IApplication#start(IApplicationContext)
      */
     @Override
-    public Object start(final IApplicationContext context)
-    {
+    public Object start(final IApplicationContext context) {
+
         restart = false;
-        
+
         Stop.staticInject(this);
         Stop.staticInject(logger);
-        
+
         Restart.staticInject(this);
         Restart.staticInject(logger);
 
@@ -377,16 +376,27 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                 .logInfoMessage(this,
                         "Decision department application is going to be initialized...");
 
-        // XMPP login
-        AbstractBundleActivator.getDefault().addSessionServiceListener(this);
-        
-        configureExecutionService();
+        IPreferencesService pref = Platform.getPreferencesService();
+        String xmppServer = pref.getString(DecisionDepartmentActivator.PLUGIN_ID, "xmppServer", "krynfs.desy.de", null);
+        String xmppUser = pref.getString(DecisionDepartmentActivator.PLUGIN_ID, "xmppUser", "anonymous", null);
+        String xmppPassword = pref.getString(DecisionDepartmentActivator.PLUGIN_ID, "xmppPassword", "anonymous", null);
 
+        XmppCredentials credentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
+        xmppService = new XmppSessionHandler(bundleContext, credentials);
+        try {
+            xmppService.connect();
+        } catch (XmppSessionException e) {
+            DecisionDepartmentActivator.logger.logWarningMessage(this, e.getMessage());
+        }
+
+        configureExecutionService();
         createMessagingConsumer();
 
         if (this._continueWorking) {
             createMessagingProducer();
         }
+
+        context.applicationRunning();
 
         do {
             if (DecisionDepartmentActivator._hasReceivedSynchronizationRequest) {
@@ -460,46 +470,18 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                         "Decision department has stopped message processing and continue shutting down...");
 
         closeDecissionOffice();
-
         closeMessagingConnections();
 
-        if (xmppService != null) {
-            xmppService.disconnect();
-            DecisionDepartmentActivator.logger.logInfoMessage(this,
-                       "XMPP connection disconnected.");
-        }
+        xmppService.disconnect();
 
         DecisionDepartmentActivator.logger.logInfoMessage(this,
                 "Decision department application successfully shuted down.");
-        
+
         Integer exitCode = IApplication.EXIT_OK;
         if (this.restart) {
             exitCode = IApplication.EXIT_RESTART;
         }
         return exitCode;
-    }
-    
-    @Override
-    public void bindService(ISessionService sessionService) {
-        final IPreferencesService pref = Platform.getPreferencesService();
-        final String xmppServer = pref.getString(DecisionDepartmentActivator.PLUGIN_ID, "xmppServer", "krynfs.desy.de", null);
-        final String xmppUser = pref.getString(DecisionDepartmentActivator.PLUGIN_ID, "xmppUser", "anonymous", null);
-        final String xmppPassword = pref.getString(DecisionDepartmentActivator.PLUGIN_ID, "xmppPassword", "anonymous", null);
-        
-        try {
-            sessionService.connect(xmppUser, xmppPassword, xmppServer);
-            xmppService = sessionService;
-        } catch (Exception e) {
-            xmppService = null;
-            DecisionDepartmentActivator.logger
-            .logWarningMessage(this,
-                    "XMPP connection is not possible: " + e.getMessage());
-        }
-    }
-    
-    @Override
-    public void unbindService(ISessionService service) {
-        // Nothing to do here
     }
 
     private void closeMessagingConnections() {
@@ -507,23 +489,23 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
         DecisionDepartmentActivator.logger
                 .logInfoMessage(this,
                         "Decision department application is closing opened connections...");
-        if ((this.amsAusgangsProducer != null)
+        if (this.amsAusgangsProducer != null
                 && !this.amsAusgangsProducer.isClosed()) {
             this.amsAusgangsProducer.tryToClose();
         }
-        if ((this.amsCommandConsumer != null)
+        if (this.amsCommandConsumer != null
                 && !this.amsCommandConsumer.isClosed()) {
             this.amsCommandConsumer.close();
         }
-        if ((this.amsMessagingSessionForConsumer != null)
+        if (this.amsMessagingSessionForConsumer != null
                 && !this.amsMessagingSessionForConsumer.isClosed()) {
             this.amsMessagingSessionForConsumer.close();
         }
-        if ((this.amsMessagingSessionForProducer != null)
+        if (this.amsMessagingSessionForProducer != null
                 && !this.amsMessagingSessionForProducer.isClosed()) {
             this.amsMessagingSessionForProducer.close();
         }
-        
+
         for(Consumer c : extAlarmConsumer) {
             if (c != null) {
                 if(c.isClosed() == false) {
@@ -531,13 +513,13 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                 }
             }
         }
-        
-        if ((this.extCommandConsumer != null)
+
+        if (this.extCommandConsumer != null
                 && !this.extCommandConsumer.isClosed()) {
             this.extCommandConsumer.close();
         }
-        
-        if ((this.extMessagingSessionForConsumer != null)
+
+        if (this.extMessagingSessionForConsumer != null
                 && !this.extMessagingSessionForConsumer.isClosed()) {
             this.extMessagingSessionForConsumer.close();
         }
@@ -550,7 +532,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
         }
 
         // Warte auf Thread für Ausgangskorb-Bearbeitung
-        if ((this._ausgangskorbBearbeiter != null)
+        if (this._ausgangskorbBearbeiter != null
                 && this._ausgangskorbBearbeiter.isCurrentlyRunning()) {
             // FIXME Warte bis korb leer ist.
             this._ausgangskorbBearbeiter.stopWorking();
@@ -596,7 +578,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
             this.eingangskorbDesDecisionOffice = new StandardAblagekorb<Vorgangsmappe>();
             this.ausgangskorbDesDecisionOfficeUndEingangskorbDesPostOffice = new StandardAblagekorb<Vorgangsmappe>();
 
-            
+
             final IPreferencesService pref = Platform.getPreferencesService();
             int threadCount = pref.getInt(DecisionDepartmentActivator.PLUGIN_ID, PreferenceServiceConfigurationKeys.FILTER_THREAD_COUNT.getKey(), DEFAULT_THREAD_COUNT, null);
             this._alarmEntscheidungsBuero = new AlarmEntscheidungsBuero(
@@ -833,18 +815,18 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
 
         Stop.staticInject(DecisionDepartmentActivator.logger);
 
-        DecisionDepartmentActivator.logger.logInfoMessage(this, "plugin "
+        DecisionDepartmentActivator.logger.logInfoMessage(this, "Plugin "
                 + DecisionDepartmentActivator.PLUGIN_ID
                 + " started succesfully.");
     }
 
     /**
      * Stops the bundle application instance.Ppenultimate Step.
-     * 
+     *
      * FIXME: Diese Methode darf NICHT von der Anwendung selber aufgerufen werden.
      *        Sie wird vom Framework aufgerufen, wenn z.B. die Anwendung von Außen
      *        beendet werden soll oder das Framework herunterfährt.
-     *         
+     *
      * @see IApplication#start(IApplicationContext)
      */
     @Override
@@ -860,8 +842,8 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
     @OSGiBundleDeactivationMethod
     public void stopBundle(@OSGiService
     @Required
-    final ILogger logger) throws Exception {
-        logger.logInfoMessage(this, "Plugin "
+    final ILogger log) throws Exception {
+        log.logInfoMessage(this, "Plugin "
                 + DecisionDepartmentActivator.PLUGIN_ID
                 + " stopped succesfully.");
     }
@@ -913,16 +895,16 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
         //
         //};
 
-        final Consumer[] consumerArray = 
+        final Consumer[] consumerArray =
             new Consumer[this.extAlarmConsumer.length + 2];
-        
+
         consumerArray[0] = this.amsCommandConsumer;
         for(int i = 0;i < extAlarmConsumer.length;i++) {
             consumerArray[i + 1] = this.extAlarmConsumer[i];
         }
-        
+
         consumerArray[consumerArray.length - 1] = this.extCommandConsumer;
-        
+
         final MultiConsumersConsumer consumersConsumer = new MultiConsumersConsumer(
                 DecisionDepartmentActivator.logger, consumerArray,
                 DecisionDepartmentActivator.executionService);
@@ -992,6 +974,24 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                 DecisionDepartmentActivator.logger.logInfoMessage(this,
                         "Recieving of message has been interrupted", ie);
             }
+
+            // Check XMPP connection
+            if (xmppService.isConnected()) {
+                DecisionDepartmentActivator
+                .logger
+                       .logDebugMessage(this, "XMPP connection is working.");
+            } else {
+                DecisionDepartmentActivator
+                           .logger
+                                  .logWarningMessage(this, "XMPP connection is broken! Try to re-connect.");
+                try {
+                    xmppService.reconnect();
+                } catch (XmppSessionException e) {
+                    DecisionDepartmentActivator
+                           .logger
+                                  .logWarningMessage(this, "Cannot re-connect to the XMPP server.");
+                }
+            }
         }
 
         consumersConsumer.close();
@@ -1001,8 +1001,8 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
      *
      */
     @Override
-    public synchronized void stopRemotely(final ILogger logger) {
-        
+    public synchronized void stopRemotely(final ILogger log) {
+
         DecisionDepartmentActivator.logger .logInfoMessage(this,
                 "Start to shut down decision department application on user request...");
         this._continueWorking = false;
@@ -1016,12 +1016,12 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
 
         this._receiverThread.interrupt();
 
-        logger.logDebugMessage(this, "DecisionDepartmentActivator.stopRemotely(): After this.stop()");
+        log.logDebugMessage(this, "DecisionDepartmentActivator.stopRemotely(): After this.stop()");
     }
 
     @Override
-    public synchronized void restartRemotly(final ILogger logger) {
-        
+    public synchronized void restartRemotly(final ILogger log) {
+
         DecisionDepartmentActivator.logger .logInfoMessage(this,
                 "Begin to restart decision department application on user request...");
         this._continueWorking = false;
@@ -1035,7 +1035,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
 
         this._receiverThread.interrupt();
 
-        logger.logDebugMessage(this, "DecisionDepartmentActivator.stopRemotely(): After this.stop()");
+        log.logDebugMessage(this, "DecisionDepartmentActivator.stopRemotely(): After this.stop()");
     }
 
     /**

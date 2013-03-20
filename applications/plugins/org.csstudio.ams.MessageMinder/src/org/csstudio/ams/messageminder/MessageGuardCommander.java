@@ -32,11 +32,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Message;
-
 import org.csstudio.ams.AmsActivator;
 import org.csstudio.ams.AmsConstants;
 import org.csstudio.ams.Log;
@@ -56,8 +54,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.preferences.DefaultScope;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 
 //import org.osgi.service.prefs.BackingStoreException;
@@ -122,7 +118,7 @@ public class MessageGuardCommander extends Job {
                                 }
                             }
 
-                            newValue = (newValue == null) ? false : newValue;
+                            newValue = newValue == null ? false : newValue;
                             final Boolean oldValue = _topicMessageMap.get(filterID);
 
                             if(newValue != oldValue)
@@ -215,13 +211,21 @@ public class MessageGuardCommander extends Job {
     public MessageGuardCommander(final String name) {
         super(name);
         _topicMessageMap = new ConcurrentHashMap<String, Boolean>();
-        final IEclipsePreferences storeAct = new DefaultScope().getNode(MessageMinderActivator.PLUGIN_ID);
-
+        IPreferencesService pref = Platform.getPreferencesService();
         connect();
-        _time2Clean = storeAct.getLong(MessageMinderPreferenceKey.P_LONG_TIME2CLEAN, 20); // sec
-        _toOldTime = storeAct.getLong(MessageMinderPreferenceKey.P_LONG_TO_OLD_TIME, 60);
-        _keyWords = storeAct.get(MessageMinderPreferenceKey.P_STRING_KEY_WORDS,
-                "HOST,FACILITY,AMS-FILTERID").split(",");
+        _time2Clean = pref.getLong(MessageMinderActivator.PLUGIN_ID,
+                                   MessageMinderPreferenceKey.P_LONG_TIME2CLEAN,
+                                   20,
+                                   null); // sec
+        _toOldTime = pref.getLong(MessageMinderActivator.PLUGIN_ID,
+                                  MessageMinderPreferenceKey.P_LONG_TO_OLD_TIME,
+                                  60,
+                                  null);
+        String temp = pref.getString(MessageMinderActivator.PLUGIN_ID,
+                                     MessageMinderPreferenceKey.P_STRING_KEY_WORDS,
+                                     "HOST,FACILITY,AMS-FILTERID",
+                                     null);
+        _keyWords = temp.split(",");
         _lastClean = TimestampFactory.now();
         _messageMap = new HashMap<MessageKey, MessageTimeList>();
 
@@ -245,7 +249,7 @@ public class MessageGuardCommander extends Job {
      *
      */
     private void connect() {
-        
+
         final IPreferencesService storeAct = Platform.getPreferencesService();
         final boolean durable = storeAct.getBoolean(AmsActivator.PLUGIN_ID,
                                                    AmsPreferenceKey.P_JMS_AMS_CREATE_DURABLE,
@@ -369,7 +373,7 @@ public class MessageGuardCommander extends Job {
             try {
                 Log.log(this, Log.INFO, "name: " + mapMessage.getString("NAME"));
                 final String command = mapMessage.getString(AMS_COMMAND_KEY_NAME);
-                if ((command != null)
+                if (command != null
                         && (command.equals(MSGVALUE_TCMD_RELOAD_CFG_START) || command
                                 .equals(MSGVALUE_TCMD_RELOAD_CFG_END))) {
                     send(message);
@@ -406,7 +410,7 @@ public class MessageGuardCommander extends Job {
 
     private boolean isTopicAction(final String filterID)
     {
-        if ((filterID != null) && (filterID.trim().length() > 0))
+        if (filterID != null && filterID.trim().length() > 0)
         {
             Connection conDb = null;
             try
@@ -434,7 +438,7 @@ public class MessageGuardCommander extends Job {
                         }
                     }
 
-                    topicMsg = (topicMsg == null) ? false : topicMsg;
+                    topicMsg = topicMsg == null ? false : topicMsg;
 
                     _topicMessageMap.putIfAbsent(filterID, topicMsg);
                 }

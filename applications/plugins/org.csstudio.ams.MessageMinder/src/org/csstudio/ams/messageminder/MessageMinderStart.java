@@ -30,13 +30,14 @@ import org.csstudio.ams.AmsActivator;
 import org.csstudio.ams.Log;
 import org.csstudio.ams.internal.AmsPreferenceKey;
 import org.csstudio.ams.messageminder.preference.MessageMinderPreferenceKey;
+import org.csstudio.headless.common.xmpp.XmppCredentials;
+import org.csstudio.headless.common.xmpp.XmppSessionException;
+import org.csstudio.headless.common.xmpp.XmppSessionHandler;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.remotercp.common.tracker.IGenericServiceListener;
-import org.remotercp.service.connection.session.ISessionService;
 
 /**
  * @author hrickens
@@ -44,63 +45,82 @@ import org.remotercp.service.connection.session.ISessionService;
  * @version $Revision: 1.11 $
  * @since 01.11.2007
  */
-public final class MessageMinderStart implements IApplication, IGenericServiceListener<ISessionService> {
+public final class MessageMinderStart implements IApplication {
 
-    private boolean _restart = false;
-    // private boolean _run = true;
-    private MessageGuardCommander _commander;
-    private static MessageMinderStart _instance;
-    private ISessionService xmppService;
     public final static boolean CREATE_DURABLE = true;
-    private String managementPassword;
 
-    public MessageMinderStart()
-    {
+    private final static long LOOP_WAIT_TIME = 10000L;
+
+    private static MessageMinderStart _instance;
+
+    private MessageGuardCommander _commander;
+    private XmppSessionHandler xmppService;
+    private String managementPassword;
+    private boolean _restart = false;
+
+    public MessageMinderStart() {
         IPreferencesService pref = Platform.getPreferencesService();
-        managementPassword = pref.getString(AmsActivator.PLUGIN_ID, AmsPreferenceKey.P_AMS_MANAGEMENT_PASSWORD, "", null);
+        managementPassword = pref.getString(AmsActivator.PLUGIN_ID,
+                                            AmsPreferenceKey.P_AMS_MANAGEMENT_PASSWORD,
+                                            "",
+                                            null);
         if(managementPassword == null) {
             managementPassword = "";
         }
-        
-        xmppService = null;
+        String xmppServer = pref.getString(MessageMinderActivator.PLUGIN_ID, MessageMinderPreferenceKey.P_STRING_XMPP_SERVER, "krynfs.desy.de", null);
+        String xmppUser = pref.getString(MessageMinderActivator.PLUGIN_ID, MessageMinderPreferenceKey.P_STRING_XMPP_USER_NAME, "anonymous", null);
+        String xmppPassword = pref.getString(MessageMinderActivator.PLUGIN_ID, MessageMinderPreferenceKey.P_STRING_XMPP_PASSWORD, "anonymous", null);
+        XmppCredentials credentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
+        xmppService = new XmppSessionHandler(MessageMinderActivator.getBundleContext(), credentials);
     }
-    
-    /* (non-Javadoc)
+
+    /**
      * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
      */
+    @Override
     public Object start(IApplicationContext context) throws Exception {
         _instance = this;
-        
+
         MessageMinderPreferenceKey.showPreferences();
-        
+
         Log.log(this, Log.INFO, "MessageMinder started...");
 
-        MessageMinderActivator.getDefault().addSessionServiceListener(this);
-        
+        xmppService.connect();
+
         _commander = new MessageGuardCommander("MessageMinder");
         _commander.schedule();
-        
-        while(_commander.getState()!=Job.NONE){
+
+        while (_commander.getState() != Job.NONE){
             Log.log(this, Log.INFO, "Commander state = " + String.valueOf(_commander.getState()));
-            Thread.sleep(10000);
+            Thread.sleep(LOOP_WAIT_TIME);
+            // Check XMPP connection
+            if (xmppService.isConnected()) {
+                Log.log(Log.DEBUG, "XMPP connection is working.");
+            } else {
+                Log.log(Log.WARN, "XMPP connection is broken! Try to re-connect.");
+                try {
+                    xmppService.reconnect();
+                } catch (XmppSessionException e) {
+                    Log.log(Log.WARN, "Cannot re-connect to the XMPP server.");
+                }
+            }
         }
+
         _commander.cancel();
-        
-        if (xmppService != null) {
-            xmppService.disconnect();
-        }
-        
+        xmppService.disconnect();
+
         Integer exitCode = IApplication.EXIT_OK;
         if(_restart){
             exitCode = IApplication.EXIT_RESTART;
         }
-        
+
         return exitCode;
     }
 
-    /* (non-Javadoc)
+    /**
      * @see org.eclipse.equinox.app.IApplication#stop()
      */
+    @Override
     public void stop() {
         // Do nothing here
     }
@@ -122,33 +142,14 @@ public final class MessageMinderStart implements IApplication, IGenericServiceLi
     }
 
     /**
-     *  
+     *
      * @return The password for remote management
      */
     public synchronized String getPassword() {
         return managementPassword;
     }
-    
+
     public static MessageMinderStart getInstance() {
         return _instance;
-    }
-    
-
-    public void bindService(ISessionService sessionService) {
-    	IPreferencesService pref = Platform.getPreferencesService();
-    	String xmppServer = pref.getString(MessageMinderActivator.PLUGIN_ID, MessageMinderPreferenceKey.P_STRING_XMPP_SERVER, "krynfs.desy.de", null);
-        String xmppUser = pref.getString(MessageMinderActivator.PLUGIN_ID, MessageMinderPreferenceKey.P_STRING_XMPP_USER_NAME, "anonymous", null);
-        String xmppPassword = pref.getString(MessageMinderActivator.PLUGIN_ID, MessageMinderPreferenceKey.P_STRING_XMPP_PASSWORD, "anonymous", null);
-
-    	try {
-			sessionService.connect(xmppUser, xmppPassword, xmppServer);
-			xmppService = sessionService;
-		} catch (Exception e) {
-		    Log.log(this, Log.WARN, "XMPP connection is not available: " + e.getMessage());
-		}
-    }
-    
-    public void unbindService(ISessionService service) {
-        // Nothing to do here
     }
 }

@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2011 Stiftung Deutsches Elektronen-Synchroton,
+ * Copyright (c) 2013 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -21,42 +21,32 @@
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
  */
 
-package org.csstudio.ams.application.deliverysystem;
+package org.csstudio.archive.reader.mysql;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+import org.csstudio.archive.reader.ArchiveReader;
+import org.csstudio.archive.reader.ArchiveReaderFactory;
 
-public class Activator implements BundleActivator {
+/**
+ * TODO (mmoeller) :
+ *
+ * @author mmoeller
+ * @since 14.03.2013
+ */
+public class MySqlArchiveReaderFactory implements ArchiveReaderFactory {
 
-    public static final String PLUGIN_ID = "org.csstudio.ams.application.deliverysystem";
-
-    private static Activator plugin;
-
-	private static BundleContext context;
-
-    public static Activator getPlugin() {
-        return plugin;
+    /**
+     * Constructor.
+     */
+    public MySqlArchiveReaderFactory() {
+        // TODO Auto-generated constructor stub
     }
 
-	public static BundleContext getContext() {
-		return context;
-	}
-
-	/**
-	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
-	 */
-	@Override
-    public void start(BundleContext bundleContext) throws Exception {
-		Activator.plugin = this;
-	    Activator.context = bundleContext;
-	}
-
-	/**
-	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-	 */
-	@Override
-    public void stop(BundleContext bundleContext) throws Exception {
-	    Activator.plugin = null;
-	    Activator.context = null;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ArchiveReader getArchiveReader(String url) throws Exception {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

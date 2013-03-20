@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2011 Stiftung Deutsches Elektronen-Synchroton,
+ * Copyright (c) 2013 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -21,42 +21,52 @@
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
  */
 
-package org.csstudio.ams.application.deliverysystem;
+package org.csstudio.headless.common.xmpp;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+public class XmppCredentials {
 
-public class Activator implements BundleActivator {
+    private String xmppServer;
+    private String xmppUser;
+    private String xmppPassword;
 
-    public static final String PLUGIN_ID = "org.csstudio.ams.application.deliverysystem";
-
-    private static Activator plugin;
-
-	private static BundleContext context;
-
-    public static Activator getPlugin() {
-        return plugin;
+    public XmppCredentials(String server, String user, String password) {
+        this.xmppServer = server;
+        this.xmppUser = user;
+        this.xmppPassword = password;
     }
 
-	public static BundleContext getContext() {
-		return context;
-	}
+    @Override
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
 
-	/**
-	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
-	 */
-	@Override
-    public void start(BundleContext bundleContext) throws Exception {
-		Activator.plugin = this;
-	    Activator.context = bundleContext;
-	}
+        buffer.append("XmppInfo {" + xmppServer + ",");
+        buffer.append(xmppUser + ",");
+        buffer.append(xmppPassword + "}");
 
-	/**
-	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-	 */
-	@Override
-    public void stop(BundleContext bundleContext) throws Exception {
-	    Activator.plugin = null;
-	    Activator.context = null;
-	}
+        return buffer.toString();
+    }
+
+    public String getXmppServer() {
+        return xmppServer;
+    }
+
+    public void setXmppServer(String server) {
+        this.xmppServer = server;
+    }
+
+    public String getXmppUser() {
+        return xmppUser;
+    }
+
+    public void setXmppUser(String user) {
+        this.xmppUser = user;
+    }
+
+    public String getXmppPassword() {
+        return xmppPassword;
+    }
+
+    public void setXmppPassword(String password) {
+        this.xmppPassword = password;
+    }
 }

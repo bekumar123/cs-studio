@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2011 Stiftung Deutsches Elektronen-Synchroton,
+ * Copyright (c) 2012 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -21,42 +21,29 @@
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
  */
 
-package org.csstudio.ams.application.deliverysystem;
+package org.csstudio.headless.common.xmpp;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+/**
+ * @author mmoeller
+ * @since 26.07.2012
+ */
+public class XmppLoginException extends Exception {
 
-public class Activator implements BundleActivator {
+    private static final long serialVersionUID = -6125165088847419573L;
 
-    public static final String PLUGIN_ID = "org.csstudio.ams.application.deliverysystem";
-
-    private static Activator plugin;
-
-	private static BundleContext context;
-
-    public static Activator getPlugin() {
-        return plugin;
+    public XmppLoginException() {
+        super();
     }
 
-	public static BundleContext getContext() {
-		return context;
-	}
+    public XmppLoginException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	/**
-	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
-	 */
-	@Override
-    public void start(BundleContext bundleContext) throws Exception {
-		Activator.plugin = this;
-	    Activator.context = bundleContext;
-	}
+    public XmppLoginException(String message) {
+        super(message);
+    }
 
-	/**
-	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-	 */
-	@Override
-    public void stop(BundleContext bundleContext) throws Exception {
-	    Activator.plugin = null;
-	    Activator.context = null;
-	}
+    public XmppLoginException(Throwable cause) {
+        super(cause);
+    }
 }

@@ -23,40 +23,45 @@
 
 package org.csstudio.application.xmlrpc.server.command;
 
-import java.util.ArrayList;
+import com.google.common.collect.ImmutableSet;
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
-
 import org.csstudio.application.xmlrpc.server.ServerCommandException;
+import org.csstudio.application.xmlrpc.server.epics.ValueReader;
+import org.csstudio.application.xmlrpc.server.epics.ValueType;
 import org.csstudio.archive.common.requesttype.IArchiveRequestType;
 import org.csstudio.archive.common.service.ArchiveServiceException;
 import org.csstudio.archive.common.service.IArchiveReaderFacade;
-import org.csstudio.archive.common.service.channel.IArchiveChannel;
+import org.csstudio.archive.common.service.channel.ArchiveChannel;
 import org.csstudio.archive.common.service.sample.ArchiveSample;
+import org.csstudio.archive.common.service.sample.IArchiveSample;
+import org.csstudio.domain.desy.epics.types.EpicsSystemVariable;
+import org.csstudio.domain.desy.system.ISystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
-import org.csstudio.domain.desy.types.Limits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.google.common.collect.ImmutableSet;
 
 /**
  * @author mmoeller
  * @since 28.12.2012
  */
 public class ValuesCommand extends AbstractServerCommand {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(ValuesCommand.class);
-    
+
     private IArchiveReaderFacade archiveReader;
 
     private Map<Integer, IArchiveRequestType> how;
-    
-    /**
-     * @param name
-     */
-    public ValuesCommand(String name, IArchiveReaderFacade reader) {
+
+    /** TODO: Have to set with the value in the pluginCustomization, now just false. */
+    private boolean askCntrlSystem;
+
+    public ValuesCommand(String name, IArchiveReaderFacade reader, boolean askCntrlSys) {
         super(name);
         archiveReader = reader;
         how = new HashMap<Integer, IArchiveRequestType>();
@@ -65,85 +70,111 @@ public class ValuesCommand extends AbstractServerCommand {
         for (IArchiveRequestType o : types) {
             how.put(Integer.valueOf(index++), o);
         }
+        askCntrlSystem = askCntrlSys;
     }
+
+    /**
+     * @param name
+     */
+    public ValuesCommand(String name, IArchiveReaderFacade reader) {
+        this(name, reader, false);
+    }
+
 
     /**
      * {@inheritDoc}
      */
     @Override
     public MapResult executeCommand(ServerCommandParams params) throws ServerCommandException {
-        
+
         Integer howNr = (Integer) params.getParameter("how");
         IArchiveRequestType type = how.get(howNr);
         if (LOG.isDebugEnabled()) {
             LOG.debug("Request Type: {}", type);
         }
-        
-        /*
-         * result := { string name,
-                       meta,
-                       int32 type,
-                       int32 count,
-                       values
-                     } []
-         * 
-         *   meta := { int32 type;
-                       type == 0: string states [],
-                       type == 1: double disp high,
-                                  double disp low,
-                                  double alarm high,
-                                  double alarm low,
-                                  double warn high,
-                                  double warn low,
-                                  int prec,
-                                  string units
-                     }
-         * 
-         * values := { int32 stat,
-                       int32 sevr,
-                       int32 secs,
-                       int32 nano,
-                       <type> value[]
-                     } []
-         
-         */
-        
-        String[] names = (String[]) params.getParameter("name");
+
+        String name = (String) params.getParameter("name");
         TimeInstant start = (TimeInstant) params.getParameter("start");
         TimeInstant end = (TimeInstant) params.getParameter("end");
-        Limits<?> limits = null;
-        try {
-            limits = archiveReader.readDisplayLimits(names[0]);
-        } catch (ArchiveServiceException e) {
-            LOG.error("[*** ArchiveServiceException ***]: {}", e.getMessage());
-        }
-        
-        IArchiveChannel channel = null;
-        try {
-            channel = archiveReader.getChannelByName(names[0]);
-        } catch (ArchiveServiceException e) {
-            LOG.error("[*** ArchiveServiceException ***]: {}", e.getMessage());
-        }
-        
-        try {
-            // Collection<IArchiveSample<V, T>>
-            Object rawValues = archiveReader.readSamples(names[0], start, end, type);
-            ArrayList<?> values = (ArrayList<?>) rawValues;
-            Object v = values.get(0);
-            ArchiveSample<?, ?> sample = (ArchiveSample<?, ?>) v;
-            //sample.
-        } catch (ArchiveServiceException e) {
-            LOG.error("[*** ArchiveServiceException ***]: {}", e.getMessage());
-        }
-        
+
         Hashtable<String, Object> result = new Hashtable<String, Object>();
-        result.put("name", "krykWeather:Temp_ai");
-        result.put("meta", new Hashtable<String, Object>());
-        result.put("type", Integer.valueOf(1));
-        result.put("count", Integer.valueOf(0));
-        Vector<Object> vecValues = new Vector<Object>();
-        vecValues.add(new Hashtable<String, Object>()); // Wäre nur ein Wert
-        result.put("values", vecValues);
+        try {
+
+            ArchiveChannel channel = (ArchiveChannel) archiveReader.getChannelByName(name);
+
+            Collection<IArchiveSample<Serializable, ISystemVariable<Serializable>>> samples =
+                    archiveReader.readSamples(name, start, end, type);
+
+            result.put("name", name);
+
+            result.put("meta", createMetaData(channel));
+
+            String typeName = channel.getDataType();
+            ValueType valueType = null;
+            if (typeName != null) {
+                valueType = ValueType.getValueTypeByName(typeName);
+            }
+
+            if (valueType != null) {
+                result.put("type", Integer.valueOf(valueType.getValueTypeNumber()));
+            } else {
+                // TODO: Poor error handling
+                result.put("type", Integer.valueOf(ValueType.STRING.getValueTypeNumber()));
+            }
+            result.put("count", Integer.valueOf(samples.size()));
+
+            Vector<Object> values = new Vector<Object>();
+
+            Iterator<IArchiveSample<Serializable, ISystemVariable<Serializable>>> iter =
+                    samples.iterator();
+            while (iter.hasNext()) {
+                ArchiveSample<Serializable, ISystemVariable<Serializable>> o
+                                   = (ArchiveSample<Serializable, ISystemVariable<Serializable>>) iter.next();
+
+                Hashtable<String, Object> sampleValue = new Hashtable<String, Object>();
+
+                EpicsSystemVariable<Serializable> var = (EpicsSystemVariable<Serializable>) o.getSystemVariable();
+                sampleValue.put("stat", var.getAlarm().getStatus());
+                sampleValue.put("sevr", var.getAlarm().getSeverity());
+                sampleValue.put("secs", var.getTimestamp().getSeconds());
+                sampleValue.put("nano", var.getTimestamp().getNanos());
+                sampleValue.put("value", new Vector<Serializable>().add(var.getData()));
+                values.add(sampleValue);
+            }
+
+            result.put("values", values);
+
+        } catch (ArchiveServiceException e) {
+            LOG.error("[*** ArchiveServiceException ***]: {}", e.getMessage());
+        }
+
         return new MapResult(result);
+    }
+
+    private Map<String, Object> createMetaData(ArchiveChannel channel) {
+        Hashtable<String, Object> meta = new Hashtable<String, Object>();
+        if (!askCntrlSystem) {
+            meta.put("type", new Integer(1));
+            meta.put("disp_high", channel.getDisplayLimits().getHigh());
+            meta.put("disp_low", channel.getDisplayLimits().getLow());
+            meta.put("alarm_high", new Double(0.0));
+            meta.put("alarm_low", new Double(0.0));
+            meta.put("warn_high", new Double(0.0));
+            meta.put("warn_low", new Double(0.0));
+            meta.put("prec", new Integer(0));
+            meta.put("units", "n/a");
+        } else {
+            ValueReader valueReader = new ValueReader();
+            meta.put("type", new Integer(1));
+            meta.put("disp_high", channel.getDisplayLimits().getHigh());
+            meta.put("disp_low", channel.getDisplayLimits().getLow());
+            meta.put("alarm_high", new Double(0.0));
+            meta.put("alarm_low", new Double(0.0));
+            meta.put("warn_high", new Double(0.0));
+            meta.put("warn_low", new Double(0.0));
+            meta.put("prec", valueReader.getPrecision(channel.getName()));
+            meta.put("units", valueReader.getEgu(channel.getName()));
+        }
+        return meta;
     }
 }

@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2012 Stiftung Deutsches Elektronen-Synchrotron,
+ * Copyright (c) 2013 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -21,8 +21,10 @@
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
  */
 
-package org.csstudio.ams.application.deliverysystem;
+package org.csstudio.headless.common.xmpp;
 
+import org.osgi.framework.BundleContext;
+import org.remotercp.common.tracker.GenericServiceTracker;
 import org.remotercp.common.tracker.IGenericServiceListener;
 import org.remotercp.service.connection.session.ISessionService;
 import org.slf4j.Logger;
@@ -30,30 +32,42 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author mmoeller
- * @since 05.12.2012
+ * @since 19.03.2013
  */
-public class XmppSessionHandler {
-    
+public class XmppSessionHandler implements IGenericServiceListener<ISessionService> {
+
     private static final Logger LOG = LoggerFactory.getLogger(XmppSessionHandler.class);
-    
+
+    /** Service tracker for the XMPP login */
+    private GenericServiceTracker<ISessionService> _genericServiceTracker;
+
     /** The ECF service */
     private ISessionService xmppService;
 
-    private IGenericServiceListener<ISessionService> serviceListener;
-    
-    public XmppSessionHandler() {
-        this(null);
+    private XmppCredentials xmppCredentials;
+
+    public XmppSessionHandler(BundleContext context, XmppCredentials credentials) {
+        xmppCredentials = credentials;
+        _genericServiceTracker = new GenericServiceTracker<ISessionService>(
+                context, ISessionService.class);
+        _genericServiceTracker.open();
     }
-    
-    public XmppSessionHandler(ISessionService service) {
-        xmppService = service;
-        serviceListener = null;
+
+    public void connect() throws XmppSessionException {
+        if (_genericServiceTracker == null) {
+            throw new XmppSessionException("Service tracker must not be null!");
+        }
+        _genericServiceTracker.addServiceListener(this);
     }
-    
-    public void setSessionService(ISessionService service) {
-        xmppService = service;
+
+    public boolean isConnected() {
+        boolean connected = false;
+        if (xmppService != null) {
+            connected = xmppService.getConnectedID() != null;
+        }
+        return connected;
     }
-    
+
     public void disconnect() {
         if (xmppService != null) {
             synchronized (xmppService) {
@@ -68,23 +82,28 @@ public class XmppSessionHandler {
         }
     }
 
-    public void connect(IGenericServiceListener<ISessionService> listener) {
-        Activator.getPlugin().addSessionServiceListener(listener);
-        serviceListener = listener; 
-    }
-    
-    public void reconnect() throws XmppSessionException {
-        if (serviceListener == null) {
-            throw new XmppSessionException("Service listener must not be null. Call method connect() first!");
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void bindService(ISessionService service) {
+        String xmppServer = xmppCredentials.getXmppServer();
+        String xmppUser = xmppCredentials.getXmppUser();
+        String xmppPassword = xmppCredentials.getXmppPassword();
+        try {
+            service.connect(xmppUser, xmppPassword, xmppServer);
+            xmppService = service;
+        } catch (final Exception e) {
+            LOG.warn("XMPP connection is not available: {}", e.toString());
+            xmppService = null;
         }
-        Activator.getPlugin().addSessionServiceListener(serviceListener);
     }
-    
-    public boolean isConnected() {
-        boolean connected = false;
-        if (xmppService != null) {
-            connected = (xmppService.getConnectedID() != null);
-        }
-        return connected;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void unbindService(ISessionService service) {
+        LOG.warn("Unbinding XMPP service.");
     }
 }

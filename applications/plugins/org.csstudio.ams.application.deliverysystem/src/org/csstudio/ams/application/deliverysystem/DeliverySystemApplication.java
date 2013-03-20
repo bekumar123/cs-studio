@@ -1,23 +1,23 @@
 
-/* 
- * Copyright (c) 2011 Stiftung Deutsches Elektronen-Synchroton, 
+/*
+ * Copyright (c) 2011 Stiftung Deutsches Elektronen-Synchroton,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
- * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS. 
- * WITHOUT WARRANTY OF ANY KIND, EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED 
- * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR PARTICULAR PURPOSE AND 
- * NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
- * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
- * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR 
- * THE USE OR OTHER DEALINGS IN THE SOFTWARE. SHOULD THE SOFTWARE PROVE DEFECTIVE 
- * IN ANY RESPECT, THE USER ASSUMES THE COST OF ANY NECESSARY SERVICING, REPAIR OR 
- * CORRECTION. THIS DISCLAIMER OF WARRANTY CONSTITUTES AN ESSENTIAL PART OF THIS LICENSE. 
+ * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
+ * WITHOUT WARRANTY OF ANY KIND, EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED
+ * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
+ * THE USE OR OTHER DEALINGS IN THE SOFTWARE. SHOULD THE SOFTWARE PROVE DEFECTIVE
+ * IN ANY RESPECT, THE USER ASSUMES THE COST OF ANY NECESSARY SERVICING, REPAIR OR
+ * CORRECTION. THIS DISCLAIMER OF WARRANTY CONSTITUTES AN ESSENTIAL PART OF THIS LICENSE.
  * NO USE OF ANY SOFTWARE IS AUTHORIZED HEREUNDER EXCEPT UNDER THIS DISCLAIMER.
- * DESY HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, 
+ * DESY HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS,
  * OR MODIFICATIONS.
- * THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, 
- * USAGE AND OTHER RIGHTS AND OBLIGATIONS IS INCLUDED WITH THE DISTRIBUTION OF THIS 
- * PROJECT IN THE FILE LICENSE.HTML. IF THE LICENSE IS NOT INCLUDED YOU MAY FIND A COPY 
+ * THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION,
+ * USAGE AND OTHER RIGHTS AND OBLIGATIONS IS INCLUDED WITH THE DISTRIBUTION OF THIS
+ * PROJECT IN THE FILE LICENSE.HTML. IF THE LICENSE IS NOT INCLUDED YOU MAY FIND A COPY
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
  */
 
@@ -38,6 +38,9 @@ import org.csstudio.ams.application.deliverysystem.util.CommonMailer;
 import org.csstudio.ams.application.deliverysystem.util.Environment;
 import org.csstudio.ams.delivery.AbstractDeliveryWorker;
 import org.csstudio.ams.internal.AmsPreferenceKey;
+import org.csstudio.headless.common.xmpp.XmppCredentials;
+import org.csstudio.headless.common.xmpp.XmppSessionException;
+import org.csstudio.headless.common.xmpp.XmppSessionHandler;
 import org.csstudio.utility.jms.sharedconnection.SharedJmsConnections;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -46,8 +49,6 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.remotercp.common.tracker.IGenericServiceListener;
-import org.remotercp.service.connection.session.ISessionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,28 +56,41 @@ import org.slf4j.LoggerFactory;
  * This class controls all aspects of the application's execution
  */
 public class DeliverySystemApplication implements IApplication,
-                                                  RemotelyManageable,
-                                                  IGenericServiceListener<ISessionService> {
-    
+                                                  RemotelyManageable {
+
     private static Logger LOG = LoggerFactory.getLogger(DeliverySystemApplication.class);
-	
+
     // 6 minutes
     private final static long WORKER_WATCH_INTERVAL = 360000L;
+//    private final static long WORKER_WATCH_INTERVAL = 10000L;
 
     private XmppSessionHandler xmppSessionHandler;
-    
+
     private Hashtable<AbstractDeliveryWorker, Thread> deliveryWorker;
-    
+
     private long workerStopTimeout;
-    
+
     private Object lock;
-    
+
     private boolean running;
-    
+
     private boolean restart;
-    
+
     public DeliverySystemApplication() {
-        xmppSessionHandler = new XmppSessionHandler();
+        Stop.staticInject(this);
+        Restart.staticInject(this);
+        ListWorker.staticInject(this);
+        if (DeliverySystemPreference.ENABLE_WORKER_STOP.getValue()) {
+            StopWorker.staticInject(this);
+        }
+        if (DeliverySystemPreference.ENABLE_WORKER_RESTART.getValue()) {
+            RestartWorker.staticInject(this);
+        }
+        String xmppServer = DeliverySystemPreference.XMPP_SERVER.getValue();
+        String xmppUser = DeliverySystemPreference.XMPP_USER.getValue();
+        String xmppPassword = DeliverySystemPreference.XMPP_PASSWORD.getValue();
+        XmppCredentials credentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
+        xmppSessionHandler = new XmppSessionHandler(Activator.getContext(), credentials);
         deliveryWorker = new Hashtable<AbstractDeliveryWorker, Thread>();
         workerStopTimeout = DeliverySystemPreference.WORKER_STOP_TIMEOUT.getValue();
         LOG.info("Timeout for worker shutdown: {}", workerStopTimeout);
@@ -84,17 +98,21 @@ public class DeliverySystemApplication implements IApplication,
         running = true;
         restart = false;
     }
-    
+
     /**
 	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
 	 */
 	@Override
     public Object start(IApplicationContext context) throws Exception {
-		
-	    xmppSessionHandler.connect(this);
-	    
+
+        try {
+            xmppSessionHandler.connect();
+        } catch (XmppSessionException e) {
+            LOG.warn("Cannot connect to the XMPP server.");
+        }
+
 	    IPreferencesService prefs = Platform.getPreferencesService();
-	    
+
 	    // FIRST read the JMS preferences and prepare the SharedJmsConnection class
         String url1 = prefs.getString(AmsActivator.PLUGIN_ID,
                                       AmsPreferenceKey.P_JMS_AMS_PROVIDER_URL_1,
@@ -107,7 +125,7 @@ public class DeliverySystemApplication implements IApplication,
         LOG.debug("JMS Consumer URL 1: {}", url1);
         LOG.debug("JMS Consumer URL 2: {}", url2);
         SharedJmsConnections.staticInjectConsumerUrlAndClientId(url1, url2, "AmsDeliverySystemConsumer");
-        
+
         url1 = prefs.getString(AmsActivator.PLUGIN_ID,
                                AmsPreferenceKey.P_JMS_AMS_SENDER_PROVIDER_URL,
                                "tcp://localhost:62616",
@@ -116,12 +134,12 @@ public class DeliverySystemApplication implements IApplication,
         SharedJmsConnections.staticInjectPublisherUrlAndClientId(url1, "AmsDeliverySystemPublisher");
 
         running = startDeliveryWorker();
-	    
+
         context.applicationRunning();
         LOG.info("Initialization finished. Start working.");
-        
+
         while (running) {
-            
+
             synchronized (lock) {
                 try {
                     lock.wait(WORKER_WATCH_INTERVAL);
@@ -129,7 +147,7 @@ public class DeliverySystemApplication implements IApplication,
                     LOG.warn("Application was interrupted.");
                 }
             }
-            
+
             // Check XMPP connection
             if (xmppSessionHandler.isConnected()) {
                 LOG.debug("XMPP connection is working.");
@@ -138,14 +156,14 @@ public class DeliverySystemApplication implements IApplication,
                 try {
                     xmppSessionHandler.reconnect();
                 } catch (XmppSessionException e) {
-                    xmppSessionHandler.connect(this);
+                    LOG.warn("Cannot re-connect to the XMPP server.");
                 }
             }
-            
+
             boolean restartWorker = false;
             String badWorker = "";
             if (running) {
-                
+
                 // Check all delivery worker
                 Enumeration<AbstractDeliveryWorker> worker = deliveryWorker.keys();
                 while (worker.hasMoreElements()) {
@@ -158,10 +176,10 @@ public class DeliverySystemApplication implements IApplication,
                     }
                     LOG.debug("{} is working.", w.getWorkerName());
                 }
-                
-                // Now stop and restart ALL workers to avoid problems with the shared JMS connections 
+
+                // Now stop and restart ALL workers to avoid problems with the shared JMS connections
                 if (restartWorker) {
-                    
+
                     String host = Environment.getInstance().getHostName();
                     String[] recipients = null;
                     String value = DeliverySystemPreference.WORKER_STATUS_MAIL.getValue();
@@ -206,7 +224,7 @@ public class DeliverySystemApplication implements IApplication,
                 }
             }
         }
-        
+
         Enumeration<AbstractDeliveryWorker> worker = deliveryWorker.keys();
         while (worker.hasMoreElements()) {
             AbstractDeliveryWorker w = worker.nextElement();
@@ -215,9 +233,9 @@ public class DeliverySystemApplication implements IApplication,
             w.stopWorking();
             thread.join(5000);
         }
-        
+
         xmppSessionHandler.disconnect();
-        
+
         Integer exitCode = IApplication.EXIT_OK;
         if (restart) {
             LOG.info("Restarting application...");
@@ -225,20 +243,20 @@ public class DeliverySystemApplication implements IApplication,
         } else {
             LOG.info("Leaving application...");
         }
-        
+
 		return exitCode;
 	}
 
 	private boolean startDeliveryWorker() {
-	    
+
 	    boolean success = true;
-	    
+
 	    DeliveryWorkerList workerList = new DeliveryWorkerList();
-        
+
         IExtensionRegistry extReg = Platform.getExtensionRegistry();
         IConfigurationElement[] confElements = extReg
                 .getConfigurationElementsFor("org.csstudio.ams.delivery.DeliveryWorker");
-        
+
         if(confElements.length > 0) {
 
             LOG.info("I've found {} implementations in the extension registry.", confElements.length);
@@ -247,13 +265,13 @@ public class DeliverySystemApplication implements IApplication,
                 return false;
             }
 
-            for (int i = 0; i < confElements.length; i++) {
-                
-                String className = confElements[i].getAttribute("class");
+            for (IConfigurationElement confElement : confElements) {
+
+                String className = confElement.getAttribute("class");
                 if (workerList.containsWorker(className)) {
                     try {
                         AbstractDeliveryWorker worker =
-                                (AbstractDeliveryWorker) confElements[i]
+                                (AbstractDeliveryWorker) confElement
                                         .createExecutableExtension("class");
                         Thread thread = new Thread(worker);
                         thread.start();
@@ -270,48 +288,9 @@ public class DeliverySystemApplication implements IApplication,
             LOG.warn("No extension elements found.");
             success = false;
         }
-        
+
         return success;
 	}
-	
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void bindService(final ISessionService sessionService) {
-        
-        Stop.staticInject(this);
-        Restart.staticInject(this);
-
-        ListWorker.staticInject(this);
-        if (DeliverySystemPreference.ENABLE_WORKER_STOP.getValue()) {
-            StopWorker.staticInject(this);
-        }
-        
-        if (DeliverySystemPreference.ENABLE_WORKER_RESTART.getValue()) {
-            RestartWorker.staticInject(this);
-        }
-        
-        String xmppServer = DeliverySystemPreference.XMPP_SERVER.getValue();
-        String xmppUser = DeliverySystemPreference.XMPP_USER.getValue();
-        String xmppPassword = DeliverySystemPreference.XMPP_PASSWORD.getValue();
-
-        try {
-            sessionService.connect(xmppUser, xmppPassword, xmppServer);
-            xmppSessionHandler.setSessionService(sessionService);
-        } catch (final Exception e) {
-            LOG.warn("XMPP connection is not available: {}", e.toString());
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void unbindService(final ISessionService service) {
-        // Nothing to do here
-    }
 
 	/**
 	 * @see org.eclipse.equinox.app.IApplication#stop()
@@ -330,7 +309,7 @@ public class DeliverySystemApplication implements IApplication,
     public void setRestart(boolean restartApplication) {
 	    restart = restartApplication;
 	}
-	
+
     @Override
     public Collection<String> listDeliveryWorker() {
         ArrayList<String> result = new ArrayList<String>();
@@ -352,7 +331,7 @@ public class DeliverySystemApplication implements IApplication,
         stopDeliveryWorker();
         startDeliveryWorker();
     }
-    
+
     @Override
     public void stopDeliveryWorker() {
         Enumeration<AbstractDeliveryWorker> worker = deliveryWorker.keys();

@@ -37,11 +37,11 @@ import org.slf4j.LoggerFactory;
  * @since 21.12.2012
  */
 public class NamesCommand extends AbstractServerCommand {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(NamesCommand.class);
-    
+
     private IArchiveReaderFacade archiveReader;
-    
+
     /**
      * @param name
      */
@@ -49,12 +49,12 @@ public class NamesCommand extends AbstractServerCommand {
         super(name);
         archiveReader = reader;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public StringCollectionResult executeCommand(ServerCommandParams params) throws ServerCommandException {
+    public StringListResult executeCommand(ServerCommandParams params) throws ServerCommandException {
         String pattern = null;
         if (params.containsParameter("pattern")) {
             pattern = (String) params.getParameter("pattern");
@@ -69,6 +69,6 @@ public class NamesCommand extends AbstractServerCommand {
             channels = new Vector<String>();
             LOG.error("[*** ArchiveServiceException ***]: {}", e.getMessage());
         }
-        return new StringCollectionResult(channels);
+        return new StringListResult(channels);
     }
 }

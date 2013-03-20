@@ -23,41 +23,43 @@
 
 package org.csstudio.application.xmlrpc.server;
 
-import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 
 /**
  * @author mmoeller
  * @since 27.12.2012
  */
 public interface IArchiveService {
-    
+
     /**
      * Returns information about the server.
-     * 
+     *
      * @return Collection containing the result
      */
-    Collection<Object> info();
-    
+    Map<String, Object> info();
+
     /**
-     * 
+     *
      * @param key - Just for compatibility, the value will be ignored.
      * @param pattern - String containing the pattern of the channel name(s).
-     * 
+     *
      * @return
      */
-    Collection<Object> names(Integer key, Object pattern);
-    
+    List<String> names(Integer key, Object pattern);
+
     /**
      * Returns the provided archives. Just for compatibility. This method returns always the
      * same data because the MySQL archiv only provides one archive.
-     * 
+     *
      * @return
      */
-    Collection<Object> archives();
-    
+    Map<String, Object> archives();
+
     /**
      * Returns the values of the channels for the given time interval.
-     * 
+     *
      * @param key
      * @param name
      * @param startSec
@@ -66,9 +68,9 @@ public interface IArchiveService {
      * @param endNano
      * @param count
      * @param how
-     * 
+     *
      * @return
      */
-    Collection<Object> values(Integer key, Object[] name, Integer startSec, Integer startNano,
-                              Integer endSec, Integer endNano, Integer count, Integer how);
+    List<Object> values(Integer key, Object[] name, Integer startSec, Integer startNano,
+                        Integer endSec, Integer endNano, Integer count, Integer how);
 }

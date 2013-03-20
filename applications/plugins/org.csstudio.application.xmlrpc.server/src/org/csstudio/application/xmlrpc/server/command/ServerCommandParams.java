@@ -31,20 +31,20 @@ import java.util.Map;
  * @since 27.12.2012
  */
 public class ServerCommandParams {
-    
+
     private Map<String, Object> parameter;
-    
+
     public ServerCommandParams() {
         parameter = new Hashtable<String, Object>();
     }
-    
+
     public ServerCommandParams(Map<String, Object> params) {
         this();
         if (params != null) {
             parameter.putAll(params);
         }
     }
-    
+
     public boolean containsParameter(String name) {
         boolean contains = false;
         if (name != null) {
@@ -52,7 +52,7 @@ public class ServerCommandParams {
         }
         return contains;
     }
-    
+
     public Object getParameter(String name) {
         Object result = null;
         if (containsParameter(name)) {
@@ -60,10 +60,14 @@ public class ServerCommandParams {
         }
         return result;
     }
-    
+
     public void addParameter(String name, Object value) {
-        if ((name != null) && (value != null)) {
+        if (name != null && value != null) {
             parameter.put(name, value);
         }
+    }
+
+    public void clear() {
+        parameter.clear();
     }
 }

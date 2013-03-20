@@ -24,15 +24,16 @@
 package org.csstudio.application.xmlrpc.server.command;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Vector;
 
 /**
  * @author mmoeller
  * @since 21.12.2012
  */
-public class ObjectCollectionResult implements IServerCommandResult<Collection<Object>> {
+public class ObjectCollectionResult implements IServerCommandResult<List<Object>> {
 
-    private Collection<Object> content;
+    private List<Object> content;
 
     public ObjectCollectionResult() {
         content = new Vector<Object>();
@@ -41,12 +42,12 @@ public class ObjectCollectionResult implements IServerCommandResult<Collection<O
     public ObjectCollectionResult(Collection<Object> e) {
         content = new Vector<Object>(e);
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setCommandResult(Collection<Object> o) {
+    public void setCommandResult(List<Object> o) {
         content = o;
     }
 
@@ -54,7 +55,7 @@ public class ObjectCollectionResult implements IServerCommandResult<Collection<O
      * {@inheritDoc}
      */
     @Override
-    public Collection<Object> getCommandResult() {
+    public List<Object> getCommandResult() {
         return content;
     }
 }

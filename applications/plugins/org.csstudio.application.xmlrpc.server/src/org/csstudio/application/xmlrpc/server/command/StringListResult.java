@@ -21,45 +21,44 @@
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
  */
 
-package org.csstudio.ams.application.deliverysystem;
+package org.csstudio.application.xmlrpc.server.command;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * @author mmoeller
- * @since 05.12.2012
+ * @since 27.12.2012
  */
-public class XmppSessionException extends Exception {
-    
-    private static final long serialVersionUID = 2948158778677682619L;
+public class StringListResult implements IServerCommandResult<List<String>> {
+
+    private List<String> content;
+
+    public StringListResult() {
+        content = new Vector<String>();
+    }
+
+    public StringListResult(Collection<String> e) {
+        this();
+        content.addAll(e);
+    }
 
     /**
-     * Constructor.
+     * {@inheritDoc}
      */
-    public XmppSessionException() {
-        super();
+    @Override
+    public void setCommandResult(List<String> o) {
+        content.addAll(o);
     }
-    
+
     /**
-     * Constructor.
-     * @param message
+     * {@inheritDoc}
      */
-    public XmppSessionException(String message) {
-        super(message);
-    }
-    
-    /**
-     * Constructor.
-     * @param cause
-     */
-    public XmppSessionException(Throwable cause) {
-        super(cause);
-    }
-    
-    /**
-     * Constructor.
-     * @param message
-     * @param cause
-     */
-    public XmppSessionException(String message, Throwable cause) {
-        super(message, cause);
+    @Override
+    public List<String> getCommandResult() {
+        Vector<String> result = new Vector<String>();
+        result.addAll(content);
+        return result;
     }
 }

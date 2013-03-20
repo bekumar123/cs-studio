@@ -28,14 +28,16 @@ package org.csstudio.application.xmlrpc.server.internal;
  * @since 21.12.2012
  */
 public class PreferenceConstants {
-    
+
     public static final String XMPP_USER_NAME = "xmppUserName";
     public static final String XMPP_PASSWORD = "xmppPassword";
     public static final String XMPP_SERVER = "xmppServer";
     public static final String XMPP_SHUTDOWN_PASSWORD = "xmppShutdownPassword";
 
     public static final String XML_RCP_SERVER_PORT = "xmlRcpServerPort";
-    
+
+    public static final String ASK_CONTROLSYSTEM_FOR_META = "askCntrlSysForMeta";
+
     private PreferenceConstants() {
         // Avoid instantiation
     }

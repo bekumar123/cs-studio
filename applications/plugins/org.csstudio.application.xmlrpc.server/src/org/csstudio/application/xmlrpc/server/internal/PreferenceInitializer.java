@@ -33,7 +33,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
  * @since 21.12.2012
  */
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
-    
+
     /**
      * {@inheritDoc}
      */
@@ -45,5 +45,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
         prefs.put(PreferenceConstants.XMPP_SERVER, "xmppserver.where.ever");
         prefs.put(PreferenceConstants.XMPP_SHUTDOWN_PASSWORD, "");
         prefs.putInt(PreferenceConstants.XML_RCP_SERVER_PORT, 8080);
+        prefs.putBoolean(PreferenceConstants.ASK_CONTROLSYSTEM_FOR_META, false);
     }
 }

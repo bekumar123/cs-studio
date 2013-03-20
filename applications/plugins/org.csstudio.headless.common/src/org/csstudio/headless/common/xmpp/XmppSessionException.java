@@ -21,40 +21,45 @@
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
  */
 
-package org.csstudio.application.xmlrpc.server.command;
-
-import java.util.Collection;
-import java.util.Vector;
+package org.csstudio.headless.common.xmpp;
 
 /**
  * @author mmoeller
- * @since 27.12.2012
+ * @since 05.12.2012
  */
-public class StringCollectionResult implements IServerCommandResult<Collection<String>> {
+public class XmppSessionException extends Exception {
     
-    private Collection<String> content;
+    private static final long serialVersionUID = 2948158778677682619L;
 
-    public StringCollectionResult() {
-        content = new Vector<String>();
-    }
-
-    public StringCollectionResult(Collection<String> e) {
-        content = new Vector<String>(e);
+    /**
+     * Constructor.
+     */
+    public XmppSessionException() {
+        super();
     }
     
     /**
-     * {@inheritDoc}
+     * Constructor.
+     * @param message
      */
-    @Override
-    public void setCommandResult(Collection<String> o) {
-        content = o;
+    public XmppSessionException(String message) {
+        super(message);
     }
-
+    
     /**
-     * {@inheritDoc}
+     * Constructor.
+     * @param cause
      */
-    @Override
-    public Collection<String> getCommandResult() {
-        return content;
+    public XmppSessionException(Throwable cause) {
+        super(cause);
+    }
+    
+    /**
+     * Constructor.
+     * @param message
+     * @param cause
+     */
+    public XmppSessionException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

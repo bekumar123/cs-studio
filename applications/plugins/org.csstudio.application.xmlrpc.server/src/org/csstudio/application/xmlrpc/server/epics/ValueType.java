@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2011 Stiftung Deutsches Elektronen-Synchroton,
+ * Copyright (c) 2013 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -21,42 +21,46 @@
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
  */
 
-package org.csstudio.ams.application.deliverysystem;
+package org.csstudio.application.xmlrpc.server.epics;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+/**
+ * @author mmoeller
+ * @since 19.03.2013
+ */
+public enum ValueType {
 
-public class Activator implements BundleActivator {
+    STRING(0),
+    ENUM(1),
+    INT(2),
+    INTEGER(2),
+    DOUBLE(3);
 
-    public static final String PLUGIN_ID = "org.csstudio.ams.application.deliverysystem";
+    private int number;
 
-    private static Activator plugin;
-
-	private static BundleContext context;
-
-    public static Activator getPlugin() {
-        return plugin;
+    private ValueType(int n) {
+        number = n;
     }
 
-	public static BundleContext getContext() {
-		return context;
-	}
+    public int getValueTypeNumber() {
+        return number;
+    }
 
-	/**
-	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
-	 */
-	@Override
-    public void start(BundleContext bundleContext) throws Exception {
-		Activator.plugin = this;
-	    Activator.context = bundleContext;
-	}
-
-	/**
-	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-	 */
-	@Override
-    public void stop(BundleContext bundleContext) throws Exception {
-	    Activator.plugin = null;
-	    Activator.context = null;
-	}
+    /**
+     * Returns the ValueType by its name.
+     *
+     * @param name
+     * @return The ValueType identified by the name, otherwise null.
+     */
+    public static ValueType getValueTypeByName(String name) {
+        if (name == null) {
+            return null;
+        }
+        ValueType result = null;
+        for (ValueType o : ValueType.values()) {
+            if (o.toString().toLowerCase().compareToIgnoreCase(name.toLowerCase()) == 0) {
+                result = o;
+            }
+        }
+        return result;
+    }
 }

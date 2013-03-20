@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2012 Stiftung Deutsches Elektronen-Synchrotron,
+ * Copyright (c) 2011 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -19,33 +19,17 @@
  * USAGE AND OTHER RIGHTS AND OBLIGATIONS IS INCLUDED WITH THE DISTRIBUTION OF THIS
  * PROJECT IN THE FILE LICENSE.HTML. IF THE LICENSE IS NOT INCLUDED YOU MAY FIND A COPY
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
+ *
  */
 
-package org.csstudio.application.xmlrpc.server.internal;
-
-import org.csstudio.application.xmlrpc.server.ServerActivator;
-import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
-import org.eclipse.core.runtime.preferences.DefaultScope;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+package org.csstudio.application.xmlrpc.server;
 
 /**
  * @author mmoeller
- * @since 21.12.2012
+ * @version 1.0
+ * @since 19.08.2011
  */
-public class PreferenceInitializer extends AbstractPreferenceInitializer {
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void initializeDefaultPreferences() {
-        IEclipsePreferences prefs = DefaultScope.INSTANCE.getNode(ServerActivator.PLUGIN_ID);
-        prefs.put(PreferenceConstants.XMPP_USER_NAME, "anonymous");
-        prefs.put(PreferenceConstants.XMPP_PASSWORD, "anonymous");
-        prefs.put(PreferenceConstants.XMPP_SERVER, "xmppserver.where.ever");
-        prefs.put(PreferenceConstants.XMPP_SHUTDOWN_PASSWORD, "");
-        prefs.putInt(PreferenceConstants.XML_RCP_SERVER_PORT, 8080);
-        prefs.putBoolean(PreferenceConstants.ASK_CONTROLSYSTEM_FOR_META, false);
-        prefs.put(PreferenceConstants.INFO, "I am a small but happy application.");
-    }
+public interface RemotelyAccesible {
+    String getStartingTimeAsString();
+    String getInfo();
 }

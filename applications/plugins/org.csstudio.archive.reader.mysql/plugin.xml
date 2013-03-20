@@ -5,7 +5,7 @@
          point="org.csstudio.archive.reader.ArchiveReader">
       <ArchiveReader
             class="org.csstudio.archive.reader.mysql.MySqlArchiveReaderFactory"
-            name="org.csstudio.archive.reader.mysql"
+            name="org.csstudio.archive.reader.mysql.archivereader"
             prefix="xnds">
       </ArchiveReader>
    </extension>

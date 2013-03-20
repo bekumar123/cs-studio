@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2012 Stiftung Deutsches Elektronen-Synchrotron,
+ * Copyright (c) 2013 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -21,31 +21,36 @@
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
  */
 
-package org.csstudio.application.xmlrpc.server.internal;
+package org.csstudio.application.xmlrpc.server.management;
 
-import org.csstudio.application.xmlrpc.server.ServerActivator;
-import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
-import org.eclipse.core.runtime.preferences.DefaultScope;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.csstudio.application.xmlrpc.server.RemotelyAccesible;
+import org.csstudio.remote.management.CommandParameters;
+import org.csstudio.remote.management.CommandResult;
+import org.csstudio.remote.management.IManagementCommand;
 
 /**
  * @author mmoeller
- * @since 21.12.2012
+ * @since 19.03.2013
  */
-public class PreferenceInitializer extends AbstractPreferenceInitializer {
+public class GetInfo implements IManagementCommand {
+
+    private static RemotelyAccesible object = null;
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void initializeDefaultPreferences() {
-        IEclipsePreferences prefs = DefaultScope.INSTANCE.getNode(ServerActivator.PLUGIN_ID);
-        prefs.put(PreferenceConstants.XMPP_USER_NAME, "anonymous");
-        prefs.put(PreferenceConstants.XMPP_PASSWORD, "anonymous");
-        prefs.put(PreferenceConstants.XMPP_SERVER, "xmppserver.where.ever");
-        prefs.put(PreferenceConstants.XMPP_SHUTDOWN_PASSWORD, "");
-        prefs.putInt(PreferenceConstants.XML_RCP_SERVER_PORT, 8080);
-        prefs.putBoolean(PreferenceConstants.ASK_CONTROLSYSTEM_FOR_META, false);
-        prefs.put(PreferenceConstants.INFO, "I am a small but happy application.");
+    public CommandResult execute(CommandParameters parameters) {
+        CommandResult result = null;
+        if (object == null) {
+            result = CommandResult.createFailureResult("The reference to the application is null! Use static inject.");
+        } else {
+            result = CommandResult.createMessageResult(object.getInfo() + "\n\nStarting time: " + object.getStartingTimeAsString());
+        }
+        return result;
+    }
+
+    public static void staticInject(RemotelyAccesible o) {
+        object = o;
     }
 }

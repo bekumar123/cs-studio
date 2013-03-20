@@ -25,7 +25,6 @@ package org.csstudio.application.xmlrpc.server.management;
 
 import java.util.Arrays;
 import java.util.List;
-
 import org.csstudio.application.xmlrpc.server.ServerActivator;
 import org.csstudio.application.xmlrpc.server.internal.PreferenceConstants;
 import org.csstudio.remote.management.CommandParameters;
@@ -44,13 +43,13 @@ import org.osgi.util.tracker.ServiceTracker;
  * @since 21.12.2012
  */
 public class Stop implements IManagementCommand {
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public CommandResult execute(CommandParameters parameters) {
-        
+
         CommandResult result = null;
         ApplicationHandle thisHandle = null;
         BundleContext bundleContext = ServerActivator.getContext();
@@ -62,8 +61,8 @@ public class Stop implements IManagementCommand {
                                                       null);
 
         if(xmppShutdownPassword.length() > 0) {
-            
-            String password = (String)parameters.get("Password");        
+
+            String password = (String)parameters.get("Password");
             try {
                 if(password.compareTo(xmppShutdownPassword) != 0) {
                     return CommandResult.createFailureResult("\nInvalid password");
@@ -76,21 +75,21 @@ public class Stop implements IManagementCommand {
         String serviceFilter = "(&(objectClass=" +
         ApplicationHandle.class.getName() + ")"
         + "(application.descriptor=" + ServerActivator.PLUGIN_ID + "*))";
-        
+
         // Get the application from the Application Admin Service
         ServiceTracker<ApplicationHandle, IApplicationContext> tracker = null;
         try {
             tracker = new ServiceTracker<ApplicationHandle, IApplicationContext>(bundleContext, bundleContext.createFilter(serviceFilter), null);
             tracker.open();
-        
+
             Object[] allServices = tracker.getServices();
             if(allServices != null) {
-                
+
                 List<Object> services = Arrays.asList(allServices);
                 ApplicationHandle[] regApps = services.toArray(new ApplicationHandle[0]);
-                
+
                 for(ApplicationHandle o : regApps) {
-                    
+
                     if(o.getInstanceId().contains("ServerApplication")) {
                         thisHandle = o;
                         break;
@@ -99,21 +98,19 @@ public class Stop implements IManagementCommand {
             } else {
                 result = CommandResult.createFailureResult("\nCannot get the application entry from the service.");
             }
-            
+
             tracker.close();
         } catch(InvalidSyntaxException e) {
             result = CommandResult.createFailureResult(e.getMessage());
         }
-        
-        if(thisHandle != null) {
 
+        if(thisHandle != null) {
             result = CommandResult.createMessageResult("OK: [0] - Stopping ServerApplication...");
             thisHandle.destroy();
         } else {
             result = CommandResult.createFailureResult("ERROR: [1] - Cannot get the application entry from the service.");
         }
-        
+
         return result;
     }
-    
 }

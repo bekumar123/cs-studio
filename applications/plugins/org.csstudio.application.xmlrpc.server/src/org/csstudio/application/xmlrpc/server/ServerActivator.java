@@ -28,23 +28,17 @@ import org.csstudio.archive.common.service.IArchiveReaderFacade;
 import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.remotercp.common.tracker.GenericServiceTracker;
-import org.remotercp.common.tracker.IGenericServiceListener;
-import org.remotercp.service.connection.session.ISessionService;
 
 public class ServerActivator implements BundleActivator {
 
     public static final String PLUGIN_ID = "org.csstudio.application.xmlrpc.server";
 
     private static ServerActivator bundle;
-    
+
 	private static BundleContext context;
-	
-    /** Service tracker for the XMPP login */
-    private GenericServiceTracker<ISessionService> _genericServiceTracker;
 
     private ArchiveReaderServiceTracker _archiveServiceTracker;
-    
+
     public static ServerActivator getBundle() {
         return bundle;
     }
@@ -57,12 +51,9 @@ public class ServerActivator implements BundleActivator {
     public void start(BundleContext bundleContext) throws Exception {
 	    ServerActivator.bundle = this;
 	    ServerActivator.context = bundleContext;
-	    _genericServiceTracker = new GenericServiceTracker<ISessionService>(
-                context, ISessionService.class);
-        _genericServiceTracker.open();
         _archiveServiceTracker = new ArchiveReaderServiceTracker(bundleContext);
         _archiveServiceTracker.open();
-        
+
         //MySQLArchiveServiceImpl service = _archiveServiceTracker.getService();
 	}
 
@@ -70,21 +61,8 @@ public class ServerActivator implements BundleActivator {
     public void stop(BundleContext bundleContext) throws Exception {
 	    ServerActivator.bundle = null;
 	    ServerActivator.context = null;
-	    if (_genericServiceTracker != null) {
-	        _genericServiceTracker.close();
-	    }
 	}
-	
-    /**
-     * Adds a service listener for the XMPP service
-     * 
-     * @param sessionServiceListener
-     */
-    public void addSessionServiceListener(
-            IGenericServiceListener<ISessionService> sessionServiceListener) {
-        _genericServiceTracker.addServiceListener(sessionServiceListener);
-    }
-    
+
     public IArchiveReaderFacade getArchiveEngineService() throws OsgiServiceUnavailableException {
         final IArchiveReaderFacade service =
             (IArchiveReaderFacade) _archiveServiceTracker.getService();

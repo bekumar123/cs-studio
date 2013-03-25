@@ -34,7 +34,7 @@ public class ArchiveRecord {
 	private static final boolean debug = false;
 	private final static String ARsuffix = "_h";     // Suffix for archiveRecord
 	private final static String numStr = ".NVAL";    // Field for # of point
-	private final static String valStr = ".VAL";     // Field for value
+	private final static String valStr = "";         // Field for value
 	private final static String timStr = ".TIM";     // Field for time in sec    
 	private final static String nscStr = ".NSC";     // Field for time nanosec within last sec.
 	private final static String sevrStr = ".SVY";    // Field for severuty  

@@ -191,6 +191,11 @@ public final class SdsPlugin extends Plugin {
 		}
 		
 		_behaviourService = new BehaviorService();
+		
+		//TODO: (CME) added removed service registration
+		context.registerService(IBehaviorService.class.getName(),
+				_behaviourService, null);
+		
 		_widgetPropertyPostProcessingService = new WidgetPropertyPostProcessingService();
 //		TODO (jhatje): remove if patch in jca lib works
 //		readWorkaroundStrings();

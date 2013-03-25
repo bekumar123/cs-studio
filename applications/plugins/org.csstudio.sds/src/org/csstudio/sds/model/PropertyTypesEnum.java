@@ -119,7 +119,9 @@ public enum PropertyTypesEnum {
 	/**
 	 * A Behavior
 	 */
-	BEHAVIOR("sds.behavior", String.class, ValueType.STRING);
+	BEHAVIOR("sds.behavior", String.class, ValueType.STRING),
+	
+	PLANT_UNIT_REFERENCE("sds.plantunitreference", String.class, ValueType.STRING);
 
 	/**
 	 * The ID of the property type. Will be used as portable representation of

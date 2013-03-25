@@ -62,6 +62,8 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.swt.graphics.FontData;
 
+import de.c1wps.geneal.desy.domain.plant.plantmaterials.PlantUnitReference;
+
 /**
  * An abstract base class for all widget models.
  *
@@ -204,6 +206,10 @@ public abstract class AbstractWidgetModel implements IAdaptable {
 	public static final String PROP_CROSSED_OUT = "PROP_CROSSED_OUT";
 
 	public static final String PROP_RHOMBUS = "PROP_RHOMBUS";
+	
+	
+	// TODO: GeneAL changes
+	public static final String PROP_PLANT_UNIT_REFERENCE = "PROP_PLANT_UNIT_REFERENCE";
 
 	/**
 	 * A boolean, representing if this Model is alive.
@@ -1729,5 +1735,27 @@ public abstract class AbstractWidgetModel implements IAdaptable {
     public Class getJavaType() {
         return _javaType;
     }
+    
+    
+ // TODO GeneAL 03.03.2011 km: References
+ 	public PlantUnitReference getPlantUnitReference() {
+ 		PlantUnitReferenceContainer container = getPlantUnitReferenceProperty(PROP_PLANT_UNIT_REFERENCE);
+ 		return container.getPlantUnitReference();
+ 	}
+
+ 	// TODO GeneAL 03.03.2011 km: References
+ 	public void setPlantUnitReference(PlantUnitReference reference) {
+ 		getPlantUnitReferenceProperty(PROP_PLANT_UNIT_REFERENCE).setPlantUnitReference(reference);
+ 	}
+
+ 	// TODO GeneAL 03.03.2011 km: References
+ 	private final synchronized PlantUnitReferenceContainer getPlantUnitReferenceProperty(String propertyId) {
+ 		WidgetProperty property = _propertyMap.get(propertyId);
+
+ 		if ((property != null) && (property instanceof PlantUnitReferenceProperty)) {
+ 			return property.getPropertyValue();
+ 		}
+ 		throw new IllegalArgumentException("No PlantUnitReference property [" + propertyId + "] registered.");
+ 	}
 
 }

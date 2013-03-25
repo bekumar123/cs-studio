@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.csstudio.dal.CssApplicationContext;
-import org.csstudio.dal.simple.IRealtimeDataServiceFactory;
 import org.csstudio.dal.simple.ISimpleDalBroker;
 import org.csstudio.sds.internal.persistence.DisplayModelLoadAdapter;
 import org.csstudio.sds.internal.persistence.PersistenceUtil;
@@ -63,6 +62,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.cmein.da.service.history.IHistoryDataServiceFactory;
 
 /**
  * A box that manages a shell, which uses a GEF graphical viewer to display SDS
@@ -156,11 +157,13 @@ public abstract class AbstractRunModeBox {
 						RuntimeContext runtimeContext = new RuntimeContext(
 								_input.getFilePath(), _input.getAliases());
 						runtimeContext.setRunModeBoxInput(_input);
-						
+
 						// .. we create a separate broker instance for each running display 
 						//runtimeContext.setBroker(SimpleDALBroker.newInstance(new CssApplicationContext("CSS")));
 						
-						runtimeContext.setBroker(ServiceLocator.getService(IRealtimeDataServiceFactory.class).getNewDataService(new CssApplicationContext("CSS")));
+						//runtimeContext.setBroker(ServiceLocator.getService(IRealtimeDataServiceFactory.class).getNewDataService(new CssApplicationContext("CSS")));
+						
+						runtimeContext.setBroker(ServiceLocator.getService(IHistoryDataServiceFactory.class).getNewDataService(new CssApplicationContext("CSS")));
 						
 						LOG.info("SimpleDALBroker instance created");
 						

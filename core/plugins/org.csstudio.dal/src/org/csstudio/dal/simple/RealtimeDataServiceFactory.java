@@ -9,6 +9,7 @@ import org.csstudio.dal.CssApplicationContext;
  */
 public class RealtimeDataServiceFactory implements IRealtimeDataServiceFactory {
 
+	@Override 
 	public ISimpleDalBroker getNewDataService(CssApplicationContext cssApplicationContext) {
 		return SimpleDALBroker.newInstance(cssApplicationContext);
 	}

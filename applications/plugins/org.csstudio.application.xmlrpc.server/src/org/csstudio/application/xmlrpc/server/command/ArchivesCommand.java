@@ -23,7 +23,8 @@
 
 package org.csstudio.application.xmlrpc.server.command;
 
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 import org.csstudio.application.xmlrpc.server.ServerCommandException;
 
 /**
@@ -31,17 +32,17 @@ import org.csstudio.application.xmlrpc.server.ServerCommandException;
  * @since 08.01.2013
  */
 public class ArchivesCommand extends AbstractServerCommand {
-    
+
     public ArchivesCommand(String name) {
         super(name);
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public MapResult executeCommand(ServerCommandParams params) throws ServerCommandException {
-        Hashtable<String, Object> archive = new Hashtable<String, Object>();
+        Map<String, Object> archive = new HashMap<String, Object>();
         archive.put("key", new Integer(1));
         archive.put("name", "MySQL Archive");
         archive.put("path", "krynfs.desy.de");

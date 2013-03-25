@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2012 Stiftung Deutsches Elektronen-Synchrotron,
+ * Copyright (c) 2013 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -23,43 +23,48 @@
 
 package org.csstudio.application.xmlrpc.server.command;
 
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
-
 /**
  * @author mmoeller
- * @since 21.12.2012
+ * @since 22.03.2013
  */
-public class MapResult implements IServerCommandResult<Map<String, Object>> {
+public enum ServerRequestType {
 
-    private Map<String, Object> content;
+    RAW(0),
+    AVERAGE(1, "OPTIMIZED");
 
-    public MapResult() {
-        content = new Hashtable<String, Object>();
+    private int requestTypeNumber;
+
+    private String alternateName;
+
+    private ServerRequestType(int nr, String altName) {
+        requestTypeNumber = nr;
+        if (altName != null) {
+            alternateName = altName;
+        } else {
+            alternateName = this.toString();
+        }
     }
 
-    public MapResult(Map<String, Object> o) {
-        this();
-        content.putAll(o);
+    private ServerRequestType(int nr) {
+        this(nr, null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setCommandResult(Map<String, Object> o) {
-        content.clear();
-        content = o;
+    public int getRequestTypeNumber() {
+        return requestTypeNumber;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Map<String, Object> getCommandResult() {
-        Map<String, Object> result = new HashMap<String, Object>(content.size());
-        result.putAll(content);
+    public String getAlternateName() {
+        return alternateName;
+    }
+
+    public static ServerRequestType getRequestTypeByName(String name) {
+        ServerRequestType result = ServerRequestType.RAW;
+        for (ServerRequestType o : ServerRequestType.values()) {
+           if (o.toString().compareToIgnoreCase(name) == 0
+               || o.getAlternateName().compareToIgnoreCase(name) == 0) {
+               result = o;
+           }
+        }
         return result;
     }
 }

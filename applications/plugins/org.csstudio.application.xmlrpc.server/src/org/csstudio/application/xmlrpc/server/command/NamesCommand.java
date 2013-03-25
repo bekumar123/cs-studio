@@ -23,7 +23,11 @@
 
 package org.csstudio.application.xmlrpc.server.command;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.regex.Pattern;
 import org.csstudio.application.xmlrpc.server.ServerCommandException;
@@ -54,7 +58,7 @@ public class NamesCommand extends AbstractServerCommand {
      * {@inheritDoc}
      */
     @Override
-    public StringListResult executeCommand(ServerCommandParams params) throws ServerCommandException {
+    public MapListResult executeCommand(ServerCommandParams params) throws ServerCommandException {
         String pattern = null;
         if (params.containsParameter("pattern")) {
             pattern = (String) params.getParameter("pattern");
@@ -69,6 +73,16 @@ public class NamesCommand extends AbstractServerCommand {
             channels = new Vector<String>();
             LOG.error("[*** ArchiveServiceException ***]: {}", e.getMessage());
         }
-        return new StringListResult(channels);
+        List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+        for (String s : channels) {
+            Map<String, Object> names = new HashMap<String, Object>();
+            names.put("name", s);
+            names.put("start_sec", new Integer(0));
+            names.put("end_sec", new Integer(0));
+            names.put("start_nano", new Integer(0));
+            names.put("end_nano", new Integer(0));
+            result.add(names);
+        }
+        return new MapListResult(result);
     }
 }

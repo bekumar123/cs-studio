@@ -23,16 +23,18 @@
 
 package org.csstudio.application.xmlrpc.server;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import org.csstudio.application.xmlrpc.server.command.ArchivesCommand;
 import org.csstudio.application.xmlrpc.server.command.InfoCommand;
+import org.csstudio.application.xmlrpc.server.command.MapListResult;
 import org.csstudio.application.xmlrpc.server.command.MapResult;
 import org.csstudio.application.xmlrpc.server.command.NamesCommand;
 import org.csstudio.application.xmlrpc.server.command.ServerCommandParams;
-import org.csstudio.application.xmlrpc.server.command.StringListResult;
 import org.csstudio.application.xmlrpc.server.command.ValuesCommand;
 import org.csstudio.archive.common.service.IArchiveReaderFacade;
 import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
@@ -59,7 +61,7 @@ public class ArchiveReaderService implements IArchiveService {
      */
     @Override
     public Map<String, Object> info() {
-        InfoCommand command = new InfoCommand("info", archiveReader);
+        InfoCommand command = new InfoCommand("info");
         MapResult commandResult = null;
         try {
             commandResult = command.executeCommand(null);
@@ -73,7 +75,7 @@ public class ArchiveReaderService implements IArchiveService {
     }
 
     @Override
-    public Map<String, Object> archives() {
+    public List<Map<String, Object>> archives() {
         ArchivesCommand command = new ArchivesCommand("archives");
         MapResult commandResult = null;
         try {
@@ -82,33 +84,35 @@ public class ArchiveReaderService implements IArchiveService {
             LOG.error("[*** ServerCommandException ***]: {}", e.getMessage());
             commandResult = new MapResult();
         }
-        Hashtable<String, Object> resultValue = new Hashtable<String, Object>();
-        resultValue.putAll(commandResult.getCommandResult());
+        Vector<Map<String, Object>> resultValue = new Vector<Map<String, Object>>();
+        resultValue.add(commandResult.getCommandResult());
         return resultValue;
     }
 
     @Override
-    public List<String> names(Integer key, Object pattern) {
+    public List<Map<String, Object>> names(Integer key, Object pattern) {
         NamesCommand command = new NamesCommand("names", archiveReader);
-        StringListResult commandResult = null;
+        MapListResult commandResult = null;
         try {
             ServerCommandParams params = new ServerCommandParams();
             params.addParameter("pattern", pattern);
             commandResult = command.executeCommand(params);
         } catch (ServerCommandException e) {
             LOG.error("[*** ServerCommandException ***]: {}", e.getMessage());
-            commandResult = new StringListResult();
+            commandResult = new MapListResult();
         }
-        Vector<String> resultValue = new Vector<String>();
-        resultValue.addAll(commandResult.getCommandResult());
-        return resultValue;
+        return commandResult.getCommandResult();
     }
 
     @Override
-    public List<Object> values(Integer key, Object[] name, Integer startSec, Integer startNano,
-                               Integer endSec, Integer endNano, Integer count, Integer how) {
+    public List<Map<String, Object>> values(Integer key, Object[] name,
+                                            Integer startSec, Integer startNano,
+                                            Integer endSec, Integer endNano,
+                                            Integer count, Integer how) {
+
         ValuesCommand command = new ValuesCommand("values", archiveReader, false);
-        Vector<Object> result = new Vector<Object>();
+        List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+
         try {
             ServerCommandParams params = new ServerCommandParams();
             params.addParameter("start", TimeInstantBuilder.fromMillis(startSec * 1000L + startNano));
@@ -119,7 +123,7 @@ public class ArchiveReaderService implements IArchiveService {
                 if (element.getClass().getSimpleName().equalsIgnoreCase("String")) {
                     params.addParameter("name", element);
                     MapResult commandResult = command.executeCommand(params);
-                    Hashtable<String, Object> resultValue = new Hashtable<String, Object>();
+                    Map<String, Object> resultValue = new HashMap<String, Object>();
                     resultValue.putAll(commandResult.getCommandResult());
                     result.add(resultValue);
                 }
@@ -127,6 +131,7 @@ public class ArchiveReaderService implements IArchiveService {
         } catch (ServerCommandException e) {
             LOG.error("[*** ServerCommandException ***]: {}", e.getMessage());
         }
+
         return result;
     }
 }

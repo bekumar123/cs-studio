@@ -23,21 +23,23 @@
 
 package org.csstudio.application.xmlrpc.server.command;
 
+import com.google.common.collect.ImmutableSet;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Vector;
 import org.csstudio.application.xmlrpc.server.ServerActivator;
 import org.csstudio.application.xmlrpc.server.ServerCommandException;
 import org.csstudio.archive.common.requesttype.IArchiveRequestType;
 import org.csstudio.archive.common.service.IArchiveReaderFacade;
 import org.osgi.framework.Version;
-import com.google.common.collect.ImmutableSet;
 
 /**
  * @author mmoeller
  * @since 21.12.2012
  */
 public class InfoCommand extends AbstractServerCommand {
-    
+
     // private static final Logger LOG = LoggerFactory.getLogger(InfoCommand.class);
 
     private IArchiveReaderFacade archiveReader;
@@ -49,29 +51,42 @@ public class InfoCommand extends AbstractServerCommand {
         super(name);
         archiveReader = reader;
     }
-    
+
+    public InfoCommand(String name) {
+        this(name, null);
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public MapResult executeCommand(ServerCommandParams params) throws ServerCommandException {
-        
+
         HashMap<String, Object> result = new HashMap<String, Object>();
-        
+
         Version version = ServerActivator.getContext().getBundle().getVersion();
         result.put("ver", new Integer(1));
         result.put("desc", "XML-RPC-Server Version "
                            + version.getMajor() + "." + version.getMinor()
                            + " for the MySQL archive.");
-        
-        Vector<Object> how = new Vector<Object>();
-        ImmutableSet<IArchiveRequestType> types = archiveReader.getRequestTypes();
+
+        List<String> how = null;
         int index = 0;
-        for (IArchiveRequestType o : types) {
-            how.add(index++, o.getTypeIdentifier());
+        if (archiveReader != null) {
+            ImmutableSet<IArchiveRequestType> types = archiveReader.getRequestTypes();
+            how = new ArrayList<String>(types.size());
+            for (IArchiveRequestType o : types) {
+                how.add(index++, o.getTypeIdentifier());
+            }
+        } else {
+            how = new ArrayList<String>(ServerRequestType.values().length);
+            for (ServerRequestType o : ServerRequestType.values()) {
+                how.add(index++, o.toString());
+            }
         }
+
         result.put("how", how);
-        
+
         Vector<Object> stat = new Vector<Object>();
         stat.add(0, "NO_ALARM");
         stat.add(1, "READ");
@@ -97,7 +112,7 @@ public class InfoCommand extends AbstractServerCommand {
         stat.add(21, "WRITE_ACCESS");
 
         result.put("stat", stat);
-        
+
         Vector<Object> sevr = new Vector<Object>();
         HashMap<String, Object> info = new HashMap<String, Object>();
         info.put("sevr", "NO_ALARM");
@@ -105,49 +120,49 @@ public class InfoCommand extends AbstractServerCommand {
         info.put("has_value", new Boolean(true));
         info.put("num", new Integer(0));
         sevr.add(0, info);
-        
+
         info = new HashMap<String, Object>();
         info.put("sevr", "MINOR");
         info.put("txt_stat", new Boolean(true));
         info.put("has_value", new Boolean(true));
         info.put("num", new Integer(1));
         sevr.add(1, info);
-        
+
         info = new HashMap<String, Object>();
         info.put("sevr", "MAJOR");
         info.put("txt_stat", new Boolean(true));
         info.put("has_value", new Boolean(true));
         info.put("num", new Integer(2));
         sevr.add(2, info);
-        
+
         info = new HashMap<String, Object>();
         info.put("sevr", "INVALID");
         info.put("txt_stat", new Boolean(true));
         info.put("has_value", new Boolean(true));
         info.put("num", new Integer(3));
         sevr.add(3, info);
-        
+
         info = new HashMap<String, Object>();
         info.put("sevr", "Est_Repeat");
         info.put("txt_stat", new Boolean(false));
         info.put("has_value", new Boolean(true));
         info.put("num", new Integer(3968));
         sevr.add(4, info);
-        
+
         info = new HashMap<String, Object>();
         info.put("sevr", "Repeat");
         info.put("txt_stat", new Boolean(false));
         info.put("has_value", new Boolean(true));
         info.put("num", new Integer(3856));
         sevr.add(5, info);
-        
+
         info = new HashMap<String, Object>();
         info.put("sevr", "Disconnected");
         info.put("txt_stat", new Boolean(true));
         info.put("has_value", new Boolean(false));
         info.put("num", new Integer(3904));
         sevr.add(6, info);
-        
+
         info = new HashMap<String, Object>();
         info.put("sevr", "Archive_Off");
         info.put("txt_stat", new Boolean(true));

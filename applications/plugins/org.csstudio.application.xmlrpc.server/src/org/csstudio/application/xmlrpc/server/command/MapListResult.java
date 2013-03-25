@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2012 Stiftung Deutsches Elektronen-Synchrotron,
+ * Copyright (c) 2013 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -23,43 +23,43 @@
 
 package org.csstudio.application.xmlrpc.server.command;
 
-import java.util.HashMap;
-import java.util.Hashtable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author mmoeller
- * @since 21.12.2012
+ * @since 21.03.2013
  */
-public class MapResult implements IServerCommandResult<Map<String, Object>> {
+public class MapListResult implements IServerCommandResult<List<Map<String, Object>>> {
 
-    private Map<String, Object> content;
+    private List<Map<String, Object>> content;
 
-    public MapResult() {
-        content = new Hashtable<String, Object>();
+    public MapListResult() {
+        content = new ArrayList<Map<String, Object>>();
     }
 
-    public MapResult(Map<String, Object> o) {
+    public MapListResult(List<Map<String, Object>> e) {
         this();
-        content.putAll(o);
+        content.addAll(e);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setCommandResult(Map<String, Object> o) {
+    public void setCommandResult(List<Map<String, Object>> o) {
         content.clear();
-        content = o;
+        content.addAll(o);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Map<String, Object> getCommandResult() {
-        Map<String, Object> result = new HashMap<String, Object>(content.size());
-        result.putAll(content);
+    public List<Map<String, Object>> getCommandResult() {
+        List<Map<String, Object>> result = new ArrayList<Map<String, Object>>(content.size());
+        result.addAll(content);
         return result;
     }
 }

@@ -47,7 +47,7 @@ public interface IArchiveService {
      *
      * @return
      */
-    List<String> names(Integer key, Object pattern);
+    List<Map<String, Object>> names(Integer key, Object pattern);
 
     /**
      * Returns the provided archives. Just for compatibility. This method returns always the
@@ -55,7 +55,7 @@ public interface IArchiveService {
      *
      * @return
      */
-    Map<String, Object> archives();
+    List<Map<String, Object>> archives();
 
     /**
      * Returns the values of the channels for the given time interval.
@@ -71,6 +71,6 @@ public interface IArchiveService {
      *
      * @return
      */
-    List<Object> values(Integer key, Object[] name, Integer startSec, Integer startNano,
-                        Integer endSec, Integer endNano, Integer count, Integer how);
+    List<Map<String, Object>> values(Integer key, Object[] name, Integer startSec, Integer startNano,
+                                     Integer endSec, Integer endNano, Integer count, Integer how);
 }

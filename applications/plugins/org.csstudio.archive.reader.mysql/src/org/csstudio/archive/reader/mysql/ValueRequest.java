@@ -30,6 +30,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+
 import org.apache.xmlrpc.XmlRpcRequest;
 import org.apache.xmlrpc.client.AsyncCallback;
 import org.apache.xmlrpc.client.XmlRpcClient;
@@ -76,15 +77,15 @@ public class ValueRequest implements AsyncCallback {
             notify(null, null);
         }
 
-        synchronized void setError(Throwable error) {
+        synchronized void setError(final Throwable error) {
             notify(null, error);
         }
 
-        synchronized void setData(Map<String, Object> data) {
+        synchronized void setData(final Map<String, Object> data) {
             notify(data, null);
         }
 
-        private void notify(Map<String, Object> data, Throwable error) {
+        private void notify(final Map<String, Object> data, final Throwable error) {
             xmlRpcResult = new HashMap<String, Object>(data);
             xmlRpcException = error;
             isSet = true;
@@ -119,9 +120,9 @@ public class ValueRequest implements AsyncCallback {
      *  @param optimized Get optimized or raw data?
      *  @param count Number of values
      */
-    public ValueRequest(MySqlArchiveReader reader, int key, String channel,
-                        Timestamp start, Timestamp end, boolean optimized,
-                        int count) throws Exception {
+    public ValueRequest(final MySqlArchiveReader reader, final int key, final String channel,
+                        final Timestamp start, final Timestamp end, final boolean optimized,
+                        final int count) throws Exception {
 
         this.reader = reader;
         this.key = key;
@@ -131,17 +132,12 @@ public class ValueRequest implements AsyncCallback {
 
         // Check parms
         if (optimized) {
-            // New server: Use min/max/average with seconds
-            int secs = (int) (end.durationFrom(start).toSeconds() / count);
-            if (secs < 1) {
-                secs = 1;
-            }
-            how = reader.getRequestCode("average");
-            parms = new Object[] { Integer.valueOf(secs) };
+            // AVG_PER_MINUTE, AVG_PER_HOUR
+            how = reader.getRequestCode("AVG_PER_MINUTE");
+            parms = new Object[] { Integer.valueOf(count) };
         } else {
-            // All others use 'Integer count'
-            // Raw == Original, all else is somehow interpolated
-            how = reader.getRequestCode("raw");
+            // RAW
+            how = reader.getRequestCode("RAW");
             parms = new Object[] { Integer.valueOf(count) };
         }
     }
@@ -150,9 +146,9 @@ public class ValueRequest implements AsyncCallback {
      * @see org.csstudio.archive.channelarchiver.ClientRequest#read()
      */
     @SuppressWarnings({ "unchecked" })
-    public void read(XmlRpcClient xmlrpc) throws Exception {
+    public void read(final XmlRpcClient xmlrpc) throws Exception {
 
-        Vector<Object> params = new Vector<Object>(8);
+        final Vector<Object> params = new Vector<Object>(8);
         params.add(Integer.valueOf(key));
         params.add(channels);
         params.add(Integer.valueOf((int)start.getSec()));
@@ -190,10 +186,10 @@ public class ValueRequest implements AsyncCallback {
                                 + numReturnedChannels + " channels?");
         }
 
-        Map<String, Object> channelData = (Map<String, Object>) xmlRpcResult.get(0);
-        String name = (String) channelData.get("name");
-        int type = (Integer) channelData.get("type");
-        int count = (Integer) channelData.get("count");
+        final Map<String, Object> channelData = (Map<String, Object>) xmlRpcResult.get(0);
+        final String name = (String) channelData.get("name");
+        final int type = (Integer) channelData.get("type");
+        final int count = (Integer) channelData.get("count");
         try {
             final Object meta = decodeMetaData(type, (Map<String, Object>) channelData.get("meta"));
             final Display display;
@@ -213,7 +209,7 @@ public class ValueRequest implements AsyncCallback {
                                    display,
                                    labels,
                                    (Vector<Object>) channelData.get("values"));
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new Exception("Error while decoding values for channel '"
                                 + name + "': " + e.getMessage(), e);
         }
@@ -233,7 +229,7 @@ public class ValueRequest implements AsyncCallback {
      * {@inheritDoc}
      */
     @Override
-    public void handleError(XmlRpcRequest request, Throwable error) {
+    public void handleError(final XmlRpcRequest request, final Throwable error) {
         result.setError(error);
     }
 
@@ -242,7 +238,7 @@ public class ValueRequest implements AsyncCallback {
      */
     @SuppressWarnings("unchecked")
     @Override
-    public void handleResult(XmlRpcRequest request, Object data) {
+    public void handleResult(final XmlRpcRequest request, final Object data) {
         if (data instanceof Map<?, ?>) {
             result.setData((Map<String, Object>) data);
         }
@@ -254,7 +250,7 @@ public class ValueRequest implements AsyncCallback {
      *  @return {@link Display} or List of {@link String}[] depending on data type
      */
     @SuppressWarnings({ "rawtypes" })
-    private Object decodeMetaData(int valueType, Map<String, Object> metaHash) throws Exception {
+    private Object decodeMetaData(final int valueType, final Map<String, Object> metaHash) throws Exception {
         // meta := { int32 type;
         //           type==0: string states[],
         //           type==1: double disp_high,
@@ -273,7 +269,7 @@ public class ValueRequest implements AsyncCallback {
             // The 2.8.1 server will give 'ENUM' type values
             // with Numeric meta data, units = "<No data>"
             // as an error message.
-            NumberFormat format = NumberFormats.format((Integer) metaHash.get("prec"));
+            final NumberFormat format = NumberFormats.format((Integer) metaHash.get("prec"));
             return ValueFactory.newDisplay(
                     (Double) metaHash.get("disp_low"),
                     (Double) metaHash.get("alarm_low"),
@@ -292,9 +288,9 @@ public class ValueRequest implements AsyncCallback {
                     "Received enumerated meta information for value type "
                     + valueType);
         }
-        Vector stateVec = (Vector) metaHash.get("states");
-        int vectorSize = stateVec.size();
-        List<String> states = new ArrayList<String>(vectorSize);
+        final Vector stateVec = (Vector) metaHash.get("states");
+        final int vectorSize = stateVec.size();
+        final List<String> states = new ArrayList<String>(vectorSize);
         // Silly loop because of type warnings from state_vec.toArray(states)
         for (int i=0; i < vectorSize; ++i) {
             states.add((String) stateVec.get(i));

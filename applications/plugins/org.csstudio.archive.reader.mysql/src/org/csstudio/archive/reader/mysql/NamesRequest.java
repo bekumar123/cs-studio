@@ -23,10 +23,9 @@
 
 package org.csstudio.archive.reader.mysql;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 
@@ -48,44 +47,47 @@ import org.apache.xmlrpc.client.XmlRpcClient;
  */
 public class NamesRequest {
 
-    private int key;
-    private String pattern;
+    private final int key;
+    private final String pattern;
     private String names[];
 
     /** Create a name lookup.
      *   @param pattern Regular expression pattern for the name.
      */
-    public NamesRequest(int key, String pattern) {
+    public NamesRequest(final int key, final String pattern) {
         this.key = key;
         this.pattern = pattern;
     }
 
     /** Read info from data server */
     @SuppressWarnings("unchecked")
-    public void read(XmlRpcClient xmlrpc) throws Exception {
+    public void read(final XmlRpcClient xmlrpc) throws Exception {
 
-        List<Object> result = new Vector<Object>();
+        Object[] result = null;
 
         try {
-            Vector<Object> params = new Vector<Object>();
+            final Vector<Object> params = new Vector<Object>();
             params.add(Integer.valueOf(key));
             params.add(pattern);
-            Object answer = xmlrpc.execute("archiver.names", params);
+            final Object answer = xmlrpc.execute("archiver.names", params);
             if (answer instanceof Object[]) {
-                result.addAll(Arrays.asList((Object[]) answer));
+                result = (Object[]) answer;
             }
-        } catch (XmlRpcException e) {
+        } catch (final XmlRpcException e) {
             throw new Exception("The call of method archiver.names failed!", e);
+        }
+
+        if (result == null) {
+            result = new Object[0];
         }
 
         //  { string name,
         //    int32 start_sec,  int32 start_nano,
         //    int32 end_sec,    int32 end_nano
         //   }[] = archiver.names(int32 key,  string pattern)
-        names = new String[result.size()];
-        for (int i = 0;i < result.size();++i)
-        {
-            Map<String, Object> entry = (Map<String, Object>) result.get(i);
+        names = new String[result.length];
+        for (int i = 0;i < result.length;++i) {
+            final Map<String, Object> entry = (Map<String, Object>) result[i];
 //            ITimestamp start = TimestampFactory.createTimestamp(
 //                            (Integer) entry.get("start_sec"),
 //                            (Integer) entry.get("start_nano"));
@@ -106,7 +108,7 @@ public class NamesRequest {
     /** @return Returns a more or less useful string. */
     @Override
     public String toString() {
-        StringBuffer result = new StringBuffer();
+        final StringBuffer result = new StringBuffer();
         result.append(String.format("Names with key %d matching '%s':\n",
                 key, pattern));
         for (int i = 0;i < names.length;++i) {

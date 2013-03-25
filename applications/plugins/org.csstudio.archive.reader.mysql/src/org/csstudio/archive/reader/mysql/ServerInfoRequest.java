@@ -25,9 +25,9 @@ package org.csstudio.archive.reader.mysql;
 
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.epics.vtype.AlarmSeverity;
@@ -64,16 +64,16 @@ public class ServerInfoRequest {
 
     /** Read info from data server */
     @SuppressWarnings({ "unchecked" })
-    public void read(XmlRpcClient xmlrpc) throws Exception {
+    public void read(final XmlRpcClient xmlrpc) throws Exception {
 
         Map<String, Object> result = null;
         try {
-            Vector<Object> params = new Vector<Object>();
-            Object answer = xmlrpc.execute("archiver.info", params);
+            final Vector<Object> params = new Vector<Object>();
+            final Object answer = xmlrpc.execute("archiver.info", params);
             if (answer instanceof Map<?, ?>) {
                 result = (Map<String, Object>) answer;
             }
-        } catch (XmlRpcException e) {
+        } catch (final XmlRpcException e) {
             throw new Exception("The call of method archiver.info failed.", e);
         }
 
@@ -94,26 +94,26 @@ public class ServerInfoRequest {
         version = (Integer) result.get("ver");
         description = (String) result.get("desc");
         // Get 'how'. Silly code to copy that into a type-safe vector.
-        List<Object> tmp =  (List<Object>) result.get("how");
-        howStrings = new String[tmp.size()];
-        for (int i = 0;i < tmp.size();++i) {
-            howStrings[i] = (String) tmp.get(i);
+        Object[] tmp =  (Object[]) result.get("how");
+        howStrings = new String[tmp.length];
+        for (int i = 0;i < tmp.length;++i) {
+            howStrings[i] = (String) tmp[i];
         }
         // Same silly code for the status strings. Better way?
-        tmp = (List<Object>) result.get("stat");
-        statusStrings = new String[tmp.size()];
-        for (int i = 0;i < tmp.size();++i) {
-            statusStrings[i] = (String) tmp.get(i);
+        tmp = (Object[]) result.get("stat");
+        statusStrings = new String[tmp.length];
+        for (int i = 0;i < tmp.length;++i) {
+            statusStrings[i] = (String) tmp[i];
             // Patch "NO ALARM" into "OK"
             if (statusStrings[i].equals("NO_ALARM")) {
                 statusStrings[i] = NO_ALARM;
             }
         }
         // Same silly code for the severity strings.
-        List<Object> sevrInfo = (List<Object>) result.get("sevr");
+        final Object[] sevrInfo = (Object[]) result.get("sevr");
         severities = new Hashtable<Integer, SeverityImpl>();
-        for (Object sio : sevrInfo) {
-            Map<String, Object> si = (Map<String, Object>) sio;
+        for (final Object sio : sevrInfo) {
+            final Map<String, Object> si = (Map<String, Object>) sio;
             final String txt = (String) si.get("sevr");
             // Patch "NO ALARM" into "OK"
             AlarmSeverity severity;
@@ -157,8 +157,8 @@ public class ServerInfoRequest {
     }
 
     /** @return Returns the severity infos. */
-    public SeverityImpl getSeverity(int severity) {
-        SeverityImpl sev = severities.get(Integer.valueOf(severity));
+    public SeverityImpl getSeverity(final int severity) {
+        final SeverityImpl sev = severities.get(Integer.valueOf(severity));
         if (sev != null) {
             return sev;
         }

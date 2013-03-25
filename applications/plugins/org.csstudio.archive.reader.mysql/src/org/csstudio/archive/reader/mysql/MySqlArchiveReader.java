@@ -25,6 +25,7 @@ package org.csstudio.archive.reader.mysql;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.csstudio.apputil.text.RegExHelper;
@@ -33,6 +34,7 @@ import org.csstudio.archive.reader.ArchiveReader;
 import org.csstudio.archive.reader.UnknownChannelException;
 import org.csstudio.archive.reader.ValueIterator;
 import org.epics.util.time.Timestamp;
+import org.epics.vtype.VType;
 
 /**
  * This class is responsible for requesting the XMLRPC server that provides the archive data
@@ -47,7 +49,7 @@ import org.epics.util.time.Timestamp;
 public class MySqlArchiveReader implements ArchiveReader {
 
     /** The URL of the XMLRPC server. It contains the prefix xnds:// */
-    private String serverUrl;
+    private final String serverUrl;
 
     /** The client for the server request */
     private XmlRpcClient rpcClient;
@@ -59,7 +61,7 @@ public class MySqlArchiveReader implements ArchiveReader {
     /** Active request. Synchronize on this for access */
     private ValueRequest currentRequest;
 
-    public MySqlArchiveReader(String url) throws Exception {
+    public MySqlArchiveReader(final String url) throws Exception {
 
         currentRequest = null;
 
@@ -71,13 +73,14 @@ public class MySqlArchiveReader implements ArchiveReader {
         if (httpUrl.isEmpty()) {
             throw new Exception("The server URL must not be empty!");
         }
+        serverUrl = new String(url);
         if (httpUrl.startsWith("xnds://")) {
             httpUrl = httpUrl.replace("xnds://", "http://");
         }
 
         try {
 
-            XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
+            final XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
             config.setServerURL(new URL(httpUrl));
             rpcClient = new XmlRpcClient();
             rpcClient.setConfig(config);
@@ -90,7 +93,7 @@ public class MySqlArchiveReader implements ArchiveReader {
             archivesRequest = new ArchivesRequest();
             archivesRequest.read(rpcClient);
 
-        } catch (MalformedURLException e) {
+        } catch (final MalformedURLException e) {
             throw new Exception("The URL of the XMLRPC server is not valid: "
                                 + httpUrl
                                 + " (" + url + ")");
@@ -119,10 +122,10 @@ public class MySqlArchiveReader implements ArchiveReader {
      */
     @Override
     public String getDescription() {
-        StringBuilder buf = new StringBuilder();
+        final StringBuilder buf = new StringBuilder();
         buf.append(serverInfoRequest.getDescription());
         buf.append("Request Types:\n");
-        for (String req : serverInfoRequest.getRequestTypes()) {
+        for (final String req : serverInfoRequest.getRequestTypes()) {
             buf.append(req + "\n");
         }
         return buf.toString();
@@ -148,7 +151,7 @@ public class MySqlArchiveReader implements ArchiveReader {
      * {@inheritDoc}
      */
     @Override
-    public String[] getNamesByPattern(int key, String globPattern) throws Exception {
+    public String[] getNamesByPattern(final int key, final String globPattern) throws Exception {
         return getNamesByRegExp(key, RegExHelper.fullRegexFromGlob(globPattern));
     }
 
@@ -156,8 +159,8 @@ public class MySqlArchiveReader implements ArchiveReader {
      * {@inheritDoc}
      */
     @Override
-    public String[] getNamesByRegExp(int key, String regExp) throws Exception {
-        NamesRequest infos = new NamesRequest(key, regExp);
+    public String[] getNamesByRegExp(final int key, final String regExp) throws Exception {
+        final NamesRequest infos = new NamesRequest(key, regExp);
         infos.read(rpcClient);
         return infos.getNameInfos();
     }
@@ -170,8 +173,8 @@ public class MySqlArchiveReader implements ArchiveReader {
      * @throws Exception when asking for unsupported request type.
      * @see #getRequestTypes()
      */
-    public int getRequestCode(String requestName) throws Exception {
-        String request_types[] = serverInfoRequest.getRequestTypes();
+    public int getRequestCode(final String requestName) throws Exception {
+        final String request_types[] = serverInfoRequest.getRequestTypes();
         for (int i=0; i<request_types.length; ++i) {
             if (request_types[i].equalsIgnoreCase(requestName)) {
                 return i;
@@ -183,16 +186,16 @@ public class MySqlArchiveReader implements ArchiveReader {
     /**
      * @return Severity for an EPICS severity code.
      */
-    public SeverityImpl getSeverity(int severity) {
+    public SeverityImpl getSeverity(final int severity) {
         return serverInfoRequest.getSeverity(severity);
     }
 
     /**
      * @return EPICS/ChannelArchiver status string for given code
      */
-    public String getStatus(SeverityImpl severity, int status) {
+    public String getStatus(final SeverityImpl severity, final int status) {
         if (severity.statusIsText()) {
-            String[] status_strings = serverInfoRequest.getStatusStrings();
+            final String[] status_strings = serverInfoRequest.getStatusStrings();
             if (status >= 0  &&  status < status_strings.length) {
                 return status_strings[status];
             }
@@ -201,27 +204,45 @@ public class MySqlArchiveReader implements ArchiveReader {
         return severity.getText() + " " + Integer.toString(status);
     }
 
-    /**
-     * {@inheritDoc}
+    /** Issue request for values for one channel to the data server.
+     *  @return Samples
+     *  @throws Exception
      */
-    @Override
-    public ValueIterator getRawValues(int key, String name, Timestamp start, Timestamp end) throws UnknownChannelException,
-                                                                                           Exception {
-        // TODO Auto-generated method stub
-        return null;
+    public VType[] getSamples(final int key, final String name,
+            final Timestamp start, final Timestamp end,
+            final boolean optimized, final int count) throws Exception {
+        final ValueRequest request;
+        synchronized (this) {
+            currentRequest =
+                new ValueRequest(this, key, name, start, end, optimized, count);
+            request = currentRequest;
+        }
+        request.read(rpcClient);
+        final VType result[] = request.getSamples();
+        synchronized (this) {
+            currentRequest = null;
+        }
+        return result;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ValueIterator getOptimizedValues(int key,
-                                            String name,
-                                            Timestamp start,
-                                            Timestamp end,
-                                            int count) throws UnknownChannelException, Exception {
-        // TODO Auto-generated method stub
-        return null;
+    public ValueIterator getRawValues(final int key, final String name,
+                                      final Timestamp start, final Timestamp end) throws UnknownChannelException,
+                                                                                           Exception {
+        return new ValueRequestIterator(this, key, name, start, end, false, 10);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ValueIterator getOptimizedValues(final int key, final String name,
+                                            final Timestamp start, final Timestamp end,
+                                            final int count) throws UnknownChannelException, Exception {
+        return new ValueRequestIterator(this, key, name, start, end, true, count);
     }
 
     /**

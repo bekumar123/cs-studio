@@ -86,13 +86,20 @@ public class ArchiveConnectionHandler {
         final String databaseName = prefs.getDatabaseName();
         final String user = prefs.getUser();
         LOG.info("DB preferences - hosts: " + hosts + "; DB Name: " + databaseName + " ; User: " + user + "; port: " + port);
-        ds.setServerName(hosts);
+
+        ds.setServerName("127.0.0.1");
+        ds.setPort(3306);
+        ds.setDatabaseName("archive");
+        ds.setUser("root");
+        ds.setPassword("rootroot");
+
+        /*ds.setServerName(hosts);
         ds.setPort(port);
         ds.setDatabaseName(databaseName);
         ds.setUser(user);
         ds.setPassword(prefs.getPassword());
         ds.setMaxAllowedPacket(prefs.getMaxAllowedPacketSizeInKB()*1024);
-        ds.setUseTimezone(true);
+        ds.setUseTimezone(true); */
 
         ds.setRewriteBatchedStatements(true);
 

@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
-
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.epics.vtype.AlarmSeverity;
@@ -64,16 +63,16 @@ public class ServerInfoRequest {
 
     /** Read info from data server */
     @SuppressWarnings({ "unchecked" })
-    public void read(final XmlRpcClient xmlrpc) throws Exception {
+    public void read(XmlRpcClient xmlrpc) throws Exception {
 
         Map<String, Object> result = null;
         try {
-            final Vector<Object> params = new Vector<Object>();
-            final Object answer = xmlrpc.execute("archiver.info", params);
+            Vector<Object> params = new Vector<Object>();
+            Object answer = xmlrpc.execute("archiver.info", params);
             if (answer instanceof Map<?, ?>) {
                 result = (Map<String, Object>) answer;
             }
-        } catch (final XmlRpcException e) {
+        } catch (XmlRpcException e) {
             throw new Exception("The call of method archiver.info failed.", e);
         }
 
@@ -157,8 +156,8 @@ public class ServerInfoRequest {
     }
 
     /** @return Returns the severity infos. */
-    public SeverityImpl getSeverity(final int severity) {
-        final SeverityImpl sev = severities.get(Integer.valueOf(severity));
+    public SeverityImpl getSeverity(int severity) {
+        SeverityImpl sev = severities.get(Integer.valueOf(severity));
         if (sev != null) {
             return sev;
         }

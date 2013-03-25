@@ -25,7 +25,6 @@ package org.csstudio.archive.reader.mysql;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.csstudio.apputil.text.RegExHelper;
@@ -49,7 +48,7 @@ import org.epics.vtype.VType;
 public class MySqlArchiveReader implements ArchiveReader {
 
     /** The URL of the XMLRPC server. It contains the prefix xnds:// */
-    private final String serverUrl;
+    private String serverUrl;
 
     /** The client for the server request */
     private XmlRpcClient rpcClient;
@@ -61,7 +60,7 @@ public class MySqlArchiveReader implements ArchiveReader {
     /** Active request. Synchronize on this for access */
     private ValueRequest currentRequest;
 
-    public MySqlArchiveReader(final String url) throws Exception {
+    public MySqlArchiveReader(String url) throws Exception {
 
         currentRequest = null;
 
@@ -80,7 +79,7 @@ public class MySqlArchiveReader implements ArchiveReader {
 
         try {
 
-            final XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
+            XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
             config.setServerURL(new URL(httpUrl));
             rpcClient = new XmlRpcClient();
             rpcClient.setConfig(config);
@@ -93,7 +92,7 @@ public class MySqlArchiveReader implements ArchiveReader {
             archivesRequest = new ArchivesRequest();
             archivesRequest.read(rpcClient);
 
-        } catch (final MalformedURLException e) {
+        } catch (MalformedURLException e) {
             throw new Exception("The URL of the XMLRPC server is not valid: "
                                 + httpUrl
                                 + " (" + url + ")");
@@ -122,10 +121,10 @@ public class MySqlArchiveReader implements ArchiveReader {
      */
     @Override
     public String getDescription() {
-        final StringBuilder buf = new StringBuilder();
+        StringBuilder buf = new StringBuilder();
         buf.append(serverInfoRequest.getDescription());
         buf.append("Request Types:\n");
-        for (final String req : serverInfoRequest.getRequestTypes()) {
+        for (String req : serverInfoRequest.getRequestTypes()) {
             buf.append(req + "\n");
         }
         return buf.toString();
@@ -151,7 +150,7 @@ public class MySqlArchiveReader implements ArchiveReader {
      * {@inheritDoc}
      */
     @Override
-    public String[] getNamesByPattern(final int key, final String globPattern) throws Exception {
+    public String[] getNamesByPattern(int key, String globPattern) throws Exception {
         return getNamesByRegExp(key, RegExHelper.fullRegexFromGlob(globPattern));
     }
 
@@ -159,8 +158,8 @@ public class MySqlArchiveReader implements ArchiveReader {
      * {@inheritDoc}
      */
     @Override
-    public String[] getNamesByRegExp(final int key, final String regExp) throws Exception {
-        final NamesRequest infos = new NamesRequest(key, regExp);
+    public String[] getNamesByRegExp(int key, String regExp) throws Exception {
+        NamesRequest infos = new NamesRequest(key, regExp);
         infos.read(rpcClient);
         return infos.getNameInfos();
     }
@@ -173,8 +172,8 @@ public class MySqlArchiveReader implements ArchiveReader {
      * @throws Exception when asking for unsupported request type.
      * @see #getRequestTypes()
      */
-    public int getRequestCode(final String requestName) throws Exception {
-        final String request_types[] = serverInfoRequest.getRequestTypes();
+    public int getRequestCode(String requestName) throws Exception {
+        String request_types[] = serverInfoRequest.getRequestTypes();
         for (int i=0; i<request_types.length; ++i) {
             if (request_types[i].equalsIgnoreCase(requestName)) {
                 return i;
@@ -186,16 +185,16 @@ public class MySqlArchiveReader implements ArchiveReader {
     /**
      * @return Severity for an EPICS severity code.
      */
-    public SeverityImpl getSeverity(final int severity) {
+    public SeverityImpl getSeverity(int severity) {
         return serverInfoRequest.getSeverity(severity);
     }
 
     /**
      * @return EPICS/ChannelArchiver status string for given code
      */
-    public String getStatus(final SeverityImpl severity, final int status) {
+    public String getStatus(SeverityImpl severity, int status) {
         if (severity.statusIsText()) {
-            final String[] status_strings = serverInfoRequest.getStatusStrings();
+            String[] status_strings = serverInfoRequest.getStatusStrings();
             if (status >= 0  &&  status < status_strings.length) {
                 return status_strings[status];
             }
@@ -229,20 +228,23 @@ public class MySqlArchiveReader implements ArchiveReader {
      * {@inheritDoc}
      */
     @Override
-    public ValueIterator getRawValues(final int key, final String name,
-                                      final Timestamp start, final Timestamp end) throws UnknownChannelException,
+    public ValueIterator getRawValues(int key, String name, Timestamp start, Timestamp end) throws UnknownChannelException,
                                                                                            Exception {
-        return new ValueRequestIterator(this, key, name, start, end, false, 10);
+        // TODO Auto-generated method stub
+        return null;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ValueIterator getOptimizedValues(final int key, final String name,
-                                            final Timestamp start, final Timestamp end,
-                                            final int count) throws UnknownChannelException, Exception {
-        return new ValueRequestIterator(this, key, name, start, end, true, count);
+    public ValueIterator getOptimizedValues(int key,
+                                            String name,
+                                            Timestamp start,
+                                            Timestamp end,
+                                            int count) throws UnknownChannelException, Exception {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     /**

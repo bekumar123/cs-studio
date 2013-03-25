@@ -22,8 +22,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.csstudio.remote;bundle-version="3.1.0",
  org.slf4j;bundle-version="1.7.2",
  com.google.common;bundle-version="10.0.1",
- org.joda.time;bundle-version="1.6.2",
- org.epics.vtype;bundle-version="2.0.0"
+ org.joda.time;bundle-version="1.6.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,

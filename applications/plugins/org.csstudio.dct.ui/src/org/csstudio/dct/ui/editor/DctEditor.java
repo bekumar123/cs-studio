@@ -47,6 +47,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -78,11 +79,16 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IGotoMarker;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
+import org.eclipse.ui.views.markers.MarkerItem;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -91,6 +97,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Splitter;
 
 /**
  * The DCT Editor implementation.
@@ -99,6 +106,10 @@ import com.google.common.base.Optional;
  * 
  */
 public final class DctEditor extends MultiPageEditorPart implements CommandStackListener {
+
+    private static final String PREVIEW_MARKER_SOURCE_ID = "preview_marker_source_id";
+    private static final String PREVIEW_MARKER_SELECTION_POS_START = "preview_marker_selection_pos_start";
+    private static final String PREVIEW_MARKER_SELECTION_POS_END = "preview_marker_selection_pos_end";
 
     /**
      * @author hrickens
@@ -187,6 +198,33 @@ public final class DctEditor extends MultiPageEditorPart implements CommandStack
         super();
         commandStack = new CommandStack();
         commandStack.addCommandStackListener(this);
+
+        IWorkbench wb = PlatformUI.getWorkbench();
+        wb.getActiveWorkbenchWindow().getSelectionService().addSelectionListener(new ISelectionListener() {
+            public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+                if (!dbFilePreviewText.isVisible()) {
+                    return;
+                }
+                IStructuredSelection s = (IStructuredSelection) selection;
+                if (s.getFirstElement() instanceof MarkerItem) {
+                    MarkerItem marker = (MarkerItem) s.getFirstElement();
+                    if (marker != null && marker.getMarker() != null) {
+                        IMarker iMarker = marker.getMarker();
+                        try {
+                            if (iMarker.getAttribute(IMarker.SOURCE_ID).equals(PREVIEW_MARKER_SOURCE_ID)) {
+                                int selectionPositionStart = (Integer) iMarker
+                                        .getAttribute(PREVIEW_MARKER_SELECTION_POS_START);
+                                int selectionPositionEnd = (Integer) iMarker
+                                        .getAttribute(PREVIEW_MARKER_SELECTION_POS_END);
+                                dbFilePreviewText.setSelection(selectionPositionStart, selectionPositionEnd);
+                            }
+                        } catch (CoreException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
 
         outlineSelectionListener = new ISelectionChangedListener() {
 
@@ -438,6 +476,34 @@ public final class DctEditor extends MultiPageEditorPart implements CommandStack
         if (exporterDescriptor != null) {
             final String export = exporterDescriptor.getExporter().export(getProject());
             final StyleRange[] ranges = buildStyleRange(export);
+            final IFile file = ((IFileEditorInput) getEditorInput()).getFile();
+            try {
+                IMarker[] markers = file.findMarkers(IMarker.PROBLEM, true, 1);
+                for (IMarker marker : markers) {
+                    if (marker.getAttribute(IMarker.SOURCE_ID).equals(PREVIEW_MARKER_SOURCE_ID)) {
+                        marker.delete();
+                    }
+                }
+                Iterable<String> lines = Splitter.on("\n").split(export);
+                int lineNumber = 0;
+                int selection = 0;
+                for (String line : lines) {
+                    if (line.contains("%%%")) {
+                        IMarker marker = file.createMarker(IMarker.PROBLEM);
+                        marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+                        marker.setAttribute(IMarker.MESSAGE, line);
+                        marker.setAttribute(IMarker.SOURCE_ID, PREVIEW_MARKER_SOURCE_ID);
+                        marker.setAttribute(PREVIEW_MARKER_SELECTION_POS_START, selection);
+                        marker.setAttribute(PREVIEW_MARKER_SELECTION_POS_END, selection + line.length() - 1);
+                        marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
+                    }
+                    lineNumber++;
+                    selection += line.length() + 1;
+                }
+            } catch (CoreException e) {
+                e.printStackTrace();
+            }
+
             dbFilePreviewText.setText(export);
             for (StyleRange range : ranges) {
                 try {
@@ -628,7 +694,7 @@ public final class DctEditor extends MultiPageEditorPart implements CommandStack
         final ProblemVisitor visitor = new ProblemVisitor();
         getProject().accept(visitor);
         final Set<MarkableError> errors = visitor.getErrors();
-        final Set<MarkableError> warnigs = visitor.getWarnnings();
+        final Set<MarkableError> warnings = visitor.getWarnnings();
 
         final IFile file = ((IFileEditorInput) getEditorInput()).getFile();
 
@@ -645,7 +711,7 @@ public final class DctEditor extends MultiPageEditorPart implements CommandStack
             }
 
             // .. add new warning markers
-            for (final MarkableError e : warnigs) {
+            for (final MarkableError e : warnings) {
                 final IMarker marker = file.createMarker(IMarker.PROBLEM);
                 marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
                 marker.setAttribute(IMarker.LOCATION, e.getId().toString());

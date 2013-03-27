@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import org.csstudio.dct.model.IFolder;
 import org.csstudio.dct.model.IFolderMember;
+import org.csstudio.dct.model.IInstance;
 import org.csstudio.dct.model.IProject;
 import org.csstudio.dct.model.IVisitor;
 import org.csstudio.dct.util.NotNull;
@@ -214,4 +215,37 @@ public class Folder extends AbstractElement implements IFolderMember, IFolder {
     public boolean isRootFolder() {
         return isPrototypesFolder() || isInstancesFolder() || isLibraryFolder();
     }
+
+    @Override
+    public List<Instance> getAllInstancesInHierachie() {
+        List<Instance> instances = new ArrayList<Instance>();
+        List<IFolderMember> members = this.getMembers();
+        for (IFolderMember m : members) {
+            if (m instanceof Instance) {
+                addInstance((Instance)m, instances);
+            } else if (m instanceof Prototype) {
+                System.out.println("proto");
+                Prototype p = (Prototype)m;
+                addFromPrototype(p, instances);
+            }
+        }
+        return instances;
+    }
+
+    private void addInstance(@NotNull Instance instance,  List<Instance> instances) {
+        instances.add(instance);        
+        List<IInstance> members = instance.getInstances();
+        for (IInstance m : members) {
+            addInstance((Instance)m, instances);
+        }
+    }
+    
+    private void addFromPrototype(@NotNull Prototype prototype,  List<Instance> instances) {
+        List<IInstance> members = prototype.getInstances();
+        System.out.println(members.size());
+        for (IInstance m : members) {
+            addInstance((Instance)m, instances);
+        }
+    }
+
 }

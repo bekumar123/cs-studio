@@ -45,8 +45,6 @@ public class FolderDndHandler extends AbstractDnDHandler<IElement> {
         int tmp = destFolder.getMembers().indexOf(dndSource);
 
         if(tmp > -1 && tmp < index) {
-            System.out.println(index);
-            System.out.println(tmp);
            index--;
         }
        

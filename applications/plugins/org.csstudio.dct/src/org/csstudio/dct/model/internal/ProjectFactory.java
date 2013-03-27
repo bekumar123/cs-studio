@@ -44,8 +44,9 @@ public class ProjectFactory {
     }
 
     public static Project createNewDCTProject(String name) {
-        if (name == null)
+        if (name == null) {
             name = getPrefValue(DEFAULT_DCTPROJECT_NAME_KEY, DEFAULT_DCTPROJECT_NAME);
+        }
         Project project = new Project(name, UUID.randomUUID());
         project.addMember(Folder.INSTANCES);
         project.addMember(Folder.PROTOTYPES);

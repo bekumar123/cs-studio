@@ -213,10 +213,6 @@ public final class Prototype extends AbstractContainer implements IPrototype {
         return container;
     }
    
- //   public IFolder getRootFolder() {
-   //     return this.getParentFolder();
-    //}
-
     public String toString() {
         // @formatter::off
         return com.google.common.base.Objects.toStringHelper(this).add("name", this.getName()).add("id", this.getId())

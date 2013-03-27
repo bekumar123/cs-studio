@@ -49,18 +49,14 @@ public final class ChangeLibraryFileCommand extends Command {
             Project libraryProject =  DctActivator.getDefault().getPersistenceService().loadProject(getLibDoc(), noLib);
             project.addPrototypesToLibrary(libraryProject);
         } catch (JDOMException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         
     }
-
     
     private Document getLibDoc() throws JDOMException, IOException {
         SAXBuilder builder = new SAXBuilder();

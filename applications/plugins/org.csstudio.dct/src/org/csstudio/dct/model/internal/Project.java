@@ -208,41 +208,17 @@ public final class Project extends Folder implements IProject {
     }
 
     public void refreshLibraryContent() {
-        if (true) {
-            return;
-        }
-        Optional<IFolder> instancesFolder = getInstancesFolder();
-        if (instancesFolder.isPresent()) {
-            List<IFolderMember> instances = instancesFolder.get().getMembers();
-            for (IFolderMember member : instances) {
-                if (member instanceof Instance) {
-                    Instance instance = (Instance) member;
-                    IContainer parent = instance.getParent();
-                    if (parent instanceof Prototype) {
-                        Prototype prototype = (Prototype) parent;
-                        if (prototype.getRootFolder().isLibraryFolder()) {
-                            List<IInstance> instancesInPrototype = prototype.getInstances();
-                            List<IInstance> instancesInInstance = instance.getInstances();
-                            for (IInstance prototypeInstance : instancesInPrototype) {
-                                if (!contains(instancesInInstance, prototypeInstance)) {
-                                    System.out.println("******************");
-                                    System.out.println(instance);
-                                    System.out.println(prototype);
-                                    System.out.println(prototypeInstance);
-                                    // prototypeInstance.setContainer(null);
-                                    // new AddInstanceCommand((IContainer)
-                                    // instance, prototypeInstance, false,
-                                    // -1).execute();
-                                    System.out.println("******************");
-                                }
-                            }
-                        }
-                    }
-                }
+        if (true) return;
+        Optional<IFolder> prototypesFolder = getPrototypesFolder();
+        if (prototypesFolder.isPresent()) {
+            System.out.println("dadadadasda");
+            List<Instance> instances = prototypesFolder.get().getAllInstancesInHierachie();
+            for (Instance inst : instances) {
+                System.out.println(inst);
             }
         }
     }
-
+    
     private boolean contains(List<IInstance> instancesInInstance, IInstance prototypeInstance) {
         System.out.println("++++++++");
         System.out.println(prototypeInstance);

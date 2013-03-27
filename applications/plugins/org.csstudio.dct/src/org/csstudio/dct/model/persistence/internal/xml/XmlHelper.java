@@ -87,7 +87,6 @@ public class XmlHelper {
         List<Element> result = new ArrayList<Element>();
         if (instancesFolder.isPresent()) {
             List<Element> allChilds = flattenChildren(instancesFolder.get());     
-            System.out.println(allChilds.size());
             for (Element child : allChilds) {
                 String currentParentId = child.getAttributeValue("parent");
                 if (currentParentId != null) {

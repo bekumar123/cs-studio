@@ -11,6 +11,7 @@ import org.csstudio.dct.model.IElement;
 import org.csstudio.dct.model.IInstance;
 import org.csstudio.dct.model.IRecord;
 import org.csstudio.dct.model.commands.GenericCommand;
+import org.csstudio.dct.util.AliasResolutionUtil;
 import org.csstudio.dct.util.CompareUtil;
 import org.eclipse.gef.commands.Command;
 import org.eclipse.jface.action.IAction;
@@ -35,13 +36,13 @@ public final class ExportToDbFileAction extends AbstractOutlineAction {
                 final FileDialog dialog = new FileDialog(Display.getCurrent().getActiveShell(), SWT.SAVE);
                 String fileName;
                 if (instance.getName() == null) {
-                    fileName = instance.getParent().getName();                 
+                    fileName = instance.getParent().getName();
                 } else {
                     fileName = instance.getName();
                 }
                 fileName = fileName.replaceAll(" ", "_");
                 dialog.setFileName(fileName + ".db");
-                
+
                 final String path = dialog.open();
                 AdvancedDbFileExporter advancedDbFileExporter = new AdvancedDbFileExporter();
 
@@ -88,13 +89,19 @@ public final class ExportToDbFileAction extends AbstractOutlineAction {
     }
 
     private List<IRecord> getListOfRecords(List<IElement> selection) {
-        List<IRecord> allRecords = new ArrayList<IRecord>();        
-        for (IElement element: selection) {
+        List<IRecord> allRecords = new ArrayList<IRecord>();
+        for (IElement element : selection) {
             if (element instanceof IInstance) {
-                IInstance instance = (IInstance)element;
-                allRecords.addAll(instance.getAllRecordsInHierarchy());
+                IInstance instance = (IInstance) element;
+                List<IRecord> records = instance.getAllRecordsInHierarchy();
+                for (IRecord record : records) {
+                    Boolean disabled = AliasResolutionUtil.getPropertyViaHierarchy(record, "disabled");
+                    if (disabled != null && !disabled) {
+                        allRecords.add((IRecord) record);
+                    }
+                }
             }
-        }        
+        }
         return allRecords;
     }
 }

@@ -91,6 +91,8 @@ public final class PersistenceService implements IPersistenceService {
         Project p = xmlToProject.createProject();
         p.accept(new RecordFunctionPropertiesVisitor(ExtensionPointUtil.getRecordAttributes()));
         
+        p.refreshLibraryContent();
+        
         return p;
     }
     

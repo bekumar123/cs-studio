@@ -94,16 +94,11 @@ public class CustomFocusCellOwnerDrawHighlighter extends FocusCellHighlighter {
             public void handleEvent(Event event) {
                 if ((event.detail & SWT.SELECTED) > 0) {
                     ViewerCell focusCell = getFocusCell();
-
-                    System.out.println("========");
-                    System.out.println("*" + focusCell.getItem());
-                    System.out.println("========");
                     
                     Method method;
                     try {
                         method = viewer.getClass().getDeclaredMethod("getViewerRowFromItem", Widget.class);
                         method.setAccessible(true);
-                        System.out.println(event.item);
                         Object[] parametersArray = new Object[] { event.item };
                         ViewerRow row = (ViewerRow) method.invoke(viewer, parametersArray);
 

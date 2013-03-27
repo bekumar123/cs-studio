@@ -439,7 +439,13 @@ public final class DctEditor extends MultiPageEditorPart implements CommandStack
             final String export = exporterDescriptor.getExporter().export(getProject());
             final StyleRange[] ranges = buildStyleRange(export);
             dbFilePreviewText.setText(export);
-            dbFilePreviewText.setStyleRanges(ranges);
+            for (StyleRange range : ranges) {
+                try {
+                    dbFilePreviewText.setStyleRange(range);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
         _searchBox.setFocus();
 
@@ -538,12 +544,12 @@ public final class DctEditor extends MultiPageEditorPart implements CommandStack
         if (libraryPath.trim().isEmpty()) {
             return Optional.absent();
         }
-        
+
         IWorkspace workspace = ResourcesPlugin.getWorkspace();
         IFile libFile = workspace.getRoot().getFile(Path.fromPortableString(libraryPath));
         SAXBuilder builder = new SAXBuilder();
         Document libDocument = builder.build(libFile.getContents());
-        
+
         return Optional.of(libDocument);
     }
 

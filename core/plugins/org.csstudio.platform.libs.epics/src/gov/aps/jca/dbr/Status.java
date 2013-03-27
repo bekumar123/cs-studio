@@ -36,6 +36,10 @@ public class Status extends gov.aps.jca.ValuedEnum {
   static public final Status SIMM_ALARM= new Status("SIMM_ALARM", 19);
   static public final Status READ_ACCESS_ALARM= new Status("READ_ACCESS_ALARM", 20);
   static public final Status WRITE_ACCESS_ALARM= new Status("WRITE_ACCESS_ALARM", 21);
+  static public final Status ROC_ALARM= new Status("ROC_ALARM", 22);
+  static public final Status DEVI_ALARM= new Status("DEVI_ALARM", 23);
+  static public final Status LOCK_ALARM= new Status("LOCK_ALARM", 24);
+  static public final Status OCD_ALARM= new Status("OCD_ALARM", 25);
   
   // not-so-nice optimization (using hashmap would be nicer, but not very fast) 
   static Status[] _cachedTypesByValue;
@@ -76,10 +80,10 @@ public class Status extends gov.aps.jca.ValuedEnum {
   }
   */
   static final public Status forValue(final int value ) {
-      if (value >= 0 && value < _cachedTypesByValue.length)
+      if (value >= 0 && value < _cachedTypesByValue.length) {
           return _cachedTypesByValue[value];
-      else
-          return null;
-    }
-  
+      } else {
+          return new Status("Unknown Alarm_" + value, value);
+      }
+  }
 }

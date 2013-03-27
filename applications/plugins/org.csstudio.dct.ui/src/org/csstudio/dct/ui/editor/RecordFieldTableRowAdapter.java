@@ -111,7 +111,7 @@ public final class RecordFieldTableRowAdapter extends AbstractTableRowAdapter<IR
 	 */
 	@Override
 	protected String doGetValue(IRecord delegate) {
-		Object o = delegate.getFinalFields().get(fieldKey);
+		Object o = delegate.getFinalFields().get(fieldKey);		
 		return o != null ? o.toString() : null;
 	}
 
@@ -151,7 +151,7 @@ public final class RecordFieldTableRowAdapter extends AbstractTableRowAdapter<IR
 	 */
 	@Override
 	protected Command doSetValue(IRecord delegate, Object value) {
-		return new ChangeFieldValueCommand(delegate, fieldKey, value.toString());
+		return new ChangeFieldValueCommand(delegate, fieldKey, value.toString().trim());
 	}
 
 	/**

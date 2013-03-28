@@ -104,6 +104,18 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
 
         startTime = new DateTime();
 
+        File stdOut = new File("./stdout.txt");
+        File stdErr = new File("./stderr.txt");
+
+        long currentTime = System.currentTimeMillis();
+        if (stdOut.exists()) {
+            stdOut.renameTo(new File("./stdout-" + currentTime + ".txt"));
+        }
+
+        if (stdErr.exists()) {
+            stdErr.renameTo(new File("./stderr-" + currentTime + ".txt"));
+        }
+
         System.setOut(new PrintStream(new File("./stdout.txt")));
         System.setErr(new PrintStream(new File("./stderr.txt")));
 

@@ -35,14 +35,14 @@
       </initializer>
    </extension>
    <extension
-         id="XmlRpcMySqlServerProduct"
+         id="XmlRpcServerProduct"
          point="org.eclipse.core.runtime.products">
       <product
             application="org.csstudio.application.xmlrpc.server.ServerApplication"
-            name="XmlRpcMySqlServer">
+            name="XmlRpcServer">
          <property
                name="appName"
-               value="XmlRpcMySqlServer">
+               value="XmlRpcServer">
          </property>
       </product>
    </extension>

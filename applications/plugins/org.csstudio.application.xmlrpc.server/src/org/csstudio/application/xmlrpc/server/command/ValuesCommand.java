@@ -236,6 +236,8 @@ public class ValuesCommand extends AbstractServerCommand {
                         String longStr = String.valueOf(vs.getTimestamp().getSec());
                         sampleValue.put("secs", longStr);
                         sampleValue.put("nano", Integer.valueOf(vs.getTimestamp().getNanoSec()));
+                        sampleValue.put("min", vs.getMin());
+                        sampleValue.put("max", vs.getMax());
                         List<Object> value = new ArrayList<Object>();
                         value.add(vs.getAverage());
                         sampleValue.put("value", value);

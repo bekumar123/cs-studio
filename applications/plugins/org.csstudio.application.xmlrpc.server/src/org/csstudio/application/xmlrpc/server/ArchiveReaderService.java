@@ -50,9 +50,11 @@ public class ArchiveReaderService implements IArchiveService {
     private static final Logger LOG = LoggerFactory.getLogger(ArchiveReaderService.class);
 
     private IArchiveReaderFacade archiveReader;
+    private ServerInfo serverInfo;
 
-    public ArchiveReaderService(IArchiveReaderFacade reader) {
+    public ArchiveReaderService(IArchiveReaderFacade reader, ServerInfo info) {
         archiveReader = reader;
+        serverInfo = info;
     }
 
     /**
@@ -76,7 +78,7 @@ public class ArchiveReaderService implements IArchiveService {
 
     @Override
     public List<Map<String, Object>> archives() {
-        ArchivesCommand command = new ArchivesCommand("archives");
+        ArchivesCommand command = new ArchivesCommand("archives", serverInfo);
         MapResult commandResult = null;
         try {
             commandResult = command.executeCommand(null);

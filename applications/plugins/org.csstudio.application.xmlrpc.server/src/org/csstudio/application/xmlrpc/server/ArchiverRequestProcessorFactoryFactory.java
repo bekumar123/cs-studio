@@ -32,20 +32,23 @@ import org.csstudio.archive.common.service.IArchiveReaderFacade;
  * This class is responsible for creating the MySqlArchiveReader object. We need to
  * set the JDBC archive reader facade and want to avoid a new instantiation for every
  * request which is the default behaviour.
- * 
+ *
  * @author mmoeller
  * @since 27.12.2012
  */
 public class ArchiverRequestProcessorFactoryFactory implements RequestProcessorFactoryFactory {
-    
+
     private final RequestProcessorFactory factory = new ArchiverRequestProcessorFactory();
-    
+
     private IArchiveReaderFacade readerFacade;
-    
-    public ArchiverRequestProcessorFactoryFactory(IArchiveReaderFacade facade) {
+
+    private ServerInfo serverInfo;
+
+    public ArchiverRequestProcessorFactoryFactory(IArchiveReaderFacade facade, ServerInfo info) {
         readerFacade = facade;
+        serverInfo = info;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -57,14 +60,14 @@ public class ArchiverRequestProcessorFactoryFactory implements RequestProcessorF
 
     protected ArchiveReaderService getArchiveReaderService() {
         // TODO: Implentation of an object pool to avoid new instantiation for every request.
-        return new ArchiveReaderService(readerFacade);
+        return new ArchiveReaderService(readerFacade, serverInfo);
     }
-    
+
     private class ArchiverRequestProcessorFactory implements RequestProcessorFactory {
-        
+
         protected ArchiverRequestProcessorFactory() {
         }
-        
+
         @Override
         public Object getRequestProcessor(XmlRpcRequest xmlRpcRequest)
             throws XmlRpcException {

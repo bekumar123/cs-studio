@@ -29,7 +29,10 @@ import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.WebServer;
+import org.csstudio.application.xmlrpc.server.internal.PreferenceConstants;
 import org.csstudio.archive.common.service.IArchiveReaderFacade;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,35 +41,47 @@ import org.slf4j.LoggerFactory;
  * @since 21.12.2012
  */
 public class MySqlXmlRpcServer extends Thread {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(MySqlXmlRpcServer.class);
-    
+
     private IArchiveReaderFacade archiveReader;
-    
+
     private int serverPort;
-    
+
     public MySqlXmlRpcServer(IArchiveReaderFacade reader, int port) {
         this.setName("MySql-XmlRpc-Server Thread");
         archiveReader = reader;
         serverPort = port;
     }
-    
+
     @Override
     public void run() {
-        
+
         if (archiveReader == null) {
             LOG.error("{} cannot work without archive reader service. LEAVING!", this.getName());
             return;
         }
-        
+
         LOG.info("{} is running.", this.getName());
-        
+
+        IPreferencesService prefs = Platform.getPreferencesService();
+        int key = prefs.getInt(ServerActivator.PLUGIN_ID,
+                               PreferenceConstants.ARCHIVE_KEY,
+                               0,
+                               null);
+        String name = prefs.getString(ServerActivator.PLUGIN_ID,
+                                      PreferenceConstants.ARCHIVE_NAME,
+                                      "NONE", null);
+        String path = prefs.getString(ServerActivator.PLUGIN_ID,
+                                      PreferenceConstants.ARCHIVE_PATH,
+                                      "NONE", null);
+        ServerInfo info = new ServerInfo(key, name, path);
         ArchiverRequestProcessorFactoryFactory arpff =
-                new ArchiverRequestProcessorFactoryFactory(archiveReader);
+                new ArchiverRequestProcessorFactoryFactory(archiveReader, info);
         WebServer webServer = new WebServer(serverPort);
         XmlRpcServer rpcServer = webServer.getXmlRpcServer();
         rpcServer.setWorkerFactory(new XmlRpcMySqlWorkerFactory(rpcServer));
-        
+
         try {
             PropertyHandlerMapping phm = new PropertyHandlerMapping();
 
@@ -83,7 +98,7 @@ public class MySqlXmlRpcServer extends Thread {
         }
 
         LOG.info("Start Server on port {}.", serverPort);
-        
+
         synchronized (this) {
             try {
                 webServer.start();
@@ -94,7 +109,7 @@ public class MySqlXmlRpcServer extends Thread {
                 LOG.warn("{} has been interrupted.", this.getName());
             }
         }
-        
+
         LOG.info("Try to stop the web server.");
         webServer.shutdown();
         LOG.info("Web server stopped!?");

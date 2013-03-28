@@ -161,7 +161,7 @@ public class ServerApplication implements IApplication, RemotelyAccesible {
     public String getInfo() {
         IPreferencesService prefs = Platform.getPreferencesService();
         String info = prefs.getString(ServerActivator.PLUGIN_ID,
-                                      PreferenceConstants.INFO,
+                                      PreferenceConstants.INFO_TEXT,
                                       "I am a simple but happy application.", null);
         return info;
     }

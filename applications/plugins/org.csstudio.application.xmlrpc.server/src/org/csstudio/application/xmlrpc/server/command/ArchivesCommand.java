@@ -26,6 +26,7 @@ package org.csstudio.application.xmlrpc.server.command;
 import java.util.HashMap;
 import java.util.Map;
 import org.csstudio.application.xmlrpc.server.ServerCommandException;
+import org.csstudio.application.xmlrpc.server.ServerInfo;
 
 /**
  * @author mmoeller
@@ -33,8 +34,11 @@ import org.csstudio.application.xmlrpc.server.ServerCommandException;
  */
 public class ArchivesCommand extends AbstractServerCommand {
 
-    public ArchivesCommand(String name) {
+    private ServerInfo archiveInfo;
+
+    public ArchivesCommand(String name, ServerInfo info) {
         super(name);
+        archiveInfo = info;
     }
 
     /**
@@ -43,9 +47,9 @@ public class ArchivesCommand extends AbstractServerCommand {
     @Override
     public MapResult executeCommand(ServerCommandParams params) throws ServerCommandException {
         Map<String, Object> archive = new HashMap<String, Object>();
-        archive.put("key", new Integer(1));
-        archive.put("name", "MySQL Archive");
-        archive.put("path", "krynfs.desy.de");
+        archive.put("key", archiveInfo.getArchiveKey());
+        archive.put("name", archiveInfo.getArchiveName());
+        archive.put("path", archiveInfo.getArchivePath());
         return new MapResult(archive);
     }
 }

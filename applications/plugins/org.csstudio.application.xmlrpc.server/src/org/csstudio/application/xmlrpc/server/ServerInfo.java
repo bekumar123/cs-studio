@@ -21,33 +21,33 @@
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
  */
 
-package org.csstudio.application.xmlrpc.server.pool;
-
-import org.apache.commons.pool.BasePoolableObjectFactory;
-import org.csstudio.application.xmlrpc.server.ArchiveReaderService;
-import org.csstudio.application.xmlrpc.server.ServerInfo;
-import org.csstudio.archive.common.service.IArchiveReaderFacade;
+package org.csstudio.application.xmlrpc.server;
 
 /**
  * @author mmoeller
- * @since 04.01.2013
+ * @since 27.03.2013
  */
-public class ArchiveReaderServicePoolFactory extends BasePoolableObjectFactory<ArchiveReaderService> {
+public class ServerInfo {
 
-    private IArchiveReaderFacade readerFacade;
+    private Integer archiveKey;
+    private String archiveName;
+    private String archivePath;
 
-    private ServerInfo serverInfo;
-
-    public ArchiveReaderServicePoolFactory(IArchiveReaderFacade facade, ServerInfo info) {
-        readerFacade = facade;
-        serverInfo = info;
+    public ServerInfo(int archKey, String archName, String archPath) {
+        archiveKey = Integer.valueOf(archKey);
+        archiveName = archName;
+        archivePath = archPath;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ArchiveReaderService makeObject() throws Exception {
-        return new ArchiveReaderService(readerFacade, serverInfo);
+    public Integer getArchiveKey() {
+        return archiveKey;
+    }
+
+    public String getArchiveName() {
+        return archiveName;
+    }
+
+    public String getArchivePath() {
+        return archivePath;
     }
 }

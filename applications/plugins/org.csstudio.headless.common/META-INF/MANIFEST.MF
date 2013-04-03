@@ -9,7 +9,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ecf.identity;bundle-version="3.1.100",
  org.remotercp.common;bundle-version="1.0.0",
  org.remotercp.service.connection;bundle-version="1.0.1",
- org.slf4j;bundle-version="1.7.2"
+ org.slf4j;bundle-version="1.7.2",
+ org.joda.time;bundle-version="1.6.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Export-Package: org.csstudio.headless.common.xmpp
+Export-Package: org.csstudio.headless.common.time,
+ org.csstudio.headless.common.xmpp

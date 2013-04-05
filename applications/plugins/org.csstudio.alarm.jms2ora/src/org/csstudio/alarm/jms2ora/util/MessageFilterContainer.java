@@ -89,10 +89,10 @@ public class MessageFilterContainer {
             Long id = messages.get(data);
             if (id != null) {
                 idValue = id.longValue();
-    
+
                 // Refresh the message time
                 messageTime.put(idValue, System.currentTimeMillis());
-                
+
                 Integer count = messageCount.get(idValue);
                 if (count != null) {
                     countValue = count.intValue();
@@ -100,7 +100,7 @@ public class MessageFilterContainer {
                         // Do not block the message because now we have a bundle of messages.
                         // For 100 received messages that are identical, send only one message.
                         blockIt = false;
-        
+
                         countValue = 0;
                     } else if(countValue <= maxSentMessages) {
                         // The message should not be blocked.
@@ -109,7 +109,7 @@ public class MessageFilterContainer {
                         // The message should be blocked.
                         blockIt = true;
                     }
-        
+
                     // Increment the counter for this message
                     messageCount.put(idValue, ++countValue);
                 }
@@ -147,7 +147,6 @@ public class MessageFilterContainer {
         long ct = 0;
         long id = 0;
         int count = 0;
-
         ct = System.currentTimeMillis();
         tableId = messageTime.keys();
         while (tableId.hasMoreElements()) {
@@ -155,31 +154,27 @@ public class MessageFilterContainer {
             if (ct - messageTime.get(id).longValue() > timePeriod) {
                 messageCount.remove(id);
                 messageTime.remove(id);
-                messages.remove(getMessageById(id));
-
+                String msg = getMessageById(id);
+                if (msg != null) {
+                    messages.remove(msg);
+                }
                 freeIds.add(id);
-
                 count++;
             }
         }
-
         return count;
     }
 
     public final synchronized String getMessageById(final long value) {
-        Enumeration<String> messageKey = null;
         String key = null;
-
-        messageKey = messages.keys();
+        Enumeration<String> messageKey = messages.keys();
         while (messageKey.hasMoreElements()) {
             key = messageKey.nextElement();
             if (messages.get(key).longValue() == value) {
                 break;
             }
-
             key = null;
         }
-
         return key;
     }
 

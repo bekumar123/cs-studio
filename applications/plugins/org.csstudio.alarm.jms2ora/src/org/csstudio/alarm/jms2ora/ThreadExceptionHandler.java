@@ -24,6 +24,7 @@
 package org.csstudio.alarm.jms2ora;
 
 import java.lang.Thread.UncaughtExceptionHandler;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,35 +33,52 @@ import org.slf4j.LoggerFactory;
  * @since 13.12.2012
  */
 public class ThreadExceptionHandler implements UncaughtExceptionHandler {
-    
+
     private static ThreadExceptionHandler instance;
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(ThreadExceptionHandler.class);
-    
+
+    private Stoppable stoppable;
+
     /** Avoid instanciation */
     private ThreadExceptionHandler() {
+        stoppable = null;
     }
-    
+
     public synchronized static ThreadExceptionHandler getInstance() {
         if (instance == null) {
             instance = new ThreadExceptionHandler();
         }
         return instance;
     }
-    
+
+    public synchronized static void initialize(Stoppable object) {
+        if (instance == null) {
+            instance = new ThreadExceptionHandler();
+        }
+        instance.setStoppable(object);
+    }
+
+    private synchronized void setStoppable(Stoppable object) {
+        stoppable = object;
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public void uncaughtException(Thread t, Throwable e) {
-        synchronized (this) {
-            LOG.error("------------------------------");
-            LOG.error("--     THREAD EXCEPTION     --");
-            
-            LOG.error("   Thread: {}", t.getName());
-            LOG.error("Exception: ", e);
-            
-            LOG.error("------------------------------");
+    public synchronized void uncaughtException(Thread t, Throwable e) {
+        LOG.error("-----------------------------------------------");
+        LOG.error("-----------   THREAD EXCEPTION   --------------");
+        LOG.error("    Thread: {}", t.getName());
+        LOG.error(" Exception: ", e);
+        LOG.error("-----------------------------------------------");
+        if (stoppable != null) {
+            LOG.info("Try to stop the process.");
+            stoppable.sendStopNotification();
+            stoppable.stopWorking(false);
+        } else {
+            LOG.info("Cannot stop the process because no object reference is available.");
         }
     }
 }

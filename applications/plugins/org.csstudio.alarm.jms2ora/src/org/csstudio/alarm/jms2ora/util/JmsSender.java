@@ -162,11 +162,54 @@ public class JmsSender {
                 LOG.info(" JmsSender.sendMessage(): *** JMS NOT DONE *** : MapMessage not created.");
             }
         } catch(final JMSException jmse) {
-            LOG.info(" JmsSender.sendMessage(): *** JMSException *** : " + jmse.getMessage());
-            return false;
+            LOG.error(" JmsSender.sendMessage(): *** JMSException *** : " + jmse.getMessage());
         }
 
         return result;
+    }
+
+    public boolean sendStopNotification() {
+        boolean success = false;
+        try {
+            MapMessage message = this.createMapMessage();
+            if(message != null) {
+                message.setString("TYPE", "alarm");
+                message.setString("EVENTTIME", createTimeString());
+                message.setString("TEXT", "Jms2Ora will be stopped unexpectedly because of an exception. Cluster service environment will restart the process.");
+                message.setString("USER", Environment.getInstance().getUserName());
+                message.setString("HOST", Environment.getInstance().getHostName());
+                message.setString("APPLICATION-ID", "Jms2Ora");
+                message.setString("SEVERITY", "MINOR");
+                message.setString("NAME", "APPLIC:Jms2Ora");
+
+                // Send the message
+                sender.send(message, DeliveryMode.PERSISTENT, 1, 0);
+
+                // Clean up
+                clearMessage(message);
+                message = null;
+
+                LOG.info("Stop notification has been sent.");
+
+                success = true;
+            } else {
+                LOG.error("MapMessage has not been created.");
+            }
+        } catch(JMSException jmse) {
+            LOG.error(" JmsSender.sendMessage(): *** JMSException *** : " + jmse.getMessage());
+        }
+        return success;
+    }
+
+    public boolean sendMapMessage(MapMessage message) {
+        boolean success = false;
+        try {
+            sender.send(message);
+            success = true;
+        } catch (JMSException e) {
+            LOG.error(" JmsSender.sendMapMessage(): *** JMSException *** : " + e.getMessage());
+        }
+        return success;
     }
 
     public final MapMessage createMapMessage() {
@@ -185,14 +228,11 @@ public class JmsSender {
     }
 
     public final MapMessage createMapMessageFromHashtable(final Hashtable<String, String> messageContent) {
-
         MapMessage message = null;
         String key = null;
-
         if(session == null) {
             return null;
         }
-
         try {
 
             message = session.createMapMessage();
@@ -210,7 +250,6 @@ public class JmsSender {
     }
 
     public final void clearMessage(final MapMessage message) {
-
         try {
             message.clearBody();
             message.clearProperties();

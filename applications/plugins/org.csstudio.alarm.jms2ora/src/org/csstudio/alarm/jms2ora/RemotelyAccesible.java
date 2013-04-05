@@ -44,5 +44,7 @@ public interface RemotelyAccesible {
 
     String getStartingTimeAsString();
 
+    String getRunningTimeAsString();
+
     String getDescription();
 }

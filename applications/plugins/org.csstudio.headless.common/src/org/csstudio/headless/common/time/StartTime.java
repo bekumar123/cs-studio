@@ -49,6 +49,6 @@ public class StartTime {
         int h = (int)(diff / 3600000L);
         int m = (int)(diff / 60000L % 60);
         int s = (int)(diff / 1000L % 60);
-        return String.format("%02d:%02d:%02d", h, m, s);
+        return String.format("%d:%02d:%02d", h, m, s);
     }
 }

@@ -218,7 +218,7 @@ public class MessageProcessor extends Thread implements IMessageProcessor {
 
         while(running) {
 
-            final LocalDateTime now = new LocalDateTime();
+            LocalDateTime now = new LocalDateTime();
 
             if ((now.isAfter(nextStorageTime) || archiveMessages.size() >= 1000) && running) {
 

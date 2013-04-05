@@ -38,13 +38,12 @@ import org.csstudio.alarm.jms2ora.management.GetVersionMgmtCommand;
 import org.csstudio.alarm.jms2ora.preferences.PreferenceConstants;
 import org.csstudio.alarm.jms2ora.util.CommandLine;
 import org.csstudio.alarm.jms2ora.util.Hostname;
+import org.csstudio.alarm.jms2ora.util.JmsSender;
+import org.csstudio.headless.common.time.StartTime;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.remotercp.common.tracker.IGenericServiceListener;
 import org.remotercp.service.connection.session.ISessionService;
 import org.slf4j.Logger;
@@ -80,7 +79,7 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
 
     private XmppSessionHandler xmppSessionHandler;
 
-    private DateTime startTime;
+    private StartTime startTime;
 
     /** Flag that indicates whether or not the application is/should running */
     private boolean running;
@@ -102,7 +101,7 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
     @Override
     public Object start(@Nonnull final IApplicationContext context) throws Exception {
 
-        startTime = new DateTime();
+        startTime = new StartTime();
 
         File stdOut = new File("./stdout.txt");
         File stdErr = new File("./stderr.txt");
@@ -207,11 +206,12 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
                                                 true,
                                                 null);
 
-        // Create an object from this class
-        messageProcessor = new MessageProcessor(sleep, storageWait, logStatistic);
-        messageProcessor.start();
+        ThreadExceptionHandler.initialize(this);
 
         Jms2OraActivator.getDefault().addSessionServiceListener(this);
+
+        messageProcessor = new MessageProcessor(sleep, storageWait, logStatistic);
+        messageProcessor.start();
 
         context.applicationRunning();
 
@@ -338,6 +338,23 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
      * {@inheritDoc}
      */
     @Override
+    public void sendStopNotification() {
+        IPreferencesService prefs = Platform.getPreferencesService();
+        String url = prefs.getString(Jms2OraActivator.PLUGIN_ID,
+                                     PreferenceConstants.JMS_PRODUCER_URL,
+                                     "",
+                                     null);
+        JmsSender jmsSender = new JmsSender(url, "ALARM");
+        if (jmsSender.isConnected()) {
+            jmsSender.sendStopNotification();
+        }
+        jmsSender.closeAll();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void stop() {
         running = false;
         shutdown = true;
@@ -368,8 +385,15 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
      */
     @Override
     public String getStartingTimeAsString() {
-        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-        return dtf.print(startTime);
+        return startTime.getStartingTimeAsString();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getRunningTimeAsString() {
+        return startTime.getRunningTimeAsString();
     }
 
     /**

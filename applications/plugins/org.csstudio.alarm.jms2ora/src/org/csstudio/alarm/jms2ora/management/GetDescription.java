@@ -46,7 +46,11 @@ public class GetDescription implements IManagementCommand {
     public CommandResult execute(CommandParameters parameters) {
         CommandResult result = null;
         if (object != null) {
-            String desc = object.getDescription() + "\n\nStarting time: " + object.getStartingTimeAsString();
+            String desc = object.getDescription()
+                          + "\n\nStarting time\n  "
+                          + object.getStartingTimeAsString()
+                          + "\n\nUptime\n  "
+                          + object.getRunningTimeAsString();
             result = CommandResult.createMessageResult(desc);
         } else {
             result = CommandResult.createFailureResult("No description available. The application reference is null!");

@@ -24,6 +24,7 @@
 package org.csstudio.alarm.jms2ora.util;
 
 import org.csstudio.alarm.jms2ora.Jms2OraActivator;
+import org.csstudio.alarm.jms2ora.ThreadExceptionHandler;
 import org.csstudio.alarm.jms2ora.preferences.PreferenceConstants;
 import org.csstudio.alarm.jms2ora.service.ArchiveMessage;
 import org.eclipse.core.runtime.Platform;
@@ -112,6 +113,7 @@ public final class MessageFilter {
     public class WatchDog extends Thread {
 
         public WatchDog() {
+            this.setUncaughtExceptionHandler(ThreadExceptionHandler.getInstance());
             MessageFilter.getLogger().info("WatchDog initialized");
             this.setName("Watchdog-Thread");
         }

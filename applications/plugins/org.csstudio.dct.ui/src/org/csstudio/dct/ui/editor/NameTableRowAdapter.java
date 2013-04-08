@@ -14,7 +14,7 @@ import org.eclipse.swt.graphics.RGB;
  * @author Sven Wende
  * 
  */
-class NameTableRowAdapter extends AbstractTableRowAdapter<IElement> {
+public class NameTableRowAdapter extends AbstractTableRowAdapter<IElement> {
 
 	public NameTableRowAdapter(IElement element) {
 		super(element);

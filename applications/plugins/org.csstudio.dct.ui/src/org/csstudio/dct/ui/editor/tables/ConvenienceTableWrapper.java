@@ -2,6 +2,12 @@ package org.csstudio.dct.ui.editor.tables;
 
 import java.util.List;
 
+import org.csstudio.dct.model.IContainer;
+import org.csstudio.dct.model.IElement;
+import org.csstudio.dct.model.IInstance;
+import org.csstudio.dct.model.internal.Instance;
+import org.csstudio.dct.ui.editor.GenericContentProposingTextCellEditor;
+import org.csstudio.dct.ui.editor.NameTableRowAdapter;
 import org.csstudio.ui.util.CustomMediaFactory;
 import org.eclipse.gef.commands.CommandStack;
 import org.eclipse.jface.viewers.CellEditor;
@@ -23,11 +29,13 @@ import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Table;
 
 /**
@@ -201,7 +209,24 @@ public final class ConvenienceTableWrapper {
         @Override
         protected CellEditor getCellEditor(Object element) {
             ITableRow row = (ITableRow) element;
-            return row.getCellEditor(columnIndex, ((TableViewer) getViewer()).getTable());
+            CellEditor result = null;
+            if (element instanceof NameTableRowAdapter) {
+                NameTableRowAdapter nta = (NameTableRowAdapter) row;
+                IElement currentElement = nta.getDelegate();
+                if (currentElement instanceof IInstance) {
+                    IInstance currentInstance = (Instance) currentElement;
+                    IContainer container = currentInstance.getContainer();
+                    result = new GenericContentProposingTextCellEditor(((TableViewer) getViewer()).getTable(),
+                            container);
+                    result.getControl().setFont(row.getFont(columnIndex));
+                    Color foreGround = CustomMediaFactory.getInstance().getColor(row.getForegroundColor(columnIndex));
+                    result.getControl().setForeground(foreGround);
+                }
+            }
+            if (result == null) {
+                result = row.getCellEditor(columnIndex, ((TableViewer) getViewer()).getTable());
+            }
+            return result;
         }
 
         /**

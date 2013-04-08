@@ -205,6 +205,9 @@ public final class DctEditor extends MultiPageEditorPart implements CommandStack
                 if (!dbFilePreviewText.isVisible()) {
                     return;
                 }
+                if (!(selection instanceof IStructuredSelection)) {
+					return;
+				}
                 IStructuredSelection s = (IStructuredSelection) selection;
                 if (s.getFirstElement() instanceof MarkerItem) {
                     MarkerItem marker = (MarkerItem) s.getFirstElement();
@@ -480,7 +483,8 @@ public final class DctEditor extends MultiPageEditorPart implements CommandStack
             try {
                 IMarker[] markers = file.findMarkers(IMarker.PROBLEM, true, 1);
                 for (IMarker marker : markers) {
-                    if (marker.getAttribute(IMarker.SOURCE_ID).equals(PREVIEW_MARKER_SOURCE_ID)) {
+                    Object markerAttribute = marker.getAttribute(IMarker.SOURCE_ID);
+					if ((markerAttribute != null) && markerAttribute.equals(PREVIEW_MARKER_SOURCE_ID)) {
                         marker.delete();
                     }
                 }

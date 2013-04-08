@@ -22,6 +22,8 @@
 package org.csstudio.diag.jmssender.views;
 
 
+import gov.aps.jca.TimeoutException;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.ListIterator;
@@ -138,6 +140,15 @@ public class JMSView extends ViewPart implements IWorkbenchWindowActionDelegate 
     public void createPartControl(Composite parent) {
 //		final boolean canExecute = SecurityFacade.getInstance().canExecute(
 //				SECURITY_ID, false);
+		try {
+			SimpleJCAMonitor.startEpicsTest();
+		} catch (IllegalStateException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (TimeoutException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		GridLayout grid = new GridLayout();
 		grid.numColumns = 5;
 		parent.setLayout(grid);

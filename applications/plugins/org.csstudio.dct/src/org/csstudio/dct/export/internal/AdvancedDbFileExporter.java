@@ -62,10 +62,11 @@ public final class AdvancedDbFileExporter implements IExporter {
 		sb.append(NEWLINE);
 
 		Map<String, String> fields = ResolutionUtil.resolveFields(record);
-
+		
 		for (String key : fields.keySet()) {
 			String v = fields.get(key) != null ? fields.get(key) : "";
-
+			v = v.trim();
+			
 			if (!v.equals(record.getDefaultFields().get(key))) {
 
 				if (("".equals(v) && renderEmptyFields) || !"".equals(v)) {
@@ -73,7 +74,6 @@ public final class AdvancedDbFileExporter implements IExporter {
 					sb.append(key);
 					sb.append(", \"");
 					sb.append(v);
-
 					sb.append("\")");
 					sb.append(NEWLINE);
 				}

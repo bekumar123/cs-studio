@@ -7,7 +7,8 @@ Bundle-Activator: org.csstudio.platform.libs.epics.EpicsPlugin
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ lib/jca.jar
 Export-Package: 
  com.cosylab.epics.caj,
  com.cosylab.epics.caj.cas,
@@ -23,6 +24,7 @@ Export-Package:
  com.cosylab.epics.caj.impl.sync,
  com.cosylab.epics.caj.util,
  com.cosylab.epics.caj.util.logging,
+ com.cosylab.epics.caj.util.nif,
  gov.aps.jca,
  gov.aps.jca.cas,
  gov.aps.jca.configuration,

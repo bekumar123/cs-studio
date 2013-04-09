@@ -43,13 +43,13 @@ public final class ForwardLinkFieldFunction implements IFieldFunction {
         for (IRecord r : record.getContainer().getRecords()) {
 
             String description;
-            String epicsName =  AliasResolutionUtil.getEpicsNameFromHierarchy(r);
+            String epicsName = AliasResolutionUtil.getEpicsNameFromHierarchy(r);
             if (!Strings.isNullOrEmpty(epicsName)) {
                 description = "Epics-Name: " + epicsName;
             } else {
-                description =  AliasResolutionUtil.getNameFromHierarchy(r) + " Description"; 
+                description = AliasResolutionUtil.getNameFromHierarchy(r) + " Description";
             }
-            
+
             // @formatter:off
             result.add(new FieldFunctionContentProposal(
 			    AliasResolutionUtil.getNameFromHierarchy(r), 

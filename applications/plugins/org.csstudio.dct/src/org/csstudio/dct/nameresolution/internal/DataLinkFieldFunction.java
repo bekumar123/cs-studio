@@ -22,86 +22,108 @@ import org.eclipse.jface.fieldassist.IContentProposal;
  */
 public final class DataLinkFieldFunction implements IFieldFunction {
 
-	/**
-	 *{@inheritDoc}
-	 */
-	public String evaluate(String name, String[] parameters, IRecord record, String fieldName) throws Exception {
-		IRecord r = RecordFinder.findRecordByPath(parameters[0], record.getContainer());
+    /**
+     * {@inheritDoc}
+     */
+    public String evaluate(String name, String[] parameters, IRecord record, String fieldName) throws Exception {
+        IRecord r = RecordFinder.findRecordByPath(parameters[0], record.getContainer());
 
-		String result = null;
+        String result = null;
 
-		if (r != null) {
-			StringBuffer sb = new StringBuffer();
-			sb.append(AliasResolutionUtil.getEpicsNameFromHierarchy(r));
+        if (r != null) {
+            StringBuffer sb = new StringBuffer();
+            sb.append(AliasResolutionUtil.getEpicsNameFromHierarchy(r));
 
-			String field = parameters[1];
+            String field = parameters[1];
 
-			if (field != null && !field.trim().equals("")) {
-				sb.append(".");
-				sb.append(field);
-			}
+            if (field != null && !field.trim().equals("")) {
+                sb.append(".");
+                sb.append(field);
+            }
 
-			sb.append(" ");
-			sb.append(parameters[2]);
-			sb.append(" ");
-			sb.append(parameters[3]);
-			result = sb.toString();
-		} else {
-			result = "%%% No Record found";
-		}
+            sb.append(" ");
+            sb.append(parameters[2]);
+            sb.append(" ");
+            sb.append(parameters[3]);
+            result = sb.toString();
+        } else {
+            result = "%%% No Record found";
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	public List<IContentProposal> getParameterProposal(int parameterIndex, String[] knowParameters, IRecord record) {
-		List<IContentProposal> result = new ArrayList<IContentProposal>();
+    public List<IContentProposal> getParameterProposal(int parameterIndex, String[] knowParameters, IRecord record) {
 
-		switch (parameterIndex) {
-		case 0:
-		    String para = "";
-		    if(knowParameters.length>0) {
-		        para = knowParameters[0]==null?"":knowParameters[0];
-		    }
-			for (IRecord r : record.getContainer().getRecords()) {
-				String name = AliasResolutionUtil.getNameFromHierarchy(r);
-				if(name.startsWith(para)) {
-				    result.add(new FieldFunctionContentProposal(name, name, "Reference to record [" + name + "]", name.length()));
-				}
-			}
-			break;
-		case 1:
-			if (knowParameters.length > 0) {
-				IRecord r = RecordFinder.findRecordByPath(knowParameters[0], record.getContainer());
-				if (r != null) {
-					for (String f : r.getFinalFields().keySet()) {
-						result.add(new FieldFunctionContentProposal(f, f, f + " field", f.length()));
-					}
-				}
-			}
-			break;
-		case 2:
-			result.addAll(createProposalsFromPreferences(PreferenceSettings.DATALINK_FUNCTION_PARAMETER_3_PROPOSAL));
-			break;
-		case 3:
-			result.addAll(createProposalsFromPreferences(PreferenceSettings.DATALINK_FUNCTION_PARAMETER_4_PROPOSAL));
-			break;
-		default:
-			break;
-		}
-		return result;
-	}
+        List<IContentProposal> result = new ArrayList<IContentProposal>();
+        String para = "";
 
-	private List<IContentProposal> createProposalsFromPreferences(PreferenceSettings key) {
-		List<IContentProposal> result = new ArrayList<IContentProposal>();
+        switch (parameterIndex) {
+        case 0:
+            if (knowParameters.length > 0) {
+                para = knowParameters[0] == null ? "" : knowParameters[0].trim();
+            }
+            for (IRecord r : record.getContainer().getRecords()) {
+                String name = AliasResolutionUtil.getNameFromHierarchy(r);
+                if (name.startsWith(para)) {
+                    result.add(new FieldFunctionContentProposal(name.substring(para.length()), name,
+                            "Reference to record [" + name + "]", name.length()));
+                }
+            }
+            break;
+        case 1:
+            if (knowParameters.length > 0) {
+                if (knowParameters.length > 1) {
+                    para = knowParameters[1] == null ? "" : knowParameters[1].trim();
+                } else {
+                    para = "";
+                }
+                IRecord r = RecordFinder.findRecordByPath(knowParameters[0], record.getContainer());
+                if (r != null) {
+                    for (String f : r.getFinalFields().keySet()) {
+                        if (f.startsWith(para)) {
+                            result.add(new FieldFunctionContentProposal(f.substring(para.length()), f, f + " field", f
+                                    .length()));
+                        }
+                    }
+                }
+            }
+            break;
+        case 2:
+            result.addAll(createProposalsFromPreferences(PreferenceSettings.DATALINK_FUNCTION_PARAMETER_3_PROPOSAL,
+                    parameterIndex, knowParameters));
+            break;
+        case 3:
+            result.addAll(createProposalsFromPreferences(PreferenceSettings.DATALINK_FUNCTION_PARAMETER_4_PROPOSAL,
+                    parameterIndex, knowParameters));
+            break;
+        default:
+            break;
+        }
+        return result;
+    }
 
-		String proposals = Platform.getPreferencesService().getString(DctActivator.PLUGIN_ID, key.name(), "", null);
+    private List<IContentProposal> createProposalsFromPreferences(PreferenceSettings key, int parameterIndex,
+            String[] knowParameters) {
+        List<IContentProposal> result = new ArrayList<IContentProposal>();
 
-		if (StringUtil.hasLength(proposals)) {
-			for (String p : proposals.split(",")) {
-				result.add(new FieldFunctionContentProposal(p, p, p, p.length()));
-			}
-		}
+        String proposals = Platform.getPreferencesService().getString(DctActivator.PLUGIN_ID, key.name(), "", null);
 
-		return result;
-	}
+        String para;
+        if (knowParameters.length > parameterIndex) {
+            para = knowParameters[parameterIndex] == null ? "" : knowParameters[parameterIndex].trim();
+        } else {
+            para = "";
+        }
+
+        if (StringUtil.hasLength(proposals)) {
+            for (String p : proposals.split(",")) {
+                if (p.startsWith(para)) {
+                    result.add(new FieldFunctionContentProposal(p.substring(para.length()), p, p, p.length()));
+                }
+            }
+        }
+
+        return result;
+    }
 }

@@ -97,7 +97,7 @@ public class DistributorWork extends Thread implements AmsConstants,
 	// --- Receiver connection ---
 	// private JmsRedundantReceiver amsReceiver;
 	private JmsRedundantConsumer amsReceiver;
-	
+
 	// jms external communication
 	private Context extContext = null;
 	private ConnectionFactory extFactory = null;
@@ -117,11 +117,11 @@ public class DistributorWork extends Thread implements AmsConstants,
 	public DistributorWork(final java.sql.Connection localDatabaseConnection,
 	                       final java.sql.Connection cacheDatabaseConnection,
 			               final ConfigurationSynchronizer synch) {
-	    
+
 		localAppDb = localDatabaseConnection;
 		memoryCacheDb = cacheDatabaseConnection;
 		this.synchronizer = synch;
-		
+
 		// Create the container that holds the information about the connector
 		// topics.
 		topicContainer = new ConnectorTopicContainer();
@@ -136,7 +136,7 @@ public class DistributorWork extends Thread implements AmsConstants,
 		if (!success) {
 			throw new RuntimeException(
 					"Failed to initialize external JMS connections");
-		}		
+		}
 	}
 
 	@Override
@@ -232,7 +232,7 @@ public class DistributorWork extends Thread implements AmsConstants,
             Log.log (Log.ERROR, "Cannot create JMS multiple producer: " + e.getMessage());
             return false;
         }
-		
+
 		/* SMS Connector */
 
 		String topicName = storeAct
@@ -294,7 +294,7 @@ public class DistributorWork extends Thread implements AmsConstants,
 			    Log.log(this, Log.FATAL, "Cannot create redundant consumer.");
 			    return false;
 			}
-			
+
 			// The topic T_AMS_DISTRIBUTE is now used by the connection that is created in the
 			// application class. The messages are processed by the method onMessage()
 //			success = amsReceiver
@@ -367,14 +367,14 @@ public class DistributorWork extends Thread implements AmsConstants,
 
 			extSession = extConnection.createSession(false,
 					Session.CLIENT_ACKNOWLEDGE);
-			
+
 			// TODO: ATTENTION!!!
 			// We have to get the topic for re-insert the alarm message from a different
 			// preference entry! AmsPreferenceKey.P_JMS_EXT_TOPIC_ALARM is not usable
 			// because it could be contain one OR MORE alarm topics (ALARM, SNL_LOG, ...).
 			// In case of re-insertion of an alarm chain message, it will be sent to ALL
 			// topics!!!! This will cause more message chains.
-			
+
 			extPublisherAlarm = extSession
 					.createProducer(extSession.createTopic(storeAct
 							.getString(AmsPreferenceKey.P_JMS_EXT_TOPIC_ALARM_REINSERT)));
@@ -453,7 +453,7 @@ public class DistributorWork extends Thread implements AmsConstants,
 
 	/**
 	 * Returns the shutdown state.
-	 * 
+	 *
 	 * @return True, if the shutdown have occured clean otherwise false
 	 */
 	public boolean stoppedClean() {
@@ -470,7 +470,7 @@ public class DistributorWork extends Thread implements AmsConstants,
 
 	/**
 	 * Sends the message to the JMS-Connector.
-	 * 
+	 *
 	 * @param text
 	 *            The Message
 	 * @param topic
@@ -858,7 +858,7 @@ public class DistributorWork extends Thread implements AmsConstants,
 	/**
 	 * Send the message to a default topic which was configured as default
 	 * destination in preference page.
-	 * 
+	 *
 	 * @param message
 	 *            The message to be send
 	 */
@@ -1399,41 +1399,30 @@ public class DistributorWork extends Thread implements AmsConstants,
 		return ErrorState.STAT_FALSE.getStateNumber();
 	}
 
-	private UserTObject changeStatus(final java.sql.Connection readConnection,
-			List<java.sql.Connection> writeConnections, final int groupNum,
-			final int userNum, final short status, final String statusCode,
-			final String reason, final String txt, final String replyType,
-			final String replyAdress) throws Exception // INCLUDING
-	// -
-	// SQLException
-	// (Oracle
-	// DB
-	// or
-	// Derby
-	// DB)
-	{
-		final UserTObject user = UserDAO.select(readConnection, userNum);
+	private UserTObject changeStatus(java.sql.Connection readConnection,
+			                         List<java.sql.Connection> writeConnections,
+			                         int groupNum,
+			                         int userNum,
+			                         short status,
+			                         String statusCode,
+			                         String reason,
+			                         String txt,
+			                         String replyType,
+			                         String replyAdress) throws Exception {
+
+	    final UserTObject user = UserDAO.select(readConnection, userNum);
 		if (user == null) {
 			HistoryWriter.logHistoryChangeStatus(localAppDb, null, "UserID="
 					+ userNum + " not found.", null, txt, status, reason,
 					replyType, replyAdress);
-			Log.log(Log.FATAL, "User not found: " + userNum + " for msg " + txt);// do
-																					// not
-																					// send
-																					// back
-																					// to
-																					// user
-																					// if
-																					// not
-			// registered
-			return null; // no user to send to
+			// do not send back to user if not registered
+			Log.log(Log.FATAL, "User not found: " + userNum + " for msg " + txt);
+			 // no user to send to
+			return null;
 		}
 
-		if (!user.getStatusCode().equalsIgnoreCase(statusCode)) // consitent
-		// state, but do
-		// not publish
-		// statuscode
-		{
+		// consitent state, but do not publish status code
+		if (!user.getStatusCode().equalsIgnoreCase(statusCode)) {
 			HistoryWriter.logHistoryChangeStatus(localAppDb, user,
 					"Status code does not match.", null, txt, status, reason,
 					replyType, replyAdress);
@@ -1441,8 +1430,7 @@ public class DistributorWork extends Thread implements AmsConstants,
 			return null;
 		}
 
-		final UserGroupTObject ug = UserGroupDAO.select(readConnection,
-				groupNum);
+		final UserGroupTObject ug = UserGroupDAO.select(readConnection, groupNum);
 		if (ug == null) {
 			HistoryWriter.logHistoryChangeStatus(localAppDb, user, "GroupID="
 					+ groupNum + " not found.", null, txt, status, reason,
@@ -1456,10 +1444,10 @@ public class DistributorWork extends Thread implements AmsConstants,
 			return null;
 		}
 
-		for (int i = 0; i < 3; i++) // if update failed try max 3 times
-		{
-			final UserGroupUserTObject ugu = UserGroupUserDAO.select(
-					readConnection, groupNum, userNum);
+		// if update failed try max 3 times
+		for (int i = 0; i < 3; i++) {
+			final UserGroupUserTObject ugu =
+			                UserGroupUserDAO.select(readConnection, groupNum, userNum);
 			if (ugu == null) {
 				HistoryWriter.logHistoryChangeStatus(localAppDb, user,
 						"User not in group.", ug, txt, status, reason,
@@ -1476,28 +1464,25 @@ public class DistributorWork extends Thread implements AmsConstants,
 						+ txt);
 				return user;
 			}
-			
+
 			// This condition is checked if one tries to change his/her status
 			// via SMS to inactive.
-			if (status == 0) // only check if want to set 0 - Inactive
-			{
+			// only check if want to set 0 - Inactive
+			if (status == 0) {
 				int iActiveCount = 0;
 				final Iterator<?> iter = UserGroupUserDAO.selectList(
 						readConnection, groupNum).iterator();
 				while (iter.hasNext()) {
 					if (((AggrUserGroupUserTObject) iter.next())
 							.getUserGroupUser().getActive() == 1) {
-						// Inactive,
-						// 1 -
-						// Active
-						// (group
-						// ownership)
-						iActiveCount++; // count active user in group
+						// 0 - Inactive, 1 - Active (group ownership)
+					    // count active user in group
+						iActiveCount++;
 					}
 				}
+
 				if (ug.getMinGroupMember() >= iActiveCount) {
-					HistoryWriter.logHistoryChangeStatus(
-							localAppDb,
+					HistoryWriter.logHistoryChangeStatus(localAppDb,
 							user,
 							"Min user count reached min="
 									+ ug.getMinGroupMember() + ".", ug, txt,
@@ -1520,14 +1505,16 @@ public class DistributorWork extends Thread implements AmsConstants,
 				ugu.setActiveReason(reason);
 			}
 
-			ugu.setActive(status); // set status in UserGroupUserTObject
+			// set status in UserGroupUserTObject
+			ugu.setActive(status);
 			boolean updateSuccessful = true;
 			for (java.sql.Connection writeConnection : writeConnections) {
-				updateSuccessful &= UserGroupUserDAO.update(writeConnection,
-						ugu);
+				updateSuccessful &= UserGroupUserDAO.update(writeConnection, ugu);
 			}
+
 			if (updateSuccessful) {
-				return user; // status updated
+			    // status updated
+				return user;
 			}
 		}// for
 
@@ -1717,7 +1704,7 @@ public class DistributorWork extends Thread implements AmsConstants,
 
 	/**
 	 * Send a reply message for an JMS topic.
-	 * 
+	 *
 	 * @param topic
 	 *            The current JMS topic, where the message is sent to
 	 * @param msgChainId
@@ -1994,11 +1981,11 @@ public class DistributorWork extends Thread implements AmsConstants,
 		}
 
 		HistoryWriter.logHistoryReply(localAppDb, "Reply Err",
-				(aUser == null ? null : aUser.getUser()),
-				(userGroup == null ? null : userGroup.getUsergroup()), null,
+				aUser == null ? null : aUser.getUser(),
+				userGroup == null ? null : userGroup.getUsergroup(), null,
 				"Reply not accepted for ChainId=" + msgChainId + ", Pos="
 						+ msgChainPos + " Error: " + err,
-				(fa == null ? 0 : fa.getFilterActionTypeRef()), msgChainId,
+				fa == null ? 0 : fa.getFilterActionTypeRef(), msgChainId,
 				msgChainPos, replyType, replyAdress);
 
 		return ErrorState.STAT_OK.getStateNumber(); // All O.K.
@@ -2172,8 +2159,8 @@ public class DistributorWork extends Thread implements AmsConstants,
 									text,
 									filterAction.getFilterActionTypeRef(),
 									user,
-									(userGroup != null ? userGroup
-											.getUsergroup() : null), msgChain
+									userGroup != null ? userGroup
+											.getUsergroup() : null, msgChain
 											.getReceiverPos(), msgChain
 											.getMessageChainID(), iPref,
 									TopicDAO.select(memoryCacheDb,
@@ -2206,7 +2193,7 @@ public class DistributorWork extends Thread implements AmsConstants,
 
 				HistoryWriter.logHistoryReply(localAppDb, "Failed", null, null,
 						null, err,
-						(filterAction == null ? 0 : filterAction.getFilterActionTypeRef()),
+						filterAction == null ? 0 : filterAction.getFilterActionTypeRef(),
 						msgChain.getMessageChainID(),
 						msgChain.getReceiverPos(), null, null);
 

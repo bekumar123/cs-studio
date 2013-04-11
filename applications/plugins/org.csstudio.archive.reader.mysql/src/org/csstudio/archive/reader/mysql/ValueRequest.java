@@ -26,10 +26,10 @@ package org.csstudio.archive.reader.mysql;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+
 import org.apache.xmlrpc.XmlRpcRequest;
 import org.apache.xmlrpc.client.AsyncCallback;
 import org.apache.xmlrpc.client.XmlRpcClient;
@@ -69,7 +69,7 @@ public class ValueRequest implements AsyncCallback {
     static class Result {
 
         boolean isSet = false;
-        Map<String, Object> xmlRpcResult = null;
+        List<Map<String, Object>> xmlRpcResult = null;
         Throwable xmlRpcException = null;
 
         synchronized void clear() {
@@ -80,32 +80,37 @@ public class ValueRequest implements AsyncCallback {
             notify(null, error);
         }
 
-        synchronized void setData(Map<String, Object> data) {
+        synchronized void setData(List<Map<String, Object>> data) {
             notify(data, null);
         }
 
-        private void notify(Map<String, Object> data, Throwable error) {
-            xmlRpcResult = new HashMap<String, Object>(data);
+        private void notify(List<Map<String, Object>> data, Throwable error) {
+            if (data == null) {
+                System.err.println("ERROR: data is null!");
+                return;
+            }
+            xmlRpcResult = data;
             xmlRpcException = error;
             isSet = true;
             notifyAll();
         }
     }
 
-    final private MySqlArchiveReader reader;
-    final private int key;
-    final private String channels[];
-    final private Timestamp start, end;
-    final private int how;
-    final private Object parms[];
+    private MySqlArchiveReader reader;
+    private int key;
+    private String channels[];
+    private Timestamp start;
+    private Timestamp end;
+    private int how;
+    private Object parms[];
 
     // Possible 'type' IDs for the received values.
-    final private static int TYPE_STRING = 0;
-    final private static int TYPE_ENUM = 1;
-    final private static int TYPE_INT = 2;
-    final private static int TYPE_DOUBLE = 3;
+    private static final int TYPE_STRING = 0;
+    private static final int TYPE_ENUM = 1;
+    private static final int TYPE_INT = 2;
+    private static final int TYPE_DOUBLE = 3;
 
-    final private Result result = new Result();
+    private Result result;
 
     /** The result of the query */
     private VType samples[];
@@ -128,6 +133,7 @@ public class ValueRequest implements AsyncCallback {
         this.channels = new String[] { channel };
         this.start = start;
         this.end = end;
+        this.result =  new Result();
 
         // Check parms
         if (optimized) {
@@ -164,7 +170,7 @@ public class ValueRequest implements AsyncCallback {
         xmlrpc.executeAsync("archiver.values", params, this);
 
         // Wait for AsynCallback to set the result
-        Map<String, Object> xmlRpcResult;
+        List<Map<String, Object>> xmlRpcResult;
         synchronized (result) {
             while (! result.isSet) {
                 result.wait();
@@ -190,7 +196,7 @@ public class ValueRequest implements AsyncCallback {
                                 + numReturnedChannels + " channels?");
         }
 
-        Map<String, Object> channelData = (Map<String, Object>) xmlRpcResult.get(0);
+        Map<String, Object> channelData = xmlRpcResult.get(0);
         String name = (String) channelData.get("name");
         int type = (Integer) channelData.get("type");
         int count = (Integer) channelData.get("count");
@@ -212,7 +218,7 @@ public class ValueRequest implements AsyncCallback {
                                    count,
                                    display,
                                    labels,
-                                   (Vector<Object>) channelData.get("values"));
+                                   (Object[]) channelData.get("values"));
         } catch (Exception e) {
             throw new Exception("Error while decoding values for channel '"
                                 + name + "': " + e.getMessage(), e);
@@ -243,8 +249,13 @@ public class ValueRequest implements AsyncCallback {
     @SuppressWarnings("unchecked")
     @Override
     public void handleResult(XmlRpcRequest request, Object data) {
-        if (data instanceof Map<?, ?>) {
-            result.setData((Map<String, Object>) data);
+        if (data instanceof Object[]) {
+            Object[] answer = (Object[]) data;
+            List<Map<String, Object>> serverData = new ArrayList<Map<String, Object>>(answer.length);
+            for (Object o : answer) {
+                serverData.add((Map<String, Object>) o);
+            }
+            result.setData(serverData);
         }
     }
 
@@ -303,49 +314,50 @@ public class ValueRequest implements AsyncCallback {
     }
 
     /** Parse the values from the received XML-RPC response. */
-    @SuppressWarnings({ "rawtypes" })
-    private VType[] decodeValues(final int type, final int count, final Display display,
-                                 final List<String> labels, final Vector value_vec) throws Exception
-    {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private VType[] decodeValues(int type, int count, Display display,
+                                 List<String> labels, Object[] valueArray) throws Exception {
+
         // values := { int32 stat,  int32 sevr,
         //             int32 secs,  int32 nano,
         //             <type> value[] } []
         // [{secs=1137596340, stat=0, nano=344419666, value=[0.79351], sevr=0},
         //  {secs=1137596400, stat=0, nano=330619666, value=[0.79343], sevr=0},..]
-        final int num_samples = value_vec.size();
-        final VType samp[] = new VType[num_samples];
-        for (int si=0; si<num_samples; ++si)
-        {
-            final Hashtable sample_hash = (Hashtable) value_vec.get(si);
-            final long secs = (Integer)sample_hash.get("secs");
-            final int nano = (Integer)sample_hash.get("nano");
-            final Timestamp time = Timestamp.of(secs, nano);
-            final int stat_code = (Integer)sample_hash.get("stat");
-            final int sevr_code = (Integer)sample_hash.get("sevr");
-            final SeverityImpl sevr = reader.getSeverity(sevr_code);
-            final String stat = reader.getStatus(sevr, stat_code);
-            final Vector vv = (Vector)sample_hash.get("value");
-            final AlarmSeverity severity = sevr.getSeverity();
+        int numSamples = valueArray.length;
+        VType samp[] = new VType[numSamples];
+        for (int si = 0;si < numSamples;++si) {
 
-            if (type == TYPE_DOUBLE)
-            {
-                final double values[] = new double[count];
-                for (int vi=0; vi<count; ++vi) {
-                    values[vi] = (Double)vv.get(vi);
+            Map<String, Object> sampleMap = (HashMap<String, Object>) valueArray[si];
+
+            String temp = (String) sampleMap.get("secs");
+            long secs = Long.parseLong(temp);
+
+            temp = (String) sampleMap.get("nano");
+            int nano = Integer.parseInt(temp);
+
+            Timestamp time = Timestamp.of(secs, nano);
+            int statCode = (Integer) sampleMap.get("stat");
+            int sevrCode = (Integer) sampleMap.get("sevr");
+            SeverityImpl sevr = reader.getSeverity(sevrCode);
+            String stat = reader.getStatus(sevr, statCode);
+            Object[] vv = (Object[]) sampleMap.get("value");
+            AlarmSeverity severity = sevr.getSeverity();
+
+            if (type == TYPE_DOUBLE) {
+                double values[] = new double[vv.length];
+                for (int vi = 0; vi < vv.length; ++vi) {
+                    values[vi] = (Double) vv[vi];
                 }
                 // Check for "min", "max".
                 // Only handles min/max for double, but that's OK
                 // since for now that's all that the server does as well.
-                if (sample_hash.containsKey("min") &&
-                    sample_hash.containsKey("max"))
-                {   // It's a min/max double, certainly interpolated
-                    final double min = (Double)sample_hash.get("min");
-                    final double max = (Double)sample_hash.get("max");
+                if (sampleMap.containsKey("min") &&
+                    sampleMap.containsKey("max")) {   // It's a min/max double, certainly interpolated
+                    final double min = (Double)sampleMap.get("min");
+                    final double max = (Double)sampleMap.get("max");
                     samp[si] = new ArchiveVStatistics(time, severity, stat, display,
                             values[0], min, max, 0.0, 1);
-                }
-                else
-                {   // Was this from a min/max/avg request?
+                } else {   // Was this from a min/max/avg request?
                     // Yes: Then we ran into a raw value.
                     // No: Then it's whatever quality we expected in general
                     if (values.length == 1) {
@@ -354,52 +366,39 @@ public class ValueRequest implements AsyncCallback {
                         samp[si] = new ArchiveVNumberArray(time, severity, stat, display, values);
                     }
                 }
-            }
-            else if (type == TYPE_ENUM)
-            {
+            } else if (type == TYPE_ENUM) {
                 // The 2.8.1 server will give 'ENUM' type values
                 // with Numeric meta data, units = "<No data>".
                 // as an error message -> Handle it by returning
                 // the data as long with the numeric meta that we have.
-                if (labels != null)
-                {
+                if (labels != null) {
                     if (count < 0) {
                         throw new Exception("No values");
                     }
-                    final int index = (Integer)vv.get(0);
+                    int index = (Integer)vv[0];
                     samp[si] = new ArchiveVEnum(time, severity, stat, labels, index);
-                }
-                else
-                {
+                } else {
                     if (count == 1) {
-                        samp[si] = new ArchiveVNumber(time, severity, stat, display, (Integer)vv.get(0));
-                    } else
-                    {
-                        final int values[] = new int[count];
+                        samp[si] = new ArchiveVNumber(time, severity, stat, display, (Integer)vv[0]);
+                    } else {
+                        int values[] = new int[count];
                         for (int vi=0; vi<count; ++vi) {
-                            values[vi] = (Integer)vv.get(vi);
+                            values[vi] = (Integer)vv[vi];
                         }
                         samp[si] = new ArchiveVNumberArray(time, severity, stat, display, values);
                     }
                 }
-            }
-            else if (type == TYPE_STRING)
-            {
-                final String value = (String)vv.get(0);
+            } else if (type == TYPE_STRING) {
+                String value = (String) vv[0];
                 samp[si] = new ArchiveVString(time, severity, stat, value);
-            }
-            else if (type == TYPE_INT)
-            {
-                if (count == 1)
-                {
-                    final int value = (Integer)vv.get(0);
+            } else if (type == TYPE_INT) {
+                if (count == 1) {
+                    int value = (Integer) vv[0];
                     samp[si] = new ArchiveVNumber(time, severity, stat, display, value);
-                }
-                else
-                {
-                    final int values[] = new int[count];
+                } else {
+                    int values[] = new int[count];
                     for (int vi=0; vi<count; ++vi) {
-                        values[vi] = (Integer)vv.get(vi);
+                        values[vi] = (Integer) vv[vi];
                     }
                     samp[si] = new ArchiveVNumberArray(time, severity, stat, display, values);
                 }

@@ -25,6 +25,7 @@ package org.csstudio.archive.reader.mysql;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.csstudio.apputil.text.RegExHelper;
@@ -104,8 +105,7 @@ public class MySqlArchiveReader implements ArchiveReader {
      */
     @Override
     public String getServerName() {
-        // TODO: Hard coded name?
-        return "XMLRCP MySQL Server";
+        return serverInfoRequest.getDescription();
     }
 
     /**
@@ -228,23 +228,20 @@ public class MySqlArchiveReader implements ArchiveReader {
      * {@inheritDoc}
      */
     @Override
-    public ValueIterator getRawValues(int key, String name, Timestamp start, Timestamp end) throws UnknownChannelException,
-                                                                                           Exception {
-        // TODO Auto-generated method stub
-        return null;
+    public ValueIterator getRawValues(int key, String name,
+                                      Timestamp start, Timestamp end) throws UnknownChannelException,
+                                                                             Exception {
+        return new ValueRequestIterator(this, key, name, start, end, false, 10);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ValueIterator getOptimizedValues(int key,
-                                            String name,
-                                            Timestamp start,
-                                            Timestamp end,
+    public ValueIterator getOptimizedValues(int key, String name,
+                                            Timestamp start, Timestamp end,
                                             int count) throws UnknownChannelException, Exception {
-        // TODO Auto-generated method stub
-        return null;
+        return new ValueRequestIterator(this, key, name, start, end, true, count);
     }
 
     /**

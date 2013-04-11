@@ -23,9 +23,11 @@
 
 package org.csstudio.archive.reader.mysql;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.csstudio.archive.reader.ArchiveInfo;
@@ -53,22 +55,21 @@ public class ArchivesRequest {
 
 	/** Read info from data server */
 	@SuppressWarnings({ "nls", "unchecked" })
-    public void read(XmlRpcClient xmlrpc) throws Exception {
+    public void read(final XmlRpcClient xmlrpc) throws Exception {
 
-	    Map<String, Object> result = null;
+	    List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 		try {
 			Vector<Object> params = new Vector<Object>();
-			Object answer = xmlrpc.execute("archiver.archives", params);
-            if (answer instanceof Map<?, ?>) {
-                result = (Map<String, Object>) answer;
+			Object rawAnswer = xmlrpc.execute("archiver.archives", params);
+            if (rawAnswer instanceof Object[]) {
+                Object[] answer = (Object[]) rawAnswer;
+                for (Object o : answer) {
+                    Map<String, Object> info = (Map<String, Object>) o;
+                    result.add(info);
+                }
             }
-
 		} catch (XmlRpcException e) {
 			throw new Exception("The call of method archiver.archives failed.", e);
-		}
-
-		if (result == null) {
-		    result = new HashMap<String, Object>();
 		}
 
 		//	{  int32 key,
@@ -76,7 +77,7 @@ public class ArchivesRequest {
 		//     string path }[] = archiver.archives()
         archiveInfos = new ArchiveInfo[result.size()];
 		for (int i = 0;i < result.size();++i) {
-			Map<String, Object> info = (Map<String, Object>) result.get(i);
+			final Map<String, Object> info = result.get(i);
             archiveInfos[i] =
                 new ArchiveInfo((String) info.get("name"),
                                 (String) info.get("path"),
@@ -91,8 +92,8 @@ public class ArchivesRequest {
 
     @Override
     public String toString() {
-		StringBuffer result = new StringBuffer();
-        for (ArchiveInfo o : archiveInfos) {
+		final StringBuffer result = new StringBuffer();
+        for (final ArchiveInfo o : archiveInfos) {
             result.append(String.format("Key %4d: '%s' (%s)\n",
                 o.getKey(),
                 o.getName(),

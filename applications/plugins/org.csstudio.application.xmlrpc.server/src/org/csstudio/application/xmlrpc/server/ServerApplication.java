@@ -118,11 +118,11 @@ public class ServerApplication implements IApplication, RemotelyAccesible {
 	            } catch (XmppSessionException e) {
 	                LOG.warn("Cannot connect to the XMPP server.");
 	            }
-	        } else {
+	        } /*else {
 	            if (LOG.isDebugEnabled()) {
 	                LOG.debug("XMPP service is connected.");
 	            }
-	        }
+	        }*/
 	    }
 
 	    if (xmlrpcServer.isAlive()) {

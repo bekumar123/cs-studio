@@ -97,14 +97,20 @@ public class ValuesCommand extends AbstractServerCommand {
 
         Integer howNr = (Integer) params.getParameter("how");
         ServerRequestType requestType = howServer.get(howNr);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Request Type: {}", requestType);
-        }
-
         String name = (String) params.getParameter("name");
         TimeInstant start = (TimeInstant) params.getParameter("start");
         TimeInstant end = (TimeInstant) params.getParameter("end");
         int requestedCount = (Integer) params.getParameter("count");
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("-------------- Value request --------------");
+            LOG.debug("Request method: {}", requestType.toString());
+            LOG.debug("Channel name:   {}", name);
+            LOG.debug("Start:          {} ({})", start.toString(), start.getSeconds());
+            LOG.debug("End:            {} ({})", end.toString(), end.getSeconds());
+            LOG.debug("Count:          {}", requestedCount);
+            LOG.debug("----------- End of value request ----------");
+        }
 
         Map<String, Object> result = new HashMap<String, Object>(5);
         try {
@@ -136,6 +142,10 @@ public class ValuesCommand extends AbstractServerCommand {
                 values = this.createAverageValues(samples, channel, start, end, requestedCount);
             } else {
                 values = this.createRawValues(samples);
+            }
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Number of samples: {}", values.size());
             }
 
             result.put("count", Integer.valueOf(values.size()));
@@ -191,7 +201,7 @@ public class ValuesCommand extends AbstractServerCommand {
             // Datatype Long is not allowed for XMLRPC
             String longStr = String.valueOf(var.getTimestamp().getSeconds());
             sampleValue.put("secs", longStr);
-            longStr = String.valueOf(var.getTimestamp().getNanos());
+            longStr = String.valueOf(var.getTimestamp().getFractalMillisInNanos());
             sampleValue.put("nano", longStr);
             List<Object> value = new ArrayList<Object>();
             value.add(var.getData());

@@ -117,8 +117,8 @@ public class ArchiveReaderService implements IArchiveService {
 
         try {
             ServerCommandParams params = new ServerCommandParams();
-            params.addParameter("start", TimeInstantBuilder.fromMillis(startSec * 1000L + startNano));
-            params.addParameter("end", TimeInstantBuilder.fromMillis(endSec * 1000L + endNano));
+            params.addParameter("start", TimeInstantBuilder.fromSeconds(startSec));
+            params.addParameter("end", TimeInstantBuilder.fromSeconds(endSec));
             params.addParameter("count", count);
             params.addParameter("how", how);
             for (Object element : name) {

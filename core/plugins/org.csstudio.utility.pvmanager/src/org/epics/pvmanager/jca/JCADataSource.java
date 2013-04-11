@@ -93,7 +93,7 @@ public class JCADataSource extends DataSource {
      * @param typeSupport type support to be used
      */
     public JCADataSource(Context jcaContext, int monitorMask, JCATypeSupport typeSupport) {
-        this(jcaContext, monitorMask, typeSupport, false, isVarArraySupported(jcaContext));
+        this(jcaContext, monitorMask, typeSupport, false, false);
     }
     
     /**

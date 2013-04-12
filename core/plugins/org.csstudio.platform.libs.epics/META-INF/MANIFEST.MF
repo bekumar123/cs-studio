@@ -5,7 +5,9 @@ Bundle-SymbolicName: org.csstudio.platform.libs.epics;singleton:=true
 Bundle-Version: 3.1.1.qualifier
 Bundle-Activator: org.csstudio.platform.libs.epics.EpicsPlugin
 Bundle-Localization: plugin
-Require-Bundle: org.eclipse.core.runtime
+Require-Bundle: org.eclipse.core.runtime,
+ org.slf4j;bundle-version="1.6.1",
+ org.slf4j-log4j12;bundle-version="1.6.1"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
  lib/jca.jar

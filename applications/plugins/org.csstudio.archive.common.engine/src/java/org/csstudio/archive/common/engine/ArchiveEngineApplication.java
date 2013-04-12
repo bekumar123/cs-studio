@@ -149,7 +149,7 @@ public class ArchiveEngineApplication implements IApplication {
     private DesyJCADataSource configureJCADataSources() {
         LOG.info("Configure JCA Datasource and setup PVManager.");
         final DesyJCADataSource dataSource =
-            new DesyJCADataSource(JCALibrary.CHANNEL_ACCESS_JAVA, Monitor.LOG);
+            new DesyJCADataSource(JCALibrary.JNI_SINGLE_THREADED, Monitor.LOG);
         PVManager.setDefaultDataSource(dataSource);
 
         TypeSupport.addTypeSupport(new NotificationSupport<EpicsSystemVariable>(EpicsSystemVariable.class) {

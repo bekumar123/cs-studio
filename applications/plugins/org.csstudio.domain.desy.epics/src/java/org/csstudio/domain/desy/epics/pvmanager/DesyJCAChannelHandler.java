@@ -258,6 +258,10 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
                         // Take the channel from the event so that there is no
                         // synchronization problem
                         final Channel channel = (Channel) ev.getSource();
+
+                        //(wenhua) fix for Single Thread Context
+                        channel.getContext().attachCurrentThread();
+
                         //testen um deadlock
                         // connectionState=channel.getConnectionState();
                         if(channel!=null) {

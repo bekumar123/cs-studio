@@ -215,6 +215,9 @@ public class JCAChannelHandler extends MultiplexedChannelHandler<Channel, JCAMes
                         // synchronization problem
                         Channel channel = (Channel) ev.getSource();
 
+                        //(wenhua): prevent thread access exceptions in singleThreadContext
+                        channel.getContext().attachCurrentThread();
+                        
                         // Check whether the channel is large and was opened
                         // as large. Reconnect if does not match
                         if (ev.isConnected() && channel.getElementCount() >= LARGE_ARRAY && !largeArray) {

@@ -7,7 +7,6 @@
  ******************************************************************************/
 package org.csstudio.archive.common.engine;
 
-import gov.aps.jca.CAException;
 import gov.aps.jca.JCALibrary;
 import gov.aps.jca.Monitor;
 
@@ -35,7 +34,6 @@ import org.csstudio.domain.desy.epics.types.EpicsSystemVariable;
 import org.csstudio.domain.desy.time.StopWatch;
 import org.csstudio.domain.desy.time.StopWatch.RunningStopWatch;
 import org.csstudio.domain.desy.time.TimeInstant;
-import org.csstudio.platform.libs.epics.EpicsPlugin;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.epics.pvmanager.Notification;
@@ -115,33 +113,7 @@ public class ArchiveEngineApplication implements IApplication {
 
         final IServiceProvider provider = new ServiceProvider();
 
-        ///////////////////////////////////////
-        LOG.error("Configure Epics Plug for tests");
-        EpicsPlugin.getDefault();
-        final JCALibrary jca = JCALibrary.getInstance();
-        try {
-            jca.createContext(JCALibrary.JNI_SINGLE_THREADED);
-        } catch (final CAException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-
-        LOG.error("Environment");
-        final Map<String, String> getenv = System.getenv();
-        final Set<String> keySet = getenv.keySet();
-        for (final String key : keySet) {
-            LOG.error(key + "   ----   " + getenv.get(key));
-        }
-
-        LOG.error("Properties");
-        final Properties p = System.getProperties();
-        final Enumeration keys = p.keys();
-        while (keys.hasMoreElements()) {
-          final String key = (String)keys.nextElement();
-          final String value = (String)p.get(key);
-          LOG.error(key + "  -----  " + value);
-        }
-        /////////////////////////////////////
+        logEnvAndProps();
         LOG.info("DESY Archive Engine Version {} - START.", provider.getPreferencesService().getVersion());
         julLOG.info("DESY Archive Engine Version {} - START.");
 
@@ -173,6 +145,24 @@ public class ArchiveEngineApplication implements IApplication {
             LOG.error("Unexpected throwable in application's main loop.", e);
         }
         return killEngineAndHttpServer(_model, httpServer);
+    }
+
+    private void logEnvAndProps() {
+        LOG.error("Environment");
+        final Map<String, String> getenv = System.getenv();
+        final Set<String> keySet = getenv.keySet();
+        for (final String key : keySet) {
+            LOG.error(key + "   ----   " + getenv.get(key));
+        }
+
+        LOG.error("Properties");
+        final Properties p = System.getProperties();
+        final Enumeration keys = p.keys();
+        while (keys.hasMoreElements()) {
+          final String key = (String)keys.nextElement();
+          final String value = (String)p.get(key);
+          LOG.error(key + "  -----  " + value);
+        }
     }
 
     private synchronized boolean getRun() {

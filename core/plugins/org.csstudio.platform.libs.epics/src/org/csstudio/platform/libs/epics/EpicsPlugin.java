@@ -132,7 +132,7 @@ public class EpicsPlugin extends Plugin
         
         installPreferences();
 
-        if (true)
+        if (!use_pure_java)
         {
             final String jni_target = JNITargetArch.getTargetArch();
             // this property must be unset, because JCA might mistakenly use it

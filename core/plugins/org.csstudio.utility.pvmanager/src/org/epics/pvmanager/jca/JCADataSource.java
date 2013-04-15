@@ -49,7 +49,7 @@ public class JCADataSource extends DataSource {
      * Creates a new data source using pure Java implementation
      */
     public JCADataSource() {
-        this(JCALibrary.JNI_THREAD_SAFE, Monitor.VALUE | Monitor.ALARM);
+        this(JCALibrary.JNI_SINGLE_THREADED, Monitor.VALUE | Monitor.ALARM);
     }
     
     /**

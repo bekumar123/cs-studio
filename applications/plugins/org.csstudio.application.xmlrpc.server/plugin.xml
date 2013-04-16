@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?eclipse version="3.4"?>
-<plugin>
-
+<?eclipse version="3.0"?>
+<plugin
+>
+   <extension
+         point="org.eclipse.equinox.preferences.preferences">
+      <initializer
+            class="org.csstudio.application.xmlrpc.server.internal.PreferenceInitializer">
+      </initializer>
+   </extension>
    <extension
          id="ServerApplication"
          point="org.eclipse.core.runtime.applications">
-      <application>
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
          <run
                class="org.csstudio.application.xmlrpc.server.ServerApplication">
          </run>
@@ -15,24 +24,14 @@
          point="org.csstudio.remote.managementCommands">
       <command
             class="org.csstudio.application.xmlrpc.server.management.Stop"
-            id="org.csstudio.application.xmlrpc.server.Stop"
+            id="org.csstudio.application.xmlrpc.server..Stop"
             label="Stop">
-         <stringParameter
-               id="org.csstudio.application.xmlrpc.server.StopParameter"
-               label="Password">
-         </stringParameter>
       </command>
       <command
             class="org.csstudio.application.xmlrpc.server.management.GetInfo"
             id="org.csstudio.application.xmlrpc.server.GetInfo"
             label="Get Info">
       </command>
-   </extension>
-   <extension
-         point="org.eclipse.equinox.preferences.preferences">
-      <initializer
-            class="org.csstudio.application.xmlrpc.server.internal.PreferenceInitializer">
-      </initializer>
    </extension>
    <extension
          id="XmlRpcServerProduct"
@@ -46,5 +45,4 @@
          </property>
       </product>
    </extension>
-
 </plugin>

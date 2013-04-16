@@ -52,17 +52,17 @@ public class SmsCheckAnalyser implements ICheckAnalyser {
         logger = l;
         xmppService = service;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void analyseCheck() {
-        
+
         logger.info("Result of SMS Delivery worker check: {}", checkProcessor.getCurrentCheckStatusInfo().toString());
-        
+
         if (checkProcessor.isOk()) {
-            
+
             logger.info("SmsDeliveryWorker is working.");
             if (checkProcessor.wasNotificationSent()) {
                 CheckStatusInfo csi = checkProcessor.getPreviousCheckStatusInfo();
@@ -107,18 +107,18 @@ public class SmsCheckAnalyser implements ICheckAnalyser {
                 }
             }
         }
-        
+
         if (checkProcessor.getCurrentCheckStatusInfo().getErrorReason() == ErrorReason.SMS_DELIVERY_WORKER) {
             handleWorkerError();
         } else if (checkProcessor.getCurrentCheckStatusInfo().getErrorReason() == ErrorReason.DELIVERY_DEVICE) {
             handleDeviceError();
         }
    }
-   
+
    private void handleWorkerError() {
-       
+
        logger.error("SmsDeliveryWorker does not work.");
-       
+
        if (checkProcessor.previousCheckWasRestarted() && !checkProcessor.wasErrorSent()) {
            CheckStatusInfo csi = checkProcessor.getCurrentCheckStatusInfo();
            MonitorMessageSender.sendErrorSms(csi.getErrorReason().getAlarmMessage());
@@ -126,7 +126,7 @@ public class SmsCheckAnalyser implements ICheckAnalyser {
        }
 
        if (checkProcessor.reachedErrorCount()) {
-           
+
            logger.error("Number of allowed errors reached. AmsDeliverySystem will be restarted.");
            if (restartDeliverySystem()) {
                logger.info("AmsDeliverySystem has been restarted.");
@@ -135,7 +135,7 @@ public class SmsCheckAnalyser implements ICheckAnalyser {
            } else {
                logger.error("AmsDeliverySystem could NOT be restarted.");
            }
-           
+
            if (!checkProcessor.wasErrorSent()) {
                if (!checkProcessor.currentCheckIsRestarted()) {
                    CheckStatusInfo csi = checkProcessor.getCurrentCheckStatusInfo();
@@ -151,11 +151,11 @@ public class SmsCheckAnalyser implements ICheckAnalyser {
            logger.warn("AmsMonitor does not send a alarm SMS now.");
        }
     }
-    
+
    private void handleDeviceError() {
-       
+
        logger.error("GSM modems have got some problems.");
-       
+
        if (checkProcessor.previousCheckWasRestarted() && !checkProcessor.wasErrorSent()) {
            CheckStatusInfo csi = checkProcessor.getCurrentCheckStatusInfo();
            MonitorMessageSender.sendErrorSms(csi.getErrorReason().getAlarmMessage() + csi.getErrorText());
@@ -171,11 +171,11 @@ public class SmsCheckAnalyser implements ICheckAnalyser {
                logger.info("AmsMonitor does not send warn notification yet.");
            }
        }
-       
+
        if (checkProcessor.currentCheckIsError()) {
-           
+
            if (checkProcessor.reachedErrorCount()) {
-                  
+
                logger.error("Number of allowed errors reached. AmsDeliverySystem will be restarted.");
                if (restartDeliverySystem()) {
                    logger.info("AmsDeliverySystem has been restarted.");
@@ -202,12 +202,12 @@ public class SmsCheckAnalyser implements ICheckAnalyser {
            logger.info("AmsMonitor does not send notification yet.");
        }
    }
-   
+
    private boolean restartDeliverySystem() {
        boolean success = false;
        String amsHost = AmsMonitorPreference.AMS_HOST.getValue().toLowerCase();
        String amsUser = AmsMonitorPreference.AMS_USER.getValue().toLowerCase();
-       String groupName = AmsMonitorPreference.XMPP_GROUP_NAME.getDefaultValue();
+       String groupName = AmsMonitorPreference.XMPP_GROUP_NAME.getValue();
        String[] procArray = new String[] {"ams-delivery-system"};
        long restartTime = AmsMonitorPreference.RESTART_WAIT_TIME.getValue();
        IRemoteService remoteService = new XmppRemoteService(xmppService,

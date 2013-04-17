@@ -76,7 +76,7 @@ public class ArchiveConnectionHandler {
     @Nonnull
     private MysqlDataSource createDataSource(@Nonnull final MySQLArchivePreferenceService prefs) {
 
-        final MysqlDataSource ds = new MysqlDataSource();
+        final MysqlDataSource ds = new MysqlDataSource(); //TODO CME: connection pooling
         String hosts = prefs.getHost();
         final String failoverHost = prefs.getFailOverHost();
         if (!Strings.isNullOrEmpty(failoverHost)) {
@@ -87,6 +87,7 @@ public class ArchiveConnectionHandler {
         final String user = prefs.getUser();
         LOG.info("DB preferences - hosts: " + hosts + "; DB Name: " + databaseName + " ; User: " + user + "; port: " + port);
 
+        // TODO CME: remove hardcoded values
         ds.setServerName("127.0.0.1");
         ds.setPort(3306);
         ds.setDatabaseName("archive");

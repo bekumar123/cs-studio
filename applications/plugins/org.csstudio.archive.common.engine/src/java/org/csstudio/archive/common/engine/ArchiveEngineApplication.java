@@ -7,7 +7,6 @@
  ******************************************************************************/
 package org.csstudio.archive.common.engine;
 
-import gov.aps.jca.JCALibrary;
 import gov.aps.jca.Monitor;
 
 import java.util.Enumeration;
@@ -122,7 +121,8 @@ public class ArchiveEngineApplication implements IApplication {
             return EXIT_OK;
         }
 
-        final DesyJCADataSource dataSource = configureJCADataSources();
+        final String jcaThreadName=provider.getPreferencesService().getCaContextValue();
+        final DesyJCADataSource dataSource = configureJCADataSources(jcaThreadName);
 
         EngineHttpServer httpServer = null;
         try {
@@ -171,10 +171,10 @@ public class ArchiveEngineApplication implements IApplication {
 
     @SuppressWarnings("rawtypes")
     @Nonnull
-    private DesyJCADataSource configureJCADataSources() {
+    private DesyJCADataSource configureJCADataSources(final String jcaThreadName) {
         LOG.info("Configure JCA Datasource and setup PVManager.");
-        final DesyJCADataSource dataSource =
-            new DesyJCADataSource(JCALibrary.JNI_SINGLE_THREADED, Monitor.LOG);
+        LOG.info("Configure JCA Datasource and Load JCALibrary {}",jcaThreadName);
+        final DesyJCADataSource dataSource =  new DesyJCADataSource(jcaThreadName, Monitor.LOG);
         PVManager.setDefaultDataSource(dataSource);
 
         TypeSupport.addTypeSupport(new NotificationSupport<EpicsSystemVariable>(EpicsSystemVariable.class) {

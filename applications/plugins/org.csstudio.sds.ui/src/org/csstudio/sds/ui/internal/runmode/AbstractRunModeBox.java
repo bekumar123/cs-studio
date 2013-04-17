@@ -30,7 +30,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.csstudio.dal.CssApplicationContext;
 import org.csstudio.dal.simple.ISimpleDalBroker;
 import org.csstudio.sds.internal.persistence.DisplayModelLoadAdapter;
 import org.csstudio.sds.internal.persistence.PersistenceUtil;
@@ -47,7 +46,6 @@ import org.csstudio.sds.ui.internal.editor.dnd.ProcessVariablesDragSourceListene
 import org.csstudio.sds.ui.internal.editparts.WidgetEditPartFactory;
 import org.csstudio.sds.ui.internal.viewer.PatchedGraphicalViewer;
 import org.csstudio.sds.ui.runmode.IDisplayLoadedCallback;
-import org.csstudio.servicelocator.ServiceLocator;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -62,8 +60,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import de.cmein.da.service.history.IHistoryDataServiceFactory;
 
 /**
  * A box that manages a shell, which uses a GEF graphical viewer to display SDS
@@ -163,7 +159,9 @@ public abstract class AbstractRunModeBox {
 						
 						//runtimeContext.setBroker(ServiceLocator.getService(IRealtimeDataServiceFactory.class).getNewDataService(new CssApplicationContext("CSS")));
 						
-						runtimeContext.setBroker(ServiceLocator.getService(IHistoryDataServiceFactory.class).getNewDataService(new CssApplicationContext("CSS")));
+//						runtimeContext.setBroker(ServiceLocator.getService(ISimpleDalBroker.class));
+						
+//						runtimeContext.setBroker(ServiceLocator.getService(IHistoryDataServiceFactory.class).getNewDataService(new CssApplicationContext("CSS")));
 						
 						LOG.info("SimpleDALBroker instance created");
 						

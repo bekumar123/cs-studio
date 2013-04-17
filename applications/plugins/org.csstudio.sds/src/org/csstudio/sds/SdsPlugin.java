@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
+import org.csstudio.dal.simple.ISimpleDalBroker;
 import org.csstudio.sds.cursorservice.ICursorService;
 import org.csstudio.sds.internal.SdsResourceChangeListener;
 import org.csstudio.sds.internal.eventhandling.BehaviorService;
@@ -42,6 +43,9 @@ import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.c1wps.geneal.desy.service.common.tracker.GenericServiceTracker;
+import de.c1wps.geneal.desy.service.common.tracker.IGenericServiceListener;
 
 /**
  * The activator class controls the plug-in life cycle.
@@ -127,6 +131,8 @@ public final class SdsPlugin extends Plugin {
 	private SdsResourceChangeListener _resourceChangeListener;
 	
     private static final Logger LOG = LoggerFactory.getLogger(SdsPlugin.class);
+    
+    private GenericServiceTracker<ISimpleDalBroker> _dalBrokerTracker;
 
 //	TODO (jhatje): remove if patch in jca lib works
 //	/**
@@ -199,6 +205,9 @@ public final class SdsPlugin extends Plugin {
 		_widgetPropertyPostProcessingService = new WidgetPropertyPostProcessingService();
 //		TODO (jhatje): remove if patch in jca lib works
 //		readWorkaroundStrings();
+		
+		_dalBrokerTracker = new GenericServiceTracker<ISimpleDalBroker>(context, ISimpleDalBroker.class);
+		_dalBrokerTracker.open();
 	}
 
 
@@ -211,6 +220,9 @@ public final class SdsPlugin extends Plugin {
 		// de-register the workspace listener
 		ResourceService.getInstance().removeResourceChangeListener(
 				_resourceChangeListener);
+		
+		_dalBrokerTracker.close();
+		_dalBrokerTracker = null;
 	}
 	
 	public IBehaviorService getBehaviourService() {
@@ -219,6 +231,10 @@ public final class SdsPlugin extends Plugin {
 	
 	public IWidgetPropertyPostProcessingService getWidgetPropertyPostProcessingService() {
 		return _widgetPropertyPostProcessingService;
+	}
+
+	public void addDalBrokerListener(IGenericServiceListener<ISimpleDalBroker> simpleDalBrokerListener) {
+		_dalBrokerTracker.addServiceListener(simpleDalBrokerListener);
 	}
 
 //	TODO (jhatje): remove if patch in jca lib works

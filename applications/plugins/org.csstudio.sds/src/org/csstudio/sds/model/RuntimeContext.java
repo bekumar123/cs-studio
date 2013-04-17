@@ -4,8 +4,11 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.csstudio.dal.simple.ISimpleDalBroker;
+import org.csstudio.sds.SdsPlugin;
 import org.csstudio.sds.internal.runmode.RunModeBoxInput;
 import org.eclipse.core.runtime.IPath;
+
+import de.c1wps.geneal.desy.service.common.tracker.IGenericServiceListener;
 
 /**
  * Collects runtime information for a display.
@@ -17,7 +20,7 @@ import org.eclipse.core.runtime.IPath;
  * @author Sven Wende
  * 
  */
-public class RuntimeContext {
+public class RuntimeContext implements IGenericServiceListener<ISimpleDalBroker>{
 	private IPath _displayFilePath;
 	private Map<String, String> _aliases;
 	private RunModeBoxInput _runModeBoxInput;
@@ -38,6 +41,8 @@ public class RuntimeContext {
 	public RuntimeContext(IPath displayFilePath, Map<String, String> aliases) {
 		_displayFilePath = displayFilePath;
 		_aliases = aliases;
+		
+		SdsPlugin.getDefault().addDalBrokerListener(this);
 	}
 
 	public IPath getDisplayFilePath() {
@@ -70,5 +75,16 @@ public class RuntimeContext {
 
 	public ISimpleDalBroker getBroker() {
 		return _broker;
+	}
+
+	@Override
+	public void bindService(ISimpleDalBroker service) {
+		System.err.println("------- bind dalbroker im runtimeContext");
+		_broker = service;
+	}
+
+	@Override
+	public void unbindService(ISimpleDalBroker service) {
+		_broker = null;
 	}
 }

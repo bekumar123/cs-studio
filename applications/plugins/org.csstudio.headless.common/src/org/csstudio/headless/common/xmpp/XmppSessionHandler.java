@@ -87,6 +87,10 @@ public class XmppSessionHandler implements IGenericServiceListener<ISessionServi
         connect();
     }
 
+    public ISessionService getXmppSessionService() {
+        return xmppService;
+    }
+
     /**
      * {@inheritDoc}
      */

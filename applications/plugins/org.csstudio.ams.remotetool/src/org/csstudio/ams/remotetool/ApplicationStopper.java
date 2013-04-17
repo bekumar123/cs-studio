@@ -28,7 +28,6 @@ package org.csstudio.ams.remotetool;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
-
 import org.csstudio.remote.management.CommandDescription;
 import org.csstudio.remote.management.CommandParameters;
 import org.csstudio.remote.management.CommandResult;
@@ -49,60 +48,60 @@ import org.slf4j.LoggerFactory;
  * @since 16.12.2011
  */
 public class ApplicationStopper {
-    
+
     /** The class logger */
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationStopper.class);
 
     private ISessionService xmppSession;
-    
+
     private IRosterManager rosterManager;
-    
+
     private String amsRosterGroup;
-    
+
     public ApplicationStopper(ISessionService xmpp, String rosterGroup) {
         xmppSession = xmpp;
         amsRosterGroup = rosterGroup;
         rosterManager = xmppSession.getRosterManager();
     }
-    
+
     @SuppressWarnings("unchecked")
     public int stopApplication(String host, String applicName, String user, String pw) {
-        
+
         Vector<IRosterItem> rosterItems = null;
-        
+
         int iResult = ApplicResult.RESULT_ERROR_GENERAL.getApplicResultNumber();
 
         IRoster roster = null;
         int count = 0;
-  
+
         // We have to wait until the DCF connection manager have been initialized
         synchronized(this) {
-            
+
             do {
                 try {
                     this.wait(500);
                 } catch(InterruptedException ie) {
                     LOG.error("*** InterruptedException ***: " + ie.getMessage());
                 }
-  
+
                 roster = rosterManager.getRoster();
 
                 // Get the roster items
                 rosterItems = new Vector<IRosterItem>(roster.getItems());
-            } while((++count <= 10) && (rosterItems.isEmpty()));
+            } while(++count <= 10 && rosterItems.isEmpty());
         }
-        
+
         if(rosterItems.size() == 0) {
             LOG.info("XMPP roster not found. Stopping application.");
             return ApplicResult.RESULT_ERROR_XMPP.getApplicResultNumber();
         }
-        
+
         LOG.info("Manager initialized");
         LOG.info("Anzahl Directory-Elemente: " + rosterItems.size());
-        
+
         // Get the group of JMS applications
         IRosterGroup jmsApplics = getApplicationGroup(rosterItems, amsRosterGroup);
-        
+
         // Get the application
         if(jmsApplics != null) {
             IRosterEntry currentApplic = getApplicationEntry(jmsApplics, host, applicName, user);
@@ -118,9 +117,9 @@ public class ApplicationStopper {
 
         return iResult;
     }
-    
+
     private boolean containsItem(final String line, final String value, boolean caseSensitive) {
-        
+
         String work = null;
         String search = null;
         if (caseSensitive == false) {
@@ -130,11 +129,11 @@ public class ApplicationStopper {
             work = line;
             search = value;
         }
-        
-        boolean result = (work.indexOf(search) > -1); 
+
+        boolean result = work.indexOf(search) > -1;
         return result;
     }
-    
+
     private IRosterGroup getApplicationGroup(Vector<IRosterItem> rosterItems, String name) {
         IRosterGroup result = null;
         for(IRosterItem ri : rosterItems) {
@@ -145,7 +144,7 @@ public class ApplicationStopper {
         }
         return result;
     }
-    
+
     private IRosterEntry getApplicationEntry(IRosterGroup jmsApplics,
                                             String host,
                                             String applicName,
@@ -153,7 +152,7 @@ public class ApplicationStopper {
         IRosterEntry result = null;
         @SuppressWarnings("unchecked")
         Vector<IRosterEntry> rosterEntries = new Vector<IRosterEntry>(jmsApplics.getEntries());
-        
+
         Iterator<IRosterEntry> list = rosterEntries.iterator();
         while(list.hasNext()) {
             IRosterEntry ce = list.next();
@@ -168,40 +167,40 @@ public class ApplicationStopper {
 
         return result;
     }
-    
+
     private int invokeStopMethod(IRosterEntry currentApplic, String pw) {
-        
+
         IManagementCommandService service = null;
         int iResult = ApplicResult.RESULT_ERROR_GENERAL.getApplicResultNumber();
-        
+
         List<IManagementCommandService> managementServices =
                 xmppSession.getRemoteServiceProxies(
                     IManagementCommandService.class, new ID[] {currentApplic.getUser().getID()});
-            
+
         CommandParameters parameter = null;
         CommandDescription stopAction = null;
 
         if (managementServices.size() == 1) {
             service = managementServices.get(0);
             CommandDescription[] commands = service.getSupportedCommands();
-            
-            for (int i = 0; i < commands.length; i++) {
-                if(commands[i].getLabel().compareToIgnoreCase("stop") == 0) {
-                    stopAction = commands[i];
+
+            for (CommandDescription command : commands) {
+                if(command.getLabel().compareToIgnoreCase("stop") == 0) {
+                    stopAction = command;
                     break;
                 }
             }
         }
-        
-        if((stopAction != null) && (service != null)) {
-            
+
+        if(stopAction != null && service != null) {
+
             parameter = new CommandParameters();
             parameter.set("Password", pw);
-            
+
             CommandResult retValue = service.execute(stopAction.getIdentifier(), parameter);
             if(retValue != null) {
                 String result = (String)retValue.getValue();
-                if((result.trim().startsWith("OK:")) || (result.indexOf("stopping") > -1)) {
+                if(result.trim().startsWith("OK") || result.indexOf("stopping") > -1) {
                     LOG.info("Application stopped: " + result);
                     iResult = ApplicResult.RESULT_OK.getApplicResultNumber();
                 } else {
@@ -213,7 +212,7 @@ public class ApplicationStopper {
                 iResult = ApplicResult.RESULT_ERROR_UNKNOWN.getApplicResultNumber();
             }
         }
-        
+
         return iResult;
     }
 }

@@ -23,4 +23,10 @@ public interface IInstance extends IContainer, IRootFolder {
      */
     List<IRecord> getAllRecordsInHierarchy();
 
+    /**
+     * 
+     * @return true if this instance was created from a Library-Prototype
+     */
+    boolean isFromLibrary();
+
 }

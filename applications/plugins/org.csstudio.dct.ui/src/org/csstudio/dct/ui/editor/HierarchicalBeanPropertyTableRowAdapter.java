@@ -40,6 +40,10 @@ public final class HierarchicalBeanPropertyTableRowAdapter extends AbstractTable
 		this.readOnly = readOnly;
 	}
 
+	public String getBeanProperty() {
+	    return property;
+	}
+	
 	/**
 	 * @Override {@inheritDoc}
 	 */

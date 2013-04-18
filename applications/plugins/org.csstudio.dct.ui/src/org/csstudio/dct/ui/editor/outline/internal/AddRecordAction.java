@@ -1,6 +1,8 @@
 package org.csstudio.dct.ui.editor.outline.internal;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.csstudio.dct.metamodel.IRecordDefinition;
@@ -8,8 +10,10 @@ import org.csstudio.dct.model.IContainer;
 import org.csstudio.dct.model.IElement;
 import org.csstudio.dct.model.IInstance;
 import org.csstudio.dct.model.IPrototype;
+import org.csstudio.dct.model.IRecord;
 import org.csstudio.dct.model.IRecordContainer;
 import org.csstudio.dct.model.commands.AddRecordCommand;
+import org.csstudio.dct.model.internal.Record;
 import org.csstudio.dct.model.internal.RecordFactory;
 import org.csstudio.dct.util.CompareUtil;
 import org.eclipse.gef.commands.Command;
@@ -58,7 +62,7 @@ public final class AddRecordAction extends AbstractOutlineAction {
             action.setEnabled(false);
             return;
         }
-        
+                      
         boolean childOfPrototypesFolder = CompareUtil.childOfPrototypesFolder(selection);
         boolean childOfInstancesFolder = CompareUtil.childOfInstancesFolder(selection);
           

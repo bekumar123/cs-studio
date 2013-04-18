@@ -61,6 +61,7 @@ public final class IoNameFieldFunction implements IFieldFunction {
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
     public List<IContentProposal> getParameterProposal(int parameterIndex, String[] knownParameters, IRecord record) {
         return Collections.EMPTY_LIST;
     }

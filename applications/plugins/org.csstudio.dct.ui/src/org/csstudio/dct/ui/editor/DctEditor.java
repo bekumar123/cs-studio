@@ -47,7 +47,6 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -79,16 +78,11 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
-import org.eclipse.ui.ISelectionListener;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IGotoMarker;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
-import org.eclipse.ui.views.markers.MarkerItem;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -199,36 +193,6 @@ public final class DctEditor extends MultiPageEditorPart implements CommandStack
         commandStack = new CommandStack();
         commandStack.addCommandStackListener(this);
 
-        IWorkbench wb = PlatformUI.getWorkbench();
-        wb.getActiveWorkbenchWindow().getSelectionService().addSelectionListener(new ISelectionListener() {
-            public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-                if (!dbFilePreviewText.isVisible()) {
-                    return;
-                }
-                if (!(selection instanceof IStructuredSelection)) {
-					return;
-				}
-                IStructuredSelection s = (IStructuredSelection) selection;
-                if (s.getFirstElement() instanceof MarkerItem) {
-                    MarkerItem marker = (MarkerItem) s.getFirstElement();
-                    if (marker != null && marker.getMarker() != null) {
-                        IMarker iMarker = marker.getMarker();
-                        try {
-                            if (iMarker.getAttribute(IMarker.SOURCE_ID).equals(PREVIEW_MARKER_SOURCE_ID)) {
-                                int selectionPositionStart = (Integer) iMarker
-                                        .getAttribute(PREVIEW_MARKER_SELECTION_POS_START);
-                                int selectionPositionEnd = (Integer) iMarker
-                                        .getAttribute(PREVIEW_MARKER_SELECTION_POS_END);
-                                dbFilePreviewText.setSelection(selectionPositionStart, selectionPositionEnd);
-                            }
-                        } catch (CoreException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-        });
-
         outlineSelectionListener = new ISelectionChangedListener() {
 
             public void selectionChanged(final SelectionChangedEvent event) {
@@ -268,7 +232,6 @@ public final class DctEditor extends MultiPageEditorPart implements CommandStack
             project = ProjectFactory.createNewDCTProject();
             project.addMember(new Folder("Test"));
         }
-
         return project;
     }
 
@@ -484,7 +447,7 @@ public final class DctEditor extends MultiPageEditorPart implements CommandStack
                 IMarker[] markers = file.findMarkers(IMarker.PROBLEM, true, 1);
                 for (IMarker marker : markers) {
                     Object markerAttribute = marker.getAttribute(IMarker.SOURCE_ID);
-					if ((markerAttribute != null) && markerAttribute.equals(PREVIEW_MARKER_SOURCE_ID)) {
+                    if ((markerAttribute != null) && markerAttribute.equals(PREVIEW_MARKER_SOURCE_ID)) {
                         marker.delete();
                     }
                 }
@@ -496,6 +459,7 @@ public final class DctEditor extends MultiPageEditorPart implements CommandStack
                         IMarker marker = file.createMarker(IMarker.PROBLEM);
                         marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
                         marker.setAttribute(IMarker.MESSAGE, line);
+                        marker.setAttribute(IMarker.LOCATION, UUID.randomUUID().toString());
                         marker.setAttribute(IMarker.SOURCE_ID, PREVIEW_MARKER_SOURCE_ID);
                         marker.setAttribute(PREVIEW_MARKER_SELECTION_POS_START, selection);
                         marker.setAttribute(PREVIEW_MARKER_SELECTION_POS_END, selection + line.length() - 1);
@@ -592,6 +556,19 @@ public final class DctEditor extends MultiPageEditorPart implements CommandStack
 
             project = DctActivator.getDefault().getPersistenceService().loadProject(doc, getLibraryDocument(doc));
 
+            if (project != null) {
+
+                if (project.getActiveLibraryPath().isEmpty()) {
+                    project.setActiveLibraryPath(project.getLibraryPath());
+                }
+                
+                if (!project.getActiveLibraryPath().equals(project.getLibraryPath())) {
+                    project.setActiveLibraryPath(project.getLibraryPath());
+                    project.refreshFromLibrary(commandStack);
+                }
+                
+            }
+
         } catch (final Exception e) {
             LOG.error("Error: ", e);
             project = null;
@@ -605,7 +582,7 @@ public final class DctEditor extends MultiPageEditorPart implements CommandStack
         // .. refresh markers
         markErrorsAndWarnings();
     }
-
+    
     private Optional<Document> getLibraryDocument(Document doc) throws JDOMException, IOException, CoreException {
 
         Element root = doc.getRootElement();
@@ -621,6 +598,34 @@ public final class DctEditor extends MultiPageEditorPart implements CommandStack
         Document libDocument = builder.build(libFile.getContents());
 
         return Optional.of(libDocument);
+    }
+
+    @Override
+    public void dispose() {
+        try {
+            removeErrorMarkersForResource();
+        } catch (CoreException e) {
+            e.printStackTrace();
+        }
+        super.dispose();
+    }
+
+    private void removeErrorMarkersForResource() throws CoreException {
+        final IFile file = ((IFileEditorInput) getEditorInput()).getFile();
+        if (file == null) {
+            return;
+        }
+        if (!file.exists()) {
+            return;
+        }
+        IMarker[] markers = file.findMarkers(null, true, 1);
+        for (IMarker marker : markers) {
+            if ((marker != null) && (file.getFullPath() != null) && (marker.getResource() != null)) {
+                if (file.getFullPath().equals(marker.getResource().getFullPath())) {
+                    marker.delete();
+                }
+            }
+        }
     }
 
     /**
@@ -652,7 +657,7 @@ public final class DctEditor extends MultiPageEditorPart implements CommandStack
      * {@inheritDoc}
      */
     @Override
-    public Object getAdapter(final Class adapter) {
+    public Object getAdapter(@SuppressWarnings("rawtypes") final Class adapter) {
         Object result = null;
 
         if (adapter == IContentOutlinePage.class) {
@@ -664,18 +669,42 @@ public final class DctEditor extends MultiPageEditorPart implements CommandStack
             result = outline;
             getSite().setSelectionProvider(outline);
         } else if (adapter == IGotoMarker.class) {
+            
             return new IGotoMarker() {
+                
                 public void gotoMarker(final IMarker marker) {
                     try {
                         final String location = (String) marker.getAttribute(IMarker.LOCATION);
-
-                        if (StringUtil.hasLength(location)) {
-                            final UUID id = UUID.fromString(location);
-                            selectItemInOutline(id);
+                        if ((marker.getAttribute(IMarker.SOURCE_ID) != null)
+                                && (marker.getAttribute(IMarker.SOURCE_ID).equals(PREVIEW_MARKER_SOURCE_ID))) {
+                            gotoMarkerInPreview(marker);
+                        } else {
+                            if (StringUtil.hasLength(location)) {
+                                final UUID id = UUID.fromString(location);
+                                selectItemInOutline(id);
+                            }
                         }
                     } catch (final CoreException e) {
                         LOG.info("Info: ", e);
                     }
+                }
+                
+                private void gotoMarkerInPreview(IMarker marker) {
+                    if (dbFilePreviewText.isDisposed()) {
+                        return;
+                    }
+                    if (!dbFilePreviewText.isVisible()) {
+                        return;
+                    }
+                    try {
+                        int selectionPositionStart = (Integer) marker.getAttribute(PREVIEW_MARKER_SELECTION_POS_START);
+                        int selectionPositionEnd = (Integer) marker.getAttribute(PREVIEW_MARKER_SELECTION_POS_END);
+                        dbFilePreviewText.setSelection(selectionPositionStart, selectionPositionEnd);
+                        dbFilePreviewText.setFocus();
+                    } catch (CoreException e) {
+                        e.printStackTrace();
+                    }
+
                 }
             };
         }

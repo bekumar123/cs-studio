@@ -148,7 +148,7 @@ public final class RecordForm extends AbstractForm<IRecord> {
             elements.add(record);
             boolean isChildOfLibraryFolder = CompareUtil.childOfLibaryFolder(elements);
             recordFieldTable.getViewer().getTable().setEnabled(!isChildOfLibraryFolder);
-            getCommonTable().getViewer().getTable().setEnabled((!isChildOfLibraryFolder) && (!record.isInherited()));            
+            getCommonTable().getViewer().getTable().setEnabled(!isChildOfLibraryFolder);
         }
     }
 

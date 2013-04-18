@@ -30,7 +30,7 @@ import com.google.common.collect.ImmutableMap;
  * 
  * @author Sven Wende
  */
-public final class Instance extends AbstractContainer implements IInstance {
+public class Instance extends AbstractContainer implements IInstance {
 
     private static final long serialVersionUID = -7749937096138079752L;
 
@@ -85,15 +85,15 @@ public final class Instance extends AbstractContainer implements IInstance {
         IFolder folder = container.getParentFolder();
         return folder.getRootFolder();
     }
-    
+
     private IContainer getFirstContainerWithParentFolder() {
         IContainer container = getContainer();
         while ((container != null) && (container.getParentFolder() == null)) {
             container = container.getContainer();
-        }        
+        }
         return container;
     }
-       
+
     /**
      * {@inheritDoc}
      */
@@ -152,6 +152,21 @@ public final class Instance extends AbstractContainer implements IInstance {
      */
     public boolean isInherited() {
         return getParent() instanceof IInstance;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isFromLibrary() {
+        if (getPrototype() != null) {
+            IPrototype prototype = getPrototype();
+            IFolder rootFolder = prototype.getRootFolder();
+            if (rootFolder == null) {
+                return false;
+            }
+            return rootFolder.isLibraryFolder();
+        }
+        return false;
     }
 
     /**

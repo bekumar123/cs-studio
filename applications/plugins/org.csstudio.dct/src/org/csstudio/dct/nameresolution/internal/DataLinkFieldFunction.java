@@ -9,6 +9,7 @@ import org.csstudio.dct.model.IRecord;
 import org.csstudio.dct.nameresolution.FieldFunctionContentProposal;
 import org.csstudio.dct.nameresolution.IFieldFunction;
 import org.csstudio.dct.nameresolution.RecordFinder;
+import org.csstudio.dct.nameresolution.internal.helper.StringHelper;
 import org.csstudio.dct.util.AliasResolutionUtil;
 import org.csstudio.domain.common.strings.StringUtil;
 import org.eclipse.core.runtime.Platform;
@@ -66,7 +67,7 @@ public final class DataLinkFieldFunction implements IFieldFunction {
             for (IRecord r : record.getContainer().getRecords()) {
                 String name = AliasResolutionUtil.getNameFromHierarchy(r);
                 if (name.startsWith(para)) {
-                    result.add(new FieldFunctionContentProposal(name.substring(para.length()), name,
+                    result.add(new FieldFunctionContentProposal(StringHelper.removePrefix(name, para), name,
                             "Reference to record [" + name + "]", name.length()));
                 }
             }
@@ -82,8 +83,8 @@ public final class DataLinkFieldFunction implements IFieldFunction {
                 if (r != null) {
                     for (String f : r.getFinalFields().keySet()) {
                         if (f.startsWith(para)) {
-                            result.add(new FieldFunctionContentProposal(f.substring(para.length()), f, f + " field", f
-                                    .length()));
+                            result.add(new FieldFunctionContentProposal(StringHelper.removePrefix(f, para), f, f
+                                    + " field", f.length()));
                         }
                     }
                 }
@@ -119,7 +120,7 @@ public final class DataLinkFieldFunction implements IFieldFunction {
         if (StringUtil.hasLength(proposals)) {
             for (String p : proposals.split(",")) {
                 if (p.startsWith(para)) {
-                    result.add(new FieldFunctionContentProposal(p.substring(para.length()), p, p, p.length()));
+                    result.add(new FieldFunctionContentProposal(StringHelper.removePrefix(p, para), p, p, p.length()));
                 }
             }
         }

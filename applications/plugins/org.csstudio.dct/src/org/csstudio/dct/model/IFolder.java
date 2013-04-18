@@ -2,8 +2,6 @@ package org.csstudio.dct.model;
 
 import java.util.List;
 
-import org.csstudio.dct.model.internal.Instance;
-
 /**
  * Represents a file system like folder. For example Prototype or Instances are
  * folder.
@@ -26,7 +24,7 @@ public interface IFolder extends IElement, IFolderMember, IRootFolder {
      * 
      * @return all instances that are contained in this folder
      */
-    List<Instance> getAllInstancesInHierachie();
+    List<IInstance> getAllInstancesInHierachie();
 
     /**
      * Adds a member.

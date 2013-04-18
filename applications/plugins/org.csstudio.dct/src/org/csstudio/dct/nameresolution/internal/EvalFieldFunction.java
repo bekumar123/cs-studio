@@ -34,7 +34,8 @@ public final class EvalFieldFunction implements IFieldFunction {
 		return result;
 	}
 
-	public List<IContentProposal> getParameterProposal(int parameterIndex, String[] knownParameters, 
+	@SuppressWarnings("unchecked")
+    public List<IContentProposal> getParameterProposal(int parameterIndex, String[] knownParameters, 
 	        IRecord record) {
 		return Collections.EMPTY_LIST;
 	}

@@ -7,6 +7,7 @@ import org.csstudio.dct.model.IRecord;
 import org.csstudio.dct.nameresolution.FieldFunctionContentProposal;
 import org.csstudio.dct.nameresolution.IFieldFunction;
 import org.csstudio.dct.nameresolution.RecordFinder;
+import org.csstudio.dct.nameresolution.internal.helper.StringHelper;
 import org.csstudio.dct.util.AliasResolutionUtil;
 import org.eclipse.jface.fieldassist.IContentProposal;
 
@@ -52,7 +53,7 @@ public final class ForwardLinkFieldFunction implements IFieldFunction {
 
             // @formatter:off
             result.add(new FieldFunctionContentProposal(
-			    AliasResolutionUtil.getNameFromHierarchy(r), 
+			    StringHelper.removePrefix(AliasResolutionUtil.getNameFromHierarchy(r), knownParameters[parameterIndex]), 
 			    AliasResolutionUtil.getNameFromHierarchy(r),
 			    description, 0));
 			   // @formatter:on

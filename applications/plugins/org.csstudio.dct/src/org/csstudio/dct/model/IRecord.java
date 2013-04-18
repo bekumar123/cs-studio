@@ -45,7 +45,7 @@ public interface IRecord extends IPropertyContainer, IElement {
      * @return the root container
      */
     IContainer getRootContainer();
-    
+
     /**
      * Sets the physical container.
      * 

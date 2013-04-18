@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.csstudio.dct.metamodel.IDatabaseDefinition;
 import org.csstudio.dct.model.internal.BaseRecord;
+import org.eclipse.gef.commands.CommandStack;
 
 import com.google.common.base.Optional;
 
@@ -86,6 +87,22 @@ public interface IProject extends IElement {
      *            the library file path.
      */
     void setLibraryPath(String path);
+        
+
+    /**
+     * Returns the library file path.
+     * 
+     * @return the library file path
+     */
+    String getActiveLibraryPath();
+
+    /**
+     * Sets the library file path.
+     * 
+     * @param path
+     *            the library file path.
+     */
+    void setActiveLibraryPath(String path);
 
     /**
      * Returns the name of an associated IOC.
@@ -142,6 +159,6 @@ public interface IProject extends IElement {
      * Make sure that changes in the Library are propagated to the main project
      * 
      */
-    void refreshLibraryContent();
+    void refreshFromLibrary(CommandStack commandStack);
 
 }

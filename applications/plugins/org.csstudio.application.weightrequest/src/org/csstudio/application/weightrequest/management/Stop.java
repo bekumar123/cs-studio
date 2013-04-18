@@ -28,6 +28,7 @@ package org.csstudio.application.weightrequest.management;
 import java.util.Arrays;
 import java.util.List;
 import org.csstudio.application.weightrequest.Activator;
+import org.csstudio.headless.common.management.CommandResultPrefix;
 import org.csstudio.remote.management.CommandParameters;
 import org.csstudio.remote.management.CommandResult;
 import org.csstudio.remote.management.IManagementCommand;
@@ -42,17 +43,17 @@ import org.osgi.util.tracker.ServiceTracker;
  * @since 01.12.2011
  */
 public class Stop implements IManagementCommand {
-    
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public CommandResult execute(CommandParameters parameters) {
-        
+
         CommandResult result = null;
         ApplicationHandle thisHandle = null;
         BundleContext bundleContext = Activator.getContext();
 
-        String serviceFilter = "(&(objectClass=" + 
-                ApplicationHandle.class.getName() + ")" + 
+        String serviceFilter = "(&(objectClass=" +
+                ApplicationHandle.class.getName() + ")" +
                 "(application.descriptor=" + "org.csstudio.application.weightrequest" + "*))";
 
         ServiceTracker<?, ?> tracker = null;
@@ -74,7 +75,9 @@ public class Stop implements IManagementCommand {
                     }
                 }
             } else {
-                result = CommandResult.createFailureResult("\nCannot get the application entry from the service.");
+                result = CommandResult.createFailureResult(
+                                         CommandResultPrefix.getErrorPrefix(1)
+                                         + " Cannot get the application entry from the service.");
             }
 
             tracker.close();
@@ -83,12 +86,15 @@ public class Stop implements IManagementCommand {
         }
 
         if (thisHandle != null) {
-            result = CommandResult.createMessageResult("OK: [0] - Stopping WeightRequestApplication...");
+            result = CommandResult.createMessageResult(CommandResultPrefix.getOkPrefix()
+                                                       + " Stopping WeightRequestApplication...");
             thisHandle.destroy();
         } else {
-            result = CommandResult.createFailureResult("ERROR: [1] - Cannot get the application entry from the service.");
+            result = CommandResult.createFailureResult(
+                                          CommandResultPrefix.getErrorPrefix(1)
+                                          + " Cannot get the application entry from the service.");
         }
 
         return result;
-    }    
+    }
 }

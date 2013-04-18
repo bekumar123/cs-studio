@@ -2,12 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Weightrequest
 Bundle-SymbolicName: org.csstudio.application.weightrequest; singleton:=true
-Bundle-Version: 1.0.2.qualifier
+Bundle-Version: 1.0.3.qualifier
 Bundle-Activator: org.csstudio.application.weightrequest.Activator
 Bundle-Vendor: Markus Moeller <markus.moeller@desy.de>
 Require-Bundle: org.eclipse.core.runtime,
  org.csstudio.platform.libs.epics;bundle-version="1.1.5",
  org.csstudio.remote;bundle-version="3.1.0",
+ org.csstudio.headless.common;bundle-version="1.0.0",
  org.eclipse.ecf.identity;bundle-version="3.1.100",
  org.remotercp.common;bundle-version="1.0.0",
  org.remotercp.util;bundle-version="1.0.0",

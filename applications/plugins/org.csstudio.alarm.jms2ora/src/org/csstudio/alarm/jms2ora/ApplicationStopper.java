@@ -264,8 +264,8 @@ public class ApplicationStopper implements IGenericServiceListener<ISessionServi
 
                 final CommandResult retValue = service.execute(stopAction.getIdentifier(), parameter);
                 if(retValue != null) {
-                    returnValue = (String)retValue.getValue();
-                    if(returnValue.trim().startsWith("OK:") || returnValue.indexOf("stopping") > -1) {
+                    returnValue = (String) retValue.getValue();
+                    if(returnValue.trim().startsWith("OK") || returnValue.indexOf("stopping") > -1) {
                         result = true;
                         LOG.info("Application stopped: {}", result);
                         // iResult = ApplicResult.RESULT_OK.ordinal();

@@ -26,26 +26,26 @@ package org.csstudio.alarm.jms2ora;
 
 import java.io.File;
 import java.io.PrintStream;
-import java.net.MalformedURLException;
-import java.net.URI;
 
 import javax.annotation.Nonnull;
 
-import org.csstudio.alarm.jms2ora.management.GetDescription;
 import org.csstudio.alarm.jms2ora.management.GetNumberOfMessageFiles;
 import org.csstudio.alarm.jms2ora.management.GetQueueSize;
-import org.csstudio.alarm.jms2ora.management.GetVersionMgmtCommand;
+import org.csstudio.alarm.jms2ora.management.InfoCmd;
+import org.csstudio.alarm.jms2ora.management.Restart;
 import org.csstudio.alarm.jms2ora.preferences.PreferenceConstants;
 import org.csstudio.alarm.jms2ora.util.CommandLine;
 import org.csstudio.alarm.jms2ora.util.Hostname;
 import org.csstudio.alarm.jms2ora.util.JmsSender;
-import org.csstudio.headless.common.time.StartTime;
+import org.csstudio.headless.common.util.ApplicationInfo;
+import org.csstudio.headless.common.xmpp.XmppCredentials;
+import org.csstudio.headless.common.xmpp.XmppLoginException;
+import org.csstudio.headless.common.xmpp.XmppSessionException;
+import org.csstudio.headless.common.xmpp.XmppSessionHandler;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.remotercp.common.tracker.IGenericServiceListener;
-import org.remotercp.service.connection.session.ISessionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,8 +56,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 
-public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAccesible,
-                                           IGenericServiceListener<ISessionService> {
+public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAccesible {
 
     /** The class logger */
     private static final Logger LOG = LoggerFactory.getLogger(Jms2OraApplication.class);
@@ -74,12 +73,9 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
     /**  */
     private final Object lock;
 
-    /** Object that holds the credentials for XMPP login */
-    private XmppInfo xmppInfo;
-
     private XmppSessionHandler xmppSessionHandler;
 
-    private StartTime startTime;
+    private ApplicationInfo appInfo;
 
     /** Flag that indicates whether or not the application is/should running */
     private boolean running;
@@ -88,9 +84,22 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
     private boolean shutdown;
 
     public Jms2OraApplication() {
-        xmppSessionHandler = new XmppSessionHandler();
+        IPreferencesService prefs = Platform.getPreferencesService();
+        String xmppServer = prefs.getString(Jms2OraActivator.PLUGIN_ID,
+                                           PreferenceConstants.XMPP_SERVER,
+                                           "krynfs.desy.de",
+                                           null);
+        String xmppUser = prefs.getString(Jms2OraActivator.PLUGIN_ID,
+                                          PreferenceConstants.XMPP_USER_NAME,
+                                          "anonymous",
+                                          null);
+        String xmppPassword = prefs.getString(Jms2OraActivator.PLUGIN_ID,
+                                              PreferenceConstants.XMPP_PASSWORD,
+                                              "anonymous",
+                                              null);
+        XmppCredentials credentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
+        xmppSessionHandler = new XmppSessionHandler(Jms2OraActivator.getBundleContext(), credentials);
         lock = new Object();
-        xmppInfo = null;
         running = true;
         shutdown = false;
     }
@@ -101,7 +110,12 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
     @Override
     public Object start(@Nonnull final IApplicationContext context) throws Exception {
 
-        startTime = new StartTime();
+        IPreferencesService prefs = Platform.getPreferencesService();
+        String desc = prefs.getString(Jms2OraActivator.PLUGIN_ID,
+                                      PreferenceConstants.DESCRIPTION,
+                                      "I am a simple but happy application.", null);
+
+        appInfo = new ApplicationInfo(desc);
 
         File stdOut = new File("./stdout.txt");
         File stdErr = new File("./stderr.txt");
@@ -118,19 +132,7 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
         System.setOut(new PrintStream(new File("./stdout.txt")));
         System.setErr(new PrintStream(new File("./stderr.txt")));
 
-        xmppSessionHandler.connect(this);
-
         String[] args = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
-
-        final IPreferencesService prefs = Platform.getPreferencesService();
-        final String xmppUser = prefs.getString(Jms2OraActivator.PLUGIN_ID,
-                PreferenceConstants.XMPP_USER_NAME, "anonymous", null);
-        final String xmppPassword = prefs.getString(Jms2OraActivator.PLUGIN_ID,
-                PreferenceConstants.XMPP_PASSWORD, "anonymous", null);
-        final String xmppServer = prefs.getString(Jms2OraActivator.PLUGIN_ID,
-                PreferenceConstants.XMPP_SERVER, "krynfs.desy.de", null);
-
-        xmppInfo = new XmppInfo(xmppServer, xmppUser, xmppPassword);
 
         /*
          *  Applikationsoptionen, um den Check zu starten
@@ -139,7 +141,6 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
         CommandLine cmd = new CommandLine(args);
         if(cmd.exists("help") || cmd.exists("h") || cmd.exists("?")) {
 
-            System.out.println(VersionInfo.getAll());
             System.out.println("Usage: jms2ora [-check] [-stop] [-host <hostname>] [-username <username>] [-help | -h | -?]");
             System.out.println("       -check               - Checks if the application hangs using the XMPP command.");
             System.out.println("       -stop                - Stopps the application using the XMPP command.");
@@ -208,7 +209,16 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
 
         ThreadExceptionHandler.initialize(this);
 
-        Jms2OraActivator.getDefault().addSessionServiceListener(this);
+        Restart.staticInject(this);
+        GetQueueSize.staticInject(this);
+        GetNumberOfMessageFiles.staticInject(this);
+        InfoCmd.staticInject(this);
+
+        try {
+            xmppSessionHandler.connect();
+        } catch (XmppSessionException e) {
+            LOG.warn("Cannot connect to the XMPP server.");
+        }
 
         messageProcessor = new MessageProcessor(sleep, storageWait, logStatistic);
         messageProcessor.start();
@@ -233,7 +243,7 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
                 try {
                     xmppSessionHandler.reconnect();
                 } catch (XmppSessionException e) {
-                    xmppSessionHandler.connect(this);
+                    LOG.warn("Cannot re-connect to the XMPP server.");
                 }
             }
             // TODO: Check the worker...
@@ -272,53 +282,6 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
         }
 
         return exitCode;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void bindService(@Nonnull final ISessionService sessionService) {
-
-    	if (xmppInfo == null) {
-    	    return;
-    	}
-
-    	GetQueueSize.staticInject(this);
-    	GetNumberOfMessageFiles.staticInject(this);
-    	GetDescription.staticInject(this);
-        final File file = new File(".eclipseproduct");
-        if (file.exists()) {
-            final URI uri = file.toURI();
-            String path;
-            try {
-                path = uri.toURL().getPath();
-                if (path != null) {
-
-                    LOG.info("Path to version file: {}", path);
-                    GetVersionMgmtCommand.injectStaticObject(path);
-                }
-            } catch (MalformedURLException e) {
-                LOG.warn("[*** MalformedURLException ***]: {}", e.getMessage());
-            }
-        } else {
-            LOG.warn("File '.eclipseproduct' does not exist.");
-        }
-
-    	try {
-			sessionService.connect(xmppInfo.getXmppUser(), xmppInfo.getXmppPassword(), xmppInfo.getXmppServer());
-			xmppSessionHandler.setSessionService(sessionService);
-    	} catch (final Exception e) {
-		    LOG.warn("XMPP connection is not available: {}", e.toString());
-		}
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void unbindService(@Nonnull final ISessionService service) {
-    	// Nothing to do here
     }
 
     /**
@@ -384,27 +347,7 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
      * {@inheritDoc}
      */
     @Override
-    public String getStartingTimeAsString() {
-        return startTime.getStartingTimeAsString();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getRunningTimeAsString() {
-        return startTime.getRunningTimeAsString();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getDescription() {
-        IPreferencesService prefs = Platform.getPreferencesService();
-        String desc = prefs.getString(Jms2OraActivator.PLUGIN_ID,
-                                      PreferenceConstants.DESCRIPTION,
-                                      "I am a simple but happy application.", null);
-        return desc;
+    public String getInfo() {
+        return appInfo.toString();
     }
 }

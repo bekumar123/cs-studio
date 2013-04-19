@@ -25,8 +25,6 @@
 package org.csstudio.alarm.jms2ora;
 
 /**
- * TODO (mmoeller) :
- *
  * @author mmoeller
  * @version 1.0
  * @since 19.08.2011
@@ -42,9 +40,5 @@ public interface RemotelyAccesible {
 
     int getNumberOfMessageFiles();
 
-    String getStartingTimeAsString();
-
-    String getRunningTimeAsString();
-
-    String getDescription();
+    String getInfo();
 }

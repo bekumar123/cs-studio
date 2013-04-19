@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2011 Stiftung Deutsches Elektronen-Synchrotron,
+ * Copyright (c) 2013 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -19,8 +19,6 @@
  * USAGE AND OTHER RIGHTS AND OBLIGATIONS IS INCLUDED WITH THE DISTRIBUTION OF THIS
  * PROJECT IN THE FILE LICENSE.HTML. IF THE LICENSE IS NOT INCLUDED YOU MAY FIND A COPY
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
- *
- * $Id: DesyKrykCodeTemplates.xml,v 1.7 2010/04/20 11:43:22 bknerr Exp $
  */
 
 package org.csstudio.alarm.jms2ora.management;
@@ -31,26 +29,21 @@ import org.csstudio.remote.management.CommandResult;
 import org.csstudio.remote.management.IManagementCommand;
 
 /**
- * @author Markus Moeller
- * @version
- * @since 22.06.2011
+ * @author mmoeller
+ * @since 18.04.2013
  */
-public class GetDescription implements IManagementCommand {
+public class InfoCmd implements IManagementCommand {
 
     private static RemotelyAccesible object = null;
 
     /**
-     * @see org.csstudio.platform.management.IManagementCommand#execute(org.csstudio.platform.management.CommandParameters)
+     * {@inheritDoc}
      */
     @Override
     public CommandResult execute(CommandParameters parameters) {
         CommandResult result = null;
         if (object != null) {
-            String desc = object.getDescription()
-                          + "\n\nStarting time\n  "
-                          + object.getStartingTimeAsString()
-                          + "\n\nUptime\n  "
-                          + object.getRunningTimeAsString();
+            String desc = object.getInfo();
             result = CommandResult.createMessageResult(desc);
         } else {
             result = CommandResult.createFailureResult("No description available. The application reference is null!");

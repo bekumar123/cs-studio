@@ -54,7 +54,7 @@ public class Stop implements IManagementCommand {
 
         CommandResult result = null;
         ApplicationHandle thisHandle = null;
-        BundleContext bundleContext = Jms2OraActivator.getDefault().getBundleContext();
+        BundleContext bundleContext = Jms2OraActivator.getBundleContext();
 
         IPreferencesService prefs = Platform.getPreferencesService();
         String xmppShutdownPassword = prefs.getString(Jms2OraActivator.PLUGIN_ID,

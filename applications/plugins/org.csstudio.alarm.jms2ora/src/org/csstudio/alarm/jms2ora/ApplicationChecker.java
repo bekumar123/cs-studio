@@ -39,9 +39,14 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+
 import org.csstudio.alarm.jms2ora.preferences.PreferenceConstants;
 import org.csstudio.alarm.jms2ora.util.CheckErrorState;
 import org.csstudio.alarm.jms2ora.util.JmsSender;
+import org.csstudio.headless.common.xmpp.XmppCredentials;
+import org.csstudio.headless.common.xmpp.XmppLoginException;
+import org.csstudio.headless.common.xmpp.XmppSessionException;
+import org.csstudio.headless.common.xmpp.XmppSessionHandler;
 import org.csstudio.remote.management.CommandDescription;
 import org.csstudio.remote.management.CommandResult;
 import org.csstudio.remote.management.IManagementCommandService;
@@ -59,8 +64,6 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.joda.time.DateTime;
-import org.remotercp.common.tracker.IGenericServiceListener;
-import org.remotercp.service.connection.session.ISessionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,13 +72,13 @@ import org.slf4j.LoggerFactory;
  * @version
  * @since 30.09.2010
  */
-public class ApplicationChecker implements IGenericServiceListener<ISessionService> {
+public class ApplicationChecker {
 
     /** The class logger. */
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationChecker.class);
 
-    /** The SessionService for the XMPP login */
-    private ISessionService xmppSession;
+    /** The Session Handler for the XMPP login */
+    private XmppSessionHandler xmppSessionHandler;
 
     /** */
     private CheckErrorState errorState;
@@ -112,7 +115,14 @@ public class ApplicationChecker implements IGenericServiceListener<ISessionServi
         LOG.info("Max store time difference: {}", maxStoreDiffTime);
 
         errorState = this.readErrorState();
-        xmppSession = null;
+        final String xmppServer = prefs.getString(Jms2OraActivator.PLUGIN_ID,
+                                                  PreferenceConstants.XMPP_SERVER, "krynfs.desy.de", null);
+        final String xmppUser = prefs.getString(Jms2OraActivator.PLUGIN_ID,
+                PreferenceConstants.XMPP_REMOTE_USER_NAME, "anonymous", null);
+        final String xmppPassword = prefs.getString(Jms2OraActivator.PLUGIN_ID,
+                PreferenceConstants.XMPP_REMOTE_PASSWORD, "anonymous", null);
+        XmppCredentials credentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
+        xmppSessionHandler = new XmppSessionHandler(Jms2OraActivator.getBundleContext(), credentials);
     }
 
     /**
@@ -130,7 +140,11 @@ public class ApplicationChecker implements IGenericServiceListener<ISessionServi
         IRosterEntry currentApplic = null;
         boolean success = false;
 
-        Jms2OraActivator.getDefault().addSessionServiceListener(this);
+        try {
+            xmppSessionHandler.connect();
+        } catch (XmppSessionException e) {
+            LOG.info("XMPP login failed. Cannot stop the application.");
+        }
 
         final Object lock = new Object();
         synchronized (lock) {
@@ -141,7 +155,7 @@ public class ApplicationChecker implements IGenericServiceListener<ISessionServi
             }
         }
 
-        if (xmppSession == null) {
+        if (!xmppSessionHandler.isConnected()) {
             LOG.warn("XMPP login failed. Stopping application.");
             throw new XmppLoginException("Cannot check the status of Jms2Ora.");
         }
@@ -169,7 +183,7 @@ public class ApplicationChecker implements IGenericServiceListener<ISessionServi
         }
 
         LOG.info("Manager initialized");
-        LOG.info("Anzahl Directory-Elemente: {}", rosterItems.size());
+        LOG.info("Number of directory entries: {}", rosterItems.size());
 
         jmsApplics = this.getRosterGroup(rosterItems, "jms-applications");
         currentApplic = this.getRosterApplication(jmsApplics, applicationName, host, user);
@@ -178,15 +192,8 @@ public class ApplicationChecker implements IGenericServiceListener<ISessionServi
             success = this.getStatisticsAndCheck(currentApplic);
         }
 
-        if (xmppSession != null) {
-            synchronized (xmppSession) {
-                try {
-                    xmppSession.wait(500);
-                } catch (InterruptedException ie) {
-                    LOG.info("xmppService.wait(500) has been interrupted.");
-                }
-            }
-            xmppSession.disconnect();
+        if (xmppSessionHandler != null) {
+            xmppSessionHandler.disconnect();
         }
 
         return success;
@@ -210,7 +217,7 @@ public class ApplicationChecker implements IGenericServiceListener<ISessionServi
             LOG.info("Anwendung gefunden: {}", currentApplic.getUser().getID().getName());
 
             final List<IManagementCommandService> managementServices =
-                xmppSession.getRemoteServiceProxies(
+                xmppSessionHandler.getXmppSessionService().getRemoteServiceProxies(
                     IManagementCommandService.class, new ID[] {currentApplic.getUser().getID()});
 
             if (managementServices.size() == 1) {
@@ -219,7 +226,7 @@ public class ApplicationChecker implements IGenericServiceListener<ISessionServi
                 final CommandDescription[] commands = service.getSupportedCommands();
 
                 for (final CommandDescription command : commands) {
-                    if (command.getLabel().compareToIgnoreCase("get statistics") == 0) {
+                    if (command.getLabel().compareToIgnoreCase("statistics") == 0) {
                         getStatisticsAction = command;
                         break;
                     }
@@ -459,7 +466,7 @@ public class ApplicationChecker implements IGenericServiceListener<ISessionServi
         Vector<IRosterItem> rosterItems = null;
         int count = 0;
 
-        final IRosterManager rosterManager = xmppSession.getRosterManager();
+        final IRosterManager rosterManager = xmppSessionHandler.getXmppSessionService().getRosterManager();
 
         // We have to wait until the ECF connection manager have been initialized
         synchronized (this) {
@@ -563,7 +570,7 @@ public class ApplicationChecker implements IGenericServiceListener<ISessionServi
 
         CheckErrorState result = null;
         ObjectInputStream fileStream = null;
-        
+
         try {
             fileStream = new ObjectInputStream(new FileInputStream(errorFile));
             Object o = fileStream.readObject();
@@ -582,7 +589,7 @@ public class ApplicationChecker implements IGenericServiceListener<ISessionServi
                 fileStream = null;
             }
         }
-        
+
         return result;
     }
 
@@ -619,9 +626,9 @@ public class ApplicationChecker implements IGenericServiceListener<ISessionServi
     }
 
     private void deleteErrorFile() {
-        
+
         String workspaceLocation = null;
-        
+
         // Retrieve the location of the workspace directory
         try {
             workspaceLocation = Platform.getLocation().toPortableString();
@@ -632,36 +639,10 @@ public class ApplicationChecker implements IGenericServiceListener<ISessionServi
             LOG.warn("Workspace location could not be found. Using working directory '.'");
             workspaceLocation = "./";
         }
-        
+
         File file = new File(workspaceLocation + "errorState.ser");
         if (file.exists()) {
             file.delete();
         }
-    }
-    
-    @Override
-    public final void bindService(final ISessionService service) {
-
-        final IPreferencesService prefs = Platform.getPreferencesService();
-        final String xmppUser = prefs.getString(Jms2OraActivator.PLUGIN_ID,
-                PreferenceConstants.XMPP_REMOTE_USER_NAME, "anonymous", null);
-        final String xmppPassword = prefs.getString(Jms2OraActivator.PLUGIN_ID,
-                PreferenceConstants.XMPP_REMOTE_PASSWORD, "anonymous", null);
-        final String xmppServer = prefs.getString(Jms2OraActivator.PLUGIN_ID,
-                PreferenceConstants.XMPP_SERVER, "krynfs.desy.de", null);
-
-        try {
-            LOG.info("ISessionService: {}", service.toString());
-            service.connect(xmppUser, xmppPassword, xmppServer);
-            xmppSession = service;
-        } catch (final Exception e) {
-            LOG.error("XMPP login is NOT possible: {}", e.getMessage());
-            xmppSession = null;
-        }
-    }
-
-    @Override
-    public void unbindService(final ISessionService service) {
-        // Nothing to do here
     }
 }

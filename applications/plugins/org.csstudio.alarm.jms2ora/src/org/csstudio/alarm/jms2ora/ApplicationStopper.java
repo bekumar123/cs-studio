@@ -29,6 +29,9 @@ import java.util.List;
 import java.util.Vector;
 
 import org.csstudio.alarm.jms2ora.preferences.PreferenceConstants;
+import org.csstudio.headless.common.xmpp.XmppCredentials;
+import org.csstudio.headless.common.xmpp.XmppSessionException;
+import org.csstudio.headless.common.xmpp.XmppSessionHandler;
 import org.csstudio.remote.management.CommandDescription;
 import org.csstudio.remote.management.CommandParameters;
 import org.csstudio.remote.management.CommandResult;
@@ -41,8 +44,6 @@ import org.eclipse.ecf.presence.roster.IRosterEntry;
 import org.eclipse.ecf.presence.roster.IRosterGroup;
 import org.eclipse.ecf.presence.roster.IRosterItem;
 import org.eclipse.ecf.presence.roster.IRosterManager;
-import org.remotercp.common.tracker.IGenericServiceListener;
-import org.remotercp.service.connection.session.ISessionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,16 +51,24 @@ import org.slf4j.LoggerFactory;
  * @author Markus Moeller
  *
  */
-public class ApplicationStopper implements IGenericServiceListener<ISessionService> {
+public class ApplicationStopper {
 
     /** The class logger */
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationStopper.class);
 
     /** */
-    private ISessionService xmppSession;
+    private XmppSessionHandler xmppSessionHandler;
 
     public ApplicationStopper() {
-        xmppSession = null;
+        final IPreferencesService prefs = Platform.getPreferencesService();
+        final String xmppServer = prefs.getString(Jms2OraActivator.PLUGIN_ID,
+                PreferenceConstants.XMPP_SERVER, "krynfs.desy.de", null);
+        final String xmppUser = prefs.getString(Jms2OraActivator.PLUGIN_ID,
+                PreferenceConstants.XMPP_REMOTE_USER_NAME, "anonymous", null);
+        final String xmppPassword = prefs.getString(Jms2OraActivator.PLUGIN_ID,
+                PreferenceConstants.XMPP_REMOTE_PASSWORD, "anonymous", null);
+        XmppCredentials credentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
+        xmppSessionHandler = new XmppSessionHandler(Jms2OraActivator.getBundleContext(), credentials);
     }
 
     /**
@@ -79,7 +88,11 @@ public class ApplicationStopper implements IGenericServiceListener<ISessionServi
         final IPreferencesService prefs = Platform.getPreferencesService();
         stopPassword = prefs.getString(Jms2OraActivator.PLUGIN_ID, PreferenceConstants.XMPP_SHUTDOWN_PASSWORD, "", null);
 
-        Jms2OraActivator.getDefault().addSessionServiceListener(this);
+        try {
+            xmppSessionHandler.connect();
+        } catch (XmppSessionException e) {
+            LOG.info("XMPP login failed. Cannot stop the application.");
+        }
 
         final Object lock = new Object();
         synchronized (lock) {
@@ -90,9 +103,8 @@ public class ApplicationStopper implements IGenericServiceListener<ISessionServi
             }
         }
 
-        if (xmppSession == null) {
-            LOG.info("XMPP login failed. Cannot stop the application.");
-            return success;
+        if (!xmppSessionHandler.isConnected()) {
+            return false;
         }
 
         rosterItems = getRosterItems();
@@ -122,8 +134,8 @@ public class ApplicationStopper implements IGenericServiceListener<ISessionServi
             success = this.stopApplication(currentApplic, stopPassword);
         }
 
-        if (xmppSession != null) {
-            xmppSession.disconnect();
+        if (xmppSessionHandler != null) {
+            xmppSessionHandler.disconnect();
         }
 
         return success;
@@ -140,7 +152,7 @@ public class ApplicationStopper implements IGenericServiceListener<ISessionServi
         Vector<IRosterItem> rosterItems = null;
         int count = 0;
 
-        final IRosterManager rosterManager = xmppSession.getRosterManager();
+        final IRosterManager rosterManager = xmppSessionHandler.getXmppSessionService().getRosterManager();
 
         // We have to wait until the ECF connection manager have been initialized
         synchronized(this) {
@@ -241,7 +253,7 @@ public class ApplicationStopper implements IGenericServiceListener<ISessionServi
             LOG.info("Anwendung gefunden: {}" + currentApplic.getUser().getID().getName());
 
             final List<IManagementCommandService> managementServices =
-                xmppSession.getRemoteServiceProxies(
+                    xmppSessionHandler.getXmppSessionService().getRemoteServiceProxies(
                     IManagementCommandService.class, new ID[] {currentApplic.getUser().getID()});
 
             if(managementServices.size() == 1) {
@@ -281,30 +293,5 @@ public class ApplicationStopper implements IGenericServiceListener<ISessionServi
         }
 
         return result;
-    }
-
-    @Override
-    public void bindService(final ISessionService sessionService) {
-
-        final IPreferencesService prefs = Platform.getPreferencesService();
-        final String xmppUser = prefs.getString(Jms2OraActivator.PLUGIN_ID,
-                PreferenceConstants.XMPP_REMOTE_USER_NAME, "anonymous", null);
-        final String xmppPassword = prefs.getString(Jms2OraActivator.PLUGIN_ID,
-                PreferenceConstants.XMPP_REMOTE_PASSWORD, "anonymous", null);
-        final String xmppServer = prefs.getString(Jms2OraActivator.PLUGIN_ID,
-                PreferenceConstants.XMPP_SERVER, "krynfs.desy.de", null);
-
-        try {
-            sessionService.connect(xmppUser, xmppPassword, xmppServer);
-            xmppSession = sessionService;
-        } catch (final Exception e) {
-            xmppSession = null;
-            LOG.warn("XMPP connection is not available: {}", e.getMessage());
-        }
-    }
-
-    @Override
-    public void unbindService(final ISessionService service) {
-        // Nothing to do here
     }
 }

@@ -167,7 +167,11 @@ public class MessageProcessor extends Thread implements IMessageProcessor {
      */
     @Override
     public final synchronized void putArchiveMessage(@Nonnull final ArchiveMessage m) {
-        archiveMessages.add(m);
+        if (m != null) {
+            archiveMessages.add(m);
+        } else {
+            LOG.warn("putArchiveMessage(ArchiveMessage): Argument is null!");
+        }
     }
 
     /**
@@ -210,7 +214,7 @@ public class MessageProcessor extends Thread implements IMessageProcessor {
         Vector<ArchiveMessage> storeMe;
         boolean success;
 
-        LOG.info("Started " + VersionInfo.getAll());
+        LOG.info("{} starting.", this.getClass().getSimpleName());
         LOG.info("Waiting for messages...");
 
         // First look for stored messages on disk

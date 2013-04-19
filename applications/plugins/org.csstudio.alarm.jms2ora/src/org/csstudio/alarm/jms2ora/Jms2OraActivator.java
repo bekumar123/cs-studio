@@ -35,9 +35,6 @@ import org.csstudio.alarm.jms2ora.service.MetaDataReaderServiceTracker;
 import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.remotercp.common.tracker.GenericServiceTracker;
-import org.remotercp.common.tracker.IGenericServiceListener;
-import org.remotercp.service.connection.session.ISessionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,10 +53,7 @@ public class Jms2OraActivator implements BundleActivator {
     private static Jms2OraActivator PLUGIN;
 
     /** The BundleContext instance */
-    private BundleContext bundleContext;
-
-    /** Service tracker for the XMPP login */
-    private GenericServiceTracker<ISessionService> _genericServiceTracker;
+    private static BundleContext bundleContext;
 
     /** Service tracker for the database writer service */
     private MessageWriterServiceTracker writerServiceTracker;
@@ -81,10 +75,6 @@ public class Jms2OraActivator implements BundleActivator {
         PLUGIN = this;
         bundleContext = context;
 
-        _genericServiceTracker = new GenericServiceTracker<ISessionService>(
-                context, ISessionService.class);
-        _genericServiceTracker.open();
-
         metaDataServiceTracker = new MetaDataReaderServiceTracker(context);
         metaDataServiceTracker.open();
 
@@ -105,7 +95,6 @@ public class Jms2OraActivator implements BundleActivator {
         persistenceServiceTracker.close();
         metaDataServiceTracker.close();
         writerServiceTracker.close();
-        _genericServiceTracker.close();
     }
 
     /**
@@ -114,7 +103,7 @@ public class Jms2OraActivator implements BundleActivator {
      * @return The bundle context of this plugin
      */
     @Nonnull
-    public BundleContext getBundleContext() {
+    public static BundleContext getBundleContext() {
         return bundleContext;
     }
 
@@ -137,16 +126,6 @@ public class Jms2OraActivator implements BundleActivator {
     public String getPluginId() {
         return PLUGIN_ID;
     }
-
-    /**
-     * Adds a service listener for the XMPP service
-     *
-     * @param sessionServiceListener
-     */
-	public void addSessionServiceListener(
-			IGenericServiceListener<ISessionService> sessionServiceListener) {
-		_genericServiceTracker.addServiceListener(sessionServiceListener);
-	}
 
 	/**
 	 *

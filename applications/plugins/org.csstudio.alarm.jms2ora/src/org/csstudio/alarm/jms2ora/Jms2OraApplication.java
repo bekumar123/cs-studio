@@ -115,7 +115,7 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
                                       PreferenceConstants.DESCRIPTION,
                                       "I am a simple but happy application.", null);
 
-        appInfo = new ApplicationInfo(desc);
+        appInfo = new ApplicationInfo("Jms2Oracle", desc);
 
         File stdOut = new File("./stdout.txt");
         File stdErr = new File("./stderr.txt");

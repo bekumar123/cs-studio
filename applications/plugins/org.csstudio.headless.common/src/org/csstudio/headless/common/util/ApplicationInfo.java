@@ -40,11 +40,17 @@ public class ApplicationInfo {
 
     private StartTime startTime;
 
+    private String applicName;
+
     private String version;
 
     private String description;
 
-    public ApplicationInfo(String desc) {
+    public ApplicationInfo(String appName, String desc) {
+        applicName = appName;
+        if (applicName == null) {
+            applicName = NOT_AVAILABLE;
+        }
         startTime = new StartTime();
         readVersionFile();
         if (desc != null) {
@@ -81,6 +87,10 @@ public class ApplicationInfo {
         }
     }
 
+    public String getName() {
+        return applicName;
+    }
+
     public String getVersion() {
         return version;
     }
@@ -92,7 +102,7 @@ public class ApplicationInfo {
     @Override
     public String toString() {
         StringBuffer str = new StringBuffer();
-        str.append("Jms2Oracle Version: " + version);
+        str.append("Name: " + applicName + "  -  Version: " + version);
         str.append("\n\nDescription: " + description);
         str.append("\n\nStarting time\n  " + startTime.getStartingTimeAsString());
         str.append("\n\nUptime\n  " + startTime.getRunningTimeAsString());

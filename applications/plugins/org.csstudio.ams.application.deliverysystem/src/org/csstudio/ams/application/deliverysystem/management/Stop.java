@@ -27,9 +27,9 @@ package org.csstudio.ams.application.deliverysystem.management;
 
 import java.util.Arrays;
 import java.util.List;
-
 import org.csstudio.ams.application.deliverysystem.Activator;
 import org.csstudio.ams.application.deliverysystem.RemotelyManageable;
+import org.csstudio.headless.common.management.CommandResultPrefix;
 import org.csstudio.remote.management.CommandParameters;
 import org.csstudio.remote.management.CommandResult;
 import org.csstudio.remote.management.IManagementCommand;
@@ -45,9 +45,9 @@ import org.osgi.util.tracker.ServiceTracker;
  * @since 10.12.2011
  */
 public class Stop implements IManagementCommand {
-    
+
     private static RemotelyManageable remoteObject = null;
-    
+
     public static void staticInject(RemotelyManageable o) {
         remoteObject = o;
     }
@@ -57,11 +57,11 @@ public class Stop implements IManagementCommand {
      */
     @Override
     public CommandResult execute(CommandParameters parameters) {
-        
+
         if (remoteObject != null) {
             remoteObject.setRestart(false);
         }
-        
+
         CommandResult result = null;
         ApplicationHandle thisHandle = null;
         BundleContext bundleContext = Activator.getContext();
@@ -69,43 +69,48 @@ public class Stop implements IManagementCommand {
         String serviceFilter = "(&(objectClass=" +
         ApplicationHandle.class.getName() + ")"
         + "(application.descriptor=" + Activator.PLUGIN_ID + "*))";
-        
+
         // Get the application from the Application Admin Service
         ServiceTracker<ApplicationHandle, IApplicationContext> tracker = null;
         try {
             tracker = new ServiceTracker<ApplicationHandle, IApplicationContext>(bundleContext, bundleContext.createFilter(serviceFilter), null);
             tracker.open();
-        
+
             Object[] allServices = tracker.getServices();
             if(allServices != null) {
-                
+
                 List<Object> services = Arrays.asList(allServices);
                 ApplicationHandle[] regApps = services.toArray(new ApplicationHandle[0]);
-                
+
                 for(ApplicationHandle o : regApps) {
-                    
+
                     if(o.getInstanceId().contains("DeliverySystemApplication")) {
                         thisHandle = o;
                         break;
                     }
                 }
             } else {
-                result = CommandResult.createFailureResult("\nCannot get the application entry from the service.");
+                result = CommandResult.createFailureResult(
+                                         CommandResultPrefix.getErrorPrefix(1)
+                                         + " Cannot get the application entry from the service.");
             }
-            
+
             tracker.close();
         } catch(InvalidSyntaxException e) {
             result = CommandResult.createFailureResult(e.getMessage());
         }
-        
+
         if(thisHandle != null) {
 
-            result = CommandResult.createMessageResult("OK: [0] - Stopping DeliverySystem...");
+            result = CommandResult.createMessageResult(CommandResultPrefix.getOkPrefix()
+                                                       + " Stopping DeliverySystem...");
             thisHandle.destroy();
         } else {
-            result = CommandResult.createFailureResult("ERROR: [1] - Cannot get the application entry from the service.");
+            result = CommandResult.createFailureResult(
+                                         CommandResultPrefix.getErrorPrefix(1)
+                                         + " Cannot get the application entry from the service.");
         }
-        
+
         return result;
     }
 }

@@ -38,6 +38,7 @@ import org.csstudio.ams.application.deliverysystem.util.CommonMailer;
 import org.csstudio.ams.application.deliverysystem.util.Environment;
 import org.csstudio.ams.delivery.AbstractDeliveryWorker;
 import org.csstudio.ams.internal.AmsPreferenceKey;
+import org.csstudio.headless.common.util.StandardStreams;
 import org.csstudio.headless.common.xmpp.XmppCredentials;
 import org.csstudio.headless.common.xmpp.XmppSessionException;
 import org.csstudio.headless.common.xmpp.XmppSessionHandler;
@@ -104,6 +105,9 @@ public class DeliverySystemApplication implements IApplication,
 	 */
 	@Override
     public Object start(IApplicationContext context) throws Exception {
+
+        StandardStreams stdStreams = new StandardStreams();
+        stdStreams.redirectStreams();
 
         try {
             xmppSessionHandler.connect();

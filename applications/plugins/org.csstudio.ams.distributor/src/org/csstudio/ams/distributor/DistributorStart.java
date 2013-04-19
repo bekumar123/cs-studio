@@ -43,6 +43,7 @@ import org.csstudio.ams.dbAccess.ConfigDbProperties;
 import org.csstudio.ams.distributor.preferences.DistributorPreferenceKey;
 import org.csstudio.ams.internal.AmsPreferenceKey;
 import org.csstudio.headless.common.time.StartTime;
+import org.csstudio.headless.common.util.StandardStreams;
 import org.csstudio.headless.common.xmpp.XmppCredentials;
 import org.csstudio.headless.common.xmpp.XmppSessionException;
 import org.csstudio.headless.common.xmpp.XmppSessionHandler;
@@ -132,6 +133,9 @@ public class DistributorStart implements IApplication,
     public Object start(final IApplicationContext context) throws Exception {
 
         Log.log(this, Log.INFO, "Starting Distributor ...");
+
+        StandardStreams stdStreams = new StandardStreams();
+        stdStreams.redirectStreams();
 
         try {
             xmppSessionHandler.connect();

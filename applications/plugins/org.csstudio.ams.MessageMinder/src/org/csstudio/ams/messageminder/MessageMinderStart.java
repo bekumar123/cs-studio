@@ -30,6 +30,7 @@ import org.csstudio.ams.AmsActivator;
 import org.csstudio.ams.Log;
 import org.csstudio.ams.internal.AmsPreferenceKey;
 import org.csstudio.ams.messageminder.preference.MessageMinderPreferenceKey;
+import org.csstudio.headless.common.util.StandardStreams;
 import org.csstudio.headless.common.xmpp.XmppCredentials;
 import org.csstudio.headless.common.xmpp.XmppSessionException;
 import org.csstudio.headless.common.xmpp.XmppSessionHandler;
@@ -79,11 +80,14 @@ public final class MessageMinderStart implements IApplication {
      */
     @Override
     public Object start(IApplicationContext context) throws Exception {
+
+        Log.log(this, Log.INFO, "MessageMinder started...");
         _instance = this;
 
         MessageMinderPreferenceKey.showPreferences();
 
-        Log.log(this, Log.INFO, "MessageMinder started...");
+        StandardStreams stdStreams = new StandardStreams();
+        stdStreams.redirectStreams();
 
         xmppService.connect();
 

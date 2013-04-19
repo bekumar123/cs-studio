@@ -30,6 +30,7 @@ import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.List;
 import org.csstudio.domain.common.statistic.Collector;
+import org.csstudio.headless.common.util.StandardStreams;
 import org.csstudio.headless.common.xmpp.XmppCredentials;
 import org.csstudio.headless.common.xmpp.XmppSessionException;
 import org.csstudio.headless.common.xmpp.XmppSessionHandler;
@@ -347,6 +348,9 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
      */
     @Override
     public Object start(final IApplicationContext context) {
+
+        StandardStreams stdStreams = new StandardStreams();
+        stdStreams.redirectStreams();
 
         restart = false;
 

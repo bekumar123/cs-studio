@@ -21,52 +21,35 @@
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
  */
 
-package org.csstudio.headless.common.xmpp;
+package org.csstudio.headless.common.management;
 
-public class XmppCredentials {
+/**
+ * @author mmoeller
+ * @since 18.04.2013
+ */
+public class CommandResultPrefix {
 
-    private String xmppServer;
-    private String xmppUser;
-    private String xmppPassword;
-
-    public XmppCredentials(String server, String user, String password) {
-        this.xmppServer = server;
-        this.xmppUser = user;
-        this.xmppPassword = password;
+    enum StateText {
+        OK,
+        WARN,
+        ERROR;
     }
 
-    @Override
-    public String toString() {
-        StringBuffer buffer = new StringBuffer();
+    private static final String FORMAT_STRING = "%s [%d]:";
 
-        buffer.append("XmppCredentials {" + xmppServer + ",");
-        buffer.append(xmppUser + ",");
-        buffer.append(xmppPassword + "}");
-
-        return buffer.toString();
+    public static String getOkPrefix() {
+        return getOkPrefix(0);
     }
 
-    public String getXmppServer() {
-        return xmppServer;
+    public static String getOkPrefix(int number) {
+        return String.format(FORMAT_STRING, StateText.OK.toString(), number);
     }
 
-    public void setXmppServer(String server) {
-        this.xmppServer = server;
+    public static String getWarnPrefix(int number) {
+        return String.format(FORMAT_STRING, StateText.WARN.toString(), number);
     }
 
-    public String getXmppUser() {
-        return xmppUser;
-    }
-
-    public void setXmppUser(String user) {
-        this.xmppUser = user;
-    }
-
-    public String getXmppPassword() {
-        return xmppPassword;
-    }
-
-    public void setXmppPassword(String password) {
-        this.xmppPassword = password;
+    public static String getErrorPrefix(int number) {
+        return String.format(FORMAT_STRING, StateText.ERROR.toString(), number);
     }
 }

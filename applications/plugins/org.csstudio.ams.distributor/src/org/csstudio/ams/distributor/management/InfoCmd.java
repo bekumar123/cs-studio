@@ -32,14 +32,14 @@ import org.csstudio.remote.management.IManagementCommand;
  * @author mmoeller
  * @since 03.04.2013
  */
-public class Description implements IManagementCommand {
+public class InfoCmd implements IManagementCommand {
 
     /**
      * {@inheritDoc}
      */
     @Override
     public CommandResult execute(CommandParameters parameters) {
-        String desc = DistributorStart.getInstance().getDescription();
+        String desc = DistributorStart.getInstance().getInfo();
         return CommandResult.createMessageResult(desc);
     }
 }

@@ -42,7 +42,7 @@ import org.csstudio.ams.dbAccess.AmsConnectionFactory;
 import org.csstudio.ams.dbAccess.ConfigDbProperties;
 import org.csstudio.ams.distributor.preferences.DistributorPreferenceKey;
 import org.csstudio.ams.internal.AmsPreferenceKey;
-import org.csstudio.headless.common.time.StartTime;
+import org.csstudio.headless.common.util.ApplicationInfo;
 import org.csstudio.headless.common.util.StandardStreams;
 import org.csstudio.headless.common.xmpp.XmppCredentials;
 import org.csstudio.headless.common.xmpp.XmppSessionException;
@@ -69,7 +69,7 @@ public class DistributorStart implements IApplication,
 
     private XmppSessionHandler xmppSessionHandler;
 
-    private StartTime startTime;
+    private ApplicationInfo appInfo;
 
     private boolean stopped;
     private boolean restart;
@@ -86,7 +86,7 @@ public class DistributorStart implements IApplication,
         String xmppPassword = pref.getString(DistributorPlugin.PLUGIN_ID, DistributorPreferenceKey.P_XMPP_PASSWORD, "anonymous", null);
         XmppCredentials credentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
         xmppSessionHandler = new XmppSessionHandler(DistributorPlugin.getBundleContext(), credentials);
-        startTime = new StartTime();
+        appInfo = new ApplicationInfo("AmsDistributor", "Alarm Message System - AMS");
     }
 
     @Override
@@ -110,11 +110,8 @@ public class DistributorStart implements IApplication,
         notify();
     }
 
-    public synchronized String getDescription() {
-        StringBuffer buffer = new StringBuffer();
-        buffer.append("Start Time (UTC+1)\n  " + startTime.getStartingTimeAsString() + "\n\n");
-        buffer.append("Uptime\n  " + startTime.getRunningTimeAsString() + "\n");
-        return buffer.toString();
+    public synchronized String getInfo() {
+        return appInfo.toString();
     }
 
     /**

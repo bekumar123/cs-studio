@@ -24,9 +24,6 @@
 
 package org.csstudio.alarm.jms2ora;
 
-import java.io.File;
-import java.io.PrintStream;
-
 import javax.annotation.Nonnull;
 
 import org.csstudio.alarm.jms2ora.management.GetNumberOfMessageFiles;
@@ -38,6 +35,7 @@ import org.csstudio.alarm.jms2ora.util.CommandLine;
 import org.csstudio.alarm.jms2ora.util.Hostname;
 import org.csstudio.alarm.jms2ora.util.JmsSender;
 import org.csstudio.headless.common.util.ApplicationInfo;
+import org.csstudio.headless.common.util.StandardStreams;
 import org.csstudio.headless.common.xmpp.XmppCredentials;
 import org.csstudio.headless.common.xmpp.XmppLoginException;
 import org.csstudio.headless.common.xmpp.XmppSessionException;
@@ -117,21 +115,6 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
 
         appInfo = new ApplicationInfo("Jms2Oracle", desc);
 
-        File stdOut = new File("./stdout.txt");
-        File stdErr = new File("./stderr.txt");
-
-        long currentTime = System.currentTimeMillis();
-        if (stdOut.exists()) {
-            stdOut.renameTo(new File("./stdout-" + currentTime + ".txt"));
-        }
-
-        if (stdErr.exists()) {
-            stdErr.renameTo(new File("./stderr-" + currentTime + ".txt"));
-        }
-
-        System.setOut(new PrintStream(new File("./stdout.txt")));
-        System.setErr(new PrintStream(new File("./stderr.txt")));
-
         String[] args = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
 
         /*
@@ -191,6 +174,9 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
 
             return IApplication.EXIT_OK;
         }
+
+        StandardStreams stdStreams = new StandardStreams();
+        stdStreams.redirectStreams();
 
         long sleep = prefs.getLong(Jms2OraActivator.PLUGIN_ID,
                                    PreferenceConstants.MESSAGE_PROCESSOR_SLEEPING_TIME,

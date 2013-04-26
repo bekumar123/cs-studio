@@ -10,11 +10,22 @@ import org.csstudio.dct.ui.editor.tables.WorkspaceResourceCellEditor;
 import org.csstudio.domain.common.strings.StringUtil;
 import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.commands.CommandStack;
+import org.eclipse.gef.commands.CommandStackEvent;
+import org.eclipse.gef.commands.CommandStackEventListener;
 import org.eclipse.jface.viewers.CellEditor;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ExpandBar;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Editing form for projects.
@@ -23,6 +34,10 @@ import org.eclipse.swt.widgets.ExpandBar;
  * 
  */
 public final class ProjectForm extends AbstractForm<IProject> {
+
+    private CommandStack commandStack;
+
+    private static final Logger LOG = LoggerFactory.getLogger(ProjectForm.class);
 
     /**
      * Constructor.
@@ -39,7 +54,7 @@ public final class ProjectForm extends AbstractForm<IProject> {
      */
     @Override
     protected void doCreateControl(ExpandBar bar, CommandStack commandStack) {
-
+        this.commandStack = commandStack;
     }
 
     /**
@@ -172,6 +187,29 @@ public final class ProjectForm extends AbstractForm<IProject> {
          */
         @Override
         protected Command doSetValue(IProject project, Object value) {
+            commandStack.addCommandStackEventListener(new CommandStackEventListener() {
+                public void stackChanged(CommandStackEvent arg0) {
+                    if (arg0.isPostChangeEvent()) {
+                        Display.getDefault().asyncExec(new Runnable() {
+                            public void run() {
+                                IWorkbench wb = PlatformUI.getWorkbench();
+                                IWorkbenchWindow window = wb.getActiveWorkbenchWindow();
+                                IWorkbenchPage page = window.getActivePage();
+                                IEditorPart editor = page.getActiveEditor();
+                                IEditorInput editorInput = editor.getEditorInput();
+                                page.saveEditor(editor, false);
+                                page.closeEditor(editor, true);
+                                try {
+                                    page.openEditor(editorInput, "org.csstudio.dct.ui.DctEditor");
+                                } catch (PartInitException e) {
+                                    LOG.error("Can't reopen editor", e);
+                                }
+                            }
+                        });
+                    }
+
+                }
+            });
             return new ChangeLibraryFileCommand(project, value.toString());
         }
 
@@ -182,7 +220,7 @@ public final class ProjectForm extends AbstractForm<IProject> {
         protected CellEditor doGetValueCellEditor(IProject delegate, Composite parent) {
             return new WorkspaceResourceCellEditor(parent, new String[] { "css-dct" }, "Select Library-File");
         }
-        
+
     }
 
     /**

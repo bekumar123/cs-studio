@@ -38,7 +38,7 @@ public class ContentProposingTextCellEditor extends TextCellEditor implements IC
         char[] autoActivationCharacters = new char[] { '>', '$', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
                 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E',
                 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
-        
+
         KeyStroke keyStroke;
         try {
             keyStroke = KeyStroke.getInstance("Ctrl+Space");
@@ -92,10 +92,12 @@ public class ContentProposingTextCellEditor extends TextCellEditor implements IC
             List<IContentProposal> proposals = new ArrayList<IContentProposal>();
 
             // .. propose variables
-            if (contents.substring(position - 1, position).equals("$")) {
-                for (String key : aliases.keySet()) {
-                    proposals.add(new FieldFunctionContentProposal("(" + key + ")", "$(" + key + ")",
-                            "Variable. Current value is " + aliases.get(key), 6));
+            if (position > 0) {
+                if (contents.substring(position - 1, position).equals("$")) {
+                    for (String key : aliases.keySet()) {
+                        proposals.add(new FieldFunctionContentProposal("(" + key + ")", "$(" + key + ")",
+                                "Variable. Current value is " + aliases.get(key), 6));
+                    }
                 }
             }
 
@@ -122,7 +124,7 @@ public class ContentProposingTextCellEditor extends TextCellEditor implements IC
             if (matcher.matches()) {
                 String name = matcher.group(1);
                 String parameters = matcher.group(2);
-              
+
                 List<String> knownParameters = Arrays.asList(parameters.split(","));
                 int currentParameterIndex = knownParameters.size() - 1;
 

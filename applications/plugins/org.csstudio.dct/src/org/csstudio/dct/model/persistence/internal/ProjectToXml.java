@@ -11,6 +11,7 @@ import org.csstudio.dct.model.IPrototype;
 import org.csstudio.dct.model.IRecord;
 import org.csstudio.dct.model.internal.Parameter;
 import org.csstudio.dct.model.internal.Project;
+import org.csstudio.dct.model.internal.ProjectFactory;
 import org.csstudio.domain.common.strings.StringUtil;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -69,9 +70,10 @@ public final class ProjectToXml {
 
     private Element createElement(Project project) {
         Element element = createElement((IFolder) project);
-        element.setAttribute("dbd", StringUtil.trimNull(project.getDbdPath()));
-        element.setAttribute("ioc", StringUtil.trimNull(project.getIoc()));
-        element.setAttribute("library", StringUtil.trimNull(project.getLibraryPath()));
+        element.setAttribute(ProjectFactory.DBD, StringUtil.trimNull(project.getDbdPath()));
+        element.setAttribute(ProjectFactory.IOC, StringUtil.trimNull(project.getIoc()));
+        element.setAttribute(ProjectFactory.LIBRARY, StringUtil.trimNull(project.getLibraryPath()));
+        element.setAttribute(ProjectFactory.ACTIV_LIB, StringUtil.trimNull(project.getActiveLibraryPath()));
         return element;
     }
 

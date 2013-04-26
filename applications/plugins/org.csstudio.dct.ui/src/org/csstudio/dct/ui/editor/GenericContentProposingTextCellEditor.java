@@ -73,7 +73,7 @@ public class GenericContentProposingTextCellEditor extends TextCellEditor implem
             List<IContentProposal> proposals = new ArrayList<IContentProposal>();
             Map<String, String> parameters = container.getParameterValues();
             for (String key : parameters.keySet()) {
-                String value = key + "()";
+                String value ="(" + key + ")";
                 proposals.add(new FieldFunctionContentProposal(value, key, "parameter name", value.length()));
             }
             return proposals.toArray(new IContentProposal[proposals.size()]);

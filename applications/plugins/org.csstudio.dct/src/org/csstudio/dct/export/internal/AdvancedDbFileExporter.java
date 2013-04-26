@@ -69,7 +69,7 @@ public final class AdvancedDbFileExporter implements IExporter {
 			
 			if (!v.equals(record.getDefaultFields().get(key))) {
 
-				if (("".equals(v) && renderEmptyFields) || !"".equals(v)) {
+				if ((v.isEmpty() && renderEmptyFields) || !v.isEmpty()) {
 					sb.append("   field(");
 					sb.append(key);
 					sb.append(", \"");

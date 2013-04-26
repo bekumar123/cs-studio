@@ -8,6 +8,7 @@ import org.csstudio.dct.metamodel.IRecordDefinition;
 import org.csstudio.dct.model.IProject;
 import org.csstudio.dct.model.persistence.internal.PersistenceService;
 import org.eclipse.gef.commands.Command;
+import org.eclipse.gef.commands.CommandStack;
 
 /**
  * Undoable command that changes the database definition (dbd) reference of a
@@ -17,9 +18,10 @@ import org.eclipse.gef.commands.Command;
  * 
  */
 public final class ChangeDbdFileCommand extends Command {
-	private IProject project;
-	private String currentPath;
-	private String oldPath;
+    
+	private final IProject project;
+	private final String currentPath;
+	private final String oldPath;
 
 	/**
 	 * Constructor.

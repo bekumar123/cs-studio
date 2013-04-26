@@ -9,16 +9,20 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.csstudio.dct.metamodel.IDatabaseDefinition;
-import org.csstudio.dct.model.IContainer;
 import org.csstudio.dct.model.IFolder;
 import org.csstudio.dct.model.IFolderMember;
 import org.csstudio.dct.model.IInstance;
 import org.csstudio.dct.model.IProject;
 import org.csstudio.dct.model.IRecord;
+import org.csstudio.dct.model.internal.sync.ModelSync;
 import org.csstudio.dct.util.AliasResolutionUtil;
 import org.csstudio.dct.util.Immutable;
 import org.csstudio.dct.util.NotNull;
 import org.csstudio.dct.util.Nullable;
+import org.eclipse.gef.commands.Command;
+import org.eclipse.gef.commands.CommandStack;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
@@ -31,6 +35,8 @@ import com.google.common.collect.ImmutableMap;
 public final class Project extends Folder implements IProject {
     private static final long serialVersionUID = 1L;
 
+    private static final Logger LOG = LoggerFactory.getLogger(Project.class);
+    
     public static boolean IS_UNIT_TEST = false;
 
     @NotNull
@@ -44,6 +50,9 @@ public final class Project extends Folder implements IProject {
 
     @Nullable
     private String libraryPath;
+
+    @Nullable
+    private String activeLibraryPath;
 
     @Nullable
     private String ioc;
@@ -117,6 +126,16 @@ public final class Project extends Folder implements IProject {
     @Override
     public void setLibraryPath(String path) {
         libraryPath = path;
+    }
+    
+    @Override
+    public String getActiveLibraryPath() {
+        return activeLibraryPath;
+    }
+
+    @Override
+    public void setActiveLibraryPath(String path) {
+        activeLibraryPath = path;
     }
 
     /**
@@ -207,27 +226,18 @@ public final class Project extends Folder implements IProject {
         }
     }
 
-    public void refreshLibraryContent() {
-        if (true) return;
+    public void refreshFromLibrary(CommandStack commandStack) {
+        LOG.info("*** refreshing from library ***");
         Optional<IFolder> prototypesFolder = getPrototypesFolder();
-        if (prototypesFolder.isPresent()) {
-            System.out.println("dadadadasda");
-            List<Instance> instances = prototypesFolder.get().getAllInstancesInHierachie();
-            for (Instance inst : instances) {
-                System.out.println(inst);
-            }
+        if (!prototypesFolder.isPresent()) {
+            return;
         }
-    }
-    
-    private boolean contains(List<IInstance> instancesInInstance, IInstance prototypeInstance) {
-        System.out.println("++++++++");
-        System.out.println(prototypeInstance);
-        System.out.println("--");
-        for (IInstance instance : instancesInInstance) {
-            System.out.println(instance);
+        List<IInstance> instances = prototypesFolder.get().getAllInstancesInHierachie();
+        ModelSync merger = new ModelSync(instances);
+        List<Command> commands = merger.calculateCommands();
+        for (Command command : commands) {
+            commandStack.execute(command);
         }
-        System.out.println("++++++++");
-        return instancesInInstance.contains(prototypeInstance);
     }
 
     private List<IRecord> getFinalRecords(@NotNull IFolder folder) {
@@ -236,7 +246,7 @@ public final class Project extends Folder implements IProject {
 
         for (IFolderMember m : folder.getMembers()) {
             if (m instanceof IRecord) {
-                Boolean disabled = AliasResolutionUtil.getPropertyViaHierarchy(m, "disabled");
+                Boolean disabled = AliasResolutionUtil.getPropertyViaHierarchy(m, ModelProperty.DISABLED);
                 if (disabled != null && !disabled) {
                     result.add((IRecord) m);
                 }
@@ -254,7 +264,7 @@ public final class Project extends Folder implements IProject {
         List<IRecord> result = new ArrayList<IRecord>();
 
         for (IRecord r : instance.getRecords()) {
-            Boolean disabled = AliasResolutionUtil.getPropertyViaHierarchy(r, "disabled");
+            Boolean disabled = AliasResolutionUtil.getPropertyViaHierarchy(r, ModelProperty.DISABLED);
 
             if (disabled != null && !disabled) {
                 result.add(r);
@@ -267,5 +277,5 @@ public final class Project extends Folder implements IProject {
 
         return result;
     }
-
+    
 }

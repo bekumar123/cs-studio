@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,369 +30,377 @@ import org.csstudio.dct.util.Unique;
  * @author Sven Wende
  */
 public final class Record extends AbstractPropertyContainer implements IRecord {
-	private static final long serialVersionUID = -909182136862019398L;
+    private static final long serialVersionUID = -909182136862019398L;
 
-	@NotNull
-	private String type;
+    @NotNull
+    private String type;
 
-	@Nullable
-	private String epicsName;
+    @Nullable
+    private String epicsName;
 
-	@NotNull
-	private Map<String, String> fields = new HashMap<String, String>();
+    @NotNull
+    private Map<String, String> fields = new HashMap<String, String>();
 
-	@Nullable
-	private IRecord parentRecord;
+    @Nullable
+    private IRecord parentRecord;
 
-	@Nullable
-	private transient IContainer container;
+    @Nullable
+    private transient IContainer container;
 
-	@NotNull
-	private transient List<IRecord> inheritingRecords = new ArrayList<IRecord>();
+    @NotNull
+    private transient List<IRecord> inheritingRecords = new ArrayList<IRecord>();
 
-	@Nullable
-	private Boolean disabled;
+    @Nullable
+    private Boolean disabled;
 
-	public Record() {
-	}
+    public Record() {
+    }
 
-	public Record(@NotNull String name, @NotNull String type, @NotNull @Unique UUID id) {
-		super(name, id);
-		checkNotNull(name);
-		checkNotNull(type);
-		checkNotNull(id);
-		this.type = type;
-	}
+    public Record(@NotNull String name, @NotNull String type, @NotNull @Unique UUID id) {
+        super(name, id);
+        checkNotNull(name);
+        checkNotNull(type);
+        checkNotNull(id);
+        this.type = type;
+    }
 
-	public Record(IRecord parentRecord, UUID id) {
-		super(null, id);
-		checkNotNull(id);
-		this.parentRecord = parentRecord;
-	}
+    public Record(IRecord parentRecord, UUID id) {
+        super(null, id);
+        checkNotNull(id);
+        this.parentRecord = parentRecord;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getType() {
-		if ((type == null) && (parentRecord == null)) {
-			throw new IllegalStateException(
-					"either type or parentRecord must be != null");
-		}
-		return type != null ? type : parentRecord.getType();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public String getType() {
+        if ((type == null) && (parentRecord == null)) {
+            throw new IllegalStateException("either type or parentRecord must be != null");
+        }
+        return type != null ? type : parentRecord.getType();
+    }
 
-	public void setType(String type) {
-		this.type = type;
-	}
+    public void setType(String type) {
+        this.type = type;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Map<String, String> getFinalProperties() {
-		Map<String, String> result = new HashMap<String, String>();
+    /**
+     * {@inheritDoc}
+     */
+    public Map<String, String> getFinalProperties() {
+        Map<String, String> result = new HashMap<String, String>();
 
-		Stack<IRecord> stack = getRecordStack();
+        Stack<IRecord> stack = getRecordStack();
 
-		// add the field values of the parent hierarchy, values can be overriden
-		// by children
-		while (!stack.isEmpty()) {
-			IRecord top = stack.pop();
-			result.putAll(top.getProperties());
-		}
+        // add the field values of the parent hierarchy, values can be overriden
+        // by children
+        while (!stack.isEmpty()) {
+            IRecord top = stack.pop();
+            result.putAll(top.getProperties());
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void addField(String key, String value) {
-		checkNotNull(key);
-		checkNotNull(value);
-		fields.put(key, value);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void addField(String key, String value) {
+        checkNotNull(key);
+        checkNotNull(value);
+        fields.put(key, value);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getField(String key) {
-		checkNotNull(key);
-		return fields.get(key);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public String getField(String key) {
+        checkNotNull(key);
+        return fields.get(key);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void removeField(String key) {
-		checkNotNull(key);
-		fields.remove(key);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void removeField(String key) {
+        checkNotNull(key);
+        fields.remove(key);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void setFields(Map<String, String> fields) {
-		checkNotNull(fields);
-		this.fields = fields;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void setFields(Map<String, String> fields) {
+        checkNotNull(fields);
+        this.fields = fields;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Map<String, String> getFields() {
-		return fields;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public Map<String, String> getFields() {
+        return fields;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Map<String, String> getFinalFields() {
-		Map<String, String> result = new LinkedHashMap<String, String>();
+    /**
+     * {@inheritDoc}
+     */
+    public Map<String, String> getFinalFields() {
+        Map<String, String> result = new LinkedHashMap<String, String>();
 
-		Stack<IRecord> stack = getRecordStack();
+        Stack<IRecord> stack = getRecordStack();
 
-		// add the field values of the parent hierarchy, values can be overriden
-		// by children
-		while (!stack.isEmpty()) {
-			IRecord top = stack.pop();
-			result.putAll(top.getFields());
-		}
+        while (!stack.isEmpty()) {
+            IRecord top = stack.pop();
+            result.putAll(top.getFields());
+        }
 
-		return result;
-	}
+        //result.put("HOPR", "12");
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Map<String, String> getDefaultFields() {
-		Map<String, String> result = new HashMap<String, String>();
+        return result;
+    }
 
-		Stack<IRecord> stack = getRecordStack();
+    /**
+     * {@inheritDoc}
+     */
+    public Map<String, String> getDefaultFields() {
+        Map<String, String> result = new HashMap<String, String>();
 
-		// add the field values of the parent hierarchy, values can be overriden
-		// by children
-		if (!stack.isEmpty()) {
-			IRecord top = stack.pop();
+        Stack<IRecord> stack = getRecordStack();
+        
+        // add the field values of the parent hierarchy, values can be overriden
+        // by children
+        if (!stack.isEmpty()) {
+            IRecord top = stack.pop();
 
-			if (top instanceof BaseRecord) {
-				result.putAll(top.getFields());
-			}
-		}
+            if (top instanceof BaseRecord) {
+                result.putAll(top.getFields());
+            }
+        }
+        
+        return result;
+    }
 
-		return result;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public String getEpicsName() {
+        return epicsName;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getEpicsName() {
-		return epicsName;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void setEpicsName(@Nullable String epicsName) {
+        this.epicsName = epicsName;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void setEpicsName(@Nullable String epicsName) {
-		this.epicsName = epicsName;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public String getEpicsNameFromHierarchy() {
+        String name = "unknown";
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getEpicsNameFromHierarchy() {
-		String name = "unknown";
+        Stack<IRecord> stack = getRecordStack();
 
-		Stack<IRecord> stack = getRecordStack();
+        while (!stack.isEmpty()) {
+            IRecord top = stack.pop();
 
-		while (!stack.isEmpty()) {
-			IRecord top = stack.pop();
+            if (top.getEpicsName() != null && top.getEpicsName().length() > 0) {
+                name = top.getEpicsName();
+            }
+        }
 
-			if (top.getEpicsName() != null && top.getEpicsName().length() > 0) {
-				name = top.getEpicsName();
-			}
-		}
+        return name;
+    }
 
-		return name;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public IRecord getParentRecord() {
+        return parentRecord;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public IRecord getParentRecord() {
-		return parentRecord;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public IContainer getContainer() {
+        return container;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public IContainer getContainer() {
-		return container;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void setParentRecord(@Nullable IRecord parentRecord) {
+        this.parentRecord = parentRecord;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void setParentRecord(@Nullable IRecord parentRecord) {
-		this.parentRecord = parentRecord;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void setContainer(@Nullable IContainer container) {
+        this.container = container;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void setContainer(@Nullable IContainer container) {
-		this.container = container;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isAbstract() {
+        return getRootContainer(getContainer()) instanceof IPrototype;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean isAbstract() {
-		return getRootContainer(getContainer()) instanceof IPrototype;
-	}
+    public void setDisabled(@Nullable Boolean disabled) {
+        this.disabled = disabled;
+    }
 
-	public void setDisabled(@Nullable Boolean disabled) {
-		this.disabled = disabled;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public Boolean getDisabled() {
+        return disabled;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Boolean getDisabled() {
-		return disabled;
-	}
+    public IContainer getRootContainer() {
+        return getRootContainer(getContainer());
+    }
 
-	public IContainer getRootContainer() {
-	    return getRootContainer(getContainer());
-	}
-	
-	/**
-	 * Recursive helper method which determines the root container.
-	 * 
-	 * @param container
-	 *            a starting container
-	 * 
-	 * @return the root container of the specified starting container
-	 */
-	private IContainer getRootContainer(IContainer container) {
-		if (container == null) {
-			throw new IllegalStateException("container must not be null");
-		}
-		if (container.getContainer() != null) {
-			return getRootContainer(container.getContainer());
-		} else {
-			return container;
-		}
-	}
+    /**
+     * Recursive helper method which determines the root container.
+     * 
+     * @param container
+     *            a starting container
+     * 
+     * @return the root container of the specified starting container
+     */
+    private IContainer getRootContainer(IContainer container) {
+        if (container == null) {
+            throw new IllegalStateException("container must not be null");
+        }
+        if (container.getContainer() != null) {
+            return getRootContainer(container.getContainer());
+        } else {
+            return container;
+        }
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean isInherited() {
-		IRecord p = getParentRecord();
-		boolean result = p != null && !(p instanceof BaseRecord);
-		return result;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isInherited() {
+        IRecord p = getParentRecord();
+        boolean result = p != null && !(p instanceof BaseRecord);
+        return result;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void addDependentRecord(IRecord record) {
-		checkNotNull(record);
-		checkArgument(record.getParentRecord() == this);
-		inheritingRecords.add(record);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void addDependentRecord(IRecord record) {
+        checkNotNull(record);
+        checkArgument(record.getParentRecord() == this);
+        inheritingRecords.add(record);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public List<IRecord> getDependentRecords() {
-		return inheritingRecords;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public List<IRecord> getDependentRecords() {
+        return inheritingRecords;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void removeDependentRecord(IRecord record) {
-		checkNotNull(record);
-		checkArgument(record.getParentRecord() == this);
-		inheritingRecords.remove(record);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void removeDependentRecord(IRecord record) {
+        checkNotNull(record);
+        checkArgument(record.getParentRecord() == this);
+        inheritingRecords.remove(record);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public IRecordDefinition getRecordDefinition() {
-		IRecord base = getRecordStack().pop();
-		return base.getRecordDefinition();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public IRecordDefinition getRecordDefinition() {
+        IRecord base = getRecordStack().pop();
+        return base.getRecordDefinition();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void accept(IVisitor visitor) {
-		checkNotNull(visitor);
-		visitor.visit(this);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void accept(IVisitor visitor) {
+        checkNotNull(visitor);
+        visitor.visit(this);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int hashCode() {
-		int result = super.hashCode();
-		return result;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        return result;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		boolean result = false;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        boolean result = false;
 
-		if (obj instanceof Record) {
-			Record record = (Record) obj;
+        if (obj instanceof Record) {
+            Record record = (Record) obj;
 
-			if (super.equals(obj)) {
-				// .. type
-				if (CompareUtil.equals(getType(), record.getType())) {
-					// .. fields
-					if (getFields().equals(record.getFields())) {
-						// .. parent record id (we check the id only, to prevent
-						// stack overflows)
-						if (CompareUtil.idsEqual(getParentRecord(),
-								record.getParentRecord())) {
-							// .. container (we check the id only, to prevent
-							// stack overflows)
-							if (CompareUtil.idsEqual(getContainer(),
-									record.getContainer())) {
-								result = true;
-							}
-						}
-					}
-				}
-			}
-		}
+            if (super.equals(obj)) {
+                // .. type
+                if (CompareUtil.equals(getType(), record.getType())) {
+                    // .. fields
+                    if (getFields().equals(record.getFields())) {
+                        // .. parent record id (we check the id only, to prevent
+                        // stack overflows)
+                        if (CompareUtil.idsEqual(getParentRecord(), record.getParentRecord())) {
+                            // .. container (we check the id only, to prevent
+                            // stack overflows)
+                            if (CompareUtil.idsEqual(getContainer(), record.getContainer())) {
+                                result = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
-		return result;
-	}
- 
-	/**
-	 * Collect all parent records in a stack. On top of the returned stack is
-	 * the parent that resides at the top of the hierarchy.
-	 * 
-	 * @return all parent records, including this
-	 */
-	private Stack<IRecord> getRecordStack() {
-		Stack<IRecord> stack = new Stack<IRecord>();
+        return result;
+    }
 
-		IRecord r = this;
+    public String toString() {
+        // @formatter:off
+	    return com.google.common.base.Objects.toStringHelper(this)
+	            .add("name", this.getName())
+	            .add("id", this.getId())
+	            .add("container", this.getContainer())
+	            .add("parentRecord", this.getParentRecord())
+	            .toString();
+	            // @formatter:on
+    }
 
-		while (r != null) {
-			stack.add(r);
-			r = r.getParentRecord();
-		}
-		return stack;
-	}
+    /**
+     * Collect all parent records in a stack. On top of the returned stack is
+     * the parent that resides at the top of the hierarchy.
+     * 
+     * @return all parent records, including this
+     */
+    private Stack<IRecord> getRecordStack() {
+        Stack<IRecord> stack = new Stack<IRecord>();
+
+        IRecord r = this;
+
+        while (r != null) {
+            stack.add(r);
+            r = r.getParentRecord();
+        }
+        return stack;
+    }
 
 }

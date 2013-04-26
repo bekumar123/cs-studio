@@ -217,14 +217,13 @@ public class Folder extends AbstractElement implements IFolderMember, IFolder {
     }
 
     @Override
-    public List<Instance> getAllInstancesInHierachie() {
-        List<Instance> instances = new ArrayList<Instance>();
+    public List<IInstance> getAllInstancesInHierachie() {
+        List<IInstance> instances = new ArrayList<IInstance>();
         List<IFolderMember> members = this.getMembers();
         for (IFolderMember m : members) {
-            if (m instanceof Instance) {
-                addInstance((Instance)m, instances);
+            if (m instanceof IInstance) {
+                addInstance((IInstance)m, instances);
             } else if (m instanceof Prototype) {
-                System.out.println("proto");
                 Prototype p = (Prototype)m;
                 addFromPrototype(p, instances);
             }
@@ -232,7 +231,7 @@ public class Folder extends AbstractElement implements IFolderMember, IFolder {
         return instances;
     }
 
-    private void addInstance(@NotNull Instance instance,  List<Instance> instances) {
+    private void addInstance(@NotNull IInstance instance,  List<IInstance> instances) {
         instances.add(instance);        
         List<IInstance> members = instance.getInstances();
         for (IInstance m : members) {
@@ -240,9 +239,8 @@ public class Folder extends AbstractElement implements IFolderMember, IFolder {
         }
     }
     
-    private void addFromPrototype(@NotNull Prototype prototype,  List<Instance> instances) {
+    private void addFromPrototype(@NotNull Prototype prototype,  List<IInstance> instances) {
         List<IInstance> members = prototype.getInstances();
-        System.out.println(members.size());
         for (IInstance m : members) {
             addInstance((Instance)m, instances);
         }

@@ -91,8 +91,9 @@ public class ArchiveConnectionHandler {
         ds.setServerName("127.0.0.1");
         ds.setPort(3306);
         ds.setDatabaseName("archive");
-        ds.setUser("root");
-        ds.setPassword("rootroot");
+        ds.setUser("cssuser");
+        ds.setPassword("cssuser");
+        ds.setConnectTimeout(10000);
 
         /*ds.setServerName(hosts);
         ds.setPort(port);
@@ -113,7 +114,6 @@ public class ArchiveConnectionHandler {
         ds.setRoundRobinLoadBalance(true);
 
         ds.setDefaultFetchSize(10000);
-
 
         return ds;
     }

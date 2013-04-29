@@ -268,7 +268,7 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
                    		 if(isFirst) {
                    			 isFirst=false;
 							} else {
-								LOG.info("Channel {} is {},",channel.getName(), isConnected? " Connected ": "disconnected");
+								LOG.info("Channel {} with " + channel.getHostName() +" is {},",channel.getName(), isConnected? " Connected ": "disconnected");
 							//	LOG.info("Host    {} is {},",channel.getHostName(), isConnected? " Connected ": "disconnected");
 
 							}

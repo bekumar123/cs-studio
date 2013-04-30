@@ -9,6 +9,7 @@
 	<!ATTLIST efan name CDATA #REQUIRED>
 	<!ATTLIST ecom name CDATA #REQUIRED>
 	<!ATTLIST eren name CDATA #REQUIRED>
+	<!ATTLIST eren epicsCssAlarmDisplay CDATA #IMPLIED>
 	]>
 
 <!--
@@ -19,7 +20,7 @@
 <ou name="EpicsAlarmcfg">
   <efan name="Root1">
   	<ecom name="Sub1">
-  		<eren name="TrainIoc:Alarm:RAMPA_calc" />
+  		<eren name="TrainIoc:Alarm:RAMPA_calc" epicsCssAlarmDisplay="SDS/kuehlturm00.css-sds?key1=value1,key2=value2" />
   	</ecom>
     <ecom name="Sub2">
     	<eren name="TrainIoc:Alarm:RAMPA_calc" />

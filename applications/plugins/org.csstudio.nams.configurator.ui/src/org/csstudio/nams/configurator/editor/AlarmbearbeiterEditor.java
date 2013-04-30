@@ -3,7 +3,12 @@ package org.csstudio.nams.configurator.editor;
 
 import org.csstudio.nams.common.fachwert.RubrikTypeEnum;
 import org.csstudio.nams.configurator.Messages;
+import org.csstudio.nams.configurator.actions.BeanToEditorId;
 import org.csstudio.nams.configurator.beans.AlarmbearbeiterBean;
+import org.csstudio.nams.configurator.beans.FilterBean;
+import org.csstudio.nams.configurator.service.FilterForAlarmbearbeiterService;
+import org.csstudio.nams.configurator.service.FilterForAlarmbearbeiterService.FilterForAlarmbearbeiter;
+import org.csstudio.nams.configurator.service.FilterForAlarmbearbeiterService.FilterForAlarmbearbeiterListener;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.PreferedAlarmType;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
@@ -11,6 +16,12 @@ import org.eclipse.core.databinding.beans.BeansObservables;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.ListViewer;
+import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -19,6 +30,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 
@@ -30,6 +44,7 @@ public class AlarmbearbeiterEditor extends AbstractEditor<AlarmbearbeiterBean> {
 		return AlarmbearbeiterEditor.EDITOR_ID;
 	}
 
+	private Text _idTextEntry;
 	private Text _nameTextEntry;
 	private Text _emailTextEntry;
 	private Combo _rubrikComboEntry;
@@ -47,7 +62,8 @@ public class AlarmbearbeiterEditor extends AbstractEditor<AlarmbearbeiterBean> {
 	private FormToolkit formToolkit;
 
 	private ScrolledForm mainForm;
-
+	private FilterForAlarmbearbeiterService filterForAlarmbearbeiterService;
+	
 	@Override
 	public void createPartControl(final Composite parent) {
 		this.formToolkit = new FormToolkit(parent.getDisplay());
@@ -56,6 +72,9 @@ public class AlarmbearbeiterEditor extends AbstractEditor<AlarmbearbeiterBean> {
 		main.setBackground(parent.getBackground());
 		main.setLayout(new GridLayout(this.NUM_COLUMNS, false));
 		this.addSeparator(main);
+		
+		_idTextEntry = this.createTextEntry(main, "ID", false); //$NON-NLS-1$
+		
 		this._nameTextEntry = this.createTextEntry(main, Messages.AlarmbearbeiterEditor_name, true);
 		this._rubrikComboEntryViewer = this.createComboEntry(main, Messages.AlarmbearbeiterEditor_category,
 				true, AbstractEditor.getConfigurationBeanService()
@@ -82,7 +101,65 @@ public class AlarmbearbeiterEditor extends AbstractEditor<AlarmbearbeiterBean> {
 		this.addSeparator(main);
 		this._activeCheckBoxEntry = this.createCheckBoxEntry(main,
 				Messages.AlarmbearbeiterEditor_user_is_active, true);
+		
+		this.addSeparator(main);
+
+		this.createActiveFiltersList(main);
+		
+		this.addSeparator(main);
+
 		this.initDataBinding();
+	}
+
+	private void createActiveFiltersList(final Composite main) {
+		final ListViewer activeFiltersList = this.createListEntry(main, Messages.AlarmbearbeiterEditor_active_filters, false);
+		activeFiltersList.setContentProvider(new IStructuredContentProvider() {
+			@Override
+			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+			}
+			
+			@Override
+			public void dispose() {
+			}
+			
+			@Override
+			public Object[] getElements(Object inputElement) {
+				return (Object[]) inputElement;
+			}
+		});
+		activeFiltersList.addDoubleClickListener(new IDoubleClickListener() {
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+				StructuredSelection selection = (StructuredSelection) event.getSelection();
+				FilterForAlarmbearbeiter selectedElement = (FilterForAlarmbearbeiter) selection.getFirstElement();
+				ConfigurationEditorInput editorInput = new ConfigurationEditorInput(
+						selectedElement.getFilterBean());
+				
+				final IWorkbenchPage activePage = PlatformUI
+						.getWorkbench()
+						.getActiveWorkbenchWindow()
+						.getActivePage();
+				final String editorId = BeanToEditorId
+						.getEnumForClass(
+								FilterBean.class)
+						.getEditorId();
+
+				try {
+					activePage.openEditor(editorInput, editorId);
+				} catch (PartInitException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		
+		activeFiltersList.setInput(filterForAlarmbearbeiterService.getActiveFilterBeans().toArray());
+
+		filterForAlarmbearbeiterService.addListener(new FilterForAlarmbearbeiterListener() {
+			@Override
+			public void onChanged() {
+				activeFiltersList.setInput(filterForAlarmbearbeiterService.getActiveFilterBeans().toArray());
+			}
+		});
 	}
 
 	@Override
@@ -92,7 +169,8 @@ public class AlarmbearbeiterEditor extends AbstractEditor<AlarmbearbeiterBean> {
 
 	@Override
 	protected void doInit(final IEditorSite site, final IEditorInput input) {
-	    // Nothing to do
+		AlarmbearbeiterBean alarmBearbeiterBean = (AlarmbearbeiterBean) ((ConfigurationEditorInput) input).getBean();
+	    filterForAlarmbearbeiterService = new FilterForAlarmbearbeiterService(alarmBearbeiterBean, AlarmbearbeiterEditor.configurationBeanService);
 	}
 
 	@Override
@@ -108,6 +186,10 @@ public class AlarmbearbeiterEditor extends AbstractEditor<AlarmbearbeiterBean> {
 				.observeValue(this.getWorkingCopyOfEditorInput(),
 						AlarmbearbeiterBean.PropertyNames.name.name());
 
+		final IObservableValue userIdTextObservable = BeansObservables
+				.observeValue(this.getWorkingCopyOfEditorInput(),
+						AlarmbearbeiterBean.PropertyNames.userID.name());
+		
 		final IObservableValue emailTextObservable = BeansObservables
 				.observeValue(this.getWorkingCopyOfEditorInput(),
 						AlarmbearbeiterBean.PropertyNames.email.name());
@@ -146,6 +228,9 @@ public class AlarmbearbeiterEditor extends AbstractEditor<AlarmbearbeiterBean> {
 		context.bindValue(SWTObservables.observeText(this._nameTextEntry,
 				SWT.Modify), nameTextObservable, null, null);
 
+		context.bindValue(SWTObservables.observeText(this._idTextEntry,
+				SWT.Modify), userIdTextObservable, null, null);
+		
 		context.bindValue(SWTObservables.observeText(this._emailTextEntry,
 				SWT.Modify), emailTextObservable, null, null);
 
@@ -185,4 +270,10 @@ public class AlarmbearbeiterEditor extends AbstractEditor<AlarmbearbeiterBean> {
 				rubrikTextObservable, null, null);
 	}
 
+	@Override
+	public void dispose() {
+		this.filterForAlarmbearbeiterService.dispose();
+		
+		super.dispose();
+	}
 }

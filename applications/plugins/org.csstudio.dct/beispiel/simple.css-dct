@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<folder id="3a76d963-223e-4357-a732-a9b0b9a7cf5f" name="Neu" dbd="/MCS-Test/Epics3-14-11.dbd" ioc="">
+  <folder id="14f839d5-642f-4459-8ec1-e06392bae18d" name="Prototypes" index="0">
+    <prototype id="322c13e4-84b9-40ae-bc1a-5f6f35baebfa" name="Adsorber" index="0">
+      <record id="b40c86ee-cc71-46fd-9fa3-ff648cf332c6" name="absorber_rec" epicsname="{inherited}" disabled="{inherited}" type="ai">
+        <property name="archiveToDesyDeviceDb" value="true" />
+      </record>
+      <instance id="51c0badf-2831-438d-8148-3e0b1d8598db" parent="cf886474-4913-4405-a97f-186e3c5efa21" name="{inherited}" index="0">
+        <record id="904d9f0a-6490-4788-95a4-edc8bc7be577" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="1677b744-9c62-498d-a64a-8273255b7465">
+          <property name="archiveToDesyDeviceDb" value="true" />
+        </record>
+        <instance id="1e4111cc-f5fd-4c08-bd60-dae2784b0bee" parent="01007ac9-b1c5-4d80-8f16-c19aa4285211" name="{inherited}" index="0">
+          <instance id="e26a7883-0e6f-491a-889e-3fb5d362f863" parent="f7294a63-a740-494b-b15d-77e414ab18e8" name="{inherited}" index="0" />
+        </instance>
+      </instance>
+      <instance id="35de7db0-ccd5-4ec9-8246-7e481753d483" parent="6949b713-ba2a-4081-8cc3-b3bebe2e5d55" name="{inherited}" index="1" />
+    </prototype>
+    <prototype id="cf886474-4913-4405-a97f-186e3c5efa21" name="Ventil" index="1">
+      <record id="1677b744-9c62-498d-a64a-8273255b7465" name="ventil_record" epicsname="{inherited}" disabled="{inherited}" type="ai">
+        <property name="archiveToDesyDeviceDb" value="true" />
+      </record>
+      <instance id="01007ac9-b1c5-4d80-8f16-c19aa4285211" parent="0e816507-6036-4250-ac33-945efa53ade9" name="{inherited}" index="0">
+        <instance id="f7294a63-a740-494b-b15d-77e414ab18e8" parent="1372c0ee-b892-4fb4-9893-da9435e86971" name="{inherited}" index="0" />
+      </instance>
+    </prototype>
+    <prototype id="0e816507-6036-4250-ac33-945efa53ade9" name="Absorber" index="2">
+      <instance id="1372c0ee-b892-4fb4-9893-da9435e86971" parent="6949b713-ba2a-4081-8cc3-b3bebe2e5d55" name="{inherited}" index="0" />
+    </prototype>
+    <prototype id="6949b713-ba2a-4081-8cc3-b3bebe2e5d55" name="Überdruckventil" index="3" />
+  </folder>
+</folder>
+

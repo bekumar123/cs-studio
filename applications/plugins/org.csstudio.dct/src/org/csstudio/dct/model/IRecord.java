@@ -14,209 +14,218 @@ import org.csstudio.dct.util.AliasResolutionUtil;
  */
 public interface IRecord extends IPropertyContainer, IElement {
 
-	/**
-	 * Returns the EPICs name from the record hierarchy.
-	 * 
-	 * @deprecated Use {@link AliasResolutionUtil#getEpicsNameFromHierarchy(IRecord)} instead.
-	 * @return the EPICs name from the record hierarchy
-	 */
-	String getEpicsNameFromHierarchy();
+    /**
+     * Returns the EPICs name from the record hierarchy.
+     * 
+     * @deprecated Use
+     *             {@link AliasResolutionUtil#getEpicsNameFromHierarchy(IRecord)}
+     *             instead.
+     * @return the EPICs name from the record hierarchy
+     */
+    String getEpicsNameFromHierarchy();
 
-	/**
-	 * Returns the parent. The parent is the super object, this record derives
-	 * from.
-	 * 
-	 * @return the parent
-	 */
-	IRecord getParentRecord();
+    /**
+     * Returns the parent. The parent is the super object, this record derives
+     * from.
+     * 
+     * @return the parent
+     */
+    IRecord getParentRecord();
 
-	/**
-	 * Returns the physical container.
-	 * 
-	 * @return the physical container
-	 */
-	IContainer getContainer();
+    /**
+     * Returns the physical container.
+     * 
+     * @return the physical container
+     */
+    IContainer getContainer();
 
-	/**
-	 * Sets the physical container.
-	 * 
-	 * @param container
-	 *            the physical container
-	 */
-	void setContainer(IContainer container);
+    /**
+     * Returns the root container.
+     * 
+     * @return the root container
+     */
+    IContainer getRootContainer();
 
-	/**
-	 * Returns true, if this record is abstract. A record is abstract, when it
-	 * is part of a prototype.
-	 * 
-	 * @return true, if this record is abstract
-	 */
-	boolean isAbstract();
+    /**
+     * Sets the physical container.
+     * 
+     * @param container
+     *            the physical container
+     */
+    void setContainer(IContainer container);
 
-	/**
-	 * Returns true, if this record is disabled. Disabled record will not be
-	 * rendered in the DB output files.
-	 * 
-	 * @return true, if this record is disabled
-	 */
-	Boolean getDisabled();
+    /**
+     * Returns true, if this record is abstract. A record is abstract, when it
+     * is part of a prototype.
+     * 
+     * @return true, if this record is abstract
+     */
+    boolean isAbstract();
 
-	/**
-	 * Returns the EPICS name.
-	 * 
-	 * @return the EPICS name
-	 */
-	String getEpicsName();
+    /**
+     * Returns true, if this record is disabled. Disabled record will not be
+     * rendered in the DB output files.
+     * 
+     * @return true, if this record is disabled
+     */
+    Boolean getDisabled();
 
-	/**
-	 * Sets the EPICS name
-	 * 
-	 * @param epicsName
-	 *            the EPICS name
-	 */
-	void setEpicsName(String epicsName);
+    /**
+     * Returns the EPICS name.
+     * 
+     * @return the EPICS name
+     */
+    String getEpicsName();
 
-	/**
-	 * Returns the record type.
-	 * 
-	 * @return the record type
-	 */
-	String getType();
+    /**
+     * Sets the EPICS name
+     * 
+     * @param epicsName
+     *            the EPICS name
+     */
+    void setEpicsName(String epicsName);
 
-	/**
-	 * Adds the specified property.
-	 * 
-	 * @param name
-	 *            the property name
-	 * 
-	 * @param value
-	 *            the property value
-	 */
-	void addProperty(String name, String value);
+    /**
+     * Returns the record type.
+     * 
+     * @return the record type
+     */
+    String getType();
 
-	/**
-	 * Returns the value for the specified property.
-	 * 
-	 * @param name
-	 *            the property name
-	 * 
-	 * @return the value
-	 */
-	String getProperty(String name);
+    /**
+     * Adds the specified property.
+     * 
+     * @param name
+     *            the property name
+     * 
+     * @param value
+     *            the property value
+     */
+    void addProperty(String name, String value);
 
-	/**
-	 * Removes the specified property.
-	 * 
-	 * @param name
-	 *            the property name
-	 */
-	void removeProperty(String name);
+    /**
+     * Returns the value for the specified property.
+     * 
+     * @param name
+     *            the property name
+     * 
+     * @return the value
+     */
+    String getProperty(String name);
 
-	/**
-	 * Resolves all inheritance relationships for this record and returns an
-	 * aggregate view on all properties.
-	 * 
-	 * @return aggregated property information
-	 */
-	Map<String, String> getFinalProperties();
+    /**
+     * Removes the specified property.
+     * 
+     * @param name
+     *            the property name
+     */
+    void removeProperty(String name);
 
-	/**
-	 * Returns all properties that are locally defined for this record.
-	 * 
-	 * Note: Usually the records inherit most of their field information from
-	 * parents. This method returns only the local field information that have
-	 * been stored with this record. If you want an aggregate view you have to
-	 * use {@link #getFinalFields()}.
-	 * 
-	 * @return the properties that are locally defined for this record
-	 */
-	Map<String, String> getProperties();
+    /**
+     * Resolves all inheritance relationships for this record and returns an
+     * aggregate view on all properties.
+     * 
+     * @return aggregated property information
+     */
+    Map<String, String> getFinalProperties();
 
-	/**
-	 * Adds the specified field.
-	 * 
-	 * @param name
-	 *            the field name
-	 * 
-	 * @param value
-	 *            the field value
-	 */
-	void addField(String name, String value);
+    /**
+     * Returns all properties that are locally defined for this record.
+     * 
+     * Note: Usually the records inherit most of their field information from
+     * parents. This method returns only the local field information that have
+     * been stored with this record. If you want an aggregate view you have to
+     * use {@link #getFinalFields()}.
+     * 
+     * @return the properties that are locally defined for this record
+     */
+    Map<String, String> getProperties();
 
-	/**
-	 * Returns the value for the specified field.
-	 * 
-	 * @param name
-	 *            the field name
-	 * 
-	 * @return the value
-	 */
-	String getField(String name);
+    /**
+     * Adds the specified field.
+     * 
+     * @param name
+     *            the field name
+     * 
+     * @param value
+     *            the field value
+     */
+    void addField(String name, String value);
 
-	/**
-	 * Removes the specified field value.
-	 * 
-	 * @param name
-	 *            the field name
-	 */
-	void removeField(String name);
+    /**
+     * Returns the value for the specified field.
+     * 
+     * @param name
+     *            the field name
+     * 
+     * @return the value
+     */
+    String getField(String name);
 
-	/**
-	 * Returns all fields that are locally defined for this record.
-	 * 
-	 * Note: Usually the records inherit most of their field information from
-	 * parents. This method returns only the local field information that have
-	 * been stored with this record. If you want an aggregate view you have to
-	 * use {@link #getFinalFields()}.
-	 * 
-	 * @return the fields that are locally defined for this record
-	 */
-	Map<String, String> getFields();
+    /**
+     * Removes the specified field value.
+     * 
+     * @param name
+     *            the field name
+     */
+    void removeField(String name);
 
-	/**
-	 * Resolves all inheritance relationships for this record and returns an
-	 * aggregate view on all fields.
-	 * 
-	 * @return aggregated field information
-	 */
-	Map<String, String> getFinalFields();
+    /**
+     * Returns all fields that are locally defined for this record.
+     * 
+     * Note: Usually the records inherit most of their field information from
+     * parents. This method returns only the local field information that have
+     * been stored with this record. If you want an aggregate view you have to
+     * use {@link #getFinalFields()}.
+     * 
+     * @return the fields that are locally defined for this record
+     */
+    Map<String, String> getFields();
 
-	/**
-	 * Returns the default field values for this record as they are inherited
-	 * from the database definition (dbd).
-	 * 
-	 * @return default field values
-	 */
-	Map<String, String> getDefaultFields();
+    /**
+     * Resolves all inheritance relationships for this record and returns an
+     * aggregate view on all fields.
+     * 
+     * @return aggregated field information
+     */
+    Map<String, String> getFinalFields();
 
-	/**
-	 * Returns the record definition which contains the informations stored in a
-	 * database definition file.
-	 * 
-	 * @return the record definition
-	 */
-	IRecordDefinition getRecordDefinition();
+    /**
+     * Returns the default field values for this record as they are inherited
+     * from the database definition (dbd).
+     * 
+     * @return default field values
+     */
+    Map<String, String> getDefaultFields();
 
-	/**
-	 * Returns all records that inherit from this record.
-	 * 
-	 * @return all records that inherit from this record
-	 */
-	List<IRecord> getDependentRecords();
+    /**
+     * Returns the record definition which contains the informations stored in a
+     * database definition file.
+     * 
+     * @return the record definition
+     */
+    IRecordDefinition getRecordDefinition();
 
-	/**
-	 * Adds a record that inherits from this record.
-	 * 
-	 * @param record
-	 *            a record that inherits from this record
-	 */
-	void addDependentRecord(IRecord record);
+    /**
+     * Returns all records that inherit from this record.
+     * 
+     * @return all records that inherit from this record
+     */
+    List<IRecord> getDependentRecords();
 
-	/**
-	 * Removes a record that inherits from this record.
-	 * 
-	 * @param record
-	 *            a record that inherits from this record
-	 */
-	void removeDependentRecord(IRecord record);
+    /**
+     * Adds a record that inherits from this record.
+     * 
+     * @param record
+     *            a record that inherits from this record
+     */
+    void addDependentRecord(IRecord record);
+
+    /**
+     * Removes a record that inherits from this record.
+     * 
+     * @param record
+     *            a record that inherits from this record
+     */
+    void removeDependentRecord(IRecord record);
 }

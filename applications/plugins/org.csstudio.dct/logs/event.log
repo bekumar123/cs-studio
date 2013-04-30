@@ -1,0 +1,42 @@
+2013-02-25 10:28:41,113 INFO  [Component Resolve Thread] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: Remote command service implementation
+2013-02-25 10:29:00,675 INFO  [Component Resolve Thread] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: Remote command service implementation
+2013-03-01 10:01:28,191 INFO  [Component Resolve Thread] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: Remote command service implementation
+2013-03-01 10:02:12,621 INFO  [Component Resolve Thread] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: Remote command service implementation
+2013-03-01 10:02:39,307 INFO  [Component Resolve Thread] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: Remote command service implementation
+2013-03-01 10:02:50,082 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: LogbookDocumentService
+2013-03-01 10:02:50,085 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: InternId2IONameImplemation
+2013-03-01 10:02:50,088 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: ProcessVariable2IONameImplemation
+2013-03-01 10:02:50,088 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: ProfiBusIoNameService
+2013-03-01 10:02:50,090 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: ProfibusSensorService
+2013-03-01 10:03:10,723 INFO  [Component Resolve Thread] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: Remote command service implementation
+2013-03-01 10:03:28,436 INFO  [Component Resolve Thread] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: Remote command service implementation
+2013-03-01 10:03:37,709 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: LogbookDocumentService
+2013-03-01 10:03:37,710 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: InternId2IONameImplemation
+2013-03-01 10:03:37,712 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: ProcessVariable2IONameImplemation
+2013-03-01 10:03:37,713 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: ProfiBusIoNameService
+2013-03-01 10:03:37,714 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: ProfibusSensorService
+2013-03-01 10:03:53,369 INFO  [Component Resolve Thread] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: Remote command service implementation
+2013-03-01 10:04:09,152 INFO  [Component Resolve Thread] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: Remote command service implementation
+2013-03-01 10:04:18,110 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: LogbookDocumentService
+2013-03-01 10:04:18,111 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: InternId2IONameImplemation
+2013-03-01 10:04:18,112 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: ProcessVariable2IONameImplemation
+2013-03-01 10:04:18,113 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: ProfiBusIoNameService
+2013-03-01 10:04:18,113 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: ProfibusSensorService
+2013-04-18 16:13:29,115 INFO  [Component Resolve Thread] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: Remote command service implementation
+2013-04-18 16:13:39,837 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: LogbookDocumentService
+2013-04-18 16:13:39,839 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: InternId2IONameImplemation
+2013-04-18 16:13:39,841 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: ProcessVariable2IONameImplemation
+2013-04-18 16:13:39,842 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: ProfiBusIoNameService
+2013-04-18 16:13:39,844 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: ProfibusSensorService
+2013-04-18 16:14:03,195 INFO  [Component Resolve Thread] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: Remote command service implementation
+2013-04-18 16:14:22,906 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: LogbookDocumentService
+2013-04-18 16:14:22,908 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: InternId2IONameImplemation
+2013-04-18 16:14:22,910 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: ProcessVariable2IONameImplemation
+2013-04-18 16:14:22,911 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: ProfiBusIoNameService
+2013-04-18 16:14:22,912 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: ProfibusSensorService
+2013-04-18 16:15:18,078 INFO  [Component Resolve Thread] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: Remote command service implementation
+2013-04-18 16:15:29,190 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: LogbookDocumentService
+2013-04-18 16:15:29,192 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: InternId2IONameImplemation
+2013-04-18 16:15:29,193 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: ProcessVariable2IONameImplemation
+2013-04-18 16:15:29,194 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: ProfiBusIoNameService
+2013-04-18 16:15:29,194 INFO  [Thread-1] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: ProfibusSensorService

@@ -23,6 +23,13 @@
             id="advancedDbExporter">
       </exporter>
       <exporter
+            class="org.csstudio.dct.export.internal.SortedDbFileExporter"
+            default="false"
+            description="Sorted DB-File"
+            icon="icons/exporter.png"
+            id="sortedDbExporter">
+      </exporter>
+      <exporter
             class="org.csstudio.dct.export.internal.RecordNamesExporter"
             default="false"
             description="Record Names"

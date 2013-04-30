@@ -1,11 +1,18 @@
 package org.csstudio.dct.model.internal;
 
+import static com.google.common.base.Preconditions.*;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.csstudio.dct.model.IInstance;
 import org.csstudio.dct.model.IPropertyContainer;
+import org.csstudio.dct.model.IPrototype;
+import org.csstudio.dct.model.IRecord;
+import org.csstudio.dct.util.NotNull;
+import org.csstudio.dct.util.Nullable;
 
 /**
  * Standard implementation of {@link IPropertyContainer}.
@@ -20,16 +27,13 @@ public abstract class AbstractPropertyContainer extends AbstractElement implemen
 	public AbstractPropertyContainer() {
 	}
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param name
-	 *            the name
-	 * @param id
-	 *            the id
-	 */
-	public AbstractPropertyContainer(String name, UUID id) {
+	// name can be null since an Instance or Record is initialized with name = null
+	public AbstractPropertyContainer(@Nullable String name, @NotNull UUID id) {
 		super(name, id);
+		if (this instanceof IPrototype) {
+	        checkNotNull(name);		    
+		}
+		checkNotNull(id);
 		properties = new HashMap<String, String>();
 	}
 
@@ -37,6 +41,8 @@ public abstract class AbstractPropertyContainer extends AbstractElement implemen
 	 * {@inheritDoc}
 	 */
 	public final void addProperty(String key, String value) {
+		checkNotNull(key);
+		checkNotNull(value);
 		properties.put(key, value);
 	}
 
@@ -44,6 +50,7 @@ public abstract class AbstractPropertyContainer extends AbstractElement implemen
 	 * {@inheritDoc}
 	 */
 	public final String getProperty(String key) {
+		checkNotNull(key);
 		return properties.get(key);
 	}
 
@@ -51,6 +58,7 @@ public abstract class AbstractPropertyContainer extends AbstractElement implemen
 	 * {@inheritDoc}
 	 */
 	public final void removeProperty(String key) {
+		checkNotNull(key);
 		properties.remove(key);
 	}
 
@@ -58,6 +66,7 @@ public abstract class AbstractPropertyContainer extends AbstractElement implemen
 	 * {@inheritDoc}
 	 */
 	public final boolean hasProperty(String key) {
+		checkNotNull(key);
 		return properties.containsKey(key);
 	}
 

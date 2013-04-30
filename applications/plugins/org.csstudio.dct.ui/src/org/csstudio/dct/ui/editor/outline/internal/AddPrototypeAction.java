@@ -5,10 +5,15 @@ import java.util.UUID;
 
 import org.csstudio.dct.model.IElement;
 import org.csstudio.dct.model.IFolder;
+import org.csstudio.dct.model.IInstance;
+import org.csstudio.dct.model.IPrototype;
+import org.csstudio.dct.model.IRecord;
 import org.csstudio.dct.model.commands.AddPrototypeCommand;
 import org.csstudio.dct.model.internal.Prototype;
+import org.csstudio.dct.util.CompareUtil;
 import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.commands.CompoundCommand;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
@@ -52,4 +57,17 @@ public final class AddPrototypeAction extends AbstractOutlineAction {
 
 		return result;
 	}
+	
+
+    @Override
+    protected void afterSelectionChanged(List<IElement> selection, IAction action) {
+        super.afterSelectionChanged(selection, action);
+
+        // @formatter:off
+        boolean prototypesFolder = CompareUtil.containsPrototypesFolder(selection); 
+        boolean childOfPrototypesFolder = CompareUtil.childOfPrototypesFolder(selection);
+                
+        action.setEnabled(prototypesFolder || childOfPrototypesFolder);
+
+    }
 }

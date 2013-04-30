@@ -142,6 +142,10 @@ public class AlarmServiceActivator extends AbstractUIPlugin {
         String id = "AlarmService"; 
         LOG.info("AlarmServiceActivator injecting receiver url 1 {}, receiver url 2 {} to SharedJmsConnections", jmsUrl1, jmsUrl2);
     	SharedJmsConnections.staticInjectConsumerUrlAndClientId(jmsUrl1, jmsUrl2, id);
+    	
+        String jmsUrl3 = prefs.getString("org.csstudio.platform.utility.jms", "senderBrokerURL", "", null);
+        SharedJmsConnections.staticInjectPublisherUrlAndClientId(jmsUrl3, id);
+    	
     	// we still have to trigger the lazy creation of the receiver service
     	try {
             SharedJmsConnections.sharedReceiverConnections();

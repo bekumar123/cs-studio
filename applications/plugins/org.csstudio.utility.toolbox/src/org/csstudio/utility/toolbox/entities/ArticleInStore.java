@@ -48,7 +48,7 @@ public class ArticleInStore  extends BindingEntity implements ArticleHistoryInfo
 
 	@Column(name = "lager_artikel_id")
 	@Size(max=30)
-	@NotNull
+	@NotEmpty
 	private String lagerArtikelId;
 
 	@Column(name = "in_lager_am")

@@ -1,5 +1,8 @@
 package org.csstudio.dct.model.internal;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,6 +17,12 @@ import org.csstudio.dct.metamodel.PromptGroup;
 import org.csstudio.dct.model.IContainer;
 import org.csstudio.dct.model.IRecord;
 import org.csstudio.dct.model.IVisitor;
+import org.csstudio.dct.util.Immutable;
+import org.csstudio.dct.util.NotNull;
+import org.csstudio.dct.util.Nullable;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Represents an implicit base record that contains all standard field
@@ -24,17 +33,19 @@ import org.csstudio.dct.model.IVisitor;
  * 
  */
 public final class BaseRecord implements IRecord {
+
+	private static final long serialVersionUID = 1L;
+
+	@Nullable
 	private IRecordDefinition recordDefinition;
+
+	@NotNull
 	private List<IRecord> inheritingRecords = new ArrayList<IRecord>();
+
+	@NotNull
 	private Map<String, String> fields;
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param recordDefinition
-	 *            the record definition
-	 */
-	public BaseRecord(IRecordDefinition recordDefinition) {
+	public BaseRecord(@Nullable IRecordDefinition recordDefinition) {
 		setRecordDefinition(recordDefinition);
 	}
 
@@ -44,7 +55,7 @@ public final class BaseRecord implements IRecord {
 	 * @param recordDefinition
 	 *            the record definition
 	 */
-	public void setRecordDefinition(IRecordDefinition recordDefinition) {
+	public void setRecordDefinition(@Nullable IRecordDefinition recordDefinition) {
 		this.recordDefinition = recordDefinition;
 
 		fields = new LinkedHashMap<String, String>();
@@ -52,15 +63,19 @@ public final class BaseRecord implements IRecord {
 		if (recordDefinition != null) {
 			for (IFieldDefinition fd : recordDefinition.getFieldDefinitions()) {
 
-				if (fd.getPromptGroup() != null && PromptGroup.UNDEFINED != fd.getPromptGroup()) {
+				if (fd.getPromptGroup() != null
+						&& PromptGroup.UNDEFINED != fd.getPromptGroup()) {
 					// determine default value
 					String defaultValue = "";
 
 					if (fd.getInitial() != null && fd.getInitial().length() > 0) {
 						defaultValue = fd.getInitial();
 					} else {
-						if (fd.getMenu() != null && fd.getMenu().getChoices() != null && fd.getMenu().getChoices().size() > 0) {
-							defaultValue = fd.getMenu().getChoices().get(0).getDescription();
+						if (fd.getMenu() != null
+								&& fd.getMenu().getChoices() != null
+								&& fd.getMenu().getChoices().size() > 0) {
+							defaultValue = fd.getMenu().getChoices().get(0)
+									.getDescription();
 						}
 					}
 
@@ -71,54 +86,55 @@ public final class BaseRecord implements IRecord {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public void addField(String name, String value) {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public void addProperty(String name, String value) {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public IContainer getContainer() {
 		return null;
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
-	public String getField(String name) {
+	public String getField(@NotNull String name) {
+		checkNotNull(name);
 		return fields.get(name);
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public Map<String, String> getFields() {
 		return fields;
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public Map<String, String> getDefaultFields() {
 		return getFields();
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public Map<String, String> getFinalFields() {
 		return getFields();
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	@SuppressWarnings("unchecked")
 	public Map<String, String> getFinalProperties() {
@@ -126,103 +142,102 @@ public final class BaseRecord implements IRecord {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public String getNameFromHierarchy() {
 		return null;
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public String getEpicsName() {
 		return null;
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public String getEpicsNameFromHierarchy() {
 		return null;
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public void setEpicsName(String epicsName) {
-
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public IRecord getParentRecord() {
 		return null;
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
+	@Immutable
 	public Map<String, String> getProperties() {
-		return Collections.EMPTY_MAP;
+		return ImmutableMap.copyOf(new HashMap<String, String>());
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public String getProperty(String name) {
 		throw null;
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public String getType() {
 		return recordDefinition.getType();
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public boolean isInherited() {
 		return false;
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public void removeField(String name) {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public void removeProperty(String name) {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public void setContainer(IContainer container) {
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public UUID getId() {
 		return null;
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public String getName() {
 		return recordDefinition != null ? recordDefinition.getType() : "??";
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public void setName(String name) {
 	}
@@ -231,57 +246,62 @@ public final class BaseRecord implements IRecord {
 	 * {@inheritDoc}
 	 */
 	public void addDependentRecord(IRecord record) {
-		assert record != null;
-		assert record.getParentRecord() == this : "Record must inherit from here.";
+		checkNotNull(record);
+		checkArgument(record.getParentRecord() == this,
+				"Record must inherit from here.");
 		inheritingRecords.add(record);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Immutable
 	public List<IRecord> getDependentRecords() {
-		return inheritingRecords;
+		return ImmutableList.copyOf(inheritingRecords);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public void removeDependentRecord(IRecord record) {
-		assert record != null;
-		assert record.getParentRecord() == this : "Record must inherit from here.";
+		checkNotNull(record);
+		checkArgument(record.getParentRecord() == this,
+				"Record must inherit from here.");
 		inheritingRecords.remove(record);
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
+	@Nullable
 	public IRecordDefinition getRecordDefinition() {
 		return recordDefinition;
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public boolean hasProperty(String name) {
 		return false;
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public void accept(IVisitor visitor) {
 
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
+	@Immutable
 	public Map<String, String> getFinalParameterValues() {
-		return new HashMap<String, String>();
+		return ImmutableMap.copyOf(new HashMap<String, String>());
 	}
 
 	/**
-	 *{@inheritDoc}
+	 * {@inheritDoc}
 	 */
 	public boolean isAbstract() {
 		return true;
@@ -293,4 +313,10 @@ public final class BaseRecord implements IRecord {
 	public Boolean getDisabled() {
 		return false;
 	}
+
+    @Override
+    public IContainer getRootContainer() {
+        throw new IllegalStateException("Should not be called");
+    }
+
 }

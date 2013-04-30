@@ -9,6 +9,7 @@ import org.csstudio.dct.model.commands.RemovePropertyCommand;
 import org.csstudio.dct.ui.Activator;
 import org.csstudio.dct.ui.editor.tables.ConvenienceTableWrapper;
 import org.csstudio.dct.ui.editor.tables.ITableRow;
+import org.csstudio.domain.common.LayoutUtil;
 import org.csstudio.ui.util.CustomMediaFactory;
 import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.commands.CommandStack;
@@ -19,6 +20,7 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -29,7 +31,6 @@ import org.eclipse.swt.widgets.ExpandBar;
 import org.eclipse.swt.widgets.ExpandItem;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.PlatformUI;
-import org.csstudio.domain.common.LayoutUtil;
 
 /**
  * Abstract base class for forms that edit model elements which contain
@@ -40,6 +41,7 @@ import org.csstudio.domain.common.LayoutUtil;
  * @param <E>
  *            the type of element that is edited with a form
  */
+@Deprecated
 public abstract class AbstractPropertyContainerForm<E extends IPropertyContainer> extends AbstractForm<E> {
 
 	private ConvenienceTableWrapper propertyTable;
@@ -53,7 +55,7 @@ public abstract class AbstractPropertyContainerForm<E extends IPropertyContainer
 	public AbstractPropertyContainerForm(DctEditor editor) {
 		super(editor);
 	}
-
+	
 	/**
 	 * Returns the currently selected property.
 	 * 
@@ -71,7 +73,7 @@ public abstract class AbstractPropertyContainerForm<E extends IPropertyContainer
 
 		return result;
 	}
-	
+		
 	/**
 	 *{@inheritDoc}
 	 */

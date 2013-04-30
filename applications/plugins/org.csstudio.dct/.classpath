@@ -5,6 +5,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="src-vdct"/>
 	<classpathentry kind="src" path="src-test"/>
+	<classpathentry kind="src" path="src-unit-test"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaxen-core.jar" sourcepath="org.csstudio.dctsrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaxen-jdom.jar" sourcepath="org.csstudio.dctsrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/saxpath.jar" sourcepath="org.csstudio.dctsrc.zip"/>

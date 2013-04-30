@@ -27,8 +27,11 @@ import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
+
 import org.csstudio.ams.Log;
 import org.csstudio.ams.MyRunnable;
 import org.csstudio.ams.Utils;
@@ -47,18 +50,7 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.part.*;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.FocusAdapter;
@@ -72,7 +64,19 @@ import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.DateTime;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.part.ViewPart;
 
 /**
  * This sample class demonstrates how to plug-in a new workbench view. The view
@@ -159,8 +163,8 @@ public class AMSMonitorView extends ViewPart implements SelectionListener {
                 Date periodStart = null, periodEnd = null;
 
                 try {
-                    periodStart = getDate(txtPeriodStart);
-                    periodEnd = getDate(txtPeriodEnd);
+                    periodStart = getDate(datePeriodStart, timePeriodStart);
+                    periodEnd = getDate(datePeriodEnd, timePeriodEnd);
                 } catch (Exception ex) {
                     MessageBox msg = new MessageBox(mainComposite.getShell(),
                             SWT.ICON_ERROR);
@@ -252,11 +256,11 @@ public class AMSMonitorView extends ViewPart implements SelectionListener {
             DateFormat.SHORT);
     private String maskTime = ((SimpleDateFormat) df).toLocalizedPattern();
 
-    private Date getDate(Text text) throws Exception {
-        if (isEmpty(text))
-            return null;
+    private Date getDate(DateTime date, DateTime time) throws Exception {
+        Calendar calendar = GregorianCalendar.getInstance();
+        calendar.set(date.getYear(), date.getMonth(), date.getDay(), time.getHours(), time.getMinutes(), time.getSeconds());
 
-        return df.parse(text.getText());
+        return calendar.getTime();
     }
 
     /**
@@ -312,15 +316,23 @@ public class AMSMonitorView extends ViewPart implements SelectionListener {
         lblPeriodStart = new Label(filterComposite, SWT.NONE);
         lblPeriodStart.setLayoutData(Utils.getGridData(-1, -1, 1, 1,
                 SWT.BEGINNING, SWT.CENTER, false, false));
-        txtPeriodStart = new Text(filterComposite, SWT.BORDER | SWT.SINGLE);
-        txtPeriodStart.setLayoutData(Utils.getGridData(100, -1, 1, 1,
-                SWT.BEGINNING, SWT.CENTER, false, false));
+        
+        Composite startTimeContainer = new Composite(filterComposite, SWT.NONE);
+        startTimeContainer.setLayout(new GridLayout(2, false));
+
+        datePeriodStart = new DateTime(startTimeContainer, SWT.BORDER | SWT.DATE | SWT.DROP_DOWN);
+        timePeriodStart = new DateTime(startTimeContainer, SWT.BORDER | SWT.TIME);
+        
+        
         lblPeriodEnd = new Label(filterComposite, SWT.NONE);
         lblPeriodEnd.setLayoutData(Utils.getGridData(-1, -1, 1, 1,
                 SWT.BEGINNING, SWT.CENTER, false, false));
-        txtPeriodEnd = new Text(filterComposite, SWT.BORDER | SWT.SINGLE);
-        txtPeriodEnd.setLayoutData(Utils.getGridData(100, -1, 1, 1,
-                SWT.BEGINNING, SWT.CENTER, false, false));
+
+        Composite endContainer = new Composite(filterComposite, SWT.NONE);
+        endContainer.setLayout(new GridLayout(2, false));
+        datePeriodEnd = new DateTime(endContainer, SWT.BORDER | SWT.DATE | SWT.DROP_DOWN);
+        timePeriodEnd = new DateTime(endContainer, SWT.BORDER | SWT.TIME);
+        
         cmdClear = new CommandButton(filterComposite, CommandButton.CLEAR);
         cmdClear.setLayoutData(Utils.getGridData(-1, -1, 1, 1, SWT.END,
                 SWT.CENTER, true, false));
@@ -601,9 +613,11 @@ public class AMSMonitorView extends ViewPart implements SelectionListener {
     private Combo cboInterval = null;
     private Button optPeriod = null;
     private Label lblPeriodStart = null;
-    private Text txtPeriodStart = null;
+    private DateTime datePeriodStart = null;
+    private DateTime timePeriodStart = null;
+    private DateTime datePeriodEnd = null;
+    private DateTime timePeriodEnd = null;
     private Label lblPeriodEnd = null;
-    private Text txtPeriodEnd = null;
     private Button excelExport = null;
 
     private CommandButton cmdClear = null;

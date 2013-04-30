@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<folder id="f35d70e3-1b0f-4b4c-98a5-f2749be5ca7c" name="Neu" dbd="/MCS-Test/Epics3-14-11.dbd" ioc="">
+  <folder id="daacbdca-c13f-4686-b802-6a95c503d9c2" name="Instances" index="0">
+    <instance id="2908f043-5e76-4ea7-96d9-31a28b4cd0a5" parent="6bd8f999-04a2-492b-b4c3-07b0d819b698" name="{inherited}" index="0">
+      <parameter name="box" value="10" />
+      <instance id="c767d75d-ca7f-4655-a1b1-38a7ce2b4ed0" parent="5342decf-89e0-4760-aa94-14e46a4f203e" name="{inherited}" index="0">
+        <instance id="024228a8-b04e-48ca-901b-60aacad89537" parent="2115bf00-fecc-4a47-9525-09ad6c2a9300" name="{inherited}" index="0">
+          <record id="395bc1cb-c2f9-4e42-bae4-5b82499a58f5" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="6b58865d-09bd-4967-a76f-3adb8ed47d9c" />
+        </instance>
+        <instance id="d6ade8e3-8154-4f95-a8fb-22f4d3e82f54" parent="98c57d92-0913-455a-9a69-38092f497db1" name="{inherited}" index="1">
+          <record id="317f6a19-7509-4bf7-b2dc-8fd729dc3141" name="Einrittstemperatur" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="f5213d87-5572-46b6-832a-9b1cfec24109" />
+          <record id="11fb1064-d5d9-4c04-add0-9dfbb61782c6" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="arch" parent="67b25f86-00ed-48b6-bde3-aa9d93039bc0" />
+        </instance>
+        <instance id="dce965c5-aec0-44fe-a826-3d8e7abc407a" parent="6bcd4c3b-5487-493b-b17e-feb2707ce80b" name="{inherited}" index="2">
+          <record id="77105dae-24c9-4366-96e5-198897f55473" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="b34c7182-d4fc-4c83-9bad-3590089693fe" />
+        </instance>
+      </instance>
+      <instance id="105c38f9-66da-43b6-82bb-4afeff99c2ec" parent="e61dcb81-0179-428a-98bb-c8656b5e4710" name="{inherited}" index="1">
+        <instance id="a10741e7-6002-455a-a3f1-97190b30105a" parent="98989ad8-6e42-4bfa-a45a-b52e69546355" name="{inherited}" index="0">
+          <record id="4c94beef-0cee-4521-8efe-72134a228f47" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="b521210f-5e29-4b81-afe0-4399b763a6c9" />
+        </instance>
+        <instance id="42ca7349-809f-4164-b83d-45f2da9779bd" parent="fa6b1523-1dc0-4a10-961a-52e9bc8789b3" name="{inherited}" index="1">
+          <record id="eae004db-cf29-4749-9c35-6df672d02d65" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="b8a028a6-eee9-478a-a852-63b45062f05d" />
+          <record id="1bc08df6-1aaa-4c0b-8a4c-b1cdc0d7267c" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="arch" parent="3ca18dec-e766-44e1-9c6e-8279b996568e" />
+        </instance>
+        <instance id="4d1f790a-2274-4e8c-8a4c-2ccc827dafe6" parent="2c6d7712-5f17-4843-bc1c-079b3fe035ff" name="{inherited}" index="2">
+          <record id="034ff9fd-689c-4929-968e-41e9d3f30f4e" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="9f1f54e8-6a57-4bed-b00c-196e9a1e6bfc" />
+        </instance>
+      </instance>
+      <instance id="8e83fbe1-f209-4df8-9589-ab241633ff0a" parent="896717d5-ed72-4b34-90a6-cffe752aabd4" name="{inherited}" index="2">
+        <record id="2dbcee39-ea89-4db6-a51f-c7a963c21a47" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="f3a0f1d0-4bef-463f-89ba-5c80710c19be" />
+      </instance>
+    </instance>
+    <instance id="dc18d8c0-c9a0-4f2e-be55-43f9bb7a6984" parent="6bd8f999-04a2-492b-b4c3-07b0d819b698" name="Adsorbergruppe-B" index="1">
+      <parameter name="box" value="20" />
+      <instance id="18326351-9d15-4989-a847-7174f2a06985" parent="5342decf-89e0-4760-aa94-14e46a4f203e" name="{inherited}" index="0">
+        <instance id="19c621fb-c444-446f-bd0a-6b73321a7a97" parent="2115bf00-fecc-4a47-9525-09ad6c2a9300" name="{inherited}" index="0">
+          <record id="762cfe9f-ac8a-41fe-b902-67f43a5c6b98" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="6b58865d-09bd-4967-a76f-3adb8ed47d9c" />
+        </instance>
+        <instance id="11a2cc20-7776-40a1-ae55-4a365f47942e" parent="98c57d92-0913-455a-9a69-38092f497db1" name="{inherited}" index="1">
+          <record id="db9fdc2a-64d8-4dac-8590-0e787ba3c336" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="f5213d87-5572-46b6-832a-9b1cfec24109" />
+          <record id="bd5c2e70-ca99-42db-b2b0-934860b46e73" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="arch" parent="67b25f86-00ed-48b6-bde3-aa9d93039bc0" />
+        </instance>
+        <instance id="84ef665e-b587-42c1-9668-271240ba83c1" parent="6bcd4c3b-5487-493b-b17e-feb2707ce80b" name="{inherited}" index="2">
+          <record id="da704618-7259-4d38-879a-afeb1401387d" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="b34c7182-d4fc-4c83-9bad-3590089693fe" />
+        </instance>
+      </instance>
+      <instance id="8d7a32da-a98f-4e07-b77e-246e9366afbb" parent="e61dcb81-0179-428a-98bb-c8656b5e4710" name="{inherited}" index="1">
+        <instance id="fa9d90c3-5e3e-4647-a431-a76d9c8f22eb" parent="98989ad8-6e42-4bfa-a45a-b52e69546355" name="{inherited}" index="0">
+          <record id="a45e940c-e56e-4ba6-9b61-2b6cf7169c1e" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="b521210f-5e29-4b81-afe0-4399b763a6c9" />
+        </instance>
+        <instance id="937868d8-6fa8-44a4-b7f5-435e57da2fee" parent="fa6b1523-1dc0-4a10-961a-52e9bc8789b3" name="{inherited}" index="1">
+          <record id="044d3c4a-4162-4ce0-9e78-e3179225d9ab" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="b8a028a6-eee9-478a-a852-63b45062f05d" />
+          <record id="66ef8914-4efd-4e9d-8de1-94aa9a2b8d71" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="arch" parent="3ca18dec-e766-44e1-9c6e-8279b996568e" />
+        </instance>
+        <instance id="aed5388d-5f70-4e15-bd8c-b5dd04f5490d" parent="2c6d7712-5f17-4843-bc1c-079b3fe035ff" name="{inherited}" index="2">
+          <record id="ad810e46-7bca-4887-aca8-41af0b3fbfc6" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="9f1f54e8-6a57-4bed-b00c-196e9a1e6bfc" />
+        </instance>
+      </instance>
+      <instance id="4d3f89a9-e394-45a7-85c5-d1b8b562f567" parent="896717d5-ed72-4b34-90a6-cffe752aabd4" name="{inherited}" index="2">
+        <record id="cceff224-4362-41fe-86ed-709c0ee442e4" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="f3a0f1d0-4bef-463f-89ba-5c80710c19be" />
+      </instance>
+    </instance>
+  </folder>
+  <folder id="817fefcc-9613-4f7a-a9c1-79a7cca7f521" name="Prototypes" index="1">
+    <prototype id="e8cc177d-c42e-4e47-81ba-75c6bde2f4c4" name="Adsorber" index="0">
+      <parameter name="box" value="234234" />
+      <parameter name="nummer" value="234234" />
+      <record id="368e6c3b-18fe-4672-8464-763ec248097e" name="Einrittstemperatur" epicsname="$(box)FI123$(nummer)_ai" disabled="true" type="ai">
+        <field name="INP" value="&gt;ioname(&quot;test&quot;)" />
+        <field name="DESC" value="$(box)FI123_ai" />
+        <field name="FLNK" value="&gt;forwardlink(temparch)" />
+        <field name="SCAN" value="1 second" />
+        <property name="archiveToDesyDeviceDb" value="true" />
+      </record>
+      <record id="5be4df03-d492-4efa-8654-292b05606fdb" name="temparchtest" epicsname="$(box)FI123$(nummer)_ai_h" disabled="{inherited}" type="arch">
+        <field name="INP" value="&gt;ioname(&quot;test2&quot;)" />
+        <field name="DESC" value="$(box)FI123_ai_h" />
+        <property name="archiveToDesyDeviceDb" value="true" />
+      </record>
+    </prototype>
+    <prototype id="fd0891af-de33-4f76-9d1b-12caea799538" name="Regelventil" index="1">
+      <parameter name="ventiltype" value="" />
+      <parameter name="box" value="" />
+      <parameter name="nr" value="" />
+      <record id="d44ba166-1dcb-4a8e-b7bc-9fd2a21a29ab" name="readback" epicsname="$(box)$(ventiltype)$(nr)007_ai" disabled="{inherited}" type="ai">
+        <field name="DESC" value="$(box)$(ventiltype)$(nr)007_ai" />
+        <property name="archiveToDesyDeviceDb" value="true" />
+      </record>
+    </prototype>
+    <prototype id="d349b3d9-5da2-4cad-9770-38993173a4ae" name="Adsorberstrang" index="2">
+      <parameter name="box" value="" />
+      <parameter name="nummer" value="" />
+      <instance id="338f2a3c-5072-42d4-a8b8-91a789843cb6" parent="fd0891af-de33-4f76-9d1b-12caea799538" name="Eingangsventil" index="0">
+        <parameter name="ventiltype" value="EV" />
+        <parameter name="nr" value="$(nummer)" />
+        <record id="0e09ca36-de27-4e7c-a8c7-16ac31b2f52c" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="d44ba166-1dcb-4a8e-b7bc-9fd2a21a29ab">
+          <property name="archiveToDesyDeviceDb" value="true" />
+        </record>
+      </instance>
+      <instance id="a537dca6-ba0a-41b1-bbd9-b3fa24ba5f35" parent="e8cc177d-c42e-4e47-81ba-75c6bde2f4c4" name="{inherited}" index="1">
+        <record id="76816f72-b098-4f02-8788-4ff48eb272f6" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="368e6c3b-18fe-4672-8464-763ec248097e">
+          <property name="archiveToDesyDeviceDb" value="true" />
+        </record>
+        <record id="58ff137f-f818-4849-a141-8a312f4b3980" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="arch" parent="5be4df03-d492-4efa-8654-292b05606fdb">
+          <property name="archiveToDesyDeviceDb" value="true" />
+        </record>
+      </instance>
+      <instance id="81818ab7-e738-4945-a719-951be2365b64" parent="fd0891af-de33-4f76-9d1b-12caea799538" name="Ausgangsventil" index="2">
+        <parameter name="ventiltype" value="AV" />
+        <parameter name="nr" value="$(nummer)" />
+        <record id="f693d68b-94d0-41ff-ac35-4083501fc2bb" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="d44ba166-1dcb-4a8e-b7bc-9fd2a21a29ab">
+          <property name="archiveToDesyDeviceDb" value="true" />
+        </record>
+      </instance>
+    </prototype>
+    <prototype id="6bd8f999-04a2-492b-b4c3-07b0d819b698" name="Adsorbergruppe" index="3">
+      <parameter name="box" value="" />
+      <instance id="5342decf-89e0-4760-aa94-14e46a4f203e" parent="d349b3d9-5da2-4cad-9770-38993173a4ae" name="Adsorberstrang-A" index="0">
+        <parameter name="nummer" value="1" />
+        <instance id="2115bf00-fecc-4a47-9525-09ad6c2a9300" parent="338f2a3c-5072-42d4-a8b8-91a789843cb6" name="{inherited}" index="0">
+          <record id="6b58865d-09bd-4967-a76f-3adb8ed47d9c" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="0e09ca36-de27-4e7c-a8c7-16ac31b2f52c">
+            <property name="archiveToDesyDeviceDb" value="true" />
+          </record>
+        </instance>
+        <instance id="98c57d92-0913-455a-9a69-38092f497db1" parent="a537dca6-ba0a-41b1-bbd9-b3fa24ba5f35" name="{inherited}" index="1">
+          <record id="f5213d87-5572-46b6-832a-9b1cfec24109" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="76816f72-b098-4f02-8788-4ff48eb272f6">
+            <property name="archiveToDesyDeviceDb" value="true" />
+          </record>
+          <record id="67b25f86-00ed-48b6-bde3-aa9d93039bc0" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="arch" parent="58ff137f-f818-4849-a141-8a312f4b3980">
+            <property name="archiveToDesyDeviceDb" value="true" />
+          </record>
+        </instance>
+        <instance id="6bcd4c3b-5487-493b-b17e-feb2707ce80b" parent="81818ab7-e738-4945-a719-951be2365b64" name="{inherited}" index="2">
+          <record id="b34c7182-d4fc-4c83-9bad-3590089693fe" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="f693d68b-94d0-41ff-ac35-4083501fc2bb">
+            <property name="archiveToDesyDeviceDb" value="true" />
+          </record>
+        </instance>
+      </instance>
+      <instance id="e61dcb81-0179-428a-98bb-c8656b5e4710" parent="d349b3d9-5da2-4cad-9770-38993173a4ae" name="Adsorberstrang-B" index="1">
+        <parameter name="nummer" value="2" />
+        <instance id="98989ad8-6e42-4bfa-a45a-b52e69546355" parent="338f2a3c-5072-42d4-a8b8-91a789843cb6" name="{inherited}" index="0">
+          <record id="b521210f-5e29-4b81-afe0-4399b763a6c9" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="0e09ca36-de27-4e7c-a8c7-16ac31b2f52c">
+            <property name="archiveToDesyDeviceDb" value="true" />
+          </record>
+        </instance>
+        <instance id="fa6b1523-1dc0-4a10-961a-52e9bc8789b3" parent="a537dca6-ba0a-41b1-bbd9-b3fa24ba5f35" name="{inherited}" index="1">
+          <record id="b8a028a6-eee9-478a-a852-63b45062f05d" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="76816f72-b098-4f02-8788-4ff48eb272f6">
+            <field name="VAL" value="&gt;datalink(Einrittstemperatur)" />
+            <property name="archiveToDesyDeviceDb" value="true" />
+          </record>
+          <record id="3ca18dec-e766-44e1-9c6e-8279b996568e" name="{inherited}" epicsname="$(box)FI123_ai_h" disabled="false" type="arch" parent="58ff137f-f818-4849-a141-8a312f4b3980">
+            <property name="archiveToDesyDeviceDb" value="true" />
+          </record>
+        </instance>
+        <instance id="2c6d7712-5f17-4843-bc1c-079b3fe035ff" parent="81818ab7-e738-4945-a719-951be2365b64" name="{inherited}" index="2">
+          <record id="9f1f54e8-6a57-4bed-b00c-196e9a1e6bfc" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="f693d68b-94d0-41ff-ac35-4083501fc2bb">
+            <property name="archiveToDesyDeviceDb" value="true" />
+          </record>
+        </instance>
+      </instance>
+      <instance id="896717d5-ed72-4b34-90a6-cffe752aabd4" parent="fd0891af-de33-4f76-9d1b-12caea799538" name="Bypass" index="2">
+        <record id="f3a0f1d0-4bef-463f-89ba-5c80710c19be" name="{inherited}" epicsname="{inherited}" disabled="{inherited}" type="ai" parent="d44ba166-1dcb-4a8e-b7bc-9fd2a21a29ab">
+          <property name="archiveToDesyDeviceDb" value="true" />
+        </record>
+      </instance>
+    </prototype>
+  </folder>
+  <folder id="a3ffa3c4-2090-43a4-97fa-dac674870629" name="Library" index="2" />
+</folder>
+

@@ -23,6 +23,7 @@
 package org.csstudio.management.internal.xmpplogindialog;
 
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.SWT;
@@ -64,6 +65,11 @@ public class PreferencePage extends FieldEditorPreferencePage
 				"Username:", getFieldEditorParent()));
 		addField(new StringFieldEditor(PreferenceConstants.ANONYMOUS_LOGIN_PASSWORD,
 				"Password:", getFieldEditorParent()));
+		addField(new BooleanFieldEditor(
+				PreferenceConstants.AUTOMATIC_XMPP_LOGIN,
+				"Anonymous XMPP login without login window",
+                getFieldEditorParent()));
+
 	}
 
 	/**

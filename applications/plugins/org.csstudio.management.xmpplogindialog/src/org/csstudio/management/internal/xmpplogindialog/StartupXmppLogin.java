@@ -165,7 +165,14 @@ public class StartupXmppLogin implements IStartupServiceListener {
 		private Credentials showLoginDialog() {
 			// One-element array for communication with the UI thread.
 			final Credentials[] credentials = new Credentials[1];
+
+			IPreferencesService prefs = Platform.getPreferencesService();
+			boolean automaticLogin = prefs.getBoolean(Activator.PLUGIN_ID,
+					PreferenceConstants.AUTOMATIC_XMPP_LOGIN, false, null);
 			
+			if (automaticLogin) {
+				return new Credentials("anonymous", "anonymous");
+			}
 			Display.getDefault().syncExec(new Runnable() {
 				public void run() {
 					LoginDialog dialog = new LoginDialog(null, "ECF/XMPP Login",

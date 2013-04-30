@@ -42,6 +42,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		prefs.put(PreferenceConstants.XMPP_SERVER, "krykxmpp.desy.de");
 		prefs.put(PreferenceConstants.ANONYMOUS_LOGIN_USER, "anonymous");
 		prefs.put(PreferenceConstants.ANONYMOUS_LOGIN_PASSWORD, "anonymous");
+		prefs.put(PreferenceConstants.AUTOMATIC_XMPP_LOGIN, "false");
 	}
 
 }

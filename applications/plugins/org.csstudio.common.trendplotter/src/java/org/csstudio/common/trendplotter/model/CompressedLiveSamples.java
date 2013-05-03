@@ -92,7 +92,7 @@ public class CompressedLiveSamples extends LiveSamples {
     }
 
     private boolean isCompressionDue(@Nonnull final LimitedArrayCircularQueue<PlotSample> samples) {
-        removeSamplesBeforeStart(samples,_intervalPovider.getTimeInterval().getStartMillis());
+       // removeSamplesBeforeStart(samples,_intervalPovider.getTimeInterval().getStartMillis());
         return samples.size() >= Math.max(samples.getCapacity(), 2) && newSamples>_securityCap;
     }
     @Nonnull
@@ -105,7 +105,7 @@ public class CompressedLiveSamples extends LiveSamples {
     @Nonnull
     private LimitedArrayCircularQueue<PlotSample> compress(@Nonnull final LimitedArrayCircularQueue<PlotSample> samples,
                                                            @Nonnull final Interval interval) {
-            removeSamplesBeforeStart(samples, interval.getStartMillis());
+        //    removeSamplesBeforeStart(samples, interval.getStartMillis());
             if(samples.size()<getCapacity() ){
                 LOG.info("Samples do not compress ");
                 return samples;
@@ -136,8 +136,8 @@ public class CompressedLiveSamples extends LiveSamples {
     private Long[] determinePerfectWindowForCompressedSamples(final int cap,
                                                               @Nonnull final LimitedArrayCircularQueue<PlotSample> samples,
                                                               final Interval intvl) {
-        final long endMillis = BaseTypeConversionSupport.toTimeInstant(samples.get(cap+_securityCap- 1).getTime()).getMillis();
-        final long startMillis = BaseTypeConversionSupport.toTimeInstant(samples.get(0).getTime()).getMillis();
+        final long endMillis = BaseTypeConversionSupport.toTimeInstant1(samples.get(cap+_securityCap- 1).getTime()).getMillis();
+        final long startMillis = BaseTypeConversionSupport.toTimeInstant1(samples.get(0).getTime()).getMillis();
         final long realStartMillis =startMillis< intvl.getStartMillis()?intvl.getStartMillis(): startMillis;
         final long realEndMillis = Math.min(endMillis, intvl.getEndMillis());
         final long windowLengthMS = (long) ((realEndMillis - realStartMillis)/cap); // perfect
@@ -150,7 +150,7 @@ public class CompressedLiveSamples extends LiveSamples {
                                           @Nonnull final long startTimeInMS) {
         PlotSample next;
         while ((next = samples.peek()) != null) {
-            final TimeInstant time = BaseTypeConversionSupport.toTimeInstant(next.getTime());
+            final TimeInstant time = BaseTypeConversionSupport.toTimeInstant1(next.getTime());
             if (time.getMillis() < startTimeInMS) {
                 samples.poll();
             } else {

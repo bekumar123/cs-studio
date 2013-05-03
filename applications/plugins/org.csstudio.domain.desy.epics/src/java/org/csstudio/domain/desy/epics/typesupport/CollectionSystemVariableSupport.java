@@ -30,6 +30,7 @@ import org.csstudio.domain.desy.epics.alarm.EpicsAlarm;
 import org.csstudio.domain.desy.epics.types.EpicsSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.typesupport.TypeSupportException;
+import org.epics.vtype.VType;
 
 /**
  * @author bknerr
@@ -66,5 +67,22 @@ final class CollectionSystemVariableSupport extends EpicsSystemVariableSupport<C
                                                @Nonnull final TimeInstant timestamp) throws TypeSupportException {
         throw new TypeSupportException("This method should not be invoked on itself", null);
     }
+
+	@Override
+	@Nonnull
+	protected VType convertEpicsSystemVariableToVType(
+			final EpicsSystemVariable<Collection> sysVar) throws TypeSupportException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	@Nonnull
+	protected VType convertCollectionToVType(final Collection<Collection> data,
+			final EpicsAlarm alarm, final TimeInstant timestamp)
+			throws TypeSupportException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

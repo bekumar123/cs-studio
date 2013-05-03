@@ -8,16 +8,18 @@
 package org.csstudio.common.trendplotter.model;
 
 import org.csstudio.common.trendplotter.Messages;
-import org.csstudio.data.values.IMinMaxDoubleValue;
-import org.csstudio.data.values.INumericMetaData;
-import org.csstudio.data.values.ISeverity;
-import org.csstudio.data.values.ITimestamp;
-import org.csstudio.data.values.IValue;
-import org.csstudio.data.values.TimestampFactory;
-import org.csstudio.data.values.ValueFactory;
-import org.csstudio.data.values.ValueUtil;
+import org.csstudio.archive.vtype.ArchiveVType;
+import org.csstudio.archive.vtype.VTypeHelper;
 import org.csstudio.swt.xygraph.dataprovider.ISample;
 import org.eclipse.osgi.util.NLS;
+import org.epics.util.time.Timestamp;
+import org.epics.vtype.AlarmSeverity;
+import org.epics.vtype.Time;
+import org.epics.vtype.VDouble;
+import org.epics.vtype.VStatistics;
+import org.epics.vtype.VType;
+import org.epics.vtype.ValueFactory;
+import org.epics.vtype.ValueUtil;
 
 /** Data Sample from control system (IValue)
  *  with interface for XYGraph (ISample)
@@ -25,14 +27,17 @@ import org.eclipse.osgi.util.NLS;
  */
 public class PlotSample implements ISample
 {
-    final public static INumericMetaData dummy_meta = ValueFactory.createNumericMetaData(0, 0, 0, 0, 0, 0, 1, "a.u."); //$NON-NLS-1$
-    final public static ISeverity ok_severity = ValueFactory.createOKSeverity();
+    final public static VDouble dummy_meta = ValueFactory.newVDouble(Double.NaN); //$NON-NLS-1$
+    final public static AlarmSeverity ok_severity = AlarmSeverity.NONE;
 
     /** Value contained in this sample */
-    final private IValue value;
+    final private VType value;
 
     /** Source of the data */
     final private String source;
+    
+    /** Quality of the data */
+    final private String quality;
 
     /** Info string.
      *  @see #getInfo()
@@ -51,35 +56,38 @@ public class PlotSample implements ISample
      *  @param source Info about the source of this sample
      *  @param value
      */
-    public PlotSample(final String source, final IValue value)
+    public PlotSample(final String source, final VType value)
+    {
+        this(source,value,"");
+    }
+    /** Initialize with valid control system value
+     *  @param source Info about the source of this sample
+     *  @param value
+     */
+    public PlotSample(final String source, final VType value,final String quality)
     {
         if (value == null) {
-            throw new IllegalArgumentException("IValue is null for PlotSample");
+            throw new IllegalArgumentException("VType is null for PlotSample");
         }
         this.value = value;
         this.source = source;
+        this.quality=quality;
         info = null;
     }
-
     /** Initialize with (error) info, creating a non-plottable sample 'now'
      *  @param info Text used for info as well as error message
      */
     public PlotSample(final String source, final String info)
     {
-        this(source, ValueFactory.createDoubleValue(TimestampFactory.now(),
-                ValueFactory.createInvalidSeverity(), info, dummy_meta,
-                IValue.Quality.Original, new double[] { Double.NaN }));
+        this(source, ValueFactory.newVString(info, ValueFactory.newAlarm(AlarmSeverity.UNDEFINED, info), ValueFactory.timeNow()));
         this.info = info;
     }
 
     /** Package-level constructor, only used in unit tests */
     @SuppressWarnings("nls")
     PlotSample(final double x, final double y)
-    {
-        this("Test",
-             ValueFactory.createDoubleValue(TimestampFactory.fromDouble(x),
-               ok_severity, ok_severity.toString(), dummy_meta,
-               IValue.Quality.Original, new double[] { y }));
+    {  this("Test",
+            ValueFactory.newVDouble(y, ValueFactory.newTime(Timestamp.of((long) x, 0))));
     }
 
     /** @return Waveform index */
@@ -101,16 +109,23 @@ public class PlotSample implements ISample
     }
 
     /** @return Control system value */
-    public IValue getValue()
+    public VType getValue()
     {
         return value;
     }
 
     /** @return Control system time stamp */
-    public ITimestamp getTime()
+    public Timestamp getTime()
     {
-        return value.getTime();
+        // NOT checking if time.isValid()
+        // because that actually takes quite some time.
+        // We just plot what we have, and that includes
+        // the case where the time stamp is invalid.
+        if (value instanceof Time)
+            return ((Time) value).getTimestamp();
+        return Timestamp.now();
     }
+   
 
     /** Since the 'X' axis is used as a 'Time' axis, this
      *  returns the time stamp of the control system sample.
@@ -120,18 +135,15 @@ public class PlotSample implements ISample
     @Override
     public double getXValue()
     {
-        return value.getTime().toDouble()*1000.0;
+        final Timestamp time = getTime();
+        return time.getSec() * 1000.0 + time.getNanoSec() / 1e6;
     }
 
     /** {@inheritDoc} */
     @Override
     public double getYValue()
     {
-        if (value.getSeverity().hasValue() && waveform_index < ValueUtil.getSize(value)){
-            return ValueUtil.getDouble(value, waveform_index);
-        }
-        // No numeric value. Plot shows NaN as marker.
-        return Double.NaN;
+        return VTypeHelper.toDouble(value, waveform_index);
     }
 
     /** Get sample's info text.
@@ -164,7 +176,7 @@ public class PlotSample implements ISample
     @Override
     public double getYMinusError()
     {
-        if (!(value instanceof IMinMaxDoubleValue)) {
+        if (!(value instanceof VStatistics)) {
             return 0;
         }
         // Although the behavior of getMinimum() method depends on archive
@@ -177,18 +189,18 @@ public class PlotSample implements ISample
             return 0;
         }
 
-        final IMinMaxDoubleValue minmax = (IMinMaxDoubleValue)value;
+        final VStatistics minmax = (VStatistics)value;
         if (show_deadband) {
             return getDeadband().doubleValue();
         }
-        return minmax.getValue() - minmax.getMinimum();
+        return  minmax.getAverage() - minmax.getMin();
     }
 
     /** {@inheritDoc} */
     @Override
     public double getYPlusError()
     {
-        if (!(value instanceof IMinMaxDoubleValue)) {
+        if (!(value instanceof VStatistics)) {
             return 0;
         }
         
@@ -201,11 +213,11 @@ public class PlotSample implements ISample
         if (waveform_index != 0) {
             return 0;
         }
-        final IMinMaxDoubleValue minmax = (IMinMaxDoubleValue)value;
+        final VStatistics minmax = (VStatistics)value;
         if (show_deadband) {
             return getDeadband().doubleValue();
         }
-        return minmax.getMaximum() - minmax.getValue();
+        return minmax.getMax() - minmax.getAverage();
     }
 
     @Override

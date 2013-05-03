@@ -61,8 +61,6 @@ public class AxisConfig
     private boolean autoFormat;
     private String format;
 
-    private boolean _minMaxInitialized;
-    
     public RGB getGridLineColor()
     {
         return gridLineColor;
@@ -499,13 +497,5 @@ public class AxisConfig
     public void setFireEvent(final boolean fireEvent)
     {
         this.fireEvent = fireEvent;
-    }
-
-    public boolean isMinMaxInitialized() {
-        return _minMaxInitialized;
-    }
-
-    public void setMinMaxInitialized(boolean _minMaxInitialized) {
-        this._minMaxInitialized = _minMaxInitialized;
     }
 }

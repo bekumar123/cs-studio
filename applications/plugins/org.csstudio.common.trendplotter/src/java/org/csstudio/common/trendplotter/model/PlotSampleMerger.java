@@ -35,10 +35,10 @@ public class PlotSampleMerger
          int b = 0;
          int c = 0;
          while (a < A.length && b < B.length) {
-             if (A[a].getTime().isLessThan(B[b].getTime())) { 
+             if (A[a].getTime().getSec()<(B[b].getTime()).getSec()) { 
                  C[c] = A[a];
                  a++;
-             } else if (A[a].getTime().isGreaterThan(B[b].getTime())) {
+             } else if (A[a].getTime().getSec()>(B[b].getTime()).getSec()) {
                  C[c] = B[b];
                  b++;
              } else { // equal time stamp - no behaviour specified - test says, take 'new', omit 'old', well then...

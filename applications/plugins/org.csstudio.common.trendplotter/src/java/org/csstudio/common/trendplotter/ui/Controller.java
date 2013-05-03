@@ -14,7 +14,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.csstudio.archive.reader.UnknownChannelException;
-import org.csstudio.common.trendplotter.Activator;
 import org.csstudio.common.trendplotter.Messages;
 import org.csstudio.common.trendplotter.archive.ArchiveFetchJob;
 import org.csstudio.common.trendplotter.archive.ArchiveFetchJobListener;
@@ -24,7 +23,6 @@ import org.csstudio.common.trendplotter.model.AnnotationInfo;
 import org.csstudio.common.trendplotter.model.ArchiveDataSource;
 import org.csstudio.common.trendplotter.model.ArchiveRescale;
 import org.csstudio.common.trendplotter.model.AxisConfig;
-import org.csstudio.common.trendplotter.model.HistoricSamples;
 import org.csstudio.common.trendplotter.model.Model;
 import org.csstudio.common.trendplotter.model.ModelItem;
 import org.csstudio.common.trendplotter.model.ModelListener;
@@ -33,8 +31,6 @@ import org.csstudio.common.trendplotter.preferences.Preferences;
 import org.csstudio.common.trendplotter.propsheet.AddArchiveCommand;
 import org.csstudio.common.trendplotter.propsheet.AddAxisCommand;
 import org.csstudio.csdata.ProcessVariable;
-import org.csstudio.data.values.ITimestamp;
-import org.csstudio.data.values.TimestampFactory;
 import org.csstudio.swt.xygraph.figures.Annotation;
 import org.csstudio.swt.xygraph.figures.Axis;
 import org.csstudio.swt.xygraph.figures.Trace.TraceType;
@@ -49,6 +45,7 @@ import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.epics.util.time.Timestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -207,8 +204,10 @@ public class Controller implements ArchiveFetchJobListener
                         return;
                     }
                 }
-                final ITimestamp start_time = TimestampFactory.fromMillisecs(start_ms);
-                final ITimestamp end_time = TimestampFactory.fromMillisecs(end_ms);
+          //      final Timestamp start_time =Timestamp.of(start_ms/1000,0);
+            //    final Timestamp end_time =Timestamp.of(end_ms/1000,0);
+                final Timestamp start_time =Timestamp.of(start_ms/1000,0);
+                final Timestamp end_time =Timestamp.of(end_ms/1000,0);
                 // Update model's time range
                 model.setTimerange(start_time, end_time);
                 // Controller's ModelListener will fetch new archived data
@@ -431,9 +430,9 @@ public class Controller implements ArchiveFetchJobListener
                 if (model.isScrollEnabled())
                     return; // no, scrolling will handle that
                 // Yes, since the time axis is currently 'fixed'
-                final long start_ms = (long) (model.getStartTime().toDouble()*1000);
-                final long end_ms = (long) (model.getEndTime().toDouble()*1000);
-                plot.setTimeRange(start_ms, end_ms);
+              //  final long start_ms = (long) (model.getStartTime().getSec()*1000);
+                //final long end_ms = (long) (model.getEndTime().getSec()*1000);
+                plot.setTimeRange(model.getStartTime().getSec()*1000, model.getEndTime().getSec()*1000);
             }
 
             @Override
@@ -582,7 +581,7 @@ public class Controller implements ArchiveFetchJobListener
         if (model.isScrollEnabled())
             return;
         // In non-scroll mode, initialize plot's time range and get data
-        plot.setTimeRange(model.getStartTime(), model.getEndTime());
+        plot.setTimeRange(model.getStartTime().getSec()*1000, model.getEndTime().getSec()*1000);
         getArchivedData();
     }
 
@@ -749,8 +748,8 @@ public class Controller implements ArchiveFetchJobListener
      */
     private void getArchivedData()
     {
-        final ITimestamp start = model.getStartTime();
-        final ITimestamp end = model.getEndTime();
+        final Timestamp start = model.getStartTime();
+        final Timestamp end = model.getEndTime();
         for (int i=0; i<model.getItemCount(); ++i)
             getArchivedData(model.getItem(i), start, end);
     }
@@ -761,7 +760,7 @@ public class Controller implements ArchiveFetchJobListener
      *  @param end End time
      */
     private void getArchivedData(final ModelItem item,
-            final ITimestamp start, final ITimestamp end)
+            final Timestamp start, final Timestamp end)
     {
         // Only useful for PVItems with archive data source
         if (!(item instanceof PVItem))

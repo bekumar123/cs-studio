@@ -41,7 +41,7 @@
             default="true"
             extensions="plt,css-plt"
             icon="icons/databrowser.png"
-            id="org.csstudio.trends.databrowser.ploteditor.PlotEditor"
+            id="org.csstudio.common.trendplotter.editor.DataBrowserEditor"
             name="%TrendPlotter">
       </editor>
    </extension>

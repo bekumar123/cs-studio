@@ -26,9 +26,21 @@ import java.io.Serializable;
 import javax.annotation.Nonnull;
 
 import org.csstudio.archive.common.service.sample.IArchiveSample;
-import org.csstudio.data.values.IValue;
+import org.csstudio.archive.vtype.trendplotter.ArchiveVEnum;
+import org.csstudio.archive.vtype.trendplotter.ArchiveVNumber;
+import org.csstudio.archive.vtype.trendplotter.ArchiveVNumberArray;
+import org.csstudio.archive.vtype.trendplotter.ArchiveVStatistics;
+import org.csstudio.archive.vtype.trendplotter.ArchiveVString;
+import org.csstudio.archive.vtype.trendplotter.VTypeHelper;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.typesupport.TypeSupportException;
+import org.epics.util.time.Timestamp;
+import org.epics.vtype.VEnum;
+import org.epics.vtype.VNumber;
+import org.epics.vtype.VNumberArray;
+import org.epics.vtype.VStatistics;
+import org.epics.vtype.VString;
+import org.epics.vtype.VType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,13 +80,57 @@ public class DesyArchiveValueIterator<V extends Serializable> extends AbstractVa
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    @Override
     @Nonnull
-    public IValue next() throws Exception {
-        final IValue value = ARCH_SAMPLE_2_IVALUE_FUNC.apply(getIterator().next());
+    public VType nextold() throws Exception {
+        final VType value = ARCH_SAMPLE_2_VTYPE_FUNC.apply(getIterator().next());
         if (value == null) {
-            throw new TypeSupportException("Sample could not be converted to " + IValue.class.getName() + " type.", null);
+            throw new TypeSupportException("Sample could not be converted to " + VType.class.getName() + " type.", null);
         }
         return value;
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    @Nonnull
+    public VType next() throws Exception {
+        if(!getIterator().hasNext()) {
+            return null;
+        }
+        final Object o=getIterator().next();
+        final VType value =(VType) ARCH_SAMPLE_2_VTYPE_FUNC.apply(o);
+        final String q=((IArchiveSample) o).getRequestType();
+        final Timestamp time =VTypeHelper.getTimestamp(value);
+        if(value instanceof VStatistics){
+            final VStatistics st = (VStatistics) value;
+            return new ArchiveVStatistics(time, st.getAlarmSeverity(), st.getAlarmName(), st, q, st.getAverage(), st.getMin(), st.getMax(), st.getStdDev(), st.getNSamples());
+        }
+        if (value instanceof VNumber)
+        {
+            final VNumber number = (VNumber) value;
+
+            return new ArchiveVNumber(time, number.getAlarmSeverity(), number.getAlarmName(), number, number.getValue(),q);
+        }
+        if (value instanceof VString)
+        {
+            final VString string = (VString) value;
+            if(string instanceof ArchiveVString ) {
+                return new ArchiveVString(time, string.getAlarmSeverity(), string.getAlarmName(),q, string.getValue());
+            } else {
+                return new ArchiveVString(time, string.getAlarmSeverity(), string.getAlarmName(),q, string.getValue());
+            }
+        }
+        if (value instanceof VNumberArray)
+        {
+            final VNumberArray number = (VNumberArray) value;
+            return new ArchiveVNumberArray(time, number.getAlarmSeverity(), number.getAlarmName(), number,q, number.getData());
+        }
+        if (value instanceof VEnum)
+        {
+            final VEnum labelled = (VEnum) value;
+            return new ArchiveVEnum(time, labelled.getAlarmSeverity(), labelled.getAlarmName(),q, labelled.getLabels(), labelled.getIndex());
+        }
+     return value;
     }
 }

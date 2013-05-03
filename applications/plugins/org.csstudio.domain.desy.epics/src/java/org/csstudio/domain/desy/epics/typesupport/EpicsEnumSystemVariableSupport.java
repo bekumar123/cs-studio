@@ -21,7 +21,9 @@
  */
 package org.csstudio.domain.desy.epics.typesupport;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -32,6 +34,10 @@ import org.csstudio.domain.desy.epics.types.EpicsEnum;
 import org.csstudio.domain.desy.epics.types.EpicsSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.typesupport.BaseTypeConversionSupport;
+import org.csstudio.domain.desy.typesupport.TypeSupportException;
+import org.epics.util.array.ArrayInt;
+import org.epics.util.array.ListInt;
+import org.epics.vtype.VType;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
@@ -61,6 +67,32 @@ final class EpicsEnumSystemVariableSupport extends EpicsSystemVariableSupport<Ep
                                                   null,
                                                   new int[] {sysVar.getData().getRaw().intValue()});
     }
+
+	@Override
+	@Nonnull
+	protected VType convertEpicsSystemVariableToVType(
+			final EpicsSystemVariable<EpicsEnum> sysVar) throws TypeSupportException {
+		final List<EpicsEnum> l= new ArrayList<EpicsEnum>();
+		l.add(sysVar.getData());
+	     final Collection<String> states =
+	             Collections2.transform(l,
+	                                    new Function<EpicsEnum, String> () {
+	                 @Override
+	                 @Nonnull
+	                 public String apply(@Nonnull final EpicsEnum from) {
+	                     if (from.isRaw()) {
+	                         return from.getRaw().toString();
+	                     }
+	                     if (from.isState()) {
+	                         return from.getState();
+	                     }
+	                     throw new IllegalStateException(EpicsEnum.class.getName() + " is neither raw nor state instance.");
+	                 }
+	             });
+	     final List<String> list= new ArrayList<String>();
+	     list.addAll(states);
+		return org.epics.vtype.ValueFactory.newVEnum(sysVar.getData().getRaw().intValue(), list, getAlarm(sysVar.getAlarm()), getTime(sysVar.getTimestamp()));
+	}
 
     @Override
     @Nonnull
@@ -104,6 +136,50 @@ final class EpicsEnumSystemVariableSupport extends EpicsSystemVariableSupport<Ep
                                                   null,
                                                   Ints.toArray(ints));
     }
+
+	@Override
+	@Nonnull
+	protected VType convertCollectionToVType(final Collection<EpicsEnum> data,
+			final EpicsAlarm alarm, final TimeInstant timestamp)
+			throws TypeSupportException {
+
+		 final Collection<Integer> ints =
+		            Collections2.transform(data,
+		                                   new Function<EpicsEnum, Integer> () {
+		                @Override
+		                @Nonnull
+		                public Integer apply(@Nonnull final EpicsEnum from) {
+		                    if (from.isRaw()) {
+		                        return from.getRaw();
+		                    }
+		                    if (from.isState()) {
+		                        return from.getStateIndex();
+		                    }
+		                    throw new IllegalStateException(EpicsEnum.class.getName() + " is neither raw nor state instance.");
+		                }
+		            });
+		 final ListInt l=new ArrayInt( Ints.toArray(ints),true);
+		        final Collection<String> states =
+		            Collections2.transform(data,
+		                                   new Function<EpicsEnum, String> () {
+		                @Override
+		                @Nonnull
+		                public String apply(@Nonnull final EpicsEnum from) {
+		                    if (from.isRaw()) {
+		                        return from.getRaw().toString();
+		                    }
+		                    if (from.isState()) {
+		                        return from.getState();
+		                    }
+		                    throw new IllegalStateException(EpicsEnum.class.getName() + " is neither raw nor state instance.");
+		                }
+		            });
+		        final List<String> list= new ArrayList<String>();
+			     list.addAll(states);
+
+		      return  org.epics.vtype.ValueFactory.newVEnumArray(l, list, getAlarm(alarm), getTime(timestamp));
+	}
+
 
 //    /**
 //     * {@inheritDoc}

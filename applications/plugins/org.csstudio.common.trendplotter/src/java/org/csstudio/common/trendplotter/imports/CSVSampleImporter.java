@@ -20,13 +20,16 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.csstudio.data.values.IDoubleValue;
-import org.csstudio.data.values.INumericMetaData;
-import org.csstudio.data.values.ISeverity;
-import org.csstudio.data.values.ITimestamp;
-import org.csstudio.data.values.IValue;
-import org.csstudio.data.values.TimestampFactory;
-import org.csstudio.data.values.ValueFactory;
+
+import org.epics.util.text.NumberFormats;
+import org.epics.util.time.Timestamp;
+
+import org.epics.vtype.Alarm;
+import org.epics.vtype.Display;
+import org.epics.vtype.Time;
+import org.epics.vtype.VDouble;
+import org.epics.vtype.VType;
+import org.epics.vtype.ValueFactory;
 
 /** {@link SampleImporter} for Command (space, tab) separated value file of time, value
  *  @author Kay Kasemir
@@ -35,13 +38,13 @@ import org.csstudio.data.values.ValueFactory;
 public class CSVSampleImporter implements SampleImporter
 {
     final private Logger logger = Logger.getLogger(getClass().getName());
-    final private ISeverity ok = ValueFactory.createOKSeverity();
-    final private INumericMetaData meta_data =
-            ValueFactory.createNumericMetaData(0, 10, 0, 0, 0, 0, -1, "");
+    final private Alarm ok = ValueFactory.alarmNone();
+    final private Display display =ValueFactory.displayNone();
+         //   ValueFactory.newDisplay(new Double(0), new Double(0), new Double(0), "", NumberFormats.toStringFormat(), new Double(10), new Double(10),new Double(10), new Double(10), new Double(10));//(0, 10, 0, 0, 0, 0, -1, "");
 
     /** {@inheritDoc} */
     @Override
-    public List<IValue> importValues(final InputStream input) throws Exception
+    public List<VType> importValues(final InputStream input) throws Exception
     {
         // To be reentrant, need per-call parsers
         final DateFormat date_parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
@@ -49,7 +52,7 @@ public class CSVSampleImporter implements SampleImporter
                 //    YYYY-MM-DD HH:MM:SS.SSS
                 "\\s*([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9]\\.[0-9][0-9][0-9])[ \\t,]+([-+0-9.e]+)\\s*");
 
-        final List<IValue> values = new ArrayList<IValue>();
+        final List<VType> values = new ArrayList<VType>();
 
         final BufferedReader reader = new BufferedReader(new InputStreamReader(input));
         String line;
@@ -70,10 +73,8 @@ public class CSVSampleImporter implements SampleImporter
             final Date date = date_parser.parse(matcher.group(1));
             final double number = Double.parseDouble(matcher.group(2));
             // Turn into IValue
-            final ITimestamp time = TimestampFactory.fromMillisecs(date.getTime());
-            final IDoubleValue value = ValueFactory.createDoubleValue(time,
-                    ok, ok.toString(), meta_data, IValue.Quality.Original,
-                    new double[] { number });
+            final  Time time =ValueFactory.newTime(Timestamp.of(date));
+            final  VDouble value = ValueFactory.newVDouble(number , ok, time, display);
             values.add(value);
         }
         reader.close();

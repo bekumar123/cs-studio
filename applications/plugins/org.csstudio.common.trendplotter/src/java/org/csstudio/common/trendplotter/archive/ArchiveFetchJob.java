@@ -20,9 +20,11 @@ import org.csstudio.common.trendplotter.model.ArchiveDataSource;
 import org.csstudio.common.trendplotter.model.PVItem;
 import org.csstudio.common.trendplotter.model.RequestType;
 import org.csstudio.common.trendplotter.preferences.Preferences;
-import org.csstudio.data.values.IDoubleValue;
-import org.csstudio.data.values.ITimestamp;
-import org.csstudio.data.values.IValue;
+import org.epics.vtype.Time;
+import org.epics.vtype.VDouble;
+import org.epics.vtype.VDoubleArray;
+import org.epics.vtype.VType;
+import org.epics.util.time.Timestamp;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -49,7 +51,7 @@ public class ArchiveFetchJob extends Job
     final private PVItem item;
 
     /** Start/End time */
-    final private ITimestamp start, end;
+    final private Timestamp start, end;
 
     /** Listener that's notified when (if) we completed OK */
     final private ArchiveFetchJobListener listener;
@@ -133,9 +135,9 @@ public class ArchiveFetchJob extends Job
                     {
                         reader = ArchiveRepository.getInstance().getArchiveReader(url);
                     }
-
-                    final ValueIterator value_iter;
-                    final RequestType currentRequestType = item.getRequestType();
+//                    TODO (jhatje): implement vType
+                    ValueIterator value_iter = null;
+                    RequestType currentRequestType = item.getRequestType();
 
                     if (currentRequestType == RequestType.RAW) {
                         value_iter = reader.getRawValues(archive.getKey(), item.getName(), start, end);
@@ -144,12 +146,12 @@ public class ArchiveFetchJob extends Job
                         value_iter = reader.getOptimizedValues(archive.getKey(), item.getName(), start, end, bins);
                     }
                     // Get samples into array
-                    final ArrayList<IValue> result = new ArrayList<IValue>();
+                    final ArrayList<VType> result = new ArrayList<VType>();
                     
                     while (value_iter.hasNext()) {
-                        final IValue next = value_iter.next();
-                        LOG.trace(url + " - val: " + ((IDoubleValue)next).getValue() + " time: " + next.getTime());
-//                        System.out.println("----- " + url + " - val: " + ((IDoubleValue)next).getValue() + " time: " + next.getTime());
+                        final VType next = value_iter.next();
+                        LOG.trace(url + " - val: " + next.toString() );
+                        System.out.println("----- " + url + " - val: " +  next.toString() );
                         result.add(next);
                     }
                     LOG.debug(result.size() + " samples from source " + url);
@@ -197,8 +199,8 @@ public class ArchiveFetchJob extends Job
      *  @param end
      *  @param listener
      */
-    public ArchiveFetchJob(final PVItem item, final ITimestamp start,
-            final ITimestamp end, final ArchiveFetchJobListener listener)
+    public ArchiveFetchJob(final PVItem item, final Timestamp start,
+            final Timestamp end, final ArchiveFetchJobListener listener)
     {
         super(NLS.bind(Messages.ArchiveFetchJobFmt,
                 new Object[] { item.getName(), start, end }));

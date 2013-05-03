@@ -50,6 +50,7 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Display;
+import org.epics.util.time.Timestamp;
 
 /**
  * Data Browser 'Plot' that displays the samples in a {@link Model}.
@@ -754,6 +755,22 @@ public class Plot
                 plot_changes_graph = false;
             }
         });
+    }
+
+    /**
+     * Update plot to given time range.
+     *
+     * @param start
+     *            Start time
+     * @param end
+     *            End time
+     */
+    public void setTimeRange(final Timestamp start, final Timestamp end)
+    {
+        final long start_ms = start.getSec() * 1000;
+        final long end_ms = end.getSec() * 1000;
+        setTimeRange(start_ms, end_ms);
+     
     }
 
     /**

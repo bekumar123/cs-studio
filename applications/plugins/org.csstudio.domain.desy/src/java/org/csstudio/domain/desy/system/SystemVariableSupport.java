@@ -32,6 +32,7 @@ import org.csstudio.domain.desy.alarm.IAlarm;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.typesupport.AbstractTypeSupport;
 import org.csstudio.domain.desy.typesupport.TypeSupportException;
+import org.epics.vtype.VType;
 
 import com.google.common.collect.Maps;
 
@@ -152,7 +153,37 @@ public abstract class SystemVariableSupport<T> extends AbstractTypeSupport<T> {
                                                  @SuppressWarnings("unused") @Nonnull final T max) throws TypeSupportException {
         throw new TypeSupportException("Type " + sysVar.getData().getClass() + " cannot be converted to IMinMaxDoubleValue!", null);
     }
+    @CheckForNull
+    public static <T>
+    VType toVStatisticsValue(@Nonnull final IAlarmSystemVariable<T> sysVar,
+                                @Nonnull final T min,
+                                @Nonnull final T max) throws TypeSupportException {
 
+        final Class<? extends SystemVariableSupport<?>> familyClass = SYSTEM_DISCRIMINATOR.get(sysVar.getOrigin().getType());
+        if (familyClass != null) {
+            final T value = sysVar.getData();
+            @SuppressWarnings("unchecked")
+            final Class<T> typeClass = (Class<T>) value.getClass();
+            final SystemVariableSupport<T> support =
+                (SystemVariableSupport<T>) findTypeSupportForOrThrowTSE(familyClass, typeClass);
+            return support.convertToVStatisticsValue(sysVar, min, max);
+        }
+        throw new TypeSupportException("System variable support for system " + sysVar.getOrigin().getType() + " unknown.", null);
+    }
+    /**
+     * To be overridden by implementing classes.
+     * @param sysVar
+     * @param min
+     * @param max
+     * @return
+     * @throws TypeSupportException
+     */
+    @Nonnull
+    protected VType convertToVStatisticsValue(@Nonnull final IAlarmSystemVariable<T> sysVar,
+                                                 @SuppressWarnings("unused") @Nonnull final T min,
+                                                 @SuppressWarnings("unused") @Nonnull final T max) throws TypeSupportException {
+    	     throw new TypeSupportException("Type " + sysVar.getData().getClass() + " cannot be converted to IMinMaxDoubleValue!", null);
+    }
 
     @CheckForNull
     public static <T> IValue toIValue(@Nonnull final IAlarmSystemVariable<T> sysVar) throws TypeSupportException {
@@ -167,7 +198,22 @@ public abstract class SystemVariableSupport<T> extends AbstractTypeSupport<T> {
         }
         throw new TypeSupportException("System variable support for system " + sysVar.getOrigin().getType() + " unknown.", null);
     }
-
+    @CheckForNull
+    public static <T> VType toVType(@Nonnull final IAlarmSystemVariable<T> sysVar) throws TypeSupportException {
+        final Class<? extends SystemVariableSupport<?>> familyClass = SYSTEM_DISCRIMINATOR.get(sysVar.getOrigin().getType());
+        if (familyClass != null) {
+            final T value = sysVar.getData();
+            @SuppressWarnings("unchecked")
+            final Class<T> typeClass = (Class<T>) value.getClass();
+            final SystemVariableSupport<T> support =
+                (SystemVariableSupport<T>) findTypeSupportForOrThrowTSE(familyClass, typeClass);
+            return support.convertToVType(sysVar);
+        }
+        throw new TypeSupportException("System variable support for system " + sysVar.getOrigin().getType() + " unknown.", null);
+    }
+    @Nonnull
+    protected abstract VType convertToVType(@Nonnull final IAlarmSystemVariable<T> sysVar) throws TypeSupportException;
     @Nonnull
     protected abstract IValue convertToIValue(@Nonnull final IAlarmSystemVariable<T> sysVar) throws TypeSupportException;
+   
 }

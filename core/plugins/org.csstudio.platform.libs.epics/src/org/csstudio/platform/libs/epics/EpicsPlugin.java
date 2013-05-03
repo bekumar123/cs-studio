@@ -42,6 +42,9 @@ import org.osgi.framework.BundleContext;
 @SuppressWarnings("nls")
 public class EpicsPlugin extends Plugin
 {
+	
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(EpicsPlugin.class);
+
     public static final String ID = "org.csstudio.platform.libs.epics";
 
     /** Singleton instance */
@@ -146,11 +149,21 @@ public class EpicsPlugin extends Plugin
             Throwable com_ca_exception = null;
             try
             {
+                getLogger().log(Level.SEVERE, "------------ Try loading Com");
+                LOG.error("------------ Try loading Com");
+                System.out.println("------------ Try loading Com");
+                
                 System.loadLibrary("Com");
+                getLogger().log(Level.SEVERE, "------------ Try loading Ca");
+                LOG.error("------------ Try loading Ca");
+                System.out.println("------------ Try loading Ca");
                 System.loadLibrary("ca");
             }
             catch (Throwable ex)
             {
+            	getLogger().log(Level.SEVERE, "------------ Exception loading ca or Com");
+            	LOG.error("------------ Exception loading ca or Com");
+            	System.out.println("------------ Exception loading ca or Com");
                 // Remember the error because it might explain a follow-up
                 // jca load error.
                 // On the other hand, if jca loads OK, we can ignore this one.
@@ -160,10 +173,16 @@ public class EpicsPlugin extends Plugin
             // This better works out OK.
             try
             {
+            	getLogger().log(Level.SEVERE, "------------ Try loading jca");
+            	LOG.error("------------ Try loading jca");
+            	System.out.println("------------ Try loading jca");
                 System.loadLibrary("jca");
             }
             catch (Throwable ex)
             {
+            	getLogger().log(Level.SEVERE, "------------ Exception loading jca");
+            	LOG.error("------------ Exception loading jca");
+            	System.out.println("------------ Exception loading jca");
                 if (com_ca_exception != null)
                     getLogger().log(Level.CONFIG,
                         "Cannot load Com and ca libraries. "

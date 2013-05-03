@@ -21,6 +21,8 @@
  */
 package org.csstudio.archive.common.engine;
 
+import gov.aps.jca.JCALibrary;
+
 import javax.annotation.Nonnull;
 
 import org.csstudio.domain.desy.preferences.AbstractPreference;
@@ -42,7 +44,8 @@ public class ArchiveEnginePreferencesService {
      * @param <T> the type of the preference
      */
     private static final class ArchiveEnginePreference<T> extends AbstractPreference<T>{
-
+        public static final ArchiveEnginePreference<Integer> REG_GROUP_ID =
+                new ArchiveEnginePreference<Integer>("regGroupId", Integer.valueOf(0));
         public static final ArchiveEnginePreference<Integer> WRITE_PERIOD_IN_S =
             new ArchiveEnginePreference<Integer>("writePeriodInS", Integer.valueOf(5));
         public static final ArchiveEnginePreference<Integer> HEARTBEAT_PERIOD_IN_S =
@@ -51,7 +54,9 @@ public class ArchiveEnginePreferencesService {
             new ArchiveEnginePreference<String>("version", "0.0.1-beta");
         public static final ArchiveEnginePreference<String> HTTP_ADMIN_VALUE =
             new ArchiveEnginePreference<String>("httpAdmin", "");
-
+        public static final ArchiveEnginePreference<String> CA_CONTEXT_NAME =
+                new ArchiveEnginePreference<String>("caContext",
+                                                    "");
         /**
          * Constructor.
          */
@@ -97,6 +102,10 @@ public class ArchiveEnginePreferencesService {
         return ArchiveEnginePreference.WRITE_PERIOD_IN_S.getValue();
     }
     @Nonnull
+    public Integer getRegGroupId() {
+        return ArchiveEnginePreference.REG_GROUP_ID.getValue();
+    }
+    @Nonnull
     public Integer getHeartBeatPeriodInS() {
         return ArchiveEnginePreference.HEARTBEAT_PERIOD_IN_S.getValue();
     }
@@ -107,6 +116,18 @@ public class ArchiveEnginePreferencesService {
     @Nonnull
     public String getHttpAdminKey() {
         return ArchiveEnginePreference.HTTP_ADMIN_VALUE.getKeyAsString();
+    }
+    public String getCaContextValue() {
+        if ("CHANNEL_ACCESS_SERVER_JAVA".equalsIgnoreCase(ArchiveEnginePreference.CA_CONTEXT_NAME.getValue())) {
+            return JCALibrary.CHANNEL_ACCESS_SERVER_JAVA;
+        } else if ("JNI_THREAD_SAFE".equalsIgnoreCase(ArchiveEnginePreference.CA_CONTEXT_NAME.getValue())) {
+            return JCALibrary.JNI_THREAD_SAFE;
+        } else if ("JNI_SINGLE_THREADED".equalsIgnoreCase(ArchiveEnginePreference.CA_CONTEXT_NAME.getValue())) {
+            return JCALibrary.JNI_SINGLE_THREADED;
+        } else {
+            return JCALibrary.CHANNEL_ACCESS_JAVA;
+        }
+
     }
 }
 

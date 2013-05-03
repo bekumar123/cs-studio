@@ -20,6 +20,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.cosylab.epics.caj.CARepeater.Client;
 import com.cosylab.epics.caj.impl.CAConstants;
 import com.cosylab.epics.caj.util.InetAddressUtil;
 import com.cosylab.epics.caj.util.logging.ConsoleLogHandler;
@@ -204,7 +206,7 @@ public class CARepeater implements Runnable
 	/**
 	 * List of registered clients.
 	 */
-	protected List clients = new ArrayList();
+	protected List<Client> clients = new ArrayList<Client>();
 
 	/**
 	 * Constructor.
@@ -317,7 +319,7 @@ public class CARepeater implements Runnable
 			// do not waste resources, if nobody to send
 			if (clients.size() != 0)
 			{
-				Iterator iter = clients.iterator();
+				Iterator<Client> iter = clients.iterator();
 				while (iter.hasNext())
 				{
 					Client c = (Client)iter.next();
@@ -389,7 +391,7 @@ public class CARepeater implements Runnable
 			DatagramPacket packetToSend = 
 				new DatagramPacket(buffer.array(), buffer.position(), buffer.limit());
 			
-			Iterator iter = clients.iterator();
+			Iterator<Client> iter = clients.iterator();
 			while (iter.hasNext())
 			{
 				Client client = (Client)iter.next();
@@ -425,7 +427,7 @@ public class CARepeater implements Runnable
 			if (clients.size() == 0)
 				return;
 			
-			Iterator iter = clients.iterator();
+			Iterator<Client> iter = clients.iterator();
 			while (iter.hasNext())
 			{
 				Client client = (Client)iter.next();
@@ -574,7 +576,7 @@ public class CARepeater implements Runnable
 		} catch (BindException be) {
 			// bind failed, socket in use
 			return true;
-		} catch (Throwable th) {
+		}catch (Throwable th) {
 			// unexpected error
 			logger2.log(Level.WARNING, "", th);
 			return false;
@@ -608,7 +610,7 @@ public class CARepeater implements Runnable
 		if (isRepeaterRunning(repeaterPort))
 			return;
 
-		PrivilegedAction action = new PrivilegedAction() {
+		PrivilegedAction<?> action = new PrivilegedAction<Object>() {
 			
 			public Object run() {
 

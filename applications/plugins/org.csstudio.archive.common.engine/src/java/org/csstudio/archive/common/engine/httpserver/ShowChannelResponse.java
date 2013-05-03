@@ -49,7 +49,7 @@ class ShowChannelResponse extends AbstractChannelResponse {
         }
 
         // HTML table similar to group's list of channels
-        final HTMLWriter html = new HTMLWriter(resp, "Archive Engine Channel",name.getBaseName());
+        final HTMLWriter html = new HTMLWriter(resp, "Archive Engine Channel",name.toString());
 
      //   createChannelTable(channel, html);
 

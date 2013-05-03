@@ -69,7 +69,7 @@ public class CAJMonitor extends Monitor implements MonitorListener {
 	/**
 	 * Monitor listeners.
 	 */
-	protected ArrayList listeners = new ArrayList();
+	protected ArrayList<MonitorListener> listeners = new ArrayList<MonitorListener>();
 	
 	/**
 	 * Subscription ID.

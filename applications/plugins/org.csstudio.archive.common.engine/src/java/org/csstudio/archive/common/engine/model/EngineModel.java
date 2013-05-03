@@ -71,6 +71,7 @@ public final class EngineModel {
     private TimeInstant _startTime;
 
     private final long _writePeriodInMS;
+    private final int _regGroupId;;
     private final long _heartBeatPeriodInMS;
 
     private final IServiceProvider _provider;
@@ -92,7 +93,7 @@ public final class EngineModel {
 
         _writePeriodInMS = 1000*provider.getPreferencesService().getWritePeriodInS();
         _heartBeatPeriodInMS = 1000*provider.getPreferencesService().getHeartBeatPeriodInS();
-
+        _regGroupId=provider.getPreferencesService().getRegGroupId().intValue();
         _engine = EngineModelConfigurator.findEngineConfByName(_name, _provider);
 
         logHttpHostAndPort(_engine);
@@ -392,8 +393,19 @@ public final class EngineModel {
                 EngineModelConfigurator.findGroupsForEngine(_engine.getId(), _provider);
 
             for (final IArchiveChannelGroup groupCfg : groups) {
-                final ArchiveGroup group = addGroup(groupCfg);
-                EngineModelConfigurator.configureGroup(_provider, group, _channelMap, _dataSource);
+
+               if( _regGroupId>0 && groupCfg.getId().intValue()==_regGroupId){
+                      final ArchiveGroup group = addGroup(groupCfg);
+                      EngineModelConfigurator.configureGroup(_provider, group, _channelMap, _dataSource);
+                }
+                if( _regGroupId<0 && groupCfg.getId().intValue()!=-_regGroupId){
+                      final ArchiveGroup group = addGroup(groupCfg);
+                      EngineModelConfigurator.configureGroup(_provider, group, _channelMap, _dataSource);
+                    }
+                if( _regGroupId==0) {
+                        final ArchiveGroup group = addGroup(groupCfg);
+                        EngineModelConfigurator.configureGroup(_provider, group, _channelMap, _dataSource);
+                    }
             }
         } catch (final Exception e) {
             handleExceptions(e);

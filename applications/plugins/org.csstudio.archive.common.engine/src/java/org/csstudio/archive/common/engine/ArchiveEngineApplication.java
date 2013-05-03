@@ -7,8 +7,12 @@
  ******************************************************************************/
 package org.csstudio.archive.common.engine;
 
-import gov.aps.jca.JCALibrary;
 import gov.aps.jca.Monitor;
+
+import java.util.Enumeration;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -107,6 +111,8 @@ public class ArchiveEngineApplication implements IApplication {
     public final Object start(@Nonnull final IApplicationContext context) {
 
         final IServiceProvider provider = new ServiceProvider();
+
+        logEnvAndProps();
         LOG.info("DESY Archive Engine Version {} - START.", provider.getPreferencesService().getVersion());
         julLOG.info("DESY Archive Engine Version {} - START.");
 
@@ -115,7 +121,8 @@ public class ArchiveEngineApplication implements IApplication {
             return EXIT_OK;
         }
 
-        final DesyJCADataSource dataSource = configureJCADataSources();
+        final String jcaThreadName=provider.getPreferencesService().getCaContextValue();
+        final DesyJCADataSource dataSource = configureJCADataSources(jcaThreadName);
 
         EngineHttpServer httpServer = null;
         try {
@@ -140,16 +147,34 @@ public class ArchiveEngineApplication implements IApplication {
         return killEngineAndHttpServer(_model, httpServer);
     }
 
+    private void logEnvAndProps() {
+        LOG.error("Environment");
+        final Map<String, String> getenv = System.getenv();
+        final Set<String> keySet = getenv.keySet();
+        for (final String key : keySet) {
+            LOG.error(key + "   ----   " + getenv.get(key));
+        }
+
+        LOG.error("Properties");
+        final Properties p = System.getProperties();
+        final Enumeration keys = p.keys();
+        while (keys.hasMoreElements()) {
+          final String key = (String)keys.nextElement();
+          final String value = (String)p.get(key);
+          LOG.error(key + "  -----  " + value);
+        }
+    }
+
     private synchronized boolean getRun() {
         return _run;
     }
 
     @SuppressWarnings("rawtypes")
     @Nonnull
-    private DesyJCADataSource configureJCADataSources() {
+    private DesyJCADataSource configureJCADataSources(final String jcaThreadName) {
         LOG.info("Configure JCA Datasource and setup PVManager.");
-        final DesyJCADataSource dataSource =
-            new DesyJCADataSource(JCALibrary.CHANNEL_ACCESS_JAVA, Monitor.LOG);
+        LOG.info("Configure JCA Datasource and Load JCALibrary {}",jcaThreadName);
+        final DesyJCADataSource dataSource =  new DesyJCADataSource(jcaThreadName, Monitor.LOG);
         PVManager.setDefaultDataSource(dataSource);
 
         TypeSupport.addTypeSupport(new NotificationSupport<EpicsSystemVariable>(EpicsSystemVariable.class) {

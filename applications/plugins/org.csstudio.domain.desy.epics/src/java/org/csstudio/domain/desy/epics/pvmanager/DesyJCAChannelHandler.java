@@ -258,13 +258,17 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
                         // Take the channel from the event so that there is no
                         // synchronization problem
                         final Channel channel = (Channel) ev.getSource();
+
+                        //(wenhua) fix for Single Thread Context
+                        channel.getContext().attachCurrentThread();
+
                         //testen um deadlock
                         // connectionState=channel.getConnectionState();
                         if(channel!=null) {
                    		 if(isFirst) {
                    			 isFirst=false;
 							} else {
-								LOG.info("Channel {} is {},",channel.getName(), isConnected? " Connected ": "disconnected");
+								LOG.info("Channel {} with " + channel.getHostName() +" is {},",channel.getName(), isConnected? " Connected ": "disconnected");
 							//	LOG.info("Host    {} is {},",channel.getHostName(), isConnected? " Connected ": "disconnected");
 
 							}
@@ -298,10 +302,7 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
         public void monitorChanged(final MonitorEvent event) {
             synchronized(DesyJCAChannelHandler.this) {
                 DBR metadata = null;
-                final Channel channel = (Channel) event.getSource();
-                //testen um deadlock
-               // connectionState=channel.getConnectionState();
-                if (getLastMessagePayload() != null) {
+                   if (getLastMessagePayload() != null) {
                     metadata = getLastMessagePayload().getMetadata();
                 }
                 processMessage(new DesyJCAMessagePayload(metadata, event));

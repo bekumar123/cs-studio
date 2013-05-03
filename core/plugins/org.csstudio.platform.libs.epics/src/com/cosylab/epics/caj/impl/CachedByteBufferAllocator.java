@@ -47,7 +47,7 @@ public class CachedByteBufferAllocator {
     /**
      * Cache for the byte buffers.
      */    
-    private LinkedList cache = new LinkedList();
+    private LinkedList<ByteBuffer> cache = new LinkedList<ByteBuffer>();
 
     /**
      * Get a byte buffer.

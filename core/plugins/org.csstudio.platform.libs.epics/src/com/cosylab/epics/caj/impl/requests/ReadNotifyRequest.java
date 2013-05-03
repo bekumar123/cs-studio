@@ -120,6 +120,7 @@ public class ReadNotifyRequest extends AbstractCARequest implements NotifyRespon
 	    requestMessage = insertCAHeader(transport, null,
 	            						(short)15, 0, (short)dataType, dataCount,
 	            						sid, ioid);
+	
 	}
 
 	/**

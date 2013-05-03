@@ -78,7 +78,7 @@ public class CASTransport implements Transport, ReactorHandler, Runnable {
 	/**
 	 * Send queue.
 	 */
-	private LinkedList sendQueue;
+	private LinkedList<ByteBuffer> sendQueue;
 	
 	/**
 	 * Remote side transport revision.
@@ -150,7 +150,7 @@ public class CASTransport implements Transport, ReactorHandler, Runnable {
 	/**
 	 * Event queue.
 	 */
-	private final LinkedList eventQueue = new LinkedList();
+	private final LinkedList<Runnable> eventQueue = new LinkedList<Runnable>();
 
 	/**
 	 * Channel table (SID -> channel mapping).
@@ -178,7 +178,7 @@ public class CASTransport implements Transport, ReactorHandler, Runnable {
 		// first limit to a reading of an standard message header
 		receiveBuffer[0].limit(CAConstants.CA_MESSAGE_HEADER_SIZE);
 		
-		sendQueue = new LinkedList();
+		sendQueue = new LinkedList<ByteBuffer>();
 		bufferAllocator = context.getCachedBufferAllocator();
 		sendBuffer = bufferAllocator.get();
 

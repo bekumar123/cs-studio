@@ -124,6 +124,15 @@ public class EventAddRequest extends AbstractCARequest implements NotifyResponse
 		// mask and alignment
 		requestMessage.putShort((short)mask);
 		requestMessage.putShort((short)0);
+		String s=channel.getName() + "  ";
+		for(int it=0;it<requestMessage.limit(); it++){
+			   byte b=requestMessage.get(it);
+			   if(b>30)
+				s+="  "+(int)(b & 0xFF);
+			   else 	s+="  "+(int)(b & 0xFF);
+			}
+		context.getLogger().warning("   "+s);
+	
 	}
 
 	/**
@@ -164,6 +173,7 @@ public class EventAddRequest extends AbstractCARequest implements NotifyResponse
 	{
 		this.transport = transport;
 		// update channel sid
+		if(requestMessage.limit()<8)return;
 		requestMessage.putInt(8, channel.getServerChannelID());
 		// immediate send (increase priority - all subsequent sends will be done immediately).
 		priority = Request.SEND_IMMEDIATELY_PRIORITY;

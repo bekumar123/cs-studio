@@ -91,7 +91,7 @@ public class CASServerMonitor extends ServerMonitor implements
 	/**
 	 * Ordered dispatch queue.
 	 */
-	protected LinkedList queue = new LinkedList();
+	protected LinkedList<DBR> queue = new LinkedList<DBR>();
 
 	/**
 	 * Pending event. 

@@ -45,7 +45,7 @@ import org.epics.pvmanager.jca.JCADataSource;
  */
 public class DesyJCADataSource extends JCADataSource {
 
-    private static final Logger log = Logger.getLogger(JCADataSource.class.getName());
+    private static final Logger log = Logger.getLogger(DesyJCADataSource.class.getName());
  	DesyJCATypeSupport typeSupport;
     public DesyJCADataSource(@Nonnull final String className,
                              final int monitorMask) {

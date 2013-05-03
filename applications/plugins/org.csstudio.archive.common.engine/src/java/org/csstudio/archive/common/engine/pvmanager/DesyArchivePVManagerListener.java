@@ -109,6 +109,9 @@ public abstract class DesyArchivePVManagerListener<V extends Serializable,
             // update callback from the calling/value providing instance
 
             final List<EpicsSystemVariable> sysVars = (List<EpicsSystemVariable>) _reader.getValue();
+            if(sysVars==null || sysVars.isEmpty()) {
+                return;
+            }
             if (_firstConnection && !sysVars.isEmpty()) {
 
                 handleOnConnectionInformation(_provider, sysVars.get(0), _channelId, _buffer.isConnected(), _startInfo);

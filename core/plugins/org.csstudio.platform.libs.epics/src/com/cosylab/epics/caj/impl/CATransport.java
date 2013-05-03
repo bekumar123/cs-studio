@@ -22,6 +22,7 @@ import gov.aps.jca.event.ContextVirtualCircuitExceptionEvent;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
@@ -97,7 +98,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	/**
 	 * Send queue.
 	 */
-	private LinkedList sendQueue;
+	private LinkedList<ByteBuffer> sendQueue;
 	
 	/**
 	 * Remote side transport revision.
@@ -107,7 +108,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	/**
 	 * Owners (users) of the transport.
 	 */
-	private Map owners;
+	private Map<TransportClient, Object>  owners;
 	
 	/**
 	 * Send sync. object lock.
@@ -175,10 +176,10 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 		socketBuffer = ByteBuffer.allocateDirect(CAConstants.MAX_TCP_RECV);
 		
 		// initialize owners list, send queue
-		owners = new HashMap();
+		owners = new HashMap<TransportClient, Object>();
 		acquire(client);
 
-		sendQueue = new LinkedList();
+		sendQueue = new LinkedList<ByteBuffer>();
 		bufferAllocator = context.getCachedBufferAllocator();
 		sendBuffer = bufferAllocator.get();
 		
@@ -268,13 +269,15 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 			// check if still acquired
 			int refs = owners.size();
 			if (refs > 0)
-			{ 
+			{   
 				context.getLogger().fine("Transport to " + socketAddress + " still has " + refs + " client(s) active and closing...");
-				TransportClient[] clients = new TransportClient[refs];
+		
+	
+		    	TransportClient[] clients = new TransportClient[refs];
 				owners.keySet().toArray(clients);
 				for (int i = 0; i < clients.length; i++)
-				{
-					try
+				{	
+				try
 					{
 						clients[i].transportClosed();
 					}
@@ -614,10 +617,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	
 					final int SEND_BUFFER_LIMIT = 16000;
 					int bufferLimit = buffer.limit();
-	
 					// TODO remove?!
-					context.getLogger().finest("Sending " + bufferLimit + " bytes to " + socketAddress + ".");
-	
 					// limit sending large buffers, split the into parts
 					int parts = (buffer.limit()-1) / SEND_BUFFER_LIMIT + 1;
 					for (int part = 1; part <= parts; part++)
@@ -625,25 +625,36 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 						if (parts > 1)
 						{
 							buffer.limit(Math.min(part * SEND_BUFFER_LIMIT, bufferLimit));
-							context.getLogger().finest("[Parted] Sending (part " + part + "/" + parts + ") " + (buffer.limit()-buffer.position()) + " bytes to " + socketAddress + ".");
+							context.getLogger().warning("[Parted] Sending (part " + part + "/" + parts + ") " + (buffer.limit()-buffer.position()) + " bytes to " + socketAddress + ".");
 						}
-						
+					
 						final int TRIES = 10;
 						for (int tries = 0; /* tries <= TRIES */ ; tries++)
 						{
-							
+						
 							// send
 							/*int bytesSent =*/ channel.write(buffer);
 							// bytesSend == buffer.position(), so there is no need for flip()
-							if (buffer.position() != buffer.limit())
+							if (buffer.position() < buffer.limit())
 							{
+								String s= "";
+								for(int it=0;it<buffer.limit(); it++){
+									   byte b=buffer.get(it);
+									   if(b>30)
+										s+="  "+(int)(b & 0xFF);
+									   else 	s+="  "+(int)(b & 0xFF);
+									}
+							
+							
 								if (tries >= TRIES)
 								{
-									context.getLogger().warning("Failed to send message to " + socketAddress + " - buffer full, will retry.");
+									context.getLogger().warning("Failed to send message to " + socketAddress + " - buffer full, will retry. Buffer:  "+s+"  "+ buffer.asCharBuffer().toString() );
+									break;
 								}
-								
+							
+								context.getLogger().warning("Send "+ s );
 								// flush & wait for a while...
-								context.getLogger().finest("Send buffer full for " + socketAddress + ", waiting...");
+								context.getLogger().warning("Send buffer full for "  + socketAddress + ", waiting...");
 								channel.socket().getOutputStream().flush();
 								try {
 									Thread.sleep(Math.min(15000,10+tries*100));
@@ -664,6 +675,8 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 				// close connection
 				close(true);
 				throw ioex;
+			}catch (NotYetConnectedException e){
+				
 			}
 		}
 	}
@@ -938,6 +951,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 			{
 				probeTimeoutDetected = true;
 				unresponsiveTransport();
+				rescheduleTimer(CAConstants.CA_ECHO_TIMEOUT);
 			}
 			else
 			{
@@ -963,9 +977,9 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 				else
 				{
 					// transport is responsive
+					responsiveTransport();
 					probeTimeoutDetected = false;
 					probeResponsePending = false;
-					responsiveTransport();
 					rescheduleTimer(connectionTimeout);
 				}
 			}
@@ -999,13 +1013,16 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	{
 		if (unresponsiveTransport)
 		{
-		    unresponsiveTransport = false;
+		  
 			synchronized (owners)
-			{
-				TransportClient[] clients = new TransportClient[owners.size()];
+			{   
+				
+			
+			   TransportClient[] clients = new TransportClient[owners.size()];
 				owners.keySet().toArray(clients);
 				for (int i = 0; i < clients.length; i++)
-				{
+				{  
+					
 					try
 					{
 						clients[i].transportResponsive(this);
@@ -1015,6 +1032,8 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 						// TODO remove
 						logger.log(Level.SEVERE, "", th);
 					}
+					  unresponsiveTransport = false;
+				
 				}
 			}
 		}
@@ -1027,7 +1046,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	{
 		if (!unresponsiveTransport)
 		{
-		    unresponsiveTransport = true;
+		  
 
 		    ContextVirtualCircuitExceptionEvent cvcee =
 		    	new ContextVirtualCircuitExceptionEvent((Context)context, socketAddress.getAddress(), CAStatus.UNRESPTMO);
@@ -1047,20 +1066,27 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 		    
 			synchronized (owners)
 			{
+			
+				  
 				TransportClient[] clients = new TransportClient[owners.size()];
 				owners.keySet().toArray(clients);
+			
 				for (int i = 0; i < clients.length; i++)
 				{
+				
 					try
 					{
 						clients[i].transportUnresponsive();
 					}
+					
 					catch (Throwable th)
 					{
 						// TODO remove
 						logger.log(Level.SEVERE, "", th);
 					}
+					
 				}
+				unresponsiveTransport = true;
 			}
 		}
 	}
@@ -1073,7 +1099,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	{
 		synchronized (owners)
 		{
-			TransportClient[] clients = new TransportClient[owners.size()];
+		TransportClient[] clients = new TransportClient[owners.size()];
 			owners.keySet().toArray(clients);
 			for (int i = 0; i < clients.length; i++)
 			{
@@ -1086,6 +1112,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 					// TODO remove
 					logger.log(Level.SEVERE, "", th);
 				}
+				
 			}
 		}
 	}

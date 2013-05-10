@@ -23,8 +23,7 @@
  */
 package org.csstudio.config.ioconfigurator.actions;
 
-import javax.annotation.Nonnull;
-
+import org.csstudio.config.ioconfigurator.annotation.Nonnull;
 import org.csstudio.config.ioconfigurator.ldap.LdapControllerService;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerSubtreeNode;
 import org.eclipse.jface.action.Action;

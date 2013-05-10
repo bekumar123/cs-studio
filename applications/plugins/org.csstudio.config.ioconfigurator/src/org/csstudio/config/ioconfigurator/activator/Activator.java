@@ -21,10 +21,10 @@ package org.csstudio.config.ioconfigurator.activator;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.naming.Context;
 
+import org.csstudio.config.ioconfigurator.annotation.CheckForNull;
+import org.csstudio.config.ioconfigurator.annotation.Nonnull;
 import org.csstudio.platform.ui.AbstractCssUiPlugin;
 import org.csstudio.utility.ldap.service.ILdapService;
 import org.eclipse.jface.resource.ImageDescriptor;

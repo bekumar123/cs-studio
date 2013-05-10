@@ -23,10 +23,10 @@
  */
 package org.csstudio.config.ioconfigurator.property;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.naming.NamingException;
 
+import org.csstudio.config.ioconfigurator.annotation.Nonnull;
+import org.csstudio.config.ioconfigurator.annotation.Nullable;
 import org.csstudio.config.ioconfigurator.ldap.LdapControllerService;
 import org.csstudio.config.ioconfigurator.property.ioc.ControllerProperty;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerLeaf;

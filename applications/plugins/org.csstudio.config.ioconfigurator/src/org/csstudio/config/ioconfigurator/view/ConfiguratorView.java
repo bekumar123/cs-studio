@@ -1,15 +1,14 @@
 package org.csstudio.config.ioconfigurator.view;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import org.csstudio.config.ioconfigurator.actions.ControllerActionCache;
+import org.csstudio.config.ioconfigurator.annotation.Nonnull;
+import org.csstudio.config.ioconfigurator.annotation.Nullable;
 import org.csstudio.config.ioconfigurator.ldap.LdapControllerService;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerNode;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerSubtreeNode;
 import org.csstudio.config.ioconfigurator.tree.model.impl.ControllerSubtreeNode;
 import org.csstudio.config.ioconfigurator.ui.ControllerTreeViewer;
-import org.csstudio.utility.ldap.model.LdapEpicsControlsConfiguration;
+import org.csstudio.utility.ldap.treeconfiguration.LdapEpicsControlsConfiguration;
 import org.csstudio.utility.treemodel.CreateContentModelException;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -67,9 +66,9 @@ public class ConfiguratorView extends ViewPart {
      * Constructor.
      */
     public ConfiguratorView() {
-        _root = new ControllerSubtreeNode(LdapEpicsControlsConfiguration.ROOT.getRootTypeValue(),
+        _root = new ControllerSubtreeNode(LdapEpicsControlsConfiguration.VIRTUAL_ROOT.getNodeTypeName(),  // (LdapEpicsControlsConfiguration.ROOT.getRootTypeValue(),
                                           null,
-                                          LdapEpicsControlsConfiguration.ROOT);
+                                          LdapEpicsControlsConfiguration.VIRTUAL_ROOT);
     }
 
     @Override

@@ -23,8 +23,7 @@
  */
 package org.csstudio.config.ioconfigurator.ui;
 
-import javax.annotation.Nonnull;
-
+import org.csstudio.config.ioconfigurator.annotation.Nonnull;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerSubtreeNode;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerComparator;

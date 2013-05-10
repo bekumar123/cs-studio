@@ -25,9 +25,8 @@ package org.csstudio.config.ioconfigurator.property.ioc;
 
 import java.util.Map;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-
+import org.csstudio.config.ioconfigurator.annotation.CheckForNull;
+import org.csstudio.config.ioconfigurator.annotation.Nonnull;
 import org.eclipse.jface.dialogs.IInputValidator;
 
 import com.google.common.collect.Maps;

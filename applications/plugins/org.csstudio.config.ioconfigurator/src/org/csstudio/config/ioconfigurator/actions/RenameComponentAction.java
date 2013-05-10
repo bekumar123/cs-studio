@@ -23,9 +23,8 @@
  */
 package org.csstudio.config.ioconfigurator.actions;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-
+import org.csstudio.config.ioconfigurator.annotation.CheckForNull;
+import org.csstudio.config.ioconfigurator.annotation.Nonnull;
 import org.csstudio.config.ioconfigurator.property.ioc.Validators;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerNode;
 import org.eclipse.jface.action.Action;

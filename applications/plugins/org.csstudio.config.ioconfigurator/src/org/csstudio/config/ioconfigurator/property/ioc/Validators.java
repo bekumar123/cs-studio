@@ -26,9 +26,8 @@ package org.csstudio.config.ioconfigurator.property.ioc;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import javax.annotation.Nonnull;
-
-import org.csstudio.utility.ldap.utils.LdapFieldsAndAttributes;
+import org.csstudio.config.ioconfigurator.annotation.Nonnull;
+import org.csstudio.utility.ldap.treeconfiguration.LdapFieldsAndAttributes;
 import org.eclipse.jface.dialogs.IInputValidator;
 
 /**

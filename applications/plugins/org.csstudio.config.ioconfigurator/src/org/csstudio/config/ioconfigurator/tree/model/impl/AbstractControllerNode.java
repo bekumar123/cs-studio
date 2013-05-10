@@ -23,15 +23,15 @@
  */
 package org.csstudio.config.ioconfigurator.tree.model.impl;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
+import org.csstudio.config.ioconfigurator.annotation.Nonnull;
+import org.csstudio.config.ioconfigurator.annotation.Nullable;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerNode;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerSubtreeNode;
-import org.csstudio.utility.ldap.model.LdapEpicsControlsConfiguration;
+import org.csstudio.utility.ldap.treeconfiguration.LdapEpicsControlsConfiguration;
 
 import com.google.common.collect.Lists;
 

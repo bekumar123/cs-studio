@@ -35,6 +35,7 @@ import javax.annotation.Nullable;
 
 import org.csstudio.config.ioconfig.model.DBClass;
 import org.csstudio.config.ioconfig.model.DocumentDBO;
+import org.csstudio.config.ioconfig.model.DummyRepository;
 import org.csstudio.config.ioconfig.model.PV2IONameMatcherModelDBO;
 import org.csstudio.config.ioconfig.model.PersistenceException;
 import org.csstudio.config.ioconfig.model.SensorsDBO;
@@ -50,7 +51,7 @@ import org.csstudio.config.ioconfig.model.service.internal.Channel4ServicesDBO;
  */
 public final class Repository {
 
-    private static IRepository _REPOSITORY = new HibernateRepository(null);
+    private static IRepository _REPOSITORY = new DummyRepository();
     private static List<DocumentDBO> _DOCUMENTS;
 
     /**

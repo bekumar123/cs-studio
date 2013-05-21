@@ -186,7 +186,7 @@ public final class PersistenceService implements IPersistenceService {
             while (it2.hasNext()) {
                 DBDFieldData fieldData = it2.next();
                 String fieldName = fieldData.getName();
-
+                
                 LOG.debug(fieldName);
 
                 FieldDefinition fieldDefinition = new FieldDefinition(fieldName, DBDResolver.getFieldType(fieldData

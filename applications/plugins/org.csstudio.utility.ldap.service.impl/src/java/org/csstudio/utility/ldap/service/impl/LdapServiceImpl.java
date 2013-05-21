@@ -59,6 +59,7 @@ import org.csstudio.utility.ldap.service.ILdapSearchParams;
 import org.csstudio.utility.ldap.service.ILdapSearchResult;
 import org.csstudio.utility.ldap.service.ILdapService;
 import org.csstudio.utility.ldap.service.LdapServiceException;
+import org.csstudio.utility.ldap.treeconfiguration.LdapServerType;
 import org.csstudio.utility.ldap.utils.LdapSearchParams;
 import org.csstudio.utility.ldap.utils.LdapSearchResult;
 import org.csstudio.utility.treemodel.ContentModel;
@@ -376,7 +377,13 @@ public final class LdapServiceImpl implements ILdapService {
             LOG.error("LDAP context is null.");
             return null;
         }
-        return context.getAttributes(ldapName);
+        LdapName cloneOfLdapName = (LdapName)ldapName.clone();
+        if (LdapServerType.OPEN_LDAP.isActive()) {
+           if ((cloneOfLdapName.size() > 1) && (cloneOfLdapName.get(0).equals(cloneOfLdapName.get(1)))) {
+               cloneOfLdapName.remove(0);
+           }
+        }
+        return context.getAttributes(cloneOfLdapName);
     }
 
     /**

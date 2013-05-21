@@ -66,7 +66,7 @@ public class ConfiguratorView extends ViewPart {
      * Constructor.
      */
     public ConfiguratorView() {
-        _root = new ControllerSubtreeNode(LdapEpicsControlsConfiguration.VIRTUAL_ROOT.getNodeTypeName(),  // (LdapEpicsControlsConfiguration.ROOT.getRootTypeValue(),
+        _root = new ControllerSubtreeNode(LdapEpicsControlsConfiguration.VIRTUAL_ROOT.getUnitTypeValue(),  // (LdapEpicsControlsConfiguration.ROOT.getRootTypeValue(),
                                           null,
                                           LdapEpicsControlsConfiguration.VIRTUAL_ROOT);
     }
@@ -99,7 +99,9 @@ public class ConfiguratorView extends ViewPart {
      */
     @Override
     public void setFocus() {
-        _viewer.getControl().setFocus();
+        if ((_viewer != null) && (_viewer.getControl() != null)) {
+            _viewer.getControl().setFocus();
+        }
     }
 
     /*

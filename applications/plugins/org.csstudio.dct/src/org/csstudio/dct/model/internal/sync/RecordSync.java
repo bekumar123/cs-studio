@@ -8,10 +8,15 @@ import org.csstudio.dct.model.IInstance;
 import org.csstudio.dct.model.IRecord;
 import org.csstudio.dct.model.commands.AddRecordCommand;
 import org.csstudio.dct.model.commands.RemoveRecordCommand;
+import org.csstudio.dct.model.internal.Project;
 import org.csstudio.dct.model.internal.Record;
 import org.eclipse.gef.commands.Command;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RecordSync implements ISyncModel {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Project.class);
 
     private List<IInstance> instances;
 
@@ -26,16 +31,21 @@ public class RecordSync implements ISyncModel {
      */
     public List<Command> calculateCommands() {
 
+        LOG.info("Calculating command for : " + instances.size() + " instances.");
+
         List<Command> commands = new ArrayList<Command>();
 
         for (IInstance inst : instances) {
+            LOG.info("Checking Instance: " + inst);
             if (inst.isFromLibrary()) {
                 List<IRecord> newRecords = getRecordsToAdd(inst);
+                LOG.info("Found " + newRecords.size() + " new records.");
                 for (IRecord record : newRecords) {
                     Command command = new AddRecordCommand(inst, record);
                     commands.add(command);
                 }
                 List<IRecord> recordToRemove = getRecordsToRemove(inst);
+                LOG.info("Found " + recordToRemove.size() + " deleted records.");
                 for (IRecord record : recordToRemove) {
                     Command command = new RemoveRecordCommand(record);
                     commands.add(command);

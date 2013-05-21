@@ -36,7 +36,7 @@ public final class Project extends Folder implements IProject {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(Project.class);
-    
+
     public static boolean IS_UNIT_TEST = false;
 
     @NotNull
@@ -127,7 +127,7 @@ public final class Project extends Folder implements IProject {
     public void setLibraryPath(String path) {
         libraryPath = path;
     }
-    
+
     @Override
     public String getActiveLibraryPath() {
         return activeLibraryPath;
@@ -204,6 +204,7 @@ public final class Project extends Folder implements IProject {
         return Optional.absent();
     }
 
+    @Deprecated
     private void addPrototypesToLibrary(IProject libraryProject) {
         Optional<IFolder> prototypesFolder = libraryProject.getPrototypesFolder();
         if (!prototypesFolder.isPresent()) {
@@ -227,15 +228,29 @@ public final class Project extends Folder implements IProject {
     }
 
     public void refreshFromLibrary(CommandStack commandStack) {
+
         LOG.info("*** refreshing from library ***");
+        
+        List<IInstance> instances = new ArrayList<IInstance>();
+        
         Optional<IFolder> prototypesFolder = getPrototypesFolder();
-        if (!prototypesFolder.isPresent()) {
-            return;
+        if (prototypesFolder.isPresent()) {
+            List<IInstance> entries = prototypesFolder.get().getAllInstancesInHierachie();
+            LOG.info("Adding " + entries.size() + " entries from prototypes folder.");           
+            instances.addAll(entries);
         }
-        List<IInstance> instances = prototypesFolder.get().getAllInstancesInHierachie();
+        
+        Optional<IFolder> instancesFolder = getInstancesFolder();
+        if (instancesFolder.isPresent()) {
+            List<IInstance> entries = instancesFolder.get().getAllInstancesInHierachie();
+            LOG.info("Adding " + entries.size() + " entries from instances folder.");           
+            instances.addAll(instancesFolder.get().getAllInstancesInHierachie());
+        }
+        
         ModelSync merger = new ModelSync(instances);
         List<Command> commands = merger.calculateCommands();
         for (Command command : commands) {
+            LOG.info("Adding command: " + command);
             commandStack.execute(command);
         }
     }
@@ -277,5 +292,5 @@ public final class Project extends Folder implements IProject {
 
         return result;
     }
-    
+
 }

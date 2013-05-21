@@ -562,10 +562,11 @@ public final class DctEditor extends MultiPageEditorPart implements CommandStack
                     project.setActiveLibraryPath(project.getLibraryPath());
                 }
                 
-                if (!project.getActiveLibraryPath().equals(project.getLibraryPath())) {
+                // ROGER
+               // if (!project.getActiveLibraryPath().equals(project.getLibraryPath())) {
                     project.setActiveLibraryPath(project.getLibraryPath());
                     project.refreshFromLibrary(commandStack);
-                }
+               // }
                 
             }
 

@@ -204,14 +204,14 @@ public final class Project extends Folder implements IProject {
         return Optional.absent();
     }
 
-    @Override
-    public void addPrototypesToLibrary(IProject libraryProject) {
+    private void addPrototypesToLibrary(IProject libraryProject) {
         Optional<IFolder> prototypesFolder = libraryProject.getPrototypesFolder();
         if (!prototypesFolder.isPresent()) {
             throw new IllegalStateException("No Prototypes folder in library file");
         }
         Optional<IFolder> libraryFolder = getLibraryFolder();
         if (!libraryFolder.isPresent()) {
+            LOG.info("*** no LIbrary Folder found ***");
             return;
         }
         IFolder prototypes = prototypesFolder.get();

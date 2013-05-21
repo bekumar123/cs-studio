@@ -29,4 +29,8 @@ public interface IInstance extends IContainer, IRootFolder {
      */
     boolean isFromLibrary();
 
+    void setPrototypeFolder(String prototypeFolder);
+
+    public String getPrototypeFolder();
+
 }

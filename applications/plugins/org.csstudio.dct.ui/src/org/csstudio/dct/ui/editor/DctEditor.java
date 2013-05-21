@@ -279,9 +279,6 @@ public final class DctEditor extends MultiPageEditorPart implements CommandStack
         final Composite c = new Composite(composite, SWT.NONE);
         c.setLayoutData(LayoutUtil.createGridData());
         final GridLayout gridLayout = GridLayoutFactory.swtDefaults().numColumns(5).create();
-        // FillLayout layout = new FillLayout();
-        // layout.spacing=5;
-        // c.setLayout(layout);
         c.setLayout(gridLayout);
 
         final CCombo list = new CCombo(c, SWT.READ_ONLY | SWT.BORDER);
@@ -562,11 +559,10 @@ public final class DctEditor extends MultiPageEditorPart implements CommandStack
                     project.setActiveLibraryPath(project.getLibraryPath());
                 }
                 
-                // ROGER
-               // if (!project.getActiveLibraryPath().equals(project.getLibraryPath())) {
+               if (!project.getActiveLibraryPath().equals(project.getLibraryPath())) {
                     project.setActiveLibraryPath(project.getLibraryPath());
                     project.refreshFromLibrary(commandStack);
-               // }
+               }
                 
             }
 

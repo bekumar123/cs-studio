@@ -70,10 +70,10 @@ public final class ProjectToXml {
 
     private Element createElement(Project project) {
         Element element = createElement((IFolder) project);
-        element.setAttribute(ProjectFactory.DBD, StringUtil.trimNull(project.getDbdPath()));
-        element.setAttribute(ProjectFactory.IOC, StringUtil.trimNull(project.getIoc()));
-        element.setAttribute(ProjectFactory.LIBRARY, StringUtil.trimNull(project.getLibraryPath()));
-        element.setAttribute(ProjectFactory.ACTIV_LIB, StringUtil.trimNull(project.getActiveLibraryPath()));
+        element.setAttribute(XmlAttributes.DBD, StringUtil.trimNull(project.getDbdPath()));
+        element.setAttribute(XmlAttributes.IOC, StringUtil.trimNull(project.getIoc()));
+        element.setAttribute(XmlAttributes.LIBRARY, StringUtil.trimNull(project.getLibraryPath()));
+        element.setAttribute(XmlAttributes.ACTIV_LIB, StringUtil.trimNull(project.getActiveLibraryPath()));
         return element;
     }
 
@@ -211,7 +211,12 @@ public final class ProjectToXml {
         } else {
             index = instance.getContainer().getInstances().indexOf(instance);
         }
+
         instanceXmlElement.setAttribute("index", "" + index);
+
+        if ((instance.getPrototype().getRootFolder() != null)) {
+            instanceXmlElement.setAttribute(XmlAttributes.PROTOTYPE_FOLDER, instance.getPrototype().getRootFolder().getName());
+        }
 
         // PARAMETER VALUES
         Map<String, String> parameterValues = instance.getParameterValues();

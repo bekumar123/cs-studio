@@ -13,6 +13,7 @@ import org.csstudio.dct.model.IFolder;
 import org.csstudio.dct.model.IFolderMember;
 import org.csstudio.dct.model.IInstance;
 import org.csstudio.dct.model.IProject;
+import org.csstudio.dct.model.IPrototype;
 import org.csstudio.dct.model.IRecord;
 import org.csstudio.dct.model.internal.sync.ModelSync;
 import org.csstudio.dct.util.AliasResolutionUtil;
@@ -230,23 +231,27 @@ public final class Project extends Folder implements IProject {
     public void refreshFromLibrary(CommandStack commandStack) {
 
         LOG.info("*** refreshing from library ***");
-        
+
         List<IInstance> instances = new ArrayList<IInstance>();
-        
+
         Optional<IFolder> prototypesFolder = getPrototypesFolder();
         if (prototypesFolder.isPresent()) {
             List<IInstance> entries = prototypesFolder.get().getAllInstancesInHierachie();
-            LOG.info("Adding " + entries.size() + " entries from prototypes folder.");           
+            LOG.info("Adding " + entries.size() + " entries from prototypes folder.");
             instances.addAll(entries);
         }
-        
+
         Optional<IFolder> instancesFolder = getInstancesFolder();
         if (instancesFolder.isPresent()) {
             List<IInstance> entries = instancesFolder.get().getAllInstancesInHierachie();
-            LOG.info("Adding " + entries.size() + " entries from instances folder.");           
-            instances.addAll(instancesFolder.get().getAllInstancesInHierachie());
+            for (IInstance instance : entries) {
+                if (instance.getParent() instanceof IPrototype) {
+                    instances.add(instance);
+                }
+            }
+            LOG.info("Adding " + entries.size() + " entries from instances folder.");
         }
-        
+
         ModelSync merger = new ModelSync(instances);
         List<Command> commands = merger.calculateCommands();
         for (Command command : commands) {

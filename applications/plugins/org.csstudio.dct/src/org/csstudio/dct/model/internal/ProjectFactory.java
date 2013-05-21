@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.csstudio.dct.DctActivator;
 import org.csstudio.dct.model.commands.ChangeDbdFileCommand;
+import org.csstudio.dct.model.persistence.internal.XmlAttributes;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.jdom.Element;
@@ -19,12 +20,6 @@ public class ProjectFactory {
     private static final String DEFAULT_DBDPATH_KEY = "DEFAULT_DBDPATH";
     private static final String DEFAULT_IOC_KEY = "DEFAULT_IOC";
     private static final String DEFAULT_DCTEXTENSION_KEY = "DEFAULT_DCTEXTENSION";
-
-    public static String NAME = "name";
-    public static String IOC = "ioc";
-    public static String LIBRARY = "library";
-    public static String ACTIV_LIB = "activelib";
-    public static String DBD = "dbd";
             
     public static String getDctFileExtension() {
         return prefs.getString(DctActivator.PLUGIN_ID, DEFAULT_DCTEXTENSION_KEY, DEFAULT_DCTEXTENSION, null);
@@ -65,12 +60,12 @@ public class ProjectFactory {
     }
 
     public static Project createExistingDCTProject(Element root) {
-        Project project = new Project(root.getAttributeValue(NAME), getIdFromXml(root));
-        project.setIoc(root.getAttributeValue(IOC, ""));
-        project.setLibraryPath(root.getAttributeValue(LIBRARY, ""));
-        project.setActiveLibraryPath(root.getAttributeValue(ACTIV_LIB, ""));
+        Project project = new Project(root.getAttributeValue(XmlAttributes.NAME), getIdFromXml(root));
+        project.setIoc(root.getAttributeValue(XmlAttributes.IOC, ""));
+        project.setLibraryPath(root.getAttributeValue(XmlAttributes.LIBRARY, ""));
+        project.setActiveLibraryPath(root.getAttributeValue(XmlAttributes.ACTIV_LIB, ""));
         if (!Project.IS_UNIT_TEST) {
-            new ChangeDbdFileCommand(project, root.getAttributeValue(DBD)).execute();
+            new ChangeDbdFileCommand(project, root.getAttributeValue(XmlAttributes.DBD)).execute();
         }
         return project;
     }

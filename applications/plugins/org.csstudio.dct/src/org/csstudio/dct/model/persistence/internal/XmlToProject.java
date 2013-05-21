@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.logging.Log;
 import org.csstudio.dct.model.IContainer;
 import org.csstudio.dct.model.IElement;
 import org.csstudio.dct.model.IFolder;
@@ -21,8 +22,11 @@ import org.csstudio.dct.model.internal.ProjectFactory;
 import org.csstudio.dct.model.internal.Prototype;
 import org.csstudio.dct.model.internal.Record;
 import org.csstudio.dct.model.internal.RecordFactory;
+import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Converter that transforms a xml representation back to a DCT model.
@@ -31,6 +35,9 @@ import org.jdom.Element;
  * 
  */
 public final class XmlToProject {
+
+    private static final Logger LOG = LoggerFactory.getLogger(XmlToProject.class);
+
     private Document document;
 
     /**
@@ -114,7 +121,19 @@ public final class XmlToProject {
         if (!preconditions.isEmpty()) {
             StringBuffer sb = new StringBuffer("Could not restore model completely because of circular dependencies: ");
 
+            int errorsToIgnore = 0;
+
             for (Element e : preconditions.keySet()) {
+
+                XmlNode xmlNode = new XmlNode(e);
+
+                if (xmlNode.isFromLibrary()) {
+                    LOG.info("Ignoring error for " + e.getAttributeValue(XmlAttributes.ID)
+                            + " because element is not present in Library.");
+                    errorsToIgnore++;
+                    continue;
+                }
+
                 Set<UUID> pre = preconditions.get(e);
 
                 sb.append(" ");
@@ -129,7 +148,10 @@ public final class XmlToProject {
                 sb.append("],");
             }
 
-            throw new RuntimeException(sb.toString());
+            if ((preconditions.size() - errorsToIgnore) > 0) {
+                throw new RuntimeException(sb.toString());
+            }
+
         }
 
         return project;
@@ -304,6 +326,11 @@ public final class XmlToProject {
 
         // CREATE INSTANCE
         Instance instance = new Instance(parent, id);
+
+        Attribute prototypeFolderAttribute = xmlInstanceElement.getAttribute(XmlAttributes.PROTOTYPE_FOLDER);
+        if (prototypeFolderAttribute != null) {
+            instance.setPrototypeFolder(prototypeFolderAttribute.getValue());
+        }
 
         // .. back-link to parent
         parent.addDependentContainer(instance);

@@ -7,7 +7,6 @@ import java.util.UUID;
 import org.csstudio.dct.model.IInstance;
 import org.csstudio.dct.model.IRecord;
 import org.csstudio.dct.model.commands.AddRecordCommand;
-import org.csstudio.dct.model.commands.RemoveRecordCommand;
 import org.csstudio.dct.model.internal.Project;
 import org.csstudio.dct.model.internal.Record;
 import org.eclipse.gef.commands.Command;

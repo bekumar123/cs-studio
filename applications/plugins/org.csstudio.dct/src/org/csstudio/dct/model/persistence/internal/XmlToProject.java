@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.commons.logging.Log;
 import org.csstudio.dct.model.IContainer;
 import org.csstudio.dct.model.IElement;
 import org.csstudio.dct.model.IFolder;
@@ -127,6 +126,8 @@ public final class XmlToProject {
 
                 XmlNode xmlNode = new XmlNode(e);
 
+                // Ignore errors that are caused by missing elements from the Library. We assume
+                // that the missing elements were removed from the Library on purpose.
                 if (xmlNode.isFromLibrary()) {
                     LOG.info("Ignoring error for " + e.getAttributeValue(XmlAttributes.ID)
                             + " because element is not present in Library.");

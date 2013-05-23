@@ -205,35 +205,13 @@ public final class Project extends Folder implements IProject {
         return Optional.absent();
     }
 
-    @Deprecated
-    private void addPrototypesToLibrary(IProject libraryProject) {
-        Optional<IFolder> prototypesFolder = libraryProject.getPrototypesFolder();
-        if (!prototypesFolder.isPresent()) {
-            throw new IllegalStateException("No Prototypes folder in library file");
-        }
-        Optional<IFolder> libraryFolder = getLibraryFolder();
-        if (!libraryFolder.isPresent()) {
-            LOG.info("*** no LIbrary Folder found ***");
-            return;
-        }
-        IFolder prototypes = prototypesFolder.get();
-        IFolder library = libraryFolder.get();
-        for (IFolderMember libraryElement : library.getMembers()) {
-            library.removeMember(libraryElement);
-        }
-        for (IFolderMember prototypeElement : prototypes.getMembers()) {
-            prototypeElement.setParentFolder(null);
-            library.addMember(prototypeElement);
-            prototypeElement.setParentFolder(this.getLibraryFolder().get());
-        }
-    }
-
     public void refreshFromLibrary(CommandStack commandStack) {
 
         LOG.info("*** refreshing from library ***");
 
         List<IInstance> instances = new ArrayList<IInstance>();
 
+        // Add all instances from the protype folder.
         Optional<IFolder> prototypesFolder = getPrototypesFolder();
         if (prototypesFolder.isPresent()) {
             List<IInstance> entries = prototypesFolder.get().getAllInstancesInHierachie();
@@ -241,6 +219,7 @@ public final class Project extends Folder implements IProject {
             instances.addAll(entries);
         }
 
+        // Add all instances that were created direclty from a Library-Prototype.
         Optional<IFolder> instancesFolder = getInstancesFolder();
         if (instancesFolder.isPresent()) {
             List<IInstance> entries = instancesFolder.get().getAllInstancesInHierachie();

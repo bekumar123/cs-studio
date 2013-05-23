@@ -662,7 +662,7 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
                                  @Nonnull final EpicsAlarmcfgTreeNodeAttribute attribute) {
         if (node instanceof IAlarmTreeNode) {
             String display = ((IAlarmTreeNode) node).getInheritedPropertyWithUrlProtocol(attribute);
-            return display != null && display.matches(".+\\.css-sds"); //$NON-NLS-1$
+            return display != null && display.matches(".+\\.css-sds(\\?.+)?"); //$NON-NLS-1$
         }
         return false;
     }

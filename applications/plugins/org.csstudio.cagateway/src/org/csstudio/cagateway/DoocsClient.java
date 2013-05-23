@@ -9,35 +9,33 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Scanner;
-
 import org.eclipse.core.runtime.FileLocator;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ttf.doocs.clnt.EqAdr;
 
 /**
- * 
+ *
  * This class should contain all DOOCS PVs in HashMap DPVs
- * 
+ *
  */
 
 
-public class DoocsClient implements ControlSystemClient{    
-    
+public class DoocsClient implements ControlSystemClient{
+
     private DoocsClient(){
-        
+
         loadNamesWithMetadata(completeNames, completeNamesFile);
-        
+
         loadSingleNames( initialBlackList, initialBlackListconfigFile);
-        
+
         loadNames(facilities, facilitiesReverse, facilityNamesFile);
         loadNames(devices, devicesReverse, deviceNamesFile);
         loadNames(locations, locationsReverse, locationNamesFile);
         loadNames(properties, propertiesReverse, propertyNamesFile);
     }
-    
+
     public static DoocsClient getInstance(){
         //
         // get an instance of our singleton
@@ -49,29 +47,29 @@ public class DoocsClient implements ControlSystemClient{
                 }
             }
         }
-        return DoocsClientInstance; 
+        return DoocsClientInstance;
     }
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(DoocsClient.class);
-    
+
     private static final String urlPrefix = "DOOCS";
-    
+
     //File which DoocClient will read for translation of EPICS pv names to DOOCS pv names
     //Each line must have exactly two words separated with space - first word for EPICS pv name and second word for DOOCS pv name
     private static final String completeNamesFile = "EpicsToDoocsNames.def";
-    
+
     private static final String initialBlackListconfigFile = "InitialBlackList.def";
-    
+
     private static final String facilityNamesFile   = "FACILITY.def";
     private static final String deviceNamesFile     = "DEVICE.def";
     private static final String locationNamesFile   = "LOCATION.def";
     private static final String propertyNamesFile   = "PROPERTY.def";
-    
+
     private static DoocsClient DoocsClientInstance = null;
-    
+
     //Mock have to be replaced with real DOOCS PVs
     HashMap<String, Mock> DPVs = new HashMap<String, Mock>();
-    
+
     //Data is loaded from a file
     HashMap<String, String> completeNames       = new HashMap<String, String>();
     HashMap<String, String> initialBlackList    = new HashMap<String, String>();
@@ -83,10 +81,10 @@ public class DoocsClient implements ControlSystemClient{
     HashMap<String, String> locationsReverse    = new HashMap<String, String>();
     HashMap<String, String> devicesReverse      = new HashMap<String, String>();
     HashMap<String, String> propertiesReverse   = new HashMap<String, String>();
-    
+
     HashMap<String, GregorianCalendar> blackList            = new HashMap<String, GregorianCalendar>();
-    
-    
+
+
     public HashMap<String, GregorianCalendar> getBlackList() {
         return blackList;
     }
@@ -94,7 +92,7 @@ public class DoocsClient implements ControlSystemClient{
     public void setBlackList(HashMap<String, GregorianCalendar> blackList) {
         this.blackList = blackList;
     }
-    
+
     public void addToBlackList ( String channel, GregorianCalendar timeStamp) {
         blackList.put(channel, timeStamp);
     }
@@ -110,24 +108,24 @@ public class DoocsClient implements ControlSystemClient{
 //      long oneHour = 1000;    // seconds for testing
         boolean isOnBlackList = false;
         GregorianCalendar blackListTime = null;
-        
+
         // check if on initialBlackList
         if ( initialBlackList.containsKey(channel)) {
             return true;
         }
-        
+
         isOnBlackList = blackList.containsKey(channel);
         if ( isOnBlackList) {
             // check time
             blackListTime = blackList.get(channel);
             long timeDifference = new GregorianCalendar().getTimeInMillis() - blackListTime.getTimeInMillis();
-            
+
             // check if timeDifference > checkBlackListPeriodHours
-            if ( (timeDifference/oneHour) >  checkBlackListPeriodHours) {
+            if ( timeDifference/oneHour >  checkBlackListPeriodHours) {
                 // remove from blackList
                 blackList.remove(channel);
                 isOnBlackList = false;
-                
+
                 LOG.debug("caGateway DOOCS: remove {} from blackList", channel);
             } else {
                 isOnBlackList = true;
@@ -135,24 +133,24 @@ public class DoocsClient implements ControlSystemClient{
         }
         return isOnBlackList;
     }
-    
+
     public String[] blackList2String () {
         String[] result = null;
         int i = 0;
-        
+
         Collection collect = blackList.values();
-        
+
         Iterator collectionIterator = collect.iterator();
-        
+
         while ( collectionIterator.hasNext()) {
             result[i++] = collectionIterator.next().toString();
         }
-        
+
         return result;
     }
 
     private boolean loadSingleNames(HashMap<String, String> hashMap, String configFile) {
-        final Bundle bundle = Activator.getDefault().getBundle();
+        final Bundle bundle = Activator.getBundleContext().getBundle();
         File loc = null;
         try {
             loc = FileLocator.getBundleFile(bundle);
@@ -173,7 +171,7 @@ public class DoocsClient implements ControlSystemClient{
             LOG.warn("caGateway DOOCS: {} not found", configFile);
             return false;
         }
-        
+
         while(s.hasNextLine()){
             String line = s.nextLine();
             /*
@@ -189,11 +187,11 @@ public class DoocsClient implements ControlSystemClient{
                 hashMap.put(words[0], "invalid");
             }
         }
-        return true;        
+        return true;
     }
-    
+
     private boolean loadNames(HashMap<String, String> hashMap, HashMap<String, String> hashMapReverse, String configFile) {
-        final Bundle bundle = Activator.getDefault().getBundle();
+        final Bundle bundle = Activator.getBundleContext().getBundle();
         File loc = null;
         try {
             loc = FileLocator.getBundleFile(bundle);
@@ -214,7 +212,7 @@ public class DoocsClient implements ControlSystemClient{
             LOG.warn("caGateway DOOCS: {} not found", configFile);
             return false;
         }
-        
+
         while(s.hasNextLine()){
             String line = s.nextLine();
             /*
@@ -234,9 +232,9 @@ public class DoocsClient implements ControlSystemClient{
                 System.out.println(configFile +" comment " + line );
             }
         }
-        return true;        
+        return true;
     }
-    
+
     //ToDo: MCL
     // this method must be implemented to support also config files which include:
     /*
@@ -250,13 +248,13 @@ public class DoocsClient implements ControlSystemClient{
         HashMap<String, String> dummy       = new HashMap<String, String>();
         return loadNames( hashMap, dummy, configFile);
     }
-    
+
     //Instead off adding PVs DoocsClient should be able to find them
     public void addMock(Mock m){
         DPVs.put(m.getName(), m);
     }
 
-    
+
 
     synchronized public String findChannelName(String channelName, HashMap<String, MetaData> availableRemoteDevices, CaServer thisGatewayServer) {
         String facility = null;
@@ -269,15 +267,15 @@ public class DoocsClient implements ControlSystemClient{
         String doocsProperty = null;
         String doocsCompleteName = null;
         String reverseCheck = null;
-        
+
         String epicsDoocsFacility = null;
         String epicsDoocsDevice = null;
         String epicsDoocsLocation = null;
         String epicsDoocsProperty = null;
         EqAdr doocsEqAdr = null;
-        
+
         // is channel on black list?
-        
+
         if ( checkBlacklist(channelName)) {
             // ToDo: MCL
             // check here how long this channel is already on black list
@@ -285,19 +283,19 @@ public class DoocsClient implements ControlSystemClient{
 //          LOG.debug( this, "caGateway DOOCS: findChannel: -sorry- channel is on black list : " + channelName);
             return null;
         }
-        
-        
+
+
         // already defined in HashMap??
-        if ( (availableRemoteDevices != null) &&  (availableRemoteDevices.get(channelName) != null)) {
+        if ( availableRemoteDevices != null &&  availableRemoteDevices.get(channelName) != null) {
             System.out.println("findChannel:channel already defined in HashMap: " + channelName);
             return "found in HashMap";  //DOOCS name already defined
         }
-        
+
         /*
          * only look for DOOCS channel of the requested channel starts with a string defined in
          * the facility hash map
          */
-        
+
         // check for separator
         if ( channelName.contains(":")) {
             // case if facility only consists of TTF:device:loation:property
@@ -311,7 +309,7 @@ public class DoocsClient implements ControlSystemClient{
 //          System.out.println("findChannel: missing [:]");
             return null;
         }
-        
+
         // ok separator is available
         // is it a DOOCS Facility?
         foundFacility = false;
@@ -328,7 +326,7 @@ public class DoocsClient implements ControlSystemClient{
 //              System.out.println("findChannel: found facility " + facility);
             }
         }
-        
+
         if ( foundFacility) {
 //          System.out.println("findChannel: found facility: " + doocsFacility);
             // check if channel defined in completeNames
@@ -347,7 +345,7 @@ public class DoocsClient implements ControlSystemClient{
                     metaData.set_precision( (short)7);
                     metaData.set_egu("mbar");
                     metaData.set_descriptor("DOOCS device dynamically created");
-                    
+
                     CaServer.getGatewayInstance().addAvailableRemoteDevices(channelName, metaData);
                     /*
                      * precision
@@ -390,7 +388,7 @@ public class DoocsClient implements ControlSystemClient{
                 if ( doocsFacility == null) {
                     doocsFacility = epicsDoocsFacility;
                     LOG.debug("caGateway DOOCS: error translating FACILITY: [{}]", epicsDoocsFacility);
-                    
+
                     reverseCheck = facilitiesReverse.get(epicsDoocsFacility);
                     if ( reverseCheck != null) {
                         System.out.println("use : " + reverseCheck + " instead in EPICS channel name! " + channelName);
@@ -402,7 +400,7 @@ public class DoocsClient implements ControlSystemClient{
                 } else {
 //                  System.out.println("translated FACILITY: " + epicsDoocsFacility + " into: " + doocsFacility);
                 }
-                    
+
                 doocsDevice = devices.get(epicsDoocsDevice);
                 if ( doocsDevice == null) {
                     doocsDevice = epicsDoocsDevice;
@@ -414,7 +412,7 @@ public class DoocsClient implements ControlSystemClient{
                 } else {
 //                  System.out.println("translated DEVICE: " + epicsDoocsDevice + " into: " + doocsDevice);
                 }
-                
+
                 doocsLocation = locations.get(epicsDoocsLocation);
                 if ( doocsLocation == null) {
                     // use location 'as is' and give it a try
@@ -427,14 +425,14 @@ public class DoocsClient implements ControlSystemClient{
                 } else {
 //                  System.out.println("translated LOCATION: " + epicsDoocsLocation + " into: " + doocsLocation);
                 }
-                    
+
                 doocsProperty = properties.get(epicsDoocsProperty);
                 reverseCheck = propertiesReverse.get(epicsDoocsProperty);
                 // the property MUST be corret!
                 // otherwise something like :P_ai will be translated into a DOOCS property called /P_ai which makes no sense
                 // channel will be pu on blackList
                 // for test purposes the invalid DOOCS property Px has been added
-                if ( (doocsProperty == null) && ( reverseCheck == null)) {
+                if ( doocsProperty == null && reverseCheck == null) {
                     // ok the property was not entered in 'the EPICS way'
                     // and not the DOOCS way
                     LOG.debug("caGateway DOOCS: error translating PROPERTY: [{}] in {} do NOT create DOOCS channel", epicsDoocsProperty, channelName);
@@ -444,13 +442,13 @@ public class DoocsClient implements ControlSystemClient{
                     // so the DOOCS variant must be correctly entered
                     doocsProperty = reverseCheck;
                 }
-                    
+
                 doocsCompleteName = doocsFacility + "/" + doocsDevice + "/" + doocsLocation + "/" + doocsProperty;
 //              System.out.println("found EPICS name:  " + channelName);
 //              System.out.println("created DOOCS name: " + doocsCompleteName);
                 doocsEqAdr = new EqAdr(doocsCompleteName);
                 if ( doocsEqAdr.isValidFullAdr()) {
-                    
+
                     // create/ fill meta data
                     MetaData metaData = new MetaData(channelName, doocsCompleteName, urlPrefix);
                     metaData.set_objectReference( doocsEqAdr);
@@ -459,7 +457,7 @@ public class DoocsClient implements ControlSystemClient{
                     metaData.set_precision( (short)7);
                     metaData.set_egu("mbar");
                     metaData.set_descriptor("DOOCS device name from list");
-                    
+
                     CaServer.getGatewayInstance().addAvailableRemoteDevices(channelName, metaData);
                     /*
                      * precision
@@ -495,6 +493,6 @@ public class DoocsClient implements ControlSystemClient{
     @Override
     public void registerObjectInRemoteControlSystem(
             RemoteControlSystemCallback callback, Object object) {
-        // TODO Auto-generated method stub  
+        // TODO Auto-generated method stub
     }
 }

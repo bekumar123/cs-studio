@@ -16,9 +16,14 @@
    <extension
          point="org.csstudio.remote.managementCommands">
       <command
-            class="org.csstudio.cagateway.management.StopServer"
-            id="org.csstudio.diag.interconnectionServer.management.StopServer"
-            label="Stop Server">
+            class="org.csstudio.cagateway.management.StopCmd"
+            id="org.csstudio.cagateway.management.Stop"
+            label="Stop">
+      </command>
+      <command
+            class="org.csstudio.cagateway.management.InfoCmd"
+            id="org.csstudio.cagateway.management.InfoCmd"
+            label="Info">
       </command>
    </extension>
    <extension

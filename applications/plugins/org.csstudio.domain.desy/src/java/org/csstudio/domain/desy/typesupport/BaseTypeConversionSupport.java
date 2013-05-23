@@ -120,7 +120,7 @@ public abstract class BaseTypeConversionSupport<T> extends AbstractTypeSupport<T
     public static Class<?> createBaseTypeClassFromString(@Nonnull final String datatype,
                                                          @Nonnull final String... addPackages) throws TypeSupportException {
         final String baseType = datatype.trim().replaceFirst("\\s*<(.+)>$", "");
-
+      
         final Iterable<String> allPackages = Iterables.concat(Arrays.asList(addPackages),
                                                               BASIC_TYPE_PACKAGES);
 
@@ -211,6 +211,7 @@ public abstract class BaseTypeConversionSupport<T> extends AbstractTypeSupport<T
      */
     public static boolean isDataTypeConvertibleToDouble(@Nonnull final String dataType,
                                                         @Nonnull final String... additionalPackages) throws TypeSupportException {
+
         final Class<?> typeClass = createBaseTypeClassFromString(dataType, additionalPackages);
         if (typeClass == null) {
             throw new TypeSupportException("Type is not convertible to " + Double.class.getSimpleName() + "." +

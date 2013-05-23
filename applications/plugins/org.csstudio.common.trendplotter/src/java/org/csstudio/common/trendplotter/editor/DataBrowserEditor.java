@@ -112,7 +112,7 @@ public class DataBrowserEditor extends EditorPart
     {
         final DataBrowserEditor editor;
         try
-        {
+        {System.out.println("DataBrowserEditor.createInstance()  start  "+System.currentTimeMillis() );
             final IWorkbench workbench = PlatformUI.getWorkbench();
             final IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
             final IWorkbenchPage page = window.getActivePage();

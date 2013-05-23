@@ -315,27 +315,26 @@ public abstract class EpicsSystemVariableSupport<T> extends
 	@Nonnull
 	public static Alarm getAlarm(@Nonnull final EpicsAlarm alarm) {
 
+		System.out.println("EpicsSystemVariableSupport.getAlarm()  "+alarm.getStatus().toString());
 		return org.epics.vtype.ValueFactory.newAlarm(getAlarmSeverity(alarm),
 				alarm.getStatus().toString());
 	}
 
 	@Nonnull
 	public static AlarmSeverity getAlarmSeverity(@Nonnull final EpicsAlarm alarm) {
-		if (alarm.getSeverity() != null) {
-			if (alarm.getSeverity().name().endsWith("MAJOR")) {
-				return AlarmSeverity.MAJOR;
-			} else if (alarm.getSeverity().name().endsWith("MINOR")) {
-				return AlarmSeverity.MINOR;
-			} else if (alarm.getSeverity().name().endsWith("INVALID")) {
-				return AlarmSeverity.INVALID;
-			} else if (alarm.getSeverity().name().endsWith("NONE")) {
-				return AlarmSeverity.NONE;
-			} else{
-				return AlarmSeverity.UNDEFINED;
-			}
-		} else {
-			return AlarmSeverity.UNDEFINED;
+		AlarmSeverity serverty=AlarmSeverity.UNDEFINED;
+		switch(alarm.getSeverity()){
+			case  INVALID:serverty=AlarmSeverity.INVALID; break;
+			case MAJOR:serverty=AlarmSeverity.MAJOR;break;
+			case MINOR:serverty=AlarmSeverity.MINOR; break;
+			case NO_ALARM:serverty=AlarmSeverity.NONE;break;
+			case UNKNOWN:serverty=AlarmSeverity.UNDEFINED;break;
+		default:
+			break;
+
 		}
+		return serverty;
+
 	}
 
 }

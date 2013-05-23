@@ -806,6 +806,7 @@ public class Model
      */
     void fireItemDataConfigChanged(final PVItem item)
     {
+        System.out.println("Model.fireItemDataConfigChanged()");
         for (ModelListener listener : listeners)
             listener.changedItemDataConfig(item);
     }

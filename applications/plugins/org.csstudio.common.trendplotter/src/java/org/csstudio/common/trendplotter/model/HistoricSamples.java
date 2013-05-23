@@ -149,10 +149,11 @@ public class HistoricSamples extends PlotSamples
     @SuppressWarnings("nls")
     @Override
     synchronized public PlotSample getSample(final int i)
-    {
+    {  
         if (i >= visible_size) {
             throw new IndexOutOfBoundsException("Index " + i + " exceeds visible size " + visible_size);
         }
+        
         return sample_map.get(request_type)[i];
     }
 
@@ -178,6 +179,7 @@ public class HistoricSamples extends PlotSamples
                                                throws OsgiServiceUnavailableException,
                                                       ArchiveServiceException
     {
+        LOG.info("start mergeArchivedData()");
         // Anything new at all?
         if (result.size() <= 0) {
             return;
@@ -188,7 +190,9 @@ public class HistoricSamples extends PlotSamples
         // Turn IValues into PlotSamples
         final PlotSample new_samples[] = new PlotSample[result.size()];
         for (int i=0; i<new_samples.length; ++i) {
-            new_samples[i] = new PlotSample(source.getServerName(), result.get(i));
+            VType v= result.get(i);
+            if(v==null)return;
+            new_samples[i] = new PlotSample(source.getServerName(), v);
         }
         if (isArchiveServiceforADELPresent()) {
             findAndSetArchiveDeadBandForNewSamples(channel_name, new_samples);
@@ -207,9 +211,11 @@ public class HistoricSamples extends PlotSamples
         updateRequestType(requestType);
 
         have_new_samples = true;
+        LOG.info("end mergeArchivedData()");
     }
 
     private void compressSamples() {
+        LOG.info("start compressSamples()");
         final int histBuffer = Preferences.getHistSampleBuffer();
         final Long[] windowsMS = determinePerfectWindowForCompressedSamples(histBuffer,
                                                                             _prov.getTimeInterval());
@@ -225,6 +231,7 @@ public class HistoricSamples extends PlotSamples
             return;
         }
         sample_map.put(RequestType.OPTIMIZED, removeNotConnectedValues(array));
+        LOG.info("start compressSamples()");
     }
     
     /**
@@ -397,6 +404,8 @@ public class HistoricSamples extends PlotSamples
      * 
      */
     public ArrayList<PlotSample> getAllSamples() {
+        LOG.info(" getAllSamples()");
+        
         ArrayList<PlotSample> historicSampleList = new ArrayList<PlotSample>(); 
         Set<RequestType> keySet = sample_map.keySet();
         for (RequestType requestType : keySet) {

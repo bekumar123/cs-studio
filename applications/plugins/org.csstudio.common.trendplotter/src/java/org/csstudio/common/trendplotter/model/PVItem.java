@@ -31,6 +31,7 @@ import org.csstudio.common.trendplotter.Messages;
 import org.csstudio.common.trendplotter.imports.ImportArchiveReaderFactory;
 import org.csstudio.common.trendplotter.preferences.Preferences;
 import org.csstudio.data.values.IDoubleValue;
+import org.csstudio.data.values.IEnumeratedMetaData;
 import org.csstudio.data.values.IEnumeratedValue;
 import org.csstudio.data.values.ILongValue;
 import org.csstudio.data.values.IMinMaxDoubleValue;
@@ -373,10 +374,12 @@ public class PVItem extends ModelItem implements PVListener {
             public void run() {
                 LOG.debug("PV {0} scans {1}", new Object[] { getName(), current_value });
                 logCurrentValue();
+         
             }
         };
         final long delay = (long) (_period * 1000);
         timer.schedule(scanner, delay, delay);
+     
     }
 
     /** Disconnect from control system PV, stop scanning, ... */
@@ -427,7 +430,7 @@ public class PVItem extends ModelItem implements PVListener {
                     Display.getDefault().asyncExec(new Runnable() {
                         @Override
                         public void run() {
-                            getAxis().setRange(displayLow, displayHigh);
+                          getAxis().setRange(displayLow, displayHigh);
                         }
                     });
                 }
@@ -446,7 +449,10 @@ public class PVItem extends ModelItem implements PVListener {
          if(!value.getSeverity().hasValue()) alarm=AlarmSeverity.UNDEFINED;
          status=value.getStatus();
          Quality quality = value.getQuality()== org.csstudio.data.values.IValue.Quality.Interpolated?Quality.Interpolated:Quality.Original;
-         
+         System.out.println("PVItem.getVTypeValue() " +value.getClass().toString());
+         if(value instanceof IEnumeratedValue)
+             return  new ArchiveVString(t,alarm, status,new Integer(((IEnumeratedValue)value).getValue()).toString());
+             
         // System.out.println("PVItem.getVTypeValue() "+value.getClass());
          org.epics.vtype.Display display= ValueFactory.newDisplay(
                                         (Double) ((INumericMetaData)value.getMetaData()).getDisplayLow(),

@@ -57,7 +57,7 @@ public class ArchiveFetchJob extends Job
     final private ArchiveFetchJobListener listener;
 
     private static volatile int worker_instance = 0;
-
+   
     /** Thread that performs the actual background work.
      *
      *  Instead of directly accessing the archive, ArchiveFetchJob launches
@@ -112,6 +112,8 @@ public class ArchiveFetchJob extends Job
         public void run()
         {
             LOG.info("start archive fetch ");
+            final long start_ms = System.currentTimeMillis();
+        
             final int bins = Preferences.getPlotBins();
             final ArchiveDataSource archives[] = item.getArchiveDataSources();
             for (int i=0; i<archives.length && !cancelled; ++i)
@@ -131,31 +133,41 @@ public class ArchiveFetchJob extends Job
                 }
                 try
                 {
+                    long beginTime=System.currentTimeMillis();
                     synchronized (this)
-                    {
+                    {  LOG.info("start reader create");
                         reader = ArchiveRepository.getInstance().getArchiveReader(url);
+                       LOG.info("end reader create");
                     }
 //                    TODO (jhatje): implement vType
                     ValueIterator value_iter = null;
                     RequestType currentRequestType = item.getRequestType();
-
+                    LOG.info("start value_iter create");
                     if (currentRequestType == RequestType.RAW) {
                         value_iter = reader.getRawValues(archive.getKey(), item.getName(), start, end);
                     }
                     else {
                         value_iter = reader.getOptimizedValues(archive.getKey(), item.getName(), start, end, bins);
                     }
+                    LOG.info("end value_iter create");
                     // Get samples into array
                     final ArrayList<VType> result = new ArrayList<VType>();
-                    
+                    LOG.info("start result create");
                     while (value_iter.hasNext()) {
                         final VType next = value_iter.next();
-                        LOG.trace(url + " - val: " + next.toString() );
-                        System.out.println("----- " + url + " - val: " +  next.toString() );
+                     //   LOG.trace(url + " - val: " + next.toString() );
+                      //  System.out.println("----- " + url + " - val: " +  next.toString() );
+                        if(next!=null){
+                            LOG.info(" result {}",next.toString());
                         result.add(next);
+                        }
                     }
-                    LOG.debug(result.size() + " samples from source " + url);
+                    LOG.info("end result create");
+                    LOG.info(result.size() + " samples from source " + url);
+                    LOG.info("read samples from source {} in {} millis" ,url,System.currentTimeMillis()-beginTime);
+                    LOG.info("start Merge Sample ");
                     item.mergeArchivedSamples(reader, result, currentRequestType);
+                    LOG.info("end Merge Sample ");
                     if (cancelled) {
                         break;
                     }
@@ -179,8 +191,10 @@ public class ArchiveFetchJob extends Job
                 }
             }
             if (!cancelled) {
-                listener.fetchCompleted(ArchiveFetchJob.this);
+               listener.fetchCompleted(ArchiveFetchJob.this);
+          
             }
+            LOG.info("FetchJob() {} in {} millis", item.getName(),System.currentTimeMillis()-start_ms);
             Activator.getLogger().log(Level.FINE, "Ended {0}", ArchiveFetchJob.this); //$NON-NLS-1$
             done = true;
         }
@@ -242,7 +256,7 @@ public class ArchiveFetchJob extends Job
                 // Ignore
             }
             if (worker.isDone()) {
-                break;
+                   break;
             }
             final String info = NLS.bind(Messages.ArchiveFetchProgressFmt,
                     worker.getMessage(), ++seconds);
@@ -260,7 +274,7 @@ public class ArchiveFetchJob extends Job
 
         return monitor.isCanceled() ? Status.CANCEL_STATUS : Status.OK_STATUS;
     }
-
+ 
     /** @return Debug string */
     @SuppressWarnings("nls")
     @Override

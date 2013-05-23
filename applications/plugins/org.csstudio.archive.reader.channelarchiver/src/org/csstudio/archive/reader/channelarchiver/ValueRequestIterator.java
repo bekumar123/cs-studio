@@ -51,8 +51,8 @@ public class ValueRequestIterator implements ValueIterator
         this.end = end;
         this.optimized = optimized;
         this.count = count;
-
         fetch(start);
+     
     }
 
     /** Fetch another batch of samples
@@ -80,14 +80,14 @@ public class ValueRequestIterator implements ValueIterator
     /** {@inheritDoc} */
     @Override
     public VType next() throws Exception
-    {
+    { 
         final VType result = samples[index];
         ++index;
         if (index < samples.length)
             return result;
 
         // Prepare next batch of samples
-        fetch(VTypeHelper.getTimestamp(result));
+     //   fetch(VTypeHelper.getTimestamp(result));
         if (samples == null)
             return result;
 

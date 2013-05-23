@@ -124,26 +124,34 @@ public class ArchiveEngineApplication implements IApplication {
         final String jcaThreadName=provider.getPreferencesService().getCaContextValue();
         final DesyJCADataSource dataSource = configureJCADataSources(jcaThreadName);
 
-        EngineHttpServer httpServer = null;
-        try {
-            setRun(true);
-            _model = new EngineModel(_engineName, provider, dataSource);
+        final EngineHttpServer httpServer = null;
+//        try {
+//            setRun(true);
+//            _model = new EngineModel(_engineName, provider, dataSource);
+//
+//            httpServer = startHttpServer(_model, provider);
+//            if (httpServer == null) {
+//                return EXIT_OK;
+//            }
+//            while (getRun()) {
+//                configureAndRunEngine(_model);
+//                stopEngineAndClearConfiguration(_model);
+//            }
+//        } catch (final EngineModelException e) {
+//            LOG.error("Archive engine model error - try to shutdown.", e);
+//        } catch (final InterruptedException e) {
+//            Thread.currentThread().interrupt();
+//        } catch (final Throwable e) {
+//            LOG.error("Unexpected throwable in application's main loop.", e);
+//        }
 
-            httpServer = startHttpServer(_model, provider);
-            if (httpServer == null) {
-                return EXIT_OK;
-            }
-            while (getRun()) {
-                configureAndRunEngine(_model);
-                stopEngineAndClearConfiguration(_model);
-            }
-        } catch (final EngineModelException e) {
-            LOG.error("Archive engine model error - try to shutdown.", e);
+        try {
+            Thread.sleep(5000);
         } catch (final InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } catch (final Throwable e) {
-            LOG.error("Unexpected throwable in application's main loop.", e);
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
+
         return killEngineAndHttpServer(_model, httpServer);
     }
 

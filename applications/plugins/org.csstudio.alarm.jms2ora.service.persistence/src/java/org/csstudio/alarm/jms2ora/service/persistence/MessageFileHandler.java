@@ -60,10 +60,10 @@ public class MessageFileHandler {
     private final DataDirectory dataDirectories;
 
     private ArchiveMessageFilter archiveMessageFilter;
-    
+
     @SuppressWarnings("unused")
     private RawMessageFilter rawMessageFilter;
-    
+
     /** Prefix for the file names of the archive messages */
     private final String archivePrefix = "archive-message-";
 
@@ -223,7 +223,7 @@ public class MessageFileHandler {
         ObjectInputStream ois = null;
 
         File file = new File(fileName);
-        
+
         try {
             fis = new FileInputStream(file);
             ois = new ObjectInputStream(fis);
@@ -305,7 +305,7 @@ public class MessageFileHandler {
         if (content.isEmpty()) {
             return 0;
         }
-        
+
         if(dataDirectories.existsDataDirectory() == false) {
             LOG.warn("Object folder does not exist. Message cannot be stored.");
             return -1;
@@ -317,19 +317,21 @@ public class MessageFileHandler {
         final String dateString = dfm.format(date);
         DecimalFormat nf = new DecimalFormat("#");
         nf.setMinimumIntegerDigits(String.valueOf(content.size()).length());
-        
+
         int count = 1;
         for (ArchiveMessage o : content) {
-        
+
             String fn = archivePrefix + dateString + "-" + nf.format(count++);
-            
+
             FileOutputStream fos = null;
             ObjectOutputStream oos = null;
-    
+
             try {
-                fos = new FileOutputStream(dataDirectories.getDataDirectoryAsString() + fn + ".ser");
+                fos = new FileOutputStream(dataDirectories.getDataDirectoryAsString()
+                                           + fn
+                                           + ArchiveMessageFilter.EXTENSION);
                 oos = new ObjectOutputStream(fos);
-    
+
                 // Write the MessageContent object to disk
                 oos.writeObject(o);
             } catch (final Exception e) {
@@ -337,7 +339,7 @@ public class MessageFileHandler {
             } finally {
                 if(oos != null){try{oos.close();}catch(final IOException ioe){/* Can be ignored */}}
                 if(fos != null){try{fos.close();}catch(final IOException ioe){/* Can be ignored */}}
-    
+
                 oos = null;
                 fos = null;
             }
@@ -345,7 +347,7 @@ public class MessageFileHandler {
         count--;
         return count;
     }
-    
+
     public Vector<ArchiveMessage> readMessagesFromFile() {
         Vector<ArchiveMessage> result = new Vector<ArchiveMessage>();
         try {

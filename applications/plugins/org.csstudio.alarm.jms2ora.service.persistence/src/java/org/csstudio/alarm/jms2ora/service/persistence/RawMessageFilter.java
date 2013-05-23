@@ -31,18 +31,20 @@ import java.io.FilenameFilter;
  * @since 27.08.2012
  */
 public class RawMessageFilter implements FilenameFilter {
-    
+
+    public static final String EXTENSION = ".ser";
+
     private String rawPrefix;
-    
+
     public RawMessageFilter(String prefix) {
         rawPrefix = prefix;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public boolean accept(File dir, String name) {
-        return name.toLowerCase().matches(rawPrefix + "\\d{8}-\\d{9}-\\d+.ser");
+        return name.toLowerCase().matches(rawPrefix + "\\d{8}-\\d{9}-\\d+" + EXTENSION);
     }
 }

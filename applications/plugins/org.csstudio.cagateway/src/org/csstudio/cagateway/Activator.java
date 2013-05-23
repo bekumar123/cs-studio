@@ -1,16 +1,13 @@
 
 package org.csstudio.cagateway;
 
-import org.eclipse.core.runtime.Plugin;
+import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.remotercp.common.tracker.GenericServiceTracker;
-import org.remotercp.common.tracker.IGenericServiceListener;
-import org.remotercp.service.connection.session.ISessionService;
 
 /**
  * The activator class controls the plug-in life cycle
  */
-public class Activator extends Plugin {
+public class Activator implements BundleActivator {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "org.csstudio.cagateway";
@@ -18,14 +15,15 @@ public class Activator extends Plugin {
 	// The shared instance
 	private static Activator plugin;
 
-	private GenericServiceTracker<ISessionService> _genericServiceTracker;
+	private static BundleContext bundleContext;
 
-	/**
-	 * The constructor
-	 */
-	public Activator() {
-	    // Nothing to do here
+	public static BundleContext getBundleContext() {
+	    return bundleContext;
 	}
+
+    public static Activator getDefault() {
+        return plugin;
+    }
 
 	/*
 	 * (non-Javadoc)
@@ -33,11 +31,8 @@ public class Activator extends Plugin {
 	 */
 	@Override
     public void start(final BundleContext context) throws Exception {
-		super.start(context);
-		plugin = this;
-		_genericServiceTracker = new GenericServiceTracker<ISessionService>(
-				context, ISessionService.class);
-		_genericServiceTracker.open();
+	    Activator.plugin = this;
+	    Activator.bundleContext = context;
 	}
 
 	/*
@@ -46,23 +41,7 @@ public class Activator extends Plugin {
 	 */
 	@Override
     public void stop(final BundleContext context) throws Exception {
-		super.stop(context);
-		plugin = null;
+	    Activator.plugin = null;
+	    Activator.bundleContext = null;
 	}
-
-	/**
-	 * Returns the shared instance
-	 *
-	 * @return the shared instance
-	 */
-	public static Activator getDefault() {
-		return plugin;
-	}
-
-	public void addSessionServiceListener(
-			final IGenericServiceListener<ISessionService> sessionServiceListener) {
-		_genericServiceTracker.addServiceListener(sessionServiceListener);
-	}
-
-
 }

@@ -8,7 +8,7 @@ import org.csstudio.remote.management.IManagementCommand;
 /**
  * Management command which stops the Interconnection Server.
  */
-public class StopServer implements IManagementCommand {
+public class StopCmd implements IManagementCommand {
 
     @Override
     public CommandResult execute(final CommandParameters parameters) {

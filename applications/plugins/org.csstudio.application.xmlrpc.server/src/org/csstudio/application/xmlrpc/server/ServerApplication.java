@@ -67,7 +67,12 @@ public class ServerApplication implements IApplication, RemotelyAccesible {
             LOG.error("[*** OsgiServiceUnavailableException ***]: Archive reader service is not available: {}", e.getMessage());
             running = false;
         }
-        xmlrpcServer = new MySqlXmlRpcServer(reader, 8080);
+        IPreferencesService prefs = Platform.getPreferencesService();
+        int port = prefs.getInt(ServerActivator.PLUGIN_ID,
+                                PreferenceConstants.XML_RPC_SERVER_PORT,
+                                8080,
+                                null);
+        xmlrpcServer = new MySqlXmlRpcServer(reader, port);
     }
 
 	/**

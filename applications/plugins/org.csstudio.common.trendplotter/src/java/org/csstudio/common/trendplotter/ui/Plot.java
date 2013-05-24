@@ -50,6 +50,7 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Display;
+import org.epics.util.time.Timestamp;
 
 /**
  * Data Browser 'Plot' that displays the samples in a {@link Model}.
@@ -521,7 +522,7 @@ public class Plot
      * @param modelIndex item index in the model
      */
     public void addTrace(final ModelItem item, Integer modelIndex)
-    {
+    {  System.out.println("Plot.addTrace() start " +System.currentTimeMillis());
         final Axis xaxis = xygraph.primaryXAxis;
         final Axis yaxis = getYAxis(item.getAxisIndex());
         final Trace trace = new Trace(item.getResolvedDisplayName(), xaxis,
@@ -690,6 +691,7 @@ public class Plot
      */
     public void updateTrace(final ModelItem item)
     {
+       
         final Trace trace = findTrace(item);
         if (trace == null)
             throw new RuntimeException("No trace for " + item.getName()); //$NON-NLS-1$
@@ -713,6 +715,7 @@ public class Plot
         // Change to desired Y Axis?
         if (axis_index != desired_axis && desired_axis < yaxes.size())
             trace.setYAxis(yaxes.get(desired_axis));
+      
     }
 
     /**
@@ -754,6 +757,22 @@ public class Plot
                 plot_changes_graph = false;
             }
         });
+    }
+
+    /**
+     * Update plot to given time range.
+     *
+     * @param start
+     *            Start time
+     * @param end
+     *            End time
+     */
+    public void setTimeRange(final Timestamp start, final Timestamp end)
+    {
+        final long start_ms = start.getSec() * 1000;
+        final long end_ms = end.getSec() * 1000;
+        setTimeRange(start_ms, end_ms);
+     
     }
 
     /**

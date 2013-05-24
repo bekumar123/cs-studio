@@ -2,13 +2,13 @@ package org.csstudio.archive.reader.aapi;
 
 import java.util.List;
 
-import org.csstudio.data.values.IMinMaxDoubleValue;
-import org.csstudio.data.values.INumericMetaData;
-import org.csstudio.data.values.ISeverity;
-import org.csstudio.data.values.ITimestamp;
-import org.csstudio.data.values.IValue;
-import org.csstudio.data.values.TimestampFactory;
-import org.csstudio.data.values.ValueFactory;
+
+import org.csstudio.archive.vtype.ArchiveVStatistics;
+import org.epics.util.text.NumberFormats;
+import org.epics.util.time.Timestamp;
+import org.epics.vtype.Display;
+import org.epics.vtype.VType;
+import org.epics.vtype.ValueFactory;
 
 import de.desy.aapi.AAPI;
 import de.desy.aapi.AapiClient;
@@ -18,7 +18,7 @@ import de.desy.aapi.AnswerData;
 public class MinMaxAapiValueIterator extends AapiValueIterator {
 
 	public MinMaxAapiValueIterator(AapiClient aapiClient, int key, String name,
-			ITimestamp start, ITimestamp end, int count) {
+			Timestamp start, Timestamp end, int count) {
 		super(aapiClient, key, name, start, end);
 		setCount(count);
 		setConversionParam(AAPI.DEADBAND_PARAM);
@@ -26,26 +26,25 @@ public class MinMaxAapiValueIterator extends AapiValueIterator {
 	}
 
 	@Override
-	void dataConversion(AnswerData answerData, List<IValue> result) {
-		INumericMetaData meta = ValueFactory.createNumericMetaData(answerData.getDisplayLow(),
-				answerData.getDisplayHigh(), answerData.getLowAlarm(),
-				answerData.getHighWarning(), answerData.getLowAlarm(),
-				answerData.getHighAlarm(), answerData.getPrecision(), answerData.getEgu());
+	void dataConversion(AnswerData answerData, List<VType> result) {
+		if(answerData==null)return;
+	   Display display=ValueFactory.newDisplay(new Double(answerData.getDisplayLow()) , new Double(answerData.getLowAlarm()),  new Double(answerData.getLowWarning()), "", NumberFormats.toStringFormat(),  new Double(answerData.getHighWarning()), new Double(answerData.getHighAlarm()), new Double(answerData.getDisplayHigh()), new Double(answerData.getDisplayLow()), new Double(answerData.getDisplayHigh()));
+		
 		for (int i = 0; i+2 < answerData.getData().length; i = i+3) {
 			
-			ITimestamp time = TimestampFactory.createTimestamp(
+			Timestamp time = Timestamp.of(
 					answerData.getTime()[i],
 					answerData.getUTime()[i]);
 			double[] value = new double[1];
 			value[0] = answerData.getData()[i+2];
-			ISeverity sevr = new SeverityImpl("NO_ALARM", true, true);
-			String stat = "ok";
 			Double min = answerData.getData()[i];
 			Double max = answerData.getData()[i+1];
-			result.add(ValueFactory.createMinMaxDoubleValue(time, sevr, stat,
-					(INumericMetaData) meta, IValue.Quality.Interpolated,
-					value, min, max));
-		}	
+			result.add( new ArchiveVStatistics(time, ValueFactory.newAlarm(value[0], display).getAlarmSeverity() , answerData.getStatus().toString() , display,
+             		value[0], min, max, 0.0, 1));
+		//	result.add(ValueFactory.newVStatistics(value[0], value[0], min, max, answerData.getData().length, ValueFactory.alarmNone(), ValueFactory.newTime(time), display));
+				}	
 	}
+
+	
 	
 }

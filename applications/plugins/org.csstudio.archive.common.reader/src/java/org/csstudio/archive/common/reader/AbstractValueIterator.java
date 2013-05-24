@@ -27,8 +27,8 @@ import javax.annotation.Nonnull;
 
 import org.csstudio.archive.common.service.sample.IArchiveSample;
 import org.csstudio.archive.reader.ValueIterator;
-import org.csstudio.data.values.IValue;
 import org.csstudio.domain.desy.time.TimeInstant;
+import org.epics.vtype.VType;
 
 /**
  * Abstract super class for value iterators talking to the DESY archive service interface.
@@ -39,8 +39,8 @@ import org.csstudio.domain.desy.time.TimeInstant;
 @SuppressWarnings("rawtypes")
 public abstract class AbstractValueIterator implements ValueIterator {
 
-    protected static final ArchiveSampleToIValueFunction ARCH_SAMPLE_2_IVALUE_FUNC =
-        new ArchiveSampleToIValueFunction();
+    protected static final ArchiveSampleToVTypeFunction ARCH_SAMPLE_2_VTYPE_FUNC =
+        new ArchiveSampleToVTypeFunction();
 
     private final String _channelName;
     private final TimeInstant _start;
@@ -98,7 +98,7 @@ public abstract class AbstractValueIterator implements ValueIterator {
      */
     @Override
     @Nonnull
-    public abstract IValue next() throws Exception;
+    public abstract VType next() throws Exception;
 
     /**
      * {@inheritDoc}

@@ -7,12 +7,12 @@
  ******************************************************************************/
 package org.csstudio.common.trendplotter.waveformview;
 
+import org.csstudio.archive.vtype.VTypeHelper;
 import org.csstudio.common.trendplotter.Messages;
 import org.csstudio.common.trendplotter.editor.DataBrowserAwareView;
 import org.csstudio.common.trendplotter.model.Model;
 import org.csstudio.common.trendplotter.model.ModelItem;
 import org.csstudio.common.trendplotter.model.PlotSamples;
-import org.csstudio.data.values.IValue;
 import org.csstudio.swt.xygraph.figures.ToolbarArmedXYGraph;
 import org.csstudio.swt.xygraph.figures.Trace;
 import org.csstudio.swt.xygraph.figures.Trace.PointStyle;
@@ -36,6 +36,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Slider;
 import org.eclipse.swt.widgets.Text;
+import org.epics.vtype.VType;
+import org.epics.vtype.ValueUtil;
 
 /** View for inspecting Waveform (Array) Samples of the current Model
  *  @author Kay Kasemir
@@ -273,7 +275,7 @@ public class WaveformView extends DataBrowserAwareView
     {
         // Get selected sample (= one waveform)
         final PlotSamples samples = model_item.getSamples();
-        final IValue value;
+        final VType value;
         synchronized (samples)
         {
             sample_index.setMaximum(samples.getSize());
@@ -285,8 +287,8 @@ public class WaveformView extends DataBrowserAwareView
             clearInfo();
         else
         {
-            timestamp.setText(value.getTime().toString());
-            status.setText(NLS.bind(Messages.SeverityStatusFmt, value.getSeverity().toString(), value.getStatus()));
+            timestamp.setText(ValueUtil.timeOf(value).getTimestamp().toString());
+            status.setText(NLS.bind(Messages.SeverityStatusFmt,  VTypeHelper.getSeverity(value).toString(),  VTypeHelper.getSeverity(value).toString()));
         }
     }
 

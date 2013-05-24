@@ -37,10 +37,8 @@ import org.csstudio.archive.common.service.channel.IArchiveChannel;
 import org.csstudio.archive.common.service.sample.IArchiveMinMaxSample;
 import org.csstudio.archive.common.service.sample.IArchiveSample;
 import org.csstudio.archive.common.service.sample.SampleMinMaxAggregator;
-import org.csstudio.archive.reader.Severity;
-import org.csstudio.data.values.INumericMetaData;
-import org.csstudio.data.values.IValue;
-import org.csstudio.data.values.ValueFactory;
+import org.csstudio.archive.vtype.trendplotter.ArchiveVStatistics;
+import org.csstudio.archive.vtype.trendplotter.VTypeHelper;
 import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
 import org.csstudio.domain.desy.system.ISystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
@@ -48,6 +46,12 @@ import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
 import org.csstudio.domain.desy.types.Limits;
 import org.csstudio.domain.desy.typesupport.BaseTypeConversionSupport;
 import org.csstudio.domain.desy.typesupport.TypeSupportException;
+import org.epics.util.text.NumberFormats;
+import org.epics.util.time.Timestamp;
+import org.epics.vtype.Display;
+import org.epics.vtype.VStatistics;
+import org.epics.vtype.VType;
+import org.epics.vtype.ValueFactory;
 import org.joda.time.Duration;
 import org.joda.time.ReadableDuration;
 
@@ -94,7 +98,7 @@ public class EquidistantTimeBinsIterator extends AbstractValueIterator {
 
     private IArchiveSample _firstSample;
     private IArchiveSample _lastSampleOfLastWindow;
-    private final INumericMetaData _metaData;
+    private final Display display;
     private SampleMinMaxAggregator _agg;
     private final boolean _noSamples;
 
@@ -117,7 +121,7 @@ public class EquidistantTimeBinsIterator extends AbstractValueIterator {
             throw new IllegalArgumentException("Number of time bins less equal zero.");
         }
 
-        _metaData = retrieveMetaDataForChannel(provider, channelName);
+        display = retrieveMetaDataForChannel(provider, channelName);
 
         _windowLength = calculateWindowLength(start, end, _numOfWindows);
 
@@ -181,7 +185,7 @@ public class EquidistantTimeBinsIterator extends AbstractValueIterator {
 
     @CheckForNull
     private
-    INumericMetaData retrieveMetaDataForChannel(@Nonnull final IArchiveServiceProvider provider,
+    Display retrieveMetaDataForChannel(@Nonnull final IArchiveServiceProvider provider,
                                                 @Nonnull final String channelName) throws ArchiveServiceException, OsgiServiceUnavailableException {
         final IArchiveReaderFacade service = provider.getReaderFacade();
         final IArchiveChannel ch = service.getChannelByName(channelName);
@@ -190,8 +194,8 @@ public class EquidistantTimeBinsIterator extends AbstractValueIterator {
         }
         final Limits<?> l = service.readDisplayLimits(channelName);
         if (l != null) {
-            return ValueFactory.createNumericMetaData(((Number) l.getLow()).doubleValue(),
-                                                      ((Number) l.getHigh()).doubleValue(), 0.0, 0.0, 0.0, 0.0, 0, "none");
+            return ValueFactory.newDisplay(new Double(((Double)l.getLow()).doubleValue()),  new Double(0.0),  new Double(0.0), "", NumberFormats.toStringFormat(),  new Double(0.0),
+                                           new Double(0.0), new Double(((Double)l.getHigh()).doubleValue()),  new Double(0.0),  new Double(((Double)l.getLow()).doubleValue()));
         }
         return null;
     }
@@ -227,7 +231,7 @@ public class EquidistantTimeBinsIterator extends AbstractValueIterator {
      */
     @Override
     @Nonnull
-    public IValue next() throws Exception {
+    public VType next() throws Exception {
         if (_noSamples || _currentWindow > _numOfWindows) {
             throw new NoSuchElementException();
         }
@@ -240,26 +244,30 @@ public class EquidistantTimeBinsIterator extends AbstractValueIterator {
                 aggregateSamplesUntilWindowEnd(_firstSample, curWindowEnd, getIterator(), _agg);
         }
 
-        final IValue iVal = createMinMaxDoubleValue(curWindowEnd, _metaData, _agg);
-
+        final VType iVal = createMinMaxDoubleValue(curWindowEnd, display, _agg);
+        final VStatistics st = (VStatistics) iVal;
+         final String q=_firstSample!=null? _firstSample.getRequestType() : "";
         _currentWindow++;
-        return iVal;
+        return new ArchiveVStatistics( VTypeHelper.getTimestamp(iVal), st.getAlarmSeverity(), st.getAlarmName(), st,q, st.getAverage(), st.getMin(), st.getMax(), st.getStdDev(), st.getNSamples());
+
     }
 
     @Nonnull
-    private IValue createMinMaxDoubleValue(@Nonnull final TimeInstant curWindowEnd,
-                                           @Nonnull final INumericMetaData metaData,
+    private VType createMinMaxDoubleValue(@Nonnull final TimeInstant curWindowEnd,
+                                           @Nonnull final Display display,
                                            @Nonnull final SampleMinMaxAggregator agg) throws Exception {
         final Double avg = agg.getAvg();
         final Double min = agg.getMin();
         final Double max = agg.getMax();
 
         if (avg != null && min != null && max != null) {
-            return ValueFactory.createMinMaxDoubleValue(BaseTypeConversionSupport.toTimestamp(curWindowEnd),
+            //TODO (jhatje): implement vType
+            return ValueFactory.newVStatistics(avg, 0, min, max, 1, ValueFactory.alarmNone(), ValueFactory.newTime(Timestamp.of(curWindowEnd.getSeconds(), (int)(curWindowEnd.getNanos()%TimeInstant.NANOS_PER_SECOND))),display);
+           /* return ValueFactory.createMinMaxDoubleValue(BaseTypeConversionSupport.toTimestamp(curWindowEnd),
                                                         new Severity("OK"), null, metaData, IValue.Quality.Interpolated,
                                                         new double[]{avg.doubleValue()},
                                                         min.doubleValue(),
-                                                        max.doubleValue());
+                                                        max.doubleValue());*/
         }
         throw new Exception("Creation of MinMaxDoubleValue failed. " + SampleMinMaxAggregator.class.getName() + " returned null values.");
     }

@@ -404,8 +404,10 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         }
         final PreparedStatement stmt = dispatchRequestTypeToStatement(conn, reqType, dataType);
         stmt.setInt(1, channel.getId().intValue());
-        stmt.setLong(2, s.getNanos());
-        stmt.setLong(3, e.getNanos());
+        final long nanos = s.getNanos();
+        stmt.setLong(2, nanos);
+        final long nanos2 = e.getNanos();
+        stmt.setLong(3, nanos2);
         return stmt;
     }
 

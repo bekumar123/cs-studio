@@ -33,10 +33,14 @@ import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.typesupport.BaseTypeConversionSupport;
 import org.csstudio.domain.desy.typesupport.TypeSupportException;
+import org.epics.util.array.ArrayFloat;
+import org.epics.util.array.ListFloat;
+import org.epics.vtype.VType;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Floats;
 
 /**
  * System variable support for {@link Float};
@@ -120,4 +124,25 @@ final class FloatSystemVariableSupport extends EpicsSystemVariableSupport<Float>
 //            throw new TypeSupportException("Collection type could not be instantiated from Class<?> object.", e);
 //        }
 //    }
+    @Override
+    @Nonnull
+    protected VType convertEpicsSystemVariableToVType(@Nonnull final EpicsSystemVariable<Float> sysVar) {
+    	return org.epics.vtype.ValueFactory.newVDouble(sysVar.getData().doubleValue(),
+				getAlarm(sysVar.getAlarm()),
+				getTime(sysVar.getTimestamp()),
+				getDisplay(sysVar.getMetaData()));
+    }
+
+    @Override
+    @Nonnull
+    protected VType convertCollectionToVType(@Nonnull final Collection<Float> data,
+                                               @Nonnull final EpicsAlarm alarm,
+                                               @Nonnull final TimeInstant timestamp) {
+
+    	   final ListFloat l=new ArrayFloat( Floats.toArray(data), true);
+		   return  org.epics.vtype.ValueFactory.newVFloatArray( l, getAlarm(alarm), getTime(timestamp), org.epics.vtype.ValueFactory.displayNone());
+    }
+
+
+
 }

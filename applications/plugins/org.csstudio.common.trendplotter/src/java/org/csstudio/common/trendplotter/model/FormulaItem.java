@@ -14,12 +14,18 @@ import org.csstudio.apputil.formula.Formula;
 import org.csstudio.apputil.formula.VariableNode;
 import org.csstudio.apputil.xml.DOMHelper;
 import org.csstudio.apputil.xml.XMLWriter;
+import org.csstudio.archive.vtype.trendplotter.ArchiveVNumber;
+import org.csstudio.archive.vtype.trendplotter.ArchiveVStatistics;
+import org.csstudio.archive.vtype.trendplotter.ArchiveVType;
 import org.csstudio.common.trendplotter.Messages;
-import org.csstudio.data.values.IMinMaxDoubleValue;
-import org.csstudio.data.values.ITimestamp;
-import org.csstudio.data.values.IValue;
-import org.csstudio.data.values.ValueFactory;
-import org.csstudio.data.values.ValueUtil;
+import org.epics.util.time.Timestamp;
+import org.epics.vtype.AlarmSeverity;
+import org.epics.vtype.Display;
+import org.epics.vtype.Time;
+import org.epics.vtype.VStatistics;
+import org.epics.vtype.VType;
+import org.epics.vtype.ValueFactory;
+import org.epics.vtype.ValueUtil;
 import org.w3c.dom.Element;
 
 /** A {@link Model} item that implements a formula.
@@ -126,15 +132,15 @@ public class FormulaItem extends ModelItem
      */
     private void compute()
     {
-        final ArrayList<IValue> result = new ArrayList<IValue>();
-        final String status = PlotSample.ok_severity.toString();
+        final ArrayList<VType> result = new ArrayList<VType>();
+        final Display display = ValueFactory.displayNone();
         // Prevent changes to formula & inputs
         synchronized (this)
         {
             // 'Current' value for each input or null when no more
             // In computation loop, values is actually moved to the _next_
             // value
-            final IValue values[] = new IValue[inputs.length];
+            final VType values[] = new VType[inputs.length];
 
             // 'Current' numeric min/val/max of values
             final double min[] = new double[inputs.length];
@@ -154,7 +160,7 @@ public class FormulaItem extends ModelItem
             }
 
             // Compute result for each 'line in the spreadsheet'
-            ITimestamp time;
+            Timestamp time;
             while (more_input)
             {   // Find oldest time stamp of all the inputs
                 time = null;
@@ -162,8 +168,8 @@ public class FormulaItem extends ModelItem
                 {
                     if (values[i] == null)
                         continue;
-                    final ITimestamp sample_time = values[i].getTime();
-                    if (time == null  ||  sample_time.isLessThan(time))
+                    final Timestamp sample_time = getTime(values[i]);
+                    if (time == null  ||  sample_time.getSec()<time.getSec())
                         time = sample_time;
                 }
                 if (time == null)
@@ -184,19 +190,19 @@ public class FormulaItem extends ModelItem
                         min[i] = val[i] = max[i] = Double.NaN;
                         have_min_max = false;
                     }
-                    else if (values[i].getTime().isLessOrEqual(time))
+                    else if (getTime(values[i]).getSec()<time.getSec())
                     {   // Input is valid before-and-up-to 'time'
-                        if (values[i] instanceof IMinMaxDoubleValue)
+                        if (values[i] instanceof VStatistics)
                         {
-                            final IMinMaxDoubleValue mmv = (IMinMaxDoubleValue)values[i];
-                            min[i] = mmv.getMinimum();
-                            val[i] = mmv.getValue();
-                            max[i] = mmv.getMaximum();
+                            final VStatistics mmv = (VStatistics)values[i];
+                            min[i] = mmv.getMin();
+                            val[i] = mmv.getAverage();
+                            max[i] = mmv.getMax();
                         }
                         else
                         {
                             min[i] = max[i] = Double.NaN;
-                            val[i] = ValueUtil.getDouble(values[i]);
+                            val[i] = ValueUtil.numericValueOf(values[i]);
                             // Use NaN for any non-number
                             if (Double.isInfinite(val[i]))
                                 val[i] = Double.NaN;
@@ -219,7 +225,7 @@ public class FormulaItem extends ModelItem
                     variables[i].setValue(val[i]);
                 // Evaluate formula for these inputs
                 final double res_val = formula.eval();
-                final IValue value;
+                final VType value;
 
                 if (have_min_max)
                 {   // Set variables[] from min
@@ -230,17 +236,19 @@ public class FormulaItem extends ModelItem
                     for (int i = 0; i < values.length; i++)
                         variables[i].setValue(max[i]);
                     final double res_max = formula.eval();
-                    value = ValueFactory.createMinMaxDoubleValue(time,
-                            PlotSample.ok_severity, status, PlotSample.dummy_meta,
-                            IValue.Quality.Interpolated,
-                            new double[] { res_val }, res_min, res_max);
+                    value = new ArchiveVStatistics(time, AlarmSeverity.NONE, Messages.Formula,
+                                                   display, res_val, res_min, res_max, 0.0, 1);
                 }
                 else
-                {   // No min/max.
-                    value = ValueFactory.createDoubleValue(time,
-                            PlotSample.ok_severity, status, PlotSample.dummy_meta,
-                            IValue.Quality.Interpolated,
-                            new double[] { res_val });
+                {
+                 // No min/max.
+                    if (Double.isNaN(res_val))
+                        value = new ArchiveVNumber(time, AlarmSeverity.INVALID, Messages.Formula,
+                                    display, res_val);
+                    else
+                        value = new ArchiveVNumber(time, AlarmSeverity.NONE, ArchiveVType.STATUS_OK,
+                                    display, res_val);
+                
                 }
                 result.add(value);
             }
@@ -280,6 +288,17 @@ public class FormulaItem extends ModelItem
     public PlotSamples getSamples()
     {
         return samples;
+    }
+    /** @return Control system time stamp */
+    private Timestamp getTime(VType value)
+    {
+        // NOT checking if time.isValid()
+        // because that actually takes quite some time.
+        // We just plot what we have, and that includes
+        // the case where the time stamp is invalid.
+        if (value instanceof Time)
+            return ((Time) value).getTimestamp();
+        return Timestamp.now();
     }
 
     /** Write XML formatted PV configuration

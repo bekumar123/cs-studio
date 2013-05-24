@@ -53,9 +53,9 @@ public class IntervalProvider implements IIntervalProvider {
                             getModelEndTime().getInstant());
     }
     private TimeInstant getModelStartTime() {
-        return BaseTypeConversionSupport.toTimeInstant(_model.getStartTime());
+        return BaseTypeConversionSupport.toTimeInstant1(_model.getStartTime());
     }
     private TimeInstant getModelEndTime() {
-        return BaseTypeConversionSupport.toTimeInstant(_model.getEndTime());
+        return BaseTypeConversionSupport.toTimeInstant1(_model.getEndTime());
     }
 }

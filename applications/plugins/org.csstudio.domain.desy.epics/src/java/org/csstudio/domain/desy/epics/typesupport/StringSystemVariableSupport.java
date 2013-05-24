@@ -21,6 +21,7 @@
  */
 package org.csstudio.domain.desy.epics.typesupport;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.annotation.Nonnull;
@@ -32,6 +33,7 @@ import org.csstudio.domain.desy.epics.types.EpicsSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.typesupport.BaseTypeConversionSupport;
 import org.csstudio.domain.desy.typesupport.TypeSupportException;
+import org.epics.vtype.VType;
 
 /**
  * System variable support for {@link String}.
@@ -69,6 +71,22 @@ final class StringSystemVariableSupport extends EpicsSystemVariableSupport<Strin
                                               null,
                                               data.toArray(new String[]{}));
     }
+
+	@Override
+	@Nonnull
+	protected VType convertEpicsSystemVariableToVType(
+			final EpicsSystemVariable<String> sysVar) throws TypeSupportException {
+
+		return org.epics.vtype.ValueFactory.newVString(sysVar.getData(), getAlarm(sysVar.getAlarm()), getTime(sysVar.getTimestamp()));
+	}
+
+	@Override
+	@Nonnull
+	protected VType convertCollectionToVType(final Collection<String> data,
+			final EpicsAlarm alarm, final TimeInstant timestamp)
+			throws TypeSupportException {
+		return org.epics.vtype.ValueFactory.newVStringArray(new ArrayList<String>(data), getAlarm(alarm), getTime(timestamp));
+	}
 
 //    /**
 //     * {@inheritDoc}

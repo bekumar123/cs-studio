@@ -16,14 +16,19 @@
    <extension
          point="org.csstudio.remote.managementCommands">
       <command
-            class="org.csstudio.tine2jms.management.Stop"
+            class="org.csstudio.tine2jms.management.StopCmd"
             id="org.csstudio.tine2jms.management.Stop"
             label="Stop">
       </command>
       <command
-            class="org.csstudio.tine2jms.management.Restart"
+            class="org.csstudio.tine2jms.management.RestartCmd"
             id="org.csstudio.tine2jms.management.Restart"
             label="Restart">
+      </command>
+      <command
+            class="org.csstudio.tine2jms.management.InfoCmd"
+            id="org.csstudio.tine2jms.management.Info"
+            label="Info">
       </command>
    </extension>
    <extension

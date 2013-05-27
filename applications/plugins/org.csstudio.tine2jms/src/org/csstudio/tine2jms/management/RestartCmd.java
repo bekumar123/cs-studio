@@ -33,7 +33,7 @@ import org.csstudio.tine2jms.Stoppable;
  * @author Markus Moeller
  *
  */
-public class Restart implements IManagementCommand {
+public class RestartCmd implements IManagementCommand {
 
     private static Stoppable objectToBeRestarted = null;
 

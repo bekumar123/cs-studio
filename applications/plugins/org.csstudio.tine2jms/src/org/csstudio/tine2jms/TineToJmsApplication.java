@@ -1,23 +1,23 @@
 
-/* 
- * Copyright (c) 2008 Stiftung Deutsches Elektronen-Synchrotron, 
+/*
+ * Copyright (c) 2008 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
- * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS. 
- * WITHOUT WARRANTY OF ANY KIND, EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED 
- * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR PARTICULAR PURPOSE AND 
- * NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
- * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
- * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR 
- * THE USE OR OTHER DEALINGS IN THE SOFTWARE. SHOULD THE SOFTWARE PROVE DEFECTIVE 
- * IN ANY RESPECT, THE USER ASSUMES THE COST OF ANY NECESSARY SERVICING, REPAIR OR 
- * CORRECTION. THIS DISCLAIMER OF WARRANTY CONSTITUTES AN ESSENTIAL PART OF THIS LICENSE. 
+ * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
+ * WITHOUT WARRANTY OF ANY KIND, EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED
+ * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
+ * THE USE OR OTHER DEALINGS IN THE SOFTWARE. SHOULD THE SOFTWARE PROVE DEFECTIVE
+ * IN ANY RESPECT, THE USER ASSUMES THE COST OF ANY NECESSARY SERVICING, REPAIR OR
+ * CORRECTION. THIS DISCLAIMER OF WARRANTY CONSTITUTES AN ESSENTIAL PART OF THIS LICENSE.
  * NO USE OF ANY SOFTWARE IS AUTHORIZED HEREUNDER EXCEPT UNDER THIS DISCLAIMER.
- * DESY HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, 
+ * DESY HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS,
  * OR MODIFICATIONS.
- * THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, 
- * USAGE AND OTHER RIGHTS AND OBLIGATIONS IS INCLUDED WITH THE DISTRIBUTION OF THIS 
- * PROJECT IN THE FILE LICENSE.HTML. IF THE LICENSE IS NOT INCLUDED YOU MAY FIND A COPY 
+ * THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION,
+ * USAGE AND OTHER RIGHTS AND OBLIGATIONS IS INCLUDED WITH THE DISTRIBUTION OF THIS
+ * PROJECT IN THE FILE LICENSE.HTML. IF THE LICENSE IS NOT INCLUDED YOU MAY FIND A COPY
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
  */
 
@@ -27,8 +27,16 @@ import java.util.Observable;
 import java.util.Observer;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
-import org.csstudio.tine2jms.management.Restart;
-import org.csstudio.tine2jms.management.Stop;
+import org.csstudio.headless.common.signal.HeadlessSignalHandler;
+import org.csstudio.headless.common.signal.ISignalReceiver;
+import org.csstudio.headless.common.signal.SignalException;
+import org.csstudio.headless.common.util.ApplicationInfo;
+import org.csstudio.headless.common.xmpp.XmppCredentials;
+import org.csstudio.headless.common.xmpp.XmppSessionException;
+import org.csstudio.headless.common.xmpp.XmppSessionHandler;
+import org.csstudio.tine2jms.management.InfoCmd;
+import org.csstudio.tine2jms.management.RestartCmd;
+import org.csstudio.tine2jms.management.StopCmd;
 import org.csstudio.tine2jms.preferences.PreferenceKeys;
 import org.csstudio.tine2jms.util.JmsProducer;
 import org.csstudio.tine2jms.util.JmsProducerException;
@@ -36,8 +44,6 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.remotercp.common.tracker.IGenericServiceListener;
-import org.remotercp.service.connection.session.ISessionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,24 +52,28 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class TineToJmsApplication implements IApplication,
-                                             Stoppable,
-                                             Observer,
-                                             IGenericServiceListener<ISessionService> {
-    
+                                             ISignalReceiver,
+                                             RemotelyAccessible,
+                                             Observer {
+
     /** Class logger */
     private static final Logger LOG = LoggerFactory.getLogger(TineToJmsApplication.class);
-    
+
     /** Alarm monitor */
     private TineAlarmMonitor[] alarmMonitor;
-    
+
     /** JMS producer */
     private JmsProducer producer;
-    
-    private ISessionService xmppService;
-    
+
+    private XmppSessionHandler xmppService;
+
+    private ApplicationInfo appInfo;
+
+    private HeadlessSignalHandler signalHandler;
+
     /** Array of alarm systems we want to monitor */
     private String[] facilities;
-    
+
     /** Flag that indicates wheather or not the application should be stopped */
     private boolean working;
 
@@ -71,24 +81,36 @@ public class TineToJmsApplication implements IApplication,
     private boolean restart;
 
     public TineToJmsApplication() {
-        
-        String jmsUrl = null;
-        String jmsClientId = null;
-        String jmsTopics = null;
-        
+
         IPreferencesService preference = Platform.getPreferencesService();
-        
-        jmsUrl = preference.getString(TineToJmsActivator.PLUGIN_ID, PreferenceKeys.JMS_PROVIDER_URL, "", null);
-        jmsClientId = preference.getString(TineToJmsActivator.PLUGIN_ID, PreferenceKeys.JMS_CLIENT_ID, "", null);
-        jmsTopics = preference.getString(TineToJmsActivator.PLUGIN_ID, PreferenceKeys.JMS_TOPICS_ALARM, "", null);
+
+        String jmsUrl = preference.getString(TineToJmsActivator.PLUGIN_ID, PreferenceKeys.JMS_PROVIDER_URL, "", null);
+        String jmsClientId = preference.getString(TineToJmsActivator.PLUGIN_ID, PreferenceKeys.JMS_CLIENT_ID, "", null);
+        String jmsTopics = preference.getString(TineToJmsActivator.PLUGIN_ID, PreferenceKeys.JMS_TOPICS_ALARM, "", null);
+
+        String xmppServer = preference.getString(TineToJmsActivator.PLUGIN_ID, PreferenceKeys.XMPP_SERVER, "", null);
+        String xmppUser = preference.getString(TineToJmsActivator.PLUGIN_ID, PreferenceKeys.XMPP_USER, "", null);
+        String xmppPassword = preference.getString(TineToJmsActivator.PLUGIN_ID, PreferenceKeys.XMPP_PASSWORD, "", null);
+        XmppCredentials xmppCredentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
+        xmppService = new XmppSessionHandler(TineToJmsActivator.getBundleContext(), xmppCredentials);
+
+        appInfo = new ApplicationInfo("Tine2Jms",
+                                      "This application is reading messages from TINE and sends them to the JMS provider.");
+
+        try {
+            signalHandler = new HeadlessSignalHandler(this);
+            signalHandler.activateTermSignal();
+            signalHandler.activateIntSignal();
+        } catch (SignalException e) {
+            LOG.warn("[*** SignalException ***]: {}", e.getMessage());
+        }
 
         working = true;
         restart = false;
-        
+
         alarmMonitor = null;
-        xmppService = null;
         facilities = null;
-        
+
         try {
             producer = new JmsProducer(jmsClientId, jmsUrl, jmsTopics);
         } catch(JmsProducerException jpe) {
@@ -97,80 +119,80 @@ public class TineToJmsApplication implements IApplication,
             working = false;
         }
     }
-    
+
     /**
      * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
      */
     @Override
     public Object start(IApplicationContext context) throws Exception {
-        
+
         IPreferencesService preference = Platform.getPreferencesService();
 
-        // Prepare the stop and restart action objects
-        Stop.staticInject(this);
-        Restart.staticInject(this);
-        
-        TineToJmsActivator.getDefault().addSessionServiceListener(this);
-        
-        context.applicationRunning();
-        
+        // Prepare the remote commands
+        StopCmd.staticInject(this);
+        RestartCmd.staticInject(this);
+        InfoCmd.staticInject(this);
+
+        try {
+            xmppService.connect();
+        } catch (XmppSessionException e) {
+            LOG.warn("Cannot connect to the XMPP server.");
+        }
+
         // Wait until some time for XMPP login
-        synchronized(this) {
+        synchronized (this) {
             try {
                 wait(5000);
             } catch(InterruptedException ie) {
                 // Can be ignored
             }
         }
-        
+
         facilities = preference.getString(TineToJmsActivator.PLUGIN_ID, PreferenceKeys.TINE_FACILITY_NAMES, "", null).split(",");
         if(facilities == null) {
             LOG.error("No alarm system / facility is defined.");
+            xmppService.disconnect();
             return IApplication.EXIT_OK;
         }
-        
+
         alarmMonitor = new TineAlarmMonitor[facilities.length];
-        
+
         for(int i = 0;i < facilities.length;i++) {
             alarmMonitor[i] = new TineAlarmMonitor(this, facilities[i]);
         }
 
+        context.applicationRunning();
+
         while(working) {
             synchronized(this) {
-                
                 LOG.info("Waiting for alarms...");
-                
                 try {
                     this.wait();
                 }
                 catch(InterruptedException e) {
                     // Can be ignored
-                }                
+                }
             }
         }
-        
+
         for(int i = 0;i < facilities.length;i++) {
             alarmMonitor[i].close();
         }
-        
-        if (xmppService != null) {
-            xmppService.disconnect();
-        }
-        
+
+        xmppService.disconnect();
+
         Integer exitCode = IApplication.EXIT_OK;
         if(restart) {
             exitCode = IApplication.EXIT_RESTART;
         }
-        
+
         return exitCode;
     }
 
     @Override
     public synchronized void update(Observable messageCreator, Object obj) {
-        
         MapMessage msg = null;
         AlarmMessage alarm = (AlarmMessage)obj;
-        
         try {
             msg = producer.createMapMessages(alarm);
             producer.sendMessage(msg);
@@ -203,28 +225,21 @@ public class TineToJmsApplication implements IApplication,
     @Override
     public void stop() {
         LOG.info("Method stop() was called...");
-    } 
-    
-    @Override
-    public void bindService(ISessionService sessionService) {
-        
-        IPreferencesService preference = Platform.getPreferencesService();
-
-        String xmppUser = preference.getString(TineToJmsActivator.PLUGIN_ID, PreferenceKeys.XMPP_USER, "", null);
-        String xmppPassword = preference.getString(TineToJmsActivator.PLUGIN_ID, PreferenceKeys.XMPP_PASSWORD, "", null);
-        String xmppServer = preference.getString(TineToJmsActivator.PLUGIN_ID, PreferenceKeys.XMPP_SERVER, "", null);
-    	
-    	try {
-			sessionService.connect(xmppUser, xmppPassword, xmppServer);
-			xmppService = sessionService;
-		} catch (Exception e) {
-		    xmppService = null;
-			LOG.warn("XMPP connection is not available, {}", e.getMessage());
-		}
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void unbindService(ISessionService service) {
-    	// Nothing to do here
+    public synchronized void terminate() {
+        stopWorking();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getInfo() {
+        return appInfo.toString();
     }
 }

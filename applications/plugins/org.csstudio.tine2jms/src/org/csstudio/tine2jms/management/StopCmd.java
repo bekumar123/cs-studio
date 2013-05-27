@@ -33,7 +33,7 @@ import org.csstudio.tine2jms.Stoppable;
  * @author Markus Moeller
  *
  */
-public class Stop implements IManagementCommand {
+public class StopCmd implements IManagementCommand {
 
     private static Stoppable objectToBeStopped = null;
 

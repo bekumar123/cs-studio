@@ -14,6 +14,7 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: org.csstudio.headless.common.management,
+ org.csstudio.headless.common.signal,
  org.csstudio.headless.common.time,
  org.csstudio.headless.common.util,
  org.csstudio.headless.common.xmpp

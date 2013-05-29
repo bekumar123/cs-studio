@@ -30,6 +30,5 @@ package org.csstudio.application.xmlrpc.server;
  * @since 19.08.2011
  */
 public interface RemotelyAccesible {
-    String getStartingTimeAsString();
     String getInfo();
 }

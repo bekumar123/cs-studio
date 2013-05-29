@@ -23,12 +23,12 @@
    <extension
          point="org.csstudio.remote.managementCommands">
       <command
-            class="org.csstudio.application.xmlrpc.server.management.Stop"
+            class="org.csstudio.application.xmlrpc.server.management.StopCmd"
             id="org.csstudio.application.xmlrpc.server..Stop"
             label="Stop">
       </command>
       <command
-            class="org.csstudio.application.xmlrpc.server.management.GetInfo"
+            class="org.csstudio.application.xmlrpc.server.management.InfoCmd"
             id="org.csstudio.application.xmlrpc.server.GetInfo"
             label="Get Info">
       </command>

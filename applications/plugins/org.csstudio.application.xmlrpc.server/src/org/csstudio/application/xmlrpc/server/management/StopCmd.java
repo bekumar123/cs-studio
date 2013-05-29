@@ -42,7 +42,7 @@ import org.osgi.util.tracker.ServiceTracker;
  * @author mmoeller
  * @since 21.12.2012
  */
-public class Stop implements IManagementCommand {
+public class StopCmd implements IManagementCommand {
 
     /**
      * {@inheritDoc}

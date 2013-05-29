@@ -32,7 +32,7 @@ import org.csstudio.remote.management.IManagementCommand;
  * @author mmoeller
  * @since 19.03.2013
  */
-public class GetInfo implements IManagementCommand {
+public class InfoCmd implements IManagementCommand {
 
     private static RemotelyAccesible object = null;
 
@@ -45,7 +45,7 @@ public class GetInfo implements IManagementCommand {
         if (object == null) {
             result = CommandResult.createFailureResult("The reference to the application is null! Use static inject.");
         } else {
-            result = CommandResult.createMessageResult(object.getInfo() + "\n\nStarting time: " + object.getStartingTimeAsString());
+            result = CommandResult.createMessageResult(object.getInfo());
         }
         return result;
     }

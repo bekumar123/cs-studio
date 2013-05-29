@@ -104,7 +104,7 @@ public class Probe extends ViewPart implements PVListener, ISelectionProvider
 	 * Id of the PV parameter to the save value command.
 	 */
 	private static final String PV_PARAMETER_ID =
-		"org.csstudio.config.savevalue..ui.commands.saveValue.pv"; //$NON-NLS-1$
+		"org.csstudio.config.savevalue.ui.commands.saveValue.pv"; //$NON-NLS-1$
 	/**
 	 * Id of the value parameter to the save value command.
 	 */
@@ -294,7 +294,7 @@ public class Probe extends ViewPart implements PVListener, ISelectionProvider
     /** Construct GUI. */
     private void createGUI(final Composite parent)
     {
-        final boolean canExecute = SecurityFacade.getInstance().canExecute(SECURITY_ID, true);
+        final boolean canExecute = SecurityFacade.getInstance().canExecute(SECURITY_ID, false);
         final FormLayout layout = new FormLayout();
         parent.setLayout(layout);
 

@@ -66,82 +66,61 @@ import org.eclipse.core.runtime.preferences.IPreferencesService;
  */
 public class MessageGuardCommander extends Job {
 
-    private final class ThreadUpdateTopicMessageMap extends Job
-    {
-        private ThreadUpdateTopicMessageMap(final String name)
-        {
+    private final class ThreadUpdateTopicMessageMap extends Job {
+
+        protected ThreadUpdateTopicMessageMap(final String name) {
             super(name);
         }
 
 		@Override
-		protected IStatus run(final IProgressMonitor monitor)
-		{
-            while (_runUpdateTopicMessageMap)
-            {
-                try
-                {
+		protected IStatus run(final IProgressMonitor monitor) {
+
+		    while (isRunningUpdateTopicMessageMap()) {
+                try {
                     // update ones per hour
                     Thread.sleep(3600000);
-                }
-                catch(final InterruptedException e)
-                {
+                } catch(final InterruptedException e) {
                     Log.log(this, Log.WARN, e);
                 }
 
                 Connection conDb = null;
 
-                try
-                {
+                try {
                     conDb = AmsConnectionFactory.getApplicationDB();
-                    if (conDb == null)
-                    {
+                    if (conDb == null) {
                         Log.log(this, Log.WARN, "Could not init application database");
-                    }
-                    else
-                    {
-                        final Set<String> keySet = _topicMessageMap.keySet();
+                    } else {
+                        final Set<String> keySet = getTopicMessageMap().keySet();
                         Boolean newValue;
 
-                        for(final String filterID : keySet)
-                        {
+                        for(final String filterID : keySet) {
                             newValue = null;
 
                             final FilterActionTObject[] actionTObject = FilterActionDAO.selectByFilter(conDb,
                                     Integer.parseInt(filterID));
 
-                            for(final FilterActionTObject o : actionTObject)
-                            {
-                                if(o.getFilterActionTypeRef() == AmsConstants.FILTERACTIONTYPE_TO_JMS)
-                                {
+                            for(final FilterActionTObject o : actionTObject) {
+                                if(o.getFilterActionTypeRef() == AmsConstants.FILTERACTIONTYPE_TO_JMS) {
                                     newValue = true;
                                     break;
                                 }
                             }
 
                             newValue = newValue == null ? false : newValue;
-                            final Boolean oldValue = _topicMessageMap.get(filterID);
+                            final Boolean oldValue = getTopicMessageMap().get(filterID);
 
-                            if(newValue != oldValue)
-                            {
-                                _topicMessageMap.replace(filterID, newValue);
+                            if(newValue != oldValue) {
+                                getTopicMessageMap().replace(filterID, newValue);
                             }
                         }
                     }
-                }
-                catch(final SQLException e)
-                {
+                } catch(final SQLException e) {
                     Log.log(this, Log.WARN,e);
-                }
-                finally
-                {
-                    if(conDb!=null)
-                    {
-                        try
-                        {
+                } finally {
+                    if(conDb!=null) {
+                        try {
                             conDb.close();
-                        }
-                        catch(final SQLException e)
-                        {
+                        } catch(final SQLException e) {
                             Log.log(this, Log.WARN,e);
                         }
                     }
@@ -245,9 +224,6 @@ public class MessageGuardCommander extends Job {
 
     }
 
-    /**
-     *
-     */
     private void connect() {
 
         final IPreferencesService storeAct = Platform.getPreferencesService();
@@ -281,7 +257,7 @@ public class MessageGuardCommander extends Job {
                 .getString(AmsActivator.PLUGIN_ID, AmsPreferenceKey.P_JMS_AMS_PROVIDER_URL_1, "NONE", null), storeAct
                 .getString(AmsActivator.PLUGIN_ID, AmsPreferenceKey.P_JMS_AMS_PROVIDER_URL_2, "NONE", null));
         if (!_amsReceiver.isConnected()) {
-            Log.log(this, Log.FATAL, "could not create amsReceiver");
+            Log.log(this, Log.FATAL, "Could not create amsReceiver");
         }
 
         final boolean result = _amsReceiver.createRedundantSubscriber("amsSubscriberMessageMinder",
@@ -289,7 +265,7 @@ public class MessageGuardCommander extends Job {
                         .getString(AmsActivator.PLUGIN_ID, AmsPreferenceKey.P_JMS_AMS_TSUB_MESSAGEMINDER, "NONE", null), durable);
 
         if (!result) {
-            Log.log(this, Log.FATAL, "could not create amsSubscriberMessageMinder");
+            Log.log(this, Log.FATAL, "Could not create amsSubscriberMessageMinder");
         }
 
         // --- JMS Producer Connect ---
@@ -310,7 +286,8 @@ public class MessageGuardCommander extends Job {
      */
     @Override
     protected IStatus run(final IProgressMonitor monitor) {
-        final ThreadUpdateTopicMessageMap updateTopicMessageMap = new ThreadUpdateTopicMessageMap("UpdateTopicMessageMap");
+        final ThreadUpdateTopicMessageMap updateTopicMessageMap
+                                   = new ThreadUpdateTopicMessageMap("UpdateTopicMessageMap");
         updateTopicMessageMap.schedule();
 //        updateTopicMessageMap.run(monitor);
 		patrol();
@@ -329,7 +306,7 @@ public class MessageGuardCommander extends Job {
         while (_run) {
             now = TimestampFactory.now();
 
-            while (null != (message = _amsReceiver.receive("amsSubscriberMessageMinder"))) {// receiveNoWait
+            while (null != (message = _amsReceiver.receive("amsSubscriberMessageMinder"))) {
                 // has a bug
                 // with
                 // acknowledging
@@ -544,6 +521,14 @@ public class MessageGuardCommander extends Job {
 
     public synchronized void setRun(final boolean run) {
         _run = run;
+    }
+
+    public synchronized boolean isRunningUpdateTopicMessageMap() {
+        return _runUpdateTopicMessageMap;
+    }
+
+    public synchronized ConcurrentHashMap<String, Boolean> getTopicMessageMap() {
+        return _topicMessageMap;
     }
 
     @Override

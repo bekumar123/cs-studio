@@ -44,6 +44,7 @@ import org.eclipse.gef.ui.actions.ZoomOutAction;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -92,6 +93,12 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
     private Shell _shell;
     
     private Point parentLocation;
+    private Point defaultLocation;
+    private Point defaultSize;
+
+	private final RunModeBoxLayoutData lastLayoutDataOrNull;
+
+	private ZoomManager zoomManager;
     
     /**
      * Constructor.
@@ -99,8 +106,9 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
      * @param input
      *            the input
      */
-    public ShellRunModeBox(RunModeBoxInput input, Point parentLocation) {
+    public ShellRunModeBox(RunModeBoxInput input, Point parentLocation, RunModeBoxLayoutData lastLayoutDataOrNull) {
         super(input);
+		this.lastLayoutDataOrNull = lastLayoutDataOrNull;
         
         if (parentLocation != null) {
             this.parentLocation = parentLocation;
@@ -120,11 +128,16 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
                                      final String title) {
         List<RunModeBoxInput> predecessors = getPredecessors(getInput());
         
+        this.defaultLocation = new Point(x, y);
+        this.defaultSize = new Point(width, height);
+        
         // create a shell
         _shell = new Shell();
         _shell.setText(title);
         if (openRelative) {
             _shell.setLocation(parentLocation.x + x, parentLocation.y + y);
+        } else if (lastLayoutDataOrNull != null) {
+        	_shell.setLocation(lastLayoutDataOrNull.getPosition());
         } else {
             _shell.setLocation(x, y);
         }
@@ -180,10 +193,20 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
             Point size = navigation.computeSize(width, SWT.DEFAULT);
             fullHeight = fullHeight + size.y;
         }
-        _shell.setSize(fullWidth + SCROLLBAR_MARGIN, fullHeight + SHELL_BORDER + SCROLLBAR_MARGIN);
+        
+    	if (lastLayoutDataOrNull != null) {
+    		_shell.setSize(lastLayoutDataOrNull.getSize());
+    	} else {
+    		_shell.setSize(fullWidth + SCROLLBAR_MARGIN, fullHeight + SHELL_BORDER + SCROLLBAR_MARGIN);
+    	}
         
         // configure a graphical viewer
         final GraphicalViewer graphicalViewer = createGraphicalViewer(c);
+        
+        RootEditPart rootEditPart = graphicalViewer.getRootEditPart();
+		if(rootEditPart instanceof ScalableFreeformRootEditPart) {
+        	zoomManager = ((ScalableFreeformRootEditPart)rootEditPart).getZoomManager();
+        }
         
         ActionRegistry actionRegistry = new ActionRegistry();
         this.createActions(actionRegistry);
@@ -217,6 +240,11 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
                 dispose();
             }
         });
+        
+        if(lastLayoutDataOrNull != null && zoomManager != null) {
+        	// restore zoom level
+        	zoomManager.setZoom(lastLayoutDataOrNull.getZoomFactor());
+        }
         
         // open the shell
         _shell.open();
@@ -315,23 +343,39 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
         RootEditPart rootEditPart = graphicalViewer.getRootEditPart();
         
         if (rootEditPart instanceof ScalableFreeformRootEditPart) {
-            final ZoomManager zm = ((ScalableFreeformRootEditPart) rootEditPart).getZoomManager();
-            
             final List<String> zoomLevels = new ArrayList<String>(3);
             zoomLevels.add(ZoomManager.FIT_ALL);
             zoomLevels.add(ZoomManager.FIT_WIDTH);
             zoomLevels.add(ZoomManager.FIT_HEIGHT);
-            zm.setZoomLevelContributions(zoomLevels);
+            zoomManager.setZoomLevelContributions(zoomLevels);
             
-            if (zm != null) {
-                MenuManager zoomManager = new MenuManager("Zoom");
-                final IAction zoomIn = new ZoomInAction(zm);
-                final IAction zoomOut = new ZoomOutAction(zm);
+            if (zoomManager != null) {
+                MenuManager zoomMenuManager = new MenuManager("Zoom");
+                final IAction zoomIn = new ZoomInAction(zoomManager);
+                final IAction zoomOut = new ZoomOutAction(zoomManager);
                 
-                zoomManager.add(zoomIn);
-                zoomManager.add(zoomOut);
+                zoomMenuManager.add(zoomIn);
+                zoomMenuManager.add(zoomOut);
                 
-                menuManager.add(zoomManager);
+                menuManager.add(zoomMenuManager);
+                
+                zoomMenuManager.add(new Separator());
+                IAction resetSizeAndPositionAction = new Action() {
+					@Override
+					public void run() {
+						_shell.setLocation(defaultLocation);
+						_shell.setSize(defaultSize);
+						if(zoomManager != null) {
+							zoomManager.setZoom(1);
+						}
+					}
+					
+					@Override
+					public String getText() {
+						return "Reset window layout";
+					}
+				};
+				zoomMenuManager.add(resetSizeAndPositionAction);
             }
             
             MenuManager layerManager = new MenuManager("Layers");

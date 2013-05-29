@@ -32,6 +32,7 @@ import org.csstudio.sds.model.DisplayModel;
 import org.csstudio.sds.ui.internal.runmode.AbstractRunModeBox;
 import org.csstudio.sds.ui.internal.runmode.DisplayViewPart;
 import org.csstudio.sds.ui.internal.runmode.IRunModeDisposeListener;
+import org.csstudio.sds.ui.internal.runmode.RunModeBoxLayoutStateServiceImpl;
 import org.csstudio.sds.ui.internal.runmode.ShellRunModeBox;
 import org.csstudio.sds.ui.internal.runmode.ViewRunModeBox;
 import org.eclipse.core.runtime.IPath;
@@ -49,7 +50,8 @@ import org.slf4j.LoggerFactory;
  * @author Sven Wende
  */
 public final class RunModeService {
-    private static final Logger LOG = LoggerFactory.getLogger(RunModeService.class);
+	private static final Logger LOG = LoggerFactory
+			.getLogger(RunModeService.class);
 
 	private static final String SEPARATOR = "°°°";
 
@@ -65,12 +67,15 @@ public final class RunModeService {
 
 	private ArrayList<IOpenDisplayListener> _openDisplayListener;
 
+	private RunModeBoxLayoutStateServiceImpl _runModeBoxLayoutService;
+
 	/**
 	 * Constructor.
 	 */
 	private RunModeService() {
 		_activeBoxes = new HashMap<RunModeBoxInput, AbstractRunModeBox>();
 		_openDisplayListener = new ArrayList<IOpenDisplayListener>();
+		_runModeBoxLayoutService = new RunModeBoxLayoutStateServiceImpl();
 	}
 
 	/**
@@ -107,7 +112,7 @@ public final class RunModeService {
 				aliases, RunModeType.SHELL);
 
 		runModeBoxInput.setPredecessorBox(predecessor);
-		
+
 		Point location = null;
 		if (_activeBoxes.containsKey(predecessor)) {
 			AbstractRunModeBox runModeBox = _activeBoxes.get(predecessor);
@@ -144,12 +149,17 @@ public final class RunModeService {
 
 					@Override
 					public void displayClosed() {
-						notifyOpenDisplayListener();						
+						notifyOpenDisplayListener();
+					}
+
+					@Override
+					public void displayWillClose() {
+						handleDisplayClosed(runModeBoxInput, runModeBox);
 					}
 				});
 			} catch (IllegalArgumentException e) {
 				LOG.info("Cannot open run mode: " + path.toOSString()
-								+ " does not exist.");
+						+ " does not exist.");
 				MessageDialog.openError(null, "Control System Studio",
 						"The display file was not found: " + path.toString());
 			}
@@ -290,10 +300,15 @@ public final class RunModeService {
 					public void displayClosed() {
 						notifyOpenDisplayListener();
 					}
+
+					@Override
+					public void displayWillClose() {
+						// nothing to do
+					}
 				});
 			} catch (IllegalArgumentException e) {
 				LOG.info("Cannot open run mode: " + path.toOSString()
-								+ " does not exist.");
+						+ " does not exist.");
 				MessageDialog.openError(null, "Control System Studio",
 						"The display file was not found: " + path.toString());
 			}
@@ -325,6 +340,7 @@ public final class RunModeService {
 			}
 		}
 	}
+
 	public DisplayModel[] getAllActiveDisplayModels() {
 		List<DisplayModel> displays = new ArrayList<DisplayModel>();
 		for (AbstractRunModeBox box : _activeBoxes.values()) {
@@ -337,16 +353,15 @@ public final class RunModeService {
 		return new ArrayList<RunModeBoxInput>(_activeBoxes.keySet());
 	}
 
-	public void addOpenDisplayListener(
-			IOpenDisplayListener openDisplayListener) {
+	public void addOpenDisplayListener(IOpenDisplayListener openDisplayListener) {
 		_openDisplayListener.add(openDisplayListener);
 	}
-	
+
 	public void removeOpenDisplayListener(
 			IOpenDisplayListener openDisplayListener) {
 		_openDisplayListener.remove(openDisplayListener);
 	}
-	
+
 	private void notifyOpenDisplayListener() {
 		for (IOpenDisplayListener listener : _openDisplayListener) {
 			listener.openDisplayChanged();

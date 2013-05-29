@@ -355,4 +355,21 @@ public class DeliverySystemApplication implements IApplication,
         }
         deliveryWorker.clear();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void drainTopic(String topicId) {
+        Enumeration<AbstractDeliveryWorker> worker = deliveryWorker.keys();
+        while (worker.hasMoreElements()) {
+            AbstractDeliveryWorker o = worker.nextElement();
+            if (o != null) {
+                if (o.getTopicId().compareToIgnoreCase(topicId) == 0) {
+                    o.drainTopic();
+                    break;
+                }
+            }
+        }
+    }
 }

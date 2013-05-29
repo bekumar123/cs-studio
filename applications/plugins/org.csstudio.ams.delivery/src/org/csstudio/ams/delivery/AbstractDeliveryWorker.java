@@ -26,29 +26,39 @@
 package org.csstudio.ams.delivery;
 
 /**
- * TODO (mmoeller) : 
- * 
  * @author mmoeller
  * @version 1.0
  * @since 10.12.2011
  */
 public abstract class AbstractDeliveryWorker implements Runnable {
-    
+
     /** The name of the worker */
     protected String workerName;
-    
+
+    protected String topicId;
+
     /**
      * Forces the worker to stop its work.
      */
     public abstract void stopWorking();
-    
+
     public abstract boolean isWorking();
-    
+
+    public abstract void drainTopic();
+
     public void setWorkerName(String name) {
         workerName = name;
     }
-    
+
     public String getWorkerName() {
         return workerName;
+    }
+
+    public void setTopicId(String id) {
+        topicId = id;
+    }
+
+    public String getTopicId() {
+        return topicId;
     }
 }

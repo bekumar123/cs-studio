@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * @since 10.12.2011
  */
 public class EMailDeliveryWorker extends AbstractDeliveryWorker {
-    
+
     public final static int STAT_INIT = 0;
     public final static int STAT_OK = 1;
     public final static int STAT_ERR_EMAIL = 2;
@@ -50,19 +50,19 @@ public class EMailDeliveryWorker extends AbstractDeliveryWorker {
     public final static int STAT_ERR_UNKNOWN = 5;
 
     private static final Logger LOG = LoggerFactory.getLogger(EMailDeliveryWorker.class);
-    
+
     private JmsAsyncConsumer amsConsumer;
-    
+
     private OutgoingEMailQueue messageQueue;
-    
+
     private EMailWorkerProperties emailProps;
-    
+
     private EMailDevice mailDevice;
-    
+
     private EMailWorkerStatus workerStatus;
-    
+
     private boolean running;
-    
+
     /**
      * Constructor.
      */
@@ -75,15 +75,15 @@ public class EMailDeliveryWorker extends AbstractDeliveryWorker {
         running = true;
         initJms();
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void run() {
-        
+
         LOG.info(workerName + " is running.");
-                
+
         while(running) {
             synchronized (this) {
                 try {
@@ -111,17 +111,17 @@ public class EMailDeliveryWorker extends AbstractDeliveryWorker {
 
         mailDevice.stopDevice();
         closeJms();
-        
+
         LOG.info("{} is leaving.", workerName);
     }
-    
+
     private boolean initJms() {
-        
+
         boolean result = false;
 
         try  {
             IPreferencesService prefs = Platform.getPreferencesService();
-            
+
             String value = prefs.getString(AmsActivator.PLUGIN_ID,
                                            AmsPreferenceKey.P_JMS_AMS_CREATE_DURABLE,
                                            "false",
@@ -170,13 +170,13 @@ public class EMailDeliveryWorker extends AbstractDeliveryWorker {
         return false;
 
     }
-    
+
     private void closeJms() {
         if (amsConsumer != null) {
             amsConsumer.closeAll();
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -191,5 +191,14 @@ public class EMailDeliveryWorker extends AbstractDeliveryWorker {
     @Override
     public boolean isWorking() {
         return workerStatus.isOk();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void drainTopic() {
+        // TODO Auto-generated method stub
+
     }
 }

@@ -38,6 +38,27 @@
             id="org.csstudio.ams.application.deliverysystem.RestartWorker"
             label="Restart Delivery Worker">
       </command>
+      <command
+            class="org.csstudio.ams.application.deliverysystem.management.DrainTopicsCmd"
+            id="org.csstudio.ams.application.deliverysystem.DrainTopics"
+            label="Drain Topics">
+         <enumerationParameter
+               id="Topic"
+               label="Topic">
+            <enumerationValue
+                  label="E-Mail"
+                  value="org.csstudio.ams.application.deliverysystem.value.EMail">
+            </enumerationValue>
+            <enumerationValue
+                  label="SMS"
+                  value="org.csstudio.ams.application.deliverysystem.value.Sms">
+            </enumerationValue>
+            <enumerationValue
+                  label="Voicemail"
+                  value="org.csstudio.ams.application.deliverysystem.value.Voicemail">
+            </enumerationValue>
+         </enumerationParameter>
+      </command>
    </extension>
    <extension
          id="AmsDeliveryProduct"

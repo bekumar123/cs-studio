@@ -77,7 +77,7 @@ public class SmsDeliveryWorker extends AbstractDeliveryWorker implements Message
     private final SmsDeliveryDevice smsDevice;
 
     private final ModemInfoContainer modemInfo;
-    
+
     private SmsWorkerStatus workerStatus;
 
     private boolean running;
@@ -124,7 +124,7 @@ public class SmsDeliveryWorker extends AbstractDeliveryWorker implements Message
         LOG.info("maxPollingTime: {}", maxPollingTime);
 
         workerStatus = new SmsWorkerStatus(maxPollingTime);
-        
+
         smsDevice = new SmsDeliveryDevice(modemInfo,
                                           new JmsProperties(factoryClass, url, topic),
                                           readWaitingPeriod,
@@ -151,7 +151,7 @@ public class SmsDeliveryWorker extends AbstractDeliveryWorker implements Message
                 try {
                     if (outgoingQueue.isEmpty() && incomingQueue.isEmpty()) {
                         this.wait();
-                    } 
+                    }
                 } catch (final InterruptedException ie) {
                     LOG.error("I have been interrupted.");
                 }
@@ -450,5 +450,14 @@ public class SmsDeliveryWorker extends AbstractDeliveryWorker implements Message
     @Override
     public boolean isWorking() {
         return workerStatus.isOk();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void drainTopic() {
+        // TODO Auto-generated method stub
+
     }
 }

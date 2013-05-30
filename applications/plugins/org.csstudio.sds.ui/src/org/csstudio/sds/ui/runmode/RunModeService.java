@@ -119,8 +119,10 @@ public final class RunModeService {
 			box.bringToTop();
 		} else {
 			try {
-				final AbstractRunModeBox runModeBox = new ShellRunModeBox(
-						runModeBoxInput, location);
+				final ShellRunModeBox runModeBox = new ShellRunModeBox(
+						runModeBoxInput, location,
+						_runModeBoxLayoutService
+								.getBoxLayoutDataForDisplay(runModeBoxInput.getFilePath().toFile().getName(), aliases));
 
 				// memorize box
 				_activeBoxes.put(runModeBoxInput, runModeBox);
@@ -323,13 +325,16 @@ public final class RunModeService {
 			}
 		}
 	}
-	
-	public DisplayModel[] getAllActivDisplayModels() {
+	public DisplayModel[] getAllActiveDisplayModels() {
 		List<DisplayModel> displays = new ArrayList<DisplayModel>();
 		for (AbstractRunModeBox box : _activeBoxes.values()) {
 			displays.add(box.getDisplayModel());
 		}
 		return displays.toArray(new DisplayModel[displays.size()]);
+	}
+	
+	public List<RunModeBoxInput> getAllRunModeBoxInputs() {
+		return new ArrayList<RunModeBoxInput>(_activeBoxes.keySet());
 	}
 
 	public void addOpenDisplayListener(
@@ -348,4 +353,17 @@ public final class RunModeService {
 		}
 	}
 
+	private void handleDisplayClosed(RunModeBoxInput closedRunModeBoxInput,
+			ShellRunModeBox runModeBox) {
+		if (runModeBox.hasShell()) {
+			String displayName = closedRunModeBoxInput.getFilePath().toFile()
+					.getName();
+
+			_runModeBoxLayoutService.setLayoutDataForDisplay(displayName,
+					closedRunModeBoxInput.getAliases(),
+					runModeBox.getCurrentLocation(),
+					runModeBox.getCurrentSize(),
+					runModeBox.getCurrentZoomFactor());
+		}
+	}
 }

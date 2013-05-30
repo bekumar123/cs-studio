@@ -40,6 +40,7 @@ Export-Package: org.csstudio.sds.ui;
    org.csstudio.sds.ui.internal.editor.newproperties.colorservice,
    org.eclipse.ui.plugin,
    org.osgi.framework",
+ org.csstudio.sds.ui.autostart,
  org.csstudio.sds.ui.editparts;
   uses:="org.eclipse.core.runtime,
    org.csstudio.dal.simple,

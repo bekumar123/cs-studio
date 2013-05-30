@@ -446,9 +446,38 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
         }
     }
     
-    @Override
-    public Point getCurrentLocation() {
-        return _shell.getLocation();
+    public boolean hasShell() {
+    	return _shell != null;
     }
     
+    @Override
+    public Point getCurrentLocation() {
+    	Point result = null;
+    	
+    	if(hasShell()) {
+    		result = _shell.getLocation(); 
+    	}
+    	
+        return result; 
+    }
+    
+    public Point getCurrentSize() {
+    	Point result = null;
+    	
+    	if(hasShell()) {
+    		result = _shell.getSize(); 
+    	}
+    	
+    	return result; 
+    }
+    
+    public double getCurrentZoomFactor() {
+    	double result = 1;
+    	
+    	if(zoomManager != null) {
+    		result = zoomManager.getZoom();
+    	}
+    	
+    	return result;
+    }
 }

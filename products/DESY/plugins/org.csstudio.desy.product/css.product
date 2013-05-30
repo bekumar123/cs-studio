@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="CSS" uid="csstudioDESY" id="org.csstudio.desy.product.product" application="org.csstudio.desy.product.application" version="1.5.0.201304241100" useFeatures="true" includeLaunchers="true">
+<product name="CSS" uid="csstudioDESY" id="org.csstudio.desy.product.product" application="org.csstudio.desy.product.application" version="1.5.0.201305301100" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/org.csstudio.desy.product/resources/css64x64.gif"/>
@@ -58,6 +58,7 @@ HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
       <solaris include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6</solaris>
       <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6</windows>
    </vm>
+
 
    <plugins>
       <plugin id="com.ibm.icu"/>
@@ -174,15 +175,15 @@ HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
    <features>
       <feature id="org.csstudio.desy.platform.eclipse.feature" version="1.0.0.201212201100"/>
       <feature id="org.csstudio.desy.platform.eclipse.team.feature" version="1.0.0.201212201100"/>
-      <feature id="org.csstudio.desy.platform.base.feature" version="1.0.0.201304241100"/>
+      <feature id="org.csstudio.desy.platform.base.feature" version="1.0.0.201305301100"/>
       <feature id="org.csstudio.desy.platform.user.feature" version="1.0.0.201212201100"/>
       <feature id="org.csstudio.desy.library.feature" version="1.0.0.201304241100"/>
       <feature id="org.csstudio.desy.snl.feature" version="1.0.0.201212201100"/>
       <feature id="org.csstudio.desy.sds.feature" version="1.0.0.201304241100"/>
       <feature id="org.csstudio.desy.dct.feature" version="1.0.0.201302211400"/>
       <feature id="org.csstudio.desy.pv.feature" version="1.0.0.201302281100"/>
-      <feature id="org.csstudio.desy.alarm.feature" version="1.0.0.201304181400"/>
-      <feature id="org.csstudio.desy.desytools.feature" version="1.0.0.201304241100"/>
+      <feature id="org.csstudio.desy.alarm.feature" version="1.0.0.201305301100"/>
+      <feature id="org.csstudio.desy.desytools.feature" version="1.0.0.201305301100"/>
       <feature id="org.csstudio.desy.development.feature" version="1.0.0.201212201100"/>
    </features>
 

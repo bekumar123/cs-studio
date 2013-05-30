@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.csstudio.sds.internal.runmode.RunModeBoxInput;
 import org.csstudio.sds.internal.runmode.RunModeType;
@@ -128,8 +127,7 @@ public final class RunModeService {
 				final ShellRunModeBox runModeBox = new ShellRunModeBox(
 						runModeBoxInput, location,
 						_runModeBoxLayoutService
-								.getBoxLayoutDataForDisplay(runModeBoxInput
-										.getFilePath().toFile().getName()));
+								.getBoxLayoutDataForDisplay(runModeBoxInput.getFilePath().toFile().getName(), aliases));
 
 				// memorize box
 				_activeBoxes.put(runModeBoxInput, runModeBox);
@@ -343,12 +341,16 @@ public final class RunModeService {
 		}
 	}
 
-	public DisplayModel[] getAllActivDisplayModels() {
+	public DisplayModel[] getAllActiveDisplayModels() {
 		List<DisplayModel> displays = new ArrayList<DisplayModel>();
 		for (AbstractRunModeBox box : _activeBoxes.values()) {
 			displays.add(box.getDisplayModel());
 		}
 		return displays.toArray(new DisplayModel[displays.size()]);
+	}
+	
+	public List<RunModeBoxInput> getAllRunModeBoxInputs() {
+		return new ArrayList<RunModeBoxInput>(_activeBoxes.keySet());
 	}
 
 	public void addOpenDisplayListener(IOpenDisplayListener openDisplayListener) {
@@ -368,11 +370,15 @@ public final class RunModeService {
 
 	private void handleDisplayClosed(RunModeBoxInput closedRunModeBoxInput,
 			ShellRunModeBox runModeBox) {
-		String displayName = closedRunModeBoxInput.getFilePath().toFile()
-				.getName();
+		if (runModeBox.hasShell()) {
+			String displayName = closedRunModeBoxInput.getFilePath().toFile()
+					.getName();
 
-		_runModeBoxLayoutService.setLayoutDataForDisplay(displayName,
-				runModeBox.getCurrentLocation(), runModeBox.getCurrentSize(), runModeBox.getCurrentZoomFactor());
+			_runModeBoxLayoutService.setLayoutDataForDisplay(displayName,
+					closedRunModeBoxInput.getAliases(),
+					runModeBox.getCurrentLocation(),
+					runModeBox.getCurrentSize(),
+					runModeBox.getCurrentZoomFactor());
+		}
 	}
-
 }

@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.csstudio.domain.desy.types.Tuple;
 import org.csstudio.sds.ui.SdsUiPlugin;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.swt.graphics.Point;
@@ -18,78 +19,56 @@ public class RunModeBoxLayoutStateServiceImpl {
 
 	private static final String RUN_MODE_BOX_LAYOUT_DATA_FILE = "runModeBoxLayoutData";
 
-	private Map<String, RunModeBoxLayoutData> displayFileNameToLayoutData;
+	private Map<Tuple<String, Map<String, String>>, RunModeBoxLayoutData> displayFileNameToLayoutData;
 	
 
-	@SuppressWarnings("unchecked")
 	public RunModeBoxLayoutStateServiceImpl() {
 		File layoutDataPersistenceFile = getLayoutDataPersistenceFile();
 
 		if (layoutDataPersistenceFile.exists()) {
-			ObjectInputStream mapInputStream = null;
-			try {
-				mapInputStream = new ObjectInputStream(new FileInputStream(
-						layoutDataPersistenceFile));
-				displayFileNameToLayoutData = (Map<String, RunModeBoxLayoutData>) mapInputStream
-						.readObject();
-			} catch (Throwable e) {
-				e.printStackTrace();
-				createNewLayoutMaps();
-			} finally {
-				try {
-					if (mapInputStream != null) {
-						mapInputStream.close();
-					}
-				} catch (IOException e) {}
-			}
+			readLayoutDataFromPersistenceFile(layoutDataPersistenceFile);
 		} else {
-			createNewLayoutMaps();
+			createNewLayoutDataMap();
 		}
 	}
-	
-	public boolean existsPositionForDisplay(String displayName) {
-		return displayFileNameToLayoutData.containsKey(displayName);
+
+	public RunModeBoxLayoutData getBoxLayoutDataForDisplay(String displayName, Map<String, String> aliases) {
+		return displayFileNameToLayoutData.get(new Tuple<String, Map<String, String>>(displayName, aliases));
 	}
 	
-	public Point getPositionForDisplay(String displayName) {
-		Point result = null;
-		
-		RunModeBoxLayoutData runModeBoxLayoutData = displayFileNameToLayoutData.get(displayName);
-		if(runModeBoxLayoutData != null) {
-			result = runModeBoxLayoutData.getPosition(); 
-		}
-		
-		return result;
-	}
-	
-	public Point getSizeForDisplay(String displayName) {
-		Point result = null;
-		
-		RunModeBoxLayoutData runModeBoxLayoutData = displayFileNameToLayoutData.get(displayName);
-		if(runModeBoxLayoutData != null) {
-			result = runModeBoxLayoutData.getSize(); 
-		}
-		
-		return result;
-	}
-	
-	public RunModeBoxLayoutData getBoxLayoutDataForDisplay(String displayName) {
-		return displayFileNameToLayoutData.get(displayName);
-	}
-	
-	public void setLayoutDataForDisplay(String displayName, Point position, Point size, double zoomFactor) {
+	public void setLayoutDataForDisplay(String displayName, Map<String, String> aliases, Point position, Point size, double zoomFactor) {
 		RunModeBoxLayoutData layoutData = new RunModeBoxLayoutData(displayName, position, size, zoomFactor);
-		displayFileNameToLayoutData.put(displayName, layoutData);
+		displayFileNameToLayoutData.put(new Tuple<String, Map<String, String>>(displayName, aliases), layoutData);
 		writeLayoutToPersistenceFile();
 	}
 	
 	public void resetPositions() {
-		createNewLayoutMaps();
+		createNewLayoutDataMap();
 		writeLayoutToPersistenceFile();
 	}
 
-	private void createNewLayoutMaps() {
-		this.displayFileNameToLayoutData = new HashMap<String, RunModeBoxLayoutData>();
+	private void createNewLayoutDataMap() {
+		this.displayFileNameToLayoutData = new HashMap<Tuple<String,Map<String,String>>, RunModeBoxLayoutData>();
+	}
+
+	@SuppressWarnings("unchecked")
+	private void readLayoutDataFromPersistenceFile(File layoutDataPersistenceFile) {
+		ObjectInputStream mapInputStream = null;
+		try {
+			mapInputStream = new ObjectInputStream(new FileInputStream(
+					layoutDataPersistenceFile));
+			displayFileNameToLayoutData = (Map<Tuple<String, Map<String, String>>, RunModeBoxLayoutData>) mapInputStream
+					.readObject();
+		} catch (Throwable e) {
+			e.printStackTrace();
+			createNewLayoutDataMap();
+		} finally {
+			try {
+				if (mapInputStream != null) {
+					mapInputStream.close();
+				}
+			} catch (IOException e) {}
+		}
 	}
 
 	private void writeLayoutToPersistenceFile() {
@@ -105,10 +84,8 @@ public class RunModeBoxLayoutStateServiceImpl {
 			outputStream.writeObject(displayFileNameToLayoutData);
 
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			try {

@@ -41,6 +41,7 @@ public class RunModeBoxAutostartService implements IRunModeBoxAutostartService {
 
 				restoredBoxInputs = (List<Tuple<String, Map<String, String>>>) mapInputStream.readObject();
 			} catch (Throwable e) {
+				restoredBoxInputs = new ArrayList<Tuple<String, Map<String, String>>>();
 				e.printStackTrace();
 			} finally {
 				try {
@@ -49,6 +50,8 @@ public class RunModeBoxAutostartService implements IRunModeBoxAutostartService {
 					}
 				} catch (IOException e) {}
 			}
+		} else {
+			restoredBoxInputs = new ArrayList<Tuple<String, Map<String, String>>>();
 		}
 	}
 	

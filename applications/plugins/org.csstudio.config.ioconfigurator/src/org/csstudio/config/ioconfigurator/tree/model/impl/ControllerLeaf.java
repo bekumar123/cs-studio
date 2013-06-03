@@ -156,7 +156,7 @@ public class ControllerLeaf extends AbstractControllerNode implements
             } else {
                 StringBuilder value = new StringBuilder();
                 for (NamingEnumeration<?> j = att.getAll(); j.hasMore();) {
-                    value.append(j.next() + " ");
+                    value.append(j.next());
                 }
                 _properties.put(i, value.toString());
             }

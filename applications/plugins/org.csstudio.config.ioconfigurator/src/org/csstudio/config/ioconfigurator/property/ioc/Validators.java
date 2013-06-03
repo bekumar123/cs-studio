@@ -26,9 +26,20 @@ package org.csstudio.config.ioconfigurator.property.ioc;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import javax.naming.InvalidNameException;
+import javax.naming.directory.SearchControls;
+import javax.naming.ldap.LdapName;
+
+import org.csstudio.config.ioconfigurator.activator.Activator;
 import org.csstudio.config.ioconfigurator.annotation.Nonnull;
+import org.csstudio.utility.ldap.service.ILdapSearchResult;
+import org.csstudio.utility.ldap.service.ILdapService;
 import org.csstudio.utility.ldap.treeconfiguration.LdapFieldsAndAttributes;
 import org.eclipse.jface.dialogs.IInputValidator;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * Validators used in this plug-in.
@@ -81,9 +92,42 @@ public enum Validators {
                 return e.getMessage();
             }
         }
+    }),
+
+    /**
+     * IP validator.
+     */
+    EPICS_IP_ADDRESS_IP_VALIDATOR(new IInputValidator() {
+
+        @Override
+        public String isValid(final String newText) {
+            try {
+                InetAddress.getByName(newText);
+                
+                LdapName ldapName = new LdapName("ou=EpicsControls");
+                
+                ILdapSearchResult searchResult = LDAP_SERVICE.retrieveSearchResultSynchronously(ldapName,
+                        "epicsIpAddress=" + newText, SearchControls.SUBTREE_SCOPE);
+              
+                if (searchResult.getAnswerSet().size() > 0) {
+                    return "Error: IP-Address already in use.";
+                }
+                return null;
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+                return e.getMessage();
+            } catch (InvalidNameException e) {
+                e.printStackTrace();
+                return e.getMessage();
+            }
+        }
     });
 
     private final IInputValidator _validator;
+
+    private static ILdapService LDAP_SERVICE = Activator.getDefault().getLdapService();
+
+    private static final Shell SHELL = PlatformUI.getWorkbench().getDisplay().getActiveShell();
 
     /**
      * Constructor.

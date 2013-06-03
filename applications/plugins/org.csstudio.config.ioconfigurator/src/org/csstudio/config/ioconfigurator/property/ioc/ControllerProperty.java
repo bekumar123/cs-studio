@@ -58,8 +58,7 @@ public enum ControllerProperty {
     HW_NAME("epicsHwName", "Hardware name", "", Validators.IP_VALIDATOR
             .getValidator()),
 
-    IP_ADDRESS("epicsIPAddress", "IP Address", "", Validators.IP_VALIDATOR
-            .getValidator()),
+    IP_ADDRESS("epicsIPAddress", "IP Address", "", Validators.EPICS_IP_ADDRESS_IP_VALIDATOR.getValidator()),
 
     IP_ADDRESS_REDUNDANT("epicsIPAddressR",
                          "Redundant IP Address",

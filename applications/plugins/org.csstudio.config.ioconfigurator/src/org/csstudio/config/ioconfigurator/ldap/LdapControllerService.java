@@ -142,6 +142,7 @@ public final class LdapControllerService {
 
         ModificationItem item = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
                 property.getName(), val));
+        
         LDAP_SERVICE.modifyAttributes(node.getLdapName(), new ModificationItem[] { item });
     }
 

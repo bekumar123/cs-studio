@@ -32,15 +32,16 @@ import org.csstudio.config.ioconfigurator.annotation.Nullable;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerNode;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerSubtreeNode;
 import org.csstudio.utility.ldap.treeconfiguration.LdapEpicsControlsConfiguration;
+import org.csstudio.utility.ldap.treeconfiguration.LdapServerType;
 
 import com.google.common.collect.Lists;
 
 /**
- * This abstract class servers as a parent class for the {@code ControllerSubtreeNode}
- * and {@code ControllerLeaf}.
- *
+ * This abstract class servers as a parent class for the
+ * {@code ControllerSubtreeNode} and {@code ControllerLeaf}.
+ * 
  * It provides the basic implementation of methods equal to both classes.
- *
+ * 
  * @author tslamic
  * @author $Author: tslamic $
  * @version $Revision: 1.1 $
@@ -51,27 +52,31 @@ abstract class AbstractControllerNode implements IControllerNode {
     private String _nodeName;
     private IControllerSubtreeNode _parent;
     /*
-     * The following field is determined by LDAP server.
-     * It cannot be modified, thus declared final.
+     * The following field is determined by LDAP server. It cannot be modified,
+     * thus declared final.
      */
     private final LdapEpicsControlsConfiguration _configurationType;
 
     /**
      * Constructor.
-     *
-     * @param nodeName {@code String} name of this node.
-     * @param parent {@code IControllerSubtreeNode} parent of this node.
-     * @param configurationType {@code LdapEpicsControlsConfiguration} type of this node.
+     * 
+     * @param nodeName
+     *            {@code String} name of this node.
+     * @param parent
+     *            {@code IControllerSubtreeNode} parent of this node.
+     * @param configurationType
+     *            {@code LdapEpicsControlsConfiguration} type of this node.
      * @throws IllegalArgumentException
-     *         if the parent is {@code null} but the controller is not a root.
+     *             if the parent is {@code null} but the controller is not a
+     *             root.
      */
-    AbstractControllerNode(@Nonnull final String nodeName,
-                           @Nullable final IControllerSubtreeNode parent,
-                           @Nonnull final LdapEpicsControlsConfiguration configurationType) {
-//        if (parent == null
-//                && configurationType != LdapEpicsControlsConfiguration.ROOT) {
-//            throw new IllegalArgumentException("Only root is allowed to have a null parent");
-//        }
+    AbstractControllerNode(@Nonnull final String nodeName, @Nullable final IControllerSubtreeNode parent,
+            @Nonnull final LdapEpicsControlsConfiguration configurationType) {
+        // if (parent == null
+        // && configurationType != LdapEpicsControlsConfiguration.ROOT) {
+        // throw new
+        // IllegalArgumentException("Only root is allowed to have a null parent");
+        // }
 
         _nodeName = nodeName;
         _parent = parent;
@@ -104,7 +109,16 @@ abstract class AbstractControllerNode implements IControllerNode {
         if (_parent != null) {
             name.addAll(0, _parent.getLdapName());
         }
-        return name;
+        
+        LdapName cloneOfLdapName = (LdapName)name.clone();
+        
+        if (LdapServerType.OPEN_LDAP.isActive()) {
+            if ((cloneOfLdapName.size() > 1) && (cloneOfLdapName.get(0).equals(cloneOfLdapName.get(1)))) {
+                cloneOfLdapName.remove(0);
+            }
+         }
+        
+        return cloneOfLdapName;
     }
 
     /**
@@ -149,8 +163,7 @@ abstract class AbstractControllerNode implements IControllerNode {
         }
         if (o instanceof AbstractControllerNode) {
             AbstractControllerNode node = (AbstractControllerNode) o;
-            return getName().equals(node.getName())
-                    && getConfiguration() == node.getConfiguration();
+            return getName().equals(node.getName()) && getConfiguration() == node.getConfiguration();
         }
         return false;
     }

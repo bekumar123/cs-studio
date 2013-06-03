@@ -7,11 +7,15 @@ import java.util.UUID;
 import org.csstudio.dct.model.IInstance;
 import org.csstudio.dct.model.IRecord;
 import org.csstudio.dct.model.commands.AddRecordCommand;
-import org.csstudio.dct.model.commands.RemoveRecordCommand;
+import org.csstudio.dct.model.internal.Project;
 import org.csstudio.dct.model.internal.Record;
 import org.eclipse.gef.commands.Command;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RecordSync implements ISyncModel {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Project.class);
 
     private List<IInstance> instances;
 
@@ -26,18 +30,17 @@ public class RecordSync implements ISyncModel {
      */
     public List<Command> calculateCommands() {
 
+        LOG.info("Calculating command for : " + instances.size() + " instances.");
+
         List<Command> commands = new ArrayList<Command>();
 
         for (IInstance inst : instances) {
+            LOG.info("Checking Instance: " + inst);
             if (inst.isFromLibrary()) {
                 List<IRecord> newRecords = getRecordsToAdd(inst);
+                LOG.info("Found " + newRecords.size() + " new records.");
                 for (IRecord record : newRecords) {
                     Command command = new AddRecordCommand(inst, record);
-                    commands.add(command);
-                }
-                List<IRecord> recordToRemove = getRecordsToRemove(inst);
-                for (IRecord record : recordToRemove) {
-                    Command command = new RemoveRecordCommand(record);
                     commands.add(command);
                 }
             }
@@ -63,23 +66,8 @@ public class RecordSync implements ISyncModel {
         return newRecords;
     }
 
-    /**
-     * Get a List of Records for a specific instance that are in the Project but
-     * not in the Library.
-     */
-    private List<IRecord> getRecordsToRemove(IInstance inst) {
-        List<IRecord> removeRecords = new ArrayList<IRecord>();
-        if (inst.getPrototype() != null) {
-            List<IRecord> instanceRecords = inst.getRecords();
-            for (IRecord instanceRecord : instanceRecords) {
-                if (!isInPrototype(inst, instanceRecord)) {
-                    removeRecords.add(instanceRecord);
-                }
-            }
-        }
-        return removeRecords;
-    }
-
+    int count = 0;
+    
     /**
      * Check if the given libraryRecord is in the instance.
      */
@@ -87,19 +75,6 @@ public class RecordSync implements ISyncModel {
         List<IRecord> instanceRecords = inst.getRecords();
         for (IRecord instanceRecord : instanceRecords) {
             if ((instanceRecord.getParentRecord() != null) && instanceRecord.getParentRecord().equals(libraryRecord)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Check if the given instanceRecord is in the Library.
-     */
-    private boolean isInPrototype(IInstance inst, IRecord instanceRecord) {
-        List<IRecord> protoTypeRecords = inst.getPrototype().getRecords();
-        for (IRecord protoTypeRecord : protoTypeRecords) {
-            if (protoTypeRecord.equals(instanceRecord.getParentRecord())) {
                 return true;
             }
         }

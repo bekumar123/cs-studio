@@ -20,7 +20,7 @@ public final class ChangeLibraryFileCommand extends Command {
      * @param project the project
      * @param path the path to the dbd file
      */
-    public ChangeLibraryFileCommand(IProject project,  String path) {
+    public ChangeLibraryFileCommand(final IProject project,  final String path) {
         this.project = project;
         this.currentPath = path;
         this.oldPath = project.getDbdPath();

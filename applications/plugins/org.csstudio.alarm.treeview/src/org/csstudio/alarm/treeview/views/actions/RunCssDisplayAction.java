@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * @since 17.06.2010
  */
 public final class RunCssDisplayAction extends Action {
-    private static final Logger LOG = LoggerFactory.getLogger(RunCssAlarmDisplayAction.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RunCssDisplayAction.class);
 
     private final TreeViewer _viewer;
 

@@ -34,6 +34,8 @@ public class Instance extends AbstractContainer implements IInstance {
 
     private static final long serialVersionUID = -7749937096138079752L;
 
+    private String prototypeFolder;
+
     @NotNull
     private Map<String, String> parameterValues = new HashMap<String, String>();
 
@@ -169,6 +171,16 @@ public class Instance extends AbstractContainer implements IInstance {
         return false;
     }
 
+    @Override
+    public void setPrototypeFolder(String prototypeFolder) {
+        this.prototypeFolder = prototypeFolder;
+    }
+
+    @Override
+    public String getPrototypeFolder() {
+        return prototypeFolder;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -228,7 +240,8 @@ public class Instance extends AbstractContainer implements IInstance {
 		return com.google.common.base.Objects.toStringHelper(this)
 				.add("name", this.getName())
 				.add("id", this.getId())
-                .add("container", this.getContainer())
+                .add("protoypeFolder", this.getPrototypeFolder())
+				.add("container", this.getContainer())
 				.add("parent", this.getParent())
 				.toString();
 		// @formatter:on

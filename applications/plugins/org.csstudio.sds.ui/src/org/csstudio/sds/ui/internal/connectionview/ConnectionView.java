@@ -35,7 +35,7 @@ public class ConnectionView extends ViewPart {
 		openDisplayListener = new IOpenDisplayListener() {
 			@Override
 			public void openDisplayChanged() {
-				final DisplayModel[] allActivDisplayModels = RunModeService.getInstance().getAllActivDisplayModels();
+				final DisplayModel[] allActivDisplayModels = RunModeService.getInstance().getAllActiveDisplayModels();
 				connectionTree.getTree().getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {

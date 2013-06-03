@@ -147,13 +147,6 @@ public interface IProject extends IElement {
      * @return the Prototypes Folder as an option value.
      */
     Optional<IFolder> getInstancesFolder();
-
-    /**
-     * Add content of library-project to Prototypesfolder
-     * 
-     * @param libraryProject
-     */
-    void addPrototypesToLibrary(IProject libraryProject);
     
     /**
      * Make sure that changes in the Library are propagated to the main project

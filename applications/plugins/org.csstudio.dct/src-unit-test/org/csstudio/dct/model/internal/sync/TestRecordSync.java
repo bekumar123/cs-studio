@@ -9,10 +9,8 @@ import java.util.UUID;
 import org.csstudio.dct.model.IInstance;
 import org.csstudio.dct.model.IPrototype;
 import org.csstudio.dct.model.commands.AddRecordCommand;
-import org.csstudio.dct.model.commands.RemoveRecordCommand;
 import org.csstudio.dct.model.internal.Prototype;
 import org.csstudio.dct.model.internal.Record;
-import org.csstudio.dct.model.internal.sync.RecordSync;
 import org.eclipse.gef.commands.Command;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,48 +57,6 @@ public class TestRecordSync {
         List<Command> commands = rms.calculateCommands();
         assertTrue(commands.size() == 1);
         assertTrue(commands.get(0) instanceof AddRecordCommand);
-    }
-
-    @Test
-    public void testRemoveRecord() {
-
-        instance.addRecord(new Record("test", "type", UUID.randomUUID()));
-
-        RecordSync rms = new RecordSync(instances);
-
-        List<Command> commands = rms.calculateCommands();
-        assertTrue(commands.size() == 1);
-        assertTrue(commands.get(0) instanceof RemoveRecordCommand);
-    }
-
-    @Test
-    public void testRemoveAndAddRecord() {
-
-        instance.addRecord(new Record("test2", "type", UUID.randomUUID()));
-        prototype.addRecord(new Record("test1", "type", UUID.randomUUID()));
-
-        RecordSync rms = new RecordSync(instances);
-
-        List<Command> commands = rms.calculateCommands();
-        assertTrue(commands.size() == 2);
-        assertTrue(commands.get(0) instanceof AddRecordCommand);
-        assertTrue(commands.get(1) instanceof RemoveRecordCommand);
-    }
-
-    @Test
-    public void testRemoveAndAddRecordComplex() {
-
-        instance.addRecord(new Record("test2", "type", UUID.randomUUID()));
-        instances.add(new InstanceNotFromLibrary("test", prototype, UUID.randomUUID()));
-
-        prototype.addRecord(new Record("test1", "type", UUID.randomUUID()));
-
-        RecordSync rms = new RecordSync(instances);
-
-        List<Command> commands = rms.calculateCommands();
-        assertTrue(commands.size() == 2);
-        assertTrue(commands.get(0) instanceof AddRecordCommand);
-        assertTrue(commands.get(1) instanceof RemoveRecordCommand);
     }
 
 }

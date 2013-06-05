@@ -34,6 +34,7 @@
  */
 package org.csstudio.utility.quickstart;
 
+import org.csstudio.sds.ui.autostart.IRunModeBoxAutostartService;
 import org.csstudio.sds.ui.runmode.RunModeService;
 import org.csstudio.utility.quickstart.preferences.PreferenceConstants;
 import org.csstudio.utility.quickstart.preferences.PreferenceValidator;
@@ -57,16 +58,22 @@ import org.slf4j.LoggerFactory;
  */
 public class DisplayAutoStart implements Runnable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DisplayAutoStart.class);
-    
+	private static final Logger LOG = LoggerFactory
+			.getLogger(DisplayAutoStart.class);
+
 	private static final String PLT_FILE_EXTENSION = "plt";
 	private static final String SDS_FILE_EXTENSION = "sds";
+
+	private IRunModeBoxAutostartService runModeBoxAutostartService;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void run() {
+		runModeBoxAutostartService = Activator.getDefault()
+				.getRunModeBoxAutostartService();
+
 		final IPreferenceStore preferenceStore = Activator.getDefault()
 				.getPreferenceStore();
 		final PreferenceValidator preferenceValidator = new PreferenceValidator();
@@ -99,28 +106,33 @@ public class DisplayAutoStart implements Runnable {
 		final IPath sdsFilePath = Path.fromOSString(checkedPrefItem[0]);
 		final IFile file = ResourcesPlugin.getWorkspace().getRoot()
 				.getFile(sdsFilePath);
-// TODO (jhatje): enable when Databrwoser2 is integrates in CSS
-//		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
-//
-//			@Override
-//			public void run() {
-//
-//				DB2Shell dbShell = new DB2Shell(file);
-//				dbShell.openShell();
-//			}
-//		});
+		// TODO (jhatje): enable when Databrwoser2 is integrates in CSS
+		// PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+		//
+		// @Override
+		// public void run() {
+		//
+		// DB2Shell dbShell = new DB2Shell(file);
+		// dbShell.openShell();
+		// }
+		// });
 	}
 
 	private void startSdsDidplay(final String[] checkedPrefItem) {
 		final IPath sdsFilePath = Path.fromOSString(checkedPrefItem[0]);
-		LOG.debug("open: {}", sdsFilePath);
-		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-			@Override
-            public void run() {
-				RunModeService.getInstance().openDisplayShellInRunMode(
-						sdsFilePath);
-			}
-		});
+
+		if (!runModeBoxAutostartService.containsDisplay(sdsFilePath.toString())) {
+			LOG.debug("open: {}", sdsFilePath);
+			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					RunModeService.getInstance().openDisplayShellInRunMode(
+							sdsFilePath);
+				}
+			});
+		} else {
+			LOG.debug("already open: {}", sdsFilePath);
+		}
 	}
 
 	/**

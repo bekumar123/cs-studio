@@ -24,9 +24,12 @@
 package org.csstudio.config.ioconfigurator.actions;
 
 import org.csstudio.config.ioconfigurator.annotation.Nonnull;
+import org.csstudio.config.ioconfigurator.property.ioc.wizard.CreateControllerWizard;
+import org.csstudio.config.ioconfigurator.property.ioc.wizard.PrimaryWizardPage;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerSubtreeNode;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.ui.IWorkbenchPartSite;
 
 /**
@@ -102,11 +105,11 @@ class AddControllerAction extends Action {
         //        Also, the wizard itself is throwing some odd
         //        exceptions
 
-        //        CreateControllerWizard wizard = new CreateControllerWizard();
-        //        wizard.addPage(new PrimaryWizardPage("Mandatory fields"));
-        //        WizardDialog dialog = new WizardDialog(_site.getShell(), wizard);
-        //        dialog.create();
-        //        dialog.open();
+               CreateControllerWizard wizard = new CreateControllerWizard();
+               wizard.addPage(new PrimaryWizardPage("Mandatory fields"));
+               WizardDialog dialog = new WizardDialog(_site.getShell(), wizard);
+               dialog.create();
+               dialog.open();
         MessageDialog
                 .openInformation(_site.getShell(),
                                  "Info",

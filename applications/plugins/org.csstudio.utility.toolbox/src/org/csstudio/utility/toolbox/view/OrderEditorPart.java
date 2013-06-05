@@ -70,7 +70,6 @@ public class OrderEditorPart extends AbstractCrudEditorPartTemplate<Order> imple
          }
       }
    }
-   
 
    @Override
    public void create() {

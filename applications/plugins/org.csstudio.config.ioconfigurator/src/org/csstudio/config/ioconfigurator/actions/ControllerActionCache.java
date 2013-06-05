@@ -53,6 +53,7 @@ public class ControllerActionCache {
     private final ReloadFromLdapAction _reloadLdap;
     private final RemoveControllerAction _removeController;
     private final RenameComponentAction _renameComponent;
+    private final CloneNodeAction _cloneCurrentNode;
 
     /**
      * Constructor.
@@ -69,6 +70,7 @@ public class ControllerActionCache {
         _reloadLdap = ReloadFromLdapAction.getAction(root, viewer, site);
         _removeController = RemoveControllerAction.getAction(viewer, site);
         _renameComponent = RenameComponentAction.getAction(viewer, site);
+        _cloneCurrentNode = new CloneNodeAction();
     }
 
     /**
@@ -91,6 +93,8 @@ public class ControllerActionCache {
         menuManager.add(_propertyView);
         menuManager.add(_reloadLdap);
         menuManager.add(_renameComponent.setNode(node));
+        menuManager.add(_cloneCurrentNode);
+
     }
 
 }

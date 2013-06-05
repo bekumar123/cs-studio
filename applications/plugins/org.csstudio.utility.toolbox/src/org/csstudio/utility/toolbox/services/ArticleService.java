@@ -42,13 +42,11 @@ public class ArticleService {
 	@Inject
 	private JpaQueryBuilder querybuilder;
 
-	@ClearPersistenceContextOnReturn
 	public BigDecimal getNextInternId() {
 		Query query = em.createNativeQuery("select SEQ_INTERN_ID.NextVal from dual");
 		return new BigDecimal(query.getResultList().get(0).toString());
 	}
 
-	@ClearPersistenceContextOnReturn
 	public BigDecimal createId() {
 		Query query = em.createNativeQuery("select SEQ_ARTIKEL_DATEN.NextVal from dual");
 		return new BigDecimal(query.getResultList().get(0).toString());

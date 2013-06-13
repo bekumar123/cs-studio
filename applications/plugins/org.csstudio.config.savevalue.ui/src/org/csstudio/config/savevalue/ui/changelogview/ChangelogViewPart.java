@@ -26,6 +26,8 @@ import static org.csstudio.utility.ldap.service.util.LdapUtils.any;
 import static org.csstudio.utility.ldap.treeconfiguration.LdapEpicsControlsConfiguration.IOC;
 import static org.csstudio.utility.ldap.treeconfiguration.LdapEpicsControlsConfiguration.UNIT;
 
+import java.io.File;
+import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -60,6 +62,7 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.ICellModifier;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
@@ -76,11 +79,13 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.actions.BaseSelectionListenerAction;
 import org.eclipse.ui.part.ViewPart;
@@ -316,6 +321,8 @@ public class ChangelogViewPart extends ViewPart {
 			}
 		});
 
+		createExportButton(iocBar);
+		
 		// create the table viewer
 		createTableViewer(parent);
 		_table.getTable().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -328,6 +335,94 @@ public class ChangelogViewPart extends ViewPart {
 		createContextMenu();
 	}
 
+    /**
+     * Button to export changelog entries from selected ioc.
+     *
+     * @param comp
+     */
+    private void createExportButton(final Composite comp) {
+        final Button export = new Button(comp, SWT.PUSH);
+        export.setText("Excel Export");
+
+        export.addSelectionListener(new SelectionAdapter() {
+
+            /**
+			 *
+			 */
+            @Override
+            public void widgetSelected(final SelectionEvent e) {
+        		final String ioc = _iocText.getText();
+        		if (ioc == null) {
+        			return;
+        		}
+                // File standard dialog
+                final FileDialog fileDialog = new FileDialog(Display.getDefault()
+                        .getActiveShell(), SWT.SAVE);
+                
+                // Set the text
+                fileDialog.setText("Save File");
+                // Set filter on .txt files
+                String[] pattern = new String[1];
+                pattern[0] = "*.xls";
+                fileDialog
+                        .setFilterExtensions(pattern);
+                // Put in a readable name for the filter
+                String[] format = new String[1];
+                format[0] = "Excel 97-2003 format(*.xls)";
+                fileDialog
+                        .setFilterNames(format);
+                fileDialog.setFileName(ioc + "_changelog.xls");
+                // Open Dialog and save result of selection
+                final String selected = fileDialog.open();
+
+                final File path = new File(selected);
+        		// The RMI request is run in its own thread, not in the UI thread.
+        		final Job job = new RemoteMethodCallJob(Messages.ChangelogViewPart_ChangelogRequestJob) {
+        			@Override
+        			protected IStatus runWithRmiRegistry(final Registry registry) {
+        				try {
+        					final ChangelogService cs = (ChangelogService) registry
+        							.lookup("SaveValue.changelog"); //$NON-NLS-1$
+        					final ChangelogEntry[] entries = cs.readChangelog(ioc);
+        					Display.getDefault().asyncExec(new Runnable() {
+        						@Override
+                                public void run() {
+        							ExcelMessageExporter exporter = new ExcelMessageExporter();
+        							try {
+										exporter.exportExcelFile(entries, path, COLUMN_PROPERTIES);
+									} catch (IOException e) {
+										LOG.error("IO Exception in Excel Export", e);
+									}
+        						}
+        					});
+        				} catch (final RemoteException e) {
+        					LOG.error("Could not connect to RMI registry", e); //$NON-NLS-1$
+        					showErrorDialog(
+        							Messages.ChangelogViewPart_ERRMSG_RMI_REGISTRY +
+        							e.getMessage());
+        				} catch (final NotBoundException e) {
+        					LOG.error("Changelog Service not bound in RMI registry", e); //$NON-NLS-1$
+        					showErrorDialog(
+        							Messages.ChangelogViewPart_ERRMSG_SERVICE_NOT_AVAILABLE);
+        				} catch (final SaveValueServiceException e) {
+        					LOG.error("Server reported an rrror reading the changelog", e); //$NON-NLS-1$
+        					showErrorDialog(
+        							Messages.ChangelogViewPart_ERRMSG_SERVICE_NOT_AVAILABLE +
+        							e.getMessage());
+        				}
+        				return new Status(IStatus.OK, Activator.PLUGIN_ID, ""); //$NON-NLS-1$
+        			}
+        		};
+        		final IWorkbenchSiteProgressService progressService =
+        				(IWorkbenchSiteProgressService) getSite().getAdapter(
+        						IWorkbenchSiteProgressService.class);
+        			progressService.schedule(job, 0, true);
+            }
+
+        });
+
+    }
+	
 	/**
 	 * Runs a background job to get a list of available IOCs and populates the
 	 * IOC entry field with them.

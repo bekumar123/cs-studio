@@ -37,32 +37,53 @@ public class StandardStreams {
 
     private SimpleDateFormat dateFormat;
 
+    private String fileDir;
+
     private boolean stdOutRedirected;
 
     private boolean stdErrRedirected;
 
     public StandardStreams() {
+        this(".");
+    }
+
+    public StandardStreams(String outDir) {
         dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
+        fileDir = ".";
+        if (outDir != null) {
+            fileDir = new String(outDir.trim());
+            if (!fileDir.isEmpty()) {
+                if (fileDir.endsWith(System.getProperty("file.separator")) || fileDir.endsWith("/")) {
+                    fileDir = fileDir.substring(0, fileDir.length() - 1);
+                }
+                File dir = new File(fileDir);
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+            } else {
+                fileDir = ".";
+            }
+        }
     }
 
     public void redirectStreams() {
-        File stdOut = new File("./stdout.txt");
+        File stdOut = new File(fileDir + "/stdout.txt");
         Date currentTime = new Date(System.currentTimeMillis());
         if (stdOut.exists()) {
-            stdOut.renameTo(new File("./stdout-" + dateFormat.format(currentTime) + ".txt"));
+            stdOut.renameTo(new File(fileDir + "/stdout-" + dateFormat.format(currentTime) + ".txt"));
         }
         try {
-            System.setOut(new PrintStream(new File("./stdout.txt")));
+            System.setOut(new PrintStream(new File(fileDir + "/stdout.txt")));
             stdOutRedirected = true;
         } catch (FileNotFoundException e) {
             stdOutRedirected = false;
         }
-        File stdErr = new File("./stderr.txt");
+        File stdErr = new File(fileDir + "/stderr.txt");
         if (stdErr.exists()) {
-            stdErr.renameTo(new File("./stderr-" + dateFormat.format(currentTime) + ".txt"));
+            stdErr.renameTo(new File(fileDir + "/stderr-" + dateFormat.format(currentTime) + ".txt"));
         }
         try {
-            System.setErr(new PrintStream(new File("./stderr.txt")));
+            System.setErr(new PrintStream(new File(fileDir + "/stderr.txt")));
             stdErrRedirected = true;
         } catch (FileNotFoundException e) {
             stdErrRedirected = false;

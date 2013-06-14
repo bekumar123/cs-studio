@@ -93,13 +93,13 @@ public class MessageGuardCommander extends Job {
                         final Set<String> keySet = getTopicMessageMap().keySet();
                         Boolean newValue;
 
-                        for(final String filterID : keySet) {
+                        for (final String filterID : keySet) {
                             newValue = null;
 
                             final FilterActionTObject[] actionTObject = FilterActionDAO.selectByFilter(conDb,
                                     Integer.parseInt(filterID));
 
-                            for(final FilterActionTObject o : actionTObject) {
+                            for (final FilterActionTObject o : actionTObject) {
                                 if(o.getFilterActionTypeRef() == AmsConstants.FILTERACTIONTYPE_TO_JMS) {
                                     newValue = true;
                                     break;
@@ -177,6 +177,9 @@ public class MessageGuardCommander extends Job {
     private final String[] _keyWords;
     private final Collector _messageControlTimeCollector;
     private final Collector _messageDeleteTimeCollector;
+
+    private boolean useCacheDb;
+
     private boolean _run = true;
 
     private final ConcurrentHashMap<String, Boolean> _topicMessageMap;
@@ -187,7 +190,7 @@ public class MessageGuardCommander extends Job {
      * @param name
      *            The name of this Job.
      */
-    public MessageGuardCommander(final String name) {
+    public MessageGuardCommander(String name, boolean useCacheDb) {
         super(name);
         _topicMessageMap = new ConcurrentHashMap<String, Boolean>();
         IPreferencesService pref = Platform.getPreferencesService();
@@ -222,6 +225,7 @@ public class MessageGuardCommander extends Job {
         _messageControlTimeCollector.setDescriptor("Time to Control a Message [ns]");
         _messageControlTimeCollector.setContinuousPrint(true);
 
+        this.useCacheDb = useCacheDb;
     }
 
     private void connect() {
@@ -273,9 +277,10 @@ public class MessageGuardCommander extends Job {
                 .getString(AmsActivator.PLUGIN_ID, AmsPreferenceKey.P_JMS_AMS_SENDER_PROVIDER_URL, "NONE", null) };
         _amsProducer = new JmsRedundantProducer("AmsMassageMinderWorkProducerInternal", urls);
         // TODO: remove debug settings
-        _producerID = _amsProducer.createProducer(storeAct.getString(AmsActivator.PLUGIN_ID, AmsPreferenceKey.P_JMS_AMS_TOPIC_DISTRIBUTOR, "NONE", null));
-//        _producerID = _amsProducer.createProducer("MESSAGE_MINDER_TEST");
-        // _producerID = _amsProducer.createProducer("T_HELGE_TEST_OUT");
+        _producerID = _amsProducer.createProducer(storeAct.getString(AmsActivator.PLUGIN_ID,
+                                                                     AmsPreferenceKey.P_JMS_AMS_TOPIC_DISTRIBUTOR,
+                                                                     "NONE",
+                                                                     null));
 
         // --- Derby DB Connect ---
         // initApplicationDb();
@@ -330,11 +335,9 @@ public class MessageGuardCommander extends Job {
             }
             try {
                 Thread.sleep(200);
-            } catch (final InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            } catch (InterruptedException e) {
+                Log.log(this, Log.WARN, "I've been interrupted.");
             }
-
         }
     }
 
@@ -348,7 +351,7 @@ public class MessageGuardCommander extends Job {
         if (message instanceof MapMessage) {
             final MapMessage mapMessage = (MapMessage) message;
             try {
-                Log.log(this, Log.INFO, "name: " + mapMessage.getString("NAME"));
+                Log.log(this, Log.INFO, "Name: " + mapMessage.getString("NAME"));
                 final String command = mapMessage.getString(AMS_COMMAND_KEY_NAME);
                 if (command != null
                         && (command.equals(MSGVALUE_TCMD_RELOAD_CFG_START) || command
@@ -356,9 +359,9 @@ public class MessageGuardCommander extends Job {
                     send(message);
                     return;
                 }
-                // is Action id related to topic.
+                // Is Action id related to topic.
                 final String filterID = mapMessage.getString(AmsConstants.MSGPROP_FILTERID);
-                if (isTopicAction(filterID)) {
+                if (hasOnlyTopicAction(filterID)) {
                     send(message);
                     return;
                 }
@@ -380,25 +383,84 @@ public class MessageGuardCommander extends Job {
                     return;
                 }
             } catch (final JMSException e) {
-                e.printStackTrace();
+                Log.log(this, Log.ERROR, "[*** JMSException ***]: " + e.getMessage());
             }
         }
     }
 
-    private boolean isTopicAction(final String filterID)
-    {
-        if (filterID != null && filterID.trim().length() > 0)
-        {
+    private boolean hasOnlyTopicAction(String filterID) {
+        if (filterID == null) {
+            return false;
+        }
+        boolean hasOnlyTopicAction = false;
+        if (!filterID.trim().isEmpty()) {
             Connection conDb = null;
-            try
-            {
+            try {
                 Boolean topicMsg = _topicMessageMap.get(filterID);
-                if (topicMsg == null)
-                {
-                    conDb = AmsConnectionFactory.getApplicationDB();
-                    if (conDb == null)
-                    {
-                        Log.log(this, Log.FATAL, "could not init application database");
+                if (topicMsg == null) {
+                    if (useCacheDb) {
+                        conDb = AmsConnectionFactory.getMemoryCacheDB();
+                    } else {
+                        conDb = AmsConnectionFactory.getApplicationDB();
+                    }
+                    if (conDb == null) {
+                        Log.log(this, Log.FATAL, "Could not init application database");
+                        return false;
+                    }
+
+                    final FilterActionTObject[] actionTObject = FilterActionDAO.selectByFilter(conDb, Integer
+                            .parseInt(filterID));
+
+                    int counter = actionTObject.length > 0 ? actionTObject.length : -1;
+
+                    // Check all filter actions
+                    for (FilterActionTObject o : actionTObject) {
+                        if(o.getFilterActionTypeRef() != AmsConstants.FILTERACTIONTYPE_TO_JMS) {
+                            break;
+                        }
+                        counter--;
+                    }
+
+                    topicMsg = counter == 0 ? true : false;
+                    _topicMessageMap.putIfAbsent(filterID, topicMsg);
+                }
+
+                hasOnlyTopicAction = topicMsg.booleanValue();
+            } catch(final Exception e) {
+                Log.log(this, Log.FATAL, "Could not init application database");
+            } finally {
+                if (conDb != null) {
+                    try {
+                        conDb.close();
+                    } catch(final SQLException e) {
+                        Log.log(this, Log.WARN, e);
+                    }
+                }
+            }
+        }
+        return hasOnlyTopicAction;
+    }
+
+    @SuppressWarnings("unused")
+    private boolean isTopicAction(final String filterID) {
+
+        if (filterID == null) {
+            return false;
+        }
+
+        boolean isTopicAction = false;
+        if (!filterID.trim().isEmpty()) {
+            Connection conDb = null;
+            try {
+                Boolean topicMsg = _topicMessageMap.get(filterID);
+                if (topicMsg == null) {
+                    if (useCacheDb) {
+                        conDb = AmsConnectionFactory.getMemoryCacheDB();
+                    } else {
+                        conDb = AmsConnectionFactory.getApplicationDB();
+                    }
+                    if (conDb == null) {
+                        Log.log(this, Log.FATAL, "Could not init application database");
                         return false;
                     }
 
@@ -406,10 +468,8 @@ public class MessageGuardCommander extends Job {
                             .parseInt(filterID));
 
                     // Check all filter actions
-                    for(final FilterActionTObject o : actionTObject)
-                    {
-                        if(o.getFilterActionTypeRef() == AmsConstants.FILTERACTIONTYPE_TO_JMS)
-                        {
+                    for(final FilterActionTObject o : actionTObject) {
+                        if(o.getFilterActionTypeRef() == AmsConstants.FILTERACTIONTYPE_TO_JMS) {
                             topicMsg = true;
                             break;
                         }
@@ -420,29 +480,21 @@ public class MessageGuardCommander extends Job {
                     _topicMessageMap.putIfAbsent(filterID, topicMsg);
                 }
 
-                return topicMsg.booleanValue();
-            }
-            catch(final Exception e)
-            {
-                Log.log(this, Log.FATAL, "could not init application database");
-            }
-            finally
-            {
-                if (conDb != null)
-                {
-                    try
-                    {
+                isTopicAction = topicMsg.booleanValue();
+            } catch(final Exception e) {
+                Log.log(this, Log.FATAL, "Could not init application database");
+            } finally {
+                if (conDb != null) {
+                    try {
                         conDb.close();
-                    }
-                    catch(final SQLException e)
-                    {
+                    } catch(final SQLException e) {
                         Log.log(this, Log.WARN, e);
                     }
                 }
             }
         }
 
-        return false;
+        return isTopicAction;
     }
 
     /**

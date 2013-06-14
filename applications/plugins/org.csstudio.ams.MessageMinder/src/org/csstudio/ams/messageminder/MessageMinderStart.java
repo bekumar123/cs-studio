@@ -26,19 +26,35 @@
 
 package org.csstudio.ams.messageminder;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Enumeration;
 import org.csstudio.ams.AmsActivator;
+import org.csstudio.ams.IRemotelyAccesible;
 import org.csstudio.ams.Log;
+import org.csstudio.ams.configReplicator.ConfigReplicator;
+import org.csstudio.ams.configReplicator.ReplicationException;
+import org.csstudio.ams.dbAccess.AmsConnectionFactory;
 import org.csstudio.ams.internal.AmsPreferenceKey;
+import org.csstudio.ams.messageminder.management.InfoCmd;
 import org.csstudio.ams.messageminder.preference.MessageMinderPreferenceKey;
+import org.csstudio.headless.common.util.ApplicationInfo;
 import org.csstudio.headless.common.util.StandardStreams;
 import org.csstudio.headless.common.xmpp.XmppCredentials;
 import org.csstudio.headless.common.xmpp.XmppSessionException;
 import org.csstudio.headless.common.xmpp.XmppSessionHandler;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+import org.osgi.framework.Bundle;
 
 /**
  * @author hrickens
@@ -46,7 +62,7 @@ import org.eclipse.equinox.app.IApplicationContext;
  * @version $Revision: 1.11 $
  * @since 01.11.2007
  */
-public final class MessageMinderStart implements IApplication {
+public final class MessageMinderStart implements IApplication, IRemotelyAccesible {
 
     public final static boolean CREATE_DURABLE = true;
 
@@ -56,6 +72,7 @@ public final class MessageMinderStart implements IApplication {
 
     private MessageGuardCommander _commander;
     private XmppSessionHandler xmppService;
+    private ApplicationInfo appInfo;
     private String managementPassword;
     private boolean _restart = false;
 
@@ -73,6 +90,11 @@ public final class MessageMinderStart implements IApplication {
         String xmppPassword = pref.getString(MessageMinderActivator.PLUGIN_ID, MessageMinderPreferenceKey.P_STRING_XMPP_PASSWORD, "anonymous", null);
         XmppCredentials credentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
         xmppService = new XmppSessionHandler(MessageMinderActivator.getBundleContext(), credentials);
+        String desc = pref.getString(MessageMinderActivator.PLUGIN_ID,
+                                     MessageMinderPreferenceKey.P_DESCRIPTION,
+                                     "I am a simple but happy application.",
+                                     null);
+        appInfo = new ApplicationInfo("AmsMessageMinder", desc);
     }
 
     /**
@@ -86,12 +108,26 @@ public final class MessageMinderStart implements IApplication {
 
         MessageMinderPreferenceKey.showPreferences();
 
-        StandardStreams stdStreams = new StandardStreams();
+        StandardStreams stdStreams = new StandardStreams("./log");
         stdStreams.redirectStreams();
 
+        InfoCmd.staticInject(this);
         xmppService.connect();
 
-        _commander = new MessageGuardCommander("MessageMinder");
+        // 2013-06-13: The in-memory cache database cannot be used at the moment,
+        //             because it has to be reloaded after a synchronization!!!!
+
+        boolean useCacheDb = false;
+//        try {
+//            Log.log(this, Log.INFO, "Try to create the cache database.");
+//            createCacheDatabase();
+//            useCacheDb = true;
+//        } catch (ReplicationException e) {
+//            Log.log(this, Log.WARN, "[*** ReplicationException ***]: " + e.getMessage());
+//            Log.log(this, Log.WARN, "Using application database!!!");
+//        }
+
+        _commander = new MessageGuardCommander("MessageMinder", useCacheDb);
         _commander.schedule();
 
         while (_commander.getState() != Job.NONE){
@@ -121,6 +157,47 @@ public final class MessageMinderStart implements IApplication {
         return exitCode;
     }
 
+    @SuppressWarnings("unused")
+    private void createCacheDatabase() throws ReplicationException {
+
+        Connection localDbCon = null;
+        Connection cacheDbCon = null;
+
+        try {
+            localDbCon = AmsConnectionFactory.getApplicationDB();
+            cacheDbCon = AmsConnectionFactory.getMemoryCacheDB();
+
+            // Get the path for the SQL script
+            Bundle amsBundle = Platform.getBundle(AmsActivator.PLUGIN_ID);
+            Enumeration<URL> entries = amsBundle.findEntries("resource", "createMemoryCache.sql", true);
+            File sqlFile = null;
+            if (entries.hasMoreElements()) {
+
+                try {
+                    URL fileUrl = FileLocator.toFileURL(entries.nextElement());
+                    Log.log(Log.DEBUG, fileUrl.toString());
+                    try {
+                        URI fileUri = fileUrl.toURI();
+                        sqlFile = new File(fileUri);
+                    } catch (URISyntaxException uriException) {
+                        sqlFile = new File(fileUrl.getPath());
+                    }
+                } catch (IOException e) {
+                    throw new ReplicationException(e);
+                }
+            }
+
+            // Create the cache db
+            ConfigReplicator.createMemoryCacheDb(cacheDbCon, sqlFile);
+            ConfigReplicator.replicateConfigurationToHsql(localDbCon, cacheDbCon);
+        } catch (SQLException e) {
+            throw new ReplicationException(e);
+        } finally {
+            AmsConnectionFactory.closeConnection(cacheDbCon);
+            AmsConnectionFactory.closeConnection(localDbCon);
+        }
+    }
+
     /**
      * @see org.eclipse.equinox.app.IApplication#stop()
      */
@@ -140,7 +217,7 @@ public final class MessageMinderStart implements IApplication {
 
 
     public synchronized void setRun(boolean run) {
-        if(_commander!=null){
+        if (_commander != null){
             _commander.setRun(run);
         }
     }
@@ -155,5 +232,13 @@ public final class MessageMinderStart implements IApplication {
 
     public static MessageMinderStart getInstance() {
         return _instance;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getInfo() {
+        return appInfo.toString();
     }
 }

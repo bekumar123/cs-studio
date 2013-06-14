@@ -30,15 +30,18 @@ import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.List;
 import org.csstudio.domain.common.statistic.Collector;
+import org.csstudio.headless.common.util.ApplicationInfo;
 import org.csstudio.headless.common.util.StandardStreams;
 import org.csstudio.headless.common.xmpp.XmppCredentials;
 import org.csstudio.headless.common.xmpp.XmppSessionException;
 import org.csstudio.headless.common.xmpp.XmppSessionHandler;
+import org.csstudio.nams.application.department.decision.management.InfoCmd;
 import org.csstudio.nams.application.department.decision.management.Restart;
 import org.csstudio.nams.application.department.decision.management.Stop;
 import org.csstudio.nams.application.department.decision.office.decision.AlarmEntscheidungsBuero;
 import org.csstudio.nams.application.department.decision.remote.RemotelyStoppable;
 import org.csstudio.nams.application.department.decision.simplefilter.SimpleFilterWorker;
+import org.csstudio.nams.common.IRemotelyAccesible;
 import org.csstudio.nams.common.activatorUtils.AbstractBundleActivator;
 import org.csstudio.nams.common.activatorUtils.OSGiBundleActivationMethod;
 import org.csstudio.nams.common.activatorUtils.OSGiBundleDeactivationMethod;
@@ -105,7 +108,7 @@ import org.osgi.framework.BundleActivator;
  * @version 0.2.0-2008-06-10 (MZ): Change to use {@link AbstractBundleActivator}.
  */
 public class DecisionDepartmentActivator extends AbstractBundleActivator
-        implements IApplication, RemotelyStoppable {
+        implements IApplication, RemotelyStoppable, IRemotelyAccesible {
 
     private static final int DEFAULT_THREAD_COUNT = 10;
 
@@ -333,6 +336,8 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
 
     private XmppSessionHandler xmppService;
 
+    private ApplicationInfo appInfo;
+
     /**
      * Indicating that application is in restart process caused bz syunchr.
      * request.
@@ -349,7 +354,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
     @Override
     public Object start(final IApplicationContext context) {
 
-        StandardStreams stdStreams = new StandardStreams();
+        StandardStreams stdStreams = new StandardStreams("./log");
         stdStreams.redirectStreams();
 
         restart = false;
@@ -385,8 +390,15 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
         String xmppUser = pref.getString(DecisionDepartmentActivator.PLUGIN_ID, "xmppUser", "anonymous", null);
         String xmppPassword = pref.getString(DecisionDepartmentActivator.PLUGIN_ID, "xmppPassword", "anonymous", null);
 
+        String desc = pref.getString(DecisionDepartmentActivator.PLUGIN_ID,
+                                     "description",
+                                     "I am a simple but happy application.",
+                                     null);
+        appInfo = new ApplicationInfo("AmsDepartmentDecision", desc);
+
         XmppCredentials credentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
         xmppService = new XmppSessionHandler(bundleContext, credentials);
+        InfoCmd.staticInject(this);
         try {
             xmppService.connect();
         } catch (XmppSessionException e) {
@@ -1049,5 +1061,13 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
     @Override
     public synchronized String getPassword() {
         return DecisionDepartmentActivator.managementPassword;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getInfo() {
+        return appInfo.toString();
     }
 }

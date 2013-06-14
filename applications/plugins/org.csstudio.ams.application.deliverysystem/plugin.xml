@@ -39,9 +39,9 @@
             label="Restart Delivery Worker">
       </command>
       <command
-            class="org.csstudio.ams.application.deliverysystem.management.DrainTopicsCmd"
+            class="org.csstudio.ams.application.deliverysystem.management.DrainTopicCmd"
             id="org.csstudio.ams.application.deliverysystem.DrainTopics"
-            label="Drain Topics">
+            label="Drain Topic">
          <enumerationParameter
                id="Topic"
                label="Topic">
@@ -58,6 +58,11 @@
                   value="org.csstudio.ams.application.deliverysystem.value.Voicemail">
             </enumerationValue>
          </enumerationParameter>
+      </command>
+      <command
+            class="org.csstudio.ams.application.deliverysystem.management.InfoCmd"
+            id="org.csstudio.ams.application.deliverysystem.InfoCmd"
+            label="Info">
       </command>
    </extension>
    <extension

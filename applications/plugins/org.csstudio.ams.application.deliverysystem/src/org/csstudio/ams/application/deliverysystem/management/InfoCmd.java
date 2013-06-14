@@ -23,32 +23,35 @@
 
 package org.csstudio.ams.application.deliverysystem.management;
 
-import org.csstudio.ams.application.deliverysystem.RemotelyManageable;
+import org.csstudio.ams.IRemotelyAccesible;
 import org.csstudio.remote.management.CommandParameters;
 import org.csstudio.remote.management.CommandResult;
 import org.csstudio.remote.management.IManagementCommand;
 
 /**
  * @author mmoeller
- * @since 23.05.2013
+ * @since 13.06.2013
  */
-public class DrainTopicsCmd implements IManagementCommand {
+public class InfoCmd implements IManagementCommand {
 
-    private static RemotelyManageable remoteObject = null;
-
-    public static void staticInject(RemotelyManageable o) {
-        remoteObject = o;
-    }
+    private static IRemotelyAccesible object = null;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public CommandResult execute(CommandParameters parameters) {
-        String topicId = (String) parameters.get("Topic");
-        if (remoteObject != null && topicId != null) {
-            remoteObject.drainTopic(topicId);
+        CommandResult result = null;
+        if (object != null) {
+            String desc = object.getInfo();
+            result = CommandResult.createMessageResult(desc);
+        } else {
+            result = CommandResult.createFailureResult("No description available. The application reference is null!");
         }
-        return null;
+        return result;
+    }
+
+    public static void staticInject(IRemotelyAccesible o) {
+        object = o;
     }
 }

@@ -35,6 +35,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.Topic;
 import org.csstudio.ams.AmsActivator;
+import org.csstudio.ams.IRemotelyAccesible;
 import org.csstudio.ams.Log;
 import org.csstudio.ams.configReplicator.ConfigReplicator;
 import org.csstudio.ams.configReplicator.ReplicationException;
@@ -59,6 +60,7 @@ import org.eclipse.equinox.app.IApplicationContext;
 import org.osgi.framework.Bundle;
 
 public class DistributorStart implements IApplication,
+                                         IRemotelyAccesible,
                                          IConnectionMonitor {
 
     private final static long WAIT_TIME = 300000L;
@@ -86,7 +88,11 @@ public class DistributorStart implements IApplication,
         String xmppPassword = pref.getString(DistributorPlugin.PLUGIN_ID, DistributorPreferenceKey.P_XMPP_PASSWORD, "anonymous", null);
         XmppCredentials credentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
         xmppSessionHandler = new XmppSessionHandler(DistributorPlugin.getBundleContext(), credentials);
-        appInfo = new ApplicationInfo("AmsDistributor", "Alarm Message System - AMS");
+        String desc = pref.getString(DistributorPlugin.PLUGIN_ID,
+                                     DistributorPreferenceKey.P_DESCRIPTION,
+                                     "",
+                                     null);
+        appInfo = new ApplicationInfo("AmsDistributor", desc);
     }
 
     @Override
@@ -110,6 +116,7 @@ public class DistributorStart implements IApplication,
         notify();
     }
 
+    @Override
     public synchronized String getInfo() {
         return appInfo.toString();
     }
@@ -131,7 +138,7 @@ public class DistributorStart implements IApplication,
 
         Log.log(this, Log.INFO, "Starting Distributor ...");
 
-        StandardStreams stdStreams = new StandardStreams();
+        StandardStreams stdStreams = new StandardStreams("./log");
         stdStreams.redirectStreams();
 
         try {

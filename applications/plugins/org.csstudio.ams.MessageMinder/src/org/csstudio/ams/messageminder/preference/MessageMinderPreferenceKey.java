@@ -32,7 +32,7 @@ import org.eclipse.core.runtime.preferences.IPreferencesService;
  * Constant definitions for plug-in preferences.
  */
 public class MessageMinderPreferenceKey {
-	
+
     public static final String P_LONG_TIME2CLEAN = "time2Clean";
 	public static final String P_LONG_TO_OLD_TIME = "toOldTime";
 	public static final String P_LONG_PERIOD = "period";
@@ -41,11 +41,10 @@ public class MessageMinderPreferenceKey {
 	public static final String P_STRING_XMPP_SERVER = "xmppServer";
 	public static final String P_STRING_XMPP_USER_NAME = "xmppUser";
     public static final String P_STRING_XMPP_PASSWORD = "xmppPassword";
-    
-    public static final void showPreferences() {
-    	
-        IPreferencesService store = Platform.getPreferencesService();
+    public static final String P_DESCRIPTION = "description";
 
+    public static final void showPreferences() {
+        IPreferencesService store = Platform.getPreferencesService();
     	Log.log(Log.INFO, P_LONG_TIME2CLEAN + ":" + store.getLong(MessageMinderActivator.PLUGIN_ID, MessageMinderPreferenceKey.P_LONG_TIME2CLEAN, -1, null));
     	Log.log(Log.INFO, P_LONG_TO_OLD_TIME + ":" + store.getLong(MessageMinderActivator.PLUGIN_ID, MessageMinderPreferenceKey.P_LONG_TO_OLD_TIME, -1 , null));
     	Log.log(Log.INFO, P_LONG_PERIOD + ":" + store.getLong(MessageMinderActivator.PLUGIN_ID, MessageMinderPreferenceKey.P_LONG_PERIOD, -1, null));
@@ -54,5 +53,6 @@ public class MessageMinderPreferenceKey {
     	Log.log(Log.INFO, P_STRING_XMPP_SERVER + ":" + store.getString(MessageMinderActivator.PLUGIN_ID, MessageMinderPreferenceKey.P_STRING_XMPP_SERVER, "NONE", null));
     	Log.log(Log.INFO, P_STRING_XMPP_USER_NAME + ":" + store.getString(MessageMinderActivator.PLUGIN_ID, MessageMinderPreferenceKey.P_STRING_XMPP_USER_NAME, "NONE", null));
     	Log.log(Log.INFO, P_STRING_XMPP_PASSWORD + ":" + store.getString(MessageMinderActivator.PLUGIN_ID, MessageMinderPreferenceKey.P_STRING_XMPP_PASSWORD, "NONE", null));
+        Log.log(Log.INFO, P_DESCRIPTION + ":" + store.getString(MessageMinderActivator.PLUGIN_ID, MessageMinderPreferenceKey.P_DESCRIPTION, "NONE", null));
     }
 }

@@ -28,7 +28,9 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import org.csstudio.ams.AmsActivator;
+import org.csstudio.ams.IRemotelyAccesible;
 import org.csstudio.ams.application.deliverysystem.internal.DeliverySystemPreference;
+import org.csstudio.ams.application.deliverysystem.management.InfoCmd;
 import org.csstudio.ams.application.deliverysystem.management.ListWorker;
 import org.csstudio.ams.application.deliverysystem.management.Restart;
 import org.csstudio.ams.application.deliverysystem.management.RestartWorker;
@@ -38,6 +40,7 @@ import org.csstudio.ams.application.deliverysystem.util.CommonMailer;
 import org.csstudio.ams.application.deliverysystem.util.Environment;
 import org.csstudio.ams.delivery.AbstractDeliveryWorker;
 import org.csstudio.ams.internal.AmsPreferenceKey;
+import org.csstudio.headless.common.util.ApplicationInfo;
 import org.csstudio.headless.common.util.StandardStreams;
 import org.csstudio.headless.common.xmpp.XmppCredentials;
 import org.csstudio.headless.common.xmpp.XmppSessionException;
@@ -57,6 +60,7 @@ import org.slf4j.LoggerFactory;
  * This class controls all aspects of the application's execution
  */
 public class DeliverySystemApplication implements IApplication,
+                                                  IRemotelyAccesible,
                                                   RemotelyManageable {
 
     private static Logger LOG = LoggerFactory.getLogger(DeliverySystemApplication.class);
@@ -68,6 +72,8 @@ public class DeliverySystemApplication implements IApplication,
     private XmppSessionHandler xmppSessionHandler;
 
     private Hashtable<AbstractDeliveryWorker, Thread> deliveryWorker;
+
+    private ApplicationInfo appInfo;
 
     private long workerStopTimeout;
 
@@ -87,6 +93,8 @@ public class DeliverySystemApplication implements IApplication,
         if (DeliverySystemPreference.ENABLE_WORKER_RESTART.getValue()) {
             RestartWorker.staticInject(this);
         }
+        String desc = DeliverySystemPreference.DESCRIPTION.getValue();
+        appInfo = new ApplicationInfo("AmsDeliverySystem", desc);
         String xmppServer = DeliverySystemPreference.XMPP_SERVER.getValue();
         String xmppUser = DeliverySystemPreference.XMPP_USER.getValue();
         String xmppPassword = DeliverySystemPreference.XMPP_PASSWORD.getValue();
@@ -106,9 +114,10 @@ public class DeliverySystemApplication implements IApplication,
 	@Override
     public Object start(IApplicationContext context) throws Exception {
 
-        StandardStreams stdStreams = new StandardStreams();
+        StandardStreams stdStreams = new StandardStreams("./log");
         stdStreams.redirectStreams();
 
+        InfoCmd.staticInject(this);
         try {
             xmppSessionHandler.connect();
         } catch (XmppSessionException e) {
@@ -371,5 +380,13 @@ public class DeliverySystemApplication implements IApplication,
                 }
             }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getInfo() {
+        return appInfo.toString();
     }
 }

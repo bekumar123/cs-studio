@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2008 Stiftung Deutsches Elektronen-Synchrotron,
+ * Copyright (c) 2013 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -21,30 +21,34 @@
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
  */
 
-package org.csstudio.ams.distributor.preferences;
+package org.csstudio.ams.application.deliverysystem.management;
 
-import org.csstudio.ams.Log;
-import org.csstudio.ams.distributor.DistributorPlugin;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.preferences.IPreferencesService;
+import org.csstudio.ams.application.deliverysystem.RemotelyManageable;
+import org.csstudio.remote.management.CommandParameters;
+import org.csstudio.remote.management.CommandResult;
+import org.csstudio.remote.management.IManagementCommand;
 
-public class DistributorPreferenceKey {
+/**
+ * @author mmoeller
+ * @since 23.05.2013
+ */
+public class DrainTopicCmd implements IManagementCommand {
 
-    public static final String P_XMPP_SERVER = "xmppServer";
-	public static final String P_XMPP_USER = "xmppUser";
-	public static final String P_XMPP_PASSWORD = "xmppPassword";
-	public static final String P_DESCRIPTION = "description";
+    private static RemotelyManageable remoteObject = null;
 
-	/**
-	 * Read out the preference from the plugin's preference store and display
-	 * them on the console.
-	 *
-	 */
-	public static final void showPreferences() {
-	    IPreferencesService pref = Platform.getPreferencesService();
-		Log.log(Log.INFO, P_XMPP_SERVER + ": " + pref.getString(DistributorPlugin.PLUGIN_ID, P_XMPP_SERVER, "NONE", null));
-		Log.log(Log.INFO, P_XMPP_USER + ": " + pref.getString(DistributorPlugin.PLUGIN_ID, P_XMPP_USER, "NONE", null));
-		Log.log(Log.INFO, P_XMPP_PASSWORD + ": " + pref.getString(DistributorPlugin.PLUGIN_ID, P_XMPP_PASSWORD, "NONE", null));
-        Log.log(Log.INFO, P_DESCRIPTION + ": " + pref.getString(DistributorPlugin.PLUGIN_ID, P_DESCRIPTION, "NONE", null));
-	}
+    public static void staticInject(RemotelyManageable o) {
+        remoteObject = o;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public CommandResult execute(CommandParameters parameters) {
+//        String topicId = (String) parameters.get("Topic");
+//        if (remoteObject != null && topicId != null) {
+//            remoteObject.drainTopic(topicId);
+//        }
+        return CommandResult.createMessageResult("Not implemented yet.");
+    }
 }

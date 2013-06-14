@@ -80,7 +80,7 @@ public class MessageGuardCommander extends Job {
                     // update ones per hour
                     Thread.sleep(3600000);
                 } catch(final InterruptedException e) {
-                    Log.log(this, Log.WARN, e);
+                    Log.log(this, Log.WARN, "I've been interrupted.");
                 }
 
                 Connection conDb = null;
@@ -99,29 +99,32 @@ public class MessageGuardCommander extends Job {
                             final FilterActionTObject[] actionTObject = FilterActionDAO.selectByFilter(conDb,
                                     Integer.parseInt(filterID));
 
-                            for (final FilterActionTObject o : actionTObject) {
-                                if(o.getFilterActionTypeRef() == AmsConstants.FILTERACTIONTYPE_TO_JMS) {
-                                    newValue = true;
+                            int counter = actionTObject.length > 0 ? actionTObject.length : -1;
+
+                            // Check all filter actions
+                            for (FilterActionTObject o : actionTObject) {
+                                if(o.getFilterActionTypeRef() != AmsConstants.FILTERACTIONTYPE_TO_JMS) {
                                     break;
                                 }
+                                counter--;
                             }
 
-                            newValue = newValue == null ? false : newValue;
-                            final Boolean oldValue = getTopicMessageMap().get(filterID);
+                            newValue = counter == 0 ? true : false;
 
+                            Boolean oldValue = getTopicMessageMap().get(filterID);
                             if(newValue != oldValue) {
                                 getTopicMessageMap().replace(filterID, newValue);
                             }
                         }
                     }
                 } catch(final SQLException e) {
-                    Log.log(this, Log.WARN,e);
+                    Log.log(this, Log.WARN, "[*** SQLException ***]: " + e.getMessage());
                 } finally {
                     if(conDb!=null) {
                         try {
                             conDb.close();
                         } catch(final SQLException e) {
-                            Log.log(this, Log.WARN,e);
+                            Log.log(this, Log.WARN, "[*** SQLException ***]: Closing connection: " + e.getMessage());
                         }
                     }
                 }
@@ -180,11 +183,11 @@ public class MessageGuardCommander extends Job {
 
     private boolean useCacheDb;
 
-    private boolean _run = true;
+    private boolean _run;
 
     private final ConcurrentHashMap<String, Boolean> _topicMessageMap;
 
-    private boolean _runUpdateTopicMessageMap = true;
+    private boolean _runUpdateTopicMessageMap;
 
     /**
      * @param name
@@ -192,6 +195,8 @@ public class MessageGuardCommander extends Job {
      */
     public MessageGuardCommander(String name, boolean useCacheDb) {
         super(name);
+        _run = true;
+        _runUpdateTopicMessageMap = true;
         _topicMessageMap = new ConcurrentHashMap<String, Boolean>();
         IPreferencesService pref = Platform.getPreferencesService();
         connect();
@@ -561,14 +566,14 @@ public class MessageGuardCommander extends Job {
      * @return
      */
     private boolean acknowledge(final Message msg) {
+        boolean success = false;
         try {
             msg.acknowledge();
-            return true;
+            success = true;
         } catch (final Exception e) {
-            Log.log(this, Log.FATAL, "could not acknowledge", e);
+            Log.log(this, Log.FATAL, "Could not acknowledge JMS message: " + e.getMessage());
         }
-
-        return false;
+        return success;
     }
 
     public synchronized void setRun(final boolean run) {

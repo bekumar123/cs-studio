@@ -23,6 +23,8 @@
 
 package org.csstudio.headless.common.xmpp;
 
+import java.util.Observable;
+import java.util.Observer;
 import org.osgi.framework.BundleContext;
 import org.remotercp.common.tracker.GenericServiceTracker;
 import org.remotercp.common.tracker.IGenericServiceListener;
@@ -34,9 +36,54 @@ import org.slf4j.LoggerFactory;
  * @author mmoeller
  * @since 19.03.2013
  */
-public class XmppSessionHandler implements IGenericServiceListener<ISessionService> {
+public class XmppSessionHandler implements Observer, IGenericServiceListener<ISessionService> {
 
     private static final Logger LOG = LoggerFactory.getLogger(XmppSessionHandler.class);
+
+    class XmppWatchdog extends Observable implements Runnable {
+
+        /** Default value for check interval is 1 minute. */
+        public static final long DEFAULT_CHECK_INTERVAL = 60000L;
+
+        private long checkInterval;
+
+        private boolean working;
+
+        public XmppWatchdog() {
+            checkInterval = DEFAULT_CHECK_INTERVAL;
+            working = false;
+        }
+
+        public synchronized void setCheckInterval(long interval) {
+            checkInterval = interval;
+        }
+
+        public synchronized void stopThread() {
+            working = false;
+            this.notify();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void run() {
+            working = true;
+            while (working) {
+                synchronized (this) {
+                    try {
+                        this.wait(checkInterval);
+                    } catch (InterruptedException e) {
+                        // Ignore Me
+                    }
+                    if (!isConnected()) {
+                        setChanged();
+                        notifyObservers();
+                    }
+                }
+            }
+        }
+    }
 
     /** Service tracker for the XMPP login */
     private GenericServiceTracker<ISessionService> _genericServiceTracker;
@@ -46,7 +93,13 @@ public class XmppSessionHandler implements IGenericServiceListener<ISessionServi
 
     private XmppCredentials xmppCredentials;
 
+    private XmppWatchdog watchdog;
+
+    private Thread watchdogThread;
+
     public XmppSessionHandler(BundleContext context, XmppCredentials credentials) {
+        watchdog = new XmppWatchdog();
+        watchdogThread = null;
         xmppCredentials = credentials;
         _genericServiceTracker = new GenericServiceTracker<ISessionService>(
                 context, ISessionService.class);
@@ -77,6 +130,9 @@ public class XmppSessionHandler implements IGenericServiceListener<ISessionServi
                     LOG.warn("XMPP service waited and was interrupted.");
                 }
             }
+            if (watchdogThread != null) {
+                stopWatchdog();
+            }
             xmppService.disconnect();
             LOG.info("XMPP disconnected.");
         }
@@ -89,6 +145,46 @@ public class XmppSessionHandler implements IGenericServiceListener<ISessionServi
 
     public ISessionService getXmppSessionService() {
         return xmppService;
+    }
+
+    public void startWatchdog() {
+        startWatchdog(XmppWatchdog.DEFAULT_CHECK_INTERVAL);
+    }
+
+    public void startWatchdog(long interval) {
+        if (watchdogThread == null) {
+            watchdog.addObserver(this);
+            watchdog.setCheckInterval(interval);
+            watchdogThread = new Thread(watchdog, "XMPP Watchdog");
+            watchdogThread.start();
+        }
+    }
+
+    public void stopWatchdog() {
+        if (watchdogThread != null) {
+            watchdog.stopThread();
+            watchdog.deleteObservers();
+            try {
+                watchdogThread.join(10000L);
+                LOG.info("Watchdog Thread has been stopped.");
+            } catch (InterruptedException e) {
+                // Ignore Me
+            } finally {
+                watchdogThread = null;
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void update(Observable o, Object arg) {
+        try {
+            reconnect();
+        } catch (XmppSessionException e) {
+            LOG.warn("Cannot reconnect to the XMPP server.");
+        }
     }
 
     /**

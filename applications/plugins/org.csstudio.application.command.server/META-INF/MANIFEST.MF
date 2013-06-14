@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Command Server
+Bundle-SymbolicName: org.csstudio.application.command.server; singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.csstudio.application.command.server.ServerActivator
+Bundle-Vendor: Markus Moeller <markus.moeller@desy.de>
+Require-Bundle: org.eclipse.core.runtime,
+ org.remotercp.util;bundle-version="1.0.0",
+ org.csstudio.utility.jms;bundle-version="1.0.0",
+ org.csstudio.remote;bundle-version="3.1.0",
+ org.csstudio.domain.desy;bundle-version="1.0.0",
+ org.csstudio.headless.common;bundle-version="1.0.0",
+ org.slf4j;bundle-version="1.7.2"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy

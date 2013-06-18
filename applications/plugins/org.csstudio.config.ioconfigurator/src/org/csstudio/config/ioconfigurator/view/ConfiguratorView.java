@@ -1,5 +1,7 @@
 package org.csstudio.config.ioconfigurator.view;
 
+import javax.naming.InvalidNameException;
+
 import org.csstudio.config.ioconfigurator.actions.ControllerActionCache;
 import org.csstudio.config.ioconfigurator.annotation.Nonnull;
 import org.csstudio.config.ioconfigurator.annotation.Nullable;
@@ -143,7 +145,12 @@ public class ConfiguratorView extends ViewPart {
 
         menuManager.addMenuListener(new IMenuListener() {
             public void menuAboutToShow(@Nullable final IMenuManager manager) {
-                _actionsCache.fillContextMenu(getSelectedNode(), manager);
+                try {
+                    _actionsCache.fillContextMenu(getSelectedNode(), manager);
+                } catch (InvalidNameException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
         });
 

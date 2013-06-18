@@ -82,7 +82,7 @@ public class LdapControllerServiceHeadlessTest {
     }
 
     @Test
-    public void addIoc() {
+    public void addIoc() throws Exception {
 
         IControllerLeaf leaf = new ControllerLeaf("testLeaf",
                                                   ROOT,

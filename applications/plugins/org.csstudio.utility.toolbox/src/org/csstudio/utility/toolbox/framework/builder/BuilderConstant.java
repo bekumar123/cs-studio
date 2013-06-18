@@ -10,4 +10,6 @@ public final class BuilderConstant {
 
 	public static final String NO_BINDING = "no_binding";
 
+   public static final String BINDING = "binding";
+
 }

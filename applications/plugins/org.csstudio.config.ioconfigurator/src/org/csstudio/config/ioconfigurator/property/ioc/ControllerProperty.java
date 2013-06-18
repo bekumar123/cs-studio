@@ -27,6 +27,7 @@ import java.util.Map;
 
 import org.csstudio.config.ioconfigurator.annotation.CheckForNull;
 import org.csstudio.config.ioconfigurator.annotation.Nonnull;
+import org.csstudio.config.ioconfigurator.tree.model.IControllerLeaf;
 import org.eclipse.jface.dialogs.IInputValidator;
 
 import com.google.common.collect.Maps;

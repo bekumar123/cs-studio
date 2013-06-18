@@ -180,7 +180,7 @@ public enum LdapEpicsControlsConfiguration implements ILdapTreeNodeConfiguration
     }
 
     @CheckForNull
-    private static LdapEpicsControlsConfiguration getNodeTypeByNodeNameStatic(@Nonnull final String name) {
+    public static LdapEpicsControlsConfiguration getNodeTypeByNodeNameStatic(@Nonnull final String name) {
         return CACHE_BY_NAME.get(name);
     }
 

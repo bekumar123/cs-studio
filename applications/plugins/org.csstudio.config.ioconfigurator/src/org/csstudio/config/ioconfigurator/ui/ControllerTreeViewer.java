@@ -24,7 +24,11 @@
 package org.csstudio.config.ioconfigurator.ui;
 
 import org.csstudio.config.ioconfigurator.annotation.Nonnull;
+import org.csstudio.config.ioconfigurator.tree.model.IControllerNode;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerSubtreeNode;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
@@ -33,10 +37,10 @@ import org.eclipse.ui.IWorkbenchPartSite;
 
 /**
  * Provides the TreeViewer for this plug-in.
- *
- * TODO: Implement double-click action that opens a Property View when
- *       the selected element is an instance of IControllerLeaf.
- *
+ * 
+ * TODO: Implement double-click action that opens a Property View when the
+ * selected element is an instance of IControllerLeaf.
+ * 
  * @author tslamic
  * @author $Author: tslamic $
  * @version $Revision: 1.2 $
@@ -44,30 +48,42 @@ import org.eclipse.ui.IWorkbenchPartSite;
  */
 public final class ControllerTreeViewer {
 
+    public static IControllerNode CURRENT_SELECTION = null;
+
     private TreeViewer _viewer;
 
     /**
      * Constructor.
+     * 
      * @see {@link ControllerTreeViewer#getViewer(Composite, IControllerSubtreeNode, IWorkbenchPartSite)}
      */
-    private ControllerTreeViewer(@Nonnull final Composite parent,
-                                 @Nonnull final IControllerSubtreeNode root,
-                                 @Nonnull final IWorkbenchPartSite site) {
+    private ControllerTreeViewer(@Nonnull final Composite parent, @Nonnull final IControllerSubtreeNode root,
+            @Nonnull final IWorkbenchPartSite site) {
         createTreeViewer(parent, root, site);
     }
 
     /*
      * Creates a new TreeViewer
      */
-    private void createTreeViewer(@Nonnull final Composite parent,
-                                  @Nonnull final IControllerSubtreeNode root,
-                                  @Nonnull final IWorkbenchPartSite site) {
-        _viewer = new TreeViewer(parent, SWT.BORDER | SWT.SINGLE | SWT.H_SCROLL
-                | SWT.V_SCROLL);
+    private void createTreeViewer(@Nonnull final Composite parent, @Nonnull final IControllerSubtreeNode root,
+            @Nonnull final IWorkbenchPartSite site) {
+        _viewer = new TreeViewer(parent, SWT.BORDER | SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
         setOutlook();
 
         _viewer.setInput(root);
         site.setSelectionProvider(_viewer);
+
+        _viewer.addSelectionChangedListener(new ISelectionChangedListener() {
+
+            @Override
+            public void selectionChanged(SelectionChangedEvent event) {
+                if (event.getSource() instanceof TreeViewer) {
+                    TreeSelection selection = (TreeSelection) _viewer.getSelection();
+                    CURRENT_SELECTION = (IControllerNode) selection.getFirstElement();
+                }
+            }
+
+        });
     }
 
     /*
@@ -81,6 +97,7 @@ public final class ControllerTreeViewer {
 
     /**
      * Returns this class TreeViewer.
+     * 
      * @return this class TreeViewer.
      */
     public TreeViewer getTreeViewer() {
@@ -90,14 +107,17 @@ public final class ControllerTreeViewer {
 
     /**
      * Returns a new TreeViewer.
-     * @param parent {@code Composite} parent the viewer should be added to.
-     * @param root {@code IControllerSubtreeNode} to serve as the viewer data.
-     * @param site {@code IWorkbenchPartSite} to register the viewer to.
+     * 
+     * @param parent
+     *            {@code Composite} parent the viewer should be added to.
+     * @param root
+     *            {@code IControllerSubtreeNode} to serve as the viewer data.
+     * @param site
+     *            {@code IWorkbenchPartSite} to register the viewer to.
      * @return a new TreeViewer.
      */
-    public static TreeViewer getViewer(@Nonnull final Composite parent,
-                                       @Nonnull final IControllerSubtreeNode root,
-                                       @Nonnull final IWorkbenchPartSite site) {
+    public static TreeViewer getViewer(@Nonnull final Composite parent, @Nonnull final IControllerSubtreeNode root,
+            @Nonnull final IWorkbenchPartSite site) {
         return new ControllerTreeViewer(parent, root, site).getTreeViewer();
     }
 }

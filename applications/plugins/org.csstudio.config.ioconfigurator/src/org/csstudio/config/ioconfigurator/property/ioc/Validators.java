@@ -25,18 +25,24 @@ package org.csstudio.config.ioconfigurator.property.ioc;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Set;
 
 import javax.naming.InvalidNameException;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapName;
 
 import org.csstudio.config.ioconfigurator.activator.Activator;
 import org.csstudio.config.ioconfigurator.annotation.Nonnull;
+import org.csstudio.config.ioconfigurator.ui.ControllerTreeViewer;
 import org.csstudio.utility.ldap.service.ILdapSearchResult;
 import org.csstudio.utility.ldap.service.ILdapService;
 import org.csstudio.utility.ldap.treeconfiguration.LdapFieldsAndAttributes;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.ISelectionService;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
 /**
@@ -100,6 +106,7 @@ public enum Validators {
         @Override
         public String isValid(final String newText) {
             try {
+
                 InetAddress.getByName(newText);
                 
                 LdapName ldapName = new LdapName("ou=EpicsControls");
@@ -107,10 +114,21 @@ public enum Validators {
                 ILdapSearchResult searchResult = LDAP_SERVICE.retrieveSearchResultSynchronously(ldapName,
                         "epicsIpAddress=" + newText, SearchControls.SUBTREE_SCOPE);
               
-                if (searchResult.getAnswerSet().size() > 0) {
+                Set<SearchResult> results = searchResult.getAnswerSet();
+                
+                if (searchResult.getAnswerSet().size() == 0) {
+                    return null;
+                } else if (searchResult.getAnswerSet().size() == 1) {
+                    SearchResult sr = results.iterator().next();
+                    if (ControllerTreeViewer.CURRENT_SELECTION.getLdapName().toString().startsWith(sr.getName())) {
+                        return null;
+                    } else {
+                        return "Error: IP-Address already in use.";
+                    }
+                } else {
                     return "Error: IP-Address already in use.";
                 }
-                return null;
+                
             } catch (UnknownHostException e) {
                 e.printStackTrace();
                 return e.getMessage();

@@ -23,14 +23,24 @@
  */
 package org.csstudio.config.ioconfigurator.property;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Set;
 
+import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapName;
 
+import org.csstudio.config.ioconfigurator.activator.Activator;
 import org.csstudio.config.ioconfigurator.annotation.Nonnull;
 import org.csstudio.config.ioconfigurator.annotation.Nullable;
 import org.csstudio.config.ioconfigurator.ldap.LdapControllerService;
 import org.csstudio.config.ioconfigurator.property.ioc.ControllerProperty;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerLeaf;
+import org.csstudio.utility.ldap.service.ILdapSearchResult;
+import org.csstudio.utility.ldap.service.ILdapService;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ICellEditorValidator;
 import org.eclipse.swt.widgets.Display;
@@ -59,7 +69,7 @@ import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 class ControllerPropertySource implements IPropertySource2 {
 
     private boolean validationAssigned = false;
-    
+
     /*
      * The IPropertyDescriptor array is populated with the values from the
      * ControllerProperty.
@@ -73,11 +83,11 @@ class ControllerPropertySource implements IPropertySource2 {
         int count = 0;
         for (final ControllerProperty i : values) {
             DESCRIPTORS[count] = new TextPropertyDescriptor(i, i.getName());
-            PropertyDescriptor propertyDescriptor = (PropertyDescriptor)DESCRIPTORS[count];
-            propertyDescriptor.setValidator(new ICellEditorValidator() {                
+            PropertyDescriptor propertyDescriptor = (PropertyDescriptor) DESCRIPTORS[count];
+            propertyDescriptor.setValidator(new ICellEditorValidator() {
                 @Override
                 public String isValid(Object value) {
-                    return i.getValidator().isValid((String)value);
+                    return i.getValidator().isValid((String) value);
                 }
             });
             ++count;
@@ -127,28 +137,23 @@ class ControllerPropertySource implements IPropertySource2 {
             ControllerProperty[] values = ControllerProperty.values();
             int count = 0;
             for (final ControllerProperty i : values) {
-                PropertyDescriptor propertyDescriptor = (PropertyDescriptor)DESCRIPTORS[count];
-                propertyDescriptor.setValidator(new ICellEditorValidator() {                
+                PropertyDescriptor propertyDescriptor = (PropertyDescriptor) DESCRIPTORS[count];
+                propertyDescriptor.setValidator(new ICellEditorValidator() {
                     @Override
                     public String isValid(Object value) {
-                        
-                        final String stringValue = ((String)value).trim();        
-                        
-                        final ControllerProperty property = (ControllerProperty) i;                        
+
+                        final ControllerProperty property = (ControllerProperty) i;
                         final String oldLdapValue = _node.getValue(property);
-                        
+
                         loadAttributes(_node);
                         String newLdapValue = _node.getValue(property);
 
                         if (!oldLdapValue.equals(newLdapValue)) {
                             return "The value has been modified by an outside source.";
                         }
-                        
-                        if (newLdapValue.equals(stringValue)) {
-                            return null;
-                        }
-                        
-                        return i.getValidator().isValid((String)value);
+
+                        return i.getValidator().isValid((String) value);
+
                     }
                 });
                 ++count;
@@ -188,13 +193,13 @@ class ControllerPropertySource implements IPropertySource2 {
     public void setPropertyValue(final Object id, final Object value) {
         if (id instanceof ControllerProperty) {
 
-            final String stringValue = ((String)value).trim();            
+            final String stringValue = ((String) value).trim();
             final ControllerProperty property = (ControllerProperty) id;
-                             
+
             replaceAttributeValueInLdap(_node, property, stringValue);
 
             _node.setValue(property, stringValue);
-            
+
         }
     }
 
@@ -262,10 +267,4 @@ class ControllerPropertySource implements IPropertySource2 {
         }
     }
 
-    /*
-     * Validates the user input.
-     */
-    private static final String validate(@Nonnull final ControllerProperty property, @Nonnull final Object value) {
-        return property.getValidator().isValid((String) value);
-    }
 }

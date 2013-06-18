@@ -25,6 +25,7 @@ package org.csstudio.config.ioconfigurator.ldap;
 
 import static org.csstudio.utility.ldap.service.util.LdapUtils.any;
 import static org.csstudio.utility.ldap.service.util.LdapUtils.createLdapName;
+import static org.csstudio.utility.ldap.service.util.LdapUtils.or;
 
 import java.util.Collection;
 
@@ -38,6 +39,8 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 
 import org.csstudio.config.ioconfigurator.activator.Activator;
 import org.csstudio.config.ioconfigurator.annotation.Nonnull;
@@ -57,6 +60,8 @@ import org.csstudio.utility.treemodel.ContentModel;
 import org.csstudio.utility.treemodel.CreateContentModelException;
 import org.csstudio.utility.treemodel.INodeComponent;
 import org.csstudio.utility.treemodel.ISubtreeNodeComponent;
+
+import com.google.common.base.Optional;
 
 /**
  * This utility class provides methods to ease the LDAP server modifications.
@@ -100,7 +105,7 @@ public final class LdapControllerService {
      * @throws InvalidNameException
      *             if a syntax violation is detected.
      */
-    public static void addController(@Nonnull final IControllerLeaf node) throws InvalidNameException {
+    public static void addController(@Nonnull final IControllerLeaf node) throws InvalidNameException, Exception {
         Attributes atts = new BasicAttributes();
         for (ControllerProperty i : ControllerProperty.values()) {
             atts.put(i.getName(), node.getValue(i));
@@ -116,8 +121,8 @@ public final class LdapControllerService {
      * @throws InvalidNameException
      *             if a syntax violation is detected.
      */
-    public static void removeController(@Nonnull final IControllerLeaf node) throws InvalidNameException {
-        LDAP_SERVICE.removeLeafComponent(node.getLdapName());
+    public static void removeNode(LdapName ldapName) throws Exception {
+        LDAP_SERVICE.removeLeafComponent(ldapName);
     }
 
     /**
@@ -142,7 +147,7 @@ public final class LdapControllerService {
 
         ModificationItem item = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
                 property.getName(), val));
-        
+
         LDAP_SERVICE.modifyAttributes(node.getLdapName(), new ModificationItem[] { item });
     }
 
@@ -186,6 +191,41 @@ public final class LdapControllerService {
         // TODO: implement this
     }
 
+    public static void rename(@Nonnull final LdapName oldLdapName, @Nonnull final String newName)
+            throws NamingException {
+        LdapName newLdapName = (LdapName) oldLdapName.clone();
+        Rdn rdn = newLdapName.getRdn(newLdapName.size() - 1);
+        String type = rdn.getType();
+        newLdapName.remove(newLdapName.size() - 1);
+        newLdapName.add(new Rdn(type, newName));
+        LDAP_SERVICE.rename(oldLdapName, newLdapName);
+    }
+
+    public static void addNewNode(@Nonnull final LdapName parent, final String newName) throws Exception {
+        Optional<LdapName> newLdapName = LdapControllerService.createNewNode(parent, newName);
+        if (newLdapName.isPresent()) {
+            
+            LdapControllerService.createNewNode(newLdapName.get(), "EPICS-IOC");
+        }
+    }
+
+    private static Optional<LdapName> createNewNode(@Nonnull final LdapName parent, final String newName) throws Exception {
+        LdapNode ldapNode  = new LdapNode(parent);
+        if (ldapNode.getChildAttribute().isPresent()) {            
+            LdapName newLdapName = (LdapName) parent.clone();
+            newLdapName.add(new Rdn(ldapNode.getChildAttribute().get() + "=" + newName));
+            BasicAttribute oc1 = new BasicAttribute("objectClass");
+            oc1.add("top");
+            oc1.add(ldapNode.getChildAttributeValue());
+            Attributes attrs = new BasicAttributes(false); 
+            attrs.put(oc1);
+            attrs.put(ldapNode.getChildAttribute().get(), newName);
+            LDAP_SERVICE.createComponent(newLdapName, attrs);     
+            return Optional.of(newLdapName);
+        } 
+        return Optional.absent();
+    }
+    
     /**
      * Loads the LDAP tree structure to the specified {@code root} node.
      * 
@@ -239,10 +279,29 @@ public final class LdapControllerService {
     @Nonnull
     private static ContentModel<LdapEpicsControlsConfiguration> retrieveContentModel()
             throws CreateContentModelException {
+
+        //@formatter:off
         ILdapSearchResult searchResult = LDAP_SERVICE.retrieveSearchResultSynchronously(
-                createLdapName(LdapEpicsControlsConfiguration.VIRTUAL_ROOT.getNodeTypeName(),
-                        LdapEpicsControlsConfiguration.VIRTUAL_ROOT.getUnitTypeValue() // LdapEpicsControlsConfiguration.getRootTypeValue()
-                ), any(LdapEpicsControlsConfiguration.IOC.getNodeTypeName()), SearchControls.SUBTREE_SCOPE);
+                createLdapName(
+                        LdapEpicsControlsConfiguration.VIRTUAL_ROOT.getNodeTypeName(),
+                        LdapEpicsControlsConfiguration.VIRTUAL_ROOT.getUnitTypeValue() 
+                ), 
+                or(
+                    any(
+                        LdapEpicsControlsConfiguration.FACILITY.getNodeTypeName()
+                    ),
+                    or(
+                        any(
+                            LdapEpicsControlsConfiguration.IOC.getNodeTypeName()
+                        ),
+                        any(
+                            LdapEpicsControlsConfiguration.COMPONENT.getNodeTypeName()
+                        )
+                    )
+                ), 
+                SearchControls.SUBTREE_SCOPE);
+                //@formatter:on
+
         ContentModel<LdapEpicsControlsConfiguration> model;
 
         LdapContentModelBuilder<LdapEpicsControlsConfiguration> builder;

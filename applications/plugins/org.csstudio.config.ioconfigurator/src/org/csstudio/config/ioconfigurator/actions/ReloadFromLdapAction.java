@@ -95,6 +95,13 @@ class ReloadFromLdapAction extends Action {
      */
     @Override
     public void run() {
+        run(null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void run(final Runnable runnable) {
         // Performs this action asynchronously
         _site.getShell().getDisplay().asyncExec(new Runnable() {
 
@@ -104,6 +111,9 @@ class ReloadFromLdapAction extends Action {
                     LdapControllerService.loadContent(_root);
                     _viewer.setInput(_root);
                     _viewer.refresh();
+                    if (runnable != null) {
+                        runnable.run();
+                    }
                 } catch (Exception e) {
                     MessageDialog.openError(_site.getShell(),
                                             "Could not reload",

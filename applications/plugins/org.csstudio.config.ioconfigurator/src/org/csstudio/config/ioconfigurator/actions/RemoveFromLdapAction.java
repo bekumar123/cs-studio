@@ -24,7 +24,9 @@
 package org.csstudio.config.ioconfigurator.actions;
 
 import org.csstudio.config.ioconfigurator.annotation.Nonnull;
+import org.csstudio.config.ioconfigurator.ldap.LdapControllerService;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerLeaf;
+import org.csstudio.config.ioconfigurator.tree.model.IControllerNode;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerSubtreeNode;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -42,23 +44,26 @@ import org.eclipse.ui.IWorkbenchPartSite;
 * @version $Revision: 1.2 $
 * @since 02.09.2010
 */
-class RemoveControllerAction extends Action {
+class RemoveFromLdapAction extends Action {
 
     private final TreeViewer _viewer;
     private final IWorkbenchPartSite _site;
+    private final ReloadFromLdapAction _reloadFromLdapAction;
 
     // Obtained through getters/setters
-    private IControllerLeaf _node;
+    private IControllerNode _node;
 
     /**
      * Private constructor.
      * Instance available through the static factory method.
      * @param site {@code IWorkbenchPartSite} site of the plug-in view.
      */
-    private RemoveControllerAction(@Nonnull final TreeViewer viewer,
-                                   @Nonnull final IWorkbenchPartSite site) {
+    private RemoveFromLdapAction(@Nonnull final TreeViewer viewer,
+                                   @Nonnull final IWorkbenchPartSite site,
+                                   @Nonnull final ReloadFromLdapAction reloadFromLdapAction) {
         _viewer = viewer;
         _site = site;
+        _reloadFromLdapAction = reloadFromLdapAction;
     }
 
     /**
@@ -66,16 +71,17 @@ class RemoveControllerAction extends Action {
      * @param site {@code IWorkbenchPartSite} site of the plug-in view.
      * @return the instance of this class.
      */
-    public static RemoveControllerAction getAction(@Nonnull final TreeViewer viewer,
-                                                   @Nonnull final IWorkbenchPartSite site) {
-        return new RemoveControllerAction(viewer, site);
+    public static RemoveFromLdapAction getAction(@Nonnull final TreeViewer viewer,
+                                                 @Nonnull final IWorkbenchPartSite site,
+                                                 @Nonnull final ReloadFromLdapAction reloadFromLdapAction) {
+        return new RemoveFromLdapAction(viewer, site,reloadFromLdapAction);
     }
 
     /**
      * Returns this class containing the specified node, emulating Builder pattern.
      * @param node {@code IControllerLeaf} to be set.
      */
-    public RemoveControllerAction setNode(final IControllerLeaf node) {
+    public RemoveFromLdapAction setNode(final IControllerNode node) {
         _node = node;
         return this;
     }
@@ -84,36 +90,36 @@ class RemoveControllerAction extends Action {
      * Returns this class node.
      * @return {@code IControllerLeaf} node.
      */
-    public IControllerLeaf getNode() {
+    public IControllerNode getNode() {
         return _node;
     }
 
     @Override
     public String getDescription() {
-        return "Removes the selected IOC";
+        return "Removes the selected element";
     }
 
     @Override
     public String getText() {
-        return "Remove IOC";
+        return "Remove element";
     }
 
     @Override
     public String getToolTipText() {
-        return "Remove the selected IOC";
+        return "Remove the selected element";
     }
 
     @Override
     public void run() {
-        try {
-            // LdapControllerService.removeController(_node);
+        try {            
+            LdapControllerService.removeNode(_node.getLdapName());
             IControllerSubtreeNode parent = _node.getParent();
             if (parent != null) {
                 parent.removeChild(_node);
                 _viewer.refresh(parent);
             }
         } catch (Exception e) {
-            MessageDialog.openError(_site.getShell(), "Rename", e.getMessage());
+            MessageDialog.openError(_site.getShell(), "Remove", e.getMessage());
         }
     }
 }

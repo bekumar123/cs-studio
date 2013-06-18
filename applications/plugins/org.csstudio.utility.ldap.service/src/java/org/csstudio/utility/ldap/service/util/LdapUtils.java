@@ -67,6 +67,10 @@ public final class LdapUtils {
         return equ(fieldName, FIELD_WILDCARD);
     }
     
+    public static String or(@Nonnull final String partOne, @Nonnull final String partTwo) {
+        return "(|(" + partOne + ")(" + partTwo + "))";
+    }
+    
     /**
      * Returns a filter for a direct match of the field name (e.g. '<fieldName>=<fieldValue>').
      * @param fieldName the field type
@@ -77,6 +81,7 @@ public final class LdapUtils {
     public static String equ(@Nonnull final String fieldName, @Nonnull final String fieldValue) {
         return fieldName + FIELD_ASSIGNMENT + fieldValue;
     }
+    
 
     /**
      * Returns the attributes for a new entry with the given object class and

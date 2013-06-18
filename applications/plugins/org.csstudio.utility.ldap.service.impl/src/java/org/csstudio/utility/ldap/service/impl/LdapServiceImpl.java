@@ -58,7 +58,6 @@ import org.csstudio.utility.ldap.service.ILdapSearchParams;
 import org.csstudio.utility.ldap.service.ILdapSearchResult;
 import org.csstudio.utility.ldap.service.ILdapService;
 import org.csstudio.utility.ldap.service.LdapServiceException;
-import org.csstudio.utility.ldap.treeconfiguration.LdapServerType;
 import org.csstudio.utility.ldap.utils.LdapSearchParams;
 import org.csstudio.utility.ldap.utils.LdapSearchResult;
 import org.csstudio.utility.treemodel.ContentModel;
@@ -68,6 +67,8 @@ import org.csstudio.utility.treemodel.ISubtreeNodeComponent;
 import org.csstudio.utility.treemodel.ITreeNodeConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Optional;
 
 /**
  * Service implementation for the LDAP access.
@@ -90,7 +91,7 @@ public final class LdapServiceImpl implements ILdapService {
      * @version $Revision: 1.7 $
      * @since 08.09.2010
      */
-    private enum DirContextHolder {
+    public enum DirContextHolder {
 
         INSTANCE;
 
@@ -139,6 +140,16 @@ public final class LdapServiceImpl implements ILdapService {
         }
     }
 
+    private Exception lastException = null;
+
+    public DirContext getContext() {
+        return DirContextHolder.INSTANCE.get();
+    }
+
+    public Exception retrieveLastExceptionAndClearIt() {
+        return lastException;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -175,6 +186,7 @@ public final class LdapServiceImpl implements ILdapService {
             ctrl.setSearchScope(searchScope);
             NamingEnumeration<SearchResult> answer = null;
             try {
+               
                 answer = context.search(searchRoot, filter, ctrl);
 
                 final Set<SearchResult> answerSet = new HashSet<SearchResult>();
@@ -209,11 +221,12 @@ public final class LdapServiceImpl implements ILdapService {
      * {@inheritDoc}
      */
     @Override
-    public boolean createComponent(@Nonnull final LdapName newComponentName, @Nullable final Attributes attributes) {
+    public void createComponent(@Nonnull final LdapName newComponentName, @Nullable final Attributes attributes)
+            throws Exception {
         final DirContext context = DirContextHolder.INSTANCE.get();
         if (context == null) {
             LOG.error("LDAP context is null.");
-            return false;
+            throw new Exception("LDAP context is null.");
         }
         try {
             context.bind(newComponentName, null, attributes);
@@ -221,20 +234,19 @@ public final class LdapServiceImpl implements ILdapService {
         } catch (final NamingException e) {
             LOG.warn("Naming Exception while trying to bind: " + newComponentName.toString());
             LOG.warn(e.getExplanation());
-            return false;
+            throw new Exception(e.getExplanation());
         }
-        return true;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean removeLeafComponent(@Nonnull final LdapName component) {
+    public void removeLeafComponent(@Nonnull final LdapName component) throws Exception {
         final DirContext context = DirContextHolder.INSTANCE.get();
         if (context == null) {
             LOG.error("LDAP context is null.");
-            return false;
+            throw new Exception("LDAP context is null.");
         }
         try {
             LOG.info("Unbind entry from LDAP: " + component);
@@ -242,9 +254,8 @@ public final class LdapServiceImpl implements ILdapService {
         } catch (final NamingException e) {
             LOG.warn("Naming Exception while trying to unbind: " + component);
             LOG.warn(e.getExplanation());
-            return false;
+            throw new Exception(e.getExplanation());
         }
-        return true;
     }
 
     /**
@@ -257,7 +268,7 @@ public final class LdapServiceImpl implements ILdapService {
     @Override
     public <T extends Enum<T> & ITreeNodeConfiguration<T>> boolean removeComponent(@Nonnull final T configurationRoot,
             @Nonnull final LdapName component) throws InvalidNameException, CreateContentModelException,
-            LdapServiceException {
+            LdapServiceException, Exception  {
 
         LOG.debug("Remove entry incl. subtree:\n{}", component.toString());
 
@@ -314,6 +325,7 @@ public final class LdapServiceImpl implements ILdapService {
         final DirContext context = DirContextHolder.INSTANCE.get();
         if (context == null) {
             LOG.error("LDAP context is null.");
+            lastException = new Exception("LDAP context is null.");
             return;
         }
         LOG.info("Rename entry from:\n{}\nto\n{}", oldLdapName.toString(), newLdapName.toString());
@@ -336,7 +348,7 @@ public final class LdapServiceImpl implements ILdapService {
      */
     private <T extends Enum<T> & ITreeNodeConfiguration<T>> void copyAndRemoveTreeComponent(
             @CheckForNull final LdapName ldapParentName, @Nonnull final ISubtreeNodeComponent<T> treeParent,
-            final boolean copy) throws InvalidNameException {
+            final boolean copy) throws InvalidNameException, Exception {
 
         // process contents of model and build subtree below 'newLdapName'
         for (final INodeComponent<T> child : treeParent.getDirectChildren()) {
@@ -450,4 +462,5 @@ public final class LdapServiceImpl implements ILdapService {
             throw new LdapServiceException(nameInNamespace + "could not be parsed.", e);
         }
     }
+
 }

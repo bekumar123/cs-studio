@@ -23,9 +23,9 @@
  */
 package org.csstudio.config.ioconfigurator.actions;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-
+import org.csstudio.config.ioconfigurator.annotation.CheckForNull;
+import org.csstudio.config.ioconfigurator.annotation.Nonnull;
+import org.csstudio.config.ioconfigurator.ldap.LdapControllerService;
 import org.csstudio.config.ioconfigurator.property.ioc.Validators;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerNode;
 import org.eclipse.jface.action.Action;
@@ -37,14 +37,14 @@ import org.eclipse.ui.IWorkbenchPartSite;
 
 /**
  * Action class designed to rename the chosen component.
- *
+ * 
  * @author tslamic
  * @author $Author: tslamic $
  * @version $Revision: 1.2 $
  * @since 02.09.2010
  */
 class RenameComponentAction extends Action {
-
+    
     private final TreeViewer _viewer;
     private final IWorkbenchPartSite _site;
 
@@ -52,30 +52,36 @@ class RenameComponentAction extends Action {
     private IControllerNode _node;
 
     /**
-     * Private constructor.
-     * Instance available through the static factory method.
-     * @param viewer {@code TreeViewer} plug-in tree viewer.
-     * @param site {@code IWorkbenchPartSite} site of the plug-in view.
+     * Private constructor. Instance available through the static factory
+     * method.
+     * 
+     * @param viewer
+     *            {@code TreeViewer} plug-in tree viewer.
+     * @param site
+     *            {@code IWorkbenchPartSite} site of the plug-in view.
      */
-    private RenameComponentAction(@Nonnull final TreeViewer viewer,
-                                  @Nonnull final IWorkbenchPartSite site) {
+    private RenameComponentAction(@Nonnull final TreeViewer viewer, @Nonnull final IWorkbenchPartSite site) {
         _viewer = viewer;
         _site = site;
     }
 
     /**
      * Returns the instance of this class.
-     * @param site {@code IWorkbenchPartSite} site of the plug-in view.
+     * 
+     * @param site
+     *            {@code IWorkbenchPartSite} site of the plug-in view.
      * @return the instance of this class.
      */
     public static RenameComponentAction getAction(@Nonnull final TreeViewer viewer,
-                                                  @Nonnull final IWorkbenchPartSite site) {
+            @Nonnull final IWorkbenchPartSite site) {
         return new RenameComponentAction(viewer, site);
     }
 
     /**
      * Sets this class node. Emulates Builder pattern.
-     * @param node {@code IControllerNode} to be set.
+     * 
+     * @param node
+     *            {@code IControllerNode} to be set.
      */
     public RenameComponentAction setNode(final IControllerNode node) {
         _node = node;
@@ -84,6 +90,7 @@ class RenameComponentAction extends Action {
 
     /**
      * Returns this class node.
+     * 
      * @return {@code IControllerNode} node.
      */
     public IControllerNode getNode() {
@@ -110,35 +117,23 @@ class RenameComponentAction extends Action {
         String name = renameInputDialog(_site, _node.getName());
         if (name != null) {
             try {
-                // LdapControllerService.rename(_node, name);
-                // _node.setName(name);
-                // _viewer.refresh(_node);
-                MessageDialog
-                        .openInformation(_site.getShell(),
-                                         "Info",
-                                         "The processing is yet to be implemented.");
+                LdapControllerService.rename(_node.getLdapName(), name);
+                _node.setName(name);
+                _viewer.refresh(_node);
             } catch (Exception e) {
-                MessageDialog.openError(_site.getShell(),
-                                        "Rename Error",
-                                        e.getMessage());
+                MessageDialog.openError(_site.getShell(), "Rename Error", e.getMessage());
             }
         }
     }
 
     /*
-     * (non-Javadoc)
-     * Serves as a helper method.
-     * Displaying the input dialog required in the getRenameAction method.
+     * (non-Javadoc) Serves as a helper method. Displaying the input dialog
+     * required in the getRenameAction method.
      */
     @CheckForNull
-    private static String renameInputDialog(@Nonnull final IWorkbenchPartSite site,
-                                            @Nonnull final String currentName) {
-        final InputDialog dialog = new InputDialog(site.getShell(),
-                                                   "Rename",
-                                                   "Please input the new name",
-                                                   currentName,
-                                                   Validators.NAME_VALIDATOR
-                                                           .getValidator());
+    private static String renameInputDialog(@Nonnull final IWorkbenchPartSite site, @Nonnull final String currentName) {
+        final InputDialog dialog = new InputDialog(site.getShell(), "Rename", "Please input the new name", currentName,
+                Validators.NAME_VALIDATOR.getValidator());
         if (Window.OK == dialog.open()) {
             return dialog.getValue();
         }

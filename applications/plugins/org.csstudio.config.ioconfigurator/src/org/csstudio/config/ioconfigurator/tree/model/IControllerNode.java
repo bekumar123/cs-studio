@@ -23,12 +23,12 @@
  */
 package org.csstudio.config.ioconfigurator.tree.model;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
-import org.csstudio.utility.ldap.model.LdapEpicsControlsConfiguration;
+import org.csstudio.config.ioconfigurator.annotation.CheckForNull;
+import org.csstudio.config.ioconfigurator.annotation.Nonnull;
+import org.csstudio.utility.ldap.treeconfiguration.LdapEpicsControlsConfiguration;
 
 /**
  * This interface provides the methods common to {@code IControllerSubtreeNode}

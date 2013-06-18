@@ -47,362 +47,370 @@ import com.google.inject.TypeLiteral;
 
 public class GenericEditorInput<T extends BindingEntity> implements IEditorInput {
 
-	@Inject
-	private EntityManager em;
+   @Inject
+   private EntityManager em;
 
-	@Inject
-	private Validator validator;
+   @Inject
+   private Validator validator;
 
-	@Inject
-	private TransactionContext transactionContext;
+   @Inject
+   private TransactionContext transactionContext;
 
-	@Inject
-	private AppLogger logger;
+   @Inject
+   private AppLogger logger;
 
-	@Inject
-	private UniqueIdGenerator idGenerator;
+   @Inject
+   private UniqueIdGenerator idGenerator;
 
-	@Inject
-	private TypeLiteral<T> typeLiteral;
+   @Inject
+   private TypeLiteral<T> typeLiteral;
 
-	private Option<T> data;
+   private Option<T> data;
 
-	private Option<Func1Void<IStructuredSelection>> goBack;
+   private Option<Func1Void<IStructuredSelection>> goBack;
 
-	private EditorMode editorMode = EditorMode.CREATE;
+   private EditorMode editorMode = EditorMode.CREATE;
 
-	private Option<IStructuredSelection> selection;
+   private Option<IStructuredSelection> selection;
 
-	private String title = "GENERIC";
+   private String title = "GENERIC";
 
-	private int editorId;
+   private int editorId;
 
-	private boolean saveSuccessful = false;
+   private boolean saveSuccessful = false;
 
-	private Func1Void<T> beforeCommit;
+   private Func1Void<T> beforeCommit;
 
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		if (data.hasValue()) {
-			data.get().addPropertyChangeListener(listener);
-		}
-	}
+   private Func1Void<T> beforeSave;
 
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		if (data.hasValue()) {
-			data.get().removePropertyChangeListener(listener);
-		}
-	}
+   public void addPropertyChangeListener(PropertyChangeListener listener) {
+      if (data.hasValue()) {
+         data.get().addPropertyChangeListener(listener);
+      }
+   }
 
-	public void setBeforeCommit(Func1Void<T> beforeCommit) {
-		this.beforeCommit = beforeCommit;
-	}
+   public void removePropertyChangeListener(PropertyChangeListener listener) {
+      if (data.hasValue()) {
+         data.get().removePropertyChangeListener(listener);
+      }
+   }
 
-	public void init(String title, Option<T> data, Option<Func1Void<IStructuredSelection>> goBack,
-				Option<IStructuredSelection> selection) {
+   public void setBeforeCommit(Func1Void<T> beforeCommit) {
+      this.beforeCommit = beforeCommit;
+   }
 
-		Validate.notNull(title, "Title must not be null");
-		Validate.notNull(editorMode, "editMode must not be null");
-		Validate.notNull(data, " Data must not be null");
-		Validate.notNull(goBack, "GoBack must not be null");
+   public void setBeforeSave(Func1Void<T> beforeSave) {
+      this.beforeSave = beforeSave;
+   }
 
-		if (data.hasValue()) {
-			Validate.notNull(data.get(), "Data.get must not return null");
-		}
+   public void init(String title, Option<T> data, Option<Func1Void<IStructuredSelection>> goBack,
+         Option<IStructuredSelection> selection) {
 
-		this.selection = selection;
-		editorId = idGenerator.getAndIncrement();
+      Validate.notNull(title, "Title must not be null");
+      Validate.notNull(editorMode, "editMode must not be null");
+      Validate.notNull(data, " Data must not be null");
+      Validate.notNull(goBack, "GoBack must not be null");
 
-		this.title = title;
-		this.data = data;
-		this.goBack = goBack;
-	}
+      if (data.hasValue()) {
+         Validate.notNull(data.get(), "Data.get must not return null");
+      }
 
-	public boolean hasData() {
-		return data.hasValue();
-	}
+      this.selection = selection;
+      editorId = idGenerator.getAndIncrement();
 
-	public void setData(T newData) {
-		Validate.notNull(newData, "Generic Editor Input: New Data must not be null");
-		PropertyChangeListener[] listeners = new PropertyChangeListener[] {};
-		if (data.hasValue()) {
-			listeners = data.get().getPcs().getPropertyChangeListeners();
-			for (PropertyChangeListener listener : listeners) {
-				data.get().getPcs().removePropertyChangeListener(listener);
-			}
-		}
-		this.data = new Some<T>(newData);
-		for (PropertyChangeListener listener : listeners) {
-			if (listener instanceof DataChangeSupport) {
-				data.get().addPropertyChangeListener(listener);
-			}
-		}
-	}
+      this.title = title;
+      this.data = data;
+      this.goBack = goBack;
+   }
 
-	public Option<IStructuredSelection> getStructuredSelection() {
-		return selection;
-	}
+   public boolean hasData() {
+      return data.hasValue();
+   }
 
-	public void saveData() {
-		try {
-			transactionContext.doRun(new Func0Void() {
-				@Override
-				public void apply() {
-					Object mergedObject = em.merge(data.get());
-					// try to copy ID
-					// This is neccessary since we only use merge and the id
-					// is only
-					// updated on an attached object.
-					try {
-					   if (hasIdField(data.get())) {
-					      BeanUtils.setProperty(data.get(), "id", BeanUtils.getProperty(mergedObject, "id"));
-					   }
-					} catch (Exception e) {
-					   logger.logError(e);
-					}
-					if (!Environment.isTestMode()) {
-						em.flush();
-					}
-					if (beforeCommit != null) {
-						beforeCommit.apply(data.get());
-					}
-					if (Environment.isTestMode()) {
-						em.clear();
-					}
-				}
-			});
-			em.clear();
-			data.get().setNewRecord(false);
-			saveSuccessful = true;
-		} catch (RollbackException e) {
-			saveSuccessful = false;
-			refreshData();
-			logger.logError(e);
-			Dialogs.exception("Error while saving...", e);
-		}
-	}
+   public void setData(T newData) {
+      Validate.notNull(newData, "Generic Editor Input: New Data must not be null");
+      PropertyChangeListener[] listeners = new PropertyChangeListener[] {};
+      if (data.hasValue()) {
+         listeners = data.get().getPcs().getPropertyChangeListeners();
+         for (PropertyChangeListener listener : listeners) {
+            data.get().getPcs().removePropertyChangeListener(listener);
+         }
+      }
+      this.data = new Some<T>(newData);
+      for (PropertyChangeListener listener : listeners) {
+         if (listener instanceof DataChangeSupport) {
+            data.get().addPropertyChangeListener(listener);
+         }
+      }
+   }
 
-	private boolean hasIdField(Object object) {
-	   boolean found;
-	   try {
-	      object.getClass().getDeclaredField("id");
-	      found = true;
-	   } catch (NoSuchFieldException e) {
-	      found = false;
-	   }
-	   return found;
-	}
-	
-	public boolean isSaveSuccessful() {
-		return saveSuccessful;
-	}
+   public Option<IStructuredSelection> getStructuredSelection() {
+      return selection;
+   }
 
-	public void refreshData() {
-		if (data.hasValue() && em.contains(data.get())) {
-			try {
-				em.refresh(data.get());
-			} catch (Exception e) {
-			}
-		}
-	}
+   public void saveData() {
+      try {
+         transactionContext.doRun(new Func0Void() {
+            @Override
+            public void apply() {
+               if (beforeSave != null) {
+                  beforeSave.apply(data.get());
+               }
+               Object mergedObject = em.merge(data.get());
+               // try to copy ID
+               // This is neccessary since we only use merge and the id
+               // is only
+               // updated on an attached object.
+               try {
+                  if (hasIdField(data.get())) {
+                     BeanUtils.setProperty(data.get(), "id", BeanUtils.getProperty(mergedObject, "id"));
+                  }
+               } catch (Exception e) {
+                  logger.logError(e);
+               }
+               if (!Environment.isTestMode()) {
+                  em.flush();
+               }
+               if (beforeCommit != null) {
+                  beforeCommit.apply(data.get());
+               }
+               if (Environment.isTestMode()) {
+                  em.clear();
+               }
+            }
+         });
+         em.clear();
+         data.get().setNewRecord(false);
+         saveSuccessful = true;
+      } catch (RollbackException e) {
+         saveSuccessful = false;
+         refreshData();
+         logger.logError(e);
+         Dialogs.exception("Error while saving...", e);
+      }
+   }
 
-	public Set<ConstraintViolation<T>> validateData() {
-		return validator.validate(data.get());
-	}
+   private boolean hasIdField(Object object) {
+      boolean found;
+      try {
+         object.getClass().getDeclaredField("id");
+         found = true;
+      } catch (NoSuchFieldException e) {
+         found = false;
+      }
+      return found;
+   }
 
-	public Option<Integer> getSizeLimit(Property property) {
-		Validate.notNull(property, "Property must not be null");
-		if (data.hasValue()) {
-			try {
-				Option<AccessibleObject> accessibleObject = getAccessibleObject(property);
-				if (accessibleObject.hasValue()) {
-					if (accessibleObject.get().isAnnotationPresent(Size.class)) {
-						Size size = accessibleObject.get().getAnnotation(Size.class);
-						return new Some<Integer>(size.max());
-					} else if (accessibleObject.get().isAnnotationPresent(InputLength.class)) {
-						InputLength inputLength = accessibleObject.get().getAnnotation(InputLength.class);
-						return new Some<Integer>(inputLength.value());
-					}
-				}
-			} catch (Exception e) {
-				logger.logError(e);
-				throw new IllegalStateException(e);
-			}
-		}
-		return new None<Integer>();
-	}
+   public boolean isSaveSuccessful() {
+      return saveSuccessful;
+   }
 
-	public String getDataPropertyValueByName(String propertyName) {
-		Validate.notNull(propertyName, "PropertyName must not be null");
-		Validate.isTrue(data.hasValue(), "data has no value");
-		try {
-			return BeanUtils.getProperty(data.get(), propertyName);
-		} catch (Exception e) {
-			logger.logError(e);
-			throw new IllegalStateException(e);
-		}
-	}
+   public void refreshData() {
+      if (data.hasValue() && em.contains(data.get())) {
+         try {
+            em.refresh(data.get());
+         } catch (Exception e) {
+         }
+      }
+   }
 
-	public boolean isDatePropertyField(Property property) {
-		Validate.notNull(property, "Property must not be null");
-		Option<Field> field = getField(property);
-		return (field.hasValue() && (field.get().getType() == Date.class));
-	}
+   public Set<ConstraintViolation<T>> validateData() {
+      return validator.validate(data.get());
+   }
 
-	@SuppressWarnings("unchecked")
-	public boolean isReadOnlyPropertyField(Property property) {
-		Validate.notNull(property, "Property must not be null");
-		if (!data.hasValue()) {
-			return false;
-		}
-		return containsAnyAnnotation(property, Immutable.class, ReadOnly.class);
-	}
+   public Option<Integer> getSizeLimit(Property property) {
+      Validate.notNull(property, "Property must not be null");
+      if (data.hasValue()) {
+         try {
+            Option<AccessibleObject> accessibleObject = getAccessibleObject(property);
+            if (accessibleObject.hasValue()) {
+               if (accessibleObject.get().isAnnotationPresent(Size.class)) {
+                  Size size = accessibleObject.get().getAnnotation(Size.class);
+                  return new Some<Integer>(size.max());
+               } else if (accessibleObject.get().isAnnotationPresent(InputLength.class)) {
+                  InputLength inputLength = accessibleObject.get().getAnnotation(InputLength.class);
+                  return new Some<Integer>(inputLength.value());
+               }
+            }
+         } catch (Exception e) {
+            logger.logError(e);
+            throw new IllegalStateException(e);
+         }
+      }
+      return new None<Integer>();
+   }
 
-	@SuppressWarnings("unchecked")
-	public boolean isRequiredProperty(Property property) {
-		Validate.notNull(property, "Property must not be null");
-		if (!data.hasValue()) {
-			return false;
-		}
-		return containsAnyAnnotation(property, Id.class, NotNull.class, NotEmpty.class);
-	}
+   public String getDataPropertyValueByName(String propertyName) {
+      Validate.notNull(propertyName, "PropertyName must not be null");
+      Validate.isTrue(data.hasValue(), "data has no value");
+      try {
+         return BeanUtils.getProperty(data.get(), propertyName);
+      } catch (Exception e) {
+         logger.logError(e);
+         throw new IllegalStateException(e);
+      }
+   }
 
-	private boolean containsAnyAnnotation(Property property, Class<? extends Annotation>... clazzes) {
-		Set<Class<? extends Annotation>> annotationSet = new HashSet<Class<? extends Annotation>>(
-					Arrays.asList(clazzes));
-		Option<AccessibleObject> accessibleObject = getAccessibleObject(property);
-		if (!accessibleObject.hasValue()) {
-			throw new IllegalStateException("Can't find property " + property);
-		}
-		for (Class<? extends Annotation> annotation : annotationSet) {
-			if (accessibleObject.get().isAnnotationPresent(annotation)) {
-				return true;
-			}
-		}
-		return false;
-	}
+   public boolean isDatePropertyField(Property property) {
+      Validate.notNull(property, "Property must not be null");
+      Option<Field> field = getField(property);
+      return (field.hasValue() && (field.get().getType() == Date.class));
+   }
 
-	private Option<AccessibleObject> getAccessibleObject(Property property) {
-		try {
-			Field field = typeLiteral.getRawType().getDeclaredField(property.getName());
-			return new Some<AccessibleObject>(field);
-		} catch (NoSuchFieldException e) {
-			// No field for the given property was found. Check if there is
-			// a matching getter method for this property.
-			try {
-				Class<?> noparams[] = {};
-				String getterName = "get" + StringUtils.capitalize(property.getName());
-				Method method = typeLiteral.getRawType().getDeclaredMethod(getterName, noparams);
-				return new Some<AccessibleObject>(method);
-			} catch (Exception e1) {
-				logger.logError(e);
-				throw new IllegalStateException(e);
-			}
-		}
-	}
+   @SuppressWarnings("unchecked")
+   public boolean isReadOnlyPropertyField(Property property) {
+      Validate.notNull(property, "Property must not be null");
+      if (!data.hasValue()) {
+         return false;
+      }
+      return containsAnyAnnotation(property, Immutable.class, ReadOnly.class);
+   }
 
-	private Option<Field> getField(Property property) {
-		try {
-			Field field = typeLiteral.getRawType().getDeclaredField(property.getName());
-			return new Some<Field>(field);
-		} catch (NoSuchFieldException e) {
-			return new None<Field>();
-		}
-	}
+   @SuppressWarnings("unchecked")
+   public boolean isRequiredProperty(Property property) {
+      Validate.notNull(property, "Property must not be null");
+      if (!data.hasValue()) {
+         return false;
+      }
+      return containsAnyAnnotation(property, Id.class, NotNull.class, NotEmpty.class);
+   }
 
-	public IObservableValue createObservableValueForProperty(Property property) {
-		if (!data.hasValue()) {
-			throw new IllegalStateException("Trying to bind data but no data given");
-		}
-		return BeanProperties.value(data.get().getClass(), property.getName()).observe(data.get());
-	}
+   private boolean containsAnyAnnotation(Property property, Class<? extends Annotation>... clazzes) {
+      Set<Class<? extends Annotation>> annotationSet = new HashSet<Class<? extends Annotation>>(Arrays.asList(clazzes));
+      Option<AccessibleObject> accessibleObject = getAccessibleObject(property);
+      if (!accessibleObject.hasValue()) {
+         throw new IllegalStateException("Can't find property " + property);
+      }
+      for (Class<? extends Annotation> annotation : annotationSet) {
+         if (accessibleObject.get().isAnnotationPresent(annotation)) {
+            return true;
+         }
+      }
+      return false;
+   }
 
-	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
-		return null;
-	}
+   private Option<AccessibleObject> getAccessibleObject(Property property) {
+      try {
+         Field field = typeLiteral.getRawType().getDeclaredField(property.getName());
+         return new Some<AccessibleObject>(field);
+      } catch (NoSuchFieldException e) {
+         // No field for the given property was found. Check if there is
+         // a matching getter method for this property.
+         try {
+            Class<?> noparams[] = {};
+            String getterName = "get" + StringUtils.capitalize(property.getName());
+            Method method = typeLiteral.getRawType().getDeclaredMethod(getterName, noparams);
+            return new Some<AccessibleObject>(method);
+         } catch (Exception e1) {
+            logger.logError(e);
+            throw new IllegalStateException(e);
+         }
+      }
+   }
 
-	public void processData(Func1Void<T> processData) {
-		if (data.hasValue()) {
-			processData.apply(data.get());
-		}
-	}
+   private Option<Field> getField(Property property) {
+      try {
+         Field field = typeLiteral.getRawType().getDeclaredField(property.getName());
+         return new Some<Field>(field);
+      } catch (NoSuchFieldException e) {
+         return new None<Field>();
+      }
+   }
 
-	public void processGenericData(Func1Void<Some<Object>> processData) {
-		if (data.hasValue()) {
-			processData.apply(new Some<Object>(data.get()));
-		}
-	}
+   public IObservableValue createObservableValueForProperty(Property property) {
+      if (!data.hasValue()) {
+         throw new IllegalStateException("Trying to bind data but no data given");
+      }
+      return BeanProperties.value(data.get().getClass(), property.getName()).observe(data.get());
+   }
 
-	public boolean isNewData() {
-		if (data.hasValue()) {
-			return data.get().isNew();
-		}
-		return false;
-	}
+   public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
+      return null;
+   }
 
-	public boolean exists() {
-		return false;
-	}
+   public void processData(Func1Void<T> processData) {
+      if (data.hasValue()) {
+         processData.apply(data.get());
+      }
+   }
 
-	public ImageDescriptor getImageDescriptor() {
-		return null;
-	}
+   public void processGenericData(Func1Void<Some<Object>> processData) {
+      if (data.hasValue()) {
+         processData.apply(new Some<Object>(data.get()));
+      }
+   }
 
-	public String getName() {
-		return title;
-	}
+   public boolean isNewData() {
+      if (data.hasValue()) {
+         return data.get().isNew();
+      }
+      return false;
+   }
 
-	public IPersistableElement getPersistable() {
-		return null;
-	}
+   public boolean exists() {
+      return false;
+   }
 
-	public String getToolTipText() {
-		return title;
-	}
+   public ImageDescriptor getImageDescriptor() {
+      return null;
+   }
 
-	public String getTitle() {
-		return title;
-	}
+   public String getName() {
+      return title;
+   }
 
-	public int getEditorId() {
-		return editorId;
-	}
+   public IPersistableElement getPersistable() {
+      return null;
+   }
 
-	public boolean hasGoBack() {
-		return goBack.hasValue();
-	}
+   public String getToolTipText() {
+      return title;
+   }
 
-	public void executeGoBack(IStructuredSelection selection) {
-		if (!goBack.hasValue()) {
-			return;
-		}
-		goBack.get().apply(selection);
-	}
+   public String getTitle() {
+      return title;
+   }
 
-	public TypeLiteral<T> getTypeLiteral() {
-		return typeLiteral;
-	}
+   public int getEditorId() {
+      return editorId;
+   }
 
-	@Override
-	public int hashCode() {
-		if (!data.hasValue()) {
-			return editorId;
-		}
-		return data.get().hashCode();
-	}
+   public boolean hasGoBack() {
+      return goBack.hasValue();
+   }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof GenericEditorInput<?>)) {
-			return false;
-		}
-		GenericEditorInput<?> editorIput = (GenericEditorInput<?>) obj;
-		if (!hasData()) {
-			return editorIput.editorId == editorId;
-		}
-		if (!data.hasValue()) {
-			return editorIput.editorId == editorId;
-		}
-		return data.equals(editorIput.data);
-	}
+   public void executeGoBack(IStructuredSelection selection) {
+      if (!goBack.hasValue()) {
+         return;
+      }
+      goBack.get().apply(selection);
+   }
+
+   public TypeLiteral<T> getTypeLiteral() {
+      return typeLiteral;
+   }
+
+   @Override
+   public int hashCode() {
+      if (!data.hasValue()) {
+         return editorId;
+      }
+      return data.get().hashCode();
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (!(obj instanceof GenericEditorInput<?>)) {
+         return false;
+      }
+      GenericEditorInput<?> editorIput = (GenericEditorInput<?>) obj;
+      if (!hasData()) {
+         return editorIput.editorId == editorId;
+      }
+      if (!data.hasValue()) {
+         return editorIput.editorId == editorId;
+      }
+      return data.equals(editorIput.data);
+   }
 
 }

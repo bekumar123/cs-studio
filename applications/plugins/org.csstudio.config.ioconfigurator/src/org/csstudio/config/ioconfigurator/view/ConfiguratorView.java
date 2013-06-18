@@ -1,15 +1,16 @@
 package org.csstudio.config.ioconfigurator.view;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.naming.InvalidNameException;
 
 import org.csstudio.config.ioconfigurator.actions.ControllerActionCache;
+import org.csstudio.config.ioconfigurator.annotation.Nonnull;
+import org.csstudio.config.ioconfigurator.annotation.Nullable;
 import org.csstudio.config.ioconfigurator.ldap.LdapControllerService;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerNode;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerSubtreeNode;
 import org.csstudio.config.ioconfigurator.tree.model.impl.ControllerSubtreeNode;
 import org.csstudio.config.ioconfigurator.ui.ControllerTreeViewer;
-import org.csstudio.utility.ldap.model.LdapEpicsControlsConfiguration;
+import org.csstudio.utility.ldap.treeconfiguration.LdapEpicsControlsConfiguration;
 import org.csstudio.utility.treemodel.CreateContentModelException;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -67,9 +68,9 @@ public class ConfiguratorView extends ViewPart {
      * Constructor.
      */
     public ConfiguratorView() {
-        _root = new ControllerSubtreeNode(LdapEpicsControlsConfiguration.ROOT.getRootTypeValue(),
+        _root = new ControllerSubtreeNode(LdapEpicsControlsConfiguration.VIRTUAL_ROOT.getUnitTypeValue(),  // (LdapEpicsControlsConfiguration.ROOT.getRootTypeValue(),
                                           null,
-                                          LdapEpicsControlsConfiguration.ROOT);
+                                          LdapEpicsControlsConfiguration.VIRTUAL_ROOT);
     }
 
     @Override
@@ -100,7 +101,9 @@ public class ConfiguratorView extends ViewPart {
      */
     @Override
     public void setFocus() {
-        _viewer.getControl().setFocus();
+        if ((_viewer != null) && (_viewer.getControl() != null)) {
+            _viewer.getControl().setFocus();
+        }
     }
 
     /*
@@ -142,7 +145,12 @@ public class ConfiguratorView extends ViewPart {
 
         menuManager.addMenuListener(new IMenuListener() {
             public void menuAboutToShow(@Nullable final IMenuManager manager) {
-                _actionsCache.fillContextMenu(getSelectedNode(), manager);
+                try {
+                    _actionsCache.fillContextMenu(getSelectedNode(), manager);
+                } catch (InvalidNameException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
         });
 

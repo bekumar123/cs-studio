@@ -25,11 +25,25 @@ package org.csstudio.config.ioconfigurator.property.ioc;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Set;
 
-import javax.annotation.Nonnull;
+import javax.naming.InvalidNameException;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapName;
 
-import org.csstudio.utility.ldap.utils.LdapFieldsAndAttributes;
+import org.csstudio.config.ioconfigurator.activator.Activator;
+import org.csstudio.config.ioconfigurator.annotation.Nonnull;
+import org.csstudio.config.ioconfigurator.ui.ControllerTreeViewer;
+import org.csstudio.utility.ldap.service.ILdapSearchResult;
+import org.csstudio.utility.ldap.service.ILdapService;
+import org.csstudio.utility.ldap.treeconfiguration.LdapFieldsAndAttributes;
 import org.eclipse.jface.dialogs.IInputValidator;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.ISelectionService;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * Validators used in this plug-in.
@@ -82,9 +96,54 @@ public enum Validators {
                 return e.getMessage();
             }
         }
+    }),
+
+    /**
+     * IP validator.
+     */
+    EPICS_IP_ADDRESS_IP_VALIDATOR(new IInputValidator() {
+
+        @Override
+        public String isValid(final String newText) {
+            try {
+
+                InetAddress.getByName(newText);
+                
+                LdapName ldapName = new LdapName("ou=EpicsControls");
+                
+                ILdapSearchResult searchResult = LDAP_SERVICE.retrieveSearchResultSynchronously(ldapName,
+                        "epicsIpAddress=" + newText, SearchControls.SUBTREE_SCOPE);
+              
+                Set<SearchResult> results = searchResult.getAnswerSet();
+                
+                if (searchResult.getAnswerSet().size() == 0) {
+                    return null;
+                } else if (searchResult.getAnswerSet().size() == 1) {
+                    SearchResult sr = results.iterator().next();
+                    if (ControllerTreeViewer.CURRENT_SELECTION.getLdapName().toString().startsWith(sr.getName())) {
+                        return null;
+                    } else {
+                        return "Error: IP-Address already in use.";
+                    }
+                } else {
+                    return "Error: IP-Address already in use.";
+                }
+                
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+                return e.getMessage();
+            } catch (InvalidNameException e) {
+                e.printStackTrace();
+                return e.getMessage();
+            }
+        }
     });
 
     private final IInputValidator _validator;
+
+    private static ILdapService LDAP_SERVICE = Activator.getDefault().getLdapService();
+
+    private static final Shell SHELL = PlatformUI.getWorkbench().getDisplay().getActiveShell();
 
     /**
      * Constructor.

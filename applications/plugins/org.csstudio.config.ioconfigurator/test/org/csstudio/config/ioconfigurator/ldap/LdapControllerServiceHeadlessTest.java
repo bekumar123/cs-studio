@@ -38,12 +38,13 @@ import org.csstudio.config.ioconfigurator.tree.model.IControllerLeaf;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerSubtreeNode;
 import org.csstudio.config.ioconfigurator.tree.model.impl.ControllerLeaf;
 import org.csstudio.config.ioconfigurator.tree.model.impl.ControllerSubtreeNode;
-import org.csstudio.utility.ldap.model.LdapEpicsControlsConfiguration;
 import org.csstudio.utility.ldap.service.ILdapService;
-import org.csstudio.utility.ldap.utils.LdapUtils;
+import org.csstudio.utility.ldap.service.util.LdapUtils;
+import org.csstudio.utility.ldap.treeconfiguration.LdapEpicsControlsConfiguration;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 
 /**
  * TODO (tslamic) :
@@ -74,14 +75,14 @@ public class LdapControllerServiceHeadlessTest {
 
         Assert.assertTrue(LDAP_SERVICE.reInitializeLdapConnection(map));
 
-        ROOT = new ControllerSubtreeNode(LdapEpicsControlsConfiguration.ROOT.getRootTypeValue(),
+        ROOT = new ControllerSubtreeNode(LdapEpicsControlsConfiguration.VIRTUAL_ROOT.getNodeTypeName(),
                                          null,
-                                         LdapEpicsControlsConfiguration.ROOT);
+                                         LdapEpicsControlsConfiguration.VIRTUAL_ROOT);
         Assert.assertNotNull(ROOT);
     }
 
     @Test
-    public void addIoc() {
+    public void addIoc() throws Exception {
 
         IControllerLeaf leaf = new ControllerLeaf("testLeaf",
                                                   ROOT,
@@ -91,7 +92,7 @@ public class LdapControllerServiceHeadlessTest {
         }
         try {
             LdapControllerService.addController(leaf);
-            LDAP_SERVICE.lookup(LdapUtils.createLdapQuery("efan",
+            LDAP_SERVICE.lookup(LdapUtils.createLdapName("efan",
                                                           "Test",
                                                           "ou"));
 
@@ -105,10 +106,11 @@ public class LdapControllerServiceHeadlessTest {
     @Test
     public void testMethod() {
         try {
-            LDAP_SERVICE.lookup(LdapUtils.createLdapQuery("efan",
+            LDAP_SERVICE.lookup(LdapUtils.createLdapName("efan",
                                                           "Test",
                                                           "ou",
                                                           "EpicsAlarmcfg"));
+            
         } catch (NamingException e) {
             Assert.fail(e.getMessage());
         }

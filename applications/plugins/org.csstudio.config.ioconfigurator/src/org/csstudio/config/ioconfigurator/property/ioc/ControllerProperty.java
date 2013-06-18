@@ -25,9 +25,9 @@ package org.csstudio.config.ioconfigurator.property.ioc;
 
 import java.util.Map;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-
+import org.csstudio.config.ioconfigurator.annotation.CheckForNull;
+import org.csstudio.config.ioconfigurator.annotation.Nonnull;
+import org.csstudio.config.ioconfigurator.tree.model.IControllerLeaf;
 import org.eclipse.jface.dialogs.IInputValidator;
 
 import com.google.common.collect.Maps;
@@ -59,8 +59,7 @@ public enum ControllerProperty {
     HW_NAME("epicsHwName", "Hardware name", "", Validators.IP_VALIDATOR
             .getValidator()),
 
-    IP_ADDRESS("epicsIPAddress", "IP Address", "", Validators.IP_VALIDATOR
-            .getValidator()),
+    IP_ADDRESS("epicsIPAddress", "IP Address", "", Validators.EPICS_IP_ADDRESS_IP_VALIDATOR.getValidator()),
 
     IP_ADDRESS_REDUNDANT("epicsIPAddressR",
                          "Redundant IP Address",

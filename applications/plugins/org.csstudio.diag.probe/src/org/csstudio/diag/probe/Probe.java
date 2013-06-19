@@ -15,6 +15,7 @@ import org.csstudio.apputil.ui.swt.ComboHistoryHelper;
 import org.csstudio.auth.security.SecurityFacade;
 import org.csstudio.csdata.ProcessVariable;
 import org.csstudio.data.values.IDoubleValue;
+import org.csstudio.data.values.IEnumeratedValue;
 import org.csstudio.data.values.ILongValue;
 import org.csstudio.data.values.IMetaData;
 import org.csstudio.data.values.INumericMetaData;
@@ -870,6 +871,9 @@ public class Probe extends ViewPart implements PVListener, ISelectionProvider
     		return(Long.parseLong(new_value));
     	}
     	if (value instanceof IStringValue) {
+    		return new_value;
+    	}
+    	if (value instanceof IEnumeratedValue) {
     		return new_value;
     	}
 		return null;

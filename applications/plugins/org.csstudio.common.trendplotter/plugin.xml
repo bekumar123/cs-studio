@@ -102,6 +102,15 @@
             name="%TrendPlotter">
       </page>
    </extension>
+     <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="org.csstudio.platform.ui.css.applications.trends"
+            class="org.csstudio.common.trendplotter.preferences.PreferenceMysqlPage"
+            id="org.csstudio.trends.databrowser.preferences"
+            name="%TrendPlotterMysql">
+      </page>
+   </extension>
    <extension
          point="org.eclipse.ui.cheatsheets.cheatSheetContent">
       <category
@@ -149,11 +158,6 @@
             id="org.csstudio.common.trendplotter.OpenTrendPopup"
             name="Trendplotter">
       </command>
-       <command
-            defaultHandler="org.csstudio.common.trendplotter.CheckPvInArchives"
-            id="org.csstudio.common.trendplotter.CheckArchive"
-            name="Trendplotter">
-      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -196,17 +200,6 @@
                label="%TrendPlotter"
                style="push"
                tooltip="Trend Plotter">
-         </command>
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
-            locationURI="popup:org.csstudio.ui.menu.popup.processvariable">
-         <command
-               commandId="org.csstudio.common.trendplotter.CheckArchive"
-               icon="icons/new_databrowser.png"
-               label="Check Archive"
-               style="push"
-               tooltip="Check Archive for selected PV">
          </command>
       </menuContribution>
    </extension>

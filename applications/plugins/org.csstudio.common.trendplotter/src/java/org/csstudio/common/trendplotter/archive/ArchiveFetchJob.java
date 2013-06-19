@@ -20,9 +20,6 @@ import org.csstudio.common.trendplotter.model.ArchiveDataSource;
 import org.csstudio.common.trendplotter.model.PVItem;
 import org.csstudio.common.trendplotter.model.RequestType;
 import org.csstudio.common.trendplotter.preferences.Preferences;
-import org.epics.vtype.Time;
-import org.epics.vtype.VDouble;
-import org.epics.vtype.VDoubleArray;
 import org.epics.vtype.VType;
 import org.epics.util.time.Timestamp;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -119,7 +116,7 @@ public class ArchiveFetchJob extends Job
             for (int i=0; i<archives.length && !cancelled; ++i)
             {
                 final ArchiveDataSource archive = archives[i];
-                final String url = archive.getUrl();
+                String url = archive.getUrl();
                 // Display "N/total", using '1' for the first sub-archive.
                 synchronized  (this)
                 {
@@ -151,15 +148,15 @@ public class ArchiveFetchJob extends Job
                     }
                     LOG.info("end value_iter create");
                     // Get samples into array
-                    final ArrayList<VType> result = new ArrayList<VType>();
+                    ArrayList<VType> result = new ArrayList<VType>();
                     LOG.info("start result create");
                     while (value_iter.hasNext()) {
                         final VType next = value_iter.next();
                      //   LOG.trace(url + " - val: " + next.toString() );
                       //  System.out.println("----- " + url + " - val: " +  next.toString() );
                         if(next!=null){
-                            LOG.info(" result {}",next.toString());
-                        result.add(next);
+                           // LOG.info(" result {}",next.toString());
+                           result.add(next);
                         }
                     }
                     LOG.info("end result create");
@@ -172,6 +169,56 @@ public class ArchiveFetchJob extends Job
                         break;
                     }
                     value_iter.close();
+                  /*  Calendar c=Calendar.getInstance();
+                    c.set(2013,4,27,10,0,0);
+                    Timestamp mysqltime_s= Timestamp.of(c.getTime());
+                    c.set(2013,4,28,10,0,0);
+                    Timestamp mysqltime_e= Timestamp.of(c.getTime());
+                    if(start.getSec()<mysqltime_e.getSec() && url.contains("sql")){
+                        System.out.println("ArchiveFetchJob.WorkerThread.run() "+ start.getSec()+"   "+mysqltime_s.getSec()+ "   "+mysqltime_s.toDate().toString());
+                        if(start.getSec()>mysqltime_s.getSec())
+                            mysqltime_s=start;
+                        url = "xnds://krynfs.desy.de/ArchiveDataServer.cgi";
+                        beginTime=System.currentTimeMillis();
+                            synchronized (this)
+                            {  LOG.info("start reader create");
+                                reader = ArchiveRepository.getInstance().getArchiveReader(url);
+                               LOG.info("end reader create");
+                            }
+//                            TODO (jhatje): implement vType
+                             value_iter = null;
+                             currentRequestType = item.getRequestType();
+                            LOG.info("start value_iter create");
+                            if (currentRequestType == RequestType.RAW) {
+                                value_iter = reader.getRawValues(1, item.getName(),mysqltime_s,mysqltime_e );
+                            }
+                            else {
+                                value_iter = reader.getOptimizedValues(1, item.getName(),mysqltime_s, mysqltime_e,  bins);
+                            }
+                            LOG.info("end value_iter create");
+                            // Get samples into array
+                            result = new ArrayList<VType>();
+                            LOG.info("start result create");
+                            while (value_iter.hasNext()) {
+                                final VType next = value_iter.next();
+                             //   LOG.trace(url + " - val: " + next.toString() );
+                              //  System.out.println("----- " + url + " - val: " +  next.toString() );
+                                if(next!=null){
+                                  //  LOG.info(" result {}",next.toString());
+                                result.add(next);
+                                }
+                            }
+                            LOG.info("end result create");
+                            LOG.info(result.size() + " samples from source " + url);
+                            LOG.info("read samples from source {} in {} millis" ,url,System.currentTimeMillis()-beginTime);
+                            LOG.info("start Merge Sample ");
+                            item.mergeArchivedSamples(reader, result, currentRequestType);
+                            LOG.info("end Merge Sample ");
+                            if (cancelled) {
+                                break;
+                            }
+                            value_iter.close(); 
+                    }*/
                 }
                 catch (final Exception ex) {   // Tell listener unless it's the result of a 'cancel'?
                     if (! cancelled) {

@@ -522,7 +522,7 @@ public class Plot
      * @param modelIndex item index in the model
      */
     public void addTrace(final ModelItem item, Integer modelIndex)
-    {  System.out.println("Plot.addTrace() start " +System.currentTimeMillis());
+    {  
         final Axis xaxis = xygraph.primaryXAxis;
         final Axis yaxis = getYAxis(item.getAxisIndex());
         final Trace trace = new Trace(item.getResolvedDisplayName(), xaxis,

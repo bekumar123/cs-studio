@@ -449,7 +449,6 @@ public class PVItem extends ModelItem implements PVListener {
          if(!value.getSeverity().hasValue()) alarm=AlarmSeverity.UNDEFINED;
          status=value.getStatus();
          Quality quality = value.getQuality()== org.csstudio.data.values.IValue.Quality.Interpolated?Quality.Interpolated:Quality.Original;
-         System.out.println("PVItem.getVTypeValue() " +value.getClass().toString());
          if(value instanceof IEnumeratedValue)
              return  new ArchiveVString(t,alarm, status,new Integer(((IEnumeratedValue)value).getValue()).toString());
              

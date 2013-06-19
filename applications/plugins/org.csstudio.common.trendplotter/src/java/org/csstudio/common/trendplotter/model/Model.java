@@ -10,11 +10,12 @@ package org.csstudio.common.trendplotter.model;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Timer;
 import java.util.logging.Level;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -29,7 +30,6 @@ import org.csstudio.common.trendplotter.Activator;
 import org.csstudio.common.trendplotter.Messages;
 import org.csstudio.common.trendplotter.imports.ImportArchiveReaderFactory;
 import org.csstudio.common.trendplotter.preferences.Preferences;
-import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
 
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.graphics.RGB;
@@ -636,7 +636,7 @@ public class Model
      */
     synchronized public Timestamp getStartTime()
     {
-        return getEndTime().minus(TimeDuration.ofSeconds((long)time_span));
+       return getEndTime().minus(TimeDuration.ofSeconds((long)time_span));
     }
 
     /** @return End time of the data range
@@ -654,21 +654,29 @@ public class Model
      */
     synchronized public String getStartSpecification()
     {
+        SimpleDateFormat s=new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");  
+        Calendar c= Calendar.getInstance();
+        c.setTimeInMillis(getStartTime().getSec()*1000);
         if (scroll_enabled)
             return new RelativeTime(-time_span).toString();
         else
-            return getStartTime().toString();
+            return  s.format(c.getTime());       
+
+           // return getStartTime().toString();
     }
 
     /** @return String representation of end time. While scrolling, this is
      *          a relative time, otherwise an absolute date/time.
      */
     synchronized public String getEndSpecification()
-    {
+    { SimpleDateFormat s=new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");  
+        Calendar c= Calendar.getInstance();
+        c.setTimeInMillis(end_time.getSec()*1000);
         if (scroll_enabled)
             return RelativeTime.NOW;
         else
-            return end_time.toString();
+            return  s.format(c.getTime());  
+        // return TimeInstantBuilder.fromSeconds(end_time.getSec()).toString();
     }
 
     /** @return Background color */

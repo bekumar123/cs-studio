@@ -166,7 +166,7 @@ public abstract class EpicsSystemVariableSupport<T> extends
     protected VType convertToVStatisticsValue(@Nonnull final IAlarmSystemVariable<T> sysVar,
                                                  @SuppressWarnings("unused") @Nonnull final T min,
                                                  @SuppressWarnings("unused") @Nonnull final T max) throws TypeSupportException {
-       	return org.epics.vtype.ValueFactory.newVStatistics((Double)sysVar.getData(), 0, (Double)min,(Double) max, 1, getAlarm((EpicsAlarm)sysVar.getAlarm()),
+       	return org.epics.vtype.ValueFactory.newVStatistics( new Double(sysVar.getData().toString()), 0, new Double(min.toString()), new Double(max.toString()), 1, getAlarm((EpicsAlarm)sysVar.getAlarm()),
        			                                         getTime( sysVar.getTimestamp()), org.epics.vtype.ValueFactory.displayNone());
      }
 	/**
@@ -315,7 +315,7 @@ public abstract class EpicsSystemVariableSupport<T> extends
 	@Nonnull
 	public static Alarm getAlarm(@Nonnull final EpicsAlarm alarm) {
 
-		System.out.println("EpicsSystemVariableSupport.getAlarm()  "+alarm.getStatus().toString());
+	//	System.out.println("EpicsSystemVariableSupport.getAlarm()  "+alarm.getStatus().toString());
 		return org.epics.vtype.ValueFactory.newAlarm(getAlarmSeverity(alarm),
 				alarm.getStatus().toString());
 	}

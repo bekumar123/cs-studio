@@ -194,8 +194,8 @@ public class EquidistantTimeBinsIterator extends AbstractValueIterator {
         }
         final Limits<?> l = service.readDisplayLimits(channelName);
         if (l != null) {
-            return ValueFactory.newDisplay(new Double(((Double)l.getLow()).doubleValue()),  new Double(0.0),  new Double(0.0), "", NumberFormats.toStringFormat(),  new Double(0.0),
-                                           new Double(0.0), new Double(((Double)l.getHigh()).doubleValue()),  new Double(0.0),  new Double(((Double)l.getLow()).doubleValue()));
+            return ValueFactory.newDisplay(new Double(l.getLow().toString()),  new Double(0.0),  new Double(0.0), "", NumberFormats.toStringFormat(),  new Double(0.0),
+                                           new Double(0.0), new Double(l.getHigh().toString()),  new Double(0.0),  new Double(l.getLow().toString()));
         }
         return null;
     }

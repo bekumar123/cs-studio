@@ -56,6 +56,9 @@ public final class ArchiveSampleToVTypeFunction<V extends Serializable> implemen
     @Override
     @CheckForNull
     public VType apply(@Nonnull final IArchiveSample<V, IAlarmSystemVariable<V>> from) {
+        if(from==null) {
+            return null;
+        }
         try {
             if (IArchiveMinMaxSample.class.isAssignableFrom(from.getClass())) {
 

@@ -22,42 +22,47 @@ public class PlotSampleMerger
          final PlotSample[] A = old; 
          final PlotSample[] B = add;
          
+     
          if (A == null) {
              return B;
          }
          if (B == null) {
              return A;
          }
-         
+         long start=B[0].getTime().getSec();
+         long end=B[0].getTime().getSec();
+         for (int aa = 0; aa < B.length; aa++) {
+             if(B[aa].getTime().getSec()<start)  start=B[aa].getTime().getSec();
+             if(B[aa].getTime().getSec()>end)  end=B[aa].getTime().getSec();
+         }
          PlotSample C[] = new PlotSample[A.length + B.length];
          
          int a = 0;
          int b = 0;
          int c = 0;
-         while (a < A.length && b < B.length) {
-             if (A[a].getTime().getSec()<(B[b].getTime()).getSec()) { 
+         while (a < A.length) {
+             if (A[a].getTime().getSec()<start) { 
                  C[c] = A[a];
-                 a++;
-             } else if (A[a].getTime().getSec()>(B[b].getTime()).getSec()) {
-                 C[c] = B[b];
-                 b++;
-             } else { // equal time stamp - no behaviour specified - test says, take 'new', omit 'old', well then...
-                 C[c] = B[b];
-                 b++;
-                 a++;
+                 c++;
              }
+             a++;
+          
+         }
+         while (b < B.length) {
+             C[c] = B[b];
+             b++;          
              c++;
          }
-         if (a < A.length) {
-             for (int aa = a; aa < A.length; aa++, c++) {
-                 C[c] = A[aa];
+         a=0;
+         while (a < A.length) {
+             if (A[a].getTime().getSec()>end) { 
+                 C[c] = A[a];
+                 c++;
              }
-         } else {
-             for (int bb = b; bb < B.length; bb++, c++) {
-                 C[c] = B[bb];
-             }
+             a++;
+          
          }
-         
+     
          PlotSample result[] = new PlotSample[c];
          System.arraycopy(C, 0, result, 0, c);
          return result;

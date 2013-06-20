@@ -99,6 +99,9 @@ public class DesyArchiveValueIterator<V extends Serializable> extends AbstractVa
             return null;
         }
         final Object o=getIterator().next();
+        if(o==null) {
+            return null;
+        }
         final VType value =(VType) ARCH_SAMPLE_2_VTYPE_FUNC.apply(o);
         final String q=((IArchiveSample) o).getRequestType();
         final Timestamp time =VTypeHelper.getTimestamp(value);

@@ -35,6 +35,7 @@ import org.csstudio.archive.common.requesttype.IArchiveRequestType;
 import org.csstudio.archive.common.service.IArchiveReaderFacade;
 import org.csstudio.archive.common.service.channel.IArchiveChannel;
 import org.csstudio.archive.common.service.sample.IArchiveSample;
+import org.csstudio.archive.common.service.util.ArchiveTypeConversionSupport;
 import org.csstudio.archive.reader.ArchiveInfo;
 import org.csstudio.archive.reader.ArchiveReader;
 import org.csstudio.archive.reader.ArchiveReaderFactory;
@@ -210,14 +211,14 @@ public final class DesyArchiveReaderFactory implements ArchiveReaderFactory {
           // Check for optimizability (base type convertible to Double)
           final IArchiveReaderFacade service = _provider.getReaderFacade();
           final IArchiveChannel channel = service.getChannelByName(name);
-
           if (channel!= null &&
-              BaseTypeConversionSupport.isDataTypeConvertibleToDouble(channel.getDataType())) {
+              ArchiveTypeConversionSupport.isDataTypeOptimizable(channel.getDataType())) {
 
               final IArchiveSample lastSampleBefore = service.readLastSampleBefore(name, s);
 
              // final Collection<IArchiveSample<Serializable, ISystemVariable<Serializable>>> samples = service.readSamples(channel.getName(), s, e, null);
               final Collection<IArchiveSample> samples = (Collection)service.readSamples(channel.getName(), s, e, null);
+
               if (samples.size() <= count) {
                   return new DesyArchiveValueIterator(Iterables.concat(Collections.<IArchiveSample>singleton(lastSampleBefore), samples),
                                                       name, s, e);
@@ -227,6 +228,7 @@ public final class DesyArchiveReaderFactory implements ArchiveReaderFactory {
           }
           return EMPTY_ITER;
         }
+
     }
 
     /**

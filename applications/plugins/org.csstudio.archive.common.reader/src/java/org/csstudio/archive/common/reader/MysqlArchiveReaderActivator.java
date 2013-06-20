@@ -25,6 +25,7 @@ import javax.annotation.Nonnull;
 
 import org.csstudio.archive.common.service.ArchiveEngineServiceTracker;
 import org.csstudio.archive.common.service.ArchiveReaderServiceTracker;
+import org.csstudio.archive.common.service.IArchiveEngineFacade;
 import org.csstudio.archive.common.service.IArchiveReaderFacade;
 import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
 import org.osgi.framework.BundleActivator;
@@ -106,6 +107,20 @@ public class MysqlArchiveReaderActivator implements BundleActivator {
     public IArchiveReaderFacade getArchiveReaderService() throws OsgiServiceUnavailableException {
         final IArchiveReaderFacade service =
             (IArchiveReaderFacade) _archiveReaderServiceTracker.getService();
+        if (service == null) {
+            throw new OsgiServiceUnavailableException("Archive reader service unavailable.");
+        }
+        return service;
+    }
+    /**
+     * Returns the archive engine service from the service tracker.
+     * @return the archive service or <code>null</code> if not available.
+     * @throws OsgiServiceUnavailableException
+     */
+    @Nonnull
+    public IArchiveEngineFacade getArchiveEngineService() throws OsgiServiceUnavailableException {
+        final IArchiveEngineFacade service =
+            (IArchiveEngineFacade) _archiveEngineConfigServiceTracker.getService();
         if (service == null) {
             throw new OsgiServiceUnavailableException("Archive reader service unavailable.");
         }

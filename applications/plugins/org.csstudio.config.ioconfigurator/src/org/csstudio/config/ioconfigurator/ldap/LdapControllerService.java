@@ -56,6 +56,7 @@ import org.csstudio.utility.ldap.service.ILdapSearchResult;
 import org.csstudio.utility.ldap.service.ILdapService;
 import org.csstudio.utility.ldap.service.LdapServiceException;
 import org.csstudio.utility.ldap.treeconfiguration.LdapEpicsControlsConfiguration;
+import org.csstudio.utility.ldap.treeconfiguration.LdapFieldsAndAttributes;
 import org.csstudio.utility.treemodel.ContentModel;
 import org.csstudio.utility.treemodel.CreateContentModelException;
 import org.csstudio.utility.treemodel.INodeComponent;
@@ -218,7 +219,7 @@ public final class LdapControllerService {
         if (ldapNode.getChildAttribute().isPresent()) {
             LdapName newLdapName = (LdapName) parent.clone();
             newLdapName.add(new Rdn(ldapNode.getChildAttribute().get() + "=" + newName));
-            BasicAttribute oc1 = new BasicAttribute("objectClass");
+            BasicAttribute oc1 = new BasicAttribute(LdapFieldsAndAttributes.ATTR_FIELD_OBJECT_CLASS);
             oc1.add("top");
             oc1.add(ldapNode.getChildAttributeValue());
             Attributes attrs = new BasicAttributes(false);

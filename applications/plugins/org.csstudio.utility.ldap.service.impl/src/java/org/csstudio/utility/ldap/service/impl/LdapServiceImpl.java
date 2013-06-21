@@ -58,7 +58,6 @@ import org.csstudio.utility.ldap.service.ILdapSearchParams;
 import org.csstudio.utility.ldap.service.ILdapSearchResult;
 import org.csstudio.utility.ldap.service.ILdapService;
 import org.csstudio.utility.ldap.service.LdapServiceException;
-import org.csstudio.utility.ldap.treeconfiguration.LdapEpicsControlsConfiguration;
 import org.csstudio.utility.ldap.utils.LdapSearchParams;
 import org.csstudio.utility.ldap.utils.LdapSearchResult;
 import org.csstudio.utility.treemodel.ContentModel;
@@ -266,7 +265,8 @@ public final class LdapServiceImpl<ControllerSubtreeNode> implements ILdapServic
      * @throws CreateContentModelException
      * @throws LdapServiceException
      */
-    public void moveSubTree(
+    public <T extends Enum<T> & ITreeNodeConfiguration<T>> void moveSubTrees(
+            @Nonnull final T configurationRoot,
             @Nonnull final LdapName fromComponent, 
             final LdapName toComponent ) 
                     throws InvalidNameException, CreateContentModelException, LdapServiceException, Exception  {
@@ -283,25 +283,26 @@ public final class LdapServiceImpl<ControllerSubtreeNode> implements ILdapServic
             return;
         }
         
-        final LdapContentModelBuilder<LdapEpicsControlsConfiguration> builder = 
-                new LdapContentModelBuilder<LdapEpicsControlsConfiguration>(LdapEpicsControlsConfiguration.VIRTUAL_ROOT, 
+        //@formatter:off
+        final LdapContentModelBuilder<T> builder = 
+                new LdapContentModelBuilder<T>(configurationRoot, 
                 result,
                 getLdapNameParser());
+                //@formatter:on
+        
         builder.build();
         
-        final ContentModel<LdapEpicsControlsConfiguration> model = builder.getModel();
+        final ContentModel<T> model = builder.getModel();
 
         // retrieve component from model
-        INodeComponent<LdapEpicsControlsConfiguration> childByLdapName = model.getChildByLdapName(fromComponent.toString());
+        INodeComponent<T> childByLdapName = model.getChildByLdapName(fromComponent.toString());
         if (childByLdapName == null) {
             LOG.debug("Model does not contain entry for component {}", fromComponent.toString());
             return ;
         }
 
         // perform the removal of the subtree
-        copyAndRemoveTreeComponent(toComponent, (ISubtreeNodeComponent<LdapEpicsControlsConfiguration>) childByLdapName, true);
-        // perform the removal of the component itself
-        //removeLeafComponent(component);
+        copyAndRemoveTreeComponent(toComponent, (ISubtreeNodeComponent<T>) childByLdapName, true);
 
         return;
     }

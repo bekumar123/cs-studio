@@ -82,7 +82,7 @@ public class AddDefaultEconNodeAction  extends Action {
         final Optional<String> newName = newNameInputDialog(_site);
         if (newName.isPresent()) {
             try {
-                LdapControllerService.addNewEconNode(_node.getLdapName(), newName.get());
+                LdapControllerService.addNewIOC(_node.getLdapName(), newName.get());
                 _reloadLdap.run(new Runnable() {
                     @Override
                     public void run() {

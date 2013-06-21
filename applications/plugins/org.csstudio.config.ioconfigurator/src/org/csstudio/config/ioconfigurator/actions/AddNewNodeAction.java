@@ -82,7 +82,7 @@ public class AddNewNodeAction extends Action {
         final Optional<String> newName = newNameInputDialog(_site);
         if (newName.isPresent()) {
             try {
-                LdapControllerService.addNewNode(_node.getLdapName(), newName.get());
+                LdapControllerService.addNewFacility(_node.getLdapName(), newName.get());
                 _reloadLdap.run(new Runnable() {
                     @Override
                     public void run() {

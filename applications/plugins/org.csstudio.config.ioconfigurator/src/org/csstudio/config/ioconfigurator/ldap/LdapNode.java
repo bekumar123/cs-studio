@@ -32,6 +32,10 @@ public class LdapNode {
         return name.toString().startsWith("efan");
     }
 
+    public boolean allowsRemovalOfChilds() {
+        return isLeaf();
+    }
+
     public boolean isEcon() {
         return getChildAttributeValue().equals("epicsController");
     }

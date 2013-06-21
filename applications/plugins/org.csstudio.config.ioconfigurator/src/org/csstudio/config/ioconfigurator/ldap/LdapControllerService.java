@@ -97,22 +97,7 @@ public final class LdapControllerService {
         LDAP_SERVICE = service;
     }
 
-    /**
-     * Adds a new IOC to the LDAP server.
-     * 
-     * @param node
-     *            {@code IControllerLeaf} representing the IOC.
-     * @throws InvalidNameException
-     *             if a syntax violation is detected.
-     */
-    public static void addController(@Nonnull final IControllerLeaf node) throws InvalidNameException, Exception {
-        Attributes atts = new BasicAttributes();
-        for (ControllerProperty i : ControllerProperty.values()) {
-            atts.put(i.getName(), node.getValue(i));
-        }
-        LDAP_SERVICE.createComponent(node.getLdapName(), atts);
-    }
-
+  
     /**
      * Removes the specified node from the LDAP server.
      * 
@@ -122,7 +107,12 @@ public final class LdapControllerService {
      *             if a syntax violation is detected.
      */
     public static void removeNode(LdapName ldapName) throws Exception {
-        LDAP_SERVICE.removeLeafComponent(ldapName);
+        LdapNode ldapNode = new LdapNode(ldapName);
+        if (ldapNode.allowsRemovalOfChilds()) {
+            LDAP_SERVICE.removeComponent(LdapEpicsControlsConfiguration.VIRTUAL_ROOT, ldapName);
+        } else {
+            LDAP_SERVICE.removeLeafComponent(ldapName);
+        }
     }
 
     /**
@@ -188,14 +178,16 @@ public final class LdapControllerService {
     }
 
     public static void rename(@Nonnull final IControllerNode node, @Nonnull final String newName) {
-        // TODO: implement this
+        throw new IllegalStateException("Rename operation on IControllerNode not implemented.");
     }
 
     public static boolean rename(@Nonnull final LdapName oldLdapName, @Nonnull final String newName) throws Exception {
         LdapNode ldapNode = new LdapNode(oldLdapName);
         if (ldapNode.needsCopyOnRename()) {
-            Optional<LdapName> newLdapName = LdapControllerService.createNewNode(new LdapName("ou=EpicsControls"), newName);
-            LDAP_SERVICE.moveSubTree(oldLdapName, newLdapName.get());
+            Optional<LdapName> newLdapName = LdapControllerService.createNewNode(
+                    new LdapName("ou=EpicsControls"),
+                    newName);
+            LDAP_SERVICE.moveSubTrees(LdapEpicsControlsConfiguration.VIRTUAL_ROOT, oldLdapName, newLdapName.get());
             removeNode(oldLdapName);
             return true;
         } else {
@@ -209,14 +201,14 @@ public final class LdapControllerService {
         }
     }
 
-    public static void addNewNode(@Nonnull final LdapName parent, final String newName) throws Exception {
+    public static void addNewFacility(@Nonnull final LdapName parent, final String newName) throws Exception {
         Optional<LdapName> newLdapName = LdapControllerService.createNewNode(parent, newName);
         if (newLdapName.isPresent()) {
             LdapControllerService.createNewNode(newLdapName.get(), "EPICS-IOC");
         }
     }
 
-    public static void addNewEconNode(@Nonnull final LdapName parent, final String newName) throws Exception {
+    public static void addNewIOC(@Nonnull final LdapName parent, final String newName) throws Exception {
         LdapControllerService.createNewNode(parent, newName);
     }
 

@@ -68,9 +68,15 @@ public interface ILdapService {
      */
     boolean reInitializeLdapConnection(@CheckForNull final Map<String, String> ldapPrefs);
 
-    public void moveSubTree(@Nonnull final LdapName fromComponent, final LdapName toComponent)
-            throws InvalidNameException, CreateContentModelException, LdapServiceException, Exception;
-
+    /**
+     * Move all Subtrees of fromComponent to toComponent
+     */
+    <T extends Enum<T> & ITreeNodeConfiguration<T>> void moveSubTrees(
+            @Nonnull final T configurationRoot,
+            @Nonnull final LdapName fromComponent, 
+            final LdapName toComponent ) 
+                    throws InvalidNameException, CreateContentModelException, LdapServiceException, Exception;
+        
     /**
      * Returns the ldap content model builder for the specified parameters
      * 

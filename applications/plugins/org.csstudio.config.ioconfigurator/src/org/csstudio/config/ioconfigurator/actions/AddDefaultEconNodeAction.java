@@ -15,7 +15,7 @@ import org.eclipse.ui.IWorkbenchPartSite;
 
 import com.google.common.base.Optional;
 
-public class AddNewNodeAction extends Action {
+public class AddDefaultEconNodeAction  extends Action {
 
     private final IWorkbenchPartSite _site;
     private final ReloadFromLdapAction _reloadLdap;
@@ -33,19 +33,19 @@ public class AddNewNodeAction extends Action {
      * @param site
      *            {@code IWorkbenchPartSite} site of the plug-in view.
      */
-    private AddNewNodeAction(final TreeViewer viewer, @Nonnull final IWorkbenchPartSite site,
+    private AddDefaultEconNodeAction(final TreeViewer viewer, @Nonnull final IWorkbenchPartSite site,
             ReloadFromLdapAction reloadLdap) {
         _viewer = viewer;
         _site = site;
         _reloadLdap = reloadLdap;
     }
 
-    public static AddNewNodeAction getAction(final TreeViewer viewer, @Nonnull final IWorkbenchPartSite site,
+    public static AddDefaultEconNodeAction getAction(final TreeViewer viewer, @Nonnull final IWorkbenchPartSite site,
             final ReloadFromLdapAction reloadLdap) {
-        return new AddNewNodeAction(viewer, site, reloadLdap);
+        return new AddDefaultEconNodeAction(viewer, site, reloadLdap);
     }
 
-    public AddNewNodeAction setNode(final IControllerNode node) {
+    public AddDefaultEconNodeAction setNode(final IControllerNode node) {
         _node = node;
         return this;
     }
@@ -59,7 +59,7 @@ public class AddNewNodeAction extends Action {
      */
     @Override
     public String getDescription() {
-        return "Add new Facility";
+        return "Add new IOC";
     }
 
     /**
@@ -67,7 +67,7 @@ public class AddNewNodeAction extends Action {
      */
     @Override
     public String getText() {
-        return "Add new Facility";
+        return "Add new IOC";
     }
 
     /**
@@ -75,14 +75,14 @@ public class AddNewNodeAction extends Action {
      */
     @Override
     public String getToolTipText() {
-        return "Add new Facility";
+        return "Add new IOC";
     }
 
     public void run() {
         final Optional<String> newName = newNameInputDialog(_site);
         if (newName.isPresent()) {
             try {
-                LdapControllerService.addNewNode(_node.getLdapName(), newName.get());
+                LdapControllerService.addNewEconNode(_node.getLdapName(), newName.get());
                 _reloadLdap.run(new Runnable() {
                     @Override
                     public void run() {
@@ -102,8 +102,8 @@ public class AddNewNodeAction extends Action {
     }
 
     private static Optional<String> newNameInputDialog(@Nonnull final IWorkbenchPartSite site) {
-        final InputDialog dialog = new InputDialog(site.getShell(), "Enter new Facility Name", "Please enter the new Facility name", "",
-                Validators.UNIQUE_FACILITY_VALIDATOR.getValidator());
+        final InputDialog dialog = new InputDialog(site.getShell(), "Enter new IOC Name", "Please enter the new IOC name", "",
+                Validators.UNIQUE_IOC_VALIDATOR.getValidator());
         if (Window.OK == dialog.open()) {
             return Optional.of(dialog.getValue());
         }

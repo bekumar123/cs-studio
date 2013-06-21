@@ -39,6 +39,8 @@ import javax.naming.ldap.Rdn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.net.InetAddresses;
+
 /**
  * Constants class for LDAP entries.
  *
@@ -70,7 +72,11 @@ public final class LdapUtils {
     public static String or(@Nonnull final String partOne, @Nonnull final String partTwo) {
         return "(|(" + partOne + ")(" + partTwo + "))";
     }
-    
+
+    public static String and(@Nonnull final String partOne, @Nonnull final String partTwo) {
+        return "(&(" + partOne + ")(" + partTwo + "))";
+    }
+
     /**
      * Returns a filter for a direct match of the field name (e.g. '<fieldName>=<fieldValue>').
      * @param fieldName the field type
@@ -96,7 +102,6 @@ public final class LdapUtils {
             LOG.error("Ldap Attributes: For key value pairs the length of String array has to be multiple of 2!");
             throw new IllegalArgumentException("Length of parameter keysAndValues has to be multiple of 2.");
         }
-
         final BasicAttributes result = new BasicAttributes();
         for (int i = 0; i < keysAndValues.length; i+=2) {
             result.put(keysAndValues[i], keysAndValues[i + 1]);

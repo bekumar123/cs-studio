@@ -37,6 +37,7 @@ import javax.naming.ldap.LdapName;
 
 import org.csstudio.utility.treemodel.ContentModel;
 import org.csstudio.utility.treemodel.CreateContentModelException;
+import org.csstudio.utility.treemodel.ISubtreeNodeComponent;
 import org.csstudio.utility.treemodel.ITreeNodeConfiguration;
 
 /**
@@ -66,6 +67,9 @@ public interface ILdapService {
      * @return true, if reconnection has been successful, false otherwise
      */
     boolean reInitializeLdapConnection(@CheckForNull final Map<String, String> ldapPrefs);
+
+    public void moveSubTree(@Nonnull final LdapName fromComponent, final LdapName toComponent)
+            throws InvalidNameException, CreateContentModelException, LdapServiceException, Exception;
 
     /**
      * Returns the ldap content model builder for the specified parameters

@@ -27,10 +27,8 @@ import javax.naming.InvalidNameException;
 
 import org.csstudio.config.ioconfigurator.annotation.Nonnull;
 import org.csstudio.config.ioconfigurator.ldap.LdapNode;
-import org.csstudio.config.ioconfigurator.tree.model.IControllerLeaf;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerNode;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerSubtreeNode;
-import org.csstudio.utility.ldap.treeconfiguration.LdapEpicsControlsConfiguration;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.IWorkbenchPartSite;
@@ -55,6 +53,7 @@ public class ControllerActionCache {
     private final RemoveFromLdapAction _removeFromLdapAction;
     private final RenameComponentAction _renameComponent;
     private final AddNewNodeAction _addNewNode;
+    private final AddDefaultEconNodeAction _addNewEconNode;
 
     /**
      * Constructor.
@@ -71,9 +70,10 @@ public class ControllerActionCache {
 
         _propertyView = PropertyViewAction.getAction(site);
         _reloadLdap = ReloadFromLdapAction.getAction(root, viewer, site);
-        _removeFromLdapAction = RemoveFromLdapAction.getAction(viewer, site, _reloadLdap);
-        _renameComponent = RenameComponentAction.getAction(viewer, site);
+        _removeFromLdapAction = RemoveFromLdapAction.getAction(viewer, site);
+        _renameComponent = RenameComponentAction.getAction(viewer, site,  _reloadLdap);
         _addNewNode = AddNewNodeAction.getAction(viewer, site, _reloadLdap);
+        _addNewEconNode = AddDefaultEconNodeAction.getAction(viewer, site, _reloadLdap);
     }
 
     /**
@@ -88,19 +88,24 @@ public class ControllerActionCache {
     public void fillContextMenu(@Nonnull final IControllerNode node, @Nonnull final IMenuManager menuManager)
             throws InvalidNameException {
 
-        menuManager.add(_removeFromLdapAction.setNode(node));
+        LdapNode ldapNode = new LdapNode(node.getLdapName());
 
-        menuManager.add(_propertyView);
-        menuManager.add(_reloadLdap);
-                
-        if (new LdapNode(node.getLdapName()).allowsAddNewNode()) {
+        if (ldapNode.isEpicsControll()) {
             menuManager.add(_addNewNode.setNode(node));
+        } else if (ldapNode.isFacility()) {
+            menuManager.add(_removeFromLdapAction.setNode(node));
+            menuManager.add(_renameComponent.setNode(node));            
+        } else if (ldapNode.isEpicsIOC()) {
+            menuManager.add(_removeFromLdapAction.setNode(node));
+            menuManager.add(_addNewEconNode.setNode(node));
+        } else if (ldapNode.isLeaf()) {
+            menuManager.add(_propertyView);
+            menuManager.add(_removeFromLdapAction.setNode(node));
+            menuManager.add(_renameComponent.setNode(node));                        
         }
 
-        if (new LdapNode(node.getLdapName()).allowsRenameNode()) {
-            menuManager.add(_renameComponent.setNode(node));
-        }
-
+        menuManager.add(_reloadLdap);   
+        
     }
 
 }

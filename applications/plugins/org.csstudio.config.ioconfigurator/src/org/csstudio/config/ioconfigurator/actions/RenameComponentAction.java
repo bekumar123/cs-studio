@@ -23,12 +23,16 @@
  */
 package org.csstudio.config.ioconfigurator.actions;
 
+import javax.naming.InvalidNameException;
+
 import org.csstudio.config.ioconfigurator.annotation.CheckForNull;
 import org.csstudio.config.ioconfigurator.annotation.Nonnull;
 import org.csstudio.config.ioconfigurator.ldap.LdapControllerService;
+import org.csstudio.config.ioconfigurator.ldap.LdapNode;
 import org.csstudio.config.ioconfigurator.property.ioc.Validators;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerNode;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -44,9 +48,10 @@ import org.eclipse.ui.IWorkbenchPartSite;
  * @since 02.09.2010
  */
 class RenameComponentAction extends Action {
-    
+
     private final TreeViewer _viewer;
     private final IWorkbenchPartSite _site;
+    private final ReloadFromLdapAction _reloadLdap;
 
     // Obtained through getters/setters
     private IControllerNode _node;
@@ -60,9 +65,11 @@ class RenameComponentAction extends Action {
      * @param site
      *            {@code IWorkbenchPartSite} site of the plug-in view.
      */
-    private RenameComponentAction(@Nonnull final TreeViewer viewer, @Nonnull final IWorkbenchPartSite site) {
+    private RenameComponentAction(@Nonnull final TreeViewer viewer, @Nonnull final IWorkbenchPartSite site,
+            ReloadFromLdapAction reloadLdap) {
         _viewer = viewer;
         _site = site;
+        _reloadLdap = reloadLdap;
     }
 
     /**
@@ -73,8 +80,8 @@ class RenameComponentAction extends Action {
      * @return the instance of this class.
      */
     public static RenameComponentAction getAction(@Nonnull final TreeViewer viewer,
-            @Nonnull final IWorkbenchPartSite site) {
-        return new RenameComponentAction(viewer, site);
+            @Nonnull final IWorkbenchPartSite site, ReloadFromLdapAction reloadLdap) {
+        return new RenameComponentAction(viewer, site, reloadLdap);
     }
 
     /**
@@ -114,16 +121,57 @@ class RenameComponentAction extends Action {
 
     @Override
     public void run() {
-        String name = renameInputDialog(_site, _node.getName());
-        if (name != null) {
-            try {
-                LdapControllerService.rename(_node.getLdapName(), name);
-                _node.setName(name);
-                _viewer.refresh(_node);
-            } catch (Exception e) {
-                MessageDialog.openError(_site.getShell(), "Rename Error", e.getMessage());
+        
+        try {
+            LdapNode ldapNode = new LdapNode(_node.getLdapName());
+
+            IInputValidator validator;
+            String prompt;
+            
+            if (ldapNode.isFacility()) {
+                validator = Validators.UNIQUE_FACILITY_VALIDATOR.getValidator();
+                prompt = "Please enter the new Facility name";
+            } else if (ldapNode.isLeaf()) {
+                validator = Validators.UNIQUE_IOC_VALIDATOR.getValidator();
+                prompt = "Please enter the new IOC name";
+            } else {
+                throw new IllegalStateException("Unexpected LDAP node type");
             }
+
+            String newName = renameInputDialog(_site, prompt, _node.getName(), validator);
+            
+            if (newName != null) {
+
+                if (newName.equals( _node.getName())) {
+                    return;
+                }
+
+                try {
+                    boolean needsReload = LdapControllerService.rename(_node.getLdapName(), newName);
+                    if (needsReload) {
+                        _reloadLdap.run(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    _viewer.expandToLevel(_node.getLdapName().getRdns().size() + 1);
+                                } catch (InvalidNameException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                    } else {
+                        _node.setName(newName);
+                        _viewer.refresh(_node);
+                    }
+                } catch (Exception e) {
+                    MessageDialog.openError(_site.getShell(), "Rename Error", e.getMessage());
+                }
+            }
+
+        } catch (InvalidNameException e1) {
+            MessageDialog.openError(_site.getShell(), "Rename Error", e1.getMessage());
         }
+
     }
 
     /*
@@ -131,9 +179,12 @@ class RenameComponentAction extends Action {
      * required in the getRenameAction method.
      */
     @CheckForNull
-    private static String renameInputDialog(@Nonnull final IWorkbenchPartSite site, @Nonnull final String currentName) {
-        final InputDialog dialog = new InputDialog(site.getShell(), "Rename", "Please input the new name", currentName,
-                Validators.NAME_VALIDATOR.getValidator());
+    private static String renameInputDialog(@Nonnull final IWorkbenchPartSite site,
+            @Nonnull final String prompt,
+            @Nonnull final String currentName,
+            @Nonnull final IInputValidator validator) {
+        final InputDialog dialog = new InputDialog(site.getShell(), "Rename", prompt, currentName,
+               validator);
         if (Window.OK == dialog.open()) {
             return dialog.getValue();
         }

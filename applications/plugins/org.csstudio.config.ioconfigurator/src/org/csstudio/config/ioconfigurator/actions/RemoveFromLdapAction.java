@@ -25,7 +25,6 @@ package org.csstudio.config.ioconfigurator.actions;
 
 import org.csstudio.config.ioconfigurator.annotation.Nonnull;
 import org.csstudio.config.ioconfigurator.ldap.LdapControllerService;
-import org.csstudio.config.ioconfigurator.tree.model.IControllerLeaf;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerNode;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerSubtreeNode;
 import org.eclipse.jface.action.Action;
@@ -34,52 +33,54 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.IWorkbenchPartSite;
 
 /**
-* Action class designed to remove the selected IOC.
-*
-* TODO: should this action enable the removal of an arbitrary node,
-*       not just IOC?
-*
-* @author tslamic
-* @author $Author: tslamic $
-* @version $Revision: 1.2 $
-* @since 02.09.2010
-*/
+ * Action class designed to remove the selected IOC.
+ * 
+ * TODO: should this action enable the removal of an arbitrary node, not just
+ * IOC?
+ * 
+ * @author tslamic
+ * @author $Author: tslamic $
+ * @version $Revision: 1.2 $
+ * @since 02.09.2010
+ */
 class RemoveFromLdapAction extends Action {
 
     private final TreeViewer _viewer;
     private final IWorkbenchPartSite _site;
-    private final ReloadFromLdapAction _reloadFromLdapAction;
 
     // Obtained through getters/setters
     private IControllerNode _node;
 
     /**
-     * Private constructor.
-     * Instance available through the static factory method.
-     * @param site {@code IWorkbenchPartSite} site of the plug-in view.
+     * Private constructor. Instance available through the static factory
+     * method.
+     * 
+     * @param site
+     *            {@code IWorkbenchPartSite} site of the plug-in view.
      */
-    private RemoveFromLdapAction(@Nonnull final TreeViewer viewer,
-                                   @Nonnull final IWorkbenchPartSite site,
-                                   @Nonnull final ReloadFromLdapAction reloadFromLdapAction) {
+    private RemoveFromLdapAction(@Nonnull final TreeViewer viewer, @Nonnull final IWorkbenchPartSite site) {
         _viewer = viewer;
         _site = site;
-        _reloadFromLdapAction = reloadFromLdapAction;
     }
 
     /**
      * Returns the instance of this class.
-     * @param site {@code IWorkbenchPartSite} site of the plug-in view.
+     * 
+     * @param site
+     *            {@code IWorkbenchPartSite} site of the plug-in view.
      * @return the instance of this class.
      */
     public static RemoveFromLdapAction getAction(@Nonnull final TreeViewer viewer,
-                                                 @Nonnull final IWorkbenchPartSite site,
-                                                 @Nonnull final ReloadFromLdapAction reloadFromLdapAction) {
-        return new RemoveFromLdapAction(viewer, site,reloadFromLdapAction);
+            @Nonnull final IWorkbenchPartSite site) {
+        return new RemoveFromLdapAction(viewer, site);
     }
 
     /**
-     * Returns this class containing the specified node, emulating Builder pattern.
-     * @param node {@code IControllerLeaf} to be set.
+     * Returns this class containing the specified node, emulating Builder
+     * pattern.
+     * 
+     * @param node
+     *            {@code IControllerLeaf} to be set.
      */
     public RemoveFromLdapAction setNode(final IControllerNode node) {
         _node = node;
@@ -88,6 +89,7 @@ class RemoveFromLdapAction extends Action {
 
     /**
      * Returns this class node.
+     * 
      * @return {@code IControllerLeaf} node.
      */
     public IControllerNode getNode() {
@@ -111,7 +113,7 @@ class RemoveFromLdapAction extends Action {
 
     @Override
     public void run() {
-        try {            
+        try {
             LdapControllerService.removeNode(_node.getLdapName());
             IControllerSubtreeNode parent = _node.getParent();
             if (parent != null) {

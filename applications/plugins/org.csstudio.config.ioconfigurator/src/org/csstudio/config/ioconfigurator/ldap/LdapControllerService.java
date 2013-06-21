@@ -191,41 +191,67 @@ public final class LdapControllerService {
         // TODO: implement this
     }
 
-    public static void rename(@Nonnull final LdapName oldLdapName, @Nonnull final String newName)
-            throws NamingException {
-        LdapName newLdapName = (LdapName) oldLdapName.clone();
-        Rdn rdn = newLdapName.getRdn(newLdapName.size() - 1);
-        String type = rdn.getType();
-        newLdapName.remove(newLdapName.size() - 1);
-        newLdapName.add(new Rdn(type, newName));
-        LDAP_SERVICE.rename(oldLdapName, newLdapName);
+    public static boolean rename(@Nonnull final LdapName oldLdapName, @Nonnull final String newName) throws Exception {
+        LdapNode ldapNode = new LdapNode(oldLdapName);
+        if (ldapNode.needsCopyOnRename()) {
+            Optional<LdapName> newLdapName = LdapControllerService.createNewNode(new LdapName("ou=EpicsControls"), newName);
+            LDAP_SERVICE.moveSubTree(oldLdapName, newLdapName.get());
+            removeNode(oldLdapName);
+            return true;
+        } else {
+            LdapName newLdapName = (LdapName) oldLdapName.clone();
+            Rdn rdn = newLdapName.getRdn(newLdapName.size() - 1);
+            String type = rdn.getType();
+            newLdapName.remove(newLdapName.size() - 1);
+            newLdapName.add(new Rdn(type, newName));
+            LDAP_SERVICE.rename(oldLdapName, newLdapName);
+            return false;
+        }
     }
 
     public static void addNewNode(@Nonnull final LdapName parent, final String newName) throws Exception {
         Optional<LdapName> newLdapName = LdapControllerService.createNewNode(parent, newName);
         if (newLdapName.isPresent()) {
-            
             LdapControllerService.createNewNode(newLdapName.get(), "EPICS-IOC");
         }
     }
 
-    private static Optional<LdapName> createNewNode(@Nonnull final LdapName parent, final String newName) throws Exception {
-        LdapNode ldapNode  = new LdapNode(parent);
-        if (ldapNode.getChildAttribute().isPresent()) {            
+    public static void addNewEconNode(@Nonnull final LdapName parent, final String newName) throws Exception {
+        LdapControllerService.createNewNode(parent, newName);
+    }
+
+    private static Optional<LdapName> createNewNode(@Nonnull final LdapName parent, final String newName)
+            throws Exception {
+        LdapNode ldapNode = new LdapNode(parent);
+        if (ldapNode.getChildAttribute().isPresent()) {
             LdapName newLdapName = (LdapName) parent.clone();
             newLdapName.add(new Rdn(ldapNode.getChildAttribute().get() + "=" + newName));
             BasicAttribute oc1 = new BasicAttribute("objectClass");
             oc1.add("top");
             oc1.add(ldapNode.getChildAttributeValue());
-            Attributes attrs = new BasicAttributes(false); 
+            Attributes attrs = new BasicAttributes(false);
             attrs.put(oc1);
             attrs.put(ldapNode.getChildAttribute().get(), newName);
-            LDAP_SERVICE.createComponent(newLdapName, attrs);     
+            if (ldapNode.isEcon()) {
+                attrs.put(new BasicAttribute(ControllerProperty.SAVE_ENABLED.getName(), ControllerProperty.SAVE_ENABLED
+                        .getInitValue()));
+                attrs.put(new BasicAttribute(ControllerProperty.CS_REDUNDANT.getName(), ControllerProperty.CS_REDUNDANT
+                        .getInitValue()));
+                attrs.put(new BasicAttribute(ControllerProperty.RESPONSIBLE_PHONE.getName(),
+                        ControllerProperty.RESPONSIBLE_PHONE.getInitValue()));
+                attrs.put(new BasicAttribute(ControllerProperty.RESPONSIBLE_NAME.getName(),
+                        ControllerProperty.RESPONSIBLE_NAME.getInitValue()));
+                attrs.put(new BasicAttribute(ControllerProperty.SERVICE_NAME.getName(), ControllerProperty.SERVICE_NAME
+                        .getInitValue()));
+                attrs.put(new BasicAttribute(ControllerProperty.SERVICE_PHONE.getName(),
+                        ControllerProperty.SERVICE_PHONE.getInitValue()));
+            }
+            LDAP_SERVICE.createComponent(newLdapName, attrs);
             return Optional.of(newLdapName);
-        } 
+        }
         return Optional.absent();
     }
-    
+
     /**
      * Loads the LDAP tree structure to the specified {@code root} node.
      * 

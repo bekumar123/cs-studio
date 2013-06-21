@@ -23,24 +23,13 @@
  */
 package org.csstudio.config.ioconfigurator.property;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Set;
-
-import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapName;
 
-import org.csstudio.config.ioconfigurator.activator.Activator;
 import org.csstudio.config.ioconfigurator.annotation.Nonnull;
 import org.csstudio.config.ioconfigurator.annotation.Nullable;
 import org.csstudio.config.ioconfigurator.ldap.LdapControllerService;
 import org.csstudio.config.ioconfigurator.property.ioc.ControllerProperty;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerLeaf;
-import org.csstudio.utility.ldap.service.ILdapSearchResult;
-import org.csstudio.utility.ldap.service.ILdapService;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ICellEditorValidator;
 import org.eclipse.swt.widgets.Display;
@@ -158,6 +147,7 @@ class ControllerPropertySource implements IPropertySource2 {
                 });
                 ++count;
             }
+            
         }
         return DESCRIPTORS;
     }
@@ -249,7 +239,7 @@ class ControllerPropertySource implements IPropertySource2 {
             });
         }
     }
-
+    
     /*
      * Loads the Attribute from the LDAP server and populates the properties map
      * in the node.

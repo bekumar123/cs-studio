@@ -58,6 +58,7 @@ import org.csstudio.utility.ldap.service.ILdapSearchParams;
 import org.csstudio.utility.ldap.service.ILdapSearchResult;
 import org.csstudio.utility.ldap.service.ILdapService;
 import org.csstudio.utility.ldap.service.LdapServiceException;
+import org.csstudio.utility.ldap.treeconfiguration.LdapEpicsControlsConfiguration;
 import org.csstudio.utility.ldap.utils.LdapSearchParams;
 import org.csstudio.utility.ldap.utils.LdapSearchResult;
 import org.csstudio.utility.treemodel.ContentModel;
@@ -68,17 +69,16 @@ import org.csstudio.utility.treemodel.ITreeNodeConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-
 /**
  * Service implementation for the LDAP access.
  * 
  * @author bknerr
  * @author $Author$
  * @version $Revision$
+ * @param <ControllerSubtreeNode>
  * @since 09.04.2010
  */
-public final class LdapServiceImpl implements ILdapService {
+public final class LdapServiceImpl<ControllerSubtreeNode> implements ILdapService {
 
     static final Logger LOG = LoggerFactory.getLogger(LdapServiceImpl.class);
 
@@ -258,6 +258,54 @@ public final class LdapServiceImpl implements ILdapService {
         }
     }
 
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @throws InvalidNameException
+     * @throws CreateContentModelException
+     * @throws LdapServiceException
+     */
+    public void moveSubTree(
+            @Nonnull final LdapName fromComponent, 
+            final LdapName toComponent ) 
+                    throws InvalidNameException, CreateContentModelException, LdapServiceException, Exception  {
+
+        LOG.debug("moving. subtree:\n{}", fromComponent.toString());
+
+        // get complete subtree of 'oldLdapName' and create model
+        final LdapSearchResult result = retrieveSearchResultSynchronously(fromComponent, any(ATTR_FIELD_OBJECT_CLASS),
+                SearchControls.SUBTREE_SCOPE);
+
+        if (result == null || result.getAnswerSet().isEmpty()) {
+            LOG.debug("LDAP query returned empty or null result for component {}\nand filter {}", fromComponent.toString(),
+                    any(ATTR_FIELD_OBJECT_CLASS));
+            return;
+        }
+        
+        final LdapContentModelBuilder<LdapEpicsControlsConfiguration> builder = 
+                new LdapContentModelBuilder<LdapEpicsControlsConfiguration>(LdapEpicsControlsConfiguration.VIRTUAL_ROOT, 
+                result,
+                getLdapNameParser());
+        builder.build();
+        
+        final ContentModel<LdapEpicsControlsConfiguration> model = builder.getModel();
+
+        // retrieve component from model
+        INodeComponent<LdapEpicsControlsConfiguration> childByLdapName = model.getChildByLdapName(fromComponent.toString());
+        if (childByLdapName == null) {
+            LOG.debug("Model does not contain entry for component {}", fromComponent.toString());
+            return ;
+        }
+
+        // perform the removal of the subtree
+        copyAndRemoveTreeComponent(toComponent, (ISubtreeNodeComponent<LdapEpicsControlsConfiguration>) childByLdapName, true);
+        // perform the removal of the component itself
+        //removeLeafComponent(component);
+
+        return;
+    }
+    
     /**
      * {@inheritDoc}
      * 
@@ -301,7 +349,7 @@ public final class LdapServiceImpl implements ILdapService {
 
         return true;
     }
-
+ 
     /**
      * {@inheritDoc}
      */

@@ -115,16 +115,18 @@ public class RecordPropertyGetRDB {
 				// nothing is printed, everything is empty
 			}
 		}
+		connect = new DBConnect(new OracleSettings());
 
-		if (getDataFromRDB()) {
-			getDataIfRDB();
-		} else {
+		connect.openConnection();
+//		if (getDataFromRDB()) {
+//			getDataIfRDB();
+//		} else {
 			if (getFieldNamesFromRDBsql()) {
 				getFieldNamesFromRDB();
 			} else {
 				// nothing is printed, everything is grayed out
 			}
-		}
+//		}
 
 		return _stringArray;
 

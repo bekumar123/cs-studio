@@ -121,7 +121,9 @@ public class RecordPropertyGetRDB {
 //		if (getDataFromRDB()) {
 //			getDataIfRDB();
 //		} else {
+		LOG.debug("read field name form oracle");
 			if (getFieldNamesFromRDBsql()) {
+				LOG.debug("add records from result set");
 				getFieldNamesFromRDB();
 			} else {
 				// nothing is printed, everything is grayed out

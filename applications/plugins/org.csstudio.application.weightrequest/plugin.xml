@@ -32,9 +32,14 @@
    <extension
          point="org.csstudio.remote.managementCommands">
       <command
-            class="org.csstudio.application.weightrequest.management.Stop"
+            class="org.csstudio.application.weightrequest.management.StopCmd"
             id="org.csstudio.application.weightrequest.Stop"
             label="Stop">
+      </command>
+      <command
+            class="org.csstudio.application.weightrequest.management.InfoCmd"
+            id="org.csstudio.application.weightrequest.InfoCmd"
+            label="Info">
       </command>
    </extension>
 

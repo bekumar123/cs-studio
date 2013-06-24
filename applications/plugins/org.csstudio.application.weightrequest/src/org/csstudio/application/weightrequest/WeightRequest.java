@@ -27,7 +27,6 @@ package org.csstudio.application.weightrequest;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-
 import org.csstudio.application.weightrequest.data.ValueEvent;
 import org.csstudio.application.weightrequest.data.ValueListener;
 import org.htmlparser.Parser;
@@ -40,24 +39,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * TODO (mmoeller) : 
- * 
  * @author mmoeller
  * @version 1.0
  * @since 01.12.2011
  */
 public class WeightRequest extends Thread {
-    
+
     private static Logger LOG = LoggerFactory.getLogger(WeightRequest.class);
-    
+
     private ArrayList<ValueListener> listener;
-    
+
     private WeightDisplayParser displayParser;
-    
+
     private String httpUrl;
-    
+
     private long refreshRate;
-    
+
     private boolean shutdown;
 
     public WeightRequest(String url, long refresh) {
@@ -70,27 +67,27 @@ public class WeightRequest extends Thread {
 
     @Override
     public void run() {
-        
+
         Parser parser = null;
 
         while (!shutdown) {
-        
+
             try {
-                
+
                 parser = new Parser(httpUrl);
                 NodeList divList = parser.parse(new TagNameFilter("div"));
-                
+
                 if(divList.size() > 0) {
-                    
+
                     Div divTag = (Div) divList.elementAt(0);
-                    
+
                     NodeList pList = divTag.getChildren()
                             .extractAllNodesThatMatch(new TagNameFilter("p"));
                     if(pList.size() > 0) {
-                        
+
                         ParagraphTag pTag = (ParagraphTag)pList.elementAt(0);
                         ParseResult pResult = displayParser.parse(pTag.getStringText().trim());
-                        
+
                         Iterator<?> allListener = listener.iterator();
                         while(allListener.hasNext()) {
                             ValueListener o = (ValueListener) allListener.next();
@@ -103,10 +100,10 @@ public class WeightRequest extends Thread {
                     }
                 }
             } catch (ParserException pe) {
-            
+
             LOG.error("[*** ParserException ***]: {}", pe.getMessage());
             ValueListener o;
-            Iterator<?> allListener = listener.iterator(); 
+            Iterator<?> allListener = listener.iterator();
             while(allListener.hasNext()) {
                 o = (ValueListener) allListener.next();
                 o.onValue(new ValueEvent(this, Double.valueOf(0.0D), false));

@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2011 Stiftung Deutsches Elektronen-Synchroton,
+ * Copyright (c) 2013 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -21,36 +21,37 @@
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
  */
 
-package org.csstudio.application.weightrequest;
+package org.csstudio.application.weightrequest.management;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+import org.csstudio.headless.common.management.IInfoProvider;
+import org.csstudio.remote.management.CommandParameters;
+import org.csstudio.remote.management.CommandResult;
+import org.csstudio.remote.management.IManagementCommand;
 
-public class Activator implements BundleActivator {
+/**
+ * @author mmoeller
+ * @since 24.06.2013
+ */
+public class InfoCmd implements IManagementCommand {
 
-    public static final String PLUGIN_ID = "org.csstudio.application.weightrequest";
+    private static IInfoProvider object;
 
-    private static Activator plugin;
-
-    private static BundleContext bundleContext;
-
-    public static Activator getDefault() {
-      return plugin;
+    public static void staticInject(IInfoProvider o) {
+        object = o;
     }
 
-    public static BundleContext getBundleContext() {
-      return bundleContext;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void start(BundleContext context) throws Exception {
-        plugin = this;
-        bundleContext = context;
-    }
-
-    @Override
-    public void stop(BundleContext context) throws Exception {
-        plugin = null;
-        bundleContext = null;
+    public CommandResult execute(CommandParameters parameters) {
+        CommandResult result = null;
+        if (object != null) {
+            String desc = object.getInfo();
+            result = CommandResult.createMessageResult(desc);
+        } else {
+            result = CommandResult.createFailureResult("No description available. The application reference is null!");
+        }
+        return result;
     }
 }

@@ -25,6 +25,9 @@
 
 package org.csstudio.application.weightrequest.server;
 
+import com.cosylab.epics.caj.cas.util.DefaultServerImpl;
+import com.cosylab.epics.caj.cas.util.NumericProcessVariable;
+import com.cosylab.epics.caj.cas.util.examples.CounterProcessVariable;
 import gov.aps.jca.CAException;
 import gov.aps.jca.JCALibrary;
 import gov.aps.jca.cas.ProcessVariableExistanceCallback;
@@ -34,7 +37,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
-
 import org.csstudio.application.weightrequest.Activator;
 import org.csstudio.application.weightrequest.data.MetaData;
 import org.csstudio.application.weightrequest.data.WeightFloatingPV;
@@ -43,26 +45,22 @@ import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.cosylab.epics.caj.cas.util.DefaultServerImpl;
-
 /**
- * TODO (mmoeller) : 
- * 
  * @author mmoeller
  * @author $Author: bknerr $
  * @version $Revision: 1.7 $
  * @since 01.12.2011
  */
 public class CaServer {
-    
+
     private static Logger LOG = LoggerFactory.getLogger(CaServer.class);
-    
+
     private GatewayServerImpl server;
-    
-    private ServerContext context = null;
-    
+
+    private ServerContext context;
+
     private String hostName;
-    
+
     private HashMap<String, WeightFloatingPV> pvMap;
 
     public CaServer() {
@@ -72,7 +70,7 @@ public class CaServer {
     }
 
     private void initialize() throws CAException {
-      
+
         createLocalHostName();
 
         JCALibrary jca = JCALibrary.getInstance();
@@ -104,21 +102,36 @@ public class CaServer {
 
         WeightFloatingPV weightPv = new WeightFloatingPV(pvName, null, mData, valueRefreshRate);
         pvMap.put(pvName, weightPv);
-
         server.registerProcessVaribale(weightPv);
+
+        // Add some channels for process watching
+        String newRecord = "CA:WeightRequest:Gateway:alive";
+        final NumericProcessVariable myAliveRecord = new CounterProcessVariable(newRecord, null, 0, 7, 1, 1000,
+                2, 5, 1, 6);
+        this.server.registerProcessVaribale(myAliveRecord);
+        LOG.info("Created Record " + newRecord);
+
+        newRecord = "CA:WeightRequest:Gateway:Ramp";
+        final NumericProcessVariable myRampRecord = new CounterProcessVariable(newRecord, null, 0, 1000, 1, 500,
+                200, 800, 100, 900);
+        this.server.registerProcessVaribale(myRampRecord);
+        LOG.info("Created Record " + newRecord);
+
+        newRecord = "CA:WeightRequest:Gateway:TickTack";
+        final NumericProcessVariable myTickTackRecord = new CounterProcessVariable(newRecord, null, 0, 1, 1, 1000,
+                -1, -1, -1, 0);
+        this.server.registerProcessVaribale(myTickTackRecord);
+        LOG.info("Created Record " + newRecord);
 
         context = jca.createServerContext("com.cosylab.epics.caj.cas.CAJServerContext", getServer());
 
         LOG.info(this.context.getVersion().getVersionString());
-        context.printInfo();
     }
 
     public void run() {
         try {
-            
             initialize();
             LOG.info("Start caGateway on: {}", this.hostName);
-
             context.run(0);
             LOG.info("Stop caGateway on: {}", this.hostName);
         } catch (CAException e) {
@@ -127,7 +140,7 @@ public class CaServer {
     }
 
     public final synchronized void stop() {
-        
+
         LOG.info("stop() was called, stopping server");
 
         if (!pvMap.isEmpty()) {
@@ -135,7 +148,7 @@ public class CaServer {
                 o.close();
             }
         }
-        
+
         try {
             context.shutdown();
         } catch (IllegalStateException ise) {
@@ -143,7 +156,7 @@ public class CaServer {
         } catch (CAException cae) {
             LOG.error("[*** CAException ***]: Context shutdown failed: {}", cae.getMessage());
         }
-        
+
         try {
             context.destroy();
         } catch (IllegalStateException ise) {
@@ -170,7 +183,7 @@ public class CaServer {
     }
 
     private void createLocalHostName() {
-        
+
         hostName = "localhost-NA";
         try {
             InetAddress localMachine = InetAddress.getLocalHost();
@@ -181,7 +194,7 @@ public class CaServer {
     }
 
     class GatewayServerImpl extends DefaultServerImpl {
-        
+
         private CaServer mainServer;
         public GatewayServerImpl(CaServer s) {
             this.mainServer = s;
@@ -195,8 +208,8 @@ public class CaServer {
                              throws CAException,
                                     IllegalArgumentException,
                                     IllegalStateException {
-            
-            ProcessVariableExistanceCompletion result = 
+
+            ProcessVariableExistanceCompletion result =
                                         ProcessVariableExistanceCompletion.DOES_NOT_EXIST_HERE;
 
             mainServer.getLogger()

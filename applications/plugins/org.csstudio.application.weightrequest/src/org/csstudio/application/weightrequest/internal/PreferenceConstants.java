@@ -26,17 +26,16 @@
 package org.csstudio.application.weightrequest.internal;
 
 /**
- * TODO (mmoeller) : 
- * 
  * @author mmoeller
  * @version 1.7
  * @since 01.12.2011
  */
 public class PreferenceConstants {
-    
-    public static final String XMPP_USER_NAME = "xmppUserName";
+
+    public static final String XMPP_USER = "xmppUser";
     public static final String XMPP_PASSWORD = "xmppPassword";
     public static final String XMPP_SERVER = "xmppServer";
+    public static final String DESCRIPTION = "description";
     public static final String PV_NAME = "pvName";
     public static final String PV_EGU = "pvEgu";
     public static final String PV_PRECISION = "pvPrecision";

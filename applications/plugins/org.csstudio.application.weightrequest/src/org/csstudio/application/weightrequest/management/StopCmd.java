@@ -42,7 +42,7 @@ import org.osgi.util.tracker.ServiceTracker;
  * @version 1.0
  * @since 01.12.2011
  */
-public class Stop implements IManagementCommand {
+public class StopCmd implements IManagementCommand {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
@@ -50,7 +50,7 @@ public class Stop implements IManagementCommand {
 
         CommandResult result = null;
         ApplicationHandle thisHandle = null;
-        BundleContext bundleContext = Activator.getContext();
+        BundleContext bundleContext = Activator.getBundleContext();
 
         String serviceFilter = "(&(objectClass=" +
                 ApplicationHandle.class.getName() + ")" +

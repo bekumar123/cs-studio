@@ -30,27 +30,27 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
 /**
- * TODO (mmoeller) : 
- * 
+ * TODO (mmoeller) :
+ *
  * @author mmoeller
  * @version $Revision: 1.7 $
  * @since 01.12.2011
  */
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void initializeDefaultPreferences() {
-        
+
         IEclipsePreferences prefs =
-                new DefaultScope()
-                     .getNode("org.csstudio.application.weightrequest");
-        
+                DefaultScope.INSTANCE.getNode("org.csstudio.application.weightrequest");
+
         prefs.put("xmppUserName", "anonymous");
         prefs.put("xmppPassword", "anonymous");
         prefs.put("xmppServer", "xmpp.server");
+        prefs.put("description", "I am a simple but happy application.");
         prefs.put("pvName", "NONE");
         prefs.put("pvEgu", "NONE");
         prefs.put("pvPrecision", "0");

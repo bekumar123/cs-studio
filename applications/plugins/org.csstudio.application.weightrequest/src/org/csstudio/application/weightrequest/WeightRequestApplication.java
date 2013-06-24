@@ -23,79 +23,97 @@
 
 package org.csstudio.application.weightrequest;
 
+import org.csstudio.application.weightrequest.internal.PreferenceConstants;
+import org.csstudio.application.weightrequest.management.InfoCmd;
 import org.csstudio.application.weightrequest.server.CaServer;
+import org.csstudio.headless.common.management.IInfoProvider;
+import org.csstudio.headless.common.util.ApplicationInfo;
+import org.csstudio.headless.common.util.StandardStreams;
+import org.csstudio.headless.common.xmpp.XmppCredentials;
+import org.csstudio.headless.common.xmpp.XmppSessionException;
+import org.csstudio.headless.common.xmpp.XmppSessionHandler;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.remotercp.common.tracker.IGenericServiceListener;
-import org.remotercp.service.connection.session.ISessionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * This class controls all aspects of the application's execution
  */
-public class WeightRequestApplication implements IApplication,
-                                                 IGenericServiceListener<ISessionService> {
+public class WeightRequestApplication implements IApplication, IInfoProvider {
 
     private static Logger LOG = LoggerFactory.getLogger(WeightRequestApplication.class);
-    
+
     private CaServer caServer;
-    
-    private ISessionService xmppService;
+
+    private XmppSessionHandler xmppSessionHandler;
+
+    private ApplicationInfo appInfo;
+
 
     public WeightRequestApplication() {
         this.caServer = new CaServer();
-        this.xmppService = null;
+        IPreferencesService pref = Platform.getPreferencesService();
+        String xmppServer = pref.getString(Activator.PLUGIN_ID,
+                                           PreferenceConstants.XMPP_SERVER,
+                                           "krynfs.desy.de",
+                                           null);
+        String xmppUser = pref.getString(Activator.PLUGIN_ID,
+                                         PreferenceConstants.XMPP_USER,
+                                         "anonymous",
+                                         null);
+        String xmppPassword = pref.getString(Activator.PLUGIN_ID,
+                                             PreferenceConstants.XMPP_PASSWORD,
+                                             "anonymous",
+                                             null);
+        XmppCredentials credentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
+        xmppSessionHandler = new XmppSessionHandler(Activator.getBundleContext(), credentials);
+        String desc = pref.getString(Activator.PLUGIN_ID,
+                                     PreferenceConstants.DESCRIPTION,
+                                     "",
+                                     null);
+        appInfo = new ApplicationInfo("WeightRequest", desc);
     }
 
     @Override
     public Object start(IApplicationContext context) throws Exception {
-      
-        LOG.info("Starting application.");
 
-        Activator.getDefault().addSessionServiceListener(this);
+        LOG.info("Starting WeightRequest application.");
+
+        StandardStreams stdStreams = new StandardStreams("./log");
+        stdStreams.redirectStreams();
+
+        InfoCmd.staticInject(this);
+        try {
+            xmppSessionHandler.connect();
+        } catch (XmppSessionException e) {
+            LOG.warn("Cannot connect to the XMPP server.");
+        }
+
         context.applicationRunning();
-
         this.caServer.run();
 
-        LOG.info("Stopping application.");
+        LOG.info("Stopping WeightRequest application.");
 
-        if (xmppService != null) {
-            synchronized (xmppService) {
-                try {
-                    this.xmppService.wait(500L);
-                } catch (InterruptedException ie) {
-                    // Can be ignored
-                }
-            }
-        
-            this.xmppService.disconnect();
-            LOG.info("XMPP disconnected.");
-        }
-        
+        xmppSessionHandler.disconnect();
+
         return IApplication.EXIT_OK;
     }
 
     @Override
-    public void stop()
-    {
+    public void stop() {
       synchronized (this.caServer) {
         this.caServer.stop();
       }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void bindService(ISessionService service) {
-      try {
-          service.connect("weightrequest", "weightrequest", "krynfs.desy.de");
-          xmppService = service;
-      } catch (Exception e) {
-          LOG.warn("XMPP connection is not available: {}", e.toString());
-      }
-    }
-
-    @Override
-    public void unbindService(ISessionService service) {
-        // Nothing to do here
+    public String getInfo() {
+        return appInfo.toString();
     }
 }

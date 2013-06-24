@@ -43,19 +43,20 @@ public class XmppSessionHandler implements Observer, IGenericServiceListener<ISe
     class XmppWatchdog extends Observable implements Runnable {
 
         /** Default value for check interval is 1 minute. */
-        public static final long DEFAULT_CHECK_INTERVAL = 60000L;
+        public static final long DEFAULT_CHECK_INTERVAL = 300000L;
 
         private long checkInterval;
 
         private boolean working;
 
-        public XmppWatchdog() {
-            checkInterval = DEFAULT_CHECK_INTERVAL;
+        public XmppWatchdog(long interval) {
+            checkInterval = interval;
             working = false;
+
         }
 
-        public synchronized void setCheckInterval(long interval) {
-            checkInterval = interval;
+        public XmppWatchdog() {
+            this(DEFAULT_CHECK_INTERVAL);
         }
 
         public synchronized void stopThread() {
@@ -97,13 +98,23 @@ public class XmppSessionHandler implements Observer, IGenericServiceListener<ISe
 
     private Thread watchdogThread;
 
-    public XmppSessionHandler(BundleContext context, XmppCredentials credentials) {
-        watchdog = new XmppWatchdog();
+    private boolean startWatchDog;
+
+    public XmppSessionHandler(BundleContext context,
+                              XmppCredentials credentials,
+                              boolean startWatchdog,
+                              long checkInterval) {
+        watchdog = new XmppWatchdog(checkInterval);
         watchdogThread = null;
         xmppCredentials = credentials;
         _genericServiceTracker = new GenericServiceTracker<ISessionService>(
                 context, ISessionService.class);
         _genericServiceTracker.open();
+        startWatchDog = startWatchdog;
+    }
+
+    public XmppSessionHandler(BundleContext context, XmppCredentials credentials) {
+        this(context, credentials, true, XmppWatchdog.DEFAULT_CHECK_INTERVAL);
     }
 
     public void connect() throws XmppSessionException {
@@ -111,6 +122,9 @@ public class XmppSessionHandler implements Observer, IGenericServiceListener<ISe
             throw new XmppSessionException("Service tracker must not be null!");
         }
         _genericServiceTracker.addServiceListener(this);
+        if (startWatchDog) {
+            startWatchdog();
+        }
     }
 
     public boolean isConnected() {
@@ -147,20 +161,15 @@ public class XmppSessionHandler implements Observer, IGenericServiceListener<ISe
         return xmppService;
     }
 
-    public void startWatchdog() {
-        startWatchdog(XmppWatchdog.DEFAULT_CHECK_INTERVAL);
-    }
-
-    public void startWatchdog(long interval) {
+    private void startWatchdog() {
         if (watchdogThread == null) {
             watchdog.addObserver(this);
-            watchdog.setCheckInterval(interval);
             watchdogThread = new Thread(watchdog, "XMPP Watchdog");
             watchdogThread.start();
         }
     }
 
-    public void stopWatchdog() {
+    private void stopWatchdog() {
         if (watchdogThread != null) {
             watchdog.stopThread();
             watchdog.deleteObservers();

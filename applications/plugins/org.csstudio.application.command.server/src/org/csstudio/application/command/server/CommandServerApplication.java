@@ -23,10 +23,15 @@
 
 package org.csstudio.application.command.server;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
+import org.csstudio.application.command.server.jms.CommandMessage;
 import org.csstudio.application.command.server.jms.MessageAcceptor;
+import org.csstudio.application.command.server.management.CommandsCmd;
 import org.csstudio.application.command.server.management.InfoCmd;
 import org.csstudio.application.command.server.management.StopCmd;
 import org.csstudio.application.command.server.preferences.CommandServerPreferences;
+import org.csstudio.application.command.server.service.CommandExecutor;
+import org.csstudio.application.command.server.service.CommandMessageListener;
 import org.csstudio.headless.common.management.IInfoProvider;
 import org.csstudio.headless.common.management.Stoppable;
 import org.csstudio.headless.common.util.ApplicationInfo;
@@ -42,7 +47,10 @@ import org.slf4j.LoggerFactory;
 /**
  * This class controls all aspects of the application's execution
  */
-public class CommandServerApplication implements IApplication, IInfoProvider, Stoppable {
+public class CommandServerApplication implements IApplication,
+                                                 CommandMessageListener,
+                                                 IInfoProvider,
+                                                 Stoppable {
 
     private static final Logger LOG = LoggerFactory.getLogger(CommandServerApplication.class);
 
@@ -51,6 +59,10 @@ public class CommandServerApplication implements IApplication, IInfoProvider, St
     private ApplicationInfo appInfo;
 
     private MessageAcceptor msgAcceptor;
+
+    private CommandExecutor cmdExecutor;
+
+    private ConcurrentLinkedQueue<CommandMessage> commandMsg;
 
     private Object lock;
 
@@ -71,6 +83,9 @@ public class CommandServerApplication implements IApplication, IInfoProvider, St
         SharedJmsConnections.staticInjectPublisherUrlAndClientId(CommandServerPreferences.JMS_PUBLISHER_URL.getValue(),
                                                                  "ServerCommandPublisher");
         msgAcceptor = new MessageAcceptor(CommandServerPreferences.JMS_TOPIC.getValue());
+        msgAcceptor.setListener(this);
+        cmdExecutor = new CommandExecutor();
+        commandMsg = new ConcurrentLinkedQueue<CommandMessage>();
         lock = new Object();
         running = true;
         restart = false;
@@ -82,14 +97,16 @@ public class CommandServerApplication implements IApplication, IInfoProvider, St
 	@Override
     public Object start(IApplicationContext context) throws Exception {
 
+	    //String command = "{exec(DIR=E:/var/CommandApplication;REDIRECT=yes): java.exe -jar CommandApplication.jar SIGINT 2134}     {exec(DIR=E:/Scratch/SimpleApplication): SimpleApplication.exe -m \"Moin, Moin\"}";
+
 	    StopCmd.staticInject(this);
 	    InfoCmd.staticInject(this);
+	    CommandsCmd.staticInject(this);
         try {
             xmppSession.connect();
         } catch (XmppSessionException e) {
             LOG.warn("Cannot connect to the XMPP server.");
         }
-        xmppSession.startWatchdog(4000L);
 
         msgAcceptor.start();
         context.applicationRunning();
@@ -97,10 +114,11 @@ public class CommandServerApplication implements IApplication, IInfoProvider, St
         synchronized (lock) {
             while (running) {
                 try {
-                    lock.wait(5000);
+                    lock.wait();
                 } catch (InterruptedException e) {
                     LOG.warn("I've been interrupted.");
                 }
+                LOG.info("Number of messages: " + commandMsg.size());
             }
         }
 
@@ -113,6 +131,10 @@ public class CommandServerApplication implements IApplication, IInfoProvider, St
         }
 
 	    return exitCode;
+	}
+
+	public String getCommandDescription() {
+	    return cmdExecutor.getCommandDescription();
 	}
 
 	/**
@@ -150,6 +172,19 @@ public class CommandServerApplication implements IApplication, IInfoProvider, St
     public void restartApplication() {
         running = false;
         restart = true;
+        synchronized (lock) {
+            lock.notify();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onCommandMessage(CommandMessage command) {
+        if (command.isCommandMessage()) {
+            commandMsg.add(command);
+        }
         synchronized (lock) {
             lock.notify();
         }

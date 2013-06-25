@@ -23,6 +23,11 @@
             id="org.csstudio.application.command.server.Info"
             label="Info">
       </command>
+      <command
+            class="org.csstudio.application.command.server.management.CommandsCmd"
+            id="org.csstudio.application.command.server.Command"
+            label="Commands">
+      </command>
    </extension>
 
 </plugin>

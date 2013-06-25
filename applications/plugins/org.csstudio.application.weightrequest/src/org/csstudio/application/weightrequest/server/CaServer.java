@@ -212,14 +212,17 @@ public class CaServer {
             ProcessVariableExistanceCompletion result =
                                         ProcessVariableExistanceCompletion.DOES_NOT_EXIST_HERE;
 
-            mainServer.getLogger()
-                         .debug("processVariableExistanceTest(): "
-                                 + aliasName + ", "
-                                 + clientAddress.toString());
-
+            if (mainServer.getLogger().isDebugEnabled()) {
+                mainServer.getLogger()
+                             .debug("processVariableExistanceTest(): "
+                                     + aliasName + ", "
+                                     + clientAddress.toString());
+            }
             if (mainServer.containsPV(aliasName)) {
                 result = ProcessVariableExistanceCompletion.EXISTS_HERE;
-                mainServer.getLogger().debug("EXISTS_HERE");
+                if (mainServer.getLogger().isDebugEnabled()) {
+                    mainServer.getLogger().debug("EXISTS_HERE");
+                }
             }
 
             return result;

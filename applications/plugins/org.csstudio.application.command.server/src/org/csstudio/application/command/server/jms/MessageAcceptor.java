@@ -23,10 +23,14 @@
 
 package org.csstudio.application.command.server.jms;
 
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import org.csstudio.application.command.server.service.CommandMessageListener;
 import org.csstudio.utility.jms.consumer.AsyncJmsConsumer;
 import org.csstudio.utility.jms.sharedconnection.ClientConnectionException;
 import org.slf4j.Logger;
@@ -44,6 +48,8 @@ public class MessageAcceptor extends Thread implements MessageListener {
 
     private String topicName;
 
+    private CommandMessageListener listener;
+
     private boolean working;
 
     public MessageAcceptor(String topic) {
@@ -53,6 +59,7 @@ public class MessageAcceptor extends Thread implements MessageListener {
         } catch (ClientConnectionException e) {
             LOG.error("[*** ClientConnectionException ***]: Cannot create JMS connection: " + e.getMessage());
         }
+        listener = null;
     }
 
     @Override
@@ -95,6 +102,10 @@ public class MessageAcceptor extends Thread implements MessageListener {
         }
     }
 
+    public void setListener(CommandMessageListener cmdMsgListener) {
+        listener = cmdMsgListener;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -102,7 +113,37 @@ public class MessageAcceptor extends Thread implements MessageListener {
     public void onMessage(Message message) {
         if (message instanceof MapMessage) {
             MapMessage mapMsg = (MapMessage) message;
-            LOG.debug(mapMsg.toString());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(mapMsg.toString());
+            }
+            CommandMessage cmdMessage = createCommandMessage(mapMsg);
+            if (listener != null) {
+                listener.onCommandMessage(cmdMessage);
+            }
         }
+        try {
+            message.acknowledge();
+        } catch (JMSException e) {
+            LOG.warn("Cannot acknowledge the message.");
+        }
+    }
+
+    private CommandMessage createCommandMessage(MapMessage message) {
+        Map<String, String> msgContent = new HashMap<String, String>();
+        try {
+            Enumeration<?> keys = message.getMapNames();
+            while (keys.hasMoreElements()) {
+                String key = (String) keys.nextElement();
+                if (key != null) {
+                    String value = message.getString(key);
+                    if (value != null) {
+                        msgContent.put(key, value);
+                    }
+                }
+            }
+        } catch (JMSException jmse) {
+            msgContent.clear();
+        }
+        return new CommandMessage(msgContent);
     }
 }

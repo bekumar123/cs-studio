@@ -31,6 +31,7 @@ import org.csstudio.headless.common.signal.HeadlessSignalHandler;
 import org.csstudio.headless.common.signal.ISignalReceiver;
 import org.csstudio.headless.common.signal.SignalException;
 import org.csstudio.headless.common.util.ApplicationInfo;
+import org.csstudio.headless.common.util.StandardStreams;
 import org.csstudio.headless.common.xmpp.XmppCredentials;
 import org.csstudio.headless.common.xmpp.XmppSessionException;
 import org.csstudio.headless.common.xmpp.XmppSessionHandler;
@@ -48,8 +49,6 @@ public class ServerApplication implements IApplication, RemotelyAccesible, ISign
 
     private static final Logger LOG = LoggerFactory.getLogger(ServerApplication.class);
 
-    private final long APPLICATION_WAIT_TIME = 10000L;
-
     private MySqlXmlRpcServer xmlrpcServer;
 
     /** The ECF service */
@@ -62,6 +61,9 @@ public class ServerApplication implements IApplication, RemotelyAccesible, ISign
     private boolean running;
 
     public ServerApplication() {
+
+        StandardStreams stdStreams = new StandardStreams("./log");
+        stdStreams.redirectStreams();
 
         try {
             signalHandler = new HeadlessSignalHandler(this);
@@ -89,7 +91,7 @@ public class ServerApplication implements IApplication, RemotelyAccesible, ISign
                 PreferenceConstants.XMPP_SERVER, "krynfs.desy.de", null);
 
         XmppCredentials xmppCredentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
-        xmppHandler = new XmppSessionHandler(ServerActivator.getContext(), xmppCredentials);
+        xmppHandler = new XmppSessionHandler(ServerActivator.getContext(), xmppCredentials, true);
 
         int port = prefs.getInt(ServerActivator.PLUGIN_ID,
                                 PreferenceConstants.XML_RPC_SERVER_PORT,
@@ -101,7 +103,7 @@ public class ServerApplication implements IApplication, RemotelyAccesible, ISign
         String info = prefs.getString(ServerActivator.PLUGIN_ID,
                                       PreferenceConstants.INFO_TEXT,
                                       "I am a simple but happy application.", null);
-        appInfo = new ApplicationInfo("XmlRpcServer for MySQL", info);
+        appInfo = new ApplicationInfo("XmlRpcServer for MySQL", info + " Used port: " + port);
     }
 
 	/**
@@ -127,17 +129,9 @@ public class ServerApplication implements IApplication, RemotelyAccesible, ISign
 	    while (running) {
 	        synchronized (this) {
 	            try {
-	                this.wait(APPLICATION_WAIT_TIME);
+	                this.wait();
 	            } catch (InterruptedException e) {
 	                LOG.warn("INTERRUPTED");
-	            }
-	        }
-	        if (!xmppHandler.isConnected()) {
-	            LOG.warn("XMPP service is not connected. Try to reconnect.");
-	            try {
-	                xmppHandler.connect();
-	            } catch (XmppSessionException e) {
-	                LOG.warn("Cannot connect to the XMPP server.");
 	            }
 	        }
 	    }

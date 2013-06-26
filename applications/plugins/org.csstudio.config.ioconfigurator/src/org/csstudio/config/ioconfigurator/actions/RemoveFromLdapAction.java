@@ -23,13 +23,18 @@
  */
 package org.csstudio.config.ioconfigurator.actions;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.csstudio.config.ioconfigurator.annotation.Nonnull;
 import org.csstudio.config.ioconfigurator.ldap.LdapControllerService;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerNode;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerSubtreeNode;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPartSite;
 
 /**
@@ -113,12 +118,41 @@ class RemoveFromLdapAction extends Action {
 
     @Override
     public void run() {
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                executeRemove();
+            }
+        };
+
+        final Display disp = Display.getDefault();
+        final Shell shell = disp.getActiveShell();
+
+        ProgressMonitorDialog dialog = new ProgressMonitorDialog(shell);
+        try {
+            dialog.run(true, false, new LongRunningAction(runnable));
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+            MessageDialog.openError(_site.getShell(), "Remove Error", e.getMessage());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            MessageDialog.openError(_site.getShell(), "Remove Error", e.getMessage());
+        }
+
+    }
+
+    private void executeRemove() {
         try {
             LdapControllerService.removeNode(_node.getLdapName());
-            IControllerSubtreeNode parent = _node.getParent();
+            final IControllerSubtreeNode parent = _node.getParent();
             if (parent != null) {
-                parent.removeChild(_node);
-                _viewer.refresh(parent);
+                Display.getDefault().asyncExec(new Runnable() {
+                    public void run() {
+                        parent.removeChild(_node);
+                        _viewer.refresh(parent);
+                    }
+                });
             }
         } catch (Exception e) {
             MessageDialog.openError(_site.getShell(), "Remove", e.getMessage());

@@ -23,6 +23,8 @@
  */
 package org.csstudio.config.ioconfigurator.actions;
 
+import java.lang.reflect.InvocationTargetException;
+
 import javax.naming.InvalidNameException;
 
 import org.csstudio.config.ioconfigurator.annotation.CheckForNull;
@@ -35,8 +37,11 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.window.Window;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPartSite;
 
 /**
@@ -121,13 +126,13 @@ class RenameComponentAction extends Action {
 
     @Override
     public void run() {
-        
+
         try {
             LdapNode ldapNode = new LdapNode(_node.getLdapName());
 
             IInputValidator validator;
             String prompt;
-            
+
             if (ldapNode.isFacility()) {
                 validator = Validators.UNIQUE_FACILITY_VALIDATOR.getValidator();
                 prompt = "Please enter the new Facility name";
@@ -138,16 +143,49 @@ class RenameComponentAction extends Action {
                 throw new IllegalStateException("Unexpected LDAP node type");
             }
 
-            String newName = renameInputDialog(_site, prompt, _node.getName(), validator);
-            
+            final String newName = renameInputDialog(_site, prompt, _node.getName(), validator);
+
             if (newName != null) {
 
-                if (newName.equals( _node.getName())) {
+                if (newName.equals(_node.getName())) {
                     return;
                 }
 
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        executeRename(newName);
+                    }
+                };
+
+                final Display disp = Display.getDefault();
+                final Shell shell = disp.getActiveShell();
+
+                ProgressMonitorDialog dialog = new ProgressMonitorDialog(shell);
                 try {
-                    boolean needsReload = LdapControllerService.rename(_node.getLdapName(), newName);
+                    dialog.run(true, false, new LongRunningAction(runnable));
+                } catch (InvocationTargetException e) {
+                    MessageDialog.openError(_site.getShell(), "Rename Error", e.getMessage());
+                } catch (InterruptedException e) {
+                    MessageDialog.openError(_site.getShell(), "Rename Error", e.getMessage());
+                }
+
+            }
+
+        } catch (InvalidNameException e1) {
+            MessageDialog.openError(_site.getShell(), "Rename Error", e1.getMessage());
+        }
+
+    }
+
+    private void executeRename(final String newName) {
+
+        try {
+
+            final boolean needsReload = LdapControllerService.rename(_node.getLdapName(), newName);
+
+            Display.getDefault().asyncExec(new Runnable() {
+                public void run() {
                     if (needsReload) {
                         _reloadLdap.run(new Runnable() {
                             @Override
@@ -163,15 +201,12 @@ class RenameComponentAction extends Action {
                         _node.setName(newName);
                         _viewer.refresh(_node);
                     }
-                } catch (Exception e) {
-                    MessageDialog.openError(_site.getShell(), "Rename Error", e.getMessage());
                 }
-            }
+            });
 
-        } catch (InvalidNameException e1) {
-            MessageDialog.openError(_site.getShell(), "Rename Error", e1.getMessage());
+        } catch (Exception e) {
+            MessageDialog.openError(_site.getShell(), "Rename Error", e.getMessage());
         }
-
     }
 
     /*
@@ -179,12 +214,9 @@ class RenameComponentAction extends Action {
      * required in the getRenameAction method.
      */
     @CheckForNull
-    private static String renameInputDialog(@Nonnull final IWorkbenchPartSite site,
-            @Nonnull final String prompt,
-            @Nonnull final String currentName,
-            @Nonnull final IInputValidator validator) {
-        final InputDialog dialog = new InputDialog(site.getShell(), "Rename", prompt, currentName,
-               validator);
+    private static String renameInputDialog(@Nonnull final IWorkbenchPartSite site, @Nonnull final String prompt,
+            @Nonnull final String currentName, @Nonnull final IInputValidator validator) {
+        final InputDialog dialog = new InputDialog(site.getShell(), "Rename", prompt, currentName, validator);
         if (Window.OK == dialog.open()) {
             return dialog.getValue();
         }

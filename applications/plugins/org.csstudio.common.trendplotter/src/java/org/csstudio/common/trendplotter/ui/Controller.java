@@ -29,6 +29,8 @@ import org.csstudio.common.trendplotter.model.PVItem;
 import org.csstudio.common.trendplotter.preferences.Preferences;
 import org.csstudio.common.trendplotter.propsheet.AddArchiveCommand;
 import org.csstudio.common.trendplotter.propsheet.AddAxisCommand;
+import org.csstudio.common.trendplotter.propsheet.ChangeArchiveRescaleCommand;
+import org.csstudio.common.trendplotter.propsheet.ChangeAxisConfigCommand;
 import org.csstudio.csdata.ProcessVariable;
 import org.csstudio.data.values.ITimestamp;
 import org.csstudio.swt.xygraph.figures.Annotation;
@@ -411,6 +413,16 @@ public class Controller implements ArchiveFetchJobListener
                 axis.setLogScale(logScale);
             }
 
+            @Override
+            public void autoScaleRequested() {
+                int axisCount = model.getAxisCount();
+                for (int i=0; i<axisCount; i++) {
+                    AxisConfig axis = model.getAxis(i);
+                    final ChangeAxisConfigCommand command = new ChangeAxisConfigCommand(plot.getOperationsManager(), axis);
+                    axis.setAutoScale(true);
+                    command.rememberNewConfig();
+                }
+            }
         });
 
         model_listener = new ModelListener()

@@ -103,6 +103,12 @@ public class PVItem extends ModelItem implements PVListener {
     /** Waveform Index */
     private int waveform_index = 0;
 
+    /** Display High (HOPR)*/
+    private double displayHighFromRecord;
+
+    /** Display Low (LOPR)*/
+    private double displayLowFromRecord;
+
     /** Initialize
      *  @param name PV name
      *  @param period Scan period in seconds, &le;0 to 'monitor'
@@ -424,13 +430,13 @@ public class PVItem extends ModelItem implements PVListener {
                 if (value.getMetaData() instanceof INumericMetaData) {
 
                     final INumericMetaData meta = (INumericMetaData) value.getMetaData();
-                    final double displayHigh = meta.getDisplayHigh();
-                    final double displayLow = meta.getDisplayLow();
+                    displayHighFromRecord = meta.getDisplayHigh();
+                    displayLowFromRecord = meta.getDisplayLow();
                     // Call into the ui thread
                     Display.getDefault().asyncExec(new Runnable() {
                         @Override
                         public void run() {
-                          getAxis().setRange(displayLow, displayHigh);
+                          getAxis().setRange(displayLowFromRecord, displayHighFromRecord);
                         }
                     });
                 }

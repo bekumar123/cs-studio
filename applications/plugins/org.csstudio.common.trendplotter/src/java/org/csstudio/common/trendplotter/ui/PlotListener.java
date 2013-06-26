@@ -176,4 +176,9 @@ public interface PlotListener
 
     public void valueAxisLogScaleChanged(int index, boolean old,
             boolean logScale);
+    
+    /** Called when the user enables/disables scrolling
+     *  @param enable_scrolling true when user requested scrolling via GUI
+     */
+    public void autoScaleRequested();
 }

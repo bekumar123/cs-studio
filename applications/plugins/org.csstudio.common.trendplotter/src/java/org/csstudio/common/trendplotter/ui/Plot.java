@@ -97,6 +97,8 @@ public class Plot
 
     final private AutoScaleButton autoScaleButton;
     
+    final private InitScaleButton initScaleButton;
+
     /**
      * Create a plot that is attached to an SWT canvas
      *
@@ -157,6 +159,9 @@ public class Plot
 
         autoScaleButton = new AutoScaleButton();
         plot.addToolbarButton(autoScaleButton);
+
+        initScaleButton = new InitScaleButton();
+        plot.addToolbarButton(initScaleButton);
 
         // Configure axes
         final Axis time_axis = xygraph.primaryXAxis;
@@ -300,6 +305,7 @@ public class Plot
         scroll_button.addPlotListener(listener);
         time_config_button.addPlotListener(listener);
         autoScaleButton.addPlotListener(listener);
+        initScaleButton.addPlotListener(listener);
 
         // Ajout L.PHILIPPE
         PlotConfigListener configListener = new PlotConfigListener(listener);

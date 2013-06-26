@@ -423,6 +423,23 @@ public class Controller implements ArchiveFetchJobListener
                     command.rememberNewConfig();
                 }
             }
+
+            @Override
+            public void initScaleRequested() {
+                AxisConfigurer configurer = new AxisConfigurer(model);
+                int axisCount = model.getAxisCount();
+                for (int i=0; i<axisCount; i++) {
+                    AxisConfig axis = model.getAxis(i);
+                    if (axis.isAutoScale()) {
+                        final ChangeAxisConfigCommand command = new ChangeAxisConfigCommand(plot.getOperationsManager(), axis);
+                        axis.setAutoScale(false);
+                        command.rememberNewConfig();
+                    }
+                    final ChangeAxisConfigCommand command = new ChangeAxisConfigCommand(plot.getOperationsManager(), axis);
+                    axis.setRange(configurer.getMin(axis), configurer.getMax(axis));
+                    command.rememberNewConfig();
+                }
+            }
         });
 
         model_listener = new ModelListener()

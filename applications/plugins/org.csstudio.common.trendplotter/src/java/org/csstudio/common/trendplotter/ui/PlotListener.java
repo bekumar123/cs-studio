@@ -177,8 +177,11 @@ public interface PlotListener
     public void valueAxisLogScaleChanged(int index, boolean old,
             boolean logScale);
     
-    /** Called when the user enables/disables scrolling
-     *  @param enable_scrolling true when user requested scrolling via GUI
+    /** Called when the user requests auto scale for all pvs
      */
     public void autoScaleRequested();
+
+    /** Called when the user initializes all pvs with HOPR LOPR
+     */
+    public void initScaleRequested();
 }

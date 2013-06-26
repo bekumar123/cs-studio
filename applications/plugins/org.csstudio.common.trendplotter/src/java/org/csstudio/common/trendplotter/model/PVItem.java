@@ -30,6 +30,7 @@ import org.csstudio.archive.vtype.trendplotter.ArchiveVType.Quality;
 import org.csstudio.common.trendplotter.Messages;
 import org.csstudio.common.trendplotter.imports.ImportArchiveReaderFactory;
 import org.csstudio.common.trendplotter.preferences.Preferences;
+import org.csstudio.common.trendplotter.ui.AxisConfigurer;
 import org.csstudio.data.values.IDoubleValue;
 import org.csstudio.data.values.IEnumeratedMetaData;
 import org.csstudio.data.values.IEnumeratedValue;
@@ -104,10 +105,10 @@ public class PVItem extends ModelItem implements PVListener {
     private int waveform_index = 0;
 
     /** Display High (HOPR)*/
-    private double displayHighFromRecord;
+    private Double displayHighFromRecord = null;
 
     /** Display Low (LOPR)*/
-    private double displayLowFromRecord;
+    private Double displayLowFromRecord = null;
 
     /** Initialize
      *  @param name PV name
@@ -432,11 +433,12 @@ public class PVItem extends ModelItem implements PVListener {
                     final INumericMetaData meta = (INumericMetaData) value.getMetaData();
                     displayHighFromRecord = meta.getDisplayHigh();
                     displayLowFromRecord = meta.getDisplayLow();
+                    final AxisConfigurer configurer = new AxisConfigurer(model);
                     // Call into the ui thread
                     Display.getDefault().asyncExec(new Runnable() {
                         @Override
                         public void run() {
-                          getAxis().setRange(displayLowFromRecord, displayHighFromRecord);
+                          getAxis().setRange(configurer.getMin(getAxis()), configurer.getMax(getAxis()));
                         }
                     });
                 }
@@ -668,4 +670,13 @@ public class PVItem extends ModelItem implements PVListener {
     public void moveHistoricSamplesToLiveSamples() {
         samples.moveHistoricSamplesToLiveSamples();
     }
+
+    public Double getDisplayHighFromRecord() {
+        return displayHighFromRecord;
+    }
+
+    public Double getDisplayLowFromRecord() {
+        return displayLowFromRecord;
+    }
+
 }

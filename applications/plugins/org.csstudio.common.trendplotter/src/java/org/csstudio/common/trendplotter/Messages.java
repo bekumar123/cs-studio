@@ -60,6 +60,7 @@ public class Messages extends NLS
     public static String ArchiveServerInfoTT;
     public static String ArchiveURLDialogTitle;
     public static String AutoScale;
+    public static String AutoScaleBtn;
     public static String AutoScaleButtonTT;
     public static String Axis;
     public static String AxisMax;
@@ -145,6 +146,9 @@ public class Messages extends NLS
     public static String ImportTitle;
     public static String ImportTypeLbl;
     public static String Information;
+    public static String InitScale;
+    public static String InitScaleBtn;
+    public static String InitScaleButtonTT;
     public static String InspectSamples;
     public static String InvalidScanPeriodError;
     public static String InvalidStartEndTimeError;
@@ -230,7 +234,6 @@ public class Messages extends NLS
     public static String SeverityColumn;
     public static String SeverityStatusFmt;
     public static String StartEndDialogBtn;
-    public static String AutoScaleBtn;
     public static String StartEndDialogTT;
     public static String StartTimeLbl;
     public static String StartTimeTT;

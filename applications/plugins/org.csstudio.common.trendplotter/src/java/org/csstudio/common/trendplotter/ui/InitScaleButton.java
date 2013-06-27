@@ -1,5 +1,6 @@
 package org.csstudio.common.trendplotter.ui;
 
+import org.csstudio.common.trendplotter.Activator;
 import org.csstudio.common.trendplotter.Messages;
 import org.eclipse.draw2d.ActionEvent;
 import org.eclipse.draw2d.ActionListener;
@@ -19,14 +20,12 @@ public class InitScaleButton extends Button {
 
     /** Initialize */
     public InitScaleButton() {
-        Label text = new Label(Messages.InitScaleBtn);
-        setContents(text);
+        Label icon = new Label(Activator.getDefault().getImage("icons/initialize.ico"));
+        setContents(icon);
         setToolTip(new Label(Messages.InitScaleButtonTT));
-        addActionListener(new ActionListener()
-        {
+        addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(final ActionEvent event)
-            {
+            public void actionPerformed(final ActionEvent event) {
                 if (listener != null)
                     listener.initScaleRequested();
             }
@@ -34,8 +33,7 @@ public class InitScaleButton extends Button {
     }
 
     /** Add a listener that will be informed about scroll on/off requests */
-    public void addPlotListener(final PlotListener listener)
-    {
+    public void addPlotListener(final PlotListener listener) {
         if (this.listener != null)
             throw new IllegalStateException();
         this.listener = listener;

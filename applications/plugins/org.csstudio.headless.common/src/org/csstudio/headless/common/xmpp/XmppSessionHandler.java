@@ -42,7 +42,7 @@ public class XmppSessionHandler implements Observer, IGenericServiceListener<ISe
 
     class XmppWatchdog extends Observable implements Runnable {
 
-        /** Default value for check interval is 1 minute. */
+        /** Default value for check interval is 5 minute. */
         public static final long DEFAULT_CHECK_INTERVAL = 300000L;
 
         private long checkInterval;
@@ -113,8 +113,12 @@ public class XmppSessionHandler implements Observer, IGenericServiceListener<ISe
         startWatchDog = startWatchdog;
     }
 
+    public XmppSessionHandler(BundleContext context, XmppCredentials credentials, boolean startWatchdog) {
+        this(context, credentials, startWatchdog, XmppWatchdog.DEFAULT_CHECK_INTERVAL);
+    }
+
     public XmppSessionHandler(BundleContext context, XmppCredentials credentials) {
-        this(context, credentials, true, XmppWatchdog.DEFAULT_CHECK_INTERVAL);
+        this(context, credentials, false, XmppWatchdog.DEFAULT_CHECK_INTERVAL);
     }
 
     public void connect() throws XmppSessionException {

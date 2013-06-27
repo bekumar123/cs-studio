@@ -42,17 +42,15 @@
   <ioc>amtfKryoXASB</ioc>
   <ioc>amtfKryoXATC</ioc>
   <ioc>amtfKryoXAVB</ioc>
+  <ioc>amtfKryoXATB3</ioc>
  </facility>
 
- <!--
  <facility name="XFEL">
-  <ioc></ioc>
-  <ioc></ioc>
-  <ioc></ioc>
-  <ioc></ioc>
-  <ioc></ioc>
+  <ioc>xfelKryoKS1</ioc>
+  <ioc>xfelKryoKS3</ioc>
+  <ioc>xfelKryoDB54</ioc>
+  <ioc>xfelKryoCB44</ioc>
  </facility>
- -->
  
  <facility name="Others">
   <ioc>mthKryoStand</ioc>

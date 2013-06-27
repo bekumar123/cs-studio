@@ -26,11 +26,20 @@ package org.csstudio.websuite;
 import java.io.IOException;
 import java.net.URL;
 import javax.servlet.ServletException;
+import org.csstudio.headless.common.management.IInfoProvider;
+import org.csstudio.headless.common.signal.HeadlessSignalHandler;
+import org.csstudio.headless.common.signal.ISignalReceiver;
+import org.csstudio.headless.common.signal.SignalException;
+import org.csstudio.headless.common.util.ApplicationInfo;
+import org.csstudio.headless.common.xmpp.XmppCredentials;
+import org.csstudio.headless.common.xmpp.XmppSessionException;
+import org.csstudio.headless.common.xmpp.XmppSessionHandler;
 import org.csstudio.platform.httpd.HttpServiceHelper;
 import org.csstudio.websuite.ams.servlet.AmsServlet;
 import org.csstudio.websuite.dao.AlarmMessageListProvider;
 import org.csstudio.websuite.dao.ChannelMessagesProvider;
 import org.csstudio.websuite.internal.PreferenceConstants;
+import org.csstudio.websuite.management.InfoCmd;
 import org.csstudio.websuite.management.MessageCounter;
 import org.csstudio.websuite.management.MessageDeleter;
 import org.csstudio.websuite.management.Restart;
@@ -62,8 +71,6 @@ import org.eclipse.equinox.app.IApplicationContext;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
-import org.remotercp.common.tracker.IGenericServiceListener;
-import org.remotercp.service.connection.session.ISessionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,8 +80,11 @@ import org.slf4j.LoggerFactory;
  * @author Markus Moeller
  * @version 1.0
  */
-public class WebSuiteApplication implements IApplication, Stoppable,
-                                            RemotlyAccessible, IGenericServiceListener<ISessionService> {
+public class WebSuiteApplication implements IApplication,
+                                            Stoppable,
+                                            IInfoProvider,
+                                            ISignalReceiver,
+                                            RemotlyAccessible {
 
     /** The provider of the alarm messages */
     private AlarmMessageListProvider alarmListProvider;
@@ -86,7 +96,11 @@ public class WebSuiteApplication implements IApplication, Stoppable,
     private final Object lock;
 
     /** Service for the XMPP login */
-    private ISessionService xmppService;
+    private XmppSessionHandler xmppService;
+
+    private ApplicationInfo appInfo;
+
+    private HeadlessSignalHandler signalHandler;
 
     /** The port that is used by JETTY */
     private int jettyPort;
@@ -99,10 +113,27 @@ public class WebSuiteApplication implements IApplication, Stoppable,
 
     /** Simple constructor */
     public WebSuiteApplication() {
+        IPreferencesService prefs = Platform.getPreferencesService();
+        String xmppUser = prefs.getString(WebSuiteActivator.PLUGIN_ID, PreferenceConstants.XMPP_USER_NAME, "anonymous", null);
+        String xmppPassword = prefs.getString(WebSuiteActivator.PLUGIN_ID, PreferenceConstants.XMPP_PASSWORD, "anonymous", null);
+        String xmppServer = prefs.getString(WebSuiteActivator.PLUGIN_ID, PreferenceConstants.XMPP_SERVER, "", null);
+        XmppCredentials xmppCred = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
+        xmppService = new XmppSessionHandler(WebSuiteActivator.getBundleContext(), xmppCred, true);
+        String desc = prefs.getString(WebSuiteActivator.PLUGIN_ID,
+                                      PreferenceConstants.DESCRIPTION,
+                                      "No description available.",
+                                      null);
+        appInfo = new ApplicationInfo("Websuite", desc);
+        try {
+            signalHandler = new HeadlessSignalHandler(this);
+            signalHandler.activateIntSignal();
+            signalHandler.activateTermSignal();
+        } catch (SignalException e) {
+            LOG.warn("The signal handler cannot be created!!!");
+        }
         lock = new Object();
         running = true;
         restart = false;
-        xmppService = null;
     }
 
     /**
@@ -116,8 +147,19 @@ public class WebSuiteApplication implements IApplication, Stoppable,
         jettyPort = preferences.getInt(WebSuiteActivator.PLUGIN_ID, PreferenceConstants.JETTY_PORT, 8181, null);
         LOG.info("Using port {} for JETTY.", jettyPort);
 
-        connectToXMPPServer();
-        
+        // Prepare the command classes
+        Stop.staticInject(this);
+        Restart.staticInject(this);
+        InfoCmd.staticInject(this);
+        MessageCounter.staticInject(this);
+        MessageDeleter.staticInject(this);
+
+        try {
+            xmppService.connect();
+        } catch (XmppSessionException e) {
+            LOG.warn("XMPP connection is not available: {}", e.getMessage());
+        }
+
         try {
             final HttpService http = HttpServiceHelper.createHttpService(WebSuiteActivator.getBundleContext(), jettyPort);
             configureHttpService(http);
@@ -150,7 +192,6 @@ public class WebSuiteApplication implements IApplication, Stoppable,
 
         if (xmppService != null) {
             xmppService.disconnect();
-            LOG.info("XMPP connection disconnected.");
         }
 
         Integer exitCode;
@@ -181,7 +222,7 @@ public class WebSuiteApplication implements IApplication, Stoppable,
         http.registerResources("/images", "/webapp/images", httpContext);
         http.registerResources("/html", "/webapp/html", httpContext);
         http.registerResources("/config", "/webapp/config", httpContext);
-        
+
         //creates servlet according to the configurations
         if(preferences.getBoolean(WebSuiteActivator.PLUGIN_ID, PreferenceConstants.ACTIVATE_HTML_SERVLET, true, null)){
             http.registerServlet(htmlServletAddress, new AlarmViewServletHtml(), null, httpContext);
@@ -224,7 +265,7 @@ public class WebSuiteApplication implements IApplication, Stoppable,
         http.registerServlet("/PersonalPVInfo", new PersonalPVInfoServlet(), null, httpContext);
         http.registerServlet("/PersonalPVInfoList", new PersonalPVInfoListServlet(), null, httpContext);
         http.registerServlet("/PersonalPVInfoEdit", new PersonalPVInfoEditServlet(), null, httpContext);
-        
+
         boolean enableAmsServlet = preferences.getBoolean(WebSuiteActivator.PLUGIN_ID,
                                                           PreferenceConstants.ENABLE_AMS_SERVLET,
                                                           false,
@@ -232,45 +273,11 @@ public class WebSuiteApplication implements IApplication, Stoppable,
         if (enableAmsServlet) {
             http.registerServlet("/AmsConfiguration", new AmsServlet(), null, httpContext);
         }
-        
+
         // Two servlets from project MeasuredData
         http.registerServlet("/Halle55", new Halle55(), null, httpContext);
         http.registerServlet("/Wetter", new Wetter(), null, httpContext);
         http.registerServlet("/data.txt", new DataExporter(), null, httpContext);
-    }
-
-    /**
-     * Creates the connection to the XMPP server.
-     */
-    public void connectToXMPPServer() {
-
-        // Prepare the action classes
-        Stop.staticInject(this);
-        Restart.staticInject(this);
-        MessageCounter.staticInject(this);
-        MessageDeleter.staticInject(this);
-
-        WebSuiteActivator.getDefault().addSessionServiceListener(this);
-    }
-
-    @Override
-    public void bindService(final ISessionService sessionService) {
-        final IPreferencesService prefs = Platform.getPreferencesService();
-        final String xmppUser = prefs.getString(WebSuiteActivator.PLUGIN_ID, PreferenceConstants.XMPP_USER_NAME, "anonymous", null);
-        final String xmppPassword = prefs.getString(WebSuiteActivator.PLUGIN_ID, PreferenceConstants.XMPP_PASSWORD, "anonymous", null);
-        final String xmppServer = prefs.getString(WebSuiteActivator.PLUGIN_ID, PreferenceConstants.XMPP_SERVER, "", null);
-
-    	try {
-			sessionService.connect(xmppUser, xmppPassword, xmppServer);
-			xmppService = sessionService;
-		} catch (final Exception e) {
-			LOG.warn("XMPP connection is not available: " + e.getMessage());
-		}
-    }
-
-    @Override
-    public void unbindService(final ISessionService service) {
-    	// Nothing to do here
     }
 
     /**
@@ -286,10 +293,8 @@ public class WebSuiteApplication implements IApplication, Stoppable,
      */
     @Override
 	public void setRestart() {
-
         running = false;
         restart = true;
-
         synchronized(lock) {
             lock.notify();
         }
@@ -300,9 +305,7 @@ public class WebSuiteApplication implements IApplication, Stoppable,
      */
     @Override
 	public void stopWorking() {
-
         running = false;
-
         synchronized(lock) {
             lock.notify();
         }
@@ -322,5 +325,21 @@ public class WebSuiteApplication implements IApplication, Stoppable,
     @Override
     public void deleteAllMessages() {
         alarmListProvider.deleteAllMessages();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void terminate() {
+        stopWorking();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getInfo() {
+        return appInfo.toString();
     }
 }

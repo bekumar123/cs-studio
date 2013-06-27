@@ -23,6 +23,11 @@
             id="org.csstudio.webviewer.management.DeleteAllMessages"
             label="Delete all messages">
       </command>
+      <command
+            class="org.csstudio.websuite.management.InfoCmd"
+            id="org.csstudio.websuite.InfoCmd"
+            label="Info">
+      </command>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">

@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2009 Stiftung Deutsches Elektronen-Synchrotron,
+ * Copyright (c) 2013 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -23,30 +23,35 @@
 
 package org.csstudio.websuite.management;
 
-import org.csstudio.headless.common.management.CommandResultPrefix;
+import org.csstudio.headless.common.management.IInfoProvider;
 import org.csstudio.remote.management.CommandParameters;
 import org.csstudio.remote.management.CommandResult;
 import org.csstudio.remote.management.IManagementCommand;
-import org.csstudio.websuite.Stoppable;
 
 /**
- * @author Markus Moeller
- *
+ * @author mmoeller
+ * @since 27.06.2013
  */
-public class Restart implements IManagementCommand {
+public class InfoCmd implements IManagementCommand {
 
-    private static Stoppable objectToBeRestarted = null;
+    private static IInfoProvider object = null;
 
-    /* (non-Javadoc)
-     * @see org.csstudio.platform.management.IManagementCommand#execute(org.csstudio.platform.management.CommandParameters)
-     */
-    @Override
-	public CommandResult execute(CommandParameters parameters) {
-        objectToBeRestarted.setRestart();
-        return CommandResult.createMessageResult(CommandResultPrefix.getOkPrefix() + " Restarting Websuite");
+    public static void staticInject(IInfoProvider o) {
+        object = o;
     }
 
-    public static void staticInject(Stoppable obj) {
-        objectToBeRestarted = obj;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public CommandResult execute(CommandParameters parameters) {
+        CommandResult result = null;
+        if (object != null) {
+            String desc = object.getInfo();
+            result = CommandResult.createMessageResult(desc);
+        } else {
+            result = CommandResult.createFailureResult("No description available. The application reference is null!");
+        }
+        return result;
     }
 }

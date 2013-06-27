@@ -22,17 +22,15 @@ import org.csstudio.apputil.xml.XMLWriter;
 import org.csstudio.archive.common.service.ArchiveServiceException;
 import org.csstudio.archive.reader.ArchiveReader;
 import org.csstudio.archive.vtype.trendplotter.ArchiveVNumber;
-import org.csstudio.archive.vtype.trendplotter.ArchiveVNumberArray;
 import org.csstudio.archive.vtype.trendplotter.ArchiveVStatistics;
 import org.csstudio.archive.vtype.trendplotter.ArchiveVString;
-import org.csstudio.archive.vtype.trendplotter.VTypeHelper;
 import org.csstudio.archive.vtype.trendplotter.ArchiveVType.Quality;
+import org.csstudio.archive.vtype.trendplotter.VTypeHelper;
 import org.csstudio.common.trendplotter.Messages;
 import org.csstudio.common.trendplotter.imports.ImportArchiveReaderFactory;
 import org.csstudio.common.trendplotter.preferences.Preferences;
 import org.csstudio.common.trendplotter.ui.AxisConfigurer;
 import org.csstudio.data.values.IDoubleValue;
-import org.csstudio.data.values.IEnumeratedMetaData;
 import org.csstudio.data.values.IEnumeratedValue;
 import org.csstudio.data.values.ILongValue;
 import org.csstudio.data.values.IMinMaxDoubleValue;
@@ -425,14 +423,12 @@ public class PVItem extends ModelItem implements PVListener {
     }
 
     private void onConnect(@Nonnull final IValue value) {
-        if (first_pv_update) {
-            first_pv_update = false;
+        if (displayHighFromRecord==null && displayLowFromRecord==null) {
+            if (value.getMetaData() instanceof INumericMetaData) {
+                final INumericMetaData meta = (INumericMetaData) value.getMetaData();
+                displayHighFromRecord = meta.getDisplayHigh();
+                displayLowFromRecord = meta.getDisplayLow();
             if (!_minMaxFromFile) {
-                if (value.getMetaData() instanceof INumericMetaData) {
-
-                    final INumericMetaData meta = (INumericMetaData) value.getMetaData();
-                    displayHighFromRecord = meta.getDisplayHigh();
-                    displayLowFromRecord = meta.getDisplayLow();
                     final AxisConfigurer configurer = new AxisConfigurer(model);
                     // Call into the ui thread
                     Display.getDefault().asyncExec(new Runnable() {

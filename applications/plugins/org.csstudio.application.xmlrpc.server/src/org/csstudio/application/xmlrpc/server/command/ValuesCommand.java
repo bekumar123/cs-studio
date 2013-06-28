@@ -97,6 +97,10 @@ public class ValuesCommand extends AbstractServerCommand {
 
         Integer howNr = (Integer) params.getParameter("how");
         ServerRequestType requestType = howServer.get(howNr);
+        if (requestType == null) {
+            LOG.warn("Request type was {}, but I do not know such type. I am using AVERAGE instead!", howNr);
+            requestType = ServerRequestType.AVERAGE;
+        }
         String name = (String) params.getParameter("name");
         TimeInstant start = (TimeInstant) params.getParameter("start");
         TimeInstant end = (TimeInstant) params.getParameter("end");

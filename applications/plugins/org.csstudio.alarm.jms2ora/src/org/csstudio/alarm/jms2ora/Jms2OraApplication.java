@@ -34,6 +34,9 @@ import org.csstudio.alarm.jms2ora.preferences.PreferenceConstants;
 import org.csstudio.alarm.jms2ora.util.CommandLine;
 import org.csstudio.alarm.jms2ora.util.Hostname;
 import org.csstudio.alarm.jms2ora.util.JmsSender;
+import org.csstudio.headless.common.signal.HeadlessSignalHandler;
+import org.csstudio.headless.common.signal.ISignalReceiver;
+import org.csstudio.headless.common.signal.SignalException;
 import org.csstudio.headless.common.util.ApplicationInfo;
 import org.csstudio.headless.common.util.StandardStreams;
 import org.csstudio.headless.common.xmpp.XmppCredentials;
@@ -54,7 +57,10 @@ import org.slf4j.LoggerFactory;
  *
  */
 
-public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAccesible {
+public class Jms2OraApplication implements IApplication,
+                                           Stoppable,
+                                           ISignalReceiver,
+                                           RemotelyAccesible {
 
     /** The class logger */
     private static final Logger LOG = LoggerFactory.getLogger(Jms2OraApplication.class);
@@ -74,6 +80,8 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
     private XmppSessionHandler xmppSessionHandler;
 
     private ApplicationInfo appInfo;
+
+    private HeadlessSignalHandler signalHandler;
 
     /** Flag that indicates whether or not the application is/should running */
     private boolean running;
@@ -96,7 +104,7 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
                                               "anonymous",
                                               null);
         XmppCredentials credentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
-        xmppSessionHandler = new XmppSessionHandler(Jms2OraActivator.getBundleContext(), credentials);
+        xmppSessionHandler = new XmppSessionHandler(Jms2OraActivator.getBundleContext(), credentials, true);
         lock = new Object();
         running = true;
         shutdown = false;
@@ -175,7 +183,15 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
             return IApplication.EXIT_OK;
         }
 
-        StandardStreams stdStreams = new StandardStreams();
+        try {
+            signalHandler = new HeadlessSignalHandler(this);
+            signalHandler.activateIntSignal();
+            signalHandler.activateTermSignal();
+        } catch (SignalException e) {
+            LOG.warn("Cannot activate signals. The application will not handle any signal.");
+        }
+
+        StandardStreams stdStreams = new StandardStreams("./log");
         stdStreams.redirectStreams();
 
         long sleep = prefs.getLong(Jms2OraActivator.PLUGIN_ID,
@@ -217,19 +233,6 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
                     lock.wait(SLEEPING_TIME);
                 } catch(final InterruptedException ie) {
                     LOG.info("lock.wait() has been interrupted.");
-                }
-            }
-            // Check XMPP connection
-            if (xmppSessionHandler.isConnected()) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("XMPP connection is working.");
-                }
-            } else {
-                LOG.warn("XMPP connection is broken! Try to re-connect.");
-                try {
-                    xmppSessionHandler.reconnect();
-                } catch (XmppSessionException e) {
-                    LOG.warn("Cannot re-connect to the XMPP server.");
                 }
             }
             // TODO: Check the worker...
@@ -335,5 +338,18 @@ public class Jms2OraApplication implements IApplication, Stoppable, RemotelyAcce
     @Override
     public String getInfo() {
         return appInfo.toString();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void terminate() {
+        running = false;
+        shutdown = true;
+        LOG.info("The application will terminate.");
+        synchronized(lock) {
+            lock.notify();
+        }
     }
 }

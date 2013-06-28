@@ -129,6 +129,17 @@ public class XmppSessionHandler implements Observer, IGenericServiceListener<ISe
         if (startWatchDog) {
             startWatchdog();
         }
+        synchronized (this) {
+            try {
+                this.wait(2000L);
+            } catch (InterruptedException e) {
+                // Ignore Me
+            }
+        }
+        // Throw the exception AFTER starting the watchdog
+        if (!isConnected()) {
+            throw new XmppSessionException("XMPP connection failed.");
+        }
     }
 
     public boolean isConnected() {
@@ -195,6 +206,7 @@ public class XmppSessionHandler implements Observer, IGenericServiceListener<ISe
     public void update(Observable o, Object arg) {
         try {
             reconnect();
+            LOG.info("Reconnected to the XMPP server.");
         } catch (XmppSessionException e) {
             LOG.warn("Cannot reconnect to the XMPP server.");
         }

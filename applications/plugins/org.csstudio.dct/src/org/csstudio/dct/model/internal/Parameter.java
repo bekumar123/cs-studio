@@ -3,6 +3,10 @@ package org.csstudio.dct.model.internal;
 import java.io.Serializable;
 
 import org.csstudio.dct.util.CompareUtil;
+import org.csstudio.dct.util.NotNull;
+import org.csstudio.dct.util.Nullable;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Represents a parameter with a default value.
@@ -10,21 +14,21 @@ import org.csstudio.dct.util.CompareUtil;
  * @author Sven Wende
  */
 public final class Parameter implements Serializable {
-	private static final long serialVersionUID = 5417684183030531306L;
-	private String name;
-	private String defaultValue;
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param name
-	 *            the name
-	 * @param defaultValue
-	 *            the default value
-	 */
-	public Parameter(String name, String defaultValue) {
+    private static final long serialVersionUID = 5417684183030531306L;
+	
+    @NotNull
+    private String name;
+    
+	private String defaultValue;
+	
+	private String description;
+
+	public Parameter(@NotNull String name, @Nullable String defaultValue,  @Nullable String description) {
+	    checkNotNull(name);
 		this.name = name;
 		this.defaultValue = defaultValue;
+		this.description = description;
 	}
 
 	/**
@@ -34,16 +38,6 @@ public final class Parameter implements Serializable {
 	 */
 	public String getName() {
 		return name;
-	}
-
-	/**
-	 * Sets the name.
-	 * 
-	 * @param name
-	 *            the name
-	 */
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	/**
@@ -65,7 +59,26 @@ public final class Parameter implements Serializable {
 		this.defaultValue = defaultValue;
 	}
 
-	/**
+    /**
+     * Returns the description value.
+     * 
+     * @return the description value
+     */
+	public String getDescription() {
+        return description;
+    }
+
+    /**
+     * Sets the description value.
+     * 
+     * @param description
+     *            the description value
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
 	 *{@inheritDoc}
 	 */
 	@Override
@@ -101,6 +114,6 @@ public final class Parameter implements Serializable {
 	 * Clones the parameter.
 	 */
 	public Parameter clone() {
-		return new Parameter(name, defaultValue);
+		return new Parameter(name, defaultValue, description);
 	}
 }

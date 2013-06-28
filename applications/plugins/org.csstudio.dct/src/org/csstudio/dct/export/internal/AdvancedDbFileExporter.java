@@ -1,5 +1,8 @@
 package org.csstudio.dct.export.internal;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.util.List;
 import java.util.Map;
 
 import org.csstudio.dct.export.IExporter;
@@ -59,18 +62,18 @@ public final class AdvancedDbFileExporter implements IExporter {
 		sb.append(NEWLINE);
 
 		Map<String, String> fields = ResolutionUtil.resolveFields(record);
-
+		
 		for (String key : fields.keySet()) {
 			String v = fields.get(key) != null ? fields.get(key) : "";
-
+			v = v.trim();
+			
 			if (!v.equals(record.getDefaultFields().get(key))) {
 
-				if (("".equals(v) && renderEmptyFields) || !"".equals(v)) {
+				if ((v.isEmpty() && renderEmptyFields) || !v.isEmpty()) {
 					sb.append("   field(");
 					sb.append(key);
 					sb.append(", \"");
 					sb.append(v);
-
 					sb.append("\")");
 					sb.append(NEWLINE);
 				}
@@ -82,6 +85,16 @@ public final class AdvancedDbFileExporter implements IExporter {
 		return sb.toString();
 	}
 
+	public String export(List<IRecord> records) {
+	    checkNotNull(records);
+	    StringBuffer sb = new StringBuffer();
+        for (IRecord r : records) {
+            sb.append(render(r));
+            sb.append("\r\n\r\n");
+        }
+        return sb.toString();    
+	}
+	
 	public String export(IProject project) {
 		StringBuffer sb = new StringBuffer();
 		for (IRecord r : project.getFinalRecords()) {

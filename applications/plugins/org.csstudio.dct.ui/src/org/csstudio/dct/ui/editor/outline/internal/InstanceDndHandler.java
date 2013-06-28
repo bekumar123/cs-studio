@@ -6,6 +6,7 @@ import org.csstudio.dct.model.IContainer;
 import org.csstudio.dct.model.IElement;
 import org.csstudio.dct.model.IFolder;
 import org.csstudio.dct.model.IInstance;
+import org.csstudio.dct.model.IRecord;
 import org.csstudio.dct.model.commands.AddInstanceCommand;
 import org.csstudio.dct.model.commands.CloneInstanceCommand;
 import org.csstudio.dct.model.commands.RemoveInstanceCommand;
@@ -21,7 +22,7 @@ import org.eclipse.swt.dnd.DropTargetEvent;
  * @author Sven Wende
  * 
  */
-public class InstanceDndHandler extends AbstractDnDHandler {
+public class InstanceDndHandler extends AbstractDnDHandler<IElement> {
 
 	/**
 	 *{@inheritDoc}
@@ -157,4 +158,10 @@ public class InstanceDndHandler extends AbstractDnDHandler {
 
 		return 0;
 	}
+	
+	@Override
+    public boolean supports(IElement dndSource) {
+        return !dndSource.isInherited();
+    }
+	
 }

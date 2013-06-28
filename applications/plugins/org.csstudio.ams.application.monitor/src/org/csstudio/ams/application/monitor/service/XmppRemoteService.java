@@ -36,7 +36,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
-
 import org.csstudio.ams.application.monitor.IRemoteService;
 import org.csstudio.remote.management.CommandDescription;
 import org.csstudio.remote.management.CommandParameters;
@@ -58,26 +57,26 @@ import org.slf4j.LoggerFactory;
  * @since 03.05.2012
  */
 public class XmppRemoteService implements IRemoteService {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(XmppRemoteService.class);
-    
+
     private static final long RESTART_TIME_DIFF = 900000L;
-    
+
     private ISessionService xmppService;
-    
+
     private String xmppGroupName;
-    
+
     private String workspaceLocation;
-    
+
     private long restartWaitTime;
-    
+
     public XmppRemoteService(ISessionService xmpp, String groupName, String ws, long waitTime) {
         xmppService = xmpp;
         xmppGroupName = groupName;
         workspaceLocation = ws;
         restartWaitTime = waitTime;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -97,7 +96,7 @@ public class XmppRemoteService implements IRemoteService {
         }
         return result;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -105,8 +104,8 @@ public class XmppRemoteService implements IRemoteService {
     public boolean stop(String[] name, String host, String user) {
         return callRemoteCommand("stop", name, host, user);
     }
-    
-     
+
+
     /**
     *
     * @param applicationName
@@ -156,14 +155,14 @@ public class XmppRemoteService implements IRemoteService {
        LOG.info("Anzahl Directory-Elemente: {}", rosterItems.size());
 
        IRosterGroup jmsApplics = this.getRosterGroup(rosterItems, xmppGroupName);
-       
+
        Collection<?> groupApplics = jmsApplics.getEntries();
        Iterator<?> iter = groupApplics.iterator();
        while (iter.hasNext()) {
            IRosterEntry o = (IRosterEntry) iter.next();
            LOG.info("Found: {} {}", o.getName(), o.getUser().getID().getName());
        }
-       
+
        for (String s : applicationName) {
            if (s != null) {
                LOG.info("Application: {}, Method: {}", s, method);
@@ -191,7 +190,7 @@ public class XmppRemoteService implements IRemoteService {
                }
            }
        }
-       
+
        return success;
    }
 
@@ -310,7 +309,12 @@ public class XmppRemoteService implements IRemoteService {
                    xmppService.getRemoteServiceProxies(
                    IManagementCommandService.class, new ID[] {currentApplic.getUser().getID()});
 
-           if(managementServices.size() == 1) {
+           if (managementServices.size() > 1) {
+               LOG.warn("I've found {} management services. Maybe there is a hanging connection.",
+                        managementServices.size());
+           }
+
+           if(managementServices.size() >= 1) {
 
                service = managementServices.get(0);
                final CommandDescription[] commands = service.getSupportedCommands();
@@ -335,11 +339,11 @@ public class XmppRemoteService implements IRemoteService {
                    boolean resultOk = returnValue.trim().startsWith("OK:");
                    boolean methodResultOk = false;
                    if (method.equals("stop")) {
-                       methodResultOk = (returnValue.toLowerCase().indexOf("stopping") > -1);
+                       methodResultOk = returnValue.toLowerCase().indexOf("stopping") > -1;
                    } else if (method.equals("restart")) {
-                       methodResultOk = (returnValue.toLowerCase().indexOf("restarting") > -1);
+                       methodResultOk = returnValue.toLowerCase().indexOf("restarting") > -1;
                    }
-                   
+
                    if(resultOk || methodResultOk) {
                        result = true;
                        LOG.info("Application {}ed: {}", method, result);
@@ -357,11 +361,11 @@ public class XmppRemoteService implements IRemoteService {
 
        return result;
    }
-   
+
    private boolean saveRestartTimestamp(long timestamp) {
-       
+
        boolean success = false;
-       
+
        File file = new File(workspaceLocation + "amsRestarted");
        if (file.exists()) {
            file.delete();
@@ -379,20 +383,20 @@ public class XmppRemoteService implements IRemoteService {
        } finally {
            if (out!=null){try{out.close();}catch(Exception e){/**/}}
        }
-       
+
        return success;
    }
-   
+
    private long readRestartTimestamp() {
-       
+
        long timestamp = -1L;
-       
+
        File file = new File(workspaceLocation + "amsRestarted");
        if (!file.exists()) {
            LOG.warn("The file, containing the timestamp of the last restart, does not exist!");
            return timestamp;
        }
-       
+
        DataInputStream in = null;
        try {
            in = new DataInputStream(new FileInputStream(file));
@@ -409,7 +413,7 @@ public class XmppRemoteService implements IRemoteService {
        } finally {
            if (in!=null){try{in.close();}catch(Exception e){/**/}}
        }
-       
+
        return timestamp;
    }
 }

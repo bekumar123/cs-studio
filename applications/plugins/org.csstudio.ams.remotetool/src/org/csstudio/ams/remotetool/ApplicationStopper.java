@@ -180,7 +180,12 @@ public class ApplicationStopper {
         CommandParameters parameter = null;
         CommandDescription stopAction = null;
 
-        if (managementServices.size() == 1) {
+        if (managementServices.size() > 1) {
+            LOG.warn("I've found {} management services. Maybe there is a hanging connection.",
+                     managementServices.size());
+        }
+
+        if (managementServices.size() >= 1) {
             service = managementServices.get(0);
             CommandDescription[] commands = service.getSupportedCommands();
 

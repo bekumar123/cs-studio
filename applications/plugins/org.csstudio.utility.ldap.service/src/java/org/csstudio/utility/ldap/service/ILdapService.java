@@ -37,7 +37,6 @@ import javax.naming.ldap.LdapName;
 
 import org.csstudio.utility.treemodel.ContentModel;
 import org.csstudio.utility.treemodel.CreateContentModelException;
-import org.csstudio.utility.treemodel.ISubtreeNodeComponent;
 import org.csstudio.utility.treemodel.ITreeNodeConfiguration;
 
 /**
@@ -51,12 +50,6 @@ import org.csstudio.utility.treemodel.ITreeNodeConfiguration;
 public interface ILdapService {
 
     DirContext getContext();
-
-    /**
-     * 
-     * @return the last explanation of an LDAP error and clear it
-     */
-    Exception retrieveLastExceptionAndClearIt();
 
     /**
      * Reconnects to an LDAP according to the new preferences map
@@ -122,7 +115,7 @@ public interface ILdapService {
      *            the attributes of the new ldap component
      * @return true if the new record could be created, false otherwise
      */
-    void createComponent(@Nonnull LdapName newComponentName, @Nullable Attributes attributes) throws Exception;
+    boolean createComponent(@Nonnull LdapName newComponentName, @Nullable Attributes attributes);
 
     /**
      * Removes the leaf component from the LDAP context. Attention, the
@@ -131,8 +124,9 @@ public interface ILdapService {
      * @param component
      *            .
      */
-    void removeLeafComponent(@Nonnull LdapName component) throws Exception;
+    boolean removeLeafComponent(@Nonnull LdapName component);
 
+    
     /**
      * Removes the component from the LDAP context incl. its subtree!
      * 

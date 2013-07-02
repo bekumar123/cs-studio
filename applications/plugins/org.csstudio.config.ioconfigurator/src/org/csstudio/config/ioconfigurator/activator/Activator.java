@@ -116,7 +116,6 @@ public class Activator extends AbstractCssUiPlugin {
      */
     @CheckForNull
     public static ImageDescriptor getImageDescriptor(@Nonnull final String path) {
-        // TODO: Not sure if this is OK
         return AbstractUIPlugin.imageDescriptorFromPlugin(ID, path);
     }
 

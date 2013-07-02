@@ -144,7 +144,11 @@ class RemoveFromLdapAction extends Action {
 
     private void executeRemove() {
         try {
+            
+            // remove node from ldap server
             LdapControllerService.removeNode(_node.getLdapName());
+            
+            // now remove the element from the TreeViewer
             final IControllerSubtreeNode parent = _node.getParent();
             if (parent != null) {
                 Display.getDefault().asyncExec(new Runnable() {
@@ -154,6 +158,7 @@ class RemoveFromLdapAction extends Action {
                     }
                 });
             }
+            
         } catch (Exception e) {
             MessageDialog.openError(_site.getShell(), "Remove", e.getMessage());
         }

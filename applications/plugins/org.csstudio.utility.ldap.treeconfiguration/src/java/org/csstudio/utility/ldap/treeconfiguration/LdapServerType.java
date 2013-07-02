@@ -1,5 +1,8 @@
 package org.csstudio.utility.ldap.treeconfiguration;
 
+/**
+ * Configure wich LdapType should be used. 
+ */
 public enum LdapServerType {
     SUN_LDAP(false), OPEN_LDAP(true);
     

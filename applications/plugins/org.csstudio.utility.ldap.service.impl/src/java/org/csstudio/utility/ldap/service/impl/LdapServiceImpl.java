@@ -139,14 +139,8 @@ public final class LdapServiceImpl<ControllerSubtreeNode> implements ILdapServic
         }
     }
 
-    private Exception lastException = null;
-
     public DirContext getContext() {
         return DirContextHolder.INSTANCE.get();
-    }
-
-    public Exception retrieveLastExceptionAndClearIt() {
-        return lastException;
     }
 
     /**
@@ -220,12 +214,11 @@ public final class LdapServiceImpl<ControllerSubtreeNode> implements ILdapServic
      * {@inheritDoc}
      */
     @Override
-    public void createComponent(@Nonnull final LdapName newComponentName, @Nullable final Attributes attributes)
-            throws Exception {
+    public boolean createComponent(@Nonnull final LdapName newComponentName, @Nullable final Attributes attributes) {
         final DirContext context = DirContextHolder.INSTANCE.get();
         if (context == null) {
             LOG.error("LDAP context is null.");
-            throw new Exception("LDAP context is null.");
+            return false;
         }
         try {
             context.bind(newComponentName, null, attributes);
@@ -233,19 +226,20 @@ public final class LdapServiceImpl<ControllerSubtreeNode> implements ILdapServic
         } catch (final NamingException e) {
             LOG.warn("Naming Exception while trying to bind: " + newComponentName.toString());
             LOG.warn(e.getExplanation());
-            throw new Exception(e.getExplanation());
+            return false;
         }
+        return true;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void removeLeafComponent(@Nonnull final LdapName component) throws Exception {
+    public boolean removeLeafComponent(@Nonnull final LdapName component) {       
         final DirContext context = DirContextHolder.INSTANCE.get();
         if (context == null) {
             LOG.error("LDAP context is null.");
-            throw new Exception("LDAP context is null.");
+           return false;
         }
         try {
             LOG.info("Unbind entry from LDAP: " + component);
@@ -253,10 +247,10 @@ public final class LdapServiceImpl<ControllerSubtreeNode> implements ILdapServic
         } catch (final NamingException e) {
             LOG.warn("Naming Exception while trying to unbind: " + component);
             LOG.warn(e.getExplanation());
-            throw new Exception(e.getExplanation());
+            return false;
         }
+        return true;
     }
-
 
     /**
      * {@inheritDoc}
@@ -374,7 +368,6 @@ public final class LdapServiceImpl<ControllerSubtreeNode> implements ILdapServic
         final DirContext context = DirContextHolder.INSTANCE.get();
         if (context == null) {
             LOG.error("LDAP context is null.");
-            lastException = new Exception("LDAP context is null.");
             return;
         }
         LOG.info("Rename entry from:\n{}\nto\n{}", oldLdapName.toString(), newLdapName.toString());

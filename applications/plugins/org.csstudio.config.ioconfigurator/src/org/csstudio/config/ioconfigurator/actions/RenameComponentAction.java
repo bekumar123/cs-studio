@@ -182,11 +182,10 @@ class RenameComponentAction extends Action {
 
         try {
 
-            final boolean needsReload = LdapControllerService.rename(_node.getLdapName(), newName);
+            LdapControllerService.rename(_node.getLdapName(), newName);
 
             Display.getDefault().asyncExec(new Runnable() {
                 public void run() {
-                    if (needsReload) {
                         _reloadLdap.run(new Runnable() {
                             @Override
                             public void run() {
@@ -197,10 +196,6 @@ class RenameComponentAction extends Action {
                                 }
                             }
                         });
-                    } else {
-                        _node.setName(newName);
-                        _viewer.refresh(_node);
-                    }
                 }
             });
 

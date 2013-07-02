@@ -50,6 +50,12 @@ public enum LdapEpicsControlsConfiguration implements ILdapTreeNodeConfiguration
     /**
      * The root for any tree structure. This node type does not have a pendant
      * in LDAP, hence 'virtual'.
+     * 
+     * Remark from roger@mcs.de:
+     * 
+     * I have no idea what this VIRTUAL_ROOT is good for. I had to implement some hacks to make OpenLdap ignore it.
+     * See LdapServerType.OPEN_LDAP to configure the Ldap server type.
+     * 
      */
     VIRTUAL_ROOT("virtual tree configuration root"),
 

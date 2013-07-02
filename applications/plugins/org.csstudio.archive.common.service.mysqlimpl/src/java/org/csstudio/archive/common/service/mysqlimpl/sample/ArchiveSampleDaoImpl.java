@@ -84,6 +84,8 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
     public static final String COLUMN_TIME = "time";
     public static final String COLUMN_CHANNEL_ID = "channel_id";
     public static final String COLUMN_VALUE = "value";
+    public static final String COLUMN_STATUS = "status";
+    public static final String COLUMN_SERVERTY = "serverty";
     public static final String COLUMN_AVG = "avg_val";
     public static final String COLUMN_MIN = "min_val";
     public static final String COLUMN_MAX = "max_val";

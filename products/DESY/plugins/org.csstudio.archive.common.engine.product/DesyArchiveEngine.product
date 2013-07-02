@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="DesyArchiveEngine" uid="archiveEngineId" id="org.csstudio.archive.common.engine.product" application="org.csstudio.archive.common.engine.application" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="true">
+<product name="DesyArchiveEngine" uid="archiveEngineId" id="org.csstudio.archive.common.engine.product" application="org.csstudio.archive.common.engine.application" version="1.0.0.qualifier" useFeatures="true" includeLaunchers="true">
+
 
    <configIni use="default">
    </configIni>
 
    <launcherArgs>
       <programArgs>-consoleLog -engine KryoEngineAll -pluginCustomization plugin_customization.ini</programArgs>
-      <vmArgs>-Djava.awt.headless=true -Djava.util.logging.config.file=log.properties -Xms64m -Xmx256m</vmArgs>
+      <vmArgs>-Djava.awt.headless=true -Djava.util.logging.config.file=log.properties -Xms64m -Xmx768m</vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
    <windowImages/>
+
 
    <launcher name="mysql-archiver">
       <solaris/>
@@ -21,12 +23,14 @@
       </win>
    </launcher>
 
+
    <vm>
       <linux include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6</linux>
       <macos include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6</macos>
       <solaris include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7</solaris>
       <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6</windows>
    </vm>
+
 
    <plugins>
       <plugin id="com.google.common"/>
@@ -143,6 +147,10 @@
       <plugin id="org.slf4j"/>
       <plugin id="org.slf4j-log4j12"/>
    </plugins>
+
+   <features>
+      <feature id="org.csstudio.archive.common.engine.feature" version="1.0.0.qualifier"/>
+   </features>
 
    <configurations>
       <plugin id="org.csstudio.archive.common.service.mysqlimpl" autoStart="true" startLevel="0" />

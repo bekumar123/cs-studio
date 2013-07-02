@@ -289,6 +289,7 @@ public abstract class AbstractContainer extends AbstractPropertyContainer implem
     /**
      * {@inheritDoc}
      */
+    @NotNull
     public final Map<String, String> getFinalParameterValues() {
         Map<String, String> result = new HashMap<String, String>();
 

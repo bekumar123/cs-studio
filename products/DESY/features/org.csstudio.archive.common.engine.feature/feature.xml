@@ -351,22 +351,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.core.filesystem.aix.ppc"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.core.filesystem.hpux.ia64_32"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.core.filesystem.linux.x86"
          os="linux"
          arch="x86"
@@ -672,30 +656,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.swt.gtk.aix.ppc"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.swt.gtk.aix.ppc64"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.swt.gtk.hpux.ia64_32"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.swt.gtk.linux.ppc64"
          os="linux"
          arch="ppc"
@@ -708,6 +668,7 @@
    <plugin
          id="org.eclipse.swt.gtk.linux.s390"
          os="linux"
+         arch="sparc"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -716,6 +677,8 @@
 
    <plugin
          id="org.eclipse.swt.gtk.linux.s390x"
+         os="linux"
+         arch="sparc"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -798,6 +761,8 @@
 
    <plugin
          id="org.eclipse.ui.carbon"
+         os="aix,hpux,linux,macosx,qnx,solaris,win32"
+         arch="x86,x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -806,6 +771,8 @@
 
    <plugin
          id="org.eclipse.ui.cocoa"
+         os="aix,hpux,linux,macosx,qnx,solaris,win32"
+         arch="x86,x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"

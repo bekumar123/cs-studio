@@ -221,6 +221,8 @@
 
    <plugin
          id="org.csstudio.platform.libs.epics.win32"
+         os="win32"
+         arch="x86,x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -229,6 +231,8 @@
 
    <plugin
          id="org.csstudio.platform.libs.epics.linux"
+         os="linux"
+         arch="x86,x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -237,6 +241,8 @@
 
    <plugin
          id="org.csstudio.platform.libs.epics.macosx"
+         os="macosx"
+         arch="x86,x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -245,6 +251,8 @@
 
    <plugin
          id="org.csstudio.platform.libs.epics.solaris"
+         os="solaris"
+         arch="sparc"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -360,6 +368,8 @@
 
    <plugin
          id="org.eclipse.core.filesystem.linux.x86"
+         os="linux"
+         arch="x86"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -368,6 +378,8 @@
 
    <plugin
          id="org.eclipse.core.filesystem.linux.x86_64"
+         os="linux"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -376,6 +388,8 @@
 
    <plugin
          id="org.eclipse.core.filesystem.macosx"
+         os="macosx"
+         arch="x86,x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -384,6 +398,8 @@
 
    <plugin
          id="org.eclipse.core.filesystem.solaris.sparc"
+         os="solaris"
+         arch="sparc"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -392,6 +408,8 @@
 
    <plugin
          id="org.eclipse.core.filesystem.win32.x86"
+         os="win32"
+         arch="x86"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -400,6 +418,8 @@
 
    <plugin
          id="org.eclipse.core.filesystem.win32.x86_64"
+         os="win32"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -422,6 +442,8 @@
 
    <plugin
          id="org.eclipse.core.resources.win32.x86"
+         os="win32"
+         arch="x86,x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -528,6 +550,8 @@
 
    <plugin
          id="org.eclipse.equinox.security.macosx"
+         os="macosx"
+         arch="x86,x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -536,6 +560,8 @@
 
    <plugin
          id="org.eclipse.equinox.security.win32.x86"
+         os="win32"
+         arch="x86"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -544,6 +570,8 @@
 
    <plugin
          id="org.eclipse.equinox.security.win32.x86_64"
+         os="win32"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -615,6 +643,8 @@
 
    <plugin
          id="org.eclipse.swt.carbon.macosx"
+         os="macosx"
+         arch="x86,x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -623,6 +653,8 @@
 
    <plugin
          id="org.eclipse.swt.cocoa.macosx"
+         os="macosx"
+         arch="x86,x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -631,6 +663,8 @@
 
    <plugin
          id="org.eclipse.swt.cocoa.macosx.x86_64"
+         os="macosx"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -663,6 +697,8 @@
 
    <plugin
          id="org.eclipse.swt.gtk.linux.ppc64"
+         os="linux"
+         arch="ppc"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -671,6 +707,7 @@
 
    <plugin
          id="org.eclipse.swt.gtk.linux.s390"
+         os="linux"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -687,6 +724,8 @@
 
    <plugin
          id="org.eclipse.swt.gtk.linux.x86"
+         os="linux"
+         arch="x86"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -695,6 +734,8 @@
 
    <plugin
          id="org.eclipse.swt.gtk.linux.x86_64"
+         os="linux"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -703,6 +744,8 @@
 
    <plugin
          id="org.eclipse.swt.gtk.solaris.sparc"
+         os="solaris"
+         arch="sparc"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -711,6 +754,8 @@
 
    <plugin
          id="org.eclipse.swt.gtk.solaris.x86"
+         os="solaris"
+         arch="x86"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -719,6 +764,8 @@
 
    <plugin
          id="org.eclipse.swt.win32.win32.x86"
+         os="win32"
+         arch="x86"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -727,6 +774,8 @@
 
    <plugin
          id="org.eclipse.swt.win32.win32.x86_64"
+         os="win32"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"

@@ -87,7 +87,10 @@ public class DistributorStart implements IApplication,
         String xmppUser = pref.getString(DistributorPlugin.PLUGIN_ID, DistributorPreferenceKey.P_XMPP_USER, "anonymous", null);
         String xmppPassword = pref.getString(DistributorPlugin.PLUGIN_ID, DistributorPreferenceKey.P_XMPP_PASSWORD, "anonymous", null);
         XmppCredentials credentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
-        xmppSessionHandler = new XmppSessionHandler(DistributorPlugin.getBundleContext(), credentials);
+        xmppSessionHandler = new XmppSessionHandler(DistributorPlugin.getBundleContext(),
+                                                    credentials,
+                                                    true,
+                                                    WAIT_TIME);
         String desc = pref.getString(DistributorPlugin.PLUGIN_ID,
                                      DistributorPreferenceKey.P_DESCRIPTION,
                                      "",
@@ -272,18 +275,7 @@ public class DistributorStart implements IApplication,
 
             while (!stopped) {
                 synchronized (this) {
-                    this.wait(WAIT_TIME);
-                }
-                // Check XMPP connection
-                if (xmppSessionHandler.isConnected()) {
-                    Log.log(Log.DEBUG, "XMPP connection is working.");
-                } else {
-                    Log.log(Log.WARN, "XMPP connection is broken! Try to re-connect.");
-                    try {
-                        xmppSessionHandler.connect();
-                    } catch (XmppSessionException e) {
-                        Log.log(Log.WARN, "Cannot connect to the XMPP server.");
-                    }
+                    this.wait();
                 }
             }
 

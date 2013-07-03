@@ -397,7 +397,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
         appInfo = new ApplicationInfo("AmsDepartmentDecision", desc);
 
         XmppCredentials credentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
-        xmppService = new XmppSessionHandler(bundleContext, credentials);
+        xmppService = new XmppSessionHandler(bundleContext, credentials, true);
         InfoCmd.staticInject(this);
         try {
             xmppService.connect();
@@ -989,24 +989,6 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
             } catch (final InterruptedException ie) {
                 DecisionDepartmentActivator.logger.logInfoMessage(this,
                         "Recieving of message has been interrupted", ie);
-            }
-
-            // Check XMPP connection
-            if (xmppService.isConnected()) {
-                DecisionDepartmentActivator
-                .logger
-                       .logDebugMessage(this, "XMPP connection is working.");
-            } else {
-                DecisionDepartmentActivator
-                           .logger
-                                  .logWarningMessage(this, "XMPP connection is broken! Try to re-connect.");
-                try {
-                    xmppService.reconnect();
-                } catch (XmppSessionException e) {
-                    DecisionDepartmentActivator
-                           .logger
-                                  .logWarningMessage(this, "Cannot re-connect to the XMPP server.");
-                }
             }
         }
 

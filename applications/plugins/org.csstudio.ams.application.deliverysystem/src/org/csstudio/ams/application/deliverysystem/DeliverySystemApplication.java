@@ -99,7 +99,7 @@ public class DeliverySystemApplication implements IApplication,
         String xmppUser = DeliverySystemPreference.XMPP_USER.getValue();
         String xmppPassword = DeliverySystemPreference.XMPP_PASSWORD.getValue();
         XmppCredentials credentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
-        xmppSessionHandler = new XmppSessionHandler(Activator.getContext(), credentials);
+        xmppSessionHandler = new XmppSessionHandler(Activator.getContext(), credentials, true);
         deliveryWorker = new Hashtable<AbstractDeliveryWorker, Thread>();
         workerStopTimeout = DeliverySystemPreference.WORKER_STOP_TIMEOUT.getValue();
         LOG.info("Timeout for worker shutdown: {}", workerStopTimeout);
@@ -158,18 +158,6 @@ public class DeliverySystemApplication implements IApplication,
                     lock.wait(WORKER_WATCH_INTERVAL);
                 } catch (InterruptedException ie) {
                     LOG.warn("Application was interrupted.");
-                }
-            }
-
-            // Check XMPP connection
-            if (xmppSessionHandler.isConnected()) {
-                LOG.debug("XMPP connection is working.");
-            } else {
-                LOG.warn("XMPP connection is broken! Try to re-connect.");
-                try {
-                    xmppSessionHandler.reconnect();
-                } catch (XmppSessionException e) {
-                    LOG.warn("Cannot re-connect to the XMPP server.");
                 }
             }
 

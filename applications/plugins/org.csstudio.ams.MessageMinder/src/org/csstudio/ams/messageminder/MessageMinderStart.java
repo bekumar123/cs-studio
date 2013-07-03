@@ -46,7 +46,6 @@ import org.csstudio.ams.messageminder.preference.MessageMinderPreferenceKey;
 import org.csstudio.headless.common.util.ApplicationInfo;
 import org.csstudio.headless.common.util.StandardStreams;
 import org.csstudio.headless.common.xmpp.XmppCredentials;
-import org.csstudio.headless.common.xmpp.XmppSessionException;
 import org.csstudio.headless.common.xmpp.XmppSessionHandler;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
@@ -89,7 +88,7 @@ public final class MessageMinderStart implements IApplication, IRemotelyAccesibl
         String xmppUser = pref.getString(MessageMinderActivator.PLUGIN_ID, MessageMinderPreferenceKey.P_STRING_XMPP_USER_NAME, "anonymous", null);
         String xmppPassword = pref.getString(MessageMinderActivator.PLUGIN_ID, MessageMinderPreferenceKey.P_STRING_XMPP_PASSWORD, "anonymous", null);
         XmppCredentials credentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
-        xmppService = new XmppSessionHandler(MessageMinderActivator.getBundleContext(), credentials);
+        xmppService = new XmppSessionHandler(MessageMinderActivator.getBundleContext(), credentials, true);
         String desc = pref.getString(MessageMinderActivator.PLUGIN_ID,
                                      MessageMinderPreferenceKey.P_DESCRIPTION,
                                      "I am a simple but happy application.",
@@ -133,17 +132,6 @@ public final class MessageMinderStart implements IApplication, IRemotelyAccesibl
         while (_commander.getState() != Job.NONE){
             Log.log(this, Log.INFO, "Commander state = " + String.valueOf(_commander.getState()));
             Thread.sleep(LOOP_WAIT_TIME);
-            // Check XMPP connection
-            if (xmppService.isConnected()) {
-                Log.log(Log.DEBUG, "XMPP connection is working.");
-            } else {
-                Log.log(Log.WARN, "XMPP connection is broken! Try to re-connect.");
-                try {
-                    xmppService.reconnect();
-                } catch (XmppSessionException e) {
-                    Log.log(Log.WARN, "Cannot re-connect to the XMPP server.");
-                }
-            }
         }
 
         _commander.cancel();

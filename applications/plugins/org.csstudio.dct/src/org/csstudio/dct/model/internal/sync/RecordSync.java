@@ -59,7 +59,7 @@ public class RecordSync implements ISyncModel {
             List<IRecord> libraryRecords = inst.getPrototype().getRecords();
             for (IRecord libraryRecord : libraryRecords) {
                 if (!isInInstance(inst, libraryRecord)) {
-                    newRecords.add(new Record(libraryRecord, UUID.randomUUID()));
+                   newRecords.add(new Record(libraryRecord, UUID.randomUUID()));
                 }
             }
         }

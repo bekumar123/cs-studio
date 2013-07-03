@@ -10,10 +10,12 @@ import org.csstudio.dct.util.CompareUtil;
 import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.commands.CommandStack;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IViewActionDelegate;
 import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.IPage;
 import org.eclipse.ui.views.contentoutline.ContentOutline;
 
@@ -38,11 +40,16 @@ public abstract class AbstractOutlineAction implements IViewActionDelegate {
      * {@inheritDoc}
      */
     public final void run(IAction action) {
-        Command command = createCommand(selectedElements);
-        if (command != null) {
-            execute(command);
+        if (getProject().getDatabaseDefinition() == null) {
+            MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+                    "No DBD-File selected","You must select a DBD file before you can add new elements.");
+        } else {
+            Command command = createCommand(selectedElements);
+            if (command != null) {
+                execute(command);
+            }
+            doRun(selectedElements);
         }
-        doRun(selectedElements);
     }
 
     /**
@@ -104,7 +111,7 @@ public abstract class AbstractOutlineAction implements IViewActionDelegate {
      */
     protected void afterSelectionChanged(List<IElement> selection, IAction action) {
         boolean isLibraryFolder = CompareUtil.containsLibraryFolder(selection);
-        boolean isPartOfLibraryFolder = CompareUtil.childOfLibaryFolder(selection); 
+        boolean isPartOfLibraryFolder = CompareUtil.childOfLibaryFolder(selection);
         action.setEnabled(!(isLibraryFolder || isPartOfLibraryFolder));
     }
 

@@ -36,10 +36,10 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 /**
- * The object class of an EPICS Controls item. The enumeration constants defined in this
- * class store information about the name of the object class in the directory,
- * which attribute to use to construct the name of a directory entry.
- *
+ * The object class of an EPICS Controls item. The enumeration constants defined
+ * in this class store information about the name of the object class in the
+ * directory, which attribute to use to construct the name of a directory entry.
+ * 
  * @author bknerr
  * @author $Author$
  * @version $Revision$
@@ -48,9 +48,16 @@ import com.google.common.collect.Sets;
 public enum LdapEpicsControlsConfiguration implements ILdapTreeNodeConfiguration<LdapEpicsControlsConfiguration> {
 
     /**
-     * The root for any tree structure. This node type does not have a pendant in LDAP, hence 'virtual'.
+     * The root for any tree structure. This node type does not have a pendant
+     * in LDAP, hence 'virtual'.
+     * 
+     * Remark from roger@mcs.de:
+     * 
+     * I have no idea what this VIRTUAL_ROOT is good for. I had to implement some hacks to make OpenLdap ignore it.
+     * See LdapServerType.OPEN_LDAP to configure the Ldap server type.
+     * 
      */
-    VIRTUAL_ROOT("vroot", "virtual tree configuration root"),
+    VIRTUAL_ROOT("virtual tree configuration root"),
 
     UNIT(LdapFieldsAndAttributes.ORGANIZATION_UNIT_FIELD_NAME, "factory aspect"),
 
@@ -74,12 +81,11 @@ public enum LdapEpicsControlsConfiguration implements ILdapTreeNodeConfiguration
      */
     RECORD("eren", "record");
 
-
-    private static final Map<String, LdapEpicsControlsConfiguration> CACHE_BY_NAME =
-        Maps.newHashMapWithExpectedSize(values().length);
+    private static final Map<String, LdapEpicsControlsConfiguration> CACHE_BY_NAME = Maps
+            .newHashMapWithExpectedSize(values().length);
 
     static {
-        RECORD._nestedClasses =  EnumSet.noneOf(LdapEpicsControlsConfiguration.class);
+        RECORD._nestedClasses = EnumSet.noneOf(LdapEpicsControlsConfiguration.class);
 
         IOC._nestedClasses = EnumSet.of(RECORD);
 
@@ -96,7 +102,6 @@ public enum LdapEpicsControlsConfiguration implements ILdapTreeNodeConfiguration
         }
     }
 
-
     /**
      * The name of this object class in the directory.
      */
@@ -108,7 +113,6 @@ public enum LdapEpicsControlsConfiguration implements ILdapTreeNodeConfiguration
      */
     private final String _nodeTypeName;
 
-
     /**
      * The tree items that are nested into a container of this class.
      */
@@ -116,15 +120,23 @@ public enum LdapEpicsControlsConfiguration implements ILdapTreeNodeConfiguration
 
     /**
      * Creates a new tree node type.
-     *
+     * 
      * @param nodeTypeName
      *            the name of the attribute to use for the RDN.
      * @param description
      *            the description of this tree component.
      */
-    private LdapEpicsControlsConfiguration(@Nonnull final String nodeTypeName,
-                                           @Nonnull final String description) {
+    private LdapEpicsControlsConfiguration(@Nonnull final String nodeTypeName, @Nonnull final String description) {
         _nodeTypeName = nodeTypeName;
+        _description = description;
+    }
+
+    private LdapEpicsControlsConfiguration(@Nonnull final String description) {
+        if (LdapServerType.OPEN_LDAP.isActive()) {
+            _nodeTypeName = "ou";
+        } else {
+            _nodeTypeName = "vroot";
+        }
         _description = description;
     }
 
@@ -136,7 +148,7 @@ public enum LdapEpicsControlsConfiguration implements ILdapTreeNodeConfiguration
     public LdapEpicsControlsConfiguration getRoot() {
         return UNIT;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -174,7 +186,7 @@ public enum LdapEpicsControlsConfiguration implements ILdapTreeNodeConfiguration
     }
 
     @CheckForNull
-    private static LdapEpicsControlsConfiguration getNodeTypeByNodeNameStatic(@Nonnull final String name) {
+    public static LdapEpicsControlsConfiguration getNodeTypeByNodeNameStatic(@Nonnull final String name) {
         return CACHE_BY_NAME.get(name);
     }
 
@@ -193,9 +205,10 @@ public enum LdapEpicsControlsConfiguration implements ILdapTreeNodeConfiguration
     @Override
     @Nonnull
     public ImmutableSet<String> getAttributes() {
-        return ImmutableSet.<String>builder().build(); // Empty for this tree configuration type
+        return ImmutableSet.<String> builder().build(); // Empty for this tree
+                                                        // configuration type
     }
-    
+
     @Nonnull
     public static String getDtdFilePath() throws IOException {
         return TreeConfigurationActivator.getResourceFromBundle("./res/dtd/epicsControls.dtd");

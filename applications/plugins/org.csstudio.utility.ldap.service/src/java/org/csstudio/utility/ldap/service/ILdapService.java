@@ -30,6 +30,7 @@ import javax.naming.InvalidNameException;
 import javax.naming.NameParser;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapName;
@@ -40,7 +41,7 @@ import org.csstudio.utility.treemodel.ITreeNodeConfiguration;
 
 /**
  * LDAP Service.
- *
+ * 
  * @author bknerr
  * @author $Author$
  * @version $Revision$
@@ -48,137 +49,173 @@ import org.csstudio.utility.treemodel.ITreeNodeConfiguration;
  */
 public interface ILdapService {
 
+    DirContext getContext();
+
     /**
      * Reconnects to an LDAP according to the new preferences map
-     * @param ldapPrefs the map of preferences, if <code>null</code> the default values from preferences are used
+     * 
+     * @param ldapPrefs
+     *            the map of preferences, if <code>null</code> the default
+     *            values from preferences are used
      * @return true, if reconnection has been successful, false otherwise
      */
     boolean reInitializeLdapConnection(@CheckForNull final Map<String, String> ldapPrefs);
 
-
+    /**
+     * Move all Subtrees of fromComponent to toComponent
+     */
+    <T extends Enum<T> & ITreeNodeConfiguration<T>> void moveSubTrees(
+            @Nonnull final T configurationRoot,
+            @Nonnull final LdapName fromComponent, 
+            final LdapName toComponent ) 
+                    throws InvalidNameException, CreateContentModelException, LdapServiceException, Exception;
+        
     /**
      * Returns the ldap content model builder for the specified parameters
-     * @param objectClassRoot the tree configuration of the content model
-     * @param searchResult the current search result to build the model from
-     * @param <T> the tree configuration type of the content model
+     * 
+     * @param objectClassRoot
+     *            the tree configuration of the content model
+     * @param searchResult
+     *            the current search result to build the model from
+     * @param <T>
+     *            the tree configuration type of the content model
      * @return the content model builder
      * @throws LdapServiceException
      */
     @Nonnull
-    <T extends Enum<T> & ITreeNodeConfiguration<T>> ILdapContentModelBuilder<T>
-        getLdapContentModelBuilder(@Nonnull final T objectClassRoot,
-                                   @Nonnull final ILdapSearchResult searchResult) throws LdapServiceException;
+    <T extends Enum<T> & ITreeNodeConfiguration<T>> ILdapContentModelBuilder<T> getLdapContentModelBuilder(
+            @Nonnull final T objectClassRoot, @Nonnull final ILdapSearchResult searchResult)
+            throws LdapServiceException;
 
     /**
      * Returns the ldap content model builder for the specified parameters
-     * @param model an already existing model which shall be enriched with
-     * @param <T> the tree configuration type of the content model
+     * 
+     * @param model
+     *            an already existing model which shall be enriched with
+     * @param <T>
+     *            the tree configuration type of the content model
      * @return the content model builder
      * @throws LdapServiceException
      */
     @Nonnull
-    <T extends Enum<T> & ITreeNodeConfiguration<T>> ILdapContentModelBuilder<T>
-        getLdapContentModelBuilder(@Nonnull final ContentModel<T> model) throws LdapServiceException;
+    <T extends Enum<T> & ITreeNodeConfiguration<T>> ILdapContentModelBuilder<T> getLdapContentModelBuilder(
+            @Nonnull final ContentModel<T> model) throws LdapServiceException;
 
     @CheckForNull
-    <T extends Enum<T> & ITreeNodeConfiguration<T>>
-    ContentModel<T> getLdapContentModelForSearchResult(@Nonnull final T configurationRoot,
-                                                       @Nonnull final ILdapSearchResult result) throws CreateContentModelException, LdapServiceException;
+    <T extends Enum<T> & ITreeNodeConfiguration<T>> ContentModel<T> getLdapContentModelForSearchResult(
+            @Nonnull final T configurationRoot, @Nonnull final ILdapSearchResult result)
+            throws CreateContentModelException, LdapServiceException;
 
     /**
      * Creates a new Record in LDAP.
-     * @param newComponentName the record
-     * @param attributes the attributes of the new ldap component
+     * 
+     * @param newComponentName
+     *            the record
+     * @param attributes
+     *            the attributes of the new ldap component
      * @return true if the new record could be created, false otherwise
      */
-    boolean createComponent(@Nonnull LdapName newComponentName,
-                            @Nullable Attributes attributes);
-
+    boolean createComponent(@Nonnull LdapName newComponentName, @Nullable Attributes attributes);
 
     /**
-     * Removes the leaf component from the LDAP context.
-     * Attention, the component may not have children components!
-     * @param component .
+     * Removes the leaf component from the LDAP context. Attention, the
+     * component may not have children components!
+     * 
+     * @param component
+     *            .
      */
     boolean removeLeafComponent(@Nonnull LdapName component);
 
+    
     /**
      * Removes the component from the LDAP context incl. its subtree!
-     * @param component .
+     * 
+     * @param component
+     *            .
      * @throws InvalidNameException
      * @throws CreateContentModelException
      * @throws LdapServiceException
+     * @throws Exception
      */
-    <T extends Enum<T> & ITreeNodeConfiguration<T>>
-        boolean removeComponent(@Nonnull final T configurationRoot,
-                                @Nonnull LdapName component) throws InvalidNameException, CreateContentModelException, LdapServiceException;
+    <T extends Enum<T> & ITreeNodeConfiguration<T>> boolean removeComponent(@Nonnull final T configurationRoot,
+            @Nonnull LdapName component) throws InvalidNameException, CreateContentModelException,
+            LdapServiceException, Exception;
 
     /**
-     * Retrieves LDAP entries for the given query and search scope synchronously.
-     * Blocks until the LDAP read has been performed!
-     *
-     * @param searchRoot search root
-     * @param filter the query filter
-     * @param searchScope the search scope
+     * Retrieves LDAP entries for the given query and search scope
+     * synchronously. Blocks until the LDAP read has been performed!
+     * 
+     * @param searchRoot
+     *            search root
+     * @param filter
+     *            the query filter
+     * @param searchScope
+     *            the search scope
      * @return the search result
      */
     @CheckForNull
-    ILdapSearchResult retrieveSearchResultSynchronously(@Nonnull LdapName searchRoot,
-                                                        @Nonnull String filter,
-                                                        int searchScope);
+    ILdapSearchResult retrieveSearchResultSynchronously(@Nonnull LdapName searchRoot, @Nonnull String filter,
+            int searchScope);
 
     /**
      * Returns an LDAPReader job that can be scheduled by the user arbitrarily.
-     *
-     * @param params the LDAP search params
-     * @param callBack called on job completion
+     * 
+     * @param params
+     *            the LDAP search params
+     * @param callBack
+     *            called on job completion
      * @return the LDAP reader job
      */
     @Nonnull
-    ILdapReaderJob createLdapReaderJob(@Nonnull ILdapSearchParams params,
-                                       @Nullable ILdapReadCompletedCallback callBack);
-
+    ILdapReaderJob createLdapReaderJob(@Nonnull ILdapSearchParams params, @Nullable ILdapReadCompletedCallback callBack);
 
     /**
      * Modifies given attributes for given LDAP component
-     * @param name .
-     * @param mods .
+     * 
+     * @param name
+     *            .
+     * @param mods
+     *            .
      * @throws NamingException
      */
     void modifyAttributes(@Nonnull LdapName name, @Nonnull ModificationItem[] mods) throws NamingException;
 
-
     /**
      * Renames LDAP component.
-     * @param oldLdapName .
-     * @param newLdapName .
+     * 
+     * @param oldLdapName
+     *            .
+     * @param newLdapName
+     *            .
      * @throws NamingException
      */
     void rename(@Nonnull LdapName oldLdapName, @Nonnull LdapName newLdapName) throws NamingException;
 
-
     /**
      * Retrieves the attributes for a given LDAP component
-     * @param ldapName .
+     * 
+     * @param ldapName
+     *            .
      * @return the attributes
      * @throws NamingException
      */
     @CheckForNull
     Attributes getAttributes(@Nonnull LdapName ldapName) throws NamingException;
 
-
     /**
      * Retrieves the named object from LDAP context.
-     *
-     * @param name the object name
-     * @throws NamingException when a naming exception occurs.
+     * 
+     * @param name
+     *            the object name
+     * @throws NamingException
+     *             when a naming exception occurs.
      */
     @CheckForNull
     Object lookup(@Nonnull LdapName name) throws NamingException;
 
-
     /**
      * Returns a name parser for this LDAP service.
+     * 
      * @return the parser
      * @throws LdapServiceException
      */
@@ -187,8 +224,11 @@ public interface ILdapService {
 
     /**
      * Parses a given SearchResult entry from LDAP into an LdapName object.
-     * @param the service
-     * @param row a search result row
+     * 
+     * @param the
+     *            service
+     * @param row
+     *            a search result row
      * @return the ldap composite name
      * @throws LdapServiceException
      */

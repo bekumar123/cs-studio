@@ -129,7 +129,6 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
         List<RunModeBoxInput> predecessors = getPredecessors(getInput());
         
         this.defaultLocation = new Point(x, y);
-        this.defaultSize = new Point(width, height);
         
         // create a shell
         _shell = new Shell();
@@ -193,11 +192,12 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
             Point size = navigation.computeSize(width, SWT.DEFAULT);
             fullHeight = fullHeight + size.y;
         }
-        
+
+        this.defaultSize = new Point(fullWidth + SCROLLBAR_MARGIN, fullHeight + SHELL_BORDER + SCROLLBAR_MARGIN);
     	if (lastLayoutDataOrNull != null) {
     		_shell.setSize(lastLayoutDataOrNull.getSize());
     	} else {
-    		_shell.setSize(fullWidth + SCROLLBAR_MARGIN, fullHeight + SHELL_BORDER + SCROLLBAR_MARGIN);
+    		_shell.setSize(this.defaultSize);
     	}
         
         // configure a graphical viewer
@@ -268,8 +268,8 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
      * box.
      * 
      * @param input
-     *            the current box�s input
-     * @return the input�s of all predecessor boxes
+     *            the current box's input
+     * @return the input's of all predecessor boxes
      */
     private List<RunModeBoxInput> getPredecessors(RunModeBoxInput input) {
         List<RunModeBoxInput> result = new ArrayList<RunModeBoxInput>();

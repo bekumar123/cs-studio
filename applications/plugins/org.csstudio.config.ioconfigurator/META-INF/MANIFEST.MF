@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Ioconfigurator
 Bundle-SymbolicName: org.csstudio.config.ioconfigurator;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.0.201307031400
 Bundle-Activator: org.csstudio.config.ioconfigurator.activator.Activator
 Require-Bundle: org.csstudio.utility.ldap.service;bundle-version="1.0.0",
  org.eclipse.ui,

@@ -3,12 +3,10 @@ package org.csstudio.ams.distributor;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-
 import org.csstudio.ams.AmsConstants;
 import org.csstudio.ams.Log;
 import org.csstudio.ams.configReplicator.ConfigReplicator;
@@ -21,14 +19,14 @@ import org.csstudio.ams.dbAccess.configdb.FlagDAO;
  * into the local application database.
  */
 class ConfigurationSynchronizer implements Runnable {
-    
+
     private static enum SynchronizerState {
         WAITING_FOR_REQUEST,
         SYNCHRONIZATION_REQUESTED,
         SYNCHRONIZATION_STARTED,
         SYNCHRONIZATION_COMPLETED;
     }
-    
+
     private final Connection _localDatabaseConnection;
     private final Connection _cacheDatabaseConnection;
     private final ConfigDbProperties dbProperties;
@@ -36,7 +34,7 @@ class ConfigurationSynchronizer implements Runnable {
     private boolean _stopped = false;
     private MessageProducer _jmsProducer;
     private Session _jmsSession;
-    
+
     /**
      * Creates a new synchronizer object.
      */
@@ -52,7 +50,7 @@ class ConfigurationSynchronizer implements Runnable {
         _jmsProducer = jmsProducer;
         _state = readSynchronizationState();
     }
-    
+
     /**
      * Reads the current synchronization state from the application database.
      */
@@ -74,7 +72,7 @@ class ConfigurationSynchronizer implements Runnable {
             throw new RuntimeException("Synchronizer initialization failed", e);
         }
     }
-    
+
     /**
      * Stops this synchronizer.
      */
@@ -82,7 +80,7 @@ class ConfigurationSynchronizer implements Runnable {
         _stopped = true;
         notifyAll();
     }
-    
+
     /**
      * Runs this synchronizer.
      * ALTER PROFILE DEFAULT LIMIT IDLE_TIME 60;
@@ -111,7 +109,7 @@ class ConfigurationSynchronizer implements Runnable {
             }
         }
     }
-    
+
     /**
      * Requests this synchronizer to perform a synchronization.
      */
@@ -122,7 +120,7 @@ class ConfigurationSynchronizer implements Runnable {
         _state = SynchronizerState.SYNCHRONIZATION_REQUESTED;
         notifyAll();
     }
-    
+
     /**
      * Starts the synchronization.
      */
@@ -130,7 +128,7 @@ class ConfigurationSynchronizer implements Runnable {
         if (_state != SynchronizerState.SYNCHRONIZATION_REQUESTED) {
             throw new IllegalStateException("Not in state SYNCHRONIZATION_REQUESTED");
         }
-        
+
         try {
             boolean success = FlagDAO.bUpdateFlag(_localDatabaseConnection,
                                                   AmsConstants.FLG_RPL,
@@ -148,7 +146,7 @@ class ConfigurationSynchronizer implements Runnable {
             Log.log(this, Log.FATAL, "could not bUpdateFlag", e);
         }
     }
-    
+
     /**
      * Copies the configuration from the master database to the local application database.
      */
@@ -156,7 +154,7 @@ class ConfigurationSynchronizer implements Runnable {
         if (_state != SynchronizerState.SYNCHRONIZATION_STARTED) {
             throw new IllegalStateException("Not in state SYNCHRONIZATION_STARTED");
         }
-        
+
         Connection masterDatabaseConnection = null;
         try {
             masterDatabaseConnection = AmsConnectionFactory.getConfigurationDB(dbProperties);
@@ -166,7 +164,7 @@ class ConfigurationSynchronizer implements Runnable {
         } catch (Exception e) {
             Log.log(this, Log.FATAL, "Could not replicateConfiguration", e);
         }
-        
+
         try {
             boolean success = FlagDAO.bUpdateFlag(_localDatabaseConnection,
                                                   AmsConstants.FLG_RPL,
@@ -175,15 +173,15 @@ class ConfigurationSynchronizer implements Runnable {
             if (success) {
                 _state = SynchronizerState.SYNCHRONIZATION_COMPLETED;
             } else {
-                Log.log(this, Log.FATAL, "update not successful, could not update "
+                Log.log(this, Log.FATAL, "Update not successful, could not update "
                         + AmsConstants.FLG_RPL + " from " + AmsConstants.FLAGVALUE_SYNCH_DIST_RPL
                         + " to " + AmsConstants.FLAGVALUE_SYNCH_DIST_NOTIFY_FMR);
             }
         } catch (SQLException e) {
-            Log.log(this, Log.FATAL, "could not bUpdateFlag", e);
+            Log.log(this, Log.FATAL, "Could not bUpdateFlag", e);
         }
     }
-    
+
     /**
      * Sends a JMS message to the filter manager.
      */
@@ -191,10 +189,10 @@ class ConfigurationSynchronizer implements Runnable {
         if (_state != SynchronizerState.SYNCHRONIZATION_COMPLETED) {
             throw new IllegalStateException("Not in state SYNCHRONIZATION_COMPLETED");
         }
-        
+
         try {
             Log.log(this, Log.INFO,
-                            "send MSGVALUE_TCMD_RELOAD_CFG_END to FMR via Ams Cmd Topic");
+                            "Sending MSGVALUE_TCMD_RELOAD_CFG_END to FMR via Ams Cmd Topic");
             MapMessage msg = _jmsSession.createMapMessage();
             msg.setString(AmsConstants.MSGPROP_TCMD_COMMAND, AmsConstants.MSGVALUE_TCMD_RELOAD_CFG_END);
             _jmsProducer.send(msg);
@@ -218,5 +216,5 @@ class ConfigurationSynchronizer implements Runnable {
             Log.log(this, Log.FATAL, "could not bUpdateFlag", e);
         }
     }
-    
+
 }

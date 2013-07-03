@@ -27,17 +27,17 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
+import org.csstudio.config.ioconfigurator.annotation.Nonnull;
+import org.csstudio.config.ioconfigurator.annotation.Nullable;
 import org.csstudio.config.ioconfigurator.property.ioc.ControllerProperty;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerLeaf;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerSubtreeNode;
-import org.csstudio.utility.ldap.model.LdapEpicsControlsConfiguration;
+import org.csstudio.utility.ldap.treeconfiguration.LdapEpicsControlsConfiguration;
 
 import com.google.common.collect.Maps;
 
@@ -156,7 +156,7 @@ public class ControllerLeaf extends AbstractControllerNode implements
             } else {
                 StringBuilder value = new StringBuilder();
                 for (NamingEnumeration<?> j = att.getAll(); j.hasMore();) {
-                    value.append(j.next() + " ");
+                    value.append(j.next());
                 }
                 _properties.put(i, value.toString());
             }

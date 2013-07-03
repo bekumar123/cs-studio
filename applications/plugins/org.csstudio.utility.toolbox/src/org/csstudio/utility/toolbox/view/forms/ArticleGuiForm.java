@@ -300,7 +300,7 @@ public class ArticleGuiForm extends AbstractGuiFormTemplate<Article> implements 
             }
          }).build();
 
-         wf.text(composite, "baNr", SearchTermType.STRING_IGNORE_FIRST_CHAR).label("BA Number:").isJoinedForSearch()
+         wf.text(composite, "baNr", SearchTermType.STRING_SEARCH_EXACT).label("BA Number:").isJoinedForSearch()
                .limitInputToDigits().hint("growx, wrap, h 21!").build();
 
       } else {

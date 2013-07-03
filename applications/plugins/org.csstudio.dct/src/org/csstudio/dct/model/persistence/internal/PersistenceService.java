@@ -24,7 +24,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.jdom.Document;
-import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.slf4j.Logger;
@@ -186,7 +185,7 @@ public final class PersistenceService implements IPersistenceService {
             while (it2.hasNext()) {
                 DBDFieldData fieldData = it2.next();
                 String fieldName = fieldData.getName();
-
+                
                 LOG.debug(fieldName);
 
                 FieldDefinition fieldDefinition = new FieldDefinition(fieldName, DBDResolver.getFieldType(fieldData

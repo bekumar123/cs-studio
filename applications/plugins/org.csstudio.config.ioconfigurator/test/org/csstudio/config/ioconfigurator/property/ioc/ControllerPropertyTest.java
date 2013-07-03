@@ -25,8 +25,6 @@ package org.csstudio.config.ioconfigurator.property.ioc;
 
 import static org.junit.Assert.assertEquals;
 
-import org.csstudio.config.ioconfigurator.property.ioc.ControllerProperty;
-import org.csstudio.config.ioconfigurator.property.ioc.Validators;
 import org.junit.Test;
 
 /**

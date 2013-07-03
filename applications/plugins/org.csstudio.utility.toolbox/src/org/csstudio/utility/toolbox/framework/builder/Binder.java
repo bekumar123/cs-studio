@@ -14,8 +14,10 @@ import org.csstudio.utility.toolbox.framework.property.Property;
 import org.csstudio.utility.toolbox.framework.validator.DateValidator;
 import org.csstudio.utility.toolbox.func.Func1Void;
 import org.csstudio.utility.toolbox.func.Option;
+import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
+import org.eclipse.core.databinding.conversion.IConverter;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.databinding.swt.SWTObservables;
@@ -31,155 +33,170 @@ import com.google.inject.Inject;
 
 public class Binder<T extends BindingEntity> {
 
-	private DataBindingContext ctx;
-	
-	private GenericEditorInput<T> editorInput;
-	
-	private DirtyFlag dirtyFlagSupporter;
-	
-	private  boolean isSearchMode;
-		
-	@Inject
-	private DateToStringConverter dateToStringConverter;
+   private DataBindingContext ctx;
 
-	@Inject
-	private StringToDateConverter stringToDateConverter;
+   private GenericEditorInput<T> editorInput;
 
-	@Inject
-	private BigDecimalToStringConverter bigDecimalToStringConverter;
+   private DirtyFlag dirtyFlagSupporter;
 
-	@Inject
-	private StringToBigDecimalConverter stringToBigDecimalConverter;
+   private boolean isSearchMode;
 
-	@Inject
-	private NullToStringConverter nullToStringConverter;
+   @Inject
+   private DateToStringConverter dateToStringConverter;
 
-	@Inject
-	private StringToNullConverter stringToNullConverter;
-	
-	public void init (GenericEditorInput<T> editorInput, Option<? extends DirtyFlag> dirtyFlagSupporter, boolean isSearchMode) {
-		this.ctx = new DataBindingContext();
-		this.editorInput = editorInput;
-		this.isSearchMode = isSearchMode;
-		if (dirtyFlagSupporter.hasValue()) {
-			this.dirtyFlagSupporter = dirtyFlagSupporter.get();
-		} else {
-			this.dirtyFlagSupporter = new DirtyFlag() {				
-				@Override
-				public void setDirty(boolean value) {
-					throw new IllegalStateException("Trying to set dirty flag, but that is currently unexpected.");
-				}
-			};
-		}		
-	}
-		
-		
-	public void bindPropertyToText(Property property, Text text, ControlDecoration controlDecoration,
-				boolean useBigDecimalConverter) {
+   @Inject
+   private StringToDateConverter stringToDateConverter;
 
-		UpdateValueStrategy targetToModel = new UpdateValueStrategy();
-		UpdateValueStrategy modelToTarget = new UpdateValueStrategy();
-		int event = SWT.Modify;
+   @Inject
+   private BigDecimalToStringConverter bigDecimalToStringConverter;
 
-		if (editorInput.isDatePropertyField(property)) {
-			event = SWT.FocusOut;
-			modelToTarget.setConverter(dateToStringConverter);
-			targetToModel.setConverter(stringToDateConverter);
-			targetToModel.setAfterConvertValidator(new DateValidator(controlDecoration, new Func1Void<IStatus>() {
-				@Override
-				public void apply(IStatus status) {
-					dirtyFlagSupporter.setDirty(true);
-				}
-			}));
+   @Inject
+   private StringToBigDecimalConverter stringToBigDecimalConverter;
 
-		} else if (useBigDecimalConverter) {
-			modelToTarget.setConverter(bigDecimalToStringConverter);
-			targetToModel.setConverter(stringToBigDecimalConverter);
-		}
+   @Inject
+   private NullToStringConverter nullToStringConverter;
 
-		IObservableValue modelValue = editorInput.createObservableValueForProperty(property);
-		IObservableValue widgetValue = WidgetProperties.text(event).observe(text);
+   @Inject
+   private StringToNullConverter stringToNullConverter;
 
-		ctx.bindValue(widgetValue, modelValue, targetToModel, modelToTarget);
-	}
+   public void init(GenericEditorInput<T> editorInput, Option<? extends DirtyFlag> dirtyFlagSupporter,
+         boolean isSearchMode) {
+      this.ctx = new DataBindingContext();
+      this.editorInput = editorInput;
+      this.isSearchMode = isSearchMode;
+      if (dirtyFlagSupporter.hasValue()) {
+         this.dirtyFlagSupporter = dirtyFlagSupporter.get();
+      } else {
+         this.dirtyFlagSupporter = new DirtyFlag() {
+            @Override
+            public void setDirty(boolean value) {
+               throw new IllegalStateException("Trying to set dirty flag, but that is currently unexpected.");
+            }
+         };
+      }
+   }
 
-	public void bindPropertyToCombo(Property property, Combo combo) {
-		if (!isSearchMode) {
-			IObservableValue modelValue = editorInput.createObservableValueForProperty(property);
-			IObservableValue widgetValue = SWTObservables.observeText(combo);
-			
-			UpdateValueStrategy targetToModel = new UpdateValueStrategy();
-			UpdateValueStrategy modelToTarget = new UpdateValueStrategy();
-			
-			targetToModel.setConverter(stringToNullConverter);
-			modelToTarget.setConverter(nullToStringConverter);
-			
-			ctx.bindValue(widgetValue, modelValue);
-		}
-	}
+   public Binding bindPropertyToText(Property property, Text text, ControlDecoration controlDecoration,
+         boolean useBigDecimalConverter) {
 
-	public void bindPropertyToCheckbox(Property property, Button checkbox) {
-		if (!isSearchMode) {
-			IObservableValue widgetValue = WidgetProperties.selection().observe(checkbox);
-			IObservableValue modelValue = editorInput.createObservableValueForProperty(property);
-			ctx.bindValue(widgetValue, modelValue);
-		}
-	}
+      UpdateValueStrategy targetToModel = new UpdateValueStrategy();
+      UpdateValueStrategy modelToTarget = new UpdateValueStrategy();
+      int event = SWT.Modify;
 
-	public void bindPropertyToRadioButton(Property property, Button radioButton) {
-		if (!isSearchMode) {
-			IObservableValue widgetValue = WidgetProperties.selection().observe(radioButton);
-			IObservableValue modelValue = editorInput.createObservableValueForProperty(property);
-			ctx.bindValue(widgetValue, modelValue);
-		}
-	}
+      if (editorInput.isDatePropertyField(property)) {
+         event = SWT.FocusOut;
+         modelToTarget.setConverter(dateToStringConverter);
+         targetToModel.setConverter(stringToDateConverter);
+         targetToModel.setAfterConvertValidator(new DateValidator(controlDecoration, new Func1Void<IStatus>() {
+            @Override
+            public void apply(IStatus status) {
+               dirtyFlagSupporter.setDirty(true);
+            }
+         }));
 
-	public void updateModels() {
-		ctx.updateModels();
-	}
-	
-	public void replaceBindings(Map<Property, Widget> properties, T data) {
+      } else if (useBigDecimalConverter) {
+         modelToTarget.setConverter(bigDecimalToStringConverter);
+         targetToModel.setConverter(stringToBigDecimalConverter);
+      }
 
-		this.ctx.dispose();
-		this.ctx = new DataBindingContext();
-					
-		editorInput.setData(data);
+      IObservableValue modelValue = editorInput.createObservableValueForProperty(property);
+      IObservableValue widgetValue = WidgetProperties.text(event).observe(text);
 
-		for (Map.Entry<Property, Widget> entry : properties.entrySet()) {
+      return ctx.bindValue(widgetValue, modelValue, targetToModel, modelToTarget);
+   }
 
-			Property property = entry.getKey();
-			Widget widget = entry.getValue();
+   public void bindPropertyToCombo(Property property, Combo combo) {
+      if (!isSearchMode) {
+         IObservableValue modelValue = editorInput.createObservableValueForProperty(property);
+         IObservableValue widgetValue = SWTObservables.observeText(combo);
 
-			Boolean noBinding = (Boolean) widget.getData(BuilderConstant.NO_BINDING);
+         UpdateValueStrategy targetToModel = new UpdateValueStrategy();
+         UpdateValueStrategy modelToTarget = new UpdateValueStrategy();
 
-			if ((noBinding != null) && (!noBinding)) {
-				
-				if (widget instanceof Text) {
-					
-					Object controlDecoratorion = widget.getData(BuilderConstant.DECORATOR);
+         targetToModel.setConverter(stringToNullConverter);
+         modelToTarget.setConverter(nullToStringConverter);
 
-					Boolean booleanValue = (Boolean) ((Text) widget).getData(BuilderConstant.USE_BIG_DECIMAL_CONVERTER);
-					boolean useBigDecimalConverter = false;
+         ctx.bindValue(widgetValue, modelValue);
+      }
+   }
 
-					if (booleanValue != null) {
-						useBigDecimalConverter = booleanValue;
-					}
+   public void bindPropertyToCombo(Property property, Combo combo, IConverter converter) {
+      if (!isSearchMode) {
+         IObservableValue modelValue = editorInput.createObservableValueForProperty(property);
+         IObservableValue widgetValue = SWTObservables.observeText(combo);
 
-					if (controlDecoratorion != null) {
-						bindPropertyToText(property, (Text) widget, (ControlDecoration) controlDecoratorion,
-									useBigDecimalConverter);
-					} else {
-						bindPropertyToText(property, (Text) widget, null, useBigDecimalConverter);
-					}
+         UpdateValueStrategy targetToModel = new UpdateValueStrategy();
+         UpdateValueStrategy modelToTarget = new UpdateValueStrategy();
 
-				} else if (widget instanceof Combo) {
-					bindPropertyToCombo(property, (Combo) widget);
-				}
-				
-			}
+         targetToModel.setConverter(stringToNullConverter);
+         modelToTarget.setConverter(nullToStringConverter);
 
-		}		
-		this.ctx.updateTargets();
-	}
+         ctx.bindValue(widgetValue, modelValue);
+      }
+   }
+
+   public void bindPropertyToCheckbox(Property property, Button checkbox) {
+      if (!isSearchMode) {
+         IObservableValue widgetValue = WidgetProperties.selection().observe(checkbox);
+         IObservableValue modelValue = editorInput.createObservableValueForProperty(property);
+         ctx.bindValue(widgetValue, modelValue);
+      }
+   }
+
+   public void bindPropertyToRadioButton(Property property, Button radioButton) {
+      if (!isSearchMode) {
+         IObservableValue widgetValue = WidgetProperties.selection().observe(radioButton);
+         IObservableValue modelValue = editorInput.createObservableValueForProperty(property);
+         ctx.bindValue(widgetValue, modelValue);
+      }
+   }
+
+   public void updateModels() {
+      ctx.updateModels();
+   }
+
+   public void replaceBindings(Map<Property, Widget> properties, T data) {
+
+      this.ctx.dispose();
+      this.ctx = new DataBindingContext();
+
+      editorInput.setData(data);
+
+      for (Map.Entry<Property, Widget> entry : properties.entrySet()) {
+
+         Property property = entry.getKey();
+         Widget widget = entry.getValue();
+
+         Boolean noBinding = (Boolean) widget.getData(BuilderConstant.NO_BINDING);
+
+         if ((noBinding != null) && (!noBinding)) {
+
+            if (widget instanceof Text) {
+
+               Object controlDecoratorion = widget.getData(BuilderConstant.DECORATOR);
+
+               Boolean booleanValue = (Boolean) ((Text) widget).getData(BuilderConstant.USE_BIG_DECIMAL_CONVERTER);
+               boolean useBigDecimalConverter = false;
+
+               if (booleanValue != null) {
+                  useBigDecimalConverter = booleanValue;
+               }
+
+               if (controlDecoratorion != null) {
+                  bindPropertyToText(property, (Text) widget, (ControlDecoration) controlDecoratorion,
+                        useBigDecimalConverter);
+               } else {
+                  bindPropertyToText(property, (Text) widget, null, useBigDecimalConverter);
+               }
+
+            } else if (widget instanceof Combo) {
+               bindPropertyToCombo(property, (Combo) widget);
+            }
+
+         }
+
+      }
+      this.ctx.updateTargets();
+   }
 
 }

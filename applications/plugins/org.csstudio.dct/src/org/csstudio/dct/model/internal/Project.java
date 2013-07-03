@@ -13,6 +13,7 @@ import org.csstudio.dct.model.IFolder;
 import org.csstudio.dct.model.IFolderMember;
 import org.csstudio.dct.model.IInstance;
 import org.csstudio.dct.model.IProject;
+import org.csstudio.dct.model.IPrototype;
 import org.csstudio.dct.model.IRecord;
 import org.csstudio.dct.model.internal.sync.ModelSync;
 import org.csstudio.dct.util.AliasResolutionUtil;
@@ -36,7 +37,7 @@ public final class Project extends Folder implements IProject {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(Project.class);
-    
+
     public static boolean IS_UNIT_TEST = false;
 
     @NotNull
@@ -127,7 +128,7 @@ public final class Project extends Folder implements IProject {
     public void setLibraryPath(String path) {
         libraryPath = path;
     }
-    
+
     @Override
     public String getActiveLibraryPath() {
         return activeLibraryPath;
@@ -204,38 +205,36 @@ public final class Project extends Folder implements IProject {
         return Optional.absent();
     }
 
-    @Override
-    public void addPrototypesToLibrary(IProject libraryProject) {
-        Optional<IFolder> prototypesFolder = libraryProject.getPrototypesFolder();
-        if (!prototypesFolder.isPresent()) {
-            throw new IllegalStateException("No Prototypes folder in library file");
-        }
-        Optional<IFolder> libraryFolder = getLibraryFolder();
-        if (!libraryFolder.isPresent()) {
-            return;
-        }
-        IFolder prototypes = prototypesFolder.get();
-        IFolder library = libraryFolder.get();
-        for (IFolderMember libraryElement : library.getMembers()) {
-            library.removeMember(libraryElement);
-        }
-        for (IFolderMember prototypeElement : prototypes.getMembers()) {
-            prototypeElement.setParentFolder(null);
-            library.addMember(prototypeElement);
-            prototypeElement.setParentFolder(this.getLibraryFolder().get());
-        }
-    }
-
     public void refreshFromLibrary(CommandStack commandStack) {
+
         LOG.info("*** refreshing from library ***");
+
+        List<IInstance> instances = new ArrayList<IInstance>();
+
+        // Add all instances from the protype folder.
         Optional<IFolder> prototypesFolder = getPrototypesFolder();
-        if (!prototypesFolder.isPresent()) {
-            return;
+        if (prototypesFolder.isPresent()) {
+            List<IInstance> entries = prototypesFolder.get().getAllInstancesInHierachie();
+            LOG.info("Adding " + entries.size() + " entries from prototypes folder.");
+            instances.addAll(entries);
         }
-        List<IInstance> instances = prototypesFolder.get().getAllInstancesInHierachie();
+
+        // Add all instances that were created direclty from a Library-Prototype.
+        Optional<IFolder> instancesFolder = getInstancesFolder();
+        if (instancesFolder.isPresent()) {
+            List<IInstance> entries = instancesFolder.get().getAllInstancesInHierachie();
+            for (IInstance instance : entries) {
+                if (instance.getParent() instanceof IPrototype) {
+                    instances.add(instance);
+                }
+            }
+            LOG.info("Adding " + entries.size() + " entries from instances folder.");
+        }
+
         ModelSync merger = new ModelSync(instances);
         List<Command> commands = merger.calculateCommands();
         for (Command command : commands) {
+            LOG.info("Adding command: " + command);
             commandStack.execute(command);
         }
     }
@@ -277,5 +276,5 @@ public final class Project extends Folder implements IProject {
 
         return result;
     }
-    
+
 }

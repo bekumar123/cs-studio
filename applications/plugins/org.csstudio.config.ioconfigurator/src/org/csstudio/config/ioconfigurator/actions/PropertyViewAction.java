@@ -23,8 +23,7 @@
  */
 package org.csstudio.config.ioconfigurator.actions;
 
-import javax.annotation.Nonnull;
-
+import org.csstudio.config.ioconfigurator.annotation.Nonnull;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IPageLayout;

@@ -22,6 +22,7 @@ public class NullToStringConverter implements IConverter {
 
 	@Override
 	public Object convert(Object fromObject) {
+	   System.out.println(fromObject);
 		String value = (String)fromObject;		
 		if (value ==  null) {
 			return env.getEmptySelectionText();

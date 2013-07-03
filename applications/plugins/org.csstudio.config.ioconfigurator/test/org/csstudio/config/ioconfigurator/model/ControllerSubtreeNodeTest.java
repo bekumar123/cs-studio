@@ -35,7 +35,7 @@ import org.csstudio.config.ioconfigurator.tree.model.IControllerLeaf;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerSubtreeNode;
 import org.csstudio.config.ioconfigurator.tree.model.impl.ControllerLeaf;
 import org.csstudio.config.ioconfigurator.tree.model.impl.ControllerSubtreeNode;
-import org.csstudio.utility.ldap.model.LdapEpicsControlsConfiguration;
+import org.csstudio.utility.ldap.treeconfiguration.LdapEpicsControlsConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -76,7 +76,7 @@ public class ControllerSubtreeNodeTest {
     public void setUp() throws Exception {
         nodeA = new ControllerSubtreeNode("nodeA",
                                           null,
-                                          LdapEpicsControlsConfiguration.ROOT);
+                                          LdapEpicsControlsConfiguration.VIRTUAL_ROOT);
         nodeB = new ControllerSubtreeNode("nodeB",
                                           nodeA,
                                           LdapEpicsControlsConfiguration.FACILITY);
@@ -299,7 +299,7 @@ public class ControllerSubtreeNodeTest {
                                                  final IControllerSubtreeNode parent) {
         IControllerSubtreeNode node = new ControllerSubtreeNode(name,
                                                                 parent,
-                                                                LdapEpicsControlsConfiguration.ROOT);
+                                                                LdapEpicsControlsConfiguration.VIRTUAL_ROOT);
         return node;
     }
 

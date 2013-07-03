@@ -23,30 +23,33 @@
  */
 package org.csstudio.config.ioconfigurator.property;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.naming.NamingException;
 
+import org.csstudio.config.ioconfigurator.annotation.Nonnull;
+import org.csstudio.config.ioconfigurator.annotation.Nullable;
 import org.csstudio.config.ioconfigurator.ldap.LdapControllerService;
 import org.csstudio.config.ioconfigurator.property.ioc.ControllerProperty;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerLeaf;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.viewers.ICellEditorValidator;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource2;
+import org.eclipse.ui.views.properties.PropertyDescriptor;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
 /**
  * This class represents a property source for {@code IControllerLeaf} nodes.
- *
+ * 
  * Its properties can be viewed in a Property View by the methods provided in
  * this class.
- *
+ * 
  * FIXME:(tslamic) This class needs to be double checked, since I have a hunch
- *        some subtle errors exist.
- *        Also, when the MessageDialog is invoked, it always appears twice.
- *
+ * some subtle errors exist. Also, when the MessageDialog is invoked, it always
+ * appears twice.
+ * 
  * @author tslamic
  * @author $Author: tslamic $
  * @version $Revision: 1.2 $
@@ -54,10 +57,12 @@ import org.eclipse.ui.views.properties.TextPropertyDescriptor;
  */
 class ControllerPropertySource implements IPropertySource2 {
 
+    private boolean validationAssigned = false;
+
     /*
-     * The IPropertyDescriptor array is populated with the
-     * values from the ControllerProperty.
-     *
+     * The IPropertyDescriptor array is populated with the values from the
+     * ControllerProperty.
+     * 
      * Every instance of this class has the same DESCRIPTORS.
      */
     private static final IPropertyDescriptor[] DESCRIPTORS;
@@ -65,26 +70,34 @@ class ControllerPropertySource implements IPropertySource2 {
         ControllerProperty[] values = ControllerProperty.values();
         DESCRIPTORS = new IPropertyDescriptor[values.length];
         int count = 0;
-        for (ControllerProperty i : values) {
+        for (final ControllerProperty i : values) {
             DESCRIPTORS[count] = new TextPropertyDescriptor(i, i.getName());
+            PropertyDescriptor propertyDescriptor = (PropertyDescriptor) DESCRIPTORS[count];
+            propertyDescriptor.setValidator(new ICellEditorValidator() {
+                @Override
+                public String isValid(Object value) {
+                    return i.getValidator().isValid((String) value);
+                }
+            });
             ++count;
         }
     }
 
     /*
-     * The following field instantiates the shell contained in the plug-in.
-     * It is used for displaying messages in this class.
+     * The following field instantiates the shell contained in the plug-in. It
+     * is used for displaying messages in this class.
      */
-    private static final Shell SHELL = PlatformUI.getWorkbench().getDisplay()
-            .getActiveShell();
+    private static final Shell SHELL = PlatformUI.getWorkbench().getDisplay().getActiveShell();
 
     private final IControllerLeaf _node;
 
     /**
-     *
-     * Private constructor.
-     * Instantiation through static method {@link ControllerPropertySource#getInstance(IControllerLeaf)}.
-     * @param node {@code IControllerLeaf} to be used as a property source.
+     * 
+     * Private constructor. Instantiation through static method
+     * {@link ControllerPropertySource#getInstance(IControllerLeaf)}.
+     * 
+     * @param node
+     *            {@code IControllerLeaf} to be used as a property source.
      */
     private ControllerPropertySource(@Nonnull final IControllerLeaf node) {
         _node = node;
@@ -97,9 +110,9 @@ class ControllerPropertySource implements IPropertySource2 {
     @Override
     public Object getEditableValue() {
         /*
-         * Since this property source is not appearing in the
-         * property sheet as the value of a property of some
-         * other IPropertySource, it returns null.
+         * Since this property source is not appearing in the property sheet as
+         * the value of a property of some other IPropertySource, it returns
+         * null.
          */
         return null;
     }
@@ -109,6 +122,33 @@ class ControllerPropertySource implements IPropertySource2 {
      */
     @Override
     public IPropertyDescriptor[] getPropertyDescriptors() {
+        if (!validationAssigned) {
+            ControllerProperty[] values = ControllerProperty.values();
+            int count = 0;
+            for (final ControllerProperty i : values) {
+                PropertyDescriptor propertyDescriptor = (PropertyDescriptor) DESCRIPTORS[count];
+                propertyDescriptor.setValidator(new ICellEditorValidator() {
+                    @Override
+                    public String isValid(Object value) {
+
+                        final ControllerProperty property = (ControllerProperty) i;
+                        final String oldLdapValue = _node.getValue(property);
+
+                        loadAttributes(_node);
+                        String newLdapValue = _node.getValue(property);
+
+                        if (!oldLdapValue.equals(newLdapValue)) {
+                            return "The value has been modified by an outside source.";
+                        }
+
+                        return i.getValidator().isValid((String) value);
+
+                    }
+                });
+                ++count;
+            }
+            
+        }
         return DESCRIPTORS;
     }
 
@@ -142,34 +182,14 @@ class ControllerPropertySource implements IPropertySource2 {
     @Override
     public void setPropertyValue(final Object id, final Object value) {
         if (id instanceof ControllerProperty) {
-            ControllerProperty property = (ControllerProperty) id;
 
-            String oldLdapValue = _node.getValue(property);
-            loadAttributes(_node);
-            String newLdapValue = _node.getValue(property);
+            final String stringValue = ((String) value).trim();
+            final ControllerProperty property = (ControllerProperty) id;
 
-            if (!oldLdapValue.equals(newLdapValue)) {
-                MessageDialog
-                        .openError(SHELL,
-                                   "Change made",
-                                   "The value has been modified by an outside source.");
-                return;
-            }
-            if (newLdapValue.equals(value)) {
-                // No need to do anything
-                return;
-            }
+            replaceAttributeValueInLdap(_node, property, stringValue);
 
-            String error = validate(property, value);
-            if (error != null) {
-                MessageDialog.openError(SHELL, "Input error", error);
-                return;
-            }
+            _node.setValue(property, stringValue);
 
-            // TODO: Special case validation for the Hardware name/IP Address.
-
-            replaceAttributeValueInLdap(_node, property, value);
-            _node.setValue(property, (String) value);
         }
     }
 
@@ -195,7 +215,9 @@ class ControllerPropertySource implements IPropertySource2 {
 
     /**
      * Returns a new {@code ControllerPropertySource} instance.
-     * @param node {@code IControllerLeaf} to be used as a property source.
+     * 
+     * @param node
+     *            {@code IControllerLeaf} to be used as a property source.
      * @return a new {@code ControllerPropertySource} instance.
      */
     public static ControllerPropertySource getInstance(final IControllerLeaf node) {
@@ -206,33 +228,33 @@ class ControllerPropertySource implements IPropertySource2 {
      * Replaces the value in the LDAP.
      */
     private static final void replaceAttributeValueInLdap(@Nonnull final IControllerLeaf node,
-                                                          @Nonnull final ControllerProperty property,
-                                                          @Nullable final Object value) {
+            @Nonnull final ControllerProperty property, @Nullable final Object value) {
         try {
             LdapControllerService.setValue(node, property, (String) value);
-        } catch (NamingException e) {
-            // TODO notify user
+        } catch (final NamingException e) {
+            Display.getDefault().asyncExec(new Runnable() {
+                public void run() {
+                    MessageDialog.openError(SHELL, "Input error", e.getMessage());
+                }
+            });
         }
     }
-
+    
     /*
-     * Loads the Attribute from the LDAP server and populates the
-     * properties map in the node.
+     * Loads the Attribute from the LDAP server and populates the properties map
+     * in the node.
      */
     private static final void loadAttributes(@Nonnull final IControllerLeaf node) {
         try {
             node.loadProperties(LdapControllerService.getAttributes(node));
-        } catch (NamingException e) {
-            MessageDialog.openError(SHELL, "Input error", e.getMessage());
+        } catch (final NamingException e) {
+            Display.getDefault().asyncExec(new Runnable() {
+                public void run() {
+                    MessageDialog.openError(SHELL, "Input error", e.getMessage());
+                }
+            });
             // TODO: what to do after the error?
         }
     }
 
-    /*
-     * Validates the user input.
-     */
-    private static final String validate(@Nonnull final ControllerProperty property,
-                                         @Nonnull final Object value) {
-        return property.getValidator().isValid((String) value);
-    }
 }

@@ -41,7 +41,6 @@ import org.csstudio.config.ioconfig.model.SensorsDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ChannelDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDFileDBO;
 import org.csstudio.config.ioconfig.model.service.internal.Channel4ServicesDBO;
-
 /**
  * @author gerke
  * @author $Author: hrickens $
@@ -51,6 +50,7 @@ import org.csstudio.config.ioconfig.model.service.internal.Channel4ServicesDBO;
 public final class Repository {
 
     private static IRepository _REPOSITORY = new HibernateRepository(null);
+   
     private static List<DocumentDBO> _DOCUMENTS;
 
     /**

@@ -21,15 +21,17 @@ package org.csstudio.config.ioconfigurator.activator;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.naming.Context;
 
+import org.csstudio.config.ioconfigurator.annotation.CheckForNull;
+import org.csstudio.config.ioconfigurator.annotation.Nonnull;
 import org.csstudio.platform.ui.AbstractCssUiPlugin;
 import org.csstudio.utility.ldap.service.ILdapService;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+
+import com.google.common.base.Preconditions;
 
 /**
  *
@@ -76,18 +78,21 @@ public class Activator extends AbstractCssUiPlugin {
     @Override
     protected void doStart(@Nonnull final BundleContext context) throws Exception {
         ldapService = getService(context, ILdapService.class);
+        
+        Preconditions.checkState(ldapService != null, "LdapService must not be null");
+        
         /*
          * The following converts the real LDAP server
          * to test LDAP server;
          * Remove when this plug-in works as expected.
          */
         Map<String, String> map = new HashMap<String, String>(5);
-        map.put(Context.PROVIDER_URL, "ldap://krynfsc.desy.de:389/o=DESY,c=DE");
-        map.put(Context.SECURITY_PRINCIPAL, "cn=Directory Manager");
-        map.put(Context.SECURITY_CREDENTIALS, "cssPass");
+        map.put(Context.PROVIDER_URL, "ldap://localhost:389/o=DESY,c=DE");
+        map.put(Context.SECURITY_PRINCIPAL, "cn=manager,o=desy,c=de");
+        map.put(Context.SECURITY_CREDENTIALS, "hal9000");
         map.put(Context.SECURITY_PROTOCOL, "");
-        map.put(Context.SECURITY_AUTHENTICATION, "");
-
+        map.put(Context.SECURITY_AUTHENTICATION, "simple");
+        
         boolean success = ldapService.reInitializeLdapConnection(map);
         if (!success) {
             throw new IllegalStateException();
@@ -111,7 +116,6 @@ public class Activator extends AbstractCssUiPlugin {
      */
     @CheckForNull
     public static ImageDescriptor getImageDescriptor(@Nonnull final String path) {
-        // TODO: Not sure if this is OK
         return AbstractUIPlugin.imageDescriptorFromPlugin(ID, path);
     }
 

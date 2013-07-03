@@ -26,10 +26,10 @@ package org.csstudio.config.ioconfigurator.tree.model;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import javax.annotation.Nonnull;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
+import org.csstudio.config.ioconfigurator.annotation.Nonnull;
 import org.csstudio.config.ioconfigurator.property.ioc.ControllerProperty;
 
 /**

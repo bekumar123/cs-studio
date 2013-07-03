@@ -25,9 +25,8 @@ package org.csstudio.config.ioconfigurator.property.ioc;
 
 import java.util.Map;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-
+import org.csstudio.config.ioconfigurator.annotation.CheckForNull;
+import org.csstudio.config.ioconfigurator.annotation.Nonnull;
 import org.eclipse.jface.dialogs.IInputValidator;
 
 import com.google.common.collect.Maps;
@@ -56,103 +55,119 @@ import com.google.common.collect.Maps;
  */
 public enum ControllerProperty {
 
-    HW_NAME("epicsHwName", "Hardware name", "", Validators.IP_VALIDATOR
+    HW_NAME("epicsHwName", "Hardware name", "", "", Validators.IP_VALIDATOR
             .getValidator()),
 
-    IP_ADDRESS("epicsIPAddress", "IP Address", "", Validators.IP_VALIDATOR
-            .getValidator()),
+    IP_ADDRESS("epicsIPAddress", "IP Address", "", "0.0.0.0", Validators.EPICS_IP_VALIDATOR.getValidator()),
 
     IP_ADDRESS_REDUNDANT("epicsIPAddressR",
                          "Redundant IP Address",
                          "",
-                         Validators.NAME_VALIDATOR.getValidator()),
+                         "0.0.0.0",
+                         Validators.EPICS_IPR_VALIDATOR.getValidator()),
 
     SAVE_ENABLED("epicsCaSaveEnabled",
                  "Enabled saving",
                  "",
-                 Validators.NAME_VALIDATOR.getValidator()),
+                 "YES",
+                 Validators.YES_NO_VALIDATOR.getValidator()),
 
     ALARM_DISPLAY("epicsCssAlarmDisplay",
                   "Alarm Display",
+                  "",
                   "",
                   Validators.NAME_VALIDATOR.getValidator()),
 
     CSS_DISPLAY("epicsCssDisplay",
                 "Control System Studio Display",
                 "",
+                "",
                 Validators.NAME_VALIDATOR.getValidator()),
 
-    CS_TYPE("epicsCsType", "Cs Type", "", Validators.NAME_VALIDATOR
+    CS_TYPE("epicsCsType", "Cs Type", "", "", Validators.NAME_VALIDATOR
             .getValidator()),
 
-    CS_VERSION("epicsCsVersion", "Cs Version", "", Validators.NAME_VALIDATOR
+    CS_VERSION("epicsCsVersion", "Cs Version", "", "", Validators.NAME_VALIDATOR
             .getValidator()),
+
+    CS_REDUNDANT("epicsCsIsRedundant", "Cs Reduntant", "", "TRUE", Validators.TRUE_FALSE_VALIDATOR.getValidator()),
 
     HELP_GUIDANCE("epicsHelpGuidance",
                   "Help Guidance",
                   "",
+                  "",
                   Validators.NAME_VALIDATOR.getValidator()),
 
-    HELP_PAGE("epicsHelpPage", "Help Page", "", Validators.NAME_VALIDATOR
+    HELP_PAGE("epicsHelpPage", "Help Page", "", "", Validators.NAME_VALIDATOR
             .getValidator()),
 
     HOME_DIR("epicsHomeDirectory",
              "Home Directory",
              "",
+             "",
              Validators.NAME_VALIDATOR.getValidator()),
 
-    HW_TYPE("epicsHwType", "Hardware Type", "", Validators.NAME_VALIDATOR
+    HW_TYPE("epicsHwType", "Hardware Type", "", "", Validators.NAME_VALIDATOR
             .getValidator()),
 
     HW_VERSION("epicsHwVersion",
                "Hardware Version",
+               "",
                "",
                Validators.NAME_VALIDATOR.getValidator()),
 
     LOCATION("epicsLocation",
              "Location of the IOC",
              "",
+             "",
              Validators.NAME_VALIDATOR.getValidator()),
 
-    NTP_PARAM("epicsNTPParam", "NTP Parameters", "", Validators.NAME_VALIDATOR
+    NTP_PARAM("epicsNTPParam", "NTP Parameters", "", "", Validators.NAME_VALIDATOR
             .getValidator()),
 
     OS_TYPE("epicsOsType",
             "Operational System Type",
+            "",
             "",
             Validators.NAME_VALIDATOR.getValidator()),
 
     OS_VERSION("epicsOsVersion",
                "Operational System Version",
                "",
+               "",
                Validators.NAME_VALIDATOR.getValidator()),
 
     RESPONSIBLE_NAME("epicsResponsibleName",
                      "The person responsible for this IOC",
                      "",
+                     "Bernd Schoeneburg",
                      Validators.NAME_VALIDATOR.getValidator()),
 
     RESPONSIBLE_PHONE("epicsResponsiblePhone",
                       "Telephone of the responsible person",
                       "",
+                      "(9)2664",
                       Validators.NAME_VALIDATOR.getValidator()),
 
     SERVICE_NAME("epicsServiceName",
                  "Service name",
                  "",
+                 "Seigfrid Rettig",
                  Validators.NAME_VALIDATOR.getValidator()),
 
     SERVICE_PHONE("epicsServicePhone",
                   " Service telephone",
                   "",
+                  "(9)3081",
                   Validators.NAME_VALIDATOR.getValidator()),
 
     SHELL_PROMPT_SET("epicsShellPromptSet",
                      "Shell Prompt",
                      "",
+                     "",
                      Validators.NAME_VALIDATOR.getValidator()),
 
-    SUBNET("epicsSubNet", "Sub Net", "", Validators.NAME_VALIDATOR
+    SUBNET("epicsSubNet", "Sub Net", "", "",Validators.NAME_VALIDATOR
             .getValidator());
 
     /*
@@ -171,6 +186,7 @@ public enum ControllerProperty {
     private final String _propertyName;
     private final String _description;
     private final String _defaultValue;
+    private final String _initValue;
     private final IInputValidator _validator;
 
     /**
@@ -182,10 +198,12 @@ public enum ControllerProperty {
     ControllerProperty(@Nonnull final String propertyName,
                        @Nonnull final String description,
                        @Nonnull final String defaultValue,
+                       @Nonnull final String initValue,                       
                        @Nonnull final IInputValidator validator) {
         _propertyName = propertyName;
         _description = description;
         _defaultValue = defaultValue;
+        _initValue = initValue;
         _validator = validator;
     }
 
@@ -216,6 +234,14 @@ public enum ControllerProperty {
         return _defaultValue;
     }
 
+    @Nonnull
+    /**
+     * Returns the value that is used to inialize a new record.
+     * @return {@code String} default value of this property.
+     */
+    public String getInitValue() {
+        return _initValue;
+    }
     /**
      * Returns the input validator for this property.
      * @return {@code IInputValidator} validator for this property.

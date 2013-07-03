@@ -23,8 +23,7 @@
  */
 package org.csstudio.config.ioconfigurator.property.ioc.wizard;
 
-import javax.annotation.Nonnull;
-
+import org.csstudio.config.ioconfigurator.annotation.Nonnull;
 import org.csstudio.config.ioconfigurator.property.ioc.Validators;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.wizard.WizardPage;

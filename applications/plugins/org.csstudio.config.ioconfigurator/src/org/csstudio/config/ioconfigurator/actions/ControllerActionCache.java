@@ -23,21 +23,20 @@
  */
 package org.csstudio.config.ioconfigurator.actions;
 
-import javax.annotation.Nonnull;
+import javax.naming.InvalidNameException;
 
-import org.csstudio.config.ioconfigurator.tree.model.IControllerLeaf;
+import org.csstudio.config.ioconfigurator.annotation.Nonnull;
+import org.csstudio.config.ioconfigurator.ldap.LdapNode;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerNode;
 import org.csstudio.config.ioconfigurator.tree.model.IControllerSubtreeNode;
-import org.csstudio.utility.ldap.model.LdapEpicsControlsConfiguration;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.IWorkbenchPartSite;
 
 /**
- * This class servers as a cache, instantiating actions from
- * this package and providing methods to populate the menu for
- * this plug-in.
- *
+ * This class servers as a cache, instantiating actions from this package and
+ * providing methods to populate the menu for this plug-in.
+ * 
  * @author tslamic
  * @author $Author: tslamic $
  * @version $Revision: 1.2 $
@@ -46,52 +45,67 @@ import org.eclipse.ui.IWorkbenchPartSite;
 public class ControllerActionCache {
 
     /*
-     * All available actions from this package.
-     * This is hard-coded and thus not an elegant solution.
+     * All available actions from this package. This is hard-coded and thus not
+     * an elegant solution.
      */
-    private final AddControllerAction _addController;
     private final PropertyViewAction _propertyView;
     private final ReloadFromLdapAction _reloadLdap;
-    private final RemoveControllerAction _removeController;
+    private final RemoveFromLdapAction _removeFromLdapAction;
     private final RenameComponentAction _renameComponent;
+    private final AddNewNodeAction _addNewNode;
+    private final AddDefaultEconNodeAction _addNewEconNode;
 
     /**
      * Constructor.
-     * @param root {@code IControllerSubtreeNode} root of this plug-in.
-     * @param viewer {@code TreeViewer} of this plug-in.
-     * @param site {@code IWorkbenchPartSite} of this plug-in.
+     * 
+     * @param root
+     *            {@code IControllerSubtreeNode} root of this plug-in.
+     * @param viewer
+     *            {@code TreeViewer} of this plug-in.
+     * @param site
+     *            {@code IWorkbenchPartSite} of this plug-in.
      */
-    public ControllerActionCache(@Nonnull final IControllerSubtreeNode root,
-                                 @Nonnull final TreeViewer viewer,
-                                 @Nonnull final IWorkbenchPartSite site) {
+    public ControllerActionCache(@Nonnull final IControllerSubtreeNode root, @Nonnull final TreeViewer viewer,
+            @Nonnull final IWorkbenchPartSite site) {
 
-        _addController = AddControllerAction.getAction(site);
         _propertyView = PropertyViewAction.getAction(site);
         _reloadLdap = ReloadFromLdapAction.getAction(root, viewer, site);
-        _removeController = RemoveControllerAction.getAction(viewer, site);
-        _renameComponent = RenameComponentAction.getAction(viewer, site);
+        _removeFromLdapAction = RemoveFromLdapAction.getAction(viewer, site);
+        _renameComponent = RenameComponentAction.getAction(viewer, site,  _reloadLdap);
+        _addNewNode = AddNewNodeAction.getAction(viewer, site, _reloadLdap);
+        _addNewEconNode = AddDefaultEconNodeAction.getAction(viewer, site, _reloadLdap);
     }
 
     /**
      * Fills the context menu of this plug-in.
-     * @param node {@code IControllerNode} node selected in the tree viewer.
-     * @param menuManager {@code IMenuManager} invoked by the framework.
+     * 
+     * @param node
+     *            {@code IControllerNode} node selected in the tree viewer.
+     * @param menuManager
+     *            {@code IMenuManager} invoked by the framework.
+     * @throws InvalidNameException
      */
-    public void fillContextMenu(@Nonnull final IControllerNode node,
-                                @Nonnull final IMenuManager menuManager) {
+    public void fillContextMenu(@Nonnull final IControllerNode node, @Nonnull final IMenuManager menuManager)
+            throws InvalidNameException {
 
-        LdapEpicsControlsConfiguration configType = node.getConfiguration();
+        LdapNode ldapNode = new LdapNode(node.getLdapName());
 
-        if (configType == LdapEpicsControlsConfiguration.IOC) {
-            menuManager.add(_removeController.setNode((IControllerLeaf) node));
+        if (ldapNode.isEpicsControll()) {
+            menuManager.add(_addNewNode.setNode(node));
+        } else if (ldapNode.isFacility()) {
+            menuManager.add(_removeFromLdapAction.setNode(node));
+            menuManager.add(_renameComponent.setNode(node));            
+        } else if (ldapNode.isEpicsIOC()) {
+            menuManager.add(_removeFromLdapAction.setNode(node));
+            menuManager.add(_addNewEconNode.setNode(node));
+        } else if (ldapNode.isLeaf()) {
+            menuManager.add(_propertyView);
+            menuManager.add(_removeFromLdapAction.setNode(node));
+            menuManager.add(_renameComponent.setNode(node));                        
         }
-        if (configType == LdapEpicsControlsConfiguration.COMPONENT) {
-            menuManager.add(_addController
-                    .setNode((IControllerSubtreeNode) node));
-        }
-        menuManager.add(_propertyView);
-        menuManager.add(_reloadLdap);
-        menuManager.add(_renameComponent.setNode(node));
+
+        menuManager.add(_reloadLdap);   
+        
     }
 
 }

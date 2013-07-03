@@ -99,6 +99,45 @@ public final class CompareUtil {
     }
 
     /**
+     * Check if given folder is a Library folder.
+     */
+    public static class IsLibraryFolder implements IsFolder {
+        @Override
+        public boolean isFolder(IFolder folder) {
+            if (folder == null) {
+                return false;
+            }
+            return folder.isLibraryFolder();
+        }
+    }
+
+    /**
+     * Check if given folder is a Protypes folder.
+     */
+    public static class IsPrototypesFolder implements IsFolder {
+        @Override
+        public boolean isFolder(IFolder folder) {
+            if (folder == null) {
+                return false;
+            }
+            return folder.isPrototypesFolder();
+        }
+    }
+
+    /**
+     * Check if given folder is an Instanc folder.
+     */
+    public static class IsInstancesFolder implements IsFolder {
+        @Override
+        public boolean isFolder(IFolder folder) {
+            if (folder == null) {
+                return false;
+            }
+            return folder.isInstancesFolder();
+        }
+    }
+
+    /**
      * Returns true, if the selection contains an element that has the Library
      * folder as it's parent.
      * 
@@ -108,12 +147,7 @@ public final class CompareUtil {
      * @return true of the list contains the Library folder
      */
     public static boolean childOfLibaryFolder(List<IElement> elements) {
-        return childOfFolder(elements, new IsFolder() {
-            @Override
-            public boolean isFolder(IFolder folder) {
-                return folder.isLibraryFolder();
-            }
-        });
+        return childOfFolder(elements, new IsLibraryFolder());
     }
 
     /**
@@ -126,12 +160,7 @@ public final class CompareUtil {
      * @return true of the list contains the Library folder
      */
     public static boolean childOfPrototypesFolder(List<IElement> elements) {
-        return childOfFolder(elements, new IsFolder() {
-            @Override
-            public boolean isFolder(IFolder folder) {
-                return folder.isPrototypesFolder();
-            }
-        });
+        return childOfFolder(elements, new IsPrototypesFolder());
     }
 
     /**
@@ -144,24 +173,22 @@ public final class CompareUtil {
      * @return true of the list contains the Library folder
      */
     public static boolean childOfInstancesFolder(List<IElement> elements) {
-        return childOfFolder(elements, new IsFolder() {
-            @Override
-            public boolean isFolder(IFolder folder) {
-                return folder.isInstancesFolder();
-            }
-        });
+        return childOfFolder(elements, new IsInstancesFolder());
     }
 
     /**
-     * Returns true, if the selection contains an element that has the Library
-     * folder as it's parent.
+     * Returns true, if the selection contains an element that satisifes the
+     * given condition of IsFolder.
      * 
      * @param elements
      *            the list of objects
      * 
-     * @return true of the list contains the Library folder
+     * @return true of the list contains the folder
      */
     public static boolean childOfFolder(List<IElement> elements, IsFolder folder) {
+        if (elements.isEmpty()) {
+            return false;
+        }
         for (Object e : elements) {
             if (e instanceof Prototype) {
                 Prototype prototype = (Prototype) e;

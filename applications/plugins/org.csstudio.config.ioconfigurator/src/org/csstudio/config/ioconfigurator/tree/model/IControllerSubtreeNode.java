@@ -26,7 +26,7 @@ package org.csstudio.config.ioconfigurator.tree.model;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import javax.annotation.Nonnull;
+import org.csstudio.config.ioconfigurator.annotation.Nonnull;
 
 /**
  * Emulates a tree-like node possible to hold

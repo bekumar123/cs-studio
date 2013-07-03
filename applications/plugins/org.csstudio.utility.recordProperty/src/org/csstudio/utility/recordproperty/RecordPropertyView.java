@@ -25,9 +25,6 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.dnd.DropTargetEvent;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
@@ -51,6 +48,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.views.IViewDescriptor;
 import org.eclipse.ui.views.IViewRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.istack.internal.Nullable;
 
@@ -61,7 +60,9 @@ import com.sun.istack.internal.Nullable;
  */
 public class RecordPropertyView extends ViewPart {
     
-    public static final String ID = "org.csstudio.utility.recordproperty";
+	private static final Logger LOG = LoggerFactory.getLogger(RecordPropertyView.class);    
+
+	public static final String ID = "org.csstudio.utility.recordproperty";
     
     static final int COL_PV = 0;
     static final int COL_RDB = 1;
@@ -139,6 +140,7 @@ public class RecordPropertyView extends ViewPart {
                 // Gets text (a record name) from Combo Viewer.
                 recordName = cv.getCombo().getText();
                 cv.add(cv.getCombo().getText());
+                LOG.debug("Widget Selected for: " + recordName);
                 fillTableWithData(recordName);
             }
             
@@ -315,7 +317,8 @@ public class RecordPropertyView extends ViewPart {
             
             @Override
             protected IStatus run(final IProgressMonitor monitor) {
-                
+                LOG.debug("Start collection data thread");
+
                 // Variable entries gets data, but does not print it in
                 // GUI yet, there would be Invalid thread access.
                 final RecordPropertyGetRDB rdb = new RecordPropertyGetRDB();
@@ -327,6 +330,7 @@ public class RecordPropertyView extends ViewPart {
                     @Override
                     public void run() {
                         // Here data is printed in GUI.
+                    	LOG.debug("Set input for table viewer");
                         tableViewer.setInput(entries);
                         
                         label.setText(Messages.RecordPropertyView_DONE);

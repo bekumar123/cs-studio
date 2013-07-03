@@ -1,6 +1,7 @@
 package org.csstudio.utility.recordproperty.rdb.data;
 
 import static org.csstudio.utility.ldap.treeconfiguration.LdapEpicsControlsConfiguration.IOC;
+
 import static org.csstudio.utility.ldap.treeconfiguration.LdapEpicsControlsConfiguration.RECORD;
 import static org.csstudio.utility.ldap.treeconfiguration.LdapEpicsControlsConfiguration.UNIT;
 import static org.csstudio.utility.ldap.treeconfiguration.LdapFieldsAndAttributes.FIELD_ASSIGNMENT;
@@ -44,6 +45,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+import com.sun.istack.internal.Nullable;
+
+
+
 /**
  * RecordPropertyGetRDB gets data (record fields) from RDB, DAL and RMI.
  *
@@ -59,7 +64,6 @@ public class RecordPropertyGetRDB {
 	private String fieldName;
 	private String valueRdb;
 	private DBConnect connect;
-	private DBConnect _connectForFieldNames;
 
 	private String _fieldType;
 
@@ -102,22 +106,24 @@ public class RecordPropertyGetRDB {
 	 * @return stringArray
 	 */
 	public RecordPropertyEntry[] getData(final String rec) {
+		connect = new DBConnect(new OracleSettings());
+
+		connect.openConnection();
 		_record = rec;
 
 		_record = validateRecord(_record);
 
 		if (getRtypeFromDAL()) {
+			LOG.debug("read rtype for " + _record + ": " + _rtype);
 			// nothing is to be done here
 		} else {
+			LOG.debug("not able to read rtype for " + _record + ": " + _rtype);
 			if (!getRtypeFromRecordName(_record).equals("not-valid")) {
 				// nothing is to be done here
 			} else {
 				// nothing is printed, everything is empty
 			}
 		}
-		connect = new DBConnect(new OracleSettings());
-
-		connect.openConnection();
 //		if (getDataFromRDB()) {
 //			getDataIfRDB();
 //		} else {
@@ -129,7 +135,7 @@ public class RecordPropertyGetRDB {
 				// nothing is printed, everything is grayed out
 			}
 //		}
-
+		connect.closeConnection();
 		return _stringArray;
 
 	}
@@ -212,7 +218,6 @@ public class RecordPropertyGetRDB {
 
 		try {
 			_rtype = _connectionService.readValueSynchronously(pv, ValueType.STRING);
-			System.out.println(_rtype);
 			return true;
 		} catch (final ConnectionException e) {
 			return false;
@@ -392,21 +397,23 @@ public class RecordPropertyGetRDB {
 	 * Gets field names from RDB (SQL).
 	 */
 	private boolean getFieldNamesFromRDBsql() {
-		_connectForFieldNames = new DBConnect(new OracleSettings());
+		connect = new DBConnect(new OracleSettings());
 
-		_connectForFieldNames.openConnection();
+		connect.openConnection();
 
 		try {
-			resultSetFieldNames = _connectForFieldNames
+			resultSetFieldNames = connect
 					.executeQuery("select tv.field_name, tv.field_type from epics_version ev, "
 							+ "rec_type rt, type_val tv where ev.epics_id = '4061' and "
 							+ "ev.epics_id = rt.epics_id and rt.record_type = '"
 							+ _rtype + "' and " + "rt.type_id = tv.type_id");
 
+//			connect.closeConnection();
 			return true;
 
 		} catch (final SQLException e) {
-
+			LOG.error("Error reading field names from oracle: " + e.getMessage());
+			e.printStackTrace();
 			return false;
 		}
 	}
@@ -461,7 +468,7 @@ public class RecordPropertyGetRDB {
 		_stringArray = data
 				.toArray(new RecordPropertyEntry[data.size()]);
 
-		connect.closeConnection();
+//		connect.closeConnection();
 	}
 
 	/**

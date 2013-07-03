@@ -46,10 +46,10 @@
  </facility>
 
  <facility name="XFEL">
-  <ioc>xfelKryoKS1</ioc>
-  <ioc>xfelKryoKS3</ioc>
-  <ioc>xfelKryoDB54</ioc>
-  <ioc>xfelKryoCB44</ioc>
+  <ioc>kryoKS1</ioc>
+  <ioc>kryoKS3</ioc>
+  <ioc>kryoDB54</ioc>
+  <ioc>kryoCB44</ioc>
  </facility>
  
  <facility name="Others">

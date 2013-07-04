@@ -128,16 +128,20 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
                                      final String title) {
         List<RunModeBoxInput> predecessors = getPredecessors(getInput());
         
-        this.defaultLocation = new Point(x, y);
-        this.defaultSize = new Point(width, height);
+        if(openRelative) {
+        	// relative displays should be opened relative to their parent's location upon reset
+        	this.defaultLocation = new Point(parentLocation.x + x, parentLocation.y + y);
+        } else {
+        	this.defaultLocation = new Point(x, y);
+        }
         
         // create a shell
         _shell = new Shell();
         _shell.setText(title);
-        if (openRelative) {
-            _shell.setLocation(parentLocation.x + x, parentLocation.y + y);
-        } else if (lastLayoutDataOrNull != null) {
+        if (lastLayoutDataOrNull != null) {
         	_shell.setLocation(lastLayoutDataOrNull.getPosition());
+        } else if (openRelative) {
+            _shell.setLocation(parentLocation.x + x, parentLocation.y + y);
         } else {
             _shell.setLocation(x, y);
         }
@@ -193,11 +197,12 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
             Point size = navigation.computeSize(width, SWT.DEFAULT);
             fullHeight = fullHeight + size.y;
         }
-        
+
+        this.defaultSize = new Point(fullWidth + SCROLLBAR_MARGIN, fullHeight + SHELL_BORDER + SCROLLBAR_MARGIN);
     	if (lastLayoutDataOrNull != null) {
     		_shell.setSize(lastLayoutDataOrNull.getSize());
     	} else {
-    		_shell.setSize(fullWidth + SCROLLBAR_MARGIN, fullHeight + SHELL_BORDER + SCROLLBAR_MARGIN);
+    		_shell.setSize(this.defaultSize);
     	}
         
         // configure a graphical viewer
@@ -268,8 +273,8 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
      * box.
      * 
      * @param input
-     *            the current box�s input
-     * @return the input�s of all predecessor boxes
+     *            the current box's input
+     * @return the input's of all predecessor boxes
      */
     private List<RunModeBoxInput> getPredecessors(RunModeBoxInput input) {
         List<RunModeBoxInput> result = new ArrayList<RunModeBoxInput>();

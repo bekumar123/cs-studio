@@ -3,6 +3,9 @@ package org.csstudio.cagateway;
 
 import org.csstudio.cagateway.management.InfoCmd;
 import org.csstudio.cagateway.preferences.CAGatewayPreference;
+import org.csstudio.headless.common.signal.HeadlessSignalHandler;
+import org.csstudio.headless.common.signal.ISignalReceiver;
+import org.csstudio.headless.common.signal.SignalException;
 import org.csstudio.headless.common.util.ApplicationInfo;
 import org.csstudio.headless.common.xmpp.XmppCredentials;
 import org.csstudio.headless.common.xmpp.XmppSessionException;
@@ -12,7 +15,7 @@ import org.eclipse.equinox.app.IApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CaGateway implements IApplication, RemotelyAccessible {
+public class CaGateway implements IApplication, RemotelyAccessible, ISignalReceiver {
 
     private static final Logger LOG = LoggerFactory.getLogger(CaGateway.class);
 
@@ -27,7 +30,7 @@ public class CaGateway implements IApplication, RemotelyAccessible {
         String xmppUser = CAGatewayPreference.XMPP_USER_NAME.getValue();
         String xmppPassword = CAGatewayPreference.XMPP_PASSWORD.getValue();
         XmppCredentials credentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
-        xmppSessionHandler = new XmppSessionHandler(Activator.getBundleContext(), credentials);
+        xmppSessionHandler = new XmppSessionHandler(Activator.getBundleContext(), credentials, true);
         appInfo = new ApplicationInfo("DoocsCAServer", "DOOCS TO EPICS CA-Gateway");
 	}
 
@@ -36,8 +39,15 @@ public class CaGateway implements IApplication, RemotelyAccessible {
 
 	    LOG.info("Starting caGateway");
 
-		InfoCmd.staticInject(this);
+	    try {
+	        HeadlessSignalHandler signalHandler = new HeadlessSignalHandler(this);
+	        signalHandler.activateIntSignal();
+	        signalHandler.activateTermSignal();
+	    } catch (SignalException e) {
+	        LOG.warn("CANNOT create the signal handler. Any signal will be ignored.");
+	    }
 
+		InfoCmd.staticInject(this);
 		try {
 		    xmppSessionHandler.connect();
 		} catch (XmppSessionException e) {
@@ -45,6 +55,7 @@ public class CaGateway implements IApplication, RemotelyAccessible {
 		}
 
 		context.applicationRunning();
+
 		caGatewayInstance = CaServer.getGatewayInstance();
 		caGatewayInstance.execute();
 
@@ -65,5 +76,13 @@ public class CaGateway implements IApplication, RemotelyAccessible {
     @Override
     public String getInfo() {
         return appInfo.toString();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void terminate() {
+        CaServer.getGatewayInstance().stop();
     }
 }

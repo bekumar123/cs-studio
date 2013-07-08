@@ -1,19 +1,16 @@
 package org.csstudio.archive.reader.aapi;
 
+import de.desy.aapi.AAPI;
+import de.desy.aapi.AapiClient;
+import de.desy.aapi.AapiReductionMethod;
+import de.desy.aapi.AnswerData;
 import java.util.List;
-
-import org.csstudio.data.values.IMinMaxDoubleValue;
 import org.csstudio.data.values.INumericMetaData;
 import org.csstudio.data.values.ISeverity;
 import org.csstudio.data.values.ITimestamp;
 import org.csstudio.data.values.IValue;
 import org.csstudio.data.values.TimestampFactory;
 import org.csstudio.data.values.ValueFactory;
-
-import de.desy.aapi.AAPI;
-import de.desy.aapi.AapiClient;
-import de.desy.aapi.AapiReductionMethod;
-import de.desy.aapi.AnswerData;
 
 public class MinMaxAapiValueIterator extends AapiValueIterator {
 
@@ -22,7 +19,7 @@ public class MinMaxAapiValueIterator extends AapiValueIterator {
 		super(aapiClient, key, name, start, end);
 		setCount(count);
 		setConversionParam(AAPI.DEADBAND_PARAM);
-		setConversionMethod(AapiReductionMethod.MIN_MAX_AVERAGE_METHOD);
+		setConversionMethod(AapiReductionMethod.MIN_MAX_AVERAGE);
 	}
 
 	@Override
@@ -32,7 +29,7 @@ public class MinMaxAapiValueIterator extends AapiValueIterator {
 				answerData.getHighWarning(), answerData.getLowAlarm(),
 				answerData.getHighAlarm(), answerData.getPrecision(), answerData.getEgu());
 		for (int i = 0; i+2 < answerData.getData().length; i = i+3) {
-			
+
 			ITimestamp time = TimestampFactory.createTimestamp(
 					answerData.getTime()[i],
 					answerData.getUTime()[i]);
@@ -43,9 +40,9 @@ public class MinMaxAapiValueIterator extends AapiValueIterator {
 			Double min = answerData.getData()[i];
 			Double max = answerData.getData()[i+1];
 			result.add(ValueFactory.createMinMaxDoubleValue(time, sevr, stat,
-					(INumericMetaData) meta, IValue.Quality.Interpolated,
+					meta, IValue.Quality.Interpolated,
 					value, min, max));
-		}	
+		}
 	}
-	
+
 }

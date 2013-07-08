@@ -1,19 +1,16 @@
 package org.csstudio.archive.reader.aapi;
 
+import de.desy.aapi.AAPI;
+import de.desy.aapi.AapiClient;
+import de.desy.aapi.AapiReductionMethod;
+import de.desy.aapi.AnswerData;
 import java.util.List;
-
-import org.csstudio.data.values.IMinMaxDoubleValue;
 import org.csstudio.data.values.INumericMetaData;
 import org.csstudio.data.values.ISeverity;
 import org.csstudio.data.values.ITimestamp;
 import org.csstudio.data.values.IValue;
 import org.csstudio.data.values.TimestampFactory;
 import org.csstudio.data.values.ValueFactory;
-
-import de.desy.aapi.AAPI;
-import de.desy.aapi.AapiClient;
-import de.desy.aapi.AapiReductionMethod;
-import de.desy.aapi.AnswerData;
 
 public class RawAapiValueIterator extends AapiValueIterator {
 
@@ -22,7 +19,7 @@ public class RawAapiValueIterator extends AapiValueIterator {
 			ITimestamp start, ITimestamp end) {
 		super(aapiClient, key, name, start, end);
 		setConversionParam(AAPI.DEADBAND_PARAM);
-		setConversionMethod(AapiReductionMethod.TAIL_RAW_METHOD);
+		setConversionMethod(AapiReductionMethod.RAW);
 	}
 
 	@Override
@@ -32,7 +29,7 @@ public class RawAapiValueIterator extends AapiValueIterator {
 				answerData.getHighWarning(), answerData.getLowAlarm(),
 				answerData.getHighAlarm(), answerData.getPrecision(), answerData.getEgu());
 		for (int i = 0; i < answerData.getData().length; i++) {
-			
+
 			ITimestamp time = TimestampFactory.createTimestamp(
 					answerData.getTime()[i],
 					answerData.getUTime()[i]);
@@ -41,9 +38,9 @@ public class RawAapiValueIterator extends AapiValueIterator {
 			ISeverity sevr = new SeverityImpl("NO_ALARM", true, true);
 			String stat = "ok";
 			result.add(ValueFactory.createDoubleValue(time, sevr, stat,
-					(INumericMetaData) meta, IValue.Quality.Interpolated,
+					meta, IValue.Quality.Interpolated,
 					value));
-		}	
+		}
 	}
 
 }

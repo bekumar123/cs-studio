@@ -267,6 +267,7 @@ public class PVSamples extends PlotSamples
      */
     synchronized public void addLiveSample(VType value)
     {
+        LOG.info("--------- add live samle  ");
         if (! ValueUtil.timeOf(value).isTimeValid())
             value = VTypeHelper.transformTimestampToNow(value);
         addLiveSample(new PlotSample(Messages.LiveData, value));

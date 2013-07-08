@@ -20,6 +20,7 @@ import org.csstudio.common.trendplotter.model.ArchiveDataSource;
 import org.csstudio.common.trendplotter.model.PVItem;
 import org.csstudio.common.trendplotter.model.RequestType;
 import org.csstudio.common.trendplotter.preferences.Preferences;
+import org.epics.vtype.Time;
 import org.epics.vtype.VType;
 import org.epics.util.time.Timestamp;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -110,7 +111,7 @@ public class ArchiveFetchJob extends Job
         {
             LOG.info("start archive fetch ");
             final long start_ms = System.currentTimeMillis();
-        
+            Timestamp _end = end;
             final int bins = Preferences.getPlotBins();
             final ArchiveDataSource archives[] = item.getArchiveDataSources();
             for (int i=0; i<archives.length && !cancelled; ++i)
@@ -139,12 +140,15 @@ public class ArchiveFetchJob extends Job
 //                    TODO (jhatje): implement vType
                     ValueIterator value_iter = null;
                     RequestType currentRequestType = item.getRequestType();
+                    if(url.contains("sql")) _end=end;
+                    if(_end.getSec()<start.getSec()) continue;
+                
                     LOG.info("start value_iter create");
                     if (currentRequestType == RequestType.RAW) {
-                        value_iter = reader.getRawValues(archive.getKey(), item.getName(), start, end);
+                        value_iter = reader.getRawValues(archive.getKey(), item.getName(), start, _end);
                     }
                     else {
-                        value_iter = reader.getOptimizedValues(archive.getKey(), item.getName(), start, end, bins);
+                        value_iter = reader.getOptimizedValues(archive.getKey(), item.getName(), start, _end, bins);
                     }
                     LOG.info("end value_iter create");
                     // Get samples into array
@@ -156,7 +160,9 @@ public class ArchiveFetchJob extends Job
                       //  System.out.println("----- " + url + " - val: " +  next.toString() );
                         if(next!=null){
                            // LOG.info(" result {}",next.toString());
-                           result.add(next);
+                            if(_end.getSec()>((Time) next).getTimestamp().getSec())
+                                _end=((Time) next).getTimestamp();
+                                result.add(next);
                         }
                     }
                     LOG.info("end result create");
@@ -169,56 +175,7 @@ public class ArchiveFetchJob extends Job
                         break;
                     }
                     value_iter.close();
-                  /*  Calendar c=Calendar.getInstance();
-                    c.set(2013,4,27,10,0,0);
-                    Timestamp mysqltime_s= Timestamp.of(c.getTime());
-                    c.set(2013,4,28,10,0,0);
-                    Timestamp mysqltime_e= Timestamp.of(c.getTime());
-                    if(start.getSec()<mysqltime_e.getSec() && url.contains("sql")){
-                        System.out.println("ArchiveFetchJob.WorkerThread.run() "+ start.getSec()+"   "+mysqltime_s.getSec()+ "   "+mysqltime_s.toDate().toString());
-                        if(start.getSec()>mysqltime_s.getSec())
-                            mysqltime_s=start;
-                        url = "xnds://krynfs.desy.de/ArchiveDataServer.cgi";
-                        beginTime=System.currentTimeMillis();
-                            synchronized (this)
-                            {  LOG.info("start reader create");
-                                reader = ArchiveRepository.getInstance().getArchiveReader(url);
-                               LOG.info("end reader create");
-                            }
-//                            TODO (jhatje): implement vType
-                             value_iter = null;
-                             currentRequestType = item.getRequestType();
-                            LOG.info("start value_iter create");
-                            if (currentRequestType == RequestType.RAW) {
-                                value_iter = reader.getRawValues(1, item.getName(),mysqltime_s,mysqltime_e );
-                            }
-                            else {
-                                value_iter = reader.getOptimizedValues(1, item.getName(),mysqltime_s, mysqltime_e,  bins);
-                            }
-                            LOG.info("end value_iter create");
-                            // Get samples into array
-                            result = new ArrayList<VType>();
-                            LOG.info("start result create");
-                            while (value_iter.hasNext()) {
-                                final VType next = value_iter.next();
-                             //   LOG.trace(url + " - val: " + next.toString() );
-                              //  System.out.println("----- " + url + " - val: " +  next.toString() );
-                                if(next!=null){
-                                  //  LOG.info(" result {}",next.toString());
-                                result.add(next);
-                                }
-                            }
-                            LOG.info("end result create");
-                            LOG.info(result.size() + " samples from source " + url);
-                            LOG.info("read samples from source {} in {} millis" ,url,System.currentTimeMillis()-beginTime);
-                            LOG.info("start Merge Sample ");
-                            item.mergeArchivedSamples(reader, result, currentRequestType);
-                            LOG.info("end Merge Sample ");
-                            if (cancelled) {
-                                break;
-                            }
-                            value_iter.close(); 
-                    }*/
+               
                 }
                 catch (final Exception ex) {   // Tell listener unless it's the result of a 'cancel'?
                     if (! cancelled) {
@@ -245,6 +202,7 @@ public class ArchiveFetchJob extends Job
             Activator.getLogger().log(Level.FINE, "Ended {0}", ArchiveFetchJob.this); //$NON-NLS-1$
             done = true;
         }
+
 
         @SuppressWarnings("nls")
         @Override

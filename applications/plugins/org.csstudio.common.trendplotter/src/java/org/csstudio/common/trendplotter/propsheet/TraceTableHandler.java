@@ -691,6 +691,8 @@ public class TraceTableHandler implements IStructuredContentProvider
                             return;
                     prompt_for_raw_data_request = false;
                 }
+                item.setRequestType(request_type);
+               // trace_table.refresh();
                 new ChangeRequestTypeCommand(operations_manager, item, request_type);
             }
         });

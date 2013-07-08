@@ -33,9 +33,13 @@ import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.typesupport.BaseTypeConversionSupport;
 import org.csstudio.domain.desy.typesupport.TypeSupportException;
+import org.epics.util.array.ArrayInt;
+import org.epics.util.array.ListInt;
+import org.epics.vtype.VType;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
+import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
 
 /**
@@ -94,6 +98,25 @@ final class IntegerSystemVariableSupport extends EpicsSystemVariableSupport<Inte
                                                  min,
                                                  max);
     }
+
+	@Override
+	@Nonnull
+	protected VType convertEpicsSystemVariableToVType(
+			final EpicsSystemVariable<Integer> sysVar) throws TypeSupportException {
+		return  org.epics.vtype.ValueFactory.newVInt(sysVar.getData().intValue(),
+				getAlarm(sysVar.getAlarm()),
+				getTime(sysVar.getTimestamp()),
+				getDisplay(sysVar.getMetaData()));
+	}
+
+	@Override
+	@Nonnull
+	protected VType convertCollectionToVType(final Collection<Integer> data,
+			final EpicsAlarm alarm, final TimeInstant timestamp)
+			throws TypeSupportException {
+	     final ListInt l=new ArrayInt(Ints.toArray(data), true);
+	      return  org.epics.vtype.ValueFactory.newVIntArray( l, getAlarm(alarm), getTime(timestamp), org.epics.vtype.ValueFactory.displayNone());
+	}
 
 //    /**
 //     * {@inheritDoc}

@@ -30,6 +30,7 @@ import javax.annotation.Nonnull;
 import org.csstudio.domain.common.collection.LimitedArrayCircularQueue;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.typesupport.BaseTypeConversionSupport;
+import org.epics.vtype.ValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +45,7 @@ import com.google.common.collect.Ordering;
  * @since 12.09.2011
  */
 public class LiveSamplesCompressor {
-	private static final Logger LOG = LoggerFactory.getLogger(LiveSamplesCompressor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LiveSamplesCompressor.class);
     private List<Long> _windowLengthsMS;
     private int _noUncompressed;
 
@@ -115,8 +116,8 @@ public class LiveSamplesCompressor {
             return samples;
         }
 
-        final long startMillis = BaseTypeConversionSupport.toTimeInstant(firstCompressionSample.getTime()).getMillis();
-        final long endMillis = BaseTypeConversionSupport.toTimeInstant(lastCompressionSample.getTime()).getMillis();
+        final long startMillis = BaseTypeConversionSupport.toTimeInstant1(firstCompressionSample.getTime()).getMillis();
+        final long endMillis = BaseTypeConversionSupport.toTimeInstant1(lastCompressionSample.getTime()).getMillis();
         final long compressionStageLength = (endMillis - startMillis + 1)/_windowLengthsMS.size();
 
         final List<PlotSample> targetList = Lists.newLinkedList();
@@ -147,16 +148,17 @@ public class LiveSamplesCompressor {
             return samples;
         }
         // ...or first sample lies already beyond the end of this compression stage
-        final TimeInstant first = BaseTypeConversionSupport.toTimeInstant(samples.element().getTime());
+        final TimeInstant first = BaseTypeConversionSupport.toTimeInstant1(samples.element().getTime());
         if (first.getMillis() > endOfCompressionMS) {
             return samples;
         }
 
-        PlotSample next = samples.poll();
+        PlotSample   next= samples.poll();
         PlotSample min = next;
         PlotSample max = next;
         long nextWindowEnd = Math.min(startOfCompressionMS + windowLengthMS, endOfCompressionMS);
         //System.out.println("-w: " + nextWindowEnd);
+        LOG.info("Compress Min Max Value am:  {}",ValueFactory.timeNow().getTimestamp().toString());
         List<PlotSample> result = Lists.newLinkedList();
         int count=0;
         while ( next != null ) {
@@ -173,17 +175,20 @@ public class LiveSamplesCompressor {
             min = next.getYValue() < min.getYValue() ? next : min;
             max = next.getYValue() > max.getYValue() ? next : max;
 
-            next = samples.poll();
+
+            next= samples.poll();
+
             if(count>10000){ 
                 LOG.info("Stop Compress stage manuel {}. Sample count : ",samples.size()); 
                 break;
-            }
+                }
             if (!isSampleBefore(next, nextWindowEnd)) {
                 result = storeMinMax(min, max, result);
                 min = next;
                 max = next;
             }
         }
+        LOG.info("Compress Min Max Value result: von  {} to {} ",samples.size(),result.size());
        return result;
     }
 
@@ -192,7 +197,7 @@ public class LiveSamplesCompressor {
         if (sample == null) {
             return false;
         }
-        final TimeInstant time = BaseTypeConversionSupport.toTimeInstant(sample.getTime());
+        final TimeInstant time = BaseTypeConversionSupport.toTimeInstant1(sample.getTime());
         return time.getMillis() <= nextWindowEnd;
     }
 
@@ -204,7 +209,7 @@ public class LiveSamplesCompressor {
         if (Double.compare(min.getYValue(), max.getYValue()) == 0) {
             result.add(min); // they feature the same value - so take just one (it's a min max compressor!)
             //System.out.println(min);
-        } else if (min.getTime().isLessThan(max.getTime())) {
+        } else if (min.getTime().getSec()<(max.getTime()).getSec()) {
             result.add(min);
             //System.out.println(min);
             result.add(max);

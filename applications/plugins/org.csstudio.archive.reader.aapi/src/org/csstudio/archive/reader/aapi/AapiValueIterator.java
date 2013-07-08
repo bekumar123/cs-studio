@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.csstudio.archive.reader.ValueIterator;
-import org.csstudio.data.values.ITimestamp;
-import org.csstudio.data.values.IValue;
+import org.epics.util.time.Timestamp;
+import org.epics.vtype.VType;
 
 import de.desy.aapi.AapiClient;
 import de.desy.aapi.AapiReductionMethod;
@@ -17,13 +17,13 @@ public abstract class AapiValueIterator implements ValueIterator {
 	private final AapiClient _aapiClient;
 	private RequestData _requestData = new RequestData();
 	
-	private List<IValue> _result = new ArrayList<IValue>();
+	private List<VType> _result = new ArrayList<VType>();
 
 	public AapiValueIterator(AapiClient aapiClient, int key, String name,
-			ITimestamp start, ITimestamp end) {
+			Timestamp start, Timestamp end) {
 		_aapiClient = aapiClient;
-		_requestData.setFromTime((int) start.seconds());
-		_requestData.setToTime((int) end.seconds());
+		_requestData.setFromTime((int) start.getSec());
+		_requestData.setToTime((int) end.getSec());
 		_requestData.setPvList(new String[]{name});
 	}
 	
@@ -50,12 +50,13 @@ public abstract class AapiValueIterator implements ValueIterator {
 	}
 
 	@Override
-	public IValue next() throws Exception {
+	public VType next() throws Exception {
 //		System.out.println(">>>>> AapiValueIterator.next");
 		if (_result.size() > 0) {
-			IValue val = _result.remove(0);
+			VType val = _result.remove(0);
 //			IMinMaxDoubleValue mmval = (IMinMaxDoubleValue) val;
 //			System.out.println(">>>>> " + mmval.getTime() + " " + mmval.getValue());
+			//TODO (jhatje): implement vType
 			return val;
 		}
 //		System.out.println(">>>>> AapiValueIterator.next return null");
@@ -72,6 +73,6 @@ public abstract class AapiValueIterator implements ValueIterator {
 		_result = null;
 	}
 
-	abstract void dataConversion(AnswerData answerData, List<IValue> result);
+	abstract void dataConversion(AnswerData answerData, List<VType> result);
 
 }

@@ -7,19 +7,15 @@
  ******************************************************************************/
 package org.csstudio.common.trendplotter.model;
 
-import org.csstudio.data.values.IDoubleValue;
-import org.csstudio.data.values.IEnumeratedMetaData;
-import org.csstudio.data.values.IEnumeratedValue;
-import org.csstudio.data.values.ILongValue;
-import org.csstudio.data.values.IMetaData;
-import org.csstudio.data.values.INumericMetaData;
-import org.csstudio.data.values.ISeverity;
-import org.csstudio.data.values.IStringValue;
-import org.csstudio.data.values.ITimestamp;
-import org.csstudio.data.values.IValue;
-import org.csstudio.data.values.IValue.Quality;
-import org.csstudio.data.values.TimestampFactory;
-import org.csstudio.data.values.ValueFactory;
+import org.csstudio.archive.vtype.VTypeHelper;
+import org.csstudio.archive.vtype.trendplotter.ArchiveVDisplayType;
+import org.csstudio.archive.vtype.trendplotter.ArchiveVEnum;
+import org.csstudio.archive.vtype.trendplotter.ArchiveVNumber;
+import org.csstudio.archive.vtype.trendplotter.ArchiveVNumberArray;
+import org.csstudio.archive.vtype.trendplotter.ArchiveVStatistics;
+import org.csstudio.archive.vtype.trendplotter.ArchiveVString;
+import org.epics.util.time.Timestamp;
+import org.epics.vtype.*;
 
 /** Helper for transforming samples/values
  *  @author Kay Kasemir
@@ -31,14 +27,48 @@ public class ValueButcher
      *  @param time Desired time stamp
      *  @return New value with given time stamp
      */
-    public static IValue changeTimestamp(final IValue value,
-            final ITimestamp time)
+    public static VType changeTimestamp(final VType value,
+            final Timestamp time)
     {
-        final ISeverity severity = value.getSeverity();
-        final String status = value.getStatus();
-        final Quality quality = value.getQuality();
-        final IMetaData meta = value.getMetaData();
-        if (value instanceof IDoubleValue)
+        Display d= getDisplay(value);
+       
+        if(value instanceof ArchiveVNumber ||value instanceof VDouble  || value instanceof VFloat ||value instanceof VInt || value instanceof VByte  || value instanceof VShort  ){
+            VNumber vt=(VNumber)value;
+            AlarmSeverity severity = vt.getAlarmSeverity();
+            String status = vt.getAlarmName();
+            return new ArchiveVNumber(time, severity, status,  d, (Number)value);
+        }
+        if(value instanceof ArchiveVNumberArray || value instanceof VDoubleArray  || value instanceof VFloatArray ||value instanceof VIntArray || value instanceof VByteArray  || value instanceof VShortArray  ){
+            VNumberArray vt=(VNumberArray)value;
+            AlarmSeverity severity = vt.getAlarmSeverity();
+            String status = vt.getAlarmName();
+            return new ArchiveVNumberArray(time, severity, status, d, vt.getData());
+        }
+        if(value instanceof ArchiveVStatistics ||value instanceof VStatistics){
+            VStatistics vt=(VStatistics)value;
+            AlarmSeverity severity = vt.getAlarmSeverity();
+            String status = vt.getAlarmName();
+            return new ArchiveVStatistics(time, severity, status,d, vt.getAverage(),vt.getNSamples(),vt.getMax(),vt.getStdDev(),vt.getNSamples());
+        }
+        if(value instanceof ArchiveVEnum){
+            ArchiveVEnum vt=(ArchiveVEnum)value;
+            AlarmSeverity severity = vt.getAlarmSeverity();
+            String status = vt.getAlarmName();
+            return new ArchiveVEnum(time, severity, status, vt.getLabels(),vt.getIndex());
+        }
+        if(value instanceof ArchiveVString){
+            ArchiveVString vt=(ArchiveVString)value;
+            AlarmSeverity severity = vt.getAlarmSeverity();
+            String status = vt.getAlarmName();
+            return new ArchiveVString(time, severity, status, vt.getValue());
+        }
+     
+    //    ValueFactory
+     /*  AlarmSeverity severity = value.getSeverity();
+         String status = value.getStatus();
+         Quality quality = value.getQuality();
+         Display meta = value.getMetaData();*/
+      /*  if (value instanceof IDoubleValue)
             return ValueFactory.createDoubleValue(time , severity, status,
                             (INumericMetaData)meta, quality,
                             ((IDoubleValue)value).getValues());
@@ -55,16 +85,19 @@ public class ValueButcher
                             quality, ((IStringValue)value).getValues());
         // Else: Log unknown data type as text
         return ValueFactory.createStringValue(time, severity, status,
-                quality, new String[] { value.toString() });
+                quality, new String[] { value.toString() });*/
+        return ValueFactory.wrapValue(value);
     }
 
     /** Create new value with 'now' as time stamp
      *  @param value Original Value
      *  @return New value with 'now' as time stamp
      */
-    public static IValue changeTimestampToNow(final IValue value)
+    public static  VType changeTimestampToNow(final VType value)
+   
     {
-        return changeTimestamp(value, TimestampFactory.now());
+       
+        return changeTimestamp(value, Timestamp.now());
     }
 
     /** Create new sample with 'now' as time stamp
@@ -73,6 +106,18 @@ public class ValueButcher
      */
     public static PlotSample changeTimestampToNow(final PlotSample sample)
     {
-        return new PlotSample(sample.getSource(), changeTimestampToNow(sample.getValue()));
+        return new PlotSample(sample.getSource(), VTypeHelper.transformTimestampToNow(sample.getValue()));
+    }
+    static Display getDisplay(final VType value){
+       if(value instanceof ArchiveVDisplayType ) {
+           ArchiveVDisplayType vt=(ArchiveVDisplayType)value;
+           return ValueFactory.newDisplay(vt.getLowerDisplayLimit(), vt.getLowerAlarmLimit(),
+                                          vt.getLowerWarningLimit(), vt.getUnits(), vt.getFormat(), 
+                                          vt.getUpperWarningLimit(), vt.getUpperAlarmLimit(), 
+                                          vt.getUpperDisplayLimit(), vt.getLowerCtrlLimit(), 
+                                          vt.getUpperCtrlLimit());
+       } 
+        
+       return ValueFactory.displayNone(); 
     }
 }

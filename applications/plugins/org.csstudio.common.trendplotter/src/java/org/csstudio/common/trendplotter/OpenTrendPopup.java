@@ -49,7 +49,7 @@ public class OpenTrendPopup extends AbstractHandler
                 for (Object channel : channels)
                 {
                     final ChannelInfo info = (ChannelInfo) channel;
-                    add(model, info.getProcessVariable(), info.getArchiveDataSource());
+                    add(model, info.getProcessVariable(), null);
                 }
             }
             else

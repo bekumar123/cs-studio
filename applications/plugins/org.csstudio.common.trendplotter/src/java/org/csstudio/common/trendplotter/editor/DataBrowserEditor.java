@@ -15,7 +15,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.logging.Level;
 
-import org.csstudio.apputil.ui.elog.SendToElogActionHelper;
 import org.csstudio.apputil.ui.workbench.OpenPerspectiveAction;
 import org.csstudio.apputil.ui.workbench.OpenViewAction;
 import org.csstudio.common.trendplotter.Activator;
@@ -88,7 +87,7 @@ import org.eclipse.ui.views.properties.IPropertySheetPage;
 public class DataBrowserEditor extends EditorPart
 {
     /** Editor ID (same ID as original Data Browser) registered in plugin.xml */
-    final public static String ID = "org.csstudio.trends.databrowser.ploteditor.PlotEditor"; //$NON-NLS-1$
+    final public static String ID = "org.csstudio.common.trendplotter.editor.DataBrowserEditor"; //$NON-NLS-1$
 
     /** Data model */
     private Model model;
@@ -113,7 +112,7 @@ public class DataBrowserEditor extends EditorPart
     {
         final DataBrowserEditor editor;
         try
-        {
+        {System.out.println("DataBrowserEditor.createInstance()  start  "+System.currentTimeMillis() );
             final IWorkbench workbench = PlatformUI.getWorkbench();
             final IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
             final IWorkbenchPage page = window.getActivePage();
@@ -369,8 +368,6 @@ public class DataBrowserEditor extends EditorPart
                 Messages.OpenDataBrowserPerspective,
                 Perspective.ID));
         mm.add(new Separator());
-        if (SendToElogActionHelper.isElogAvailable())
-            mm.add(new SendToElogAction(shell, plot.getXYGraph()));
         if (EMailSender.isEmailSupported())
             mm.add(new SendEMailAction(shell, plot.getXYGraph()));
         mm.add(new PrintAction(shell, plot.getXYGraph()));

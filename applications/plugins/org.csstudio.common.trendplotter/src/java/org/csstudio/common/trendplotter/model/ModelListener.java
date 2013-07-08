@@ -52,7 +52,6 @@ public interface ModelListener
     /** @param scroll_enabled <code>true</code> when scrolling was turned 'on' */
     void scrollEnabled(boolean scroll_enabled);
 
-
     /** The annotation list changed*/
     void changedAnnotations();
 

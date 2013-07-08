@@ -20,9 +20,9 @@ import org.csstudio.common.trendplotter.model.ArchiveDataSource;
 import org.csstudio.common.trendplotter.model.PVItem;
 import org.csstudio.common.trendplotter.model.RequestType;
 import org.csstudio.common.trendplotter.preferences.Preferences;
-import org.csstudio.data.values.IDoubleValue;
-import org.csstudio.data.values.ITimestamp;
-import org.csstudio.data.values.IValue;
+import org.epics.vtype.Time;
+import org.epics.vtype.VType;
+import org.epics.util.time.Timestamp;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -49,13 +49,13 @@ public class ArchiveFetchJob extends Job
     final private PVItem item;
 
     /** Start/End time */
-    final private ITimestamp start, end;
+    final private Timestamp start, end;
 
     /** Listener that's notified when (if) we completed OK */
     final private ArchiveFetchJobListener listener;
 
     private static volatile int worker_instance = 0;
-
+   
     /** Thread that performs the actual background work.
      *
      *  Instead of directly accessing the archive, ArchiveFetchJob launches
@@ -110,12 +110,14 @@ public class ArchiveFetchJob extends Job
         public void run()
         {
             LOG.info("start archive fetch ");
+            final long start_ms = System.currentTimeMillis();
+            Timestamp _end = end;
             final int bins = Preferences.getPlotBins();
             final ArchiveDataSource archives[] = item.getArchiveDataSources();
             for (int i=0; i<archives.length && !cancelled; ++i)
             {
                 final ArchiveDataSource archive = archives[i];
-                final String url = archive.getUrl();
+                String url = archive.getUrl();
                 // Display "N/total", using '1' for the first sub-archive.
                 synchronized  (this)
                 {
@@ -129,35 +131,51 @@ public class ArchiveFetchJob extends Job
                 }
                 try
                 {
+                    long beginTime=System.currentTimeMillis();
                     synchronized (this)
-                    {
+                    {  LOG.info("start reader create");
                         reader = ArchiveRepository.getInstance().getArchiveReader(url);
+                       LOG.info("end reader create");
                     }
-
-                    final ValueIterator value_iter;
-                    final RequestType currentRequestType = item.getRequestType();
-
+//                    TODO (jhatje): implement vType
+                    ValueIterator value_iter = null;
+                    RequestType currentRequestType = item.getRequestType();
+                    if(url.contains("sql")) _end=end;
+                    if(_end.getSec()<start.getSec()) continue;
+                
+                    LOG.info("start value_iter create");
                     if (currentRequestType == RequestType.RAW) {
-                        value_iter = reader.getRawValues(archive.getKey(), item.getName(), start, end);
+                        value_iter = reader.getRawValues(archive.getKey(), item.getName(), start, _end);
                     }
                     else {
-                        value_iter = reader.getOptimizedValues(archive.getKey(), item.getName(), start, end, bins);
+                        value_iter = reader.getOptimizedValues(archive.getKey(), item.getName(), start, _end, bins);
                     }
+                    LOG.info("end value_iter create");
                     // Get samples into array
-                    final ArrayList<IValue> result = new ArrayList<IValue>();
-                    
+                    ArrayList<VType> result = new ArrayList<VType>();
+                    LOG.info("start result create");
                     while (value_iter.hasNext()) {
-                        final IValue next = value_iter.next();
-                        LOG.trace(url + " - val: " + ((IDoubleValue)next).getValue() + " time: " + next.getTime());
-//                        System.out.println("----- " + url + " - val: " + ((IDoubleValue)next).getValue() + " time: " + next.getTime());
-                        result.add(next);
+                        final VType next = value_iter.next();
+                     //   LOG.trace(url + " - val: " + next.toString() );
+                      //  System.out.println("----- " + url + " - val: " +  next.toString() );
+                        if(next!=null){
+                           // LOG.info(" result {}",next.toString());
+                            if(_end.getSec()>((Time) next).getTimestamp().getSec())
+                                _end=((Time) next).getTimestamp();
+                                result.add(next);
+                        }
                     }
-                    LOG.debug(result.size() + " samples from source " + url);
+                    LOG.info("end result create");
+                    LOG.info(result.size() + " samples from source " + url);
+                    LOG.info("read samples from source {} in {} millis" ,url,System.currentTimeMillis()-beginTime);
+                    LOG.info("start Merge Sample ");
                     item.mergeArchivedSamples(reader, result, currentRequestType);
+                    LOG.info("end Merge Sample ");
                     if (cancelled) {
                         break;
                     }
                     value_iter.close();
+               
                 }
                 catch (final Exception ex) {   // Tell listener unless it's the result of a 'cancel'?
                     if (! cancelled) {
@@ -177,8 +195,10 @@ public class ArchiveFetchJob extends Job
                 }
             }
             if (!cancelled) {
-                listener.fetchCompleted(ArchiveFetchJob.this);
+               listener.fetchCompleted(ArchiveFetchJob.this);
+          
             }
+            LOG.info("FetchJob() {} in {} millis", item.getName(),System.currentTimeMillis()-start_ms);
             Activator.getLogger().log(Level.FINE, "Ended {0}", ArchiveFetchJob.this); //$NON-NLS-1$
             done = true;
         }
@@ -197,8 +217,8 @@ public class ArchiveFetchJob extends Job
      *  @param end
      *  @param listener
      */
-    public ArchiveFetchJob(final PVItem item, final ITimestamp start,
-            final ITimestamp end, final ArchiveFetchJobListener listener)
+    public ArchiveFetchJob(final PVItem item, final Timestamp start,
+            final Timestamp end, final ArchiveFetchJobListener listener)
     {
         super(NLS.bind(Messages.ArchiveFetchJobFmt,
                 new Object[] { item.getName(), start, end }));
@@ -240,7 +260,7 @@ public class ArchiveFetchJob extends Job
                 // Ignore
             }
             if (worker.isDone()) {
-                break;
+                   break;
             }
             final String info = NLS.bind(Messages.ArchiveFetchProgressFmt,
                     worker.getMessage(), ++seconds);
@@ -258,7 +278,7 @@ public class ArchiveFetchJob extends Job
 
         return monitor.isCanceled() ? Status.CANCEL_STATUS : Status.OK_STATUS;
     }
-
+ 
     /** @return Debug string */
     @SuppressWarnings("nls")
     @Override

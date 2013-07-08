@@ -35,17 +35,19 @@ import org.csstudio.archive.common.requesttype.IArchiveRequestType;
 import org.csstudio.archive.common.service.IArchiveReaderFacade;
 import org.csstudio.archive.common.service.channel.IArchiveChannel;
 import org.csstudio.archive.common.service.sample.IArchiveSample;
+import org.csstudio.archive.common.service.util.ArchiveTypeConversionSupport;
 import org.csstudio.archive.reader.ArchiveInfo;
 import org.csstudio.archive.reader.ArchiveReader;
 import org.csstudio.archive.reader.ArchiveReaderFactory;
+import org.csstudio.archive.reader.UnknownChannelException;
 import org.csstudio.archive.reader.ValueIterator;
-import org.csstudio.data.values.ITimestamp;
-import org.csstudio.data.values.IValue;
 import org.csstudio.domain.desy.regexp.SimplePattern;
 import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
 import org.csstudio.domain.desy.system.ISystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.typesupport.BaseTypeConversionSupport;
+import org.epics.util.time.Timestamp;
+import org.epics.vtype.VType;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
@@ -69,7 +71,7 @@ public final class DesyArchiveReaderFactory implements ArchiveReaderFactory {
     static final ValueIterator EMPTY_ITER = new ValueIterator() {
         @Override
         @CheckForNull
-        public IValue next() throws Exception {
+        public VType next() throws Exception {
             return null;
         }
         @Override
@@ -154,58 +156,6 @@ public final class DesyArchiveReaderFactory implements ArchiveReaderFactory {
             return names.toArray(new String[]{});
         }
 
-        @SuppressWarnings("unchecked")
-        @Override
-        @Nonnull
-        public ValueIterator getRawValues(final int key,
-                                          @Nonnull final String name,
-                                          @Nonnull final ITimestamp start,
-                                          @Nonnull final ITimestamp end) throws Exception {
-
-            final TimeInstant s = BaseTypeConversionSupport.toTimeInstant(start);
-            final TimeInstant e = BaseTypeConversionSupport.toTimeInstant(end);
-
-            final IArchiveReaderFacade service = _provider.getReaderFacade();
-            final Collection<IArchiveSample<Serializable, ISystemVariable<Serializable>>> samples =
-                service.readSamples(name, s, e, findRequestType("RAW"));
-
-            return new DesyArchiveValueIterator(samples, name, s, e);
-        }
-
-
-        @SuppressWarnings("unchecked")
-        @Override
-        @Nonnull
-        public ValueIterator getOptimizedValues(final int key,
-                                                @Nonnull final String name,
-                                                @Nonnull final ITimestamp start,
-                                                @Nonnull final ITimestamp end,
-                                                final int count) throws Exception {
-
-            final TimeInstant s = BaseTypeConversionSupport.toTimeInstant(start);
-            final TimeInstant e = BaseTypeConversionSupport.toTimeInstant(end);
-
-            // Check for optimizability (base type convertible to Double)
-            final IArchiveReaderFacade service = _provider.getReaderFacade();
-            final IArchiveChannel channel = service.getChannelByName(name);
-
-            if (channel!= null &&
-                BaseTypeConversionSupport.isDataTypeConvertibleToDouble(channel.getDataType())) {
-
-                final IArchiveSample lastSampleBefore = service.readLastSampleBefore(name, s);
-
-                final Collection<IArchiveSample> samples = (Collection)
-                    service.readSamples(channel.getName(), s, e, null);
-
-                if (samples.size() <= count) {
-                    return new DesyArchiveValueIterator(Iterables.concat(Collections.<IArchiveSample>singleton(lastSampleBefore), samples),
-                                                        name, s, e);
-                }
-
-                return new EquidistantTimeBinsIterator(_provider, samples, name, s, e, count);
-            }
-            return EMPTY_ITER;
-        }
 
         @Override
         public void cancel() {
@@ -235,6 +185,50 @@ public final class DesyArchiveReaderFactory implements ArchiveReaderFactory {
             }
             return null;
         }
+       @SuppressWarnings("unchecked")
+        @Override
+        @Nonnull
+        public ValueIterator getRawValues(final int key, final String name, final Timestamp start, final Timestamp end) throws UnknownChannelException,
+                                                                                               Exception {
+            final TimeInstant s = BaseTypeConversionSupport.toTimeInstant1(start);
+            final TimeInstant e = BaseTypeConversionSupport.toTimeInstant1(end);
+            final IArchiveReaderFacade service = _provider.getReaderFacade();
+            final Collection<IArchiveSample<Serializable, ISystemVariable<Serializable>>> samples =
+             service.readSamples(name, s, e, findRequestType("RAW"));
+
+          return new DesyArchiveValueIterator(samples, name, s, e);
+
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        @Nonnull
+        public ValueIterator getOptimizedValues(final int key, final String name, final Timestamp start, final Timestamp end, final int count) throws UnknownChannelException,
+                                                                                                                Exception {
+            final TimeInstant s = BaseTypeConversionSupport.toTimeInstant1(start);
+          final TimeInstant e = BaseTypeConversionSupport.toTimeInstant1(end);
+
+          // Check for optimizability (base type convertible to Double)
+          final IArchiveReaderFacade service = _provider.getReaderFacade();
+          final IArchiveChannel channel = service.getChannelByName(name);
+          if (channel!= null &&
+              ArchiveTypeConversionSupport.isDataTypeOptimizable(channel.getDataType())) {
+
+              final IArchiveSample lastSampleBefore = service.readLastSampleBefore(name, s);
+
+             // final Collection<IArchiveSample<Serializable, ISystemVariable<Serializable>>> samples = service.readSamples(channel.getName(), s, e, null);
+              final Collection<IArchiveSample> samples = (Collection)service.readSamples(channel.getName(), s, e, null);
+
+              if (samples.size() <= count) {
+                  return new DesyArchiveValueIterator(Iterables.concat(Collections.<IArchiveSample>singleton(lastSampleBefore), samples),
+                                                      name, s, e);
+              }
+
+             return new EquidistantTimeBinsIterator(_provider, samples, name, s, e, count);
+          }
+          return EMPTY_ITER;
+        }
+
     }
 
     /**

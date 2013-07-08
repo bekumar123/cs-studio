@@ -8,13 +8,11 @@
 package org.csstudio.common.trendplotter.ui;
 
 import java.util.ArrayList;
-
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import org.csstudio.archive.reader.UnknownChannelException;
-import org.csstudio.common.trendplotter.Activator;
 import org.csstudio.common.trendplotter.Messages;
 import org.csstudio.common.trendplotter.archive.ArchiveFetchJob;
 import org.csstudio.common.trendplotter.archive.ArchiveFetchJobListener;
@@ -24,7 +22,6 @@ import org.csstudio.common.trendplotter.model.AnnotationInfo;
 import org.csstudio.common.trendplotter.model.ArchiveDataSource;
 import org.csstudio.common.trendplotter.model.ArchiveRescale;
 import org.csstudio.common.trendplotter.model.AxisConfig;
-import org.csstudio.common.trendplotter.model.HistoricSamples;
 import org.csstudio.common.trendplotter.model.Model;
 import org.csstudio.common.trendplotter.model.ModelItem;
 import org.csstudio.common.trendplotter.model.ModelListener;
@@ -32,9 +29,10 @@ import org.csstudio.common.trendplotter.model.PVItem;
 import org.csstudio.common.trendplotter.preferences.Preferences;
 import org.csstudio.common.trendplotter.propsheet.AddArchiveCommand;
 import org.csstudio.common.trendplotter.propsheet.AddAxisCommand;
+import org.csstudio.common.trendplotter.propsheet.ChangeArchiveRescaleCommand;
+import org.csstudio.common.trendplotter.propsheet.ChangeAxisConfigCommand;
 import org.csstudio.csdata.ProcessVariable;
 import org.csstudio.data.values.ITimestamp;
-import org.csstudio.data.values.TimestampFactory;
 import org.csstudio.swt.xygraph.figures.Annotation;
 import org.csstudio.swt.xygraph.figures.Axis;
 import org.csstudio.swt.xygraph.figures.Trace.TraceType;
@@ -42,6 +40,8 @@ import org.csstudio.swt.xygraph.figures.XYGraph;
 import org.csstudio.swt.xygraph.undo.OperationsManager;
 import org.csstudio.swt.xygraph.util.XYGraphMediaFactory;
 import org.csstudio.ui.util.dialogs.ExceptionDetailsErrorDialog;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.events.ShellEvent;
@@ -49,6 +49,7 @@ import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.epics.util.time.Timestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -177,12 +178,14 @@ public class Controller implements ArchiveFetchJobListener
             @Override
             public void timeConfigRequested()
             {
+                System.out.println("Controller.Controller(...).new PlotListener() {...}.timeConfigRequested() s "+System.currentTimeMillis());
                 StartEndTimeAction.run(shell, model, plot.getOperationsManager());
+                System.out.println("Controller.Controller(...).new PlotListener() {...}.timeConfigRequested() e "+System.currentTimeMillis());
             }
 
             @Override
             public void timeAxisChanged(final long start_ms, final long end_ms)
-            {
+            {System.out.println("Controller.Controller(...).new PlotListener() {...}.timeAxisChanged()  s   " +System.currentTimeMillis());
                 if (model.isScrollEnabled())
                 {
                     final long dist = Math.abs(end_ms - System.currentTimeMillis());
@@ -207,11 +210,14 @@ public class Controller implements ArchiveFetchJobListener
                         return;
                     }
                 }
-                final ITimestamp start_time = TimestampFactory.fromMillisecs(start_ms);
-                final ITimestamp end_time = TimestampFactory.fromMillisecs(end_ms);
+          //      final Timestamp start_time =Timestamp.of(start_ms/1000,0);
+            //    final Timestamp end_time =Timestamp.of(end_ms/1000,0);
+                final Timestamp start_time =Timestamp.of(start_ms/1000,0);
+                final Timestamp end_time =Timestamp.of(end_ms/1000,0);
                 // Update model's time range
                 model.setTimerange(start_time, end_time);
                 // Controller's ModelListener will fetch new archived data
+                System.out.println("Controller.Controller(...).new PlotListener() {...}.timeAxisChanged()  e  "+ System.currentTimeMillis());
             }
 
             @Override
@@ -224,6 +230,7 @@ public class Controller implements ArchiveFetchJobListener
             @Override
             public void droppedName(final String name)
             {
+                System.out.println("Controller.Controller(...).new PlotListener() {...}.droppedName()  s  " +System.currentTimeMillis()  );
                 // Offer potential PV name in dialog so user can edit/cancel
                 final AddPVAction add = new AddPVAction(plot.getOperationsManager(), shell, model, false);
                 // Allow passing in many names, assuming that white space separates them
@@ -231,11 +238,13 @@ public class Controller implements ArchiveFetchJobListener
                 for (String n : names)
                     if (! add.runWithSuggestedName(n, null))
                         break;
+                System.out.println("Controller.Controller(...).new PlotListener() {...}.droppedName()  e  " +System.currentTimeMillis()  );
             }
 
             @Override
             public void droppedPVName(final ProcessVariable name, final ArchiveDataSource archive)
             {
+                System.out.println("Controller.Controller(...).new PlotListener() {...}.droppedPVName()  s  "+System.currentTimeMillis() );
                 if (name == null)
                 {
                     if (archive == null)
@@ -258,7 +267,7 @@ public class Controller implements ArchiveFetchJobListener
 
                     //TODO (jhatje): operators want to select the axis also for dropped pvs. Using the method from 
                     //dropping strings is the easiest solution.
-                    add.runWithSuggestedName(name.getName(), null);
+                    add.runWithSuggestedName(name.getName(), archive);
 //                    // Add the given PV to the model anyway even if the same PV
 //                    // exists in the model.
 //                    final OperationsManager operations_manager = plot.getOperationsManager();
@@ -274,11 +283,13 @@ public class Controller implements ArchiveFetchJobListener
 //                            axis, archive);
 //                    return;
                 }
+                System.out.println("Controller.Controller(...).new PlotListener() {...}.droppedPVName()  e  "+System.currentTimeMillis() );
             }
 
             @Override
             public void droppedFilename(String file_name)
             {
+              System.out.println("Controller.Controller(...).new PlotListener() {...}.droppedFilename()   s  "    +System.currentTimeMillis() );
                 final FileImportDialog dlg = new FileImportDialog(shell, file_name);
                 if (dlg.open() != Window.OK)
                     return;
@@ -299,12 +310,15 @@ public class Controller implements ArchiveFetchJobListener
                 AddModelItemCommand.forPV(shell, operations_manager,
                         model, dlg.getItemName(), Preferences.getScanPeriod(),
                         axis, imported);
+                System.out.println("Controller.Controller(...).new PlotListener() {...}.droppedFilename()   e  "    +System.currentTimeMillis() );
             }
 
             @Override
             public void xyGraphConfigChanged(XYGraph newValue)
             {
+                System.out.println("Controller.Controller(...).new PlotListener() {...}.xyGraphConfigChanged()  s  "+System.currentTimeMillis() );
                 model.fireGraphConfigChanged();
+                System.out.println("Controller.Controller(...).new PlotListener() {...}.xyGraphConfigChanged()  s  "+System.currentTimeMillis() );
             }
 
             @Override
@@ -399,6 +413,33 @@ public class Controller implements ArchiveFetchJobListener
                 axis.setLogScale(logScale);
             }
 
+            @Override
+            public void autoScaleRequested() {
+                int axisCount = model.getAxisCount();
+                for (int i=0; i<axisCount; i++) {
+                    AxisConfig axis = model.getAxis(i);
+                    final ChangeAxisConfigCommand command = new ChangeAxisConfigCommand(plot.getOperationsManager(), axis);
+                    axis.setAutoScale(true);
+                    command.rememberNewConfig();
+                }
+            }
+
+            @Override
+            public void initScaleRequested() {
+                AxisConfigurer configurer = new AxisConfigurer(model);
+                int axisCount = model.getAxisCount();
+                for (int i=0; i<axisCount; i++) {
+                    AxisConfig axis = model.getAxis(i);
+                    if (axis.isAutoScale()) {
+                        final ChangeAxisConfigCommand command = new ChangeAxisConfigCommand(plot.getOperationsManager(), axis);
+                        axis.setAutoScale(false);
+                        command.rememberNewConfig();
+                    }
+                    final ChangeAxisConfigCommand command = new ChangeAxisConfigCommand(plot.getOperationsManager(), axis);
+                    axis.setRange(configurer.getMin(axis), configurer.getMax(axis));
+                    command.rememberNewConfig();
+                }
+            }
         });
 
         model_listener = new ModelListener()
@@ -431,9 +472,9 @@ public class Controller implements ArchiveFetchJobListener
                 if (model.isScrollEnabled())
                     return; // no, scrolling will handle that
                 // Yes, since the time axis is currently 'fixed'
-                final long start_ms = (long) (model.getStartTime().toDouble()*1000);
-                final long end_ms = (long) (model.getEndTime().toDouble()*1000);
-                plot.setTimeRange(start_ms, end_ms);
+              //  final long start_ms = (long) (model.getStartTime().getSec()*1000);
+                //final long end_ms = (long) (model.getEndTime().getSec()*1000);
+                plot.setTimeRange(model.getStartTime().getSec()*1000, model.getEndTime().getSec()*1000);
             }
 
             @Override
@@ -460,10 +501,11 @@ public class Controller implements ArchiveFetchJobListener
             @Override
             public void itemAdded(final ModelItem item)
             {
-                if (item.isVisible())
+              if (item.isVisible())
                     plot.addTrace(item);
                 // Get archived data for new item (NOP for non-PVs)
-                getArchivedData(item, model.getStartTime(), model.getEndTime());
+              getArchivedData(item, model.getStartTime(), model.getEndTime());
+             
             }
 
             @Override
@@ -485,14 +527,15 @@ public class Controller implements ArchiveFetchJobListener
 
             @Override
             public void changedItemLook(final ModelItem item)
-            {
+            {              
                 plot.updateTrace(item);
+           
             }
 
             @Override
             public void changedItemDataConfig(final PVItem item)
             {
-                getArchivedData(item, model.getStartTime(), model.getEndTime());
+              getArchivedData(item, model.getStartTime(), model.getEndTime());
             }
 
             @Override
@@ -554,6 +597,7 @@ public class Controller implements ArchiveFetchJobListener
      */
     protected void scheduleArchiveRetrieval()
     {
+       
         if (archive_fetch_delay_task != null)
             archive_fetch_delay_task.cancel();
         archive_fetch_delay_task = new TimerTask()
@@ -561,10 +605,13 @@ public class Controller implements ArchiveFetchJobListener
             @Override
             public void run()
             {
-                getArchivedData();
+               getArchivedData();
             }
         };
+     
+      
         update_timer.schedule(archive_fetch_delay_task, archive_fetch_delay);
+  
     }
 
     /** Start model items and initiate scrolling/updates
@@ -582,7 +629,7 @@ public class Controller implements ArchiveFetchJobListener
         if (model.isScrollEnabled())
             return;
         // In non-scroll mode, initialize plot's time range and get data
-        plot.setTimeRange(model.getStartTime(), model.getEndTime());
+        plot.setTimeRange(model.getStartTime().getSec()*1000, model.getEndTime().getSec()*1000);
         getArchivedData();
     }
 
@@ -598,7 +645,7 @@ public class Controller implements ArchiveFetchJobListener
      *  @see #start()
      */
     private void createUpdateTask()
-    {
+    { 
         // Can't actually re-schedule, so stop one that might already be running
         if (update_task != null)
         {
@@ -606,12 +653,15 @@ public class Controller implements ArchiveFetchJobListener
             update_task = null;
         }
         update_task = new TimerTask()
-        {
+        {  
             @Override
             public void run()
             {
+              
+            
                 try
                 {
+                      
                     // Skip updates while nobody is watching
                     if (window_is_iconized || suppress_redraws)
                         return;
@@ -624,21 +674,27 @@ public class Controller implements ArchiveFetchJobListener
                     if (model.isScrollEnabled())
                         performScroll();
                     else
-                    {
+                    {    
+                 
                         scrolling_was_off = true;
                         // Only redraw when needed
                         if (anything_new)
                             plot.redrawTraces();
+                    
                     }
                 }
                 catch (Throwable ex)
                 {
                     LOG.warn("Error in Plot refresh timer", ex); //$NON-NLS-1$
                 }
+            
+            
             }
         };
         final long update_delay = (long) (model.getUpdatePeriod() * 1000);
-        update_timer.schedule(update_task, update_delay, update_delay);
+     
+        update_timer.schedule(update_task, 1, update_delay);
+    
     }
 
     /** Stop scrolling and model items
@@ -741,6 +797,7 @@ public class Controller implements ArchiveFetchJobListener
             scrolling_was_off = false;
             getArchivedData();
         }
+     
     }
 
     /** Initiate archive data retrieval for all model items
@@ -749,8 +806,8 @@ public class Controller implements ArchiveFetchJobListener
      */
     private void getArchivedData()
     {
-        final ITimestamp start = model.getStartTime();
-        final ITimestamp end = model.getEndTime();
+        final Timestamp start = model.getStartTime();
+        final Timestamp end = model.getEndTime();
         for (int i=0; i<model.getItemCount(); ++i)
             getArchivedData(model.getItem(i), start, end);
     }
@@ -761,7 +818,7 @@ public class Controller implements ArchiveFetchJobListener
      *  @param end End time
      */
     private void getArchivedData(final ModelItem item,
-            final ITimestamp start, final ITimestamp end)
+            final Timestamp start, final Timestamp end)
     {
         // Only useful for PVItems with archive data source
         if (!(item instanceof PVItem))
@@ -771,10 +828,51 @@ public class Controller implements ArchiveFetchJobListener
             return;
 
         ArchiveFetchJob job;
+       final  TimerTask task = new TimerTask()
+        {  
+            @Override
+            public void run()
+            {
+              
+            
+                try
+                { 
+                      
+                    // Skip updates while nobody is watching
+                    if (window_is_iconized || suppress_redraws)
+                        return;
+                    // Check if anything changed, which also updates formulas
+                    final boolean anything_new = model.updateItemsAndCheckForNewSamples();
 
+                    if (anything_new  &&   have_autoscale_axis )
+                        plot.updateAutoscale();
+
+                    if (model.isScrollEnabled())
+                        performScroll();
+                    else
+                    {
+                        scrolling_was_off = true;
+                        // Only redraw when needed
+                        if (anything_new){
+                        
+                            plot.redrawTraces();
+                           
+                        }
+                    }
+               
+                }
+                catch (Throwable ex)
+                {
+                    LOG.warn("Error in Plot refresh timer", ex); //$NON-NLS-1$
+                }
+            
+            
+            }
+        };
+  
         // Stop ongoing jobs for this item
         synchronized (archive_fetch_jobs)
-        {
+        { 
             for (int i=0; i<archive_fetch_jobs.size(); ++i)
             {
                 job = archive_fetch_jobs.get(i);
@@ -787,10 +885,34 @@ public class Controller implements ArchiveFetchJobListener
             // Start new job
             job = new ArchiveFetchJob(pv_item, start, end, this);
             archive_fetch_jobs.add(job);
+   
         }
-        job.schedule();
-    }
+        job.addJobChangeListener(new IJobChangeListener(){
+            public void done(final IJobChangeEvent event) {
+             
+              
+            //    update_task.run();
+                update_timer.schedule(task, 1);
+                LOG.info("update_task.run()");
+              
+            }
 
+            public void running(final IJobChangeEvent event) {
+               
+            }
+            // do nothing
+            public void aboutToRun(final IJobChangeEvent event) {}
+            public void awake(final IJobChangeEvent event) {}
+            public void scheduled(final IJobChangeEvent event) {}
+            public void sleeping(final IJobChangeEvent event) {}
+            
+        });
+        job.schedule();
+       
+    }
+    public TimerTask getUpDateTask(){
+        return update_task;
+    }
     /** @see ArchiveFetchJobListener */
     @Override
     public void fetchCompleted(final ArchiveFetchJob job)
@@ -810,6 +932,7 @@ public class Controller implements ArchiveFetchJobListener
             return;
         display.asyncExec(new Runnable()
         {
+           
             @Override
             public void run()
             {
@@ -826,6 +949,7 @@ public class Controller implements ArchiveFetchJobListener
                 default:
                     break;
                 }
+               
             }
         });
     }

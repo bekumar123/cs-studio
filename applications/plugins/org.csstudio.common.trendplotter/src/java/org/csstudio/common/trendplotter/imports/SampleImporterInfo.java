@@ -9,8 +9,7 @@ package org.csstudio.common.trendplotter.imports;
 
 import java.io.InputStream;
 import java.util.List;
-
-import org.csstudio.data.values.IValue;
+import org.epics.vtype.VType;
 
 /** {@link SampleImporter} with info about its type and description
  *  @author Kay Kasemir
@@ -45,7 +44,7 @@ public class SampleImporterInfo
      *  @return Values
      *  @throws Exception on error
      */
-    public List<IValue> importValues(final InputStream input) throws Exception
+    public List<VType> importValues(final InputStream input) throws Exception
     {
         return importer.importValues(input);
     }

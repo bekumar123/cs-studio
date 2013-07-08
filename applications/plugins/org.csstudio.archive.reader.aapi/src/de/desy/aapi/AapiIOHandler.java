@@ -111,6 +111,7 @@ public class AapiIOHandler {
         
     	try {
             socket = new Socket(host, port);
+            socket.setSoTimeout(20000);
             return true;
         } catch(Exception e) {
             logger.error("AAPI-server connection error: " + e.getMessage());

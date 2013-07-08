@@ -8,6 +8,7 @@
 package org.csstudio.common.trendplotter.model;
 
 import java.io.PrintWriter;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -20,12 +21,21 @@ import org.csstudio.apputil.xml.DOMHelper;
 import org.csstudio.apputil.xml.XMLWriter;
 import org.csstudio.archive.common.service.ArchiveServiceException;
 import org.csstudio.archive.reader.ArchiveReader;
+import org.csstudio.archive.vtype.trendplotter.ArchiveVNumber;
+import org.csstudio.archive.vtype.trendplotter.ArchiveVStatistics;
+import org.csstudio.archive.vtype.trendplotter.ArchiveVString;
+import org.csstudio.archive.vtype.trendplotter.ArchiveVType.Quality;
+import org.csstudio.archive.vtype.trendplotter.VTypeHelper;
 import org.csstudio.common.trendplotter.Messages;
 import org.csstudio.common.trendplotter.imports.ImportArchiveReaderFactory;
 import org.csstudio.common.trendplotter.preferences.Preferences;
+import org.csstudio.common.trendplotter.ui.AxisConfigurer;
 import org.csstudio.data.values.IDoubleValue;
+import org.csstudio.data.values.IEnumeratedValue;
 import org.csstudio.data.values.ILongValue;
+import org.csstudio.data.values.IMinMaxDoubleValue;
 import org.csstudio.data.values.INumericMetaData;
+import org.csstudio.data.values.IStringValue;
 import org.csstudio.data.values.IValue;
 import org.csstudio.domain.desy.epics.name.EpicsChannelName;
 import org.csstudio.domain.desy.epics.name.EpicsNameSupport;
@@ -37,6 +47,10 @@ import org.csstudio.utility.pv.PV;
 import org.csstudio.utility.pv.PVFactory;
 import org.csstudio.utility.pv.PVListener;
 import org.eclipse.swt.widgets.Display;
+import org.epics.util.time.Timestamp;
+import org.epics.vtype.AlarmSeverity;
+import org.epics.vtype.VType;
+import org.epics.vtype.ValueFactory;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +80,7 @@ public class PVItem extends ModelItem implements PVListener {
     private PV pv_deadband = null;
 
     /** Most recently received value */
-    private volatile IValue current_value;
+    private volatile VType current_value;
 
     /** Scan period in seconds, &le;0 to 'monitor' */
     private double _period;
@@ -83,10 +97,16 @@ public class PVItem extends ModelItem implements PVListener {
     /** Internal flag to store the 'on first connection/value update' info */
     private boolean first_pv_update = true;
 
-//    private boolean _minMaxFromFile;
+    private boolean _minMaxFromFile;
 
     /** Waveform Index */
     private int waveform_index = 0;
+
+    /** Display High (HOPR)*/
+    private Double displayHighFromRecord = null;
+
+    /** Display Low (LOPR)*/
+    private Double displayLowFromRecord = null;
 
     /** Initialize
      *  @param name PV name
@@ -110,7 +130,7 @@ public class PVItem extends ModelItem implements PVListener {
             private TimeInstant getModelStartTime() {
                 final Model m = getModel();
                 if (model != null) {
-                    return BaseTypeConversionSupport.toTimeInstant(m.getStartTime());
+                    return BaseTypeConversionSupport.toTimeInstant1(m.getStartTime());
                 }
                 return null;
             }
@@ -118,7 +138,7 @@ public class PVItem extends ModelItem implements PVListener {
             private TimeInstant getModelEndTime() {
                 final Model m = getModel();
                 if (model != null) {
-                    return BaseTypeConversionSupport.toTimeInstant(m.getEndTime());
+                    return BaseTypeConversionSupport.toTimeInstant1(m.getEndTime());
                 }
                 return null;
             }
@@ -359,10 +379,12 @@ public class PVItem extends ModelItem implements PVListener {
             public void run() {
                 LOG.debug("PV {0} scans {1}", new Object[] { getName(), current_value });
                 logCurrentValue();
+         
             }
         };
         final long delay = (long) (_period * 1000);
         timer.schedule(scanner, delay, delay);
+     
     }
 
     /** Disconnect from control system PV, stop scanning, ... */
@@ -401,41 +423,83 @@ public class PVItem extends ModelItem implements PVListener {
     }
 
     private void onConnect(@Nonnull final IValue value) {
-        if (first_pv_update) {
-            first_pv_update = false;
-            if (!this.getAxis().isMinMaxInitialized()) {
-                this.getAxis().setMinMaxInitialized(true);
-                if (value.getMetaData() instanceof INumericMetaData) {
-
-                    final INumericMetaData meta = (INumericMetaData) value.getMetaData();
-                    final double displayHigh = meta.getDisplayHigh();
-                    final double displayLow = meta.getDisplayLow();
+        if (displayHighFromRecord==null && displayLowFromRecord==null) {
+            if (value.getMetaData() instanceof INumericMetaData) {
+                final INumericMetaData meta = (INumericMetaData) value.getMetaData();
+                displayHighFromRecord = meta.getDisplayHigh();
+                displayLowFromRecord = meta.getDisplayLow();
+            if (!_minMaxFromFile) {
+                    final AxisConfigurer configurer = new AxisConfigurer(model);
                     // Call into the ui thread
                     Display.getDefault().asyncExec(new Runnable() {
                         @Override
                         public void run() {
-                            getAxis().setRange(displayLow, displayHigh);
+                          getAxis().setRange(configurer.getMin(getAxis()), configurer.getMax(getAxis()));
                         }
                     });
                 }
             }
         }
     }
-
+    VType getVTypeValue( IValue value){
+       //      Display display = ValueFactory.newDisplay(0.0, 0.0, 0.0, "", NumberFormats.format(0), 0.0, 0.0, 10.0, 0.0, 10.0);
+         Timestamp t=Timestamp.of((value.getTime()).seconds(), (int)value.getTime().nanoseconds());
+         AlarmSeverity  alarm=AlarmSeverity.UNDEFINED;
+         String status="";
+         if(value.getSeverity().isOK()) alarm=AlarmSeverity.NONE;
+         if(value.getSeverity().isInvalid()) alarm=AlarmSeverity.INVALID;
+         if(value.getSeverity().isMajor()) alarm=AlarmSeverity.MAJOR;
+         if(value.getSeverity().isMinor()) alarm=AlarmSeverity.MINOR;
+         if(!value.getSeverity().hasValue()) alarm=AlarmSeverity.UNDEFINED;
+         status=value.getStatus();
+         Quality quality = value.getQuality()== org.csstudio.data.values.IValue.Quality.Interpolated?Quality.Interpolated:Quality.Original;
+         if(value instanceof IEnumeratedValue)
+             return  new ArchiveVString(t,alarm, status,new Integer(((IEnumeratedValue)value).getValue()).toString());
+             
+        // System.out.println("PVItem.getVTypeValue() "+value.getClass());
+         org.epics.vtype.Display display= ValueFactory.newDisplay(
+                                        (Double) ((INumericMetaData)value.getMetaData()).getDisplayLow(),
+                                        (Double) ((INumericMetaData)value.getMetaData()).getAlarmLow(),
+                                        (Double) ((INumericMetaData)value.getMetaData()).getWarnLow(),
+                                        (String) ((INumericMetaData)value.getMetaData()).getUnits(),
+                                        NumberFormat.getNumberInstance(),
+                                        (Double) ((INumericMetaData)value.getMetaData()).getWarnHigh(),
+                                        (Double) ((INumericMetaData)value.getMetaData()).getAlarmHigh(),
+                                        (Double) ((INumericMetaData)value.getMetaData()).getDisplayHigh(),
+                                        (Double) ((INumericMetaData)value.getMetaData()).getDisplayLow(),
+                                        (Double) ((INumericMetaData)value.getMetaData()).getDisplayHigh());
+                            
+         if(value instanceof IMinMaxDoubleValue)
+             return new ArchiveVStatistics(t, alarm, status, display,quality.toString(),((IMinMaxDoubleValue)value).getValue(), ((IMinMaxDoubleValue)value).getMinimum(),((IMinMaxDoubleValue)value).getMaximum(),0.0,1);
+     
+         if(value instanceof IDoubleValue){
+               return  new ArchiveVNumber(t,alarm, status, display, ((IDoubleValue)value).getValue(), quality.toString());
+             
+        }
+         if(value instanceof ILongValue){
+             return  new ArchiveVNumber(t,alarm, status, display,((ILongValue)value).getValue(),quality.toString());
+        }
+         if(value instanceof IStringValue){
+             return  new ArchiveVString(t,alarm, status,((IStringValue)value).getValue());
+        }
+         if(value instanceof IEnumeratedValue){
+             return  new ArchiveVString(t,alarm, status,((IEnumeratedValue)value).getMetaData().getStates().toString());
+        }
+        return null;
+    }
     // PVListener
     @Override
     @SuppressWarnings("nls")
     public void pvValueUpdate(final PV new_pv) {
-        final IValue value = new_pv.getValue();
-
-        onConnect(value);
-
+        final IValue value =new_pv.getValue();
+         onConnect(value);
+     
         // Cache most recent for 'scanned' operation
-        current_value = value;
+        current_value =  getVTypeValue( value);
 
         // In 'monitor' mode, add to live sample buffer
         if (_period <= 0) {
-            samples.addLiveSample(value);
+            samples.addLiveSample(current_value);
             LOG.trace(pv.getName() + " : " + samples.getLiveSampleSize() + " live samples");
         }
     }
@@ -444,13 +508,13 @@ public class PVItem extends ModelItem implements PVListener {
      *  using 'now' as time stamp.
      */
     private void logCurrentValue() {
-        final IValue value = current_value;
+        final VType value = current_value;
         if (value == null) {
             logDisconnected();
             return;
         }
         // Transform value to have 'now' as time stamp
-        samples.addLiveSample(ValueButcher.changeTimestampToNow(value));
+        samples.addLiveSample(VTypeHelper.transformTimestampToNow(value));
     }
 
     /** Add one(!) 'disconnected' sample */
@@ -458,7 +522,7 @@ public class PVItem extends ModelItem implements PVListener {
         synchronized (samples) {
             final int size = samples.getSize();
             if (size > 0) {
-                final String last = samples.getSample(size - 1).getValue().getStatus();
+                final String last = VTypeHelper.getMessage(samples.getSample(size - 1).getValue());
                 // Does last sample already have 'disconnected' status?
                 if (last != null && last.equals(Messages.Model_Disconnected)) {
                     return;
@@ -476,7 +540,7 @@ public class PVItem extends ModelItem implements PVListener {
      * @throws OsgiServiceUnavailableException
      */
     synchronized public void mergeArchivedSamples(final ArchiveReader reader,
-                                                  final List<IValue> result,
+                                                  final List<VType> result,
                                                   final RequestType requestType) throws OsgiServiceUnavailableException,
                                                                                 ArchiveServiceException {
         samples.mergeArchivedData(getName(), reader, requestType, result);
@@ -589,12 +653,12 @@ public class PVItem extends ModelItem implements PVListener {
         return mdel_pv;
     }
 
-//    /**
-//     * @param b
-//     */
-//    public void setMinMaxFromFile(final boolean minMaxFromFile) {
-//        _minMaxFromFile = minMaxFromFile;
-//    }
+    /**
+     * @param b
+     */
+    public void setMinMaxFromFile(final boolean minMaxFromFile) {
+        _minMaxFromFile = minMaxFromFile;
+    }
 
     /**
      * 
@@ -602,4 +666,13 @@ public class PVItem extends ModelItem implements PVListener {
     public void moveHistoricSamplesToLiveSamples() {
         samples.moveHistoricSamplesToLiveSamples();
     }
+
+    public Double getDisplayHighFromRecord() {
+        return displayHighFromRecord;
+    }
+
+    public Double getDisplayLowFromRecord() {
+        return displayLowFromRecord;
+    }
+
 }

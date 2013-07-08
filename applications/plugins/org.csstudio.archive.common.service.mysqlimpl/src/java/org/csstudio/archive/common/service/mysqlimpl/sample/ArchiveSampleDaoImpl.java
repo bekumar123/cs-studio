@@ -50,6 +50,9 @@ import org.csstudio.archive.common.service.sample.ArchiveSample;
 import org.csstudio.archive.common.service.sample.IArchiveSample;
 import org.csstudio.archive.common.service.sample.SampleMinMaxAggregator;
 import org.csstudio.archive.common.service.util.ArchiveTypeConversionSupport;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarm;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarmSeverity;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarmStatus;
 import org.csstudio.domain.desy.epics.typesupport.EpicsSystemVariableSupport;
 import org.csstudio.domain.desy.system.ControlSystem;
 import org.csstudio.domain.desy.system.ISystemVariable;
@@ -80,10 +83,11 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
     public static final String TAB_SAMPLE_M = "sample_m";
     public static final String TAB_SAMPLE_H = "sample_h";
     public static final String TAB_SAMPLE_BLOB = "sample_blob";
-
     public static final String COLUMN_TIME = "time";
     public static final String COLUMN_CHANNEL_ID = "channel_id";
     public static final String COLUMN_VALUE = "value";
+    public static final String COLUMN_STATUS = "status";
+    public static final String COLUMN_SERVERTY = "serverty";
     public static final String COLUMN_AVG = "avg_val";
     public static final String COLUMN_MIN = "min_val";
     public static final String COLUMN_MAX = "max_val";
@@ -349,20 +353,35 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         PreparedStatement stmt = null;
         ResultSet result = null;
         try {
-            DesyArchiveRequestType reqType = type != null ? // if null = determine automatically
+            final DesyArchiveRequestType reqType = type != null ? // if null = determine automatically
                                              type :
                                              SampleRequestTypeUtil.determineRequestType(channel.getDataType(), start, end);
             conn = createConnection();
             do {
                 stmt = createReadSamplesStatement(conn, channel, start, end, reqType);
                 result = stmt.executeQuery();
+
+                Collection<IArchiveSample<V, T>> samples=Collections.emptyList();
+                final Collection<IArchiveSample<V, T>> samples1=Collections.emptyList();
                 if (result.next()) {
-                    final Collection<IArchiveSample<V, T>> samples =
+                  samples =
                         createRetrievedSamplesContainer(channel, reqType, result);
-                    return samples;
+                  //  return samples;
+                }
+              /*  stmt = createReadSamplesStatement1(conn, channel, start, end, reqType);
+                result = stmt.executeQuery();
+                if (result.next()) {
+                    samples1=createRetrievedSamplesContainer(channel, reqType, result);
+
                 } else if (type == null) { // type == null means use automatic lookup
                     reqType = reqType.getNextLowerOrderRequestType();
                 }
+                System.out.println("ArchiveSampleDaoImpl.retrieveSamples()  "+samples1.size()+  "  " +samples.size());*/
+                if(samples1.isEmpty()) {
+                    return samples;
+                }
+                samples1.addAll(samples);
+                return samples1;
             } while (type == null && reqType != null); // no other request type of lower order
 
         } catch (final Exception ex) {
@@ -404,12 +423,13 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         }
         final PreparedStatement stmt = dispatchRequestTypeToStatement(conn, reqType, dataType);
         stmt.setInt(1, channel.getId().intValue());
-        stmt.setLong(2, s.getNanos());
-        stmt.setLong(3, e.getNanos());
+        final long nanos = s.getNanos();
+        stmt.setLong(2, nanos);
+        final long nanos2 = e.getNanos();
+        stmt.setLong(3, nanos2);
         return stmt;
     }
-
-    @Nonnull
+      @Nonnull
     private PreparedStatement dispatchRequestTypeToStatement(@Nonnull final Connection conn,
                                                              @Nonnull final DesyArchiveRequestType type,
                                                              @Nonnull final String dataType)
@@ -435,6 +455,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         return stmt;
     }
 
+
     @SuppressWarnings("unchecked")
     @Nonnull
     private <V extends Serializable, T extends ISystemVariable<V>>
@@ -448,13 +469,17 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         V value = null;
         V min = null;
         V max = null;
+        EpicsAlarm alarm=null;
         switch (type) {
             case RAW : { // (..., value)
                 if (ArchiveTypeConversionSupport.isDataTypeSerializableCollection(typeClass)) {
                     value = ArchiveTypeConversionSupport.fromByteArray(result.getBytes(COLUMN_VALUE));
+                    alarm=new EpicsAlarm(EpicsAlarmSeverity.parseSeverity( result.getString(COLUMN_SERVERTY)), EpicsAlarmStatus.parseStatus( result.getString(COLUMN_STATUS)));
+
                 } else {
                     value = ArchiveTypeConversionSupport.fromArchiveString(typeClass, result.getString(COLUMN_VALUE));
                 }
+
                 break;
             }
             case AVG_PER_MINUTE :
@@ -475,10 +500,11 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                                                                        ControlSystem.valueOf(cs.getName(), cs.getType()),
                                                                        timeInstant);
         if (min == null || max == null) {
-            return new ArchiveSample<V, T>(channel.getId(), (T) sysVar, null);
+            return new ArchiveSample<V, T>(channel.getId(), (T) sysVar, alarm);
         }
-        return new ArchiveMinMaxSample<V, T>(channel.getId(), (T) sysVar, null, min, max);
+        return new ArchiveMinMaxSample<V, T>(channel.getId(), (T) sysVar, alarm, min, max);
     }
+
 
     @SuppressWarnings("unchecked")
     @CheckForNull

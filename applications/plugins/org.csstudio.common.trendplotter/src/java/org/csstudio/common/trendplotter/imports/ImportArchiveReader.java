@@ -14,11 +14,11 @@ import org.csstudio.archive.reader.ArchiveInfo;
 import org.csstudio.archive.reader.ArchiveReader;
 import org.csstudio.archive.reader.UnknownChannelException;
 import org.csstudio.archive.reader.ValueIterator;
-import org.csstudio.data.values.ITimestamp;
-import org.csstudio.data.values.IValue;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path;
+import org.epics.util.time.Timestamp;
+import org.epics.vtype.VType;
 
 /** Archive reader that imports data from a file
  *
@@ -31,7 +31,7 @@ public class ImportArchiveReader implements ArchiveReader
     final private String url;
     final private String path;
     final private SampleImporterInfo importer;
-    private List<IValue> values = null;
+    private List<VType> values = null;
 
     public ImportArchiveReader(final String url, final String path, final SampleImporterInfo importer)
     {
@@ -82,10 +82,10 @@ public class ImportArchiveReader implements ArchiveReader
     {
         return getNamesByPattern(0, null);
     }
-
+    //TODO (jhatje): implement vType
     @Override
-    public ValueIterator getRawValues(final int key, final String name, final ITimestamp start,
-            final ITimestamp end) throws UnknownChannelException, Exception
+    public ValueIterator getRawValues(final int key, final String name, final Timestamp start,
+            final Timestamp end) throws UnknownChannelException, Exception
     {
         if (values == null)
         {
@@ -93,19 +93,20 @@ public class ImportArchiveReader implements ArchiveReader
             final IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(path));
             final InputStream input = file.getContents();
             // Import data
-            values = importer.importValues(input );
+            values = importer.importValues(input);
         }
         return new ArrayValueIterator(values);
     }
 
     @Override
     public ValueIterator getOptimizedValues(int key, String name,
-            ITimestamp start, ITimestamp end, int count)
+            Timestamp start, Timestamp end, int count)
             throws UnknownChannelException, Exception
     {
         // No optimization. Fall back to raw data.
         return getRawValues(key, name, start, end);
     }
+  
 
     @Override
     public void cancel()
@@ -118,4 +119,5 @@ public class ImportArchiveReader implements ArchiveReader
     {
         // NOP
     }
+
 }

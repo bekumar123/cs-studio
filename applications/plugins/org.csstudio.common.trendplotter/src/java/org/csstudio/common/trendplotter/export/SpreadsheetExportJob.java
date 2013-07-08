@@ -14,10 +14,10 @@ import org.csstudio.archive.reader.ValueIterator;
 import org.csstudio.common.trendplotter.Messages;
 import org.csstudio.common.trendplotter.model.Model;
 import org.csstudio.common.trendplotter.model.ModelItem;
-import org.csstudio.data.values.ITimestamp;
-import org.csstudio.data.values.IValue;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.osgi.util.NLS;
+import org.epics.util.time.Timestamp;
+import org.epics.vtype.VType;
 
 /** Ecipse Job for exporting data from Model to file
  *  @author Kay Kasemir
@@ -26,7 +26,7 @@ import org.eclipse.osgi.util.NLS;
 public class SpreadsheetExportJob extends PlainExportJob
 {
     public SpreadsheetExportJob(final  Model model,
-            final ITimestamp start, final ITimestamp end, final Source source,
+            final Timestamp start, final Timestamp end, final Source source,
             final int optimize_count, final ValueFormatter formatter,
             final String filename,
             final ExportErrorHandler error_handler)
@@ -65,8 +65,9 @@ public class SpreadsheetExportJob extends PlainExportJob
         String value;
         while (sheet.hasNext()  &&  !monitor.isCanceled())
         {
-            final ITimestamp time = sheet.getTime();
-            final IValue line[] = sheet.next();
+            //TODO (jhatje): implement vType
+            final Timestamp time = sheet.getTime();
+            final VType line[] = sheet.next();
             out.print(time);
             for (int i=0; i<line.length; ++i) {
                 value = formatter.format(line[i]);

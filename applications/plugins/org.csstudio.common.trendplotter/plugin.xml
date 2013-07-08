@@ -41,7 +41,7 @@
             default="true"
             extensions="plt,css-plt"
             icon="icons/databrowser.png"
-            id="org.csstudio.trends.databrowser.ploteditor.PlotEditor"
+            id="org.csstudio.common.trendplotter.editor.DataBrowserEditor"
             name="%TrendPlotter">
       </editor>
    </extension>
@@ -100,6 +100,15 @@
             class="org.csstudio.common.trendplotter.preferences.PreferencePage"
             id="org.csstudio.trends.databrowser.preferences"
             name="%TrendPlotter">
+      </page>
+   </extension>
+     <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="org.csstudio.platform.ui.css.applications.trends"
+            class="org.csstudio.common.trendplotter.preferences.PreferenceMysqlPage"
+            id="org.csstudio.trends.databrowser.preferences"
+            name="%TrendPlotterMysql">
       </page>
    </extension>
    <extension

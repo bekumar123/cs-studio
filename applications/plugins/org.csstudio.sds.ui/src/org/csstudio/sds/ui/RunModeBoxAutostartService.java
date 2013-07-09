@@ -58,6 +58,12 @@ public class RunModeBoxAutostartService implements IRunModeBoxAutostartService {
 	public void startRestoredRunModeBoxes() {
 		for (Tuple<String, Map<String, String>> restoredBoxInputTuple : restoredBoxInputs) {
 			RunModeService.getInstance().openDisplayShellInRunMode(new Path(restoredBoxInputTuple.getFirst()), restoredBoxInputTuple.getSecond());
+			try {
+				// Wait a little while to prevent reopened displays from
+				// connecting all at once
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+			}
 		}
 	}
 

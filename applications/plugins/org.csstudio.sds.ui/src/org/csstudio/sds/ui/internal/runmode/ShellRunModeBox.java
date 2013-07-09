@@ -109,12 +109,7 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
     public ShellRunModeBox(RunModeBoxInput input, Point parentLocation, RunModeBoxLayoutData lastLayoutDataOrNull) {
         super(input);
 		this.lastLayoutDataOrNull = lastLayoutDataOrNull;
-        
-        if (parentLocation != null) {
-            this.parentLocation = parentLocation;
-        } else {
-            this.parentLocation = new Point(0, 0);
-        }
+        this.parentLocation = parentLocation;
     }
     
     /**
@@ -128,7 +123,7 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
                                      final String title) {
         List<RunModeBoxInput> predecessors = getPredecessors(getInput());
         
-        if(openRelative) {
+        if(openRelative && this.parentLocation != null) {
         	// relative displays should be opened relative to their parent's location upon reset
         	this.defaultLocation = new Point(parentLocation.x + x, parentLocation.y + y);
         } else {
@@ -138,9 +133,10 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
         // create a shell
         _shell = new Shell();
         _shell.setText(title);
-        if (lastLayoutDataOrNull != null) {
+        // for relative displays, only use last layout data if being opened automatically after restart (indicated by parentLocation)
+        if (lastLayoutDataOrNull != null && this.parentLocation == null) {
         	_shell.setLocation(lastLayoutDataOrNull.getPosition());
-        } else if (openRelative) {
+        } else if (openRelative && this.parentLocation != null) {
             _shell.setLocation(parentLocation.x + x, parentLocation.y + y);
         } else {
             _shell.setLocation(x, y);

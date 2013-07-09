@@ -41,7 +41,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
     @Override
     public void initializeDefaultPreferences() {
 
-        final IEclipsePreferences node = new DefaultScope().getNode(SddsServerActivator.PLUGIN_ID);
+        final IEclipsePreferences node = DefaultScope.INSTANCE.getNode(SddsServerActivator.PLUGIN_ID);
 
         // Use JMX instead of XMPP to stop the server
         node.putBoolean(ServerPreferenceKey.P_USE_JMX, false);
@@ -51,6 +51,8 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
         // XMPP user
         node.put(ServerPreferenceKey.P_XMPP_USER, "anonymous");
+
+        node.put(ServerPreferenceKey.P_DESCRIPTION, "I am a simple but happy application.");
 
         // XMPP password
         node.put(ServerPreferenceKey.P_XMPP_PASSWORD, "anonymous");

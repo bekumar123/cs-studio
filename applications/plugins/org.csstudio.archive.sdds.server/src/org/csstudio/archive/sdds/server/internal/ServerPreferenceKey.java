@@ -34,6 +34,7 @@ public final class ServerPreferenceKey {
     public static final String P_XMPP_SERVER = "xmppServer";
     public static final String P_XMPP_USER = "xmppUser";
     public static final String P_XMPP_PASSWORD = "xmppPassword";
+    public static final String P_DESCRIPTION = "description";
     public static final String P_SERVER_PORT = "serverPort";
     public static final String P_SDDS_LITTLE_ENDIAN = "sddsLittleEndian";
     public static final String P_VALID_RECORD_BEFORE = "validRecordBefore";

@@ -26,9 +26,9 @@
             label="Restart">
       </command>
       <command
-            class="org.csstudio.archive.sdds.server.management.GetVersionMgmtCommand"
-            id="org.csstudio.archive.sdds.server.GetVersion"
-            label="Get Version">
+            class="org.csstudio.archive.sdds.server.management.InfoCmd"
+            id="org.csstudio.archive.sdds.server.InfoCmd"
+            label="Info">
       </command>
    </extension>
    <extension

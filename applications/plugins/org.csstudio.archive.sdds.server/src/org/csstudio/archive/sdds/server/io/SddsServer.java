@@ -29,7 +29,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import org.csstudio.archive.sdds.server.command.CommandExecutor;
 import org.csstudio.archive.sdds.server.command.ServerCommandException;
 import org.slf4j.Logger;
@@ -175,13 +174,9 @@ public class SddsServer extends Thread {
      *
      */
     public void stopServer() {
-
         running = false;
-
         synchronized(this) {
-
             this.notify();
-
             try {
                 LOG.info("SddsServer is forced to be stopped. Closing server socket.");
                 serverSocket.close();

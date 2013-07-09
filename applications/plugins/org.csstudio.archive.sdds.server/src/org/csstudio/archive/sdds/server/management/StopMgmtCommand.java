@@ -25,8 +25,8 @@
 package org.csstudio.archive.sdds.server.management;
 
 import javax.annotation.Nonnull;
-
 import org.csstudio.archive.sdds.server.IRemotelyStoppable;
+import org.csstudio.headless.common.management.CommandResultPrefix;
 import org.csstudio.remote.management.CommandParameters;
 import org.csstudio.remote.management.CommandResult;
 import org.csstudio.remote.management.IManagementCommand;
@@ -50,7 +50,8 @@ public class StopMgmtCommand implements IManagementCommand {
             return CommandResult.createFailureResult("The command is disabled!");
         }
         STOP_ME.stopApplication(false);
-        return CommandResult.createMessageResult("OK: [0] - SDDS-Server is stopping now.");
+        return CommandResult.createMessageResult(CommandResultPrefix.getOkPrefix()
+                                                 + " SDDS-Server is stopping now.");
     }
 
     public static void injectStaticObject(@Nonnull final IRemotelyStoppable o) {

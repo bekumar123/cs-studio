@@ -24,70 +24,44 @@
 package org.csstudio.archive.sdds.server;
 
 import javax.annotation.Nonnull;
-
-import org.eclipse.core.runtime.Plugin;
+import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.remotercp.common.tracker.GenericServiceTracker;
-import org.remotercp.common.tracker.IGenericServiceListener;
-import org.remotercp.service.connection.session.ISessionService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The activator class controls the plug-in life cycle
  */
-public class SddsServerActivator extends Plugin {
+public class SddsServerActivator implements BundleActivator {
 
     /** The plug-in ID */
     public static final String PLUGIN_ID = "org.csstudio.archive.sdds.server";
 
-    /** The class logger */
-    private static final Logger LOG = LoggerFactory.getLogger(SddsServerActivator.class);
-
     /** The shared instance */
-    private static SddsServerActivator PLUGIN;
+    private static SddsServerActivator bundle;
 
-    private GenericServiceTracker<ISessionService> _genericServiceTracker;
+    private static BundleContext bundleContext;
 
-    /**
-     * The constructor
-     */
-    public SddsServerActivator() {
-        PLUGIN = this;
+    public static SddsServerActivator getBundle() {
+        return bundle;
     }
 
-    /**
-     * Returns the shared instance
-     *
-     * @return the shared instance
-     */
-    @Nonnull
-    public static SddsServerActivator getDefault() {
-        return PLUGIN;
+    public static BundleContext getBundleContext() {
+        return bundleContext;
     }
 
     @Nonnull
-    public String getPluginId() {
+    public static String getPluginId() {
         return PLUGIN_ID;
-    }
-
-    public void addSessionServiceListener(@Nonnull final IGenericServiceListener<ISessionService> sessionServiceListener) {
-        _genericServiceTracker.addServiceListener(sessionServiceListener);
     }
 
     @Override
     public void start(@Nonnull final BundleContext context) throws Exception {
-        super.start(context);
-        LOG.info(PLUGIN_ID + " is starting.");
-        _genericServiceTracker = new GenericServiceTracker<ISessionService>(
-                context, ISessionService.class);
-        _genericServiceTracker.open();
+        SddsServerActivator.bundle = this;
+        SddsServerActivator.bundleContext = context;
     }
 
     @Override
     public void stop(@Nonnull final BundleContext context) throws Exception {
-        super.stop(context);
-        PLUGIN = null;
-        LOG.info(PLUGIN_ID + " is stopping.");
+        SddsServerActivator.bundle = null;
+        SddsServerActivator.bundleContext = null;
     }
 }

@@ -24,44 +24,37 @@
 
 package org.csstudio.archive.sdds.server;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.net.URI;
-import java.nio.charset.Charset;
-import java.util.List;
-
 import javax.annotation.Nonnull;
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanRegistrationException;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
-import javax.management.ObjectName;
-
 import org.csstudio.archive.sdds.server.internal.ServerPreferenceKey;
 import org.csstudio.archive.sdds.server.io.SddsServer;
 import org.csstudio.archive.sdds.server.io.ServerException;
-import org.csstudio.archive.sdds.server.management.GetVersionMgmtCommand;
+import org.csstudio.archive.sdds.server.management.InfoCmd;
 import org.csstudio.archive.sdds.server.management.RestartMgmtCommand;
 import org.csstudio.archive.sdds.server.management.StopMgmtCommand;
+import org.csstudio.headless.common.management.IInfoProvider;
+import org.csstudio.headless.common.signal.HeadlessSignalHandler;
+import org.csstudio.headless.common.signal.ISignalReceiver;
+import org.csstudio.headless.common.signal.SignalException;
+import org.csstudio.headless.common.util.ApplicationInfo;
+import org.csstudio.headless.common.util.StandardStreams;
+import org.csstudio.headless.common.xmpp.XmppCredentials;
+import org.csstudio.headless.common.xmpp.XmppSessionException;
+import org.csstudio.headless.common.xmpp.XmppSessionHandler;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.remotercp.common.tracker.IGenericServiceListener;
-import org.remotercp.service.connection.session.ISessionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.io.Files;
 
 /**
  * @author Markus Moeller
  *
  */
-public class SddsServerApplication implements IApplication, IRemotelyStoppable, ISddsServerApplicationMBean, IGenericServiceListener<ISessionService> {
+public class SddsServerApplication implements IApplication,
+                                              IRemotelyStoppable,
+                                              IInfoProvider,
+                                              ISignalReceiver {
 
     /** The logger of this class */
     private static final Logger LOG = LoggerFactory.getLogger(SddsServerApplication.class);
@@ -70,7 +63,9 @@ public class SddsServerApplication implements IApplication, IRemotelyStoppable, 
     private SddsServer server;
 
     /** Session service for the XMPP login */
-    private ISessionService xmppService;
+    private final XmppSessionHandler xmppService;
+
+    private final ApplicationInfo appInfo;
 
     /** Help object for synchronization purposes */
     private final Object lock;
@@ -85,60 +80,64 @@ public class SddsServerApplication implements IApplication, IRemotelyStoppable, 
      * The standard constructor
      */
     public SddsServerApplication() {
+        final IPreferencesService prefs = Platform.getPreferencesService();
+        final String xmppServer = prefs.getString(SddsServerActivator.PLUGIN_ID,
+                                                  ServerPreferenceKey.P_XMPP_SERVER,
+                                                  "krynfs.desy.de", null);
+        final String xmppUser = prefs.getString(SddsServerActivator.PLUGIN_ID,
+                                                ServerPreferenceKey.P_XMPP_USER,
+                                                "sdds-server", null);
+        final String xmppPassword = prefs.getString(SddsServerActivator.PLUGIN_ID,
+                                                    ServerPreferenceKey.P_XMPP_PASSWORD,
+                                                    "sdds-server", null);
+        final XmppCredentials cred = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
+        xmppService = new XmppSessionHandler(SddsServerActivator.getBundleContext(), cred, true);
+        final String desc =  prefs.getString(SddsServerActivator.PLUGIN_ID,
+                                       ServerPreferenceKey.P_DESCRIPTION,
+                                       "Not available", null);
+        appInfo = new ApplicationInfo("SDDS-Server", desc);
         lock = new Object();
-        xmppService = null;
         running = true;
         restart = false;
     }
 
-    /* (non-Javadoc)
-     * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
-     */
     @Override
     @Nonnull
     public Object start(@Nonnull final IApplicationContext context) throws Exception {
 
-        int serverPort;
-        boolean useJmx = false;
-
         LOG.info("Starting {}", SddsServerActivator.PLUGIN_ID);
 
+        final StandardStreams stdStreams = new StandardStreams("./log");
+        stdStreams.redirectStreams();
+
         final IPreferencesService pref = Platform.getPreferencesService();
-        serverPort = pref.getInt(SddsServerActivator.PLUGIN_ID, ServerPreferenceKey.P_SERVER_PORT, 4056, null);
+        final int serverPort = pref.getInt(SddsServerActivator.PLUGIN_ID,
+                                           ServerPreferenceKey.P_SERVER_PORT,
+                                           4056,
+                                           null);
         LOG.info("The server uses port {}", serverPort);
 
-        useJmx = pref.getBoolean(SddsServerActivator.PLUGIN_ID, ServerPreferenceKey.P_USE_JMX,
-                false, null);
+        try {
+            final HeadlessSignalHandler signalHandler = new HeadlessSignalHandler(this);
+            signalHandler.activateIntSignal();
+            signalHandler.activateTermSignal();
+        } catch (final SignalException e) {
+            LOG.warn("Cannot create the signal handler. The application ignore any signal.");
+        }
+
+        StopMgmtCommand.injectStaticObject(this);
+        RestartMgmtCommand.injectStaticObject(this);
+        InfoCmd.injectStaticObject(this);
 
         try {
+            xmppService.connect();
+        } catch (final XmppSessionException e) {
+            LOG.warn("Cannot connect to the XMPP server.");
+        }
 
-            if (!useJmx) {
-
-                StopMgmtCommand.injectStaticObject(this);
-                RestartMgmtCommand.injectStaticObject(this);
-
-                final File file = new File(".eclipseproduct");
-                if (file.exists()) {
-                    final URI uri = file.toURI();
-                    final String path = uri.toURL().getPath();
-                    if (path != null) {
-
-                        LOG.info("Path to version file: {}", path);
-                        GetVersionMgmtCommand.injectStaticObject(path);
-                    }
-                } else {
-                    LOG.warn("File '.eclipseproduct' does not exist.");
-                }
-
-                SddsServerActivator.getDefault().addSessionServiceListener(this);
-
-            } else {
-                connectMBeanServer();
-            }
-
+        try {
             server = new SddsServer(serverPort);
             server.start();
-
         } catch(final ServerException se) {
             LOG.error("Cannot create an instance of the SddsServer class: {}", se.getMessage());
             LOG.error("Stopping application!");
@@ -153,7 +152,7 @@ public class SddsServerApplication implements IApplication, IRemotelyStoppable, 
                 try {
                     lock.wait();
                 } catch(final InterruptedException ie) {
-                    LOG.debug("Interrupted");
+                    LOG.warn("Interrupted");
                 }
             }
         }
@@ -167,12 +166,13 @@ public class SddsServerApplication implements IApplication, IRemotelyStoppable, 
             LOG.info("XMPP connection disconnected.");
         }
 
+        Integer exitCode = IApplication.EXIT_OK;
         if (restart) {
             LOG.info("Restarting {}", SddsServerActivator.PLUGIN_ID);
-            return IApplication.EXIT_RESTART;
+            exitCode = IApplication.EXIT_RESTART;
         }
-        LOG.info("Stopping {}", SddsServerActivator.PLUGIN_ID);
-        return IApplication.EXIT_OK;
+
+        return exitCode;
     }
 
     /* (non-Javadoc)
@@ -185,109 +185,31 @@ public class SddsServerApplication implements IApplication, IRemotelyStoppable, 
 
     /**
      *
-     */
-    public void connectMBeanServer() {
-
-        final MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
-        ObjectName myname = null;
-
-        final String jmxPort = System.getProperty("com.sun.management.jmxremote.port");
-
-        LOG.info("The server uses JMX for remote access. Port: " + jmxPort);
-
-        try {
-            myname = new ObjectName("org.csstudio.archive.sdds.server:name=SddsServer");
-            mbeanServer.registerMBean(this, myname);
-        } catch (final MalformedObjectNameException mone) {
-            LOG.error("[*** MalformedObjectNameException ***]: ", mone);
-        } catch (final NullPointerException npe) {
-            LOG.error("[*** NullPointerException ***]: ", npe);
-        } catch (final InstanceAlreadyExistsException iaee) {
-            LOG.error("[*** InstanceAlreadyExistsException ***]: ", iaee);
-        } catch (final MBeanRegistrationException mbre) {
-            LOG.error("[*** MBeanRegistrationException ***]: ", mbre);
-        } catch (final NotCompliantMBeanException ncmbe) {
-            LOG.error("[*** NotCompliantMBeanException ***]: ", ncmbe);
-        }
-    }
-
-    /**
-     *
      * @param setRestart
      */
     @Override
     public void stopApplication(final boolean setRestart) {
-
         this.running = false;
         this.restart = setRestart;
-
         synchronized(lock) {
             lock.notify();
         }
     }
 
     /**
-     * Stops the application. Used by JMX.
+     * {@inheritDoc}
      */
     @Override
-    public void stopApplication() {
+    public void terminate() {
         stopApplication(false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    @Nonnull
-    public String readVersion() {
-
-        final String productFilePathAsString =
-            Platform.getInstallLocation().getURL().getPath() + ".eclipseproduct";
-
-        String version = null;
-        try {
-            final List<String> lines = Files.readLines(new File(productFilePathAsString), Charset.defaultCharset());
-            final String versionPrefix = "version=";
-            for (final String line : lines) {
-                final String trimmedLine = line.trim();
-                if (trimmedLine.startsWith(versionPrefix)) {
-                    version = line.substring(versionPrefix.length());
-                    break;
-                }
-            }
-        } catch (final FileNotFoundException fnfe) {
-            LOG.warn("Workspace directory cannot be found: {}", productFilePathAsString);
-        } catch (final IOException ioe) {
-            LOG.warn("Cannot read version file.");
-        }
-
-        if (version == null) {
-            version = "N/A";
-        }
-
-        return version;
-    }
-
-    @Override
-    public void bindService(@Nonnull final ISessionService sessionService) {
-
-        final IPreferencesService pref = Platform.getPreferencesService();
-        final String xmppServer = pref.getString(SddsServerActivator.PLUGIN_ID, ServerPreferenceKey.P_XMPP_SERVER,
-                                           "krynfs.desy.de", null);
-        final String xmppUser = pref.getString(SddsServerActivator.PLUGIN_ID, ServerPreferenceKey.P_XMPP_USER,
-                                         "sdds-server", null);
-        final String xmppPassword = pref.getString(SddsServerActivator.PLUGIN_ID, ServerPreferenceKey.P_XMPP_PASSWORD,
-                                             "sdds-server", null);
-
-        try {
-            sessionService.connect(xmppUser, xmppPassword, xmppServer);
-            xmppService = sessionService;
-        } catch (final Exception e) {
-            LOG.warn("XMPP connection is not available, ", e);
-            xmppService = null;
-        }
-    }
-
-    @Override
-    public void unbindService(@Nonnull final ISessionService service) {
-        // Nothing to do here
+    public String getInfo() {
+        return appInfo.toString();
     }
 
     public void nirvana() {

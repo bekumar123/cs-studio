@@ -25,7 +25,7 @@ import javax.naming.Context;
 
 import org.csstudio.config.ioconfigurator.annotation.CheckForNull;
 import org.csstudio.config.ioconfigurator.annotation.Nonnull;
-import org.csstudio.platform.ui.AbstractCssUiPlugin;
+import org.csstudio.servicelocator.ServiceLocator;
 import org.csstudio.utility.ldap.service.ILdapService;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -42,10 +42,10 @@ import com.google.common.base.Preconditions;
  * @version $Revision: 1.2 $
  * @since 16.08.2010
  */
-public class Activator extends AbstractCssUiPlugin {
+public class Activator extends AbstractUIPlugin {
 
     /** ID */
-    private static final String ID = "org.csstudio.config.ioconfigurator";
+    public static final String ID = "org.csstudio.config.ioconfigurator";
 
     /** Instance of this class */
     private static Activator INSTANCE;
@@ -76,8 +76,8 @@ public class Activator extends AbstractCssUiPlugin {
      * {@inheritDoc}
      */
     @Override
-    protected void doStart(@Nonnull final BundleContext context) throws Exception {
-        ldapService = getService(context, ILdapService.class);
+    public void start(@Nonnull final BundleContext context) throws Exception {
+    	ldapService = ServiceLocator.getService(ILdapService.class);
         
         Preconditions.checkState(ldapService != null, "LdapService must not be null");
         
@@ -103,8 +103,8 @@ public class Activator extends AbstractCssUiPlugin {
      * {@inheritDoc}
      */
     @Override
-    protected final void doStop(@Nonnull final BundleContext context) throws Exception {
-        // Not implemented.
+    public void stop(@Nonnull final BundleContext context) throws Exception {
+    	super.stop(context);
     }
 
     /**
@@ -117,15 +117,6 @@ public class Activator extends AbstractCssUiPlugin {
     @CheckForNull
     public static ImageDescriptor getImageDescriptor(@Nonnull final String path) {
         return AbstractUIPlugin.imageDescriptorFromPlugin(ID, path);
-    }
-
-    /**
-     * Returns this plug-in's ID.
-     * @return this plug-in's ID
-     */
-    @Override
-    public final String getPluginId() {
-        return ID;
     }
 
     /**

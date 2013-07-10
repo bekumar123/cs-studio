@@ -38,17 +38,6 @@ public class PlainExportJob extends ExportJob
         this.formatter = formatter;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    protected void printExportInfo(final PrintStream out)
-    {
-        super.printExportInfo(out);
-        out.println(comment + "Format     : " + formatter.toString());
-        out.println(comment);
-        out.println(comment + "Data is in TAB-delimited columns, should import into e.g. Excel");
-        out.println();
-    }
-
     @Override
     protected void performExport(final IProgressMonitor monitor,
                                  final PrintStream out) throws Exception

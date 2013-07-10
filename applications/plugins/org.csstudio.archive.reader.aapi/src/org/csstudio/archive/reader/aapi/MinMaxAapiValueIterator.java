@@ -3,9 +3,11 @@ package org.csstudio.archive.reader.aapi;
 import java.util.List;
 
 
+
 import org.csstudio.archive.vtype.ArchiveVStatistics;
 import org.epics.util.text.NumberFormats;
 import org.epics.util.time.Timestamp;
+import org.epics.vtype.Alarm;
 import org.epics.vtype.Display;
 import org.epics.vtype.VType;
 import org.epics.vtype.ValueFactory;
@@ -39,7 +41,8 @@ public class MinMaxAapiValueIterator extends AapiValueIterator {
 			value[0] = answerData.getData()[i+2];
 			Double min = answerData.getData()[i];
 			Double max = answerData.getData()[i+1];
-			result.add( new ArchiveVStatistics(time, ValueFactory.newAlarm(value[0], display).getAlarmSeverity() , answerData.getStatus().toString() , display,
+			Alarm a= ValueFactory.newAlarm(value[0], display);
+			result.add( new ArchiveVStatistics(time,a.getAlarmSeverity() , a.getAlarmName() , display,
              		value[0], min, max, 0.0, 1));
 		//	result.add(ValueFactory.newVStatistics(value[0], value[0], min, max, answerData.getData().length, ValueFactory.alarmNone(), ValueFactory.newTime(time), display));
 				}	

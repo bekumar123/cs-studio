@@ -220,9 +220,8 @@ public class CaServer {
             }
             if (mainServer.containsPV(aliasName)) {
                 result = ProcessVariableExistanceCompletion.EXISTS_HERE;
-                if (mainServer.getLogger().isDebugEnabled()) {
-                    mainServer.getLogger().debug("EXISTS_HERE");
-                }
+                mainServer.getLogger().info(aliasName + ", "
+                                                      + clientAddress.toString() + ": EXISTS_HERE");
             }
 
             return result;

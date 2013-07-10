@@ -8,8 +8,6 @@ import javax.naming.ldap.LdapName;
 import org.csstudio.config.ioconfigurator.ldap.LdapNode;
 import org.junit.Test;
 
-import com.google.common.base.Optional;
-
 public class TestLdapNode {
 
     @Test

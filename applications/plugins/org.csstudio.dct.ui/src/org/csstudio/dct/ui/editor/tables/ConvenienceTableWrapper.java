@@ -4,9 +4,7 @@ import java.util.List;
 
 import org.csstudio.dct.model.IContainer;
 import org.csstudio.dct.model.IElement;
-import org.csstudio.dct.model.IInstance;
 import org.csstudio.dct.model.IRecord;
-import org.csstudio.dct.model.internal.Instance;
 import org.csstudio.dct.ui.editor.GenericContentProposingTextCellEditor;
 import org.csstudio.dct.ui.editor.HierarchicalBeanPropertyTableRowAdapter;
 import org.csstudio.ui.util.CustomMediaFactory;

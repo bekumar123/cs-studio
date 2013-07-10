@@ -48,6 +48,7 @@ public final class AddPrototypeCommand extends Command {
 	 */
 	@Override
 	public void execute() {
+	    	    
 		assert prototype.getParentFolder() == null;
 		assert prototype.getParent() == null;
 
@@ -57,6 +58,7 @@ public final class AddPrototypeCommand extends Command {
 			folder.addMember(prototype);
 		}
 		prototype.setParentFolder(folder);
+
 	}
 
 	/**

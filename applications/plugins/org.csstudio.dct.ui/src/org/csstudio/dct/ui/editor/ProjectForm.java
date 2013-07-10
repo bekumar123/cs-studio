@@ -5,6 +5,7 @@ import java.util.List;
 import org.csstudio.dct.model.IProject;
 import org.csstudio.dct.model.commands.ChangeDbdFileCommand;
 import org.csstudio.dct.model.commands.ChangeLibraryFileCommand;
+import org.csstudio.dct.ui.editor.outline.internal.OutlinePage;
 import org.csstudio.dct.ui.editor.tables.ITableRow;
 import org.csstudio.dct.ui.editor.tables.WorkspaceResourceCellEditor;
 import org.csstudio.domain.common.strings.StringUtil;
@@ -19,11 +20,15 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ExpandBar;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IPageLayout;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.views.contentoutline.ContentOutline;
+import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -200,7 +205,14 @@ public final class ProjectForm extends AbstractForm<IProject> {
                                 page.saveEditor(editor, false);
                                 page.closeEditor(editor, true);
                                 try {
-                                    page.openEditor(editorInput, "org.csstudio.dct.ui.DctEditor");
+                                    final IEditorPart newEditor = page.openEditor(editorInput,
+                                            "org.csstudio.dct.ui.DctEditor");
+                                    Display.getDefault().asyncExec(new Runnable() {
+                                        public void run() {
+                                            DctEditor dctEditor = (DctEditor) newEditor;
+                                            dctEditor.getOutlinePage().getViewer().refresh();
+                                        }
+                                    });
                                 } catch (PartInitException e) {
                                     LOG.error("Can't reopen editor", e);
                                 }

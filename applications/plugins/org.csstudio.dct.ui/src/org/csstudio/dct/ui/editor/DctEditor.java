@@ -650,6 +650,12 @@ public final class DctEditor extends MultiPageEditorPart implements CommandStack
         return commandStack;
     }
 
+    private OutlinePage outline ;
+    
+    public OutlinePage getOutlinePage() {
+        return outline;
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -658,7 +664,7 @@ public final class DctEditor extends MultiPageEditorPart implements CommandStack
         Object result = null;
 
         if (adapter == IContentOutlinePage.class) {
-            final OutlinePage outline = new OutlinePage(getProject(), commandStack);
+            outline = new OutlinePage(getProject(), commandStack);
             outline.setInput(getProject());
             outline.setCommandStack(commandStack);
             outline.addSelectionChangedListener(outlineSelectionListener);

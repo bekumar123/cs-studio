@@ -11,6 +11,7 @@ import java.io.PrintStream;
 
 import org.csstudio.archive.reader.SpreadsheetIterator;
 import org.csstudio.archive.reader.ValueIterator;
+import org.csstudio.archive.vtype.TimestampHelper;
 import org.csstudio.common.trendplotter.Messages;
 import org.csstudio.common.trendplotter.model.Model;
 import org.csstudio.common.trendplotter.model.ModelItem;
@@ -68,7 +69,7 @@ public class SpreadsheetExportJob extends PlainExportJob
             //TODO (jhatje): implement vType
             final Timestamp time = sheet.getTime();
             final VType line[] = sheet.next();
-            out.print(time);
+            out.print(TimestampHelper.format(time));
             for (int i=0; i<line.length; ++i) {
                 value = formatter.format(line[i]);
                 value = value.replace(".", ",");

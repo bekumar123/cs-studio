@@ -10,6 +10,7 @@ package org.csstudio.common.trendplotter.export;
 import java.io.PrintStream;
 
 import org.csstudio.archive.reader.ValueIterator;
+import org.csstudio.archive.vtype.TimestampHelper;
 import org.csstudio.common.trendplotter.Messages;
 import org.csstudio.common.trendplotter.model.Model;
 import org.csstudio.common.trendplotter.model.ModelItem;
@@ -48,7 +49,6 @@ public class PlainExportJob extends ExportJob
         out.println();
     }
 
-    /** {@inheritDoc} */
     @Override
     protected void performExport(final IProgressMonitor monitor,
                                  final PrintStream out) throws Exception
@@ -70,7 +70,8 @@ public class PlainExportJob extends ExportJob
             {
                 //TODO (jhatje): implement vType
                 final VType value =values.next();
-                out.println(ValueUtil.timeOf(value).getTimestamp().toString() + Messages.Export_Delimiter + formatter.format(value));
+          
+                out.println(TimestampHelper.format(ValueUtil.timeOf(value).getTimestamp()) + Messages.Export_Delimiter + formatter.format(value));
                 ++line_count;
                 if (++line_count % PROGRESS_UPDATE_LINES == 0)
                     monitor.subTask(NLS.bind("{0}: Wrote {1} samples", item.getName(), line_count));

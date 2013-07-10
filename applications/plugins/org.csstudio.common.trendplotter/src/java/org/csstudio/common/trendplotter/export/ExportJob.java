@@ -14,6 +14,7 @@ import org.csstudio.archive.reader.ArchiveReader;
 import org.csstudio.archive.reader.ArchiveRepository;
 import org.csstudio.archive.reader.MergingValueIterator;
 import org.csstudio.archive.reader.ValueIterator;
+import org.csstudio.archive.vtype.TimestampHelper;
 import org.csstudio.common.trendplotter.Activator;
 import org.csstudio.common.trendplotter.model.ArchiveDataSource;
 import org.csstudio.common.trendplotter.model.Model;
@@ -141,12 +142,13 @@ abstract public class ExportJob extends Job
     {
         out.println(comment + "Created by CSS Data Browser Version " + Activator.getDefault().getVersion());
         out.println(comment);
-        out.println(comment + "Start Time : " + start);
-        out.println(comment + "End Time   : " + end);
+        out.println(comment + "Start Time : " + TimestampHelper.format(start));
+        out.println(comment + "End Time   : " + TimestampHelper.format(start));
         out.println(comment + "Source     : " + source.toString());
         if (source == Source.OPTIMIZED_ARCHIVE)
             out.println(comment + "Desired Value Count: " + optimize_count);
     }
+
 
     /** Perform the data export
      *  @param out PrintStream for output

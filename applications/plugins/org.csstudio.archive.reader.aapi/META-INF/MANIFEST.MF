@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Archivereader Aapi
 Bundle-SymbolicName: org.csstudio.archive.reader.aapi;singleton:=true
-Bundle-Version: 1.0.0.201307091400
+Bundle-Version: 1.0.0.201307101400
 Bundle-Vendor: Desy, Jan Hatje <jan.hatje@desy.de>
 Require-Bundle: org.eclipse.core.runtime,
  org.csstudio.archive.reader,

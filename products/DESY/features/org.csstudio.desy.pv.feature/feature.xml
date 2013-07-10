@@ -2,7 +2,7 @@
 <feature
       id="org.csstudio.desy.pv.feature"
       label="PV Feature"
-      version="1.0.0.201307081400"
+      version="1.0.0.201307101400"
       provider-name="DESY, Jan Hatje &lt;css-developer@desy.de&gt;">
 
    <description url="http://www.example.com/description">
@@ -20,20 +20,6 @@
    <url>
       <update label="Desy Update Site" url="http://eclipse.desy.de/css/update/"/>
    </url>
-
-   <plugin
-         id="org.csstudio.diag.epics.pvtree"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.csstudio.diag.epics.pvtree.intro"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
 
    <plugin
          id="org.csstudio.diag.probe"
@@ -76,6 +62,13 @@
          install-size="0"
          version="0.0.0"
          fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.csstudio.diag.epics.pvtree"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
          unpack="false"/>
 
 </feature>

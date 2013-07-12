@@ -21,6 +21,8 @@ import org.csstudio.swt.xygraph.util.XYGraphMediaFactory;
 import org.csstudio.swt.xygraph.util.XYGraphMediaFactory.CURSOR_TYPE;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.Graphics;
+import org.eclipse.draw2d.Layer;
+import org.eclipse.draw2d.LayeredPane;
 import org.eclipse.draw2d.MouseEvent;
 import org.eclipse.draw2d.MouseListener;
 import org.eclipse.draw2d.MouseMotionListener;
@@ -85,8 +87,27 @@ public class PlotArea extends Figure {
 	private boolean armed;
 
 	private Color revertBackColor;
+	
+	private LayeredPane layeredPane;
+	private Layer gridLayer;
+	private Layer traceLayer;
+	private Layer annotationLayer;
+	private Layer upperLayer;
 
 	public PlotArea(final XYGraph xyGraph) {
+		gridLayer = new Layer();
+		traceLayer = new Layer();
+		annotationLayer = new Layer();
+		layeredPane = new LayeredPane();
+		upperLayer = new Layer();
+		
+		layeredPane.add(gridLayer);
+		layeredPane.add(traceLayer);
+		layeredPane.add(annotationLayer);
+		layeredPane.add(upperLayer);
+		
+		add(layeredPane);
+		
 		this.xyGraph = xyGraph;
 		setBackgroundColor(XYGraphMediaFactory.getInstance().getColor(255, 255,
 				255));
@@ -123,7 +144,7 @@ public class PlotArea extends Figure {
 	 */
 	public void addTrace(final Trace trace) {
 		traceList.add(trace);
-		add(trace);
+		traceLayer.add(trace);
 		revalidate();
 	}
 
@@ -136,7 +157,7 @@ public class PlotArea extends Figure {
 	public boolean removeTrace(final Trace trace) {
 		boolean result = traceList.remove(trace);
 		if (result) {
-			remove(trace);
+			traceLayer.remove(trace);
 			revalidate();
 		}
 		return result;
@@ -150,7 +171,7 @@ public class PlotArea extends Figure {
 	 */
 	public void addGrid(final Grid grid) {
 		gridList.add(grid);
-		add(grid);
+		gridLayer.add(grid);
 		revalidate();
 	}
 
@@ -164,12 +185,21 @@ public class PlotArea extends Figure {
 	public boolean removeGrid(final Grid grid) {
 		final boolean result = gridList.remove(grid);
 		if (result) {
-			remove(grid);
+			gridLayer.remove(grid);
 			revalidate();
 		}
 		return result;
 	}
-
+	
+	
+	public void addFigureToUpperLayer(Figure figure) {
+		upperLayer.add(figure);
+	}
+	
+	public void removeFigureFromUpperLayer(Figure figure) {
+		upperLayer.remove(figure);
+	}
+	
 	/**
 	 * Add an annotation to the plot area.
 	 * 
@@ -179,7 +209,7 @@ public class PlotArea extends Figure {
 	public void addAnnotation(final Annotation annotation) {
 		annotationList.add(annotation);
 		annotation.setxyGraph(xyGraph);
-		add(annotation);
+		annotationLayer.add(annotation);
 		revalidate();
 		
 		//Laurent PHILIPPE send event
@@ -199,7 +229,7 @@ public class PlotArea extends Figure {
 			annotation.getTrace().getDataProvider()
 					.removeDataProviderListener(annotation);
 		if (result) {
-			remove(annotation);
+			annotationLayer.remove(annotation);
 			revalidate();
 			
 			//Laurent PHILIPPE send event
@@ -211,6 +241,12 @@ public class PlotArea extends Figure {
 	@Override
 	protected void layout() {
 		final Rectangle clientArea = getClientArea();
+		layeredPane.setBounds(clientArea);
+		gridLayer.setBounds(clientArea);
+		traceLayer.setBounds(clientArea);
+		annotationLayer.setBounds(clientArea);
+		upperLayer.setBounds(clientArea);
+		
 		for (Trace trace : traceList) {
 			if (trace != null && trace.isVisible())
 				// Shrink will make the trace has no intersection with axes,
@@ -225,7 +261,9 @@ public class PlotArea extends Figure {
 		for (Annotation annotation : annotationList) {
 			if (annotation != null && annotation.isVisible())
 				annotation.setBounds(clientArea);// .getCopy().shrink(1, 1));
+			
 		}
+		
 		super.layout();
 	}
 

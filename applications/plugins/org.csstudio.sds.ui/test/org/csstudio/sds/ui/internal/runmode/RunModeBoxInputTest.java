@@ -30,6 +30,7 @@ import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.csstudio.sds.internal.runmode.DataAccessType;
 import org.csstudio.sds.internal.runmode.RunModeBoxInput;
 import org.csstudio.sds.internal.runmode.RunModeType;
 import org.eclipse.core.runtime.Path;
@@ -58,7 +59,7 @@ public class RunModeBoxInputTest {
 		_path2 = new Path("/SDS/display2.css-sds");
 		
 		_input = new RunModeBoxInput(_path1, _aliases1,
-				RunModeType.SHELL);
+				RunModeType.SHELL, DataAccessType.REALTIME);
 	}
 
 	@After
@@ -71,18 +72,18 @@ public class RunModeBoxInputTest {
 	public void testEquality() {
 		// same path, same alias
 		assertEquals(new RunModeBoxInput(_path1, _aliases1,
-				RunModeType.SHELL), new RunModeBoxInput(_path1, _aliases1,
-				RunModeType.SHELL));
+				RunModeType.SHELL, DataAccessType.REALTIME), new RunModeBoxInput(_path1, _aliases1,
+				RunModeType.SHELL, DataAccessType.REALTIME));
 
 		// same path, different alias
 		assertNotSame(new RunModeBoxInput(_path1, _aliases1,
-				RunModeType.SHELL), new RunModeBoxInput(_path1, _aliases2,
-				RunModeType.SHELL));
+				RunModeType.SHELL, DataAccessType.REALTIME), new RunModeBoxInput(_path1, _aliases2,
+				RunModeType.SHELL, DataAccessType.REALTIME));
 		
 		// different path, same alias
 		assertNotSame(new RunModeBoxInput(_path1, _aliases1,
-				RunModeType.SHELL), new RunModeBoxInput(_path2, _aliases1,
-				RunModeType.SHELL));
+				RunModeType.SHELL, DataAccessType.REALTIME), new RunModeBoxInput(_path2, _aliases1,
+				RunModeType.SHELL, DataAccessType.REALTIME));
 	}
 	
 	

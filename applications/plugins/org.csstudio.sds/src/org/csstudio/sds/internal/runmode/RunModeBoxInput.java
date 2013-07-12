@@ -44,7 +44,9 @@ public class RunModeBoxInput implements Serializable {
 	private transient Map<String, String> _aliases;
 
 	private RunModeType _type;
-
+	
+	private DataAccessType _dataAccessType; //TODO CME: Should equals and hashcode use this? Could be helpful for the HashMap in RunModeService. Modify test class!
+	
 	private RunModeBoxInput _predecessorBox;
 
 	private long _timestamp;
@@ -60,13 +62,14 @@ public class RunModeBoxInput implements Serializable {
 	 *            the run mode type
 	 */
 	public RunModeBoxInput(IPath filePath, Map<String, String> aliases,
-			RunModeType type) {
+			RunModeType type, DataAccessType dataAccessType) {
 		assert filePath != null;
 		assert aliases != null;
 		assert type != null;
 		_filePath = filePath;
 		_aliases = aliases;
 		_type = type;
+		_dataAccessType = dataAccessType;
 		_timestamp = System.currentTimeMillis();
 	}
 
@@ -99,6 +102,10 @@ public class RunModeBoxInput implements Serializable {
 
 	public RunModeType getType() {
 		return _type;
+	}
+	
+	public DataAccessType getDataAccessType() {
+		return _dataAccessType;
 	}
 
 	public long getTimestamp() {

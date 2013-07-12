@@ -6,8 +6,7 @@ Bundle-Version: 3.1.0.qualifier
 Bundle-Activator: org.csstudio.dal.DalPlugin
 Bundle-Vendor: Desy <css-developer@desy.de>, Joerg Penning
 Require-Bundle: org.eclipse.core.runtime,
- org.apache.log4j,
- org.csstudio.servicelocator;bundle-version="1.0.0"
+ org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered
@@ -38,4 +37,5 @@ Export-Package: com.cosylab.application.state,
  org.csstudio.dal.simple,
  org.csstudio.dal.simple.impl,
  org.csstudio.dal.spi
+Service-Component: OSGI-INF/realtime_dalbroker_factory-component.xml
 

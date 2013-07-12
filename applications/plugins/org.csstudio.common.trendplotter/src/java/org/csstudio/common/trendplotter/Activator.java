@@ -19,6 +19,11 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import de.c1wps.geneal.desy.service.common.tracker.GenericServiceTracker;
+import de.c1wps.geneal.desy.service.common.tracker.IGenericServiceListener;
+import de.cmein.da.domain.history.listener.ITimeChangeListener;
+import de.cmein.da.domain.history.listener.ITimeperiodUpdateListener;
+
 /** Eclipse Plugin Activator
  *  @author Kay Kasemir
  */
@@ -41,7 +46,10 @@ public class Activator extends AbstractUIPlugin
     // FIXME (bknerr) : find out about proper dependency injection for osgi eclipse rcp
     private ArchiveEngineServiceTracker _archiveEngineConfigServiceTracker;
     private ArchiveReaderServiceTracker _archiveReaderServiceTracker;
-
+    
+    private GenericServiceTracker<ITimeperiodUpdateListener> _timeperiodUpdateListenerTracker;
+    private GenericServiceTracker<ITimeChangeListener> _timeChangeListenerTracker;
+    
     /** {@inheritDoc} */
     @Override
     public void start(BundleContext context) throws Exception
@@ -54,6 +62,12 @@ public class Activator extends AbstractUIPlugin
 
         _archiveReaderServiceTracker = new ArchiveReaderServiceTracker(context);
         _archiveReaderServiceTracker.open();
+        
+        _timeperiodUpdateListenerTracker = new GenericServiceTracker<>(context, ITimeperiodUpdateListener.class);
+        _timeperiodUpdateListenerTracker.open();
+        
+        _timeChangeListenerTracker = new GenericServiceTracker<>(context, ITimeChangeListener.class);
+        _timeChangeListenerTracker.open();
     }
 
     /** {@inheritDoc} */
@@ -68,6 +82,14 @@ public class Activator extends AbstractUIPlugin
 
         if (_archiveReaderServiceTracker != null) {
             _archiveReaderServiceTracker.close();
+        }
+        
+        if (_timeperiodUpdateListenerTracker != null) {
+            _timeperiodUpdateListenerTracker.close();
+        }
+        
+        if (_timeChangeListenerTracker != null) {
+            _timeChangeListenerTracker.close();
         }
         
         super.stop(context);
@@ -131,4 +153,15 @@ public class Activator extends AbstractUIPlugin
         }
         return service;
     }
+    
+    
+    public void addUpdateTimeperiodServiceListener(IGenericServiceListener<ITimeperiodUpdateListener> serviceListener) {
+        _timeperiodUpdateListenerTracker.addServiceListener(serviceListener);
+    }
+
+    public void addTimeChangeServiceListener(IGenericServiceListener<ITimeChangeListener> serviceListener) {
+        _timeChangeListenerTracker.addServiceListener(serviceListener);
+    }
+    
+    
 }

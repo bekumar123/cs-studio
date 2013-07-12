@@ -230,8 +230,11 @@ public class Messages extends NLS
     public static String StartTimeLbl;
     public static String StartTimeTT;
     public static String StatusColumn;
+    public static String SyncTimeperiodBtn;
+    public static String SyncTimeperiodBtnTT;
     public static String TimeAxis;
     public static String TimeColumn;
+    public static String TimeIndexlineBtnTT;
     public static String Toolbar_Hide;
     public static String Toolbar_Show;
     public static String TraceDisplayName;

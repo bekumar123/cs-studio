@@ -14,6 +14,7 @@ import org.csstudio.swt.xygraph.figures.Annotation;
 import org.csstudio.swt.xygraph.figures.Trace.TraceType;
 import org.csstudio.swt.xygraph.figures.XYGraph;
 import org.eclipse.swt.graphics.Color;
+import org.joda.time.DateTime;
 
 /** Interface used by Plot to send events in response to user input:
  *  Zoom changed, scrolling turned on/off
@@ -176,4 +177,12 @@ public interface PlotListener
 
     public void valueAxisLogScaleChanged(int index, boolean old,
             boolean logScale);
+    
+    /** Called when the user requests the synchronisation of the actual timeperiod with the history control (uses timeperiod of the plot).  */
+    public void syncTimeperiodWithHistoryControl();
+    
+    /** Called when the user requests to turn the index timeline on or off */
+    public void setIndexTimeline(boolean status);
+    
+    public void timeIndexPositionChanged(DateTime timeIndex, boolean mouseUp);
 }

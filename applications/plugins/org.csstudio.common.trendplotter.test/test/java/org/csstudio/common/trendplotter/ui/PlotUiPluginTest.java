@@ -33,6 +33,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.joda.time.DateTime;
 import org.junit.Test;
 
 /** (Headless) JUnit Plug-in demo of Plot
@@ -165,6 +166,24 @@ public class PlotUiPluginTest
 
         @Override
         public void valueAxisLogScaleChanged(int index, boolean old, boolean logScale) {
+            // TODO Auto-generated method stub
+            
+        }
+        
+        @Override
+        public void syncTimeperiodWithHistoryControl() {
+            // TODO Auto-generated method stub
+            
+        }
+        
+        @Override
+        public void setIndexTimeline(boolean status) {
+            // TODO Auto-generated method stub
+            
+        }
+        
+        @Override
+        public void timeIndexPositionChanged(DateTime timeIndex, boolean mouseUp) {
             // TODO Auto-generated method stub
             
         }

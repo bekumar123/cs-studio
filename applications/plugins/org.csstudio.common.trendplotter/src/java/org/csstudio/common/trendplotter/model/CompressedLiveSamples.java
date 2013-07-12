@@ -21,7 +21,6 @@
  */
 package org.csstudio.common.trendplotter.model;
 
-import java.util.List;
 import java.util.Queue;
 
 import javax.annotation.Nonnull;
@@ -30,6 +29,7 @@ import javax.annotation.Nullable;
 import org.csstudio.domain.common.collection.LimitedArrayCircularQueue;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.typesupport.BaseTypeConversionSupport;
+import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,9 +48,10 @@ public class CompressedLiveSamples extends LiveSamples {
     public interface Transformer<S, T> {
         @Nonnull T transform(@Nonnull final S s);
     }
-
+    private int newSamples=0;
     private final LiveSamplesCompressor _compressor;
     private final IIntervalProvider _intervalPovider;
+    private final int _securityCap; //lit. as _compressor.getNoUncompressed() and lit. as 
     private boolean _dynamicCompression;
 
     /**
@@ -58,8 +59,10 @@ public class CompressedLiveSamples extends LiveSamples {
      */
     public CompressedLiveSamples(@Nonnull final LiveSamplesCompressor c,
                                  final int cap,
+                                 final int securityCap,
                                  @Nullable final IIntervalProvider prov) {
         super(cap);
+        _securityCap=securityCap;
         _compressor = c;
         _intervalPovider = prov;
     }
@@ -74,24 +77,40 @@ public class CompressedLiveSamples extends LiveSamples {
     @Override
     protected synchronized void add(@Nonnull final PlotSample sample) {
         super.add(sample);
+        newSamples++;
         if (isCompressionDue(_samples)) {
+            newSamples=0;
+            LOG.info("Samples size before Compress:  {}",_samples.size());
             final Interval interval = _intervalPovider.getTimeInterval();
             if (interval != null) {
-                _samples = compress(_samples, interval);
-            }
-            LOG.info("samples compression, new sample size: " + _samples.size());
-        }
+                   _samples = compress(_samples, interval);
+             LOG.info("Samples Compressed Timewindow interval: start {},  end   {}", interval.getStart(), interval.getEnd());
+                }
+             LOG.info("Samples Compressed: new samples  {},  capacity       {}", _samples.size(), getCapacity());
+             LOG.info("Samples Compressed: live sample {},   SecuritySmples {} ",_compressor.getNoUncompressed(),_securityCap);
+       }
     }
 
     private boolean isCompressionDue(@Nonnull final LimitedArrayCircularQueue<PlotSample> samples) {
-        return samples.size() >= Math.max(samples.getCapacity(), 2);
+        removeSamplesBeforeStart(samples,_intervalPovider.getTimeInterval().getStartMillis());
+        return samples.size() >= Math.max(samples.getCapacity(), 2) && newSamples>_securityCap;
+    }
+    @Nonnull
+    private LimitedArrayCircularQueue<PlotSample> reCompress(@Nonnull final LimitedArrayCircularQueue<PlotSample> samples,
+                                                           @Nonnull final Interval interval) {
+        
+            return _compressor.reTransform(samples,getCapacity() );
     }
 
     @Nonnull
     private LimitedArrayCircularQueue<PlotSample> compress(@Nonnull final LimitedArrayCircularQueue<PlotSample> samples,
                                                            @Nonnull final Interval interval) {
             removeSamplesBeforeStart(samples, interval.getStartMillis());
-
+            if(samples.size()<getCapacity() ){
+                LOG.info("Samples do not compress ");
+                return samples;
+                
+            }
             if (_dynamicCompression) {
                 final Long[] windowsMS = determinePerfectWindowForCompressedSamples(getCapacity() - _compressor.getNoUncompressed(),
                                                                                     samples,
@@ -117,9 +136,13 @@ public class CompressedLiveSamples extends LiveSamples {
     private Long[] determinePerfectWindowForCompressedSamples(final int cap,
                                                               @Nonnull final LimitedArrayCircularQueue<PlotSample> samples,
                                                               final Interval intvl) {
-        final long endMillis = BaseTypeConversionSupport.toTimeInstant(samples.get(samples.size() - 1).getTime()).getMillis();
+        final long endMillis = BaseTypeConversionSupport.toTimeInstant(samples.get(cap+_securityCap- 1).getTime()).getMillis();
+        final long startMillis = BaseTypeConversionSupport.toTimeInstant(samples.get(0).getTime()).getMillis();
+        final long realStartMillis =startMillis< intvl.getStartMillis()?intvl.getStartMillis(): startMillis;
         final long realEndMillis = Math.min(endMillis, intvl.getEndMillis());
-        final long windowLengthMS = (int) ((realEndMillis - intvl.getStartMillis()) / cap); // perfect
+        final long windowLengthMS = (long) ((realEndMillis - realStartMillis)/cap); // perfect
+        LOG.info("Samples Compressed TimeInterval: start {},  end   {}", new DateTime(realStartMillis) ,  new DateTime(realEndMillis));
+        LOG.info("Samples Compressed - windowLengthMS {} ",windowLengthMS);
         return new Long[] {windowLengthMS*4}; // double - and don't forget - min and max are 2 samples per window
     }
 

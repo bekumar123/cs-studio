@@ -102,8 +102,8 @@ public abstract class AbstractRunModeBox {
 	 * Contains all property change listeners that will be added to the display
 	 * model or widgets.
 	 */
-	private HashMap<WidgetProperty, IPropertyChangeListener> _propertyListeners;
-
+	private HashMap<WidgetProperty, IPropertyChangeListener> _propertyListeners; //TODO CME: what does this do ? nothing!?
+	
 	private IDisplayLoadedCallback callback;
 
 	/**
@@ -150,18 +150,10 @@ public abstract class AbstractRunModeBox {
 
 					public void onDisplayPropertiesLoaded() {
 						// expose runtime information to the model
-						RuntimeContext runtimeContext = new RuntimeContext(
-								_input.getFilePath(), _input.getAliases());
-						runtimeContext.setRunModeBoxInput(_input);
+						RuntimeContext runtimeContext = new RuntimeContext(_input);
 
 						// .. we create a separate broker instance for each running display 
 						//runtimeContext.setBroker(SimpleDALBroker.newInstance(new CssApplicationContext("CSS")));
-						
-						//runtimeContext.setBroker(ServiceLocator.getService(IRealtimeDataServiceFactory.class).getNewDataService(new CssApplicationContext("CSS")));
-						
-//						runtimeContext.setBroker(ServiceLocator.getService(ISimpleDalBroker.class));
-						
-//						runtimeContext.setBroker(ServiceLocator.getService(IHistoryDataServiceFactory.class).getNewDataService(new CssApplicationContext("CSS")));
 						
 						LOG.info("SimpleDALBroker instance created");
 						

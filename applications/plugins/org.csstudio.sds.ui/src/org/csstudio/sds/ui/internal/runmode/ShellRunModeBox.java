@@ -428,6 +428,7 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
                     + new SimpleDateFormat("hh:mm").format(new Date(input.getTimestamp())) + "]");
         }
         
+        //TODO CME: real time or history mode?
         @Override
         public void mouseUp(MouseEvent e) {
             RunModeService.getInstance().openDisplayShellInRunMode(_input.getFilePath(),

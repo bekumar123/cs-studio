@@ -1,5 +1,9 @@
 package org.csstudio.dal.simple;
 
-public interface IRealtimeDataServiceFactory extends IDataServiceFactory {
+import org.csstudio.dal.CssApplicationContext;
+
+public interface IRealtimeDataServiceFactory {
+	
+	public ISimpleDalBroker getNewDataService(CssApplicationContext cssApplicationContext);
 
 }

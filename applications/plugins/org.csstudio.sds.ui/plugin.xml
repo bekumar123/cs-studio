@@ -339,6 +339,18 @@
               id="org.csstudio.sds.ui.internal.parts.OpenRunModeAsShellAction2"
               label="Run As Shell"/>
      </objectContribution>
+     <objectContribution
+           adaptable="false"
+           id="org.csstudio.sds.ui.HistoryRunModeAction"
+           nameFilter="*.css-sds"
+           objectClass="org.eclipse.core.resources.IResource">
+        <action
+              class="org.csstudio.sds.ui.internal.runmode.OpenAsHistoryShellAction"
+              icon="icons/runHistory.gif"
+              id="org.csstudio.sds.ui.internal.parts.OpenRunModeAsHistoryShellAction"
+              label="Run As History Shell">
+        </action>
+     </objectContribution>
   </extension>
   <extension
         point="org.eclipse.ui.editorActions">

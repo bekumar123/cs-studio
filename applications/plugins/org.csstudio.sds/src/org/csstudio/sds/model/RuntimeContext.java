@@ -3,12 +3,11 @@ package org.csstudio.sds.model;
 import java.util.Collections;
 import java.util.Map;
 
+import org.csstudio.dal.CssApplicationContext;
 import org.csstudio.dal.simple.ISimpleDalBroker;
 import org.csstudio.sds.SdsPlugin;
 import org.csstudio.sds.internal.runmode.RunModeBoxInput;
 import org.eclipse.core.runtime.IPath;
-
-import de.c1wps.geneal.desy.service.common.tracker.IGenericServiceListener;
 
 /**
  * Collects runtime information for a display.
@@ -20,12 +19,14 @@ import de.c1wps.geneal.desy.service.common.tracker.IGenericServiceListener;
  * @author Sven Wende
  * 
  */
-public class RuntimeContext implements IGenericServiceListener<ISimpleDalBroker>{
+public class RuntimeContext {
 	private IPath _displayFilePath;
 	private Map<String, String> _aliases;
 	private RunModeBoxInput _runModeBoxInput;
 	private ISimpleDalBroker _broker;
 
+	//TODO CME: when setAliases or setDisplayFilePath are called the state of RunTimeContext and RunModeBoxInput will be inconsistent! 
+	//The connection between RuntimeContext and RunModeBoxInput is strange.
 	/**
 	 * Constructor.
 	 * 
@@ -38,11 +39,19 @@ public class RuntimeContext implements IGenericServiceListener<ISimpleDalBroker>
 	 * @param aliases
 	 *            the runtime aliases
 	 */
-	public RuntimeContext(IPath displayFilePath, Map<String, String> aliases) {
-		_displayFilePath = displayFilePath;
-		_aliases = aliases;
+	public RuntimeContext(RunModeBoxInput input) {
+		_displayFilePath = input.getFilePath();
+		_aliases = input.getAliases();
 		
-		SdsPlugin.getDefault().addDalBrokerListener(this);
+		switch (input.getDataAccessType()) {
+		case REALTIME:
+			_broker = SdsPlugin.getDefault().getRealtimeDalBroker(new CssApplicationContext("CSS"));
+			break;
+		case HISTORY:
+			_broker = SdsPlugin.getDefault().getHistoryDalBroker();
+		default:
+			break;
+		}
 	}
 
 	public IPath getDisplayFilePath() {
@@ -75,16 +84,5 @@ public class RuntimeContext implements IGenericServiceListener<ISimpleDalBroker>
 
 	public ISimpleDalBroker getBroker() {
 		return _broker;
-	}
-
-	@Override
-	public void bindService(ISimpleDalBroker service) {
-		System.err.println("------- bind dalbroker im runtimeContext");
-		_broker = service;
-	}
-
-	@Override
-	public void unbindService(ISimpleDalBroker service) {
-		_broker = null;
 	}
 }

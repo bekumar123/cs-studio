@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -114,12 +115,24 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
                                           @Nonnull final IBatchQueueHandlerProvider handlerProvider,
                                           @Nonnull final List<T> rescueDataList) {
         final Collection<T> elements = Lists.newLinkedList();
+
         for (final BatchQueueHandlerSupport<?> handler : handlerProvider.getHandlers()) {
-            ((BatchQueueHandlerSupport<T>) handler).getQueue().drainTo(elements);
+            final BlockingQueue<T> queue= ((BatchQueueHandlerSupport<T>) handler).getQueue();
+            queue.drainTo(elements,3000);
+            if(queue.size()>100000) {
+                EMAIL_LOG.info("More than {} samples in  BatchQueue", queue.size());
+                //TODO (wenhua xu):
+                final Collection<T> elems = Lists.newLinkedList();
+                queue.drainTo(elems);
+                final Collection<String> statements =((BatchQueueHandlerSupport<T>)  handler).convertToStatementString(elems);
+                rescueDataToFileSystem(statements);
+
+            }
+
             if (!elements.isEmpty()) {
                 PreparedStatement stmt = null;
                 try {//bei jedes Mal SQL Statement erzeugen, connection neue prüfen, ob die Connection closed ist
-                    if(connection==null || connection.isClosed() ) {
+                    while(connection==null || connection.isClosed() ) {
                         connection = _connectionHandler.getThreadLocalConnection();
                     }
                     stmt = handler.createNewStatement(connection);
@@ -146,7 +159,7 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
         try {
             int size=0;
            for (final T element : elements) {
-               if(myStmt.getConnection()==null ||  myStmt==null || myStmt.isClosed()){
+               while(myStmt.getConnection()==null ||  myStmt==null || myStmt.isClosed()){
                    myStmt = handler.createNewStatement( _connectionHandler.getThreadLocalConnection());
                    }
                addElementToBatchAndRescueList(handler, myStmt, element, rescueDataList);

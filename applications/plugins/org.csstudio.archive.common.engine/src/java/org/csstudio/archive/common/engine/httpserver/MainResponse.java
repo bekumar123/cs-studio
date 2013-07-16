@@ -96,7 +96,13 @@ class MainResponse extends AbstractResponse {
 
     private void createProgramInfoRows(@Nonnull final HttpServletRequest req,
                                        @Nonnull final HTMLWriter html) {
-        html.tableLine(new String[] {Messages.HTTP_VERSION, _version});
+        final String s= Platform.getInstanceLocation().getURL().getFile().toString();
+        try{
+            html.tableLine(new String[] {Messages.HTTP_VERSION, _version+"-"+ Long.parseLong(s)});
+        }catch(final NumberFormatException e){
+            html.tableLine(new String[] {Messages.HTTP_VERSION, _version+"-"+ 0});
+        }
+
         html.tableLine(new String[] {Messages.HTTP_DESCRIPTION, getModel().getName()});
         html.tableLine(new String[] {Messages.HTTP_HOST, _host + ":" + req.getLocalPort()});
         html.tableLine(new String[] {Messages.HTTP_STATE, getModel().getState().name()});

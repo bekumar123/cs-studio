@@ -389,7 +389,10 @@ public class Controller implements ArchiveFetchJobListener {
             @Override
             public void timeIndexPositionChanged(DateTime timeIndex, boolean mouseUp) {
 //                System.err.println("ISO " + ISODateTimeFormat.basicTime().print(timeIndex));
-                UpdateTimeEvent updateTimeEvent = new UpdateTimeEvent(timeIndex, this, mouseUp);
+                
+                DateTime starTime = new DateTime(model.getStartTime().toCalendar().getTimeInMillis());
+                DateTime endTime = new DateTime(model.getEndTime().toCalendar().getTimeInMillis());
+                UpdateTimeEvent updateTimeEvent = new UpdateTimeEvent(timeIndex, this, mouseUp, starTime, endTime);
                 
                 for (ITimeChangeListener listener : timeChangeListener) {
                     listener.handleTimeIndexChanged(updateTimeEvent);

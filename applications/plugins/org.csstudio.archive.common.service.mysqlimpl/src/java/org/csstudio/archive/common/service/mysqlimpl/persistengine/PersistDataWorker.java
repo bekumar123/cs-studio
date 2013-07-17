@@ -42,6 +42,7 @@ import org.csstudio.archive.common.service.mysqlimpl.notification.ArchiveNotific
 import org.csstudio.domain.desy.task.AbstractTimeMeasuredRunnable;
 import org.csstudio.domain.desy.time.StopWatch;
 import org.csstudio.domain.desy.time.StopWatch.RunningStopWatch;
+import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +69,6 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
         LoggerFactory.getLogger("ErrorPerEmailLogger");
 
     private final ArchiveConnectionHandler _connectionHandler;
-
 
     private final String _name;
     private final long _periodInMS;
@@ -120,14 +120,14 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
             final BlockingQueue<T> queue= ((BatchQueueHandlerSupport<T>) handler).getQueue();
             queue.drainTo(elements,3000);
             if(queue.size()>100000) {
-                EMAIL_LOG.info("More than {} samples in  BatchQueue", queue.size());
+                EMAIL_LOG.info("More than {} samples in  BatchQueue at {}", queue.size(), TimeInstantBuilder.fromNow().formatted());
                 //TODO (wenhua xu):
-                final Collection<T> elems = Lists.newLinkedList();
-                queue.drainTo(elems);
-                final Collection<String> statements =((BatchQueueHandlerSupport<T>)  handler).convertToStatementString(elems);
-                rescueDataToFileSystem(statements);
+                if(queue.size()>250000){
+                    EMAIL_LOG.info("MySQL restarted at {}", TimeInstantBuilder.fromNow().formatted());
 
-            }
+                    System.exit(1);
+                }
+             }
 
             if (!elements.isEmpty()) {
                 PreparedStatement stmt = null;

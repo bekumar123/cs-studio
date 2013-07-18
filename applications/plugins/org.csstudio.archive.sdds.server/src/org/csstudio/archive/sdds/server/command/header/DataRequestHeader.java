@@ -27,10 +27,10 @@ package org.csstudio.archive.sdds.server.command.header;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +41,8 @@ import org.slf4j.LoggerFactory;
 public class DataRequestHeader implements IRequestHeader {
 
     private static final Logger LOG = LoggerFactory.getLogger(DataRequestHeader.class);
+
+    private final SimpleDateFormat dateFormat;
 
     /**  */
     private int fromSec;
@@ -74,6 +76,7 @@ public class DataRequestHeader implements IRequestHeader {
      * @param data
      */
     public DataRequestHeader(@Nonnull final byte[] data) {
+        dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         setHeaderFromByteArray(data);
     }
 
@@ -87,7 +90,10 @@ public class DataRequestHeader implements IRequestHeader {
         final StringBuffer result = new StringBuffer();
 
         result.append("DataRequestHeader{");
-        result.append("fromSec=" + fromSec + ",fromUSec=" + fromUSec + ",toSec=" + toSec + ",toUSec=" + toUSec);
+        result.append("from " + dateFormat.format(new Date(fromSec * 1000L)));
+        result.append("(" + fromSec + ", " + fromUSec + ")");
+        result.append(" to " + dateFormat.format(new Date(toSec * 1000L)));
+        result.append("(" + toSec + ", " + toUSec + ")");
         result.append(",maxNumOfSamples=" + maxNumOfSamples + ",conversionTag=" + conversionTag);
         result.append(",conversionParameter=" + conversionParameter + ",pvNameSize=" + pvNameSize);
         result.append(",pvName{");

@@ -73,6 +73,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer
         prefs.put(PreferenceConstants.ACTIVATE_CHANNEL_HTML_SERVLET, "true");
 
         prefs.put(PreferenceConstants.HOST_NAME, "localhost");
+        prefs.put(PreferenceConstants.HOST_PORT, "8080");
         prefs.put(PreferenceConstants.EXTERN_HOST_NAME, "localhost");
         prefs.put(PreferenceConstants.EXTERN_HOST_PORT, "8080");
 

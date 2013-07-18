@@ -59,6 +59,7 @@ public class PreferenceConstants
     public static final String HTML_CHANNEL_SERVLET_ADDRESS = "htmlChannelServletAddress";
 
     public static final String HOST_NAME = "hostName";
+    public static final String HOST_PORT = "hostPort";
     public static final String EXTERN_HOST_NAME = "externHostName";
     public static final String EXTERN_HOST_PORT = "externHostPort";
 

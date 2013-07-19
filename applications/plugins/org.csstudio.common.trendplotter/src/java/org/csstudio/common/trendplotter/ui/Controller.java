@@ -48,6 +48,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -388,15 +389,7 @@ public class Controller implements ArchiveFetchJobListener {
             
             @Override
             public void timeIndexPositionChanged(DateTime timeIndex, boolean mouseUp) {
-//                System.err.println("ISO " + ISODateTimeFormat.basicTime().print(timeIndex));
-                
-                DateTime starTime = new DateTime(model.getStartTime().toCalendar().getTimeInMillis());
-                DateTime endTime = new DateTime(model.getEndTime().toCalendar().getTimeInMillis());
-                UpdateTimeEvent updateTimeEvent = new UpdateTimeEvent(timeIndex, this, mouseUp, starTime, endTime);
-                
-                for (ITimeChangeListener listener : timeChangeListener) {
-                    listener.handleTimeIndexChanged(updateTimeEvent);
-                }
+                updateTimeChangeListners(timeIndex, mouseUp);
             }
         });
         
@@ -507,9 +500,12 @@ public class Controller implements ArchiveFetchJobListener {
         //TODO CME: potential nullpointer or leak when the trendplotter editor view is closed
         Activator.getDefault()
             .addUpdateTimeperiodServiceListener(createTimeperiodUpdateServiceListener());
-        Activator.getDefault()
-            .addTimeChangeServiceListener(createITimeChangeServiceListener());
-        //TODO CME: save service registration to unregister the service later (on dispose)
+        
+        
+//        Activator.getDefault()
+//            .addTimeChangeServiceListener(createITimeChangeServiceListener());
+        timeChangeListener = Activator.getDefault().getTimeChangeListeners();
+        
         Activator.getDefault().getBundle().getBundleContext()
             .registerService(ITimeChangeListener.class, createITimeChangeListener(), null);
     }
@@ -807,6 +803,16 @@ public class Controller implements ArchiveFetchJobListener {
             LOG.warn("No archived data for " + job.getPVItem().getDisplayName());
         else
             LOG.warn("No archived data for " + job.getPVItem().getDisplayName());
+    }
+    
+    private void updateTimeChangeListners(DateTime timeIndex, boolean mouseUp) {
+        DateTime starTime = new DateTime(model.getStartTime().toCalendar().getTimeInMillis());
+        DateTime endTime = new DateTime(model.getEndTime().toCalendar().getTimeInMillis());
+        UpdateTimeEvent updateTimeEvent = new UpdateTimeEvent(timeIndex, this, mouseUp, new Interval(starTime, endTime));
+        
+        for (ITimeChangeListener listener : timeChangeListener) {
+            listener.handleTimeIndexChanged(updateTimeEvent);
+        }
     }
     
     private IGenericServiceListener<ITimeperiodUpdateListener> createTimeperiodUpdateServiceListener() {

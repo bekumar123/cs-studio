@@ -237,7 +237,7 @@ public class Plot
            
             @Override
             public void positionChanged(double xPosition, boolean mouseUp) {
-               DateTime timePosition = new DateTime((long) xPosition); //TODO CME: review
+               DateTime timePosition = new DateTime((long) xPosition); //TODO CME: review cast
                listener.timeIndexPositionChanged(timePosition, mouseUp);
             }
         });

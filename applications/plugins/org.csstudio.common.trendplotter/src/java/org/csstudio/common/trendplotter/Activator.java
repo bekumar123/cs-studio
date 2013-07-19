@@ -7,7 +7,9 @@
  ******************************************************************************/
 package org.csstudio.common.trendplotter;
 
+import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.csstudio.archive.common.service.ArchiveEngineServiceTracker;
@@ -50,6 +52,8 @@ public class Activator extends AbstractUIPlugin
     private GenericServiceTracker<ITimeperiodUpdateListener> _timeperiodUpdateListenerTracker;
     private GenericServiceTracker<ITimeChangeListener> _timeChangeListenerTracker;
     
+    private List<ITimeChangeListener> _timeChangeListeners;
+    
     /** {@inheritDoc} */
     @Override
     public void start(BundleContext context) throws Exception
@@ -66,8 +70,10 @@ public class Activator extends AbstractUIPlugin
         _timeperiodUpdateListenerTracker = new GenericServiceTracker<>(context, ITimeperiodUpdateListener.class);
         _timeperiodUpdateListenerTracker.open();
         
+        _timeChangeListeners = new ArrayList<ITimeChangeListener>();
         _timeChangeListenerTracker = new GenericServiceTracker<>(context, ITimeChangeListener.class);
         _timeChangeListenerTracker.open();
+        _timeChangeListenerTracker.addServiceListener(createITimeChangeServiceTracker());
     }
 
     /** {@inheritDoc} */
@@ -161,6 +167,24 @@ public class Activator extends AbstractUIPlugin
 
     public void addTimeChangeServiceListener(IGenericServiceListener<ITimeChangeListener> serviceListener) {
         _timeChangeListenerTracker.addServiceListener(serviceListener);
+    }
+    
+    public List<ITimeChangeListener> getTimeChangeListeners() {
+        return _timeChangeListeners;
+    }
+    
+    private IGenericServiceListener<ITimeChangeListener> createITimeChangeServiceTracker() {
+        return new IGenericServiceListener<ITimeChangeListener>() {
+            @Override
+            public void bindService(ITimeChangeListener service) {
+                _timeChangeListeners.add(service);
+                
+            }
+            @Override
+            public void unbindService(ITimeChangeListener service) {
+                _timeChangeListeners.remove(service);
+            }
+        };
     }
     
     

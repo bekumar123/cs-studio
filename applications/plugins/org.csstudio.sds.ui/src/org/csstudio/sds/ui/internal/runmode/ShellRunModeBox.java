@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.csstudio.sds.internal.runmode.DataAccessType;
 import org.csstudio.sds.internal.runmode.RunModeBoxInput;
 import org.csstudio.sds.ui.SdsUiPlugin;
 import org.csstudio.sds.ui.internal.actions.OpenScreenshotAction;
@@ -140,17 +141,24 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
         scrollComposite.setLayoutData(GridDataFactory.fillDefaults().grab(true, true).indent(0, 0)
                 .create());
         scrollComposite.setLayout(getFillLayout());
-        scrollComposite.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
+        scrollComposite.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
         
         // create a parent composite that fills the whole shell
         GridLayout parentLayout = new GridLayout(1, false);
+        
+        //TODO CME: maybe there is a better way to indicate history mode. Seems to be a hack for me. This does not affect "view run mode"!
+        int spacing = 0;
+        if (getInput().getDataAccessType() == DataAccessType.HISTORY) { 
+			spacing = 10;
+		}
+        
         parentLayout.horizontalSpacing = 0;
-        parentLayout.marginWidth = 0;
-        parentLayout.marginHeight = 0;
+        parentLayout.marginWidth = spacing;
+        parentLayout.marginHeight = spacing;
         parentLayout.verticalSpacing = 0;
         final Composite parent = new Composite(scrollComposite, SWT.NONE);
-        parent.setLayout(parentLayout);
-        parent.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW));
+		parent.setLayout(parentLayout);
+        parent.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE)); // CME: color of margin in history mode
         
         // create a composite for the graphical viewer
         Composite c = new Composite(parent, SWT.NONE);

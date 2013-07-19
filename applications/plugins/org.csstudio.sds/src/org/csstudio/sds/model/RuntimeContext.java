@@ -42,6 +42,7 @@ public class RuntimeContext {
 	public RuntimeContext(RunModeBoxInput input) {
 		_displayFilePath = input.getFilePath();
 		_aliases = input.getAliases();
+		_runModeBoxInput = input;
 		
 		switch (input.getDataAccessType()) {
 		case REALTIME:

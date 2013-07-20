@@ -85,8 +85,8 @@ public class TimeIndexLine extends Figure {
 
 	@Override
 	protected void layout() {
+	    
 		updateBoundsWithCurrentPosition();
-		super.layout();
 	}
 	
 	private void updateBoundsWithCurrentPosition() {
@@ -94,7 +94,9 @@ public class TimeIndexLine extends Figure {
 		int yLower = yAxis.getValuePosition(yAxis.getRange().getLower(), false);
 		
 		Rectangle boundsRect = new Rectangle(xAxis.getValuePosition(xValue, false) - 3, yUpper, 8, yLower);
+
 		setBounds(boundsRect);
+		invalidate();
 	}
 
 	/**
@@ -121,9 +123,9 @@ public class TimeIndexLine extends Figure {
 	 */
 	public void setPosition(double newXValue) {
 		xValue = newXValue;
-		repaint();
+		updateBoundsWithCurrentPosition();
 	}
-
+	
 	public double getCurrentPosition() {
 		return xValue;
 	}

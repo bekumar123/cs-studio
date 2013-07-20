@@ -194,10 +194,12 @@ public class PlotArea extends Figure {
 	
 	public void addFigureToUpperLayer(Figure figure) {
 		upperLayer.add(figure);
+		revalidate();
 	}
 	
 	public void removeFigureFromUpperLayer(Figure figure) {
 		upperLayer.remove(figure);
+		revalidate();
 	}
 	
 	/**

@@ -121,6 +121,7 @@ public class RunModeBoxInput implements Serializable {
 		return fullpath.hashCode();
 	}
 
+	//TODO CME: include DataAccessType to equals/hashcode calculation? It would allow to show the same display in realtime and history mode.
 	/**
 	 * {@inheritDoc}
 	 */

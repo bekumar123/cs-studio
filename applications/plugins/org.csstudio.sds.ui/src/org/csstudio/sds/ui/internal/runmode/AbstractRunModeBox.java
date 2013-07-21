@@ -33,6 +33,7 @@ import java.util.Map;
 import org.csstudio.dal.simple.ISimpleDalBroker;
 import org.csstudio.sds.internal.persistence.DisplayModelLoadAdapter;
 import org.csstudio.sds.internal.persistence.PersistenceUtil;
+import org.csstudio.sds.internal.runmode.DataAccessType;
 import org.csstudio.sds.internal.runmode.RunModeBoxInput;
 import org.csstudio.sds.model.AbstractWidgetModel;
 import org.csstudio.sds.model.DisplayModel;
@@ -168,23 +169,24 @@ public abstract class AbstractRunModeBox {
 						PlatformUI.getWorkbench().getDisplay().syncExec(
 								new Runnable() {
 									public void run() {
-										Map<String, String> aliases = _input
-												.getAliases();
+										Map<String, String> aliases = _input.getAliases();
 
 										// create and open the viewer
 										StringBuffer title = new StringBuffer();
 
+										if (_input.getDataAccessType() == DataAccessType.HISTORY) {
+											title.append(">>>History Mode<<< ");
+										}
+										
 										// title
 										title.append(_input.getFilePath()
 												.makeRelative()
 												.toPortableString());
 
-										if ((aliases != null)
-												&& !aliases.isEmpty()) {
+										if ((aliases != null) && !aliases.isEmpty()) {
 											title.append("?");
 
-											Iterator<String> it = aliases
-													.keySet().iterator();
+											Iterator<String> it = aliases.keySet().iterator();
 
 											while (it.hasNext()) {
 												String key = it.next();
@@ -192,24 +194,20 @@ public abstract class AbstractRunModeBox {
 												title.append(key);
 												title.append("=");
 												title.append(val);
-												title.append(it.hasNext() ? "&"
-														: "");
+												title.append(it.hasNext() ? "&"	: "");
 											}
 										}
 
-										_graphicalViewer = doOpen(x, y, openRelative, width,
-												height, title.toString());
-
+										_graphicalViewer = doOpen(x, y, openRelative, width, height, title.toString());
+										
 										// configure the viewer
-										_graphicalViewer
-												.setContents(_displayModel);
+										_graphicalViewer.setContents(_displayModel);
 
 										String bgColor = _displayModel.getColor(AbstractWidgetModel.PROP_COLOR_BACKGROUND);
 
 										_graphicalViewer
 												.getControl()
 												.setBackground(SdsUiPlugin.getDefault().getColorAndFontService().getColor(bgColor));
-
 
 										// execute the runnable
 										if (runAfterOpen != null) {

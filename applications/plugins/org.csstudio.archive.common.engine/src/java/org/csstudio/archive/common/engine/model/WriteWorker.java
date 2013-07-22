@@ -71,6 +71,7 @@ final class WriteWorker extends AbstractTimeMeasuredRunnable {
     private final IServiceProvider _provider;
 
     private TimeInstant _lastWriteTime;
+    private final EngineModel _model;
 
     /**
      * Constructor.
@@ -78,13 +79,15 @@ final class WriteWorker extends AbstractTimeMeasuredRunnable {
     public WriteWorker(@Nonnull final IServiceProvider provider,
                        @Nonnull final String name,
                        @Nonnull final Collection<ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> channels,
-                       final long periodInMS) {
+                       final long periodInMS,
+                       @Nonnull final EngineModel model) {
         _provider = provider;
         _name = name;
 
         _channels = channels;
 
         _periodInMS = periodInMS;
+        _model=model;
 
         WORKER_LOG.info("{} created with period {}ms", _name, periodInMS);
     }
@@ -126,6 +129,7 @@ final class WriteWorker extends AbstractTimeMeasuredRunnable {
 
             final SampleBuffer<Serializable, ISystemVariable<Serializable>, IArchiveSample<Serializable, ISystemVariable<Serializable>>> buffer =
                 channel.getSampleBuffer();
+            if(!buffer.isEmpty()) {
 
             buffer.updateStats();
 
@@ -134,6 +138,7 @@ final class WriteWorker extends AbstractTimeMeasuredRunnable {
             written += writeSamples(_provider,  bufferSamples);
 
             bufferSamples.clear();
+            }
         }
         return written;
     }
@@ -150,7 +155,20 @@ final class WriteWorker extends AbstractTimeMeasuredRunnable {
             return 0;
         }
         // when there's a service, the service impl handles the rescue of data
-        service.writeSamples(samples);
+
+
+       final int  size =  service.writeSamples(samples);
+
+       if (size > 100000) {
+           EMAIL_LOG.info("More than {} samples in  BatchQueue at {}", size, TimeInstantBuilder.fromNow()
+                   .formatted());
+           //TODO (wenhua xu):
+           if (size > 300000) {
+               EMAIL_LOG.info("MySQL restarted at {}", TimeInstantBuilder.fromNow().formatted());
+               _model.requestShutdown();
+
+                }
+       }
         return samples.size();
     }
 

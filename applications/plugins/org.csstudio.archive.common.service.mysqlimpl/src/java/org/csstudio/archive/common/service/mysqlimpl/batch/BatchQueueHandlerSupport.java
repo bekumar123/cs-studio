@@ -84,9 +84,9 @@ public abstract class BatchQueueHandlerSupport<T> extends AbstractTypeSupport<T>
         return Collections.emptyList();
     }
 
-    public static <T> void addToQueue(@Nonnull final Collection<T> newEntries) throws TypeSupportException {
+    public static <T> int addToQueue(@Nonnull final Collection<T> newEntries) throws TypeSupportException {
         if (newEntries.isEmpty()) {
-            return;
+            return 0 ;
         }
         @SuppressWarnings("unchecked")
         final Class<T> type = (Class<T>) newEntries.iterator().next().getClass();
@@ -94,6 +94,7 @@ public abstract class BatchQueueHandlerSupport<T> extends AbstractTypeSupport<T>
 
         final BlockingQueue<T> queue = support.getQueue();
         queue.addAll(newEntries);
+        return queue.size();
     }
 
     @Nonnull

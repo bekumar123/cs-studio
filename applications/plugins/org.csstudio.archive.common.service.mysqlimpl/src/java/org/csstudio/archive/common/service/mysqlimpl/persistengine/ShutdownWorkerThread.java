@@ -22,6 +22,7 @@
 package org.csstudio.archive.common.service.mysqlimpl.persistengine;
 
 import java.util.Collection;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -33,6 +34,8 @@ import org.csstudio.archive.common.service.mysqlimpl.batch.IBatchQueueHandlerPro
 import org.csstudio.archive.common.service.mysqlimpl.dao.ArchiveConnectionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 /**
  * Thread to hold the shutdown worker on stopping the engine.
@@ -76,12 +79,20 @@ final class ShutdownWorkerThread extends Thread {
                                   "SHUTDOWN Worker",
                                   Integer.valueOf(0),
                                   _handlerProvider);
+        final SamplsPersistDataWorker sWorker =
+                new SamplsPersistDataWorker(_connectionHandler,
+                                      "SHUTDOWN Worker",
+                                      Integer.valueOf(0),
+                                      _handlerProvider);
         executor.execute(worker);
+        executor.execute(sWorker);
         executor.shutdown();
         try {
             if (!executor.awaitTermination(_prefTermTimeMS, TimeUnit.MILLISECONDS)) {
                 _shutdownLog.warn("Executor for PersistDataWorkers did not terminate in the specified period. Try to rescue data.");
+                rescueStatementsOfAllHandlers1(sWorker);
                 rescueStatementsOfAllHandlers(worker);
+
             }
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -96,6 +107,19 @@ final class ShutdownWorkerThread extends Thread {
             @SuppressWarnings({ "rawtypes", "unchecked" })
             final Collection<String> statements = handler.convertToStatementString((Collection) handler.getQueue());
             worker.rescueDataToFileSystem(statements);
+        }
+    }
+    private <T> void rescueStatementsOfAllHandlers1(@Nonnull final SamplsPersistDataWorker worker) {
+        final Collection<T> elements = Lists.newLinkedList();
+        for (final BatchQueueHandlerSupport<T> handler : _handlerProvider.getHandlers()) {
+            final BlockingQueue<T> queue= handler.getQueue();
+            queue.drainTo(elements, 1000);
+            @SuppressWarnings({ "rawtypes", "unchecked" })
+            final Collection<String> statements = handler.convertToStatementString(elements);
+            worker.rescueDataToFileSystem(statements);
+            if (queue.size()>1) {
+                rescueStatementsOfAllHandlers(worker);
+            }
         }
     }
 }

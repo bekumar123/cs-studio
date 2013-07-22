@@ -56,6 +56,7 @@ public class WriteExecutor {
     private final IServiceProvider _provider;
 
     private final ArchiveEngineId _engineId;
+    private final EngineModel _model;
 
     /**
      * Construct thread for writing to server
@@ -64,10 +65,13 @@ public class WriteExecutor {
      */
     public WriteExecutor(@Nonnull final IServiceProvider provider,
                          @Nonnull final ArchiveEngineId engineId,
-                         @Nonnull final Collection<ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> collection) {
+                         @Nonnull final Collection<ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> collection,
+                         @Nonnull final EngineModel model) {
         _provider = provider;
         _engineId = engineId;
         _channelsView = collection;
+        _model=model;
+
     }
 
     public void start(final long pHeartBeatPeriodInMS, final long pWritePeriodInMS) {
@@ -81,7 +85,7 @@ public class WriteExecutor {
 
 
         _writeWorker = submitAndScheduleWriteWorker(_provider,
-                                                    _writePeriodInMS);
+                                                    _writePeriodInMS/4);
         submitAndScheduleHeartBeatWorker(_engineId,
                                          _provider,
                                          pHeartBeatPeriodInMS);
@@ -108,7 +112,7 @@ public class WriteExecutor {
         final WriteWorker writeWorker = new WriteWorker(provider,
                                                         "Periodic Archive Engine Writer",
                                                         _channelsView,
-                                                        writePeriodInMS);
+                                                        writePeriodInMS,_model);
         _writeSamplesExecutor.scheduleAtFixedRate(writeWorker,
                                                   0L,
                                                   writePeriodInMS,
@@ -173,7 +177,7 @@ public class WriteExecutor {
         finalWriteExecutor.execute(new WriteWorker(_provider,
                                                    "Shutdown Archive Engine writer",
                                                    _channelsView,
-                                                   0L));
+                                                   0L,_model));
 
 
         final Duration dur = computeAwaitTerminationTime();

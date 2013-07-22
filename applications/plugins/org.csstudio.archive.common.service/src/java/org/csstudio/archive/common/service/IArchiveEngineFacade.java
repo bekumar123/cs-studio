@@ -114,7 +114,7 @@ public interface IArchiveEngineFacade {
      * @throws ArchiveServiceException
      */
     <V extends Serializable, T extends ISystemVariable<V>>
-    boolean writeSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples)
+    int writeSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples)
                          throws ArchiveServiceException;
 
 

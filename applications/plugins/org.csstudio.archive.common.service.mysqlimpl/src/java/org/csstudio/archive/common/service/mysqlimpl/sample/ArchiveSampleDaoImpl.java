@@ -140,24 +140,24 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
      */
     @Override
     public <V extends Serializable, T extends ISystemVariable<V>>
-    void createSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveDaoException {
-
+    int createSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveDaoException {
+        int size=0;
         try {
-            getEngineMgr().submitToBatch(samples);
-
+            size = getEngineMgr().submitToBatch(samples);
             final List<? extends AbstractReducedDataSample> minuteSamples =
                 generatePerMinuteSamples(samples, _reducedDataMapForMinutes);
             if (minuteSamples.isEmpty()) {
-                return;
+                return size;
             }
             getEngineMgr().submitToBatch(minuteSamples);
 
             final List<? extends AbstractReducedDataSample> hourSamples =
                 generatePerHourSamples(minuteSamples, _reducedDataMapForHours);
             if (hourSamples.isEmpty()) {
-                return;
+                return size;
             }
             getEngineMgr().submitToBatch(hourSamples);
+            return size;
         } catch (final TypeSupportException e) {
             throw new ArchiveDaoException("Type support for sample type could not be found.", e);
         }

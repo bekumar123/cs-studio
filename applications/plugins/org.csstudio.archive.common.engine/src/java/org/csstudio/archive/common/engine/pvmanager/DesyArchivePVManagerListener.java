@@ -123,8 +123,7 @@ public abstract class DesyArchivePVManagerListener<V extends Serializable,
 
                 _isConnected = _buffer.isConnected();
 
-                handleOnConnectionInformation(_provider,
-                                              sysVars.get(0),
+                handleOnConnectionInformation(_provider,sysVars.get(0),
                                               _channelId,
                                               _isConnected,
                                               _startInfo);

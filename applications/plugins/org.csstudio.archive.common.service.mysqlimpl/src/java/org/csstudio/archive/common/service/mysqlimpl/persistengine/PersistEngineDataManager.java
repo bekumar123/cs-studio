@@ -54,27 +54,26 @@ public class PersistEngineDataManager {
     /**
      * The thread pool executor for the periodically scheduled workers.
      */
-    private final ScheduledThreadPoolExecutor _executor =
-        (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(Math.max(2, _cpus + 1));
-//jhatje 2.2.12: set to 1 Thread
-//jhatje 22.2.12: back to previous thread number
-//    private final ScheduledThreadPoolExecutor _executor =
-//            (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1);
+    private boolean haveSampleThread = false;
+    private final ScheduledThreadPoolExecutor _executor = (ScheduledThreadPoolExecutor) Executors
+            .newScheduledThreadPool(Math.max(2, _cpus + 1));
+    //jhatje 2.2.12: set to 1 Thread
+    //jhatje 22.2.12: back to previous thread number
+    //    private final ScheduledThreadPoolExecutor _executor =
+    //            (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1);
 
     /**
      * Sorted set for submitted periodic workers - decreasing by period
      */
-    private final SortedSet<PersistDataWorker> _submittedWorkers =
-        Sets.newTreeSet(new Comparator<PersistDataWorker>() {
-                            /**
-                             * {@inheritDoc}
-                             */
-                            @Override
-                            public int compare(@Nonnull final PersistDataWorker arg0,
-                                               @Nonnull final PersistDataWorker arg1) {
-                                return Long.valueOf(arg0.getPeriodInMS()).compareTo(Long.valueOf(arg1.getPeriodInMS()));
-                            }
-                        });
+    private final SortedSet<PersistDataWorker> _submittedWorkers = Sets.newTreeSet(new Comparator<PersistDataWorker>() {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int compare(@Nonnull final PersistDataWorker arg0, @Nonnull final PersistDataWorker arg1) {
+            return Long.valueOf(arg0.getPeriodInMS()).compareTo(Long.valueOf(arg1.getPeriodInMS()));
+        }
+    });
     private final AtomicInteger _workerId = new AtomicInteger(0);
 
     private final Integer _prefPeriodInMS;
@@ -82,15 +81,15 @@ public class PersistEngineDataManager {
 
     private final ArchiveConnectionHandler _connectionHandler;
 
-    private final IBatchQueueHandlerProvider _allHandlersProvider =
-        new IBatchQueueHandlerProvider() {
-            @SuppressWarnings("rawtypes")
-            @Override
-            @Nonnull
-            public Collection<BatchQueueHandlerSupport> getHandlers() {
-                return BatchQueueHandlerSupport.getInstalledHandlers();
-            }
-        };
+    private final IBatchQueueHandlerProvider _allHandlersProvider = new IBatchQueueHandlerProvider() {
+        @SuppressWarnings("rawtypes")
+        @Override
+        @Nonnull
+        public Collection<BatchQueueHandlerSupport> getHandlers() {
+            return BatchQueueHandlerSupport.getInstalledHandlers();
+        }
+    };
+
 
     /**
      * Constructor.
@@ -113,20 +112,34 @@ public class PersistEngineDataManager {
                                             @Nonnull final AtomicInteger workerId,
                                             @Nonnull final SortedSet<PersistDataWorker> submittedWorkers) {
 
-        final PersistDataWorker newWorker = new PersistDataWorker(connectionHandler,
-                                                                  "PERIODIC Worker: " + workerId.getAndIncrement(),
-                                                                  prefPeriodInMS,
-                                                                  handlerProvider);
-      //  System.out.println("PersistEngineDataManager.submitNewPersistDataWorker()  create new Threads ");
-      /*  executor.scheduleAtFixedRate(newWorker,
-                                     0L,
-                                     newWorker.getPeriodInMS(),
-                                     TimeUnit.MILLISECONDS);*/
-        executor.scheduleWithFixedDelay(newWorker,
-                                     1L,
-                                     newWorker.getPeriodInMS(),
-                                     TimeUnit.MILLISECONDS);
+        final PersistDataWorker newWorker =
+                                      new PersistDataWorker(connectionHandler,
+                                                            "PERIODIC Worker: " + workerId.getAndIncrement(),
+                                                            prefPeriodInMS,
+                                                            handlerProvider);
+        System.out.println("PersistEngineDataManager.submitNewPersistDataWorker()  create new Threads "
+                           + "PERIODIC Worker: " + workerId.getAndIncrement());
+        executor.scheduleAtFixedRate(newWorker, 0L, newWorker.getPeriodInMS(), TimeUnit.MILLISECONDS);
+        /*  executor.scheduleWithFixedDelay(newWorker,
+                                       1L,
+                                       newWorker.getPeriodInMS(),
+                                       TimeUnit.MILLISECONDS);*/
+
         submittedWorkers.add(newWorker);
+        if (!haveSampleThread) {
+            final SamplsPersistDataWorker  newWorker1 =
+                        new SamplsPersistDataWorker(connectionHandler,
+                                              "PERIODIC Worker: " + workerId.getAndIncrement(),
+                                              prefPeriodInMS,
+                                              handlerProvider);
+            executor.scheduleAtFixedRate(newWorker1, 0L, 1000, TimeUnit.MILLISECONDS);
+            /*  executor.scheduleWithFixedDelay(newWorker,
+                             1L,
+                             newWorker.getPeriodInMS(),
+                             TimeUnit.MILLISECONDS);*/
+            submittedWorkers.add(newWorker1);
+            haveSampleThread=true;
+        }
     }
 
     /**
@@ -142,9 +155,7 @@ public class PersistEngineDataManager {
             /**
              * Add shutdown hook.
              */
-            Runtime.getRuntime().addShutdownHook(new ShutdownWorkerThread(connectionHandler,
-                                                                          provider,
-                                                                          prefTermTimeInMS));
+            Runtime.getRuntime().addShutdownHook(new ShutdownWorkerThread(connectionHandler, provider, prefTermTimeInMS));
         }
     }
 
@@ -161,22 +172,22 @@ public class PersistEngineDataManager {
         if (noWorkerPresentYet()) {
             return true;
         }
-//
-//
-//
-//        if (isMaxPoolSizeNotReached()) {
-//            submitNewPersistDataWorker(_executor,
-//                                       _prefPeriodInMS,
-//                                       _allHandlersProvider,
-//                                       _workerId,
-//                                       _submittedWorkers);
-//        } else {
-//            lowerPeriodOfExistingWorker(_executor,
-//                                        _prefPeriodInMS,
-//                                        _allHandlersProvider,
-//                                        _workerId,
-//                                        _submittedWorkers);
-//        }
+        //
+        //
+        //
+        //        if (isMaxPoolSizeNotReached()) {
+        //            submitNewPersistDataWorker(_executor,
+        //                                       _prefPeriodInMS,
+        //                                       _allHandlersProvider,
+        //                                       _workerId,
+        //                                       _submittedWorkers);
+        //        } else {
+        //            lowerPeriodOfExistingWorker(_executor,
+        //                                        _prefPeriodInMS,
+        //                                        _allHandlersProvider,
+        //                                        _workerId,
+        //                                        _submittedWorkers);
+        //        }
 
         return false;
     }
@@ -185,35 +196,34 @@ public class PersistEngineDataManager {
         return _executor.getPoolSize() <= 0;
     }
 
-//    private boolean isMaxPoolSizeNotReached() {
-//        return _executor.getPoolSize() < _executor.getCorePoolSize();
-//    }
-//    private void lowerPeriodOfExistingWorker(ScheduledThreadPoolExecutor executor,
-//                                             Integer prefPeriodInMS,
-//                                             IBatchQueueHandlerProvider handlerProvider,
-//                                             AtomicInteger workerId,
-//                                             SortedSet<PersistDataWorker> submittedWorkers) {
-//
-//    }
+    //    private boolean isMaxPoolSizeNotReached() {
+    //        return _executor.getPoolSize() < _executor.getCorePoolSize();
+    //    }
+    //    private void lowerPeriodOfExistingWorker(ScheduledThreadPoolExecutor executor,
+    //                                             Integer prefPeriodInMS,
+    //                                             IBatchQueueHandlerProvider handlerProvider,
+    //                                             AtomicInteger workerId,
+    //                                             SortedSet<PersistDataWorker> submittedWorkers) {
+    //
+    //    }
 
-//
-//    private boolean isPeriodAlreadySetToMinimum(final long period) {
-//        return Long.valueOf(period).intValue() <= 2000;
-//    }
-//
-//    private void handlePoolExhaustionWithMinimumPeriodCornerCase() {
-//        // FIXME (bknerr) : handle pool and thread frequency exhaustion
-//        // notify staff, rescue data to disc with dedicated worker
-//    }
-//
-//    private void lowerPeriodAndRemoveOldestWorker(@Nonnull final Iterator<PersistDataWorker> it,
-//                                                  @Nonnull final PersistDataWorker oldestWorker) {
-//        _prefPeriodInMS = Math.max(_prefPeriodInMS>>1, 2000);
-//        LOG.info("Remove Worker: " + oldestWorker.getName());
-//        _executor.remove(oldestWorker);
-//        it.remove();
-//    }
-
+    //
+    //    private boolean isPeriodAlreadySetToMinimum(final long period) {
+    //        return Long.valueOf(period).intValue() <= 2000;
+    //    }
+    //
+    //    private void handlePoolExhaustionWithMinimumPeriodCornerCase() {
+    //        // FIXME (bknerr) : handle pool and thread frequency exhaustion
+    //        // notify staff, rescue data to disc with dedicated worker
+    //    }
+    //
+    //    private void lowerPeriodAndRemoveOldestWorker(@Nonnull final Iterator<PersistDataWorker> it,
+    //                                                  @Nonnull final PersistDataWorker oldestWorker) {
+    //        _prefPeriodInMS = Math.max(_prefPeriodInMS>>1, 2000);
+    //        LOG.info("Remove Worker: " + oldestWorker.getName());
+    //        _executor.remove(oldestWorker);
+    //        it.remove();
+    //    }
 
     @Nonnull
     public ArchiveConnectionHandler getConnectionHandler() {
@@ -224,9 +234,9 @@ public class PersistEngineDataManager {
         _executor.shutdown();
     }
 
-    public void submitToBatch(@Nonnull final Collection<?> entries) throws TypeSupportException {
+    public int submitToBatch(@Nonnull final Collection<?> entries) throws TypeSupportException {
 
-        BatchQueueHandlerSupport.addToQueue(entries);
+        final int size =  BatchQueueHandlerSupport.addToQueue(entries);
 
         if (isAnotherWorkerRequired()) {
             submitNewPersistDataWorker(_executor,
@@ -236,5 +246,6 @@ public class PersistEngineDataManager {
                                        _workerId,
                                        _submittedWorkers);
         }
+        return size;
     }
 }

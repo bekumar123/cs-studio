@@ -39,7 +39,6 @@ import org.csstudio.archive.common.service.mysqlimpl.batch.IBatchQueueHandlerPro
 import org.csstudio.archive.common.service.mysqlimpl.dao.ArchiveConnectionHandler;
 import org.csstudio.archive.common.service.mysqlimpl.dao.ArchiveDaoException;
 import org.csstudio.archive.common.service.mysqlimpl.notification.ArchiveNotifications;
-import org.csstudio.archive.common.service.sample.ArchiveSample;
 import org.csstudio.domain.desy.task.AbstractTimeMeasuredRunnable;
 import org.csstudio.domain.desy.time.StopWatch;
 import org.csstudio.domain.desy.time.StopWatch.RunningStopWatch;
@@ -113,31 +112,28 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
         final Collection<T> elements = Lists.newLinkedList();
 
         for (final BatchQueueHandlerSupport<T> handler : handlerProvider.getHandlers()) {
-            if (!ArchiveSample.class.getSimpleName().equals(handler.getHandlerType().getSimpleName())) {
-                final BlockingQueue<T> queue = handler.getQueue();
-
-                queue.drainTo(elements);
-                    if (!elements.isEmpty()) {
-                    PreparedStatement stmt = null;
-                    try {//bei jedes Mal SQL Statement erzeugen, connection neue prüfen, ob die Connection closed ist
-                        while (connection == null || connection.isClosed()) {
-                            connection = _connectionHandler.getThreadLocalConnection();
-                        }
-                        stmt = handler.createNewStatement(connection);
-                        processBatchForStatement(handler, elements, stmt, rescueDataList);
-                    } catch (final ArchiveConnectionException e) {
-                        handler.getQueue().addAll(elements);
-                        elements.clear();
-                        LOG.error("Connection to archive failed", e);
-                        // FIXME (bknerr) : strategy for queues getting full, when to rescue data? How to check for failover?
-                    } catch (final SQLException e) {
-                        handler.getQueue().addAll(elements);
-                        elements.clear();
-                        LOG.error("Creation of batch statement failed for strategy " + handler.getClass().getSimpleName(), e);
-                        // FIXME (bknerr) : strategy for queues getting full, when to rescue data?
+            final BlockingQueue<T> queue = handler.getQueue();
+            queue.drainTo(elements);
+            if (!elements.isEmpty()) {
+                PreparedStatement stmt = null;
+                try {//bei jedes Mal SQL Statement erzeugen, connection neue prüfen, ob die Connection closed ist
+                    while (connection == null || connection.isClosed()) {
+                        connection = _connectionHandler.getThreadLocalConnection();
                     }
+                    stmt = handler.createNewStatement(connection);
+                    processBatchForStatement(handler, elements, stmt, rescueDataList);
+                } catch (final ArchiveConnectionException e) {
+                    handler.getQueue().addAll(elements);
                     elements.clear();
+                    LOG.error("Connection to archive failed", e);
+                    // FIXME (bknerr) : strategy for queues getting full, when to rescue data? How to check for failover?
+                } catch (final SQLException e) {
+                    handler.getQueue().addAll(elements);
+                    elements.clear();
+                    LOG.error("Creation of batch statement failed for strategy " + handler.getClass().getSimpleName(), e);
+                    // FIXME (bknerr) : strategy for queues getting full, when to rescue data?
                 }
+                elements.clear();
             }
         }
     }
@@ -257,8 +253,7 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
         } catch (final Throwable tt) {
             LOG.error("Unknown throwable. Thread " + _name + " is terminated", tt);
             rescueDataToFileSystem(statements);
-        }
-        finally {
+        } finally {
             rescueDataList.clear();
         }
     }

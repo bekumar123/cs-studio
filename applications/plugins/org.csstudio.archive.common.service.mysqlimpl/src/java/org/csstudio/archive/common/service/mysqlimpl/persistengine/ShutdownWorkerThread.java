@@ -81,11 +81,12 @@ final class ShutdownWorkerThread extends Thread {
                                   _handlerProvider);
         final SamplsPersistDataWorker sWorker =
                 new SamplsPersistDataWorker(_connectionHandler,
-                                      "SHUTDOWN Worker",
+                                      "SHUTDOWN SampleWorker",
                                       Integer.valueOf(0),
                                       _handlerProvider);
-        executor.execute(worker);
+
         executor.execute(sWorker);
+        executor.execute(worker);
         executor.shutdown();
         try {
             if (!executor.awaitTermination(_prefTermTimeMS, TimeUnit.MILLISECONDS)) {

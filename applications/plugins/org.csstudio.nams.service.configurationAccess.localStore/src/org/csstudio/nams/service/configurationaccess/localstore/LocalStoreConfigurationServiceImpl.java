@@ -7,6 +7,7 @@ import org.csstudio.nams.service.configurationaccess.localstore.declaration.Alar
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.AlarmbearbeiterGruppenDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.Configuration;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterConfiguration;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.DefaultFilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.HistoryDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.LocalStoreConfigurationService;
@@ -214,8 +215,8 @@ class LocalStoreConfigurationServiceImpl implements
             public FilterConfiguration doWork(Mapper mapper) throws Throwable {
 				FilterConfiguration resultOfUnit = null;
 
-				Collection<FilterDTO> allFilters = mapper.loadAll(
-						FilterDTO.class, true);
+				Collection<DefaultFilterDTO> allFilters = mapper.loadAll(
+						DefaultFilterDTO.class, true);
 
 				resultOfUnit = new FilterConfiguration(allFilters);
 
@@ -250,7 +251,7 @@ class LocalStoreConfigurationServiceImpl implements
 			newTransaction.begin();
 
 			SQLQuery query = null;
-			String[] tabellen = new String[] { "AMS_FILTER",
+			String[] tabellen = new String[] { "AMS_FILTER", "AMS_FILTERTYPE",
 					"AMS_FILTERACTION", "AMS_FILTERACTIONTYPE",
 					"AMS_FILTERCONDITION", "AMS_FILTERCONDITIONTYPE",
 					"AMS_FILTERCONDITION_PV", "AMS_FILTERCONDITION_STRING",

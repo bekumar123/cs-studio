@@ -19,7 +19,7 @@ import org.csstudio.nams.common.material.regelwerk.UndVersandRegel;
 import org.csstudio.nams.common.material.regelwerk.VersandRegel;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.Configuration;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterConfiguration;
-import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.DefaultFilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.HistoryDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.JunctorConditionType;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.LocalStoreConfigurationService;
@@ -57,7 +57,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 	private StringFilterConditionDTO childDTO2;
 	private StringRegel childRegel2;
 	
-	private List<FilterDTO> localStoreConfigurationServiceFilterDTOs;
+	private List<DefaultFilterDTO> localStoreConfigurationServiceFilterDTOs;
 
 	@Override
 	protected void setUp() throws Exception {
@@ -66,7 +66,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 				.createService();
 		RegelwerkBuilderServiceImpl.staticInject(createMockProcessVariableConnectionService());
 
-		localStoreConfigurationServiceFilterDTOs = new ArrayList<FilterDTO>();
+		localStoreConfigurationServiceFilterDTOs = new ArrayList<DefaultFilterDTO>();
 		RegelwerkBuilderServiceImpl.staticInject(createMockLocalStoreConfigurationService());
 		
 		childRegel = new StringRegel(StringRegelOperator.OPERATOR_TEXT_EQUAL, MessageKeyEnum.HOST, "gnarf");
@@ -205,7 +205,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 	
 	@Test
 	public void testGibKomplexeRegelwerke() throws RegelwerksBuilderException {
-		FilterDTO complexStringFilterDTO = new FilterDTO();
+		DefaultFilterDTO complexStringFilterDTO = new DefaultFilterDTO();
 		complexStringFilterDTO.setFilterConditions(Arrays.asList((FilterConditionDTO)childDTO, childDTO2));
 		
 		localStoreConfigurationServiceFilterDTOs.add(complexStringFilterDTO);
@@ -213,7 +213,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		List<Regelwerk> komplexeRegelwerke = regelwerkBuilderService.gibKomplexeRegelwerke();
 		assertEquals(1, komplexeRegelwerke.size());
 
-		FilterDTO simpleStringFilterDTO = new FilterDTO();
+		DefaultFilterDTO simpleStringFilterDTO = new DefaultFilterDTO();
 		simpleStringFilterDTO.setFilterConditions(Arrays.asList((FilterConditionDTO)childDTO2));
 		
 		localStoreConfigurationServiceFilterDTOs.add(simpleStringFilterDTO);
@@ -221,7 +221,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		komplexeRegelwerke = regelwerkBuilderService.gibKomplexeRegelwerke();
 		assertEquals(1, komplexeRegelwerke.size());
 		
-		FilterDTO stringFilterDtoWrongOperator = new FilterDTO();
+		DefaultFilterDTO stringFilterDtoWrongOperator = new DefaultFilterDTO();
 		StringFilterConditionDTO stringFilterCondition = new StringFilterConditionDTO();
 		stringFilterCondition.setOperatorEnum(StringRegelOperator.OPERATOR_NUMERIC_EQUAL);
 		stringFilterCondition.setKeyValue(MessageKeyEnum.ACK_TIME);
@@ -233,7 +233,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		assertEquals(2, regelwerkBuilderService.gibKomplexeRegelwerke().size());
 		assertEquals(3, regelwerkBuilderService.gibAlleRegelwerke().size());
 
-		FilterDTO otherFilterDtoWrongOperator = new FilterDTO();
+		DefaultFilterDTO otherFilterDtoWrongOperator = new DefaultFilterDTO();
 		
 		StringArFilterConditionDTO arrayDTO = new StringArFilterConditionDTO();
 		arrayDTO.setKeyValue(MessageKeyEnum.HOST);

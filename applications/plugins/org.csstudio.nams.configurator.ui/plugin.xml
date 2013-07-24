@@ -88,6 +88,12 @@
             id="org.csstudio.nams.configurator.editor.FilterbedingungEditor"
             name="%editor.name.4">
       </editor>
+      <editor
+            class="org.csstudio.nams.configurator.editor.TimebasedFilterEditor"
+            icon="icons/ams.gif"
+            id="org.csstudio.nams.configurator.editor.TimebasedFilterEditor"
+            name="Timebased Filter Editor">
+      </editor>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">

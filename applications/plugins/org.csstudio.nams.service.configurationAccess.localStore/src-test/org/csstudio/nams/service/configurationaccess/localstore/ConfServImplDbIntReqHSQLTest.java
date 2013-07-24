@@ -16,7 +16,7 @@ import org.csstudio.nams.service.configurationaccess.localstore.declaration.Alar
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.AlarmbearbeiterGruppenDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.Configuration;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.DatabaseType;
-import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.DefaultFilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.JunctorConditionType;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.LocalStoreConfigurationService;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.TopicDTO;
@@ -528,7 +528,7 @@ public class ConfServImplDbIntReqHSQLTest
 		final List<FilterConditionDTO> filterConditions = new LinkedList<FilterConditionDTO>();
 		filterConditions.add(orCondition);
 
-		final FilterDTO filter = new FilterDTO();
+		final DefaultFilterDTO filter = new DefaultFilterDTO();
 		filter.setName("Test Filter für JCFFT");
 		filter.setDefaultMessage("Hallo Welt!");
 		filter.setFilterConditions(filterConditions);
@@ -537,12 +537,12 @@ public class ConfServImplDbIntReqHSQLTest
 		Configuration entireConfiguration = this.service
 				.getEntireConfiguration();
 		Assert.assertNotNull(entireConfiguration);
-		Collection<FilterDTO> alleFilter = entireConfiguration.gibAlleFilter();
-		for (final FilterDTO filterDTO : alleFilter) {
-			if (filterDTO.getName().equals("Test Filter für JCFFT")) {
-				this.service.deleteDTO(filterDTO);
+		Collection<DefaultFilterDTO> alleFilter = entireConfiguration.gibAlleDefaultFilter();
+		for (final DefaultFilterDTO DefaultFilterDTO : alleFilter) {
+			if (DefaultFilterDTO.getName().equals("Test Filter für JCFFT")) {
+				this.service.deleteDTO(DefaultFilterDTO);
 			}
-			// assertFalse("noch nicht enthalten", filterDTO.getName().equals(
+			// assertFalse("noch nicht enthalten", DefaultFilterDTO.getName().equals(
 			// "Test Filter für JCFFT"));
 		}
 
@@ -552,11 +552,11 @@ public class ConfServImplDbIntReqHSQLTest
 		// Pruefen dass Filter jetzt da ist.
 		entireConfiguration = this.service.getEntireConfiguration();
 		Assert.assertNotNull(entireConfiguration);
-		alleFilter = entireConfiguration.gibAlleFilter();
-		FilterDTO found = null;
-		for (final FilterDTO filterDTO : alleFilter) {
-			if (filter.equals(filterDTO)) {
-				found = filterDTO;
+		alleFilter = entireConfiguration.gibAlleDefaultFilter();
+		DefaultFilterDTO found = null;
+		for (final DefaultFilterDTO DefaultFilterDTO : alleFilter) {
+			if (filter.equals(DefaultFilterDTO)) {
+				found = DefaultFilterDTO;
 			}
 		}
 		Assert.assertNotNull("enthalten", found);
@@ -572,11 +572,11 @@ public class ConfServImplDbIntReqHSQLTest
 		// Filter finden
 		entireConfiguration = this.service.getEntireConfiguration();
 		Assert.assertNotNull(entireConfiguration);
-		alleFilter = entireConfiguration.gibAlleFilter();
-		FilterDTO foundFilter = null;
-		for (final FilterDTO filterDTO : alleFilter) {
-			if (filterDTO.getIFilterID() == filter.getIFilterID()) {
-				foundFilter = filterDTO;
+		alleFilter = entireConfiguration.gibAlleDefaultFilter();
+		DefaultFilterDTO foundFilter = null;
+		for (final DefaultFilterDTO DefaultFilterDTO : alleFilter) {
+			if (DefaultFilterDTO.getIFilterID() == filter.getIFilterID()) {
+				foundFilter = DefaultFilterDTO;
 			}
 		}
 		final List<FilterConditionDTO> list = foundFilter.getFilterConditions();
@@ -594,9 +594,9 @@ public class ConfServImplDbIntReqHSQLTest
 		// Pruefen dass kein entsprechender Filter mehr da ist.
 		entireConfiguration = this.service.getEntireConfiguration();
 		Assert.assertNotNull(entireConfiguration);
-		alleFilter = entireConfiguration.gibAlleFilter();
-		for (final FilterDTO filterDTO : alleFilter) {
-			Assert.assertFalse("nicht mehr enthalten", filterDTO.getName()
+		alleFilter = entireConfiguration.gibAlleDefaultFilter();
+		for (final DefaultFilterDTO DefaultFilterDTO : alleFilter) {
+			Assert.assertFalse("nicht mehr enthalten", DefaultFilterDTO.getName()
 					.equals("Test Filter für JCFFT"));
 		}
 
@@ -642,7 +642,7 @@ public class ConfServImplDbIntReqHSQLTest
 		final List<FilterConditionDTO> filterConditions = new LinkedList<FilterConditionDTO>();
 		filterConditions.add(notOR);
 
-		final FilterDTO filter = new FilterDTO();
+		final DefaultFilterDTO filter = new DefaultFilterDTO();
 		filter.setName("Test Filter für JCFFT");
 		filter.setDefaultMessage("Hallo Welt!");
 		filter.setFilterConditions(filterConditions);
@@ -651,12 +651,12 @@ public class ConfServImplDbIntReqHSQLTest
 		Configuration entireConfiguration = this.service
 				.getEntireConfiguration();
 		Assert.assertNotNull(entireConfiguration);
-		Collection<FilterDTO> alleFilter = entireConfiguration.gibAlleFilter();
-		for (final FilterDTO filterDTO : alleFilter) {
-			if (filterDTO.getName().equals("Test Filter für JCFFT")) {
-				this.service.deleteDTO(filterDTO);
+		Collection<DefaultFilterDTO> alleFilter = entireConfiguration.gibAlleDefaultFilter();
+		for (final DefaultFilterDTO DefaultFilterDTO : alleFilter) {
+			if (DefaultFilterDTO.getName().equals("Test Filter für JCFFT")) {
+				this.service.deleteDTO(DefaultFilterDTO);
 			}
-			Assert.assertFalse("noch nicht enthalten", filterDTO.getName()
+			Assert.assertFalse("noch nicht enthalten", DefaultFilterDTO.getName()
 					.equals("Test Filter für JCFFT"));
 		}
 
@@ -666,11 +666,11 @@ public class ConfServImplDbIntReqHSQLTest
 		// Pruefen dass Filter jetzt da ist.
 		entireConfiguration = this.service.getEntireConfiguration();
 		Assert.assertNotNull(entireConfiguration);
-		alleFilter = entireConfiguration.gibAlleFilter();
-		FilterDTO found = null;
-		for (final FilterDTO filterDTO : alleFilter) {
-			if (filter.equals(filterDTO)) {
-				found = filterDTO;
+		alleFilter = entireConfiguration.gibAlleDefaultFilter();
+		DefaultFilterDTO found = null;
+		for (final DefaultFilterDTO DefaultFilterDTO : alleFilter) {
+			if (filter.equals(DefaultFilterDTO)) {
+				found = DefaultFilterDTO;
 			}
 		}
 		Assert.assertNotNull("enthalten", found);
@@ -686,11 +686,11 @@ public class ConfServImplDbIntReqHSQLTest
 		// Filter finden
 		entireConfiguration = this.service.getEntireConfiguration();
 		Assert.assertNotNull(entireConfiguration);
-		alleFilter = entireConfiguration.gibAlleFilter();
-		FilterDTO foundFilter = null;
-		for (final FilterDTO filterDTO : alleFilter) {
-			if (filterDTO.getName().equals("Test Filter für JCFFT")) {
-				foundFilter = filterDTO;
+		alleFilter = entireConfiguration.gibAlleDefaultFilter();
+		DefaultFilterDTO foundFilter = null;
+		for (final DefaultFilterDTO DefaultFilterDTO : alleFilter) {
+			if (DefaultFilterDTO.getName().equals("Test Filter für JCFFT")) {
+				foundFilter = DefaultFilterDTO;
 			}
 		}
 		final List<FilterConditionDTO> list = foundFilter.getFilterConditions();
@@ -713,9 +713,9 @@ public class ConfServImplDbIntReqHSQLTest
 		// Pruefen dass kein entsprechender Filter mehr da ist.
 		entireConfiguration = this.service.getEntireConfiguration();
 		Assert.assertNotNull(entireConfiguration);
-		alleFilter = entireConfiguration.gibAlleFilter();
-		for (final FilterDTO filterDTO : alleFilter) {
-			Assert.assertFalse("nicht mehr enthalten", filterDTO.getName()
+		alleFilter = entireConfiguration.gibAlleDefaultFilter();
+		for (final DefaultFilterDTO DefaultFilterDTO : alleFilter) {
+			Assert.assertFalse("nicht mehr enthalten", DefaultFilterDTO.getName()
 					.equals("Test Filter für JCFFT"));
 		}
 

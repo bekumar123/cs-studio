@@ -17,23 +17,23 @@ import org.csstudio.nams.common.material.Regelwerkskennung;
 import org.csstudio.nams.common.material.regelwerk.Pruefliste;
 import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 import org.csstudio.nams.common.material.regelwerk.WildcardStringCompare;
-import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.DefaultFilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.StringFilterConditionDTO;
 import org.csstudio.nams.service.logging.declaration.ILogger;
 
 public class SimpleFilterWorker {
     
     private final StandardAblagekorb<Vorgangsmappe> ausgangskorb;
-    private final List<FilterDTO> filters;
+    private final List<DefaultFilterDTO> filters;
     private final ILogger logger;
     
-    public SimpleFilterWorker(Collection<FilterDTO> filters,
+    public SimpleFilterWorker(Collection<DefaultFilterDTO> filters,
                               StandardAblagekorb<Vorgangsmappe> ausgangskorb,
                               ILogger logger) {
         this.ausgangskorb = ausgangskorb;
         this.logger = logger;
-        this.filters = new ArrayList<FilterDTO>();
-        for (FilterDTO filter : filters) {
+        this.filters = new ArrayList<DefaultFilterDTO>();
+        for (DefaultFilterDTO filter : filters) {
             if (filter.isSimpleStringBasedFilter()) {
                 this.filters.add(filter);
             }
@@ -41,12 +41,12 @@ public class SimpleFilterWorker {
     }
     
     public void bearbeiteAlarmnachricht(AlarmNachricht alarmNachricht) {
-        for (FilterDTO filter : filters) {
+        for (DefaultFilterDTO filter : filters) {
             applyFilterOnMessage(filter, alarmNachricht);
         }
     }
     
-    private void applyFilterOnMessage(FilterDTO filter, AlarmNachricht alarmNachricht) {
+    private void applyFilterOnMessage(DefaultFilterDTO filter, AlarmNachricht alarmNachricht) {
         Map<MessageKeyEnum, String> alarmContents = alarmNachricht.getContentMap();
         StringFilterConditionDTO stringFilterConditionDTO =
                                                             (StringFilterConditionDTO) (filter

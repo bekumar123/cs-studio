@@ -52,7 +52,7 @@ public abstract class FilterDAO extends DAO
 	private static void copyFilter(Connection masterDB, Connection targetDB,
 							String strMaster, String strTarget) throws SQLException
 	{
-		final String query = "SELECT iFilterID,iGroupRef,cName,cDefaultMessage FROM AMS_Filter" + strMaster;
+		final String query = "SELECT iFilterID,iGroupRef,cName,cDefaultMessage,cFilterType FROM AMS_Filter" + strMaster;
 		ResultSet rs = null;
 		PreparedStatement st = null;
 		PreparedStatementHolder psth = null;
@@ -69,7 +69,8 @@ public abstract class FilterDAO extends DAO
 						rs.getInt(1), 
 						rs.getInt(2), 
 						rs.getString(3), 
-						rs.getString(4));
+						rs.getString(4),
+						rs.getString(5));
 				preparedInsertFilter(targetDB, strTarget, psth, fObj);
 			}
 		}
@@ -104,7 +105,7 @@ public abstract class FilterDAO extends DAO
 							FilterTObject fObj) throws SQLException 
 	{
 		final String query = "INSERT INTO AMS_Filter" + strTarget
-			+ " (iFilterID,iGroupRef,cName,cDefaultMessage) VALUES(?,?,?,?)";
+			+ " (iFilterID,iGroupRef,cName,cDefaultMessage,cFilterType) VALUES(?,?,?,?,?)";
 
 		if (psth.bMode == PreparedStatementHolder.MODE_CLOSE)
 		{
@@ -128,6 +129,7 @@ public abstract class FilterDAO extends DAO
 			psth.pst.setInt(	2, fObj.getGroupRef());
 			psth.pst.setString(	3, fObj.getName());
 			psth.pst.setString(	4, fObj.getDefaultMessage());
+			psth.pst.setString(	5, fObj.getFilterType());
 			
 			psth.pst.executeUpdate();
 		}
@@ -140,7 +142,7 @@ public abstract class FilterDAO extends DAO
 
 	public static FilterTObject select(Connection con, int filterID) throws SQLException
 	{
-		final String query = "SELECT iFilterID, iGroupRef, cName, cDefaultMessage FROM AMS_Filter WHERE iFilterID = ?";
+		final String query = "SELECT iFilterID, iGroupRef, cName, cDefaultMessage, cFilterType FROM AMS_Filter WHERE iFilterID = ?";
 	
 		ResultSet rs = null;
 		PreparedStatement st = null;
@@ -153,7 +155,7 @@ public abstract class FilterDAO extends DAO
 			rs = st.executeQuery();
 			
 			if(rs.next())
-				filter = new FilterTObject(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getString(4));
+				filter = new FilterTObject(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getString(4), rs.getString(5));
 			
 			return filter;
 		}
@@ -170,7 +172,7 @@ public abstract class FilterDAO extends DAO
 	
 	public static void insert(Connection con, FilterTObject filter) throws SQLException
 	{
-		final String query = "INSERT INTO AMS_Filter (iFilterID,iGroupRef,cName,cDefaultMessage) VALUES(?,?,?,?)";
+		final String query = "INSERT INTO AMS_Filter (iFilterID,iGroupRef,cName,cDefaultMessage,cFilterType) VALUES(?,?,?,?,?)";
 	
 		PreparedStatement st = null;
 	
@@ -182,6 +184,7 @@ public abstract class FilterDAO extends DAO
 			st.setInt(		2, filter.getGroupRef());
 			st.setString(	3, filter.getName());
 			st.setString(	4, filter.getDefaultMessage());
+			st.setString(      5, filter.getFilterType());
 			
 			st.executeUpdate();
 			filter.setFilterID(newID);
@@ -268,7 +271,7 @@ public abstract class FilterDAO extends DAO
 	
 	public static void update(Connection con, FilterTObject filter) throws SQLException
 	{
-		final String query = "UPDATE AMS_Filter SET iGroupRef=?,cName=?,cDefaultMessage=? WHERE iFilterID = ?";
+		final String query = "UPDATE AMS_Filter SET iGroupRef=?,cName=?,cDefaultMessage=?,cFilterType=? WHERE iFilterID = ?";
 	
 		PreparedStatement st = null;
 			
@@ -278,8 +281,9 @@ public abstract class FilterDAO extends DAO
 			st.setInt(1, 	filter.getGroupRef());
 			st.setString(2, filter.getName());
 			st.setString(3, filter.getDefaultMessage());
+			st.setString(4,    filter.getFilterType());
 
-			st.setInt(4, 	filter.getFilterID());
+			st.setInt(5, 	filter.getFilterID());
 	
 			st.executeUpdate();
 		}	

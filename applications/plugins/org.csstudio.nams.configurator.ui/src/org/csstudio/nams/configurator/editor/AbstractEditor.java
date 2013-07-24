@@ -130,35 +130,24 @@ public abstract class AbstractEditor<ConfigurationType extends AbstractConfigura
 				final ConfigurationEditorInput cInput = (ConfigurationEditorInput) this
 						.getEditorInput();
 				cInput.setBean(this.originalEditorInput);
-				this.workingCopyOfEditorInput.setID(this.originalEditorInput
-						.getID()); // Die
-				// Bean
-				// darf
-				// nicht
-				// neu
-				// geklont
-				// werden!!!
-				// Sonst
-				// geht
-				// das
-				// binding
-				// der
-				// viewer
-				// verloren!
+				// Die Bean darf nicht neu geklont werden!!! Sonst geht das
+				// binding der viewer verloren!
+				this.workingCopyOfEditorInput.setID(this.originalEditorInput.getID());
 			}
 			this.afterSafe();
 		} catch (final Throwable e) {
-			final MessageBox messageBox = new MessageBox(PlatformUI
-					.getWorkbench().getActiveWorkbenchWindow().getShell());
-			messageBox.setText(Messages.AbstractEditor_saveFailed);
-			Throwable cause = e.getCause();
-			String message = e.getMessage();
-			while (cause != null) {
-				message += "\n" + cause.getMessage(); //$NON-NLS-1$
-				cause = cause.getCause();
-			}
-			messageBox.setMessage(message);
-			messageBox.open();
+//			final MessageBox messageBox = new MessageBox(PlatformUI
+//					.getWorkbench().getActiveWorkbenchWindow().getShell());
+//			messageBox.setText(Messages.AbstractEditor_saveFailed);
+//			Throwable cause = e.getCause();
+//			String message = e.getMessage();
+//			while (cause != null) {
+//				message += "\n" + cause.getMessage(); //$NON-NLS-1$
+//				cause = cause.getCause();
+//			}
+//			messageBox.setMessage(message);
+//			messageBox.open();
+			e.printStackTrace();
 		}
 		this.setPartName(this.originalEditorInput.getDisplayName() + " - " //$NON-NLS-1$
 				+ this.superTitle);

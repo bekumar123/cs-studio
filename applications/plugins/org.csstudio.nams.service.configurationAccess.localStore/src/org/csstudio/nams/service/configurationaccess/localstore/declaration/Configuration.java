@@ -1,6 +1,7 @@
 
 package org.csstudio.nams.service.configurationaccess.localstore.declaration;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,7 +29,8 @@ public class Configuration {
 	private final Collection<TopicDTO> alleAlarmtopics;
 	private final Collection<AlarmbearbeiterGruppenDTO> alleAlarmbearbeiterGruppen;
 
-	private final Collection<FilterDTO> allFilters;
+	private final Collection<DefaultFilterDTO> allDefaultFilters;
+	private final Collection<TimeBasedFilterDTO> allTimebasedFilters;
 	private final Collection<FilterConditionsToFilterDTO> allFilterConditionMappings;
 	private final Collection<FilterConditionDTO> allFilterConditions;
 	private final Collection<RubrikDTO> alleRubriken;
@@ -49,7 +51,16 @@ public class Configuration {
 		this.alleAlarmbarbeiter = alleAlarmbarbeiter;
 		this.alleAlarmtopics = alleAlarmtopics;
 		this.alleAlarmbearbeiterGruppen = alleAlarmbearbeiterGruppen;
-		this.allFilters = allFilters;
+		this.allDefaultFilters = new ArrayList<DefaultFilterDTO>();
+		this.allTimebasedFilters = new ArrayList<TimeBasedFilterDTO>();
+		for (FilterDTO filterDTO : allFilters) {
+			if(filterDTO instanceof DefaultFilterDTO) {
+				this.allDefaultFilters.add((DefaultFilterDTO) filterDTO);
+			}
+			else if(filterDTO instanceof TimeBasedFilterDTO) {
+				this.allTimebasedFilters.add((TimeBasedFilterDTO) filterDTO);
+			}
+		}
 		this.allFilterConditionMappings = new LinkedList<FilterConditionsToFilterDTO>();
 		this.allFilterConditions = allFilterConditions;
 		this.alleRubriken = alleRubriken;
@@ -92,8 +103,17 @@ public class Configuration {
 	/**
 	 * Returns a list of all FilterDTO's
 	 */
+	public Collection<DefaultFilterDTO> gibAlleDefaultFilter() {
+		return this.allDefaultFilters;
+	}
+	
 	public Collection<FilterDTO> gibAlleFilter() {
-		return this.allFilters;
+		List<FilterDTO> result = new ArrayList<>(this.allDefaultFilters.size() + this.allTimebasedFilters.size());
+		
+		result.addAll(this.allDefaultFilters);
+		result.addAll(this.allTimebasedFilters);
+		
+		return result;
 	}
 
 	public Collection<FilterConditionDTO> gibAlleFilterConditions() {

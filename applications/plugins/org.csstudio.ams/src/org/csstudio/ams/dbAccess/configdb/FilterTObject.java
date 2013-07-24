@@ -39,6 +39,7 @@ public class FilterTObject extends TObject implements ItemInterface {
     private static final long serialVersionUID = -1306344725040262239L;
 	
 	private int 	filterID;// PRIMARY KEY
+	private String  filterType;
 	private int 	groupRef;
 	private String 	name;
 	private String 	defaultMessage;
@@ -48,11 +49,12 @@ public class FilterTObject extends TObject implements ItemInterface {
 		this.groupRef = -1;
 	}
 	
-	public FilterTObject(int filterID, int groupRef, String name, String defaultMessage) {
+	public FilterTObject(int filterID, int groupRef, String name, String defaultMessage, String filterType) {
 		this.filterID = filterID;
 		this.groupRef = groupRef;
 		this.name = name;
 		this.defaultMessage = defaultMessage;
+		this.filterType = filterType;
 	}
 	
 	public FilterKey getKey() {
@@ -80,6 +82,14 @@ public class FilterTObject extends TObject implements ItemInterface {
 	
 	public void setFilterID(int filterID) {
 		this.filterID = filterID;
+	}
+	
+	public String getFilterType() {
+		return filterType;
+	}
+	
+	public void setFilterType(String filterType) {
+		this.filterType = filterType;
 	}
 
 	public int getGroupRef() {
@@ -112,6 +122,8 @@ public class FilterTObject extends TObject implements ItemInterface {
 		if(!strEquals(compare.getName(), getName()))
 			return false;
 		if(!strEquals(compare.getDefaultMessage(), getDefaultMessage()))
+			return false;
+		if(compare.getFilterType() != getFilterType())
 			return false;
 
 		return true;

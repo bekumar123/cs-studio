@@ -4,14 +4,16 @@ package org.csstudio.nams.configurator.actions;
 import org.csstudio.nams.configurator.beans.AlarmbearbeiterBean;
 import org.csstudio.nams.configurator.beans.AlarmbearbeiterGruppenBean;
 import org.csstudio.nams.configurator.beans.AlarmtopicBean;
-import org.csstudio.nams.configurator.beans.FilterBean;
+import org.csstudio.nams.configurator.beans.DefaultFilterBean;
 import org.csstudio.nams.configurator.beans.FilterbedingungBean;
 import org.csstudio.nams.configurator.beans.IConfigurationBean;
+import org.csstudio.nams.configurator.beans.TimebasedFilterBean;
 import org.csstudio.nams.configurator.editor.AlarmbearbeiterEditor;
 import org.csstudio.nams.configurator.editor.AlarmbearbeitergruppenEditor;
 import org.csstudio.nams.configurator.editor.AlarmtopicEditor;
 import org.csstudio.nams.configurator.editor.FilterEditor;
 import org.csstudio.nams.configurator.editor.FilterbedingungEditor;
+import org.csstudio.nams.configurator.editor.TimebasedFilterEditor;
 
 /**
  * Zuordnung der Editoren zu den Konfigurationselementen.
@@ -22,7 +24,8 @@ public enum BeanToEditorId {
 	Alarmbearbeiter(AlarmbearbeiterBean.class, AlarmbearbeiterEditor.getId()), 
 	Alarmbearbeitergruppe(AlarmbearbeiterGruppenBean.class, AlarmbearbeitergruppenEditor.getId()),
 	AlarmTopic(AlarmtopicBean.class, AlarmtopicEditor.getId()),
-	Filter(FilterBean.class, FilterEditor.getId()),
+	DefaultFilter(DefaultFilterBean.class, FilterEditor.getId()),
+	TimebasedFilter(TimebasedFilterBean.class, TimebasedFilterEditor.getId()),
 	Filterbedingung(FilterbedingungBean.class, FilterbedingungEditor.getId());
 
 	public static BeanToEditorId getEnumForClass(

@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.csstudio.nams.configurator.Messages;
 
-public class FilterBean extends AbstractConfigurationBean<FilterBean> {
+public abstract class FilterBean<T extends FilterBean<T>> extends AbstractConfigurationBean<T> {
 
 	public static enum PropertyNames {
 		filterID, name, defaultMessage, conditions
@@ -17,7 +17,6 @@ public class FilterBean extends AbstractConfigurationBean<FilterBean> {
 	private int filterID;// PRIMARY KEY
 	private String name;
 	private String defaultMessage;
-	private List<FilterbedingungBean> conditions = new LinkedList<FilterbedingungBean>();
 	private List<FilterAction> filterActions = new LinkedList<FilterAction>();
 
 	public FilterBean() {
@@ -40,13 +39,6 @@ public class FilterBean extends AbstractConfigurationBean<FilterBean> {
 			return false;
 		}
 		final FilterBean other = (FilterBean) obj;
-		if (this.conditions == null) {
-			if (other.conditions != null) {
-				return false;
-			}
-		} else if (!this.conditions.equals(other.conditions)) {
-			return false;
-		}
 		if (this.defaultMessage == null) {
 			if (other.defaultMessage != null) {
 				return false;
@@ -76,27 +68,7 @@ public class FilterBean extends AbstractConfigurationBean<FilterBean> {
 
 	public List<FilterAction> getActions() {
 
-		// //FIXME remove
-		// if (filterActions.size() == 0) {
-		// AlarmbearbeiterFilterAction alarmbearbeiterFilterAction = new
-		// AlarmbearbeiterFilterAction();
-		// AlarmbearbeiterBean alarmbearbeiterBean = new AlarmbearbeiterBean();
-		// alarmbearbeiterBean.setName("Der Bubu");
-		// alarmbearbeiterFilterAction.setReceiver(alarmbearbeiterBean);
-		// alarmbearbeiterFilterAction.setType(alarmbearbeiterFilterAction.getFilterActionTypeValues()[0]);
-		// filterActions.add(alarmbearbeiterFilterAction);
-		// }
 		return this.filterActions;
-	}
-
-	/**
-	 * returns a list of an and combined {@link FilterbedingungBean} list. this
-	 * is done for backwards compatibility
-	 * 
-	 * @return
-	 */
-	public List<FilterbedingungBean> getConditions() {
-		return new LinkedList<FilterbedingungBean>(this.conditions);
 	}
 
 	public String getDefaultMessage() {
@@ -125,8 +97,6 @@ public class FilterBean extends AbstractConfigurationBean<FilterBean> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result
-				+ ((this.conditions == null) ? 0 : this.conditions.hashCode());
 		result = prime
 				* result
 				+ ((this.defaultMessage == null) ? 0 : this.defaultMessage
@@ -139,14 +109,6 @@ public class FilterBean extends AbstractConfigurationBean<FilterBean> {
 		result = prime * result
 				+ ((this.name == null) ? 0 : this.name.hashCode());
 		return result;
-	}
-
-	public void setConditions(final List<FilterbedingungBean> conditions) {
-		final List<FilterbedingungBean> oldValue = this.conditions;
-		this.conditions = conditions;
-		Collections.sort(this.conditions, new FilterbedingungBeanComparator());
-		this.pcs.firePropertyChange(PropertyNames.conditions.name(), oldValue,
-				conditions);
 	}
 
 	public void setDefaultMessage(final String defaultMessage) {
@@ -185,13 +147,6 @@ public class FilterBean extends AbstractConfigurationBean<FilterBean> {
 		this.setDefaultMessage(bean.getDefaultMessage());
 		this.setName(bean.getName());
 		this.setFilterID(bean.getFilterID());
-
-		final List<FilterbedingungBean> cloneList = new LinkedList<FilterbedingungBean>();
-		final List<FilterbedingungBean> list = bean.getConditions();
-		for (final FilterbedingungBean filterbedingungBean : list) {
-			cloneList.add(filterbedingungBean.getClone());
-		}
-		this.setConditions(cloneList);
 
 		final LinkedList<FilterAction> cloneActions = new LinkedList<FilterAction>();
 		final List<FilterAction> actions = bean.getActions();

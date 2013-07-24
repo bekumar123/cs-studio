@@ -14,10 +14,12 @@ import org.csstudio.nams.service.configurationaccess.localstore.declaration.Alar
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.ConfigurationServiceFactory;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.DatabaseType;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterActionDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.DefaultFilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.HistoryDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.LocalStoreConfigurationService;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.ReplicationStateDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.TimeBasedFilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.TopicDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmbEmailFilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmbGruppenEmailBestFilterActionDTO;
@@ -276,38 +278,32 @@ public class ConfigurationServiceFactoryImpl implements
 				.addAnnotatedClass(StringFilterConditionDTO.class)
 				.addAnnotatedClass(StringArFilterConditionDTO.class)
 
-				.addAnnotatedClass(
-						StrgArFiltCondCompValDTO.class)
+				.addAnnotatedClass(StrgArFiltCondCompValDTO.class)
 				// TODO Mapping in Configuration!!!
 				.addAnnotatedClass(TimeBasedFilterConditionDTO.class)
 				.addAnnotatedClass(ProcessVarFiltCondDTO.class)
-				.addAnnotatedClass(FilterDTO.class).addAnnotatedClass(
-						HistoryDTO.class).addAnnotatedClass(RubrikDTO.class)
+				.addAnnotatedClass(FilterDTO.class)
+				.addAnnotatedClass(DefaultFilterDTO.class)
+				.addAnnotatedClass(TimeBasedFilterDTO.class)
+				.addAnnotatedClass(HistoryDTO.class)
+				.addAnnotatedClass(RubrikDTO.class)
 				.addAnnotatedClass(NegationCondForFilterTreeDTO.class)
 				.addAnnotatedClass(JunctorCondForFilterTreeDTO.class)
-				.addAnnotatedClass(
-						JunctorConditionForFilterTreeConditionJoinDTO.class)
-				.addAnnotatedClass(User2UserGroupDTO.class).addAnnotatedClass(
-						NegationCondForFilterTreeDTO.class)
+				.addAnnotatedClass(JunctorConditionForFilterTreeConditionJoinDTO.class)
+				.addAnnotatedClass(User2UserGroupDTO.class)
+				.addAnnotatedClass(NegationCondForFilterTreeDTO.class)
 
-				.addAnnotatedClass(FilterActionDTO.class).addAnnotatedClass(
-						TopicFilterActionDTO.class).addAnnotatedClass(
-						AlarmbEmailFilterActionDTO.class)
-				.addAnnotatedClass(
-						AlarmbGruppenEmailBestFilterActionDTO.class)
-				.addAnnotatedClass(
-						AlarmbGruppenEmailFilterActionDTO.class)
-				.addAnnotatedClass(
-						AlarmbGruppenSMSBestFilterActionDTO.class)
-				.addAnnotatedClass(
-						AlarmbGruppenSMSFilterActionDTO.class)
-				.addAnnotatedClass(
-						AlarmbGruppenVMailBestFilterActionDTO.class)
-				.addAnnotatedClass(
-						AlarmbGruppenVMailFilterActionDTO.class)
+				.addAnnotatedClass(FilterActionDTO.class)
+				.addAnnotatedClass(TopicFilterActionDTO.class)
+				.addAnnotatedClass(AlarmbEmailFilterActionDTO.class)
+				.addAnnotatedClass(AlarmbGruppenEmailBestFilterActionDTO.class)
+				.addAnnotatedClass(AlarmbGruppenEmailFilterActionDTO.class)
+				.addAnnotatedClass(AlarmbGruppenSMSBestFilterActionDTO.class)
+				.addAnnotatedClass(AlarmbGruppenSMSFilterActionDTO.class)
+				.addAnnotatedClass(AlarmbGruppenVMailBestFilterActionDTO.class)
+				.addAnnotatedClass(AlarmbGruppenVMailFilterActionDTO.class)
 				.addAnnotatedClass(AlarmbSMSFilterActionDTO.class)
-				.addAnnotatedClass(
-						AlarmbVoiceMailFilterActionDTO.class)
+				.addAnnotatedClass(AlarmbVoiceMailFilterActionDTO.class)
 				.addAnnotatedClass(FilterAction2FilterDTO.class)
 
 				.addAnnotatedClass(DefaultFilterTextDTO.class)

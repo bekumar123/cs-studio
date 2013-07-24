@@ -147,7 +147,8 @@ create table AMS_Filter
 	iFilterID		INT,
 	iGroupRef		INT default -1 NOT NULL,
 	cName			VARCHAR(128),
-	cDefaultMessage	VARCHAR(1024),
+	cDefaultMessage		VARCHAR(1024),
+	cFilterType		VARCHAR(200) default 'default' NOT NULL,	
 	PRIMARY KEY (iFilterID)
 );
 

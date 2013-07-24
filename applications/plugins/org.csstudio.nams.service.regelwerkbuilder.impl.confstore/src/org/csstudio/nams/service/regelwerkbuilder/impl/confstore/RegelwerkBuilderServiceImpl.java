@@ -19,7 +19,7 @@ import org.csstudio.nams.common.material.regelwerk.TimeBasedAlarmBeiBestaetigung
 import org.csstudio.nams.common.material.regelwerk.TimeBasedRegel;
 import org.csstudio.nams.common.material.regelwerk.UndVersandRegel;
 import org.csstudio.nams.common.material.regelwerk.VersandRegel;
-import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.DefaultFilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.JunctorConditionType;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.LocalStoreConfigurationService;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.FilterConditionDTO;
@@ -71,11 +71,11 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
             final LocalStoreConfigurationService confStoreService =
                                                                     RegelwerkBuilderServiceImpl.configurationStoreService;
             // get all filters
-            Collection<FilterDTO> listOfFilters = null;
+            Collection<DefaultFilterDTO> listOfFilters = null;
             listOfFilters = confStoreService.getEntireFilterConfiguration().gibAlleFilter();
             
             // we do assume, that the first level filtercondition are conjugated
-            for (final FilterDTO filterDTO : listOfFilters) {
+            for (final DefaultFilterDTO filterDTO : listOfFilters) {
                 
                 if (!(excludeSimpleFilter && filterDTO.isSimpleStringBasedFilter())) {
                     final List<FilterConditionDTO> filterConditions =

@@ -6,13 +6,13 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.DefaultFilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.NewAMSConfigurationElementDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.FilterConditionDTO;
 
 /**
  * Enthält die Daten der Aggregationstabelle von {@link FilterConditionDTO} zu
- * {@link FilterDTO}s.
+ * {@link DefaultFilterDTO}s.
  * 
  * <pre>
  * create table AMS_Filter_FilterCondition

@@ -24,7 +24,6 @@
 package org.csstudio.archive.sdds.server.type;
 
 import junit.framework.Assert;
-
 import org.junit.Test;
 
 /**

@@ -129,6 +129,8 @@ public class Messages extends NLS {
 	public static String SyncronizeView_unsaved_changes_message3;
 	public static String SyncronizeView_unsaved_changes_title;
 	public static String SyncronizeView_waiting_for_backend;
+	public static String TimebasedFilterEditor_start_filter_conditions;
+	public static String TimebasedFilterEditor_stop_filter_conditions;
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

@@ -233,4 +233,9 @@ public abstract class FilterDTO implements NewAMSConfigurationElementDTO, HasMan
 		}
 		
 	}
+
+	// For testing purposes only!
+	protected void setIFilterID(int id) {
+		this.iFilterID = id;
+	}
 }

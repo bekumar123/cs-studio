@@ -2,7 +2,6 @@
 package org.csstudio.nams.configurator.editor;
 
 import java.util.Iterator;
-import java.util.Set;
 
 import org.csstudio.nams.common.fachwert.RubrikTypeEnum;
 import org.csstudio.nams.configurator.Messages;
@@ -20,7 +19,6 @@ import org.csstudio.nams.configurator.beans.IConfigurationBean;
 import org.csstudio.nams.configurator.beans.IReceiverBean;
 import org.csstudio.nams.configurator.beans.MessageTemplateBean;
 import org.csstudio.nams.configurator.beans.TimebasedFilterBean;
-import org.csstudio.nams.configurator.beans.filters.JunctorConditionBean;
 import org.csstudio.nams.configurator.beans.filters.JunctorConditionForFilterTreeBean;
 import org.csstudio.nams.configurator.beans.filters.NotConditionForFilterTreeBean;
 import org.csstudio.nams.configurator.editor.TimebasedFilterTreeContentProvider.TimebasedFilterTreeContentType;
@@ -89,7 +87,7 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 
 	private TimebasedFilterTreeContentProvider startFilterTreeContentProvider;
 	private TimebasedFilterTreeContentProvider stopFilterTreeContentProvider;
-	
+	private Text _idTextEntry;
 	private Text _nameTextEntry;
 	private Combo _rubrikComboEntry;
 	private Text _defaultMessageTextEntry;
@@ -127,6 +125,7 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 		final Composite main = new Composite(outerFormMain, SWT.NONE);
 		main.setLayout(new GridLayout(this.NUM_COLUMNS, false));
 		this.addSeparator(main);
+		_idTextEntry = this.createTextEntry(main, "ID", false); //$NON-NLS-1$
 		this._nameTextEntry = this.createTextEntry(main, Messages.FilterEditor_name, true);
 		this._rubrikComboEntryViewer = this.createComboEntry(main, Messages.FilterEditor_category,
 				true, AbstractEditor.getConfigurationBeanService()
@@ -175,7 +174,7 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 			startTreeAndButtonsComposite.setLayout(new GridLayout(1, false));
 			GridDataFactory.fillDefaults().grab(true, true).applyTo(
 					startTreeAndButtonsComposite);
-			new Label(startTreeAndButtonsComposite, SWT.None).setText(Messages.FilterEditor_filterconditions);
+			new Label(startTreeAndButtonsComposite, SWT.None).setText(Messages.TimebasedFilterEditor_start_filter_conditions);
 
 			this.startFilterConditionsTreeViewer = this.createTreeViewer(
 					startTreeAndButtonsComposite,
@@ -188,7 +187,7 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 			stopTreeAndButtonsComposite.setLayout(new GridLayout(1, false));
 			GridDataFactory.fillDefaults().grab(true, true).applyTo(
 					stopTreeAndButtonsComposite);
-			new Label(stopTreeAndButtonsComposite, SWT.None).setText(Messages.FilterEditor_filterconditions);
+			new Label(stopTreeAndButtonsComposite, SWT.None).setText(Messages.TimebasedFilterEditor_stop_filter_conditions);
 			
 			this.stopFilterConditionsTreeViewer = this.createTreeViewer(
 					stopTreeAndButtonsComposite,
@@ -368,6 +367,8 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 		
 		this.startFilterConditionsTreeViewer.setInput(this.getWorkingCopyOfEditorInput());
 		this.stopFilterConditionsTreeViewer.setInput(this.getWorkingCopyOfEditorInput());
+		this.startFilterConditionsTreeViewer.expandAll();
+		this.stopFilterConditionsTreeViewer.expandAll();
 	}
 
 	@Override
@@ -384,6 +385,10 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 	protected void initDataBinding() {
 		final DataBindingContext context = new DataBindingContext();
 
+		final IObservableValue idTextObservable = BeansObservables
+				.observeValue(this.getWorkingCopyOfEditorInput(),
+						FilterBean.PropertyNames.filterID.name());
+		
 		final IObservableValue nameTextObservable = BeansObservables
 				.observeValue(this.getWorkingCopyOfEditorInput(),
 						FilterBean.PropertyNames.name.name());
@@ -401,6 +406,9 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 						FilterBean.AbstractPropertyNames.rubrikName.name());
 
 		// bind observables
+		context.bindValue(SWTObservables.observeText(this._idTextEntry,
+				SWT.Modify), idTextObservable, null, null);
+		
 		context.bindValue(SWTObservables.observeText(this._nameTextEntry,
 				SWT.Modify), nameTextObservable, new UpdateValueStrategy() {
 

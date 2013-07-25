@@ -22,6 +22,14 @@ import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.fil
 @DiscriminatorValue("default")
 public class DefaultFilterDTO extends FilterDTO implements NewAMSConfigurationElementDTO {
 
+	public DefaultFilterDTO() {
+	}
+	
+	// For testing purposes only
+	public DefaultFilterDTO(int id) {
+		setIFilterID(id);
+	}
+	
 	@Transient
 	private List<FilterConditionDTO> filterConditons = new LinkedList<FilterConditionDTO>();
 

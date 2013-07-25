@@ -3,6 +3,7 @@ package org.csstudio.nams.service.configurationaccess.localstore.declaration;
 
 import java.util.Collection;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -24,16 +25,21 @@ public class TimeBasedFilterDTO extends FilterDTO implements NewAMSConfiguration
 	private int timeout = -1; // INT default -1 NOT NULL,
 	
 	@JoinColumn(name = "ISTARTFILTERCONDITIONREF", referencedColumnName="IFILTERCONDITIONREF", nullable = false, table="AMS_FILTER_TIMEBASED")
-	@OneToOne()
+	@OneToOne(cascade= CascadeType.ALL)
 	private JunctorCondForFilterTreeDTO startFilterCondition = new JunctorCondForFilterTreeDTO();
 	
 	@JoinColumn(name = "ISTOPFILTERCONDITIONREF", referencedColumnName="IFILTERCONDITIONREF", nullable = false, table="AMS_FILTER_TIMEBASED")
-	@OneToOne
+	@OneToOne(cascade= CascadeType.ALL)
 	private JunctorCondForFilterTreeDTO stopFilterCondition = new JunctorCondForFilterTreeDTO();
 	
 	public TimeBasedFilterDTO() {
 		this.startFilterCondition.setOperator(JunctorConditionType.AND);
 		this.stopFilterCondition.setOperator(JunctorConditionType.AND);
+	}
+	
+	public TimeBasedFilterDTO(int id) {
+		this();
+		this.setIFilterID(id);
 	}
 	
 	public JunctorCondForFilterTreeDTO getStartFilterCondition() {
@@ -91,6 +97,9 @@ public class TimeBasedFilterDTO extends FilterDTO implements NewAMSConfiguration
 	public void storeJoinLinkData(final Mapper mapper) throws Throwable {
 		super.storeJoinLinkData(mapper);
 		
+		startFilterCondition.storeJoinLinkData(mapper);
+		stopFilterCondition.storeJoinLinkData(mapper);
+		
 //		List<JunctorCondForFilterTreeDTO> operands = Arrays.asList(startFilterCondition, stopFilterCondition);
 //		
 //		for (final JunctorCondForFilterTreeDTO operand : operands) {
@@ -108,6 +117,10 @@ public class TimeBasedFilterDTO extends FilterDTO implements NewAMSConfiguration
 
 	public void deleteJoinLinkData(final Mapper mapper) throws Throwable {
 		super.deleteJoinLinkData(mapper);
+		
+		startFilterCondition.deleteJoinLinkData(mapper);
+		stopFilterCondition.deleteJoinLinkData(mapper);
+		
 //		final List<FilterConditionsToFilterDTO> joins = mapper.loadAll(
 //				FilterConditionsToFilterDTO.class, true);
 //	

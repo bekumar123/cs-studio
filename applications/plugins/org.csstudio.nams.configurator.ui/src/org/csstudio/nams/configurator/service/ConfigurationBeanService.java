@@ -27,7 +27,7 @@ public interface ConfigurationBeanService {
 
 	public abstract AlarmtopicBean[] getAlarmTopicBeans();
 
-	public abstract FilterBean[] getFilterBeans();
+	public abstract FilterBean<?>[] getFilterBeans();
 
 	public abstract FilterbedingungBean[] getFilterConditionBeans();
 

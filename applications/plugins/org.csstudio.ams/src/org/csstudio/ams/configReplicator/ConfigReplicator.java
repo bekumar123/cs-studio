@@ -51,6 +51,7 @@ import org.csstudio.ams.dbAccess.configdb.FlagDAO;
 import org.csstudio.ams.dbAccess.configdb.HistoryDAO;
 import org.csstudio.ams.dbAccess.configdb.MessageChainDAO;
 import org.csstudio.ams.dbAccess.configdb.MessageDAO;
+import org.csstudio.ams.dbAccess.configdb.TimebasedFilterDAO;
 import org.csstudio.ams.dbAccess.configdb.TopicDAO;
 import org.csstudio.ams.dbAccess.configdb.UserDAO;
 import org.csstudio.ams.dbAccess.configdb.UserGroupDAO;
@@ -92,6 +93,7 @@ public class ConfigReplicator implements AmsConstants {
 			
 			FilterConditionTimeBasedDAO.removeAll(localDB);
 			FilterDAO.removeAll(localDB);
+			TimebasedFilterDAO.removeAll(localDB);
 			FilterFilterConditionDAO.removeAll(localDB);
 			TopicDAO.removeAll(localDB);
 			FilterActionTypeDAO.removeAll(localDB);
@@ -117,6 +119,7 @@ public class ConfigReplicator implements AmsConstants {
             
 			FilterConditionTimeBasedDAO.copyFilterConditionTimeBased(masterDB, localDB);
 			FilterDAO.copyFilter(masterDB, localDB);
+			TimebasedFilterDAO.copyFilter(masterDB, localDB);
 			FilterFilterConditionDAO.copyFilterFilterCondition(masterDB, localDB);
 			TopicDAO.copyTopic(masterDB, localDB);
 			FilterActionTypeDAO.copyFilterActionType(masterDB, localDB);
@@ -219,6 +222,7 @@ public class ConfigReplicator implements AmsConstants {
             
             FilterConditionTimeBasedDAO.removeAll(hsqlDB);
             FilterDAO.removeAll(hsqlDB);
+            TimebasedFilterDAO.removeAll(hsqlDB);
             FilterFilterConditionDAO.removeAll(hsqlDB);
             TopicDAO.removeAll(hsqlDB);
             FilterActionTypeDAO.removeAll(hsqlDB);
@@ -248,6 +252,7 @@ public class ConfigReplicator implements AmsConstants {
 			FilterConditionTimeBasedDAO.copyFilterConditionTimeBased(masterDB,
 					hsqlDB, "");
 			FilterDAO.copyFilter(masterDB, hsqlDB, "");
+			TimebasedFilterDAO.copyFilter(masterDB, hsqlDB, "");
 			FilterFilterConditionDAO.copyFilterFilterCondition(masterDB,
 					hsqlDB, "");
 			TopicDAO.copyTopic(masterDB, hsqlDB, "");
@@ -284,7 +289,8 @@ public class ConfigReplicator implements AmsConstants {
 	/**
 	 * Makes a backup of given database (copying data to 'syn'-tables).
 	 */
-	public static boolean backupMasterDbBeforeSync(Connection masterDB) throws SQLException
+	@Deprecated
+	private static boolean backupMasterDbBeforeSync(Connection masterDB) throws SQLException
 	{
 		boolean bReturnValue = false;
 		try
@@ -305,6 +311,7 @@ public class ConfigReplicator implements AmsConstants {
 
 				FilterConditionTimeBasedDAO.removeAllBackupFromMasterDB(masterDB);
 				FilterDAO.removeAllBackupFromMasterDB(masterDB);
+				TimebasedFilterDAO.removeAllBackupFromMasterDB(masterDB);
 				FilterFilterConditionDAO.removeAllBackupFromMasterDB(masterDB);
 				TopicDAO.removeAllBackupFromMasterDB(masterDB);
 				FilterActionTypeDAO.removeAllBackupFromMasterDB(masterDB);
@@ -326,6 +333,7 @@ public class ConfigReplicator implements AmsConstants {
 
 				FilterConditionTimeBasedDAO.backupFilterConditionTimeBased(masterDB);
 				FilterDAO.backupFilter(masterDB);
+				TimebasedFilterDAO.backupFilter(masterDB);
 				FilterFilterConditionDAO.backupFilterFilterCondition(masterDB);	
 				TopicDAO.backupTopic(masterDB);
 				FilterActionTypeDAO.backupFilterActionType(masterDB);

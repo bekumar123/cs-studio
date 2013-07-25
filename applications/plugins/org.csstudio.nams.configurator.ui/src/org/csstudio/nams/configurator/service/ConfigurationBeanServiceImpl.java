@@ -553,7 +553,7 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 			throws InconsistentConfigurationException {
 		FilterDTO dto = null;
 		for (final FilterDTO potentialdto : this.entireConfiguration
-				.gibAlleDefaultFilter()) {
+				.gibAlleFilter()) {
 			if (potentialdto.getIFilterID() == bean.getID()) {
 				dto = potentialdto;
 				break;
@@ -749,7 +749,7 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 	private FilterDTO findDTO4Bean(final FilterBean bean) {
 		FilterDTO dto = null;
 		for (final FilterDTO potentialdto : this.entireConfiguration
-				.gibAlleDefaultFilter()) {
+				.gibAlleFilter()) {
 			if (potentialdto.getIFilterID() == bean.getID()) {
 				dto = potentialdto;
 				break;
@@ -1137,18 +1137,22 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 				inserted = true;
 			} else {
 				// TODO: Handle start / stop condition for timebased filter if necessary
-				this.removeJunctorConditionForFilterTreeBeans(((TimeBasedFilterDTO) dto).getStartFilterCondition().getOperands());
-				this.removeJunctorConditionForFilterTreeBeans(((TimeBasedFilterDTO) dto).getStopFilterCondition().getOperands());
+				JunctorCondForFilterTreeDTO startFilterCondition = ((TimeBasedFilterDTO) dto).getStartFilterCondition();
+				this.removeJunctorConditionForFilterTreeBeans(startFilterCondition.getOperands());
+				
+				JunctorCondForFilterTreeDTO stopFilterCondition = ((TimeBasedFilterDTO) dto).getStopFilterCondition();
+				this.removeJunctorConditionForFilterTreeBeans(stopFilterCondition.getOperands());
 			}
+			TimebasedFilterBean timeBasedBean = (TimebasedFilterBean) bean;
+			TimeBasedFilterDTO timeBasedFilterDTO = (TimeBasedFilterDTO)dto;
 
-			final List<FilterConditionDTO> startList = this.createFilterConditionDTOListForFilter(Collections.singletonList((FilterbedingungBean)((TimebasedFilterBean) bean).getStartRootCondition()));
-			((TimeBasedFilterDTO) dto).setStartFilterCondition((JunctorCondForFilterTreeDTO) startList.get(0));
-			configurationService.saveDTO(((TimeBasedFilterDTO)dto).getStartFilterCondition());
+			final List<FilterConditionDTO> startOperandsList = this.createFilterConditionDTOListForFilter(timeBasedBean.getStartRootCondition().getOperands());
+			timeBasedFilterDTO.getStartFilterCondition().setOperands(new HashSet<FilterConditionDTO>(startOperandsList));
+			configurationService.saveDTO(timeBasedFilterDTO.getStartFilterCondition());
 			
-			final List<FilterConditionDTO> stopList = this.createFilterConditionDTOListForFilter(Collections.singletonList((FilterbedingungBean)((TimebasedFilterBean) bean).getStopRootCondition()));
-			((TimeBasedFilterDTO) dto).setStopFilterCondition((JunctorCondForFilterTreeDTO) stopList.get(0));
-			configurationService.saveDTO(((TimeBasedFilterDTO)dto).getStopFilterCondition());
-			
+			final List<FilterConditionDTO> stopOperandsList = this.createFilterConditionDTOListForFilter(timeBasedBean.getStopRootCondition().getOperands());
+			timeBasedFilterDTO.getStopFilterCondition().setOperands(new HashSet<FilterConditionDTO>(stopOperandsList));
+			configurationService.saveDTO(timeBasedFilterDTO.getStopFilterCondition());
 		}
 		
 		dto.setDefaultMessage(bean.getDefaultMessage());

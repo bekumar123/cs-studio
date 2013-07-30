@@ -500,9 +500,9 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                                                                        ControlSystem.valueOf(cs.getName(), cs.getType()),
                                                                        timeInstant);
         if (min == null || max == null) {
-            return new ArchiveSample<V, T>(channel.getId(), (T) sysVar, alarm);
+            return new ArchiveSample<V, T>(channel.getId(), (T) sysVar, alarm,type.name());
         }
-        return new ArchiveMinMaxSample<V, T>(channel.getId(), (T) sysVar, alarm, min, max);
+        return new ArchiveMinMaxSample<V, T>(channel.getId(), (T) sysVar, alarm, min, max,type.name());
     }
 
 

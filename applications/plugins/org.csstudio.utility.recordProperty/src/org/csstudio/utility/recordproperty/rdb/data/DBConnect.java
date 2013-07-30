@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Locale;
 
 import org.csstudio.utility.recordproperty.rdb.config.IOracleSettings;
 import org.slf4j.Logger;
@@ -25,6 +26,7 @@ public class DBConnect {
 	public static String record = "alarmTest:RAMPA_calc";
 		
 	public DBConnect(IOracleSettings _settings) {
+		Locale.setDefault(new Locale("de","DE"));
 		settings = _settings;
 	}
 	

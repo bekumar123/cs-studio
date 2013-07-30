@@ -45,7 +45,9 @@ public class RunModeBoxInput implements Serializable {
 
 	private RunModeType _type;
 	
-	private DataAccessType _dataAccessType; //TODO CME: Should equals and hashcode use this? Could be helpful for the HashMap in RunModeService. Modify test class!
+	//CME: This variable is now included in equals/hashCode.
+	//To run two instances of a display (one in history mode and one in realtime mode, see RunModeService).
+	private DataAccessType _dataAccessType; 
 	
 	private RunModeBoxInput _predecessorBox;
 
@@ -117,11 +119,12 @@ public class RunModeBoxInput implements Serializable {
 	 */
 	@Override
 	public int hashCode() {
-		String fullpath = calculateFullPath();
-		return fullpath.hashCode();
+		int result = calculateFullPath().hashCode();
+		result = 37 * result + _dataAccessType.hashCode();
+		
+		return result ;
 	}
 
-	//TODO CME: include DataAccessType to equals/hashcode calculation? It would allow to show the same display in realtime and history mode.
 	/**
 	 * {@inheritDoc}
 	 */
@@ -133,6 +136,7 @@ public class RunModeBoxInput implements Serializable {
 			RunModeBoxInput input = (RunModeBoxInput) obj;
 
 			result = calculateFullPath().equals(input.calculateFullPath());
+			result = result && (_dataAccessType.equals(input.getDataAccessType()));
 		}
 
 		return result;

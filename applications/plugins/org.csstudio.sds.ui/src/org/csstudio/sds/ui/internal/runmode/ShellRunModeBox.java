@@ -147,14 +147,14 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
         GridLayout parentLayout = new GridLayout(1, false);
         
         //TODO CME: maybe there is a better way to indicate history mode. Seems to be a hack for me. This does not affect "view run mode"!
-        int spacing = 0;
+        int historyMargin = 0;
         if (getInput().getDataAccessType() == DataAccessType.HISTORY) { 
-			spacing = 10;
+			historyMargin = 6;
 		}
         
         parentLayout.horizontalSpacing = 0;
-        parentLayout.marginWidth = spacing;
-        parentLayout.marginHeight = spacing;
+        parentLayout.marginWidth = historyMargin;
+        parentLayout.marginHeight = historyMargin;
         parentLayout.verticalSpacing = 0;
         final Composite parent = new Composite(scrollComposite, SWT.NONE);
 		parent.setLayout(parentLayout);
@@ -188,7 +188,7 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
             Point size = navigation.computeSize(width, SWT.DEFAULT);
             fullHeight = fullHeight + size.y;
         }
-        _shell.setSize(fullWidth + SCROLLBAR_MARGIN, fullHeight + SHELL_BORDER + SCROLLBAR_MARGIN);
+        _shell.setSize(fullWidth + SCROLLBAR_MARGIN + (historyMargin * 3), fullHeight + SHELL_BORDER + SCROLLBAR_MARGIN + (historyMargin * 3));
         
         // configure a graphical viewer
         final GraphicalViewer graphicalViewer = createGraphicalViewer(c);

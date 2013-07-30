@@ -142,7 +142,7 @@ public class PVSamples extends PlotSamples
             return raw;
         }
         final PlotSample last = getSample(raw-1);
-        if (VTypeHelper.getSeverity(last.getValue())!=null) {
+        if (VTypeHelper.getSeverity(last.getValue())==null) {
             return raw;
         }
         // Last sample is valid, so it should still apply 'now'
@@ -164,13 +164,14 @@ public class PVSamples extends PlotSamples
     synchronized public PlotSample getSample(final int index)
     {
         final int raw_count = getRawSize();
-        if (index < raw_count-1) {
+
+        if (index < raw_count) {
             return getRawSample(index);
         }
-        // Last sample is valid, so it should still apply 'now'
         final PlotSample sample = getRawSample(raw_count-1);
-        return    new PlotSample(sample.getSource(), VTypeHelper.transformTimestampToNow(sample.getValue()));
-       // return ValueButcher.changeTimestampToNow(sample);
+        return  new PlotSample(sample.getSource(), VTypeHelper.transformTimestampToNow(sample.getValue()));
+            
+         // return ValueButcher.changeTimestampToNow(sample);
     }
 
     /** Get 'raw' sample, no continuation until 'now'
@@ -267,9 +268,10 @@ public class PVSamples extends PlotSamples
      */
     synchronized public void addLiveSample(VType value)
     {
-        LOG.info("--------- add live samle  ");
-        if (! ValueUtil.timeOf(value).isTimeValid())
+        if (! ValueUtil.timeOf(value).isTimeValid()){
+            LOG.info("Add liveSample time error ");
             value = VTypeHelper.transformTimestampToNow(value);
+        }
         addLiveSample(new PlotSample(Messages.LiveData, value));
     }
 
@@ -278,6 +280,7 @@ public class PVSamples extends PlotSamples
      */
     synchronized public void addLiveSample(final PlotSample sample)
     {
+       
         liveSamples.add(sample);
         // History ends before the start of 'liveSamples' samples.
         // Adding a liveSamples sample might have moved the ring buffer,

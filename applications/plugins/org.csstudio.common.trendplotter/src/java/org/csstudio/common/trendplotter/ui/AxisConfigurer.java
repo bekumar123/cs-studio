@@ -42,7 +42,7 @@ public class AxisConfigurer {
     }
 
     private void createAxisItemsMapping() {
-        _axisMap = new HashMap<>();
+        _axisMap = new HashMap<AxisConfig, AxisItems>();
         //add all axis in model to map
         int axisCount = _model.getAxisCount();
         for (int i=0; i<axisCount; i++) {
@@ -61,7 +61,7 @@ public class AxisConfigurer {
     }
 
     private class AxisItems {
-        List<PVItem> items = new ArrayList<>();
+        List<PVItem> items = new ArrayList<PVItem>();
         Double min = null;
         Double max = null;
     }

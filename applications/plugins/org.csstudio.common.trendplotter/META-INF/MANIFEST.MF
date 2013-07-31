@@ -36,8 +36,8 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.5.0",
  org.csstudio.dal.ui;bundle-version="3.1.0",
  org.csstudio.openfile;bundle-version="3.1.0",
  org.csstudio.domain.desy.ui;bundle-version="1.0.0",
- de.cmein.da.domain;bundle-version="1.0.0",
- de.c1wps.geneal.desy.service.common;bundle-version="1.0.0"
+ de.c1wps.geneal.desy.service.common;bundle-version="1.0.0",
+ org.csstudio.sds.history.domain;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Bastian Knerr <bastian.knerr@desy.de> - DESY

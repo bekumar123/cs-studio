@@ -31,7 +31,7 @@ Require-Bundle: org.eclipse.ui,
  org.csstudio.desy.startuphelper;bundle-version="1.0.0",
  org.csstudio.domain.common;bundle-version="1.0.0",
  org.csstudio.servicelocator;bundle-version="1.0.0",
- de.cmein.da.anticorruption;bundle-version="1.0.0"
+ org.csstudio.sds.history.anticorruption;bundle-version="1.0.0"
 Eclipse-LazyStart: true
 Bundle-ClassPath: .,
  libaries/jl1.0.jar

@@ -308,7 +308,7 @@ public abstract class AbstractRunModeBox {
 			if(context!=null) {
 				ISimpleDalBroker broker = context.getBroker();
 				broker.releaseAll();
-				context.setBroker(null);
+				context.setBroker(null); // TODO CME: css threading will interfere with this. Maybe no harm
 				LOG.info("SimpleDALBroker instance released.");
 				callback.displayClosed();
 			}

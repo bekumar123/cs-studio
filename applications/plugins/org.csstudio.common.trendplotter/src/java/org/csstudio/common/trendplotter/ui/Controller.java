@@ -33,6 +33,9 @@ import org.csstudio.common.trendplotter.propsheet.AddAxisCommand;
 import org.csstudio.csdata.ProcessVariable;
 import org.csstudio.data.values.ITimestamp;
 import org.csstudio.data.values.TimestampFactory;
+import org.csstudio.sds.history.domain.events.UpdateTimeEvent;
+import org.csstudio.sds.history.domain.listener.ITimeChangeListener;
+import org.csstudio.sds.history.domain.listener.ITimeperiodUpdateListener;
 import org.csstudio.swt.xygraph.figures.Annotation;
 import org.csstudio.swt.xygraph.figures.Axis;
 import org.csstudio.swt.xygraph.figures.Trace.TraceType;
@@ -53,9 +56,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.c1wps.geneal.desy.service.common.tracker.IGenericServiceListener;
-import de.cmein.da.domain.history.events.UpdateTimeEvent;
-import de.cmein.da.domain.history.listener.ITimeChangeListener;
-import de.cmein.da.domain.history.listener.ITimeperiodUpdateListener;
 
 /** Controller that interfaces the {@link Model} with the {@link Plot}:
  *  <ul>

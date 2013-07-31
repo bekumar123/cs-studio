@@ -25,6 +25,7 @@ import org.csstudio.dal.CssApplicationContext;
 import org.csstudio.dal.simple.IRealtimeDataServiceFactory;
 import org.csstudio.dal.simple.ISimpleDalBroker;
 import org.csstudio.sds.cursorservice.ICursorService;
+import org.csstudio.sds.history.anticorruption.service.IHistoryDataServiceFactory;
 import org.csstudio.sds.internal.SdsResourceChangeListener;
 import org.csstudio.sds.internal.eventhandling.BehaviorService;
 import org.csstudio.sds.internal.eventhandling.IBehaviorService;
@@ -40,7 +41,6 @@ import org.slf4j.LoggerFactory;
 
 import de.c1wps.geneal.desy.service.common.tracker.GenericServiceTracker;
 import de.c1wps.geneal.desy.service.common.tracker.IGenericServiceListener;
-import de.cmein.da.anticorruption.service.IHistoryDataServiceFactory;
 
 /**
  * The activator class controls the plug-in life cycle.

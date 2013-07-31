@@ -16,6 +16,8 @@ import org.csstudio.archive.common.service.ArchiveEngineServiceTracker;
 import org.csstudio.archive.common.service.ArchiveReaderServiceTracker;
 import org.csstudio.archive.common.service.IArchiveReaderFacade;
 import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
+import org.csstudio.sds.history.domain.listener.ITimeChangeListener;
+import org.csstudio.sds.history.domain.listener.ITimeperiodUpdateListener;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -23,8 +25,6 @@ import org.osgi.framework.BundleContext;
 
 import de.c1wps.geneal.desy.service.common.tracker.GenericServiceTracker;
 import de.c1wps.geneal.desy.service.common.tracker.IGenericServiceListener;
-import de.cmein.da.domain.history.listener.ITimeChangeListener;
-import de.cmein.da.domain.history.listener.ITimeperiodUpdateListener;
 
 /** Eclipse Plugin Activator
  *  @author Kay Kasemir

@@ -30,14 +30,12 @@ import org.csstudio.common.trendplotter.model.PVItem;
 import org.csstudio.common.trendplotter.preferences.Preferences;
 import org.csstudio.common.trendplotter.propsheet.AddArchiveCommand;
 import org.csstudio.common.trendplotter.propsheet.AddAxisCommand;
-import org.csstudio.data.values.TimestampFactory;
-import org.csstudio.sds.history.domain.events.UpdateTimeEvent;
-import org.csstudio.sds.history.domain.listener.ITimeChangeListener;
-import org.csstudio.sds.history.domain.listener.ITimeperiodUpdateListener;
-import org.csstudio.common.trendplotter.propsheet.ChangeArchiveRescaleCommand;
 import org.csstudio.common.trendplotter.propsheet.ChangeAxisConfigCommand;
 import org.csstudio.csdata.ProcessVariable;
 import org.csstudio.data.values.ITimestamp;
+import org.csstudio.sds.history.domain.events.UpdateTimeEvent;
+import org.csstudio.sds.history.domain.listener.ITimeChangeListener;
+import org.csstudio.sds.history.domain.listener.ITimeperiodUpdateListener;
 import org.csstudio.swt.xygraph.figures.Annotation;
 import org.csstudio.swt.xygraph.figures.Axis;
 import org.csstudio.swt.xygraph.figures.Trace.TraceType;
@@ -54,12 +52,13 @@ import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.epics.util.time.Timestamp;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
-import de.c1wps.geneal.desy.service.common.tracker.IGenericServiceListener;
-import org.epics.util.time.Timestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.c1wps.geneal.desy.service.common.tracker.IGenericServiceListener;
 
 /** Controller that interfaces the {@link Model} with the {@link Plot}:
  *  <ul>
@@ -464,6 +463,16 @@ public class Controller implements ArchiveFetchJobListener
             public void timeIndexPositionChanged(DateTime timeIndex, boolean mouseUp) {
                 updateTimeChangeListners(timeIndex, mouseUp);
             }
+            
+            @Override
+            public void syncTimeperiodWithHistoryControl() {
+                DateTime startTime = new DateTime(model.getStartTime().toDate().getTime());
+                DateTime endTime = new DateTime(model.getEndTime().toDate().getTime());
+                
+                for (ITimeperiodUpdateListener listener : timeperiodUpdateListener) {
+                    listener.setTimePeriod(startTime, endTime);
+                }
+            }
         });
 
         model_listener = new ModelListener()
@@ -593,9 +602,6 @@ public class Controller implements ArchiveFetchJobListener
         Activator.getDefault()
             .addUpdateTimeperiodServiceListener(createTimeperiodUpdateServiceListener());
         
-        
-//        Activator.getDefault()
-//            .addTimeChangeServiceListener(createITimeChangeServiceListener());
         timeChangeListener = Activator.getDefault().getTimeChangeListeners();
         
         Activator.getDefault().getBundle().getBundleContext()
@@ -1023,8 +1029,8 @@ public class Controller implements ArchiveFetchJobListener
     }
     
     private void updateTimeChangeListners(DateTime timeIndex, boolean mouseUp) {
-        DateTime starTime = new DateTime(model.getStartTime().toCalendar().getTimeInMillis());
-        DateTime endTime = new DateTime(model.getEndTime().toCalendar().getTimeInMillis());
+        DateTime starTime = new DateTime(model.getStartTime().toDate().getTime());
+        DateTime endTime = new DateTime(model.getEndTime().toDate().getTime());
         UpdateTimeEvent updateTimeEvent = new UpdateTimeEvent(timeIndex, this, mouseUp, new Interval(starTime, endTime));
         
         for (ITimeChangeListener listener : timeChangeListener) {

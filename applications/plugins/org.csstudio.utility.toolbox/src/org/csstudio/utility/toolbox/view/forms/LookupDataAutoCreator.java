@@ -22,6 +22,9 @@ import org.csstudio.utility.toolbox.services.StoreLookupDataService;
 
 import com.google.inject.Inject;
 
+/*
+ * Auomatically create values if they do not already exist
+ */
 public class LookupDataAutoCreator {
 
 	@Inject

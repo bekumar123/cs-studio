@@ -38,6 +38,7 @@ public abstract class AbstractDialogCellEditor extends CellEditor {
 	private Shell _shell;
 	private final String _title;
 	private boolean _dialogIsOpen = false;
+	private Composite parent;
 
 	/**
 	 * Constructor.
@@ -51,6 +52,7 @@ public abstract class AbstractDialogCellEditor extends CellEditor {
 		super(parent, SWT.NONE);
 		_shell = parent.getShell();
 		_title = title;
+		this.parent = parent;
 	}
 
 	/**
@@ -88,7 +90,7 @@ public abstract class AbstractDialogCellEditor extends CellEditor {
 	 */
 	@Override
 	protected void doSetFocus() {
-		// Ignore
+	    // no
 	}
 
 }

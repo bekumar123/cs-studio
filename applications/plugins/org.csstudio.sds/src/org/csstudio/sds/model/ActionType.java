@@ -26,6 +26,8 @@ import org.csstudio.sds.model.properties.actions.ExecuteScriptActionModelFactory
 import org.csstudio.sds.model.properties.actions.IActionModelFactory;
 import org.csstudio.sds.model.properties.actions.OpenDataBrowserActionModelFactory;
 import org.csstudio.sds.model.properties.actions.OpenDisplayActionModelFactory;
+import org.csstudio.sds.model.properties.actions.OpenPdfActionModelFactory;
+import org.csstudio.sds.model.properties.actions.OpenUrlActionModelFactory;
 
 /**
  * The types that can be used for the property ActionData.
@@ -54,8 +56,21 @@ public enum ActionType {
 	 */
 	EXECUTE_SCRIPT("Execute Script", "icons/widgetaction.gif", new ExecuteScriptActionModelFactory()),
 	
-	OPEN_DATA_BROWSER("Open Data Browser", "icons/openshell2.gif", new OpenDataBrowserActionModelFactory());
+	/**
+	 * Open Trend.
+	 */
+	OPEN_DATA_BROWSER("Open Data Browser", "icons/databrowser.png", new OpenDataBrowserActionModelFactory()),
 
+	/**
+	 * Open Pdf.
+	 */
+	OPEN_PDF("Open Pdf", "icons/pdf-icon.gif", new OpenPdfActionModelFactory()),
+	
+	/**
+	 * Open Url.
+	 */
+	OPEN_URL("Open Url", "icons/web-icon.gif", new OpenUrlActionModelFactory());
+	
 	/**
 	 * The title of this {@link ActionType}.
 	 */

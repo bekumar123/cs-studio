@@ -2,11 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Archiverecord
 Bundle-SymbolicName: org.csstudio.archive.reader.archiverecord;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.0.201305241400
 Bundle-Activator: org.csstudio.archive.reader.archiverecord.Activator
 Bundle-Vendor: Desy, Jan Hatje <jan.hatje@desy.de>
 Require-Bundle: org.eclipse.core.runtime,
- org.csstudio.platform;bundle-version="1.1.1",
  org.csstudio.utility.pv;bundle-version="1.1.1",
  org.csstudio.utility.pv.epics;bundle-version="1.1.1",
  org.csstudio.archive.reader;bundle-version="2.0.2",

@@ -14,16 +14,17 @@ import org.csstudio.archive.reader.ArchiveReader;
 import org.csstudio.archive.reader.ArchiveRepository;
 import org.csstudio.archive.reader.MergingValueIterator;
 import org.csstudio.archive.reader.ValueIterator;
+import org.csstudio.archive.vtype.TimestampHelper;
 import org.csstudio.common.trendplotter.Activator;
 import org.csstudio.common.trendplotter.model.ArchiveDataSource;
 import org.csstudio.common.trendplotter.model.Model;
 import org.csstudio.common.trendplotter.model.ModelItem;
 import org.csstudio.common.trendplotter.model.PVItem;
-import org.csstudio.data.values.ITimestamp;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.epics.util.time.Timestamp;
 
 /** Base for Eclipse Job for exporting data from Model to file
  *  @author Kay Kasemir
@@ -34,7 +35,7 @@ abstract public class ExportJob extends Job
     final protected static int PROGRESS_UPDATE_LINES = 1000;
     final protected String comment;
     final protected Model model;
-    final protected ITimestamp start, end;
+    final protected Timestamp start, end;
     final protected Source source;
     final protected int optimize_count;
     final protected String filename;
@@ -88,7 +89,7 @@ abstract public class ExportJob extends Job
      *  @param error_handler Callback for errors
      */
     public ExportJob(final String comment, final Model model,
-        final ITimestamp start, final ITimestamp end, final Source source,
+        final Timestamp start, final Timestamp end, final Source source,
         final int optimize_count,
         final String filename,
         final ExportErrorHandler error_handler)
@@ -141,12 +142,13 @@ abstract public class ExportJob extends Job
     {
         out.println(comment + "Created by CSS Data Browser Version " + Activator.getDefault().getVersion());
         out.println(comment);
-        out.println(comment + "Start Time : " + start);
-        out.println(comment + "End Time   : " + end);
+        out.println(comment + "Start Time : " + TimestampHelper.format(start));
+        out.println(comment + "End Time   : " + TimestampHelper.format(start));
         out.println(comment + "Source     : " + source.toString());
         if (source == Source.OPTIMIZED_ARCHIVE)
             out.println(comment + "Desired Value Count: " + optimize_count);
     }
+
 
     /** Perform the data export
      *  @param out PrintStream for output
@@ -186,6 +188,7 @@ abstract public class ExportJob extends Job
     protected ValueIterator createValueIterator(final ModelItem item) throws Exception
     {
         if (source == Source.PLOT || !(item instanceof PVItem))
+            //TODO (jhatje): implement vType
             return new ModelSampleIterator(item, start, end);
 
         // Start ValueIterator for each sub-archive
@@ -197,6 +200,7 @@ abstract public class ExportJob extends Job
             final ArchiveReader reader = ArchiveRepository.getInstance().getArchiveReader(archives[i].getUrl());
             archive_readers.add(reader);
             // Create ValueIterator
+            //TODO (jhatje): implement vType
             if (source == Source.OPTIMIZED_ARCHIVE  &&  optimize_count > 1)
                 iters[i] = reader.getOptimizedValues(archives[i].getKey(),
                         item.getName(), start, end, optimize_count);

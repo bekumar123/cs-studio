@@ -86,26 +86,24 @@ public class PlotArea extends Figure {
 	private Point end;
 	private boolean armed;
 
-	private Color revertBackColor;
-	
 	private LayeredPane layeredPane;
 	private Layer gridLayer;
 	private Layer traceLayer;
 	private Layer annotationLayer;
-	private Layer upperLayer;
+    private Layer upperLayer;
+	
+	private Color revertBackColor;
 
 	public PlotArea(final XYGraph xyGraph) {
+		layeredPane = new LayeredPane();
 		gridLayer = new Layer();
 		traceLayer = new Layer();
 		annotationLayer = new Layer();
-		layeredPane = new LayeredPane();
 		upperLayer = new Layer();
-		
 		layeredPane.add(gridLayer);
 		layeredPane.add(traceLayer);
 		layeredPane.add(annotationLayer);
 		layeredPane.add(upperLayer);
-		
 		add(layeredPane);
 		
 		this.xyGraph = xyGraph;
@@ -201,7 +199,7 @@ public class PlotArea extends Figure {
 		upperLayer.remove(figure);
 		revalidate();
 	}
-	
+
 	/**
 	 * Add an annotation to the plot area.
 	 * 
@@ -263,9 +261,7 @@ public class PlotArea extends Figure {
 		for (Annotation annotation : annotationList) {
 			if (annotation != null && annotation.isVisible())
 				annotation.setBounds(clientArea);// .getCopy().shrink(1, 1));
-			
 		}
-		
 		super.layout();
 	}
 

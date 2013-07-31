@@ -37,9 +37,6 @@ import org.csstudio.utility.ldap.treeconfiguration.LdapEpicsAlarmcfgConfiguratio
  * @author Joerg Rathlev
  */
 public final class ProcessVariableNode extends AbstractAlarmTreeNode implements IAlarmProcessVariableNode {
-// TODO jhatje: implement new datatype
-	//	IProcessVariable  {
-
 
 	/**
 	 * The active alarm for this node.
@@ -136,8 +133,8 @@ public final class ProcessVariableNode extends AbstractAlarmTreeNode implements 
      */
 	private ProcessVariableNode(@Nonnull final String name, @Nonnull final TreeNodeSource source) {
 	    super(name, LdapEpicsAlarmcfgConfiguration.RECORD, source);
-		_activeAlarm = new Alarm(name, EpicsAlarmSeverity.UNKNOWN, new Date(0L));
-		_highestUnacknowledgedAlarm = new Alarm(name, EpicsAlarmSeverity.UNKNOWN, new Date(0L));
+		_activeAlarm = new Alarm(name, EpicsAlarmSeverity.UNKNOWN, "", new Date(0L));
+		_highestUnacknowledgedAlarm = new Alarm(name, EpicsAlarmSeverity.UNKNOWN, "", new Date(0L));
 	}
 
 
@@ -150,17 +147,6 @@ public final class ProcessVariableNode extends AbstractAlarmTreeNode implements 
         _listener = listener;
     }
 
-
-    /**
-	 * {@inheritDoc}
-	 */
-//	@Override
-    @Nonnull
-	public String getTypeId() {
-		// TODO jhatje: implement new datatype
-//		return IProcessVariable.TYPE_ID;
-		return null;
-	}
 
 	/**
 	 * {@inheritDoc}
@@ -267,6 +253,7 @@ public final class ProcessVariableNode extends AbstractAlarmTreeNode implements 
     public void acknowledgeAlarm() {
 	        _highestUnacknowledgedAlarm = new Alarm(_highestUnacknowledgedAlarm.getObjectName(),
 	                                                EpicsAlarmSeverity.UNKNOWN,
+	                                                _highestUnacknowledgedAlarm.getStatus(),
 	                                                new Date(0L));
 	        final IAlarmSubtreeNode parent = getParent();
 	        if (parent != null) {

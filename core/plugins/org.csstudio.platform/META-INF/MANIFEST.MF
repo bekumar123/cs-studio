@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Core Plug-in
 Bundle-SymbolicName: org.csstudio.platform;singleton:=true
-Bundle-Version: 1.2.0.qualifier
+Bundle-Version: 1.2.0.201212201100
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime;visibility:=reexport,
  org.junit4,
@@ -12,8 +12,8 @@ Require-Bundle: org.eclipse.core.runtime;visibility:=reexport,
  org.csstudio.data;bundle-version="1.0.0";visibility:=reexport,
  org.csstudio.workspace,
  org.eclipse.equinox.security,
- org.apache.log4j;bundle-version="1.2.16",
- org.csstudio.remote;bundle-version="1.0.0",
+ org.apache.log4j,
+  org.csstudio.remote;bundle-version="1.0.0",
  org.jdom;bundle-version="1.1.0"
 Bundle-Activator: org.csstudio.platform.CSSPlatformPlugin
 Bundle-Vendor: Desy

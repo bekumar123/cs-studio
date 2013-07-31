@@ -2,7 +2,7 @@
 <feature
       id="org.csstudio.desy.desytools.feature"
       label="Desytools Feature"
-      version="1.0.0.qualifier"
+      version="1.0.0.201307031400"
       provider-name="Desy, Jan Hatje &lt;jan.hatje@desy.de&gt;">
 
    <description url="http://www.example.com/description">
@@ -44,6 +44,61 @@
 
    <plugin
          id="org.csstudio.utility.ldap.nameSpaceBrowser"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.csstudio.config.savevalue.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.csstudio.utility.documentViewer"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.csstudio.config.ioconfig.model"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.csstudio.config.ioconfig.view"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.csstudio.dct.desy"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.csstudio.utility.toolbox"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.csstudio.utility.screenshot.desy"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.csstudio.config.ioconfigurator"
          download-size="0"
          install-size="0"
          version="0.0.0"

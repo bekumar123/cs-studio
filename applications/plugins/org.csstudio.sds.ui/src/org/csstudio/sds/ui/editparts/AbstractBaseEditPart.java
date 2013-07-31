@@ -1039,9 +1039,9 @@ public abstract class AbstractBaseEditPart extends AbstractGraphicalEditPart
 				broker.registerListener(parameters, listener);
 			}
 		} catch (InstantiationException e) {
-			LOG.error(e.toString());
+			LOG.error("Registering simple DAL listeners failed", e.toString());
 		} catch (CommonException e) {
-			LOG.error(e.toString());
+			LOG.error("Registering simple DAL listeners failed", e.toString());
 		}
 	}
 

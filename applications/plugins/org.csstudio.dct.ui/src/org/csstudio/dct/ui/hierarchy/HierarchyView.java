@@ -13,6 +13,7 @@ import org.csstudio.dct.model.IPrototype;
 import org.csstudio.dct.model.IRecord;
 import org.csstudio.dct.model.visitors.SearchInstancesVisitor;
 import org.csstudio.dct.ui.editor.DctEditor;
+import org.csstudio.domain.common.LayoutUtil;
 import org.eclipse.jface.viewers.IOpenListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -22,10 +23,12 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
-import org.csstudio.domain.common.LayoutUtil;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.part.ViewPart;
@@ -38,163 +41,170 @@ import org.eclipse.ui.part.ViewPart;
  * 
  */
 public class HierarchyView extends ViewPart implements IPartListener, ISelectionListener {
-	private IPrototype currentPrototype;
-	private DctEditor editor;
-	private TreeViewer treeViewer;
-	private Set<UUID> visibleIds;
+    private IPrototype currentPrototype;
+    private DctEditor editor;
+    private TreeViewer treeViewer;
+    private Set<UUID> visibleIds;
 
-	public HierarchyView() {
-		visibleIds = new HashSet<UUID>();
-		currentPrototype = null;
-	}
+    public HierarchyView() {
+        visibleIds = new HashSet<UUID>();
+        currentPrototype = null;
+    }
 
-	public TreeViewer getTreeViewer() {
-		return treeViewer;
-	}
+    public TreeViewer getTreeViewer() {
+        return treeViewer;
+    }
 
-	@Override
-	public void createPartControl(Composite parent) {
-		treeViewer = new TreeViewer(parent);
-		treeViewer.getTree().setLayoutData(LayoutUtil.createGridDataForFillingCell(200, 400));
-		treeViewer.setLabelProvider(new WorkbenchLabelProvider());
-		treeViewer.setContentProvider(new WorkbenchContentProvider());
-		treeViewer.setAutoExpandLevel(4);
+    @Override
+    public void createPartControl(Composite parent) {
+        treeViewer = new TreeViewer(parent);
+        treeViewer.getTree().setLayoutData(LayoutUtil.createGridDataForFillingCell(200, 400));
+        treeViewer.setLabelProvider(new WorkbenchLabelProvider());
+        treeViewer.setContentProvider(new WorkbenchContentProvider());
+        treeViewer.setAutoExpandLevel(4);
 
-		treeViewer.addFilter(new ViewerFilter() {
-			@Override
-			public boolean select(Viewer viewer, Object parentElement, Object element) {
-				boolean result = false;
+        treeViewer.addFilter(new ViewerFilter() {
+            @Override
+            public boolean select(Viewer viewer, Object parentElement, Object element) {
+                boolean result = false;
 
-				if (element instanceof IElement) {
-					result = visibleIds.contains(((IElement) element).getId());
-				}
+                if (element instanceof IElement) {
+                    result = visibleIds.contains(((IElement) element).getId());
+                }
 
-				return result;
-			}
-		});
+                return result;
+            }
+        });
 
-		treeViewer.addOpenListener(new IOpenListener() {
-			public void open(OpenEvent event) {
-				StructuredSelection sel = (StructuredSelection) event.getSelection();
+        treeViewer.addOpenListener(new IOpenListener() {
+            public void open(OpenEvent event) {
+                StructuredSelection sel = (StructuredSelection) event.getSelection();
 
-				IElement e = (IElement) sel.getFirstElement();
+                IElement e = (IElement) sel.getFirstElement();
 
-				if (!(e instanceof IFolder)) {
-					editor.selectItemInOutline(e.getId());
-				}
-			}
-		});
+                if (!(e instanceof IFolder)) {
+                    editor.selectItemInOutline(e.getId());
+                }
+            }
+        });
 
-		partActivated(getSite().getPage().getActivePart());
+        partActivated(getSite().getPage().getActivePart());
 
-		getSite().getPage().addPartListener(this);
+        getSite().getPage().addPartListener(this);
 
-		getSite().getPage().addSelectionListener("org.eclipse.ui.views.ContentOutline", this);
-	}
+        getSite().getPage().addSelectionListener("org.eclipse.ui.views.ContentOutline", this);
+    }
 
-	@Override
-	public void setFocus() {
+    @Override
+    public void setFocus() {
 
-	}
+    }
 
-	public void partActivated(IWorkbenchPart part) {
-		if (part instanceof DctEditor) {
-			editor = (DctEditor) part;
+    public void partActivated(IWorkbenchPart part) {
+        if (part instanceof DctEditor) {
+            editor = (DctEditor) part;
+            treeViewer.setInput(editor.getProject());
+            selectionChanged(null, null);
+        }
+    }
 
-			treeViewer.setInput(editor.getProject());
+    public void partBroughtToTop(IWorkbenchPart part) {
 
-			selectionChanged(null, null);
-		}
-	}
+    }
 
-	public void partBroughtToTop(IWorkbenchPart part) {
+    public void partClosed(IWorkbenchPart part) {
 
-	}
+    }
 
-	public void partClosed(IWorkbenchPart part) {
+    public void partDeactivated(IWorkbenchPart part) {
 
-	}
+    }
 
-	public void partDeactivated(IWorkbenchPart part) {
+    public void partOpened(IWorkbenchPart part) {
 
-	}
+    }
 
-	public void partOpened(IWorkbenchPart part) {
+    public void selectionChanged(IWorkbenchPart part, ISelection s2) {
+        ISelection selection = getSite().getPage().getSelection("org.eclipse.ui.views.ContentOutline");
 
-	}
+        IStructuredSelection sel = (IStructuredSelection) selection;
 
-	public void selectionChanged(IWorkbenchPart part, ISelection s2) {
-		ISelection selection = getSite().getPage().getSelection("org.eclipse.ui.views.ContentOutline");
+        if (sel != null) {
+            Object e = sel.getFirstElement();
 
-		IStructuredSelection sel = (IStructuredSelection) selection;
+            if (e != null && e != currentPrototype) {
 
-		if (sel != null) {
-			Object e = sel.getFirstElement();
+                currentPrototype = null;
 
-			if (e != null && e != currentPrototype) {
+                if (e instanceof IPrototype) {
+                    currentPrototype = (IPrototype) e;
+                } else if (e instanceof IInstance) {
+                    currentPrototype = ((IInstance) e).getPrototype();
+                } else if (e instanceof IRecord) {
+                    IRecord r = (IRecord) e;
 
-				currentPrototype = null;
+                    if (r.getContainer() instanceof IPrototype) {
+                        currentPrototype = (IPrototype) r.getContainer();
+                    } else if (r.getContainer() instanceof IInstance) {
+                        currentPrototype = ((IInstance) r.getContainer()).getPrototype();
+                    }
+                }
 
-				if (e instanceof IPrototype) {
-					currentPrototype = (IPrototype) e;
-				} else if (e instanceof IInstance) {
-					currentPrototype = ((IInstance) e).getPrototype();
-				} else if (e instanceof IRecord) {
-					IRecord r = (IRecord) e;
+                if (currentPrototype != null) {
+                    setPartName("Instances of [" + currentPrototype.getName() + "]");
 
-					if (r.getContainer() instanceof IPrototype) {
-						currentPrototype = (IPrototype) r.getContainer();
-					} else if (r.getContainer() instanceof IInstance) {
-						currentPrototype = ((IInstance) r.getContainer()).getPrototype();
-					}
-				}
+                    // If the instances view is opended after the editor ist actived, editor stays null.
+                    // Check for this condition and set the editor to the active editor.
+                    if (editor == null) {
+                        IEditorPart activePart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+                                .getActiveEditor();
+                        partActivated(activePart);
+                    }
 
-				if (currentPrototype != null) {
-					setPartName("Instances of [" + currentPrototype.getName() + "]");
+                    List<IInstance> instances = new SearchInstancesVisitor().search(editor.getProject(),
+                            currentPrototype.getId());
 
-					List<IInstance> instances = new SearchInstancesVisitor().search(editor.getProject(), currentPrototype.getId());
+                    visibleIds = determineVisibleIds(instances);
 
-					visibleIds = determineVisibleIds(instances);
+                    treeViewer.refresh();
+                    treeViewer.expandAll();
+                }
+            }
+        }
+    }
 
-					treeViewer.refresh();
-					treeViewer.expandAll();
-				}
-			}
-		}
-	}
+    private Set<UUID> determineVisibleIds(List<IInstance> instances) {
+        Set<UUID> ids = new HashSet<UUID>();
+        for (IInstance instance : instances) {
+            addPathElements(instance, ids);
+        }
 
-	private Set<UUID> determineVisibleIds(List<IInstance> instances) {
-		Set<UUID> ids = new HashSet<UUID>();
-		for (IInstance instance : instances) {
-			addPathElements(instance, ids);
-		}
+        return ids;
+    }
 
-		return ids;
-	}
+    private void addPathElements(IContainer container, Set<UUID> visibleIds) {
+        visibleIds.add(container.getId());
 
-	private void addPathElements(IContainer container, Set<UUID> visibleIds) {
-		visibleIds.add(container.getId());
+        if (container.getContainer() != null) {
+            addPathElements(container.getContainer(), visibleIds);
+        } else if (container.getParentFolder() != null) {
+            addPathElements(container.getParentFolder(), visibleIds);
+        }
+    }
 
-		if (container.getContainer() != null) {
-			addPathElements(container.getContainer(), visibleIds);
-		} else if (container.getParentFolder() != null) {
-			addPathElements(container.getParentFolder(), visibleIds);
-		}
-	}
+    private void addPathElements(IFolder folder, Set<UUID> visibleIds) {
+        visibleIds.add(folder.getId());
 
-	private void addPathElements(IFolder folder, Set<UUID> visibleIds) {
-		visibleIds.add(folder.getId());
+        if (folder.getParentFolder() != null) {
+            addPathElements(folder.getParentFolder(), visibleIds);
+        }
+    }
 
-		if (folder.getParentFolder() != null) {
-			addPathElements(folder.getParentFolder(), visibleIds);
-		}
-	}
+    @Override
+    public void dispose() {
+        super.dispose();
+        getSite().getPage().removePartListener(this);
+        getSite().getPage().removeSelectionListener("org.eclipse.ui.views.ContentOutline", this);
 
-	@Override
-	public void dispose() {
-		super.dispose();
-		getSite().getPage().removePartListener(this);
-		getSite().getPage().removeSelectionListener("org.eclipse.ui.views.ContentOutline", this);
-
-	}
+    }
 }

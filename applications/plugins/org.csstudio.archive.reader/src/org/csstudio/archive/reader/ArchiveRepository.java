@@ -22,7 +22,7 @@ import org.eclipse.core.runtime.RegistryFactory;
  *  @author Jan Hatje, Albert Kagarmanov: Previous org.csstudio.archive.ArchiveImplementationRegistry
  */
 @SuppressWarnings("nls")
-public class ArchiveRepository
+public class ArchiveRepository   
 {
     /** ID of the extension point that implementing plugins use. */
     private static final String EXTENSION_ID =
@@ -93,7 +93,9 @@ public class ArchiveRepository
         final String prefix = url.substring(0, delim);
 
         // Locate implementation for that prefix
+        System.out.println("ArchiveRepository.getArchiveReader()  start ArchiveReaderFactory create "+System.currentTimeMillis());
         final ArchiveReaderFactory factory = reader_factories.get(prefix);
+        System.out.println("ArchiveRepository.getArchiveReader()  end ArchiveReaderFactory create "+System.currentTimeMillis());
         if (factory == null)
             throw new Exception("Unkown archive reader URL " + url);
         return factory.getArchiveReader(url);

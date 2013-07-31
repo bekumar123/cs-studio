@@ -1,7 +1,6 @@
 package org.csstudio.dct.util;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -42,7 +41,6 @@ public final class ResolutionUtil {
 		}
 
 		String result = DctActivator.getDefault().getFieldFunctionService().resolve(source, aliases);
-
 		return result;
 	}
 

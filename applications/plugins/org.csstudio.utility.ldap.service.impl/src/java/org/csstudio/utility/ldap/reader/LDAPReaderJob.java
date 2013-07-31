@@ -26,7 +26,6 @@ import javax.annotation.Nonnull;
 import javax.naming.ldap.LdapName;
 
 import org.csstudio.servicelocator.ServiceLocator;
-import org.csstudio.utility.ldap.LdapServiceImplActivator;
 import org.csstudio.utility.ldap.service.ILdapReadCompletedCallback;
 import org.csstudio.utility.ldap.service.ILdapReaderJob;
 import org.csstudio.utility.ldap.service.ILdapSearchParams;

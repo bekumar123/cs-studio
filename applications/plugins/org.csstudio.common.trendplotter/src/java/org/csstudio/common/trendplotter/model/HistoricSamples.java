@@ -11,7 +11,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,8 +25,7 @@ import org.csstudio.archive.common.service.sample.IArchiveSample;
 import org.csstudio.archive.reader.ArchiveReader;
 import org.csstudio.common.trendplotter.Activator;
 import org.csstudio.common.trendplotter.preferences.Preferences;
-import org.csstudio.data.values.ITimestamp;
-import org.csstudio.data.values.IValue;
+
 import org.csstudio.domain.common.collection.LimitedArrayCircularQueue;
 import org.csstudio.domain.desy.epics.name.EpicsChannelName;
 import org.csstudio.domain.desy.epics.name.EpicsNameSupport;
@@ -36,6 +34,8 @@ import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
 import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.typesupport.BaseTypeConversionSupport;
+import org.epics.util.time.Timestamp;
+import org.epics.vtype.VType;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +72,7 @@ public class HistoricSamples extends PlotSamples
         Maps.newEnumMap(RequestType.class);
 
     /** If non-null, orgSamples beyond this time are hidden from access */
-    private ITimestamp border_time = null;
+    private Timestamp border_time = null;
 
     /**
      * Subset of orgSamples.length that's below border_time
@@ -113,7 +113,7 @@ public class HistoricSamples extends PlotSamples
      *  are returned from the history
      *  @param border_time New time or <code>null</code> to access all orgSamples
      */
-    public void setBorderTime(final ITimestamp border_time)
+    public void setBorderTime(final Timestamp border_time)
     {   // Anything new?
         if (border_time == null)
         {
@@ -149,10 +149,11 @@ public class HistoricSamples extends PlotSamples
     @SuppressWarnings("nls")
     @Override
     synchronized public PlotSample getSample(final int i)
-    {
+    {  
         if (i >= visible_size) {
             throw new IndexOutOfBoundsException("Index " + i + " exceeds visible size " + visible_size);
         }
+        
         return sample_map.get(request_type)[i];
     }
 
@@ -174,10 +175,11 @@ public class HistoricSamples extends PlotSamples
     synchronized public void mergeArchivedData(final String channel_name,
                                                final ArchiveReader source,
                                                final RequestType requestType,
-                                               final List<IValue> result)
+                                               final List<VType> result)
                                                throws OsgiServiceUnavailableException,
                                                       ArchiveServiceException
     {
+        LOG.info("start mergeArchivedData()");
         // Anything new at all?
         if (result.size() <= 0) {
             return;
@@ -188,7 +190,9 @@ public class HistoricSamples extends PlotSamples
         // Turn IValues into PlotSamples
         final PlotSample new_samples[] = new PlotSample[result.size()];
         for (int i=0; i<new_samples.length; ++i) {
-            new_samples[i] = new PlotSample(source.getServerName(), result.get(i));
+            VType v= result.get(i);
+            if(v==null)return;
+            new_samples[i] = new PlotSample(source.getServerName(), v);
         }
         if (isArchiveServiceforADELPresent()) {
             findAndSetArchiveDeadBandForNewSamples(channel_name, new_samples);
@@ -207,9 +211,11 @@ public class HistoricSamples extends PlotSamples
         updateRequestType(requestType);
 
         have_new_samples = true;
+        LOG.info("end mergeArchivedData()");
     }
 
     private void compressSamples() {
+        LOG.info("start compressSamples()");
         final int histBuffer = Preferences.getHistSampleBuffer();
         final Long[] windowsMS = determinePerfectWindowForCompressedSamples(histBuffer,
                                                                             _prov.getTimeInterval());
@@ -225,6 +231,7 @@ public class HistoricSamples extends PlotSamples
             return;
         }
         sample_map.put(RequestType.OPTIMIZED, removeNotConnectedValues(array));
+        LOG.info("start compressSamples()");
     }
     
     /**
@@ -234,7 +241,7 @@ public class HistoricSamples extends PlotSamples
     private PlotSample[] removeNotConnectedValues(PlotSample[] array) {
         List<PlotSample> samplesWithoutNA = new ArrayList<PlotSample>(array.length);
         for (PlotSample sample : array) {
-            if (!sample.getValue().format().startsWith("#")) {
+            if (!sample.getValue().toString().startsWith("#")) {
                 samplesWithoutNA.add(sample);
             }
         }
@@ -327,7 +334,7 @@ public class HistoricSamples extends PlotSamples
                                                   @Nonnull final Iterator<IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>>> iter,
                                                   @Nonnull final IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>> curAdel) {
 
-        final TimeInstant sampleTs = BaseTypeConversionSupport.toTimeInstant(sample.getTime());
+        final TimeInstant sampleTs = BaseTypeConversionSupport.toTimeInstant1(sample.getTime());
 
         TimeInstant curAdelTs = curAdel.getSystemVariable().getTimestamp();
         if (curAdelTs.isAfter(sampleTs)) {
@@ -360,13 +367,13 @@ public class HistoricSamples extends PlotSamples
 
     private Collection<IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>>>
     retrieveAdelSamples(final String channel_name,
-                        final ITimestamp start,
-                        final ITimestamp end)
+                        final Timestamp start,
+                        final Timestamp end)
                         throws OsgiServiceUnavailableException, ArchiveServiceException
     {
         final IArchiveReaderFacade service = Activator.getDefault().getArchiveReaderService();
-        final TimeInstant s = BaseTypeConversionSupport.toTimeInstant(start);
-        final TimeInstant e = BaseTypeConversionSupport.toTimeInstant(end);
+        final TimeInstant s = BaseTypeConversionSupport.toTimeInstant1(start);
+        final TimeInstant e = BaseTypeConversionSupport.toTimeInstant1(end);
 
         final String adelChannelName =
             EpicsNameSupport.parseBaseName(channel_name) +
@@ -397,6 +404,8 @@ public class HistoricSamples extends PlotSamples
      * 
      */
     public ArrayList<PlotSample> getAllSamples() {
+        LOG.info(" getAllSamples()");
+        
         ArrayList<PlotSample> historicSampleList = new ArrayList<PlotSample>(); 
         Set<RequestType> keySet = sample_map.keySet();
         for (RequestType requestType : keySet) {

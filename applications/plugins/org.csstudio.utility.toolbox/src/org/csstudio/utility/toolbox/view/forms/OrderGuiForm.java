@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.EntityManager;
 import javax.validation.Path;
 
 import net.miginfocom.swt.MigLayout;
@@ -23,17 +22,19 @@ import org.csstudio.utility.toolbox.framework.ColumnCreator;
 import org.csstudio.utility.toolbox.framework.celleditors.CustomDialogCellEditor;
 import org.csstudio.utility.toolbox.framework.listener.SimpleSelectionListener;
 import org.csstudio.utility.toolbox.framework.property.Property;
+import org.csstudio.utility.toolbox.framework.property.SearchTermType;
 import org.csstudio.utility.toolbox.framework.template.AbstractGuiFormTemplate;
+import org.csstudio.utility.toolbox.framework.template.CanSaveAction;
 import org.csstudio.utility.toolbox.func.Func1Void;
 import org.csstudio.utility.toolbox.func.Func2;
 import org.csstudio.utility.toolbox.func.Option;
 import org.csstudio.utility.toolbox.func.Some;
-import org.csstudio.utility.toolbox.services.ArticleService;
 import org.csstudio.utility.toolbox.services.FirmaService;
 import org.csstudio.utility.toolbox.services.LogGroupService;
 import org.csstudio.utility.toolbox.services.LogUserService;
 import org.csstudio.utility.toolbox.services.OrderPosService;
 import org.csstudio.utility.toolbox.services.OrderService;
+import org.csstudio.utility.toolbox.services.OrderTypeService;
 import org.csstudio.utility.toolbox.view.support.ArticleDescriptionEditingSupport;
 import org.csstudio.utility.toolbox.view.support.OrderPosBestellmengeEditingSupport;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -55,382 +56,382 @@ import com.google.inject.Provider;
 
 public class OrderGuiForm extends AbstractGuiFormTemplate<Order> {
 
-	private static final String DETAIL_TABLE_VIEWER = "detailTableViewer";
+   private static final String DETAIL_TABLE_VIEWER = "detailTableViewer";
 
-	@Inject
-	private EntityManager em;
+   @Inject
+   private FirmaService firmaService;
 
-	@Inject
-	private FirmaService firmaService;
+   @Inject
+   private LogUserService logUserService;
 
-	@Inject
-	private LogUserService logUserService;
+   @Inject
+   private LogGroupService logGroupService;
 
-	@Inject
-	private LogGroupService logGroupService;
+   @Inject
+   private OrderService orderService;
 
-	@Inject
-	private ArticleService articleService;
+   @Inject
+   private OrderTypeService orderTypeService;
 
-	@Inject
-	private OrderService orderService;
+   @Inject
+   private OrderPosService orderPosService;
 
-	@Inject
-	private OrderPosService orderPosService;
+   @Inject
+   private Environment env;
 
-	@Inject
-	private Environment env;
+   @Inject
+   private Provider<SimpleDateFormat> sd;
 
-	@Inject
-	private Provider<SimpleDateFormat> sd;
+   @Inject
+   private OrderGuiFormActionHandler orderGuiFormActionHandler;
 
-	@Inject
-	private OrderGuiFormActionHandler orderGuiFormActionHandler;
+   protected Option<Property> resolvePropertyPath(Path propertyPath) {
+      return new Some<Property>(new Property(DETAIL_TABLE_VIEWER));
+   }
 
-	protected Option<Property> resolvePropertyPath(Path propertyPath) {
-		return new Some<Property>(new Property(DETAIL_TABLE_VIEWER));
-	}
+   @Override
+   protected void createEditComposite(Composite composite) {
+      createPart(composite);
+   }
 
-	@Override
-	protected void createEditComposite(Composite composite) {
-		createPart(composite);
-	}
+   @Override
+   protected void createSearchComposite(Composite composite) {
+      createPart(composite);
+   }
 
-	@Override
-	protected void createSearchComposite(Composite composite) {
-		createPart(composite);
-	}
+   @Override
+   protected TableViewer createSearchResultComposite(Composite composite) {
 
-	@Override
-	protected TableViewer createSearchResultComposite(Composite composite) {
+      String[] titles = { "BA-Numer", "Company", "Description" };
+      int[] bounds = { 20, 30, 40 };
 
-		String[] titles = { "BA-Numer", "Company", "Description" };
-		int[] bounds = { 20, 30, 40 };
+      setSearchResultTableViewer(createTableViewer(composite, SEARCH_RESULT_TABLE_VIEWER, titles, bounds));
 
-		setSearchResultTableViewer(createTableViewer(composite, SEARCH_RESULT_TABLE_VIEWER, titles, bounds));
+      final Table table = getSearchResultTableViewer().getTable();
 
-		final Table table = getSearchResultTableViewer().getTable();
+      table.setLayoutData("spanx 7, ay top, growy, growx, height 220:220:1250, width 500:800:2000, wrap");
+      table.setHeaderVisible(true);
+      table.setLinesVisible(true);
 
-		table.setLayoutData("spanx 7, ay top, growy, growx, height 220:220:1250, width 500:800:2000, wrap");
-		table.setHeaderVisible(true);
-		table.setLinesVisible(true);
+      return getSearchResultTableViewer();
 
-		return getSearchResultTableViewer();
+   }
 
-	}
+   private void createPart(final Composite composite) {
 
-	private void createPart(final Composite composite) {
+      orderGuiFormActionHandler.init(isSearchMode(), getEditorInput(), wf);
 
-		orderGuiFormActionHandler.init(isSearchMode(), getEditorInput());
+      String rowLayout;
 
-		getEditorInput().setBeforeCommit(new BeforeCommit());
+      if (isSearchMode()) {
+         rowLayout = "[][][][][][][]8[][][]8[]15[][][][grow, fill][]";
+      } else {
+         rowLayout = "[][][][][][][]8[][][]8[][]25[grow, fill][]";
+      }
 
-		String rowLayout;
+      MigLayout ml = new MigLayout("ins 10, gapy 2", "[100][200, fill][80][70][200,fill][100][fill,grow]", rowLayout);
 
-		if (isSearchMode()) {
-			rowLayout = "[][][][][][][]8[][][]8[]15[][][][grow, fill][]";
-		} else {
-			rowLayout = "[][][][][][][]8[][][]8[][]25[grow, fill][]";
-		}
+      composite.setLayout(ml);
 
-		MigLayout ml = new MigLayout("ins 10, gapy 2", "[100][200, fill][80][70][200,fill][100][fill,grow]", rowLayout);
+      wf.label(composite).text(getEditorInput().getTitle()).titleStyle().build();
 
-		composite.setLayout(ml);
+      // =====================
 
-		wf.label(composite).text(getEditorInput().getTitle()).titleStyle().build();
+      final List<OrderType> orderTypes = orderTypeService.findAll();
 
-		// =====================
+      if (isSearchMode()) {
+         wf.combo(composite, "baType").label("Order-Type:").data(orderTypes).hint("wrap").build();
+      } else {
+         if (isCreateMode() && (getEditorInput().isNewData())) {
+            wf.combo(composite, "baType").label("Order-Type:").data(orderTypes).hint("wrap").select(orderTypes.get(0))
+                  .build();
+         } else {
+            getEditorInput().processData(new Func1Void<Order>() {
+               @Override
+               public void apply(Order order) {
+                  if (order.getBaTypeId() == null) {
+                     wf.combo(composite, "baType").label("Order-Type:").data(orderTypes).hint("wrap")
+                           .select(orderTypes.get(0)).build();
+                  } else {
+                     OrderType orderType = orderTypeService.findById(order.getBaTypeId());
+                     wf.combo(composite, "baType").label("Order-Type:").data(orderTypes).hint("wrap").select(orderType)
+                           .build();
+                  }
+               }
+            });
+         }
+      }
 
-		if (isSearchMode()) {
-			wf.combo(composite, "baType").label("Order-Type:").data(OrderType.getTypeList()).hint("wrap").build();
-		} else {
-			wf.combo(composite, "baType").label("Order-Type:").data(OrderType.getTypeList()).selectFirst()
-						.hint("wrap").build();
-		}
+      // =====================
 
-		// =====================
+      Text nummer;
 
-		Text nummer;
+      if (isSearchMode() || getEditorInput().isNewData()) {
+         nummer = wf.text(composite, "nummer", SearchTermType.STRING_SEARCH_EXACT).label("BA Number:")
+               .limitInputToDigits().build();
+      } else {
+         nummer = wf.numericText(composite, "nummer").label("BA Number:").readOnly().noBinding().build();
+         getEditorInput().processData(new Func1Void<Order>() {
+            @Override
+            public void apply(Order order) {
+               wf.setText(P("nummer"), order.getNummer().toString());
+            }
+         });
+      }
 
-		if (isSearchMode() || getEditorInput().isNewData()) {
-			nummer = wf.numericText(composite, "nummer").label("BA Number:").limitInputToDigits()
-						.useBigDecimalConverter().build();
-		} else {
-			nummer = wf.numericText(composite, "nummer").label("BA Number:").readOnly().useBigDecimalConverter()
-						.build();
-		}
+      setFocusWidget(nummer);
 
-		setFocusWidget(nummer);
+      if (getCrudController().hasValue()) {
+         getCrudController().get().setFocusWidget(nummer);
+      }
 
-		if (getCrudController().hasValue()) {
-			getCrudController().get().setFocusWidget(nummer);
-		}
+      Text ausstellungsDatum = wf.date(composite, "austellungsDatum").label("BA Date:", "skip").hint("gaptop 5, wrap")
+            .build();
 
-		Text ausstellungsDatum = wf.date(composite, "austellungsDatum").label("BA Date:", "skip")
-					.hint("gaptop 5, wrap").build();
+      if (isCreateMode() && (getEditorInput().isNewData())) {
+         ausstellungsDatum.setText(sd.get().format(new Date()));
+         ausstellungsDatum.notifyListeners(SWT.FocusOut, new Event());
+      }
 
-		if (isCreateMode() && (getEditorInput().isNewData())) {
-			ausstellungsDatum.setText(sd.get().format(new Date()));
-			ausstellungsDatum.notifyListeners(SWT.FocusOut, new Event());
-		}
+      // =====================
 
-		// =====================
+      final Combo company = wf.combo(composite, "firmaName").label("Company:").data(firmaService.findAll()).build();
 
-		final Combo company = wf.combo(composite, "firmaName").label("Company:").data(firmaService.findAll()).build();
+      wf.button(composite, "lookupCompany").withSearchImage().listener(new SimpleSelectionListener() {
+         @Override
+         public void widgetSelected(SelectionEvent e) {
+            orderGuiFormActionHandler.selectFirma(company);
+         }
+      }).build();
 
-		wf.button(composite, "lookupCompany").withSearchImage().listener(new SimpleSelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				orderGuiFormActionHandler.selectFirma(company);
-			}
-		}).build();
+      wf.checkbox(composite, "maintenanceContract").text("Maintenance Contract").hint("skip 1, wrap").build();
 
-		wf.checkbox(composite, "maintenanceContract").text("Maintenance Contract").hint("skip 1, wrap").build();
+      // =====================
 
-		// =====================
+      final Combo previousBa = wf.combo(composite, "vorherigeBa").label("Previous BA:").data(orderService.findAll())
+            .build();
 
-		final Combo previousBa = wf.combo(composite, "vorherigeBa").label("Previous BA:").data(orderService.findAll())
-					.build();
+      wf.button(composite, "lookupPreviousBa").withSearchImage().listener(new SimpleSelectionListener() {
+         @Override
+         public void widgetSelected(SelectionEvent e) {
+            orderGuiFormActionHandler.selectBa(previousBa);
+         }
+      }).build();
 
-		wf.button(composite, "lookupPreviousBa").withSearchImage().listener(new SimpleSelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				orderGuiFormActionHandler.selectBa(previousBa);
-			}
-		}).build();
+      wf.date(composite, "validUntil").label("Valid until:").hint("gaptop 5, wrap").build();
 
-		wf.date(composite, "validUntil").label("Valid until:").hint("gaptop 5, wrap").build();
+      // =====================
 
-		// =====================
+      wf.text(composite, "zuInventarNr").label("For Inventary Nr:").build();
 
-		wf.text(composite, "zuInventarNr").label("For Inventary Nr:").build();
+      wf.checkbox(composite, "rememberExpiration").text("Remember Expiration").hint("skip 2, wrap").build();
 
-		wf.checkbox(composite, "rememberExpiration").text("Remember Expiration").hint("skip 2, wrap").build();
+      // =====================
 
-		// =====================
+      final Combo aussteller = wf.combo(composite, "aussteller").label("User:").data(logUserService.findAll()).build();
 
-		final Combo aussteller = wf.combo(composite, "aussteller").label("User:").data(logUserService.findAll())
-					.build();
+      if (isCreateMode() && (getEditorInput().isNewData())) {
+         aussteller.setText(env.getDefaultUserName());
+      }
 
-		if (isCreateMode() && (getEditorInput().isNewData())) {
-			aussteller.setText(env.getDefaultUserName());
-		}
+      wf.combo(composite, "gruppe").label("Group:", "skip").data(logGroupService.findAll()).hint("wrap").build();
 
-		wf.combo(composite, "gruppe").label("Group:", "skip").data(logGroupService.findAll()).hint("wrap").build();
+      // =====================
 
-		// =====================
+      wf.text(composite, "abladeStelle").label("BA Deliver To:").build();
 
-		wf.text(composite, "abladeStelle").label("BA Deliver To:").build();
+      wf.date(composite, "termin").label("Deliver Date:", "skip").hint("gaptop 5, wrap").build();
 
-		wf.date(composite, "termin").label("Deliver Date:", "skip").hint("gaptop 5, wrap").build();
+      // =====================
 
-		// =====================
+      wf.text(composite, "gesamtwert").label("Total Value:").build();
+      wf.text(composite, "desyauftragsNr").label("Order Nr:", "skip").hint("wrap").build();
 
-		wf.text(composite, "gesamtwert").label("Total Value:").build();
-		wf.text(composite, "desyauftragsNr").label("Order Nr:", "skip").hint("wrap").build();
+      // =====================
 
-		// =====================
+      wf.text(composite, "kostenstelle").label("Account:").build();
+      wf.text(composite, "projekt").label("Project:", "skip").hint("wrap").build();
 
-		wf.text(composite, "kostenstelle").label("Account:").build();
-		wf.text(composite, "projekt").label("Project:", "skip").hint("wrap").build();
+      // =====================
 
-		// =====================
+      wf.text(composite, "beschreibung").label("Description:").hint("spanx 6,wrap").build();
 
-		wf.text(composite, "beschreibung").label("Description:").hint("spanx 6,wrap").build();
-
-		if (isSearchMode()) {
-
-			wf.text(composite, "internId").isJoined().label("Internal Nr:").build();
-			wf.text(composite, "Inventar Nr:").isJoined().label("Inventar Nr:", "skip").hint("wrap").build();
-
-		} else {
-
-			wf.text(composite, "text").label("Note:", "ay top").hint("spanx 6, h 90!, wrap 2").build();
-
-			String[] titles = { "Position", "Amount", "Description", "Price" };
-			int[] bounds = { 20, 20, 40, 20 };
-
-			setDetailTableViewer(createEditableTableViewer(composite, new Property(DETAIL_TABLE_VIEWER), titles,
-						bounds, new ColumnCreator() {
-							@Override
-							public TableViewerColumn create(TableViewer tableViewer, int colNumber) {
-								return createTableViewerColumn(tableViewer, colNumber);
-							}
-						}));
-
-			getDetailTableViewer().setContentProvider(new ArrayContentProvider());
-
-			getEditorInput().processData(new Func1Void<Some<Order>>() {
-				@Override
-				public void apply(Some<Order> data) {
-					if (data.get().getOrderPositions(orderPosService) == null) {
-						data.get().setOrderPositions(new ArrayList<OrderPos>());
-					}
-					getDetailTableViewer().setInput(data.get().getOrderPositions(orderPosService));
-				}
-			});
-
-			final Table table = getDetailTableViewer().getTable();
-
-			table.setLayoutData("skip, spanx 6, gaptop 20, ay top, growx, height 200:200:1250, wrap");
-			table.setHeaderVisible(true);
-			table.setLinesVisible(true);
-
-			MigLayout mlButtons = new MigLayout("ins 0", "[67][67]", "[]");
-
-			Composite buttonComposite = new Composite(composite, SWT.NONE);
-			buttonComposite.setLayout(mlButtons);
-
-			buttonComposite.setLayoutData("skip, wrap");
-
-			wf.button(buttonComposite, "addRow").hint("w 65!").text("+").listener(new SimpleSelectionListener() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					orderGuiFormActionHandler.addNewDetail(getDetailTableViewer(), getCrudController());
-				}
-			}).build();
-
-			wf.button(buttonComposite, "removeRow").hint("w 65!").text("-").listener(new SimpleSelectionListener() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					orderGuiFormActionHandler.removeDetail(getDetailTableViewer(), getCrudController());
-				}
-			}).build();
-
-		}
-	}
-
-	@Override
-	protected CanSaveAction canSave() {
-		if (getEditorInput().isNewData()) {
-			String nummer = wf.getText(P("nummer"));
-			if (StringUtils.isNotEmpty(nummer)) {
-				Option<Order> order = orderService.findByNummer(new BigDecimal(nummer));
-				if (order.hasValue()) {
-					Dialogs.message("Error", "Order " + nummer + " already exists.");
-					return CanSaveAction.ABORT_SAVE;
-				}
-				int selectionIndex = wf.getSelectionIndex(P("baType"));
-				if (selectionIndex == -1) {
-					Dialogs.message("Error", "You mast select the order type.");
-					return CanSaveAction.ABORT_SAVE;
-				}
-				wf.setText(P("nummer"), String.valueOf(selectionIndex + 1) + nummer);
-			}
-		}
-		return CanSaveAction.CONTINUE;
-	}
-
-	@Override
-	protected void saveComplete() {
-		wf.setReadOnly(P("nummer"));
-	}
-	
-	class BeforeCommit implements Func1Void<Order> {
-		@Override
-		public void apply(Order order) {
-			List<OrderPos> orderPositions = order.getOrderPositions(orderPosService);
-			for (OrderPos orderPos : orderPositions) {
-				if (orderPos.getArticle().getId() == null) {
-					BigDecimal articleId = articleService.createId();
-					orderPos.getArticle().setId(articleId);
-					if (orderPos.getArticle().getGruppeArtikel() == null) {
-						orderPos.getArticle().setGruppeArtikel(articleId);
-					}
-				}
-				orderPos.setBaNr(order.getNummer());
-				em.merge(orderPos);
-			}
-		}
-	}
-
-	private TableViewerColumn createTableViewerColumn(TableViewer tableViewer, int colNumber) {
-		if (isSearchMode()) {
-			return new TableViewerColumn(tableViewer, SWT.NONE);
-		}
-		switch (colNumber) {
-		case 0:
-			return createPositionNrCol(tableViewer);
-		case 1:
-			return createAnzahlBestelltCol(tableViewer);
-		case 2:
-			return createBeschreibungCol(tableViewer);
-		case 3:
-			return creatEinzelPreisCol(tableViewer);
-		default:
-			throw new IllegalStateException("Unsupported column index");
-		}
-	}
-
-	private static class PositionNrLabelProvider extends ColumnLabelProvider {
-		@Override
-		public String getText(Object element) {
-			OrderPos p = (OrderPos) element;
-			return p.getPositionNr().toString();
-		}
-	}
-
-	private TableViewerColumn createPositionNrCol(TableViewer tableViewer) {
-		TableViewerColumn col = new TableViewerColumn(tableViewer, SWT.NONE);
-		col.setLabelProvider(new PositionNrLabelProvider());
-		return col;
-	}
-
-	private static class AnzahlBestelltLabelProvider extends ColumnLabelProvider {
-		@Override
-		public String getText(Object element) {
-			OrderPos p = (OrderPos) element;
-			return p.getAnzahlBestellt().toString();
-		}
-	}
-
-	private TableViewerColumn createAnzahlBestelltCol(TableViewer tableViewer) {
-		TableViewerColumn col = new TableViewerColumn(tableViewer, SWT.NONE);
-		col.setLabelProvider(new AnzahlBestelltLabelProvider());
-		col.setEditingSupport(new OrderPosBestellmengeEditingSupport(tableViewer));
-		return col;
-	}
-
-	private static class BeschreibungLabelProvider extends ColumnLabelProvider {
-		@Override
-		public String getText(Object element) {
-			OrderPos p = (OrderPos) element;
-			if (p.getArticle().getArticleDescription() == null) {
-				return "";
-			}
-			return p.getArticle().getArticleDescription().getBeschreibung();
-		}
-	}
-
-	private TableViewerColumn createBeschreibungCol(TableViewer tableViewer) {
-		TableViewerColumn col = new TableViewerColumn(tableViewer, SWT.NONE);
-		col.setLabelProvider(new BeschreibungLabelProvider());
-		Func2<Object, CustomDialogCellEditor, Control> openDialog = new Func2<Object, CustomDialogCellEditor, Control>() {
-			@Override
-			public Object apply(final CustomDialogCellEditor dialogCellEditor, final Control cellEditorWindow) {
-				IStructuredSelection selection = (IStructuredSelection) getDetailTableViewer().getSelection();
-				orderGuiFormActionHandler.selectArticleDescription(dialogCellEditor, selection);
-				return null;
-			}
-		};
-		col.setEditingSupport(new ArticleDescriptionEditingSupport(tableViewer, openDialog));
-		return col;
-	}
-
-	private static class EinzelPreisLabelProvider extends ColumnLabelProvider {
-		@Override
-		public String getText(Object element) {
-			OrderPos p = (OrderPos) element;
-			if (p.getEinzelPreis() == null) {
-				return "";
-			}
-			return p.getEinzelPreis().toString();
-		}
-	}
-
-	private TableViewerColumn creatEinzelPreisCol(TableViewer tableViewer) {
-		TableViewerColumn col = new TableViewerColumn(tableViewer, SWT.RIGHT);
-		col.setLabelProvider(new EinzelPreisLabelProvider());
-		return col;
-	}
+      if (isSearchMode()) {
+
+         wf.text(composite, "internId").isJoinedForSearch().label("Internal Nr:").build();
+         wf.text(composite, "Inventar Nr:").isJoinedForSearch().label("Inventar Nr:", "skip").hint("wrap").build();
+
+      } else {
+
+         wf.text(composite, "text").label("Note:", "ay top").hint("spanx 6, h 90!, wrap 2").build();
+
+         String[] titles = { "Position", "Amount", "Description", "Price" };
+         int[] bounds = { 20, 20, 40, 20 };
+
+         setDetailTableViewer(createEditableTableViewer(composite, new Property(DETAIL_TABLE_VIEWER), titles, bounds,
+               new ColumnCreator() {
+                  @Override
+                  public TableViewerColumn create(TableViewer tableViewer, int colNumber) {
+                     return createTableViewerColumn(tableViewer, colNumber);
+                  }
+               }));
+
+         getDetailTableViewer().setContentProvider(new ArrayContentProvider());
+
+         getEditorInput().processData(new Func1Void<Order>() {
+            @Override
+            public void apply(Order order) {
+               if (order.getOrderPositions(orderPosService) == null) {
+                  order.setOrderPositions(new ArrayList<OrderPos>());
+               }
+               getDetailTableViewer().setInput(order.getOrderPositions(orderPosService));
+            }
+         });
+
+         final Table table = getDetailTableViewer().getTable();
+
+         table.setLayoutData("skip, spanx 6, gaptop 20, ay top, growx, height 200:200:1250, wrap");
+         table.setHeaderVisible(true);
+         table.setLinesVisible(true);
+
+         MigLayout mlButtons = new MigLayout("ins 0", "[67][67]", "[]");
+
+         Composite buttonComposite = new Composite(composite, SWT.NONE);
+         buttonComposite.setLayout(mlButtons);
+
+         buttonComposite.setLayoutData("skip, wrap");
+
+         wf.button(buttonComposite, "addRow").hint("w 65!").text("+").listener(new SimpleSelectionListener() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+               orderGuiFormActionHandler.addNewDetail(getDetailTableViewer(), getCrudController());
+            }
+         }).build();
+
+         wf.button(buttonComposite, "removeRow").hint("w 65!").text("-").listener(new SimpleSelectionListener() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+               orderGuiFormActionHandler.removeDetail(getDetailTableViewer(), getCrudController());
+            }
+         }).build();
+
+      }
+   }
+
+   @Override
+   protected CanSaveAction canSave() {
+      if (getEditorInput().isNewData()) {
+         String nummer = wf.getText(P("nummer"));
+         if (StringUtils.isNotEmpty(nummer)) {
+            Option<Order> order = orderService.findByNummer(new BigDecimal(nummer));
+            if (order.hasValue()) {
+               Dialogs.message("Error", "Order " + nummer + " already exists.");
+               return CanSaveAction.ABORT_SAVE;
+            }
+         }
+      }
+      return CanSaveAction.CONTINUE;
+   }
+
+   @Override
+   protected void saveComplete() {
+      wf.setReadOnly(P("nummer"));
+      getEditorInput().processData(new Func1Void<Order>() {
+         @Override
+         public void apply(Order order) {
+            wf.setText(P("nummer"), order.getNummer().toString());
+            getCrudController().get().setDirty(false);
+         }
+      });
+   }
+
+   private TableViewerColumn createTableViewerColumn(TableViewer tableViewer, int colNumber) {
+      if (isSearchMode()) {
+         return new TableViewerColumn(tableViewer, SWT.NONE);
+      }
+      switch (colNumber) {
+      case 0:
+         return createPositionNrCol(tableViewer);
+      case 1:
+         return createAnzahlBestelltCol(tableViewer);
+      case 2:
+         return createBeschreibungCol(tableViewer);
+      case 3:
+         return creatEinzelPreisCol(tableViewer);
+      default:
+         throw new IllegalStateException("Unsupported column index");
+      }
+   }
+
+   private static class PositionNrLabelProvider extends ColumnLabelProvider {
+      @Override
+      public String getText(Object element) {
+         OrderPos p = (OrderPos) element;
+         return p.getPositionNr().toString();
+      }
+   }
+
+   private TableViewerColumn createPositionNrCol(TableViewer tableViewer) {
+      TableViewerColumn col = new TableViewerColumn(tableViewer, SWT.NONE);
+      col.setLabelProvider(new PositionNrLabelProvider());
+      return col;
+   }
+
+   private static class AnzahlBestelltLabelProvider extends ColumnLabelProvider {
+      @Override
+      public String getText(Object element) {
+         OrderPos p = (OrderPos) element;
+         return p.getAnzahlBestellt().toString();
+      }
+   }
+
+   private TableViewerColumn createAnzahlBestelltCol(TableViewer tableViewer) {
+      TableViewerColumn col = new TableViewerColumn(tableViewer, SWT.NONE);
+      col.setLabelProvider(new AnzahlBestelltLabelProvider());
+      col.setEditingSupport(new OrderPosBestellmengeEditingSupport(tableViewer));
+      return col;
+   }
+
+   private static class BeschreibungLabelProvider extends ColumnLabelProvider {
+      @Override
+      public String getText(Object element) {
+         OrderPos p = (OrderPos) element;
+         if (p.getArticle().getArticleDescription() == null) {
+            return "";
+         }
+         return p.getArticle().getArticleDescription().getBeschreibung();
+      }
+   }
+
+   private TableViewerColumn createBeschreibungCol(TableViewer tableViewer) {
+      TableViewerColumn col = new TableViewerColumn(tableViewer, SWT.NONE);
+      col.setLabelProvider(new BeschreibungLabelProvider());
+      Func2<Object, CustomDialogCellEditor, Control> openDialog = new Func2<Object, CustomDialogCellEditor, Control>() {
+         @Override
+         public Object apply(final CustomDialogCellEditor dialogCellEditor, final Control cellEditorWindow) {
+            IStructuredSelection selection = (IStructuredSelection) getDetailTableViewer().getSelection();
+            orderGuiFormActionHandler.selectArticleDescription(dialogCellEditor, selection);
+            return null;
+         }
+      };
+      col.setEditingSupport(new ArticleDescriptionEditingSupport(tableViewer, openDialog));
+      return col;
+   }
+
+   private static class EinzelPreisLabelProvider extends ColumnLabelProvider {
+      @Override
+      public String getText(Object element) {
+         OrderPos p = (OrderPos) element;
+         if (p.getEinzelPreis() == null) {
+            return "";
+         }
+         return p.getEinzelPreis().toString();
+      }
+   }
+
+   private TableViewerColumn creatEinzelPreisCol(TableViewer tableViewer) {
+      TableViewerColumn col = new TableViewerColumn(tableViewer, SWT.RIGHT);
+      col.setLabelProvider(new EinzelPreisLabelProvider());
+      return col;
+   }
 }

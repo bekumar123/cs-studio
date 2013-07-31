@@ -6,13 +6,16 @@ import java.util.List;
 
 import org.csstudio.dct.model.IElement;
 import org.csstudio.dct.model.IProject;
+import org.csstudio.dct.util.CompareUtil;
 import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.commands.CommandStack;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IViewActionDelegate;
 import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.IPage;
 import org.eclipse.ui.views.contentoutline.ContentOutline;
 
@@ -23,136 +26,144 @@ import org.eclipse.ui.views.contentoutline.ContentOutline;
  * 
  */
 public abstract class AbstractOutlineAction implements IViewActionDelegate {
-	private List<IElement> selectedElements;
-	private ContentOutline outlineView;
+    private List<IElement> selectedElements;
+    private ContentOutline outlineView;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public final void init(IViewPart view) {
-		outlineView = (ContentOutline) view;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public final void init(IViewPart view) {
+        outlineView = (ContentOutline) view;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public final void run(IAction action) {
-		Command command = createCommand(selectedElements);
-		if (command != null) {
-			execute(command);
-		}
-		doRun(selectedElements);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public final void run(IAction action) {
+        if (getProject().getDatabaseDefinition() == null) {
+            MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+                    "No DBD-File selected","You must select a DBD file before you can add new elements.");
+        } else {
+            Command command = createCommand(selectedElements);
+            if (command != null) {
+                execute(command);
+            }
+            doRun(selectedElements);
+        }
+    }
 
-	/**
-	 * Empty default implementation. Can be overridden by subclasses to
-	 * implement actions which are not undoable and should be independent of the
-	 * command stack.
-	 * 
-	 * @param selection
-	 *            the selected elements
-	 */
-	protected void doRun(List<IElement> selection) {
+    /**
+     * Empty default implementation. Can be overridden by subclasses to
+     * implement actions which are not undoable and should be independent of the
+     * command stack.
+     * 
+     * @param selection
+     *            the selected elements
+     */
+    protected void doRun(List<IElement> selection) {
 
-	}
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings("unchecked")
-	public final void selectionChanged(IAction action, ISelection selection) {
-		if (selection instanceof IStructuredSelection) {
-			IStructuredSelection ssel = (IStructuredSelection) selection;
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    public final void selectionChanged(IAction action, ISelection selection) {
+        if (selection instanceof IStructuredSelection) {
+            IStructuredSelection ssel = (IStructuredSelection) selection;
 
-			selectedElements = new ArrayList<IElement>();
+            selectedElements = new ArrayList<IElement>();
 
-			Iterator<Object> it = ssel.iterator();
+            Iterator<Object> it = ssel.iterator();
 
-			while (it.hasNext()) {
-				Object s = it.next();
+            while (it.hasNext()) {
+                Object s = it.next();
 
-				if (s instanceof IElement) {
-					selectedElements.add((IElement) s);
-				}
-			}
-		}
+                if (s instanceof IElement) {
+                    selectedElements.add((IElement) s);
+                }
+            }
+        }
 
-		afterSelectionChanged(selectedElements, action);
-	}
+        afterSelectionChanged(selectedElements, action);
+    }
 
-	/**
-	 * Template method. Subclasses have to return a command that does the real
-	 * action.
-	 * 
-	 * @param selection
-	 *            the currently selected element
-	 * 
-	 * @return a command which does the real action
-	 */
-	protected abstract Command createCommand(List<IElement> selection);
+    /**
+     * Template method. Subclasses have to return a command that does the real
+     * action.
+     * 
+     * @param selection
+     *            the currently selected element
+     * 
+     * @return a command which does the real action
+     */
+    protected abstract Command createCommand(List<IElement> selection);
 
-	/**
-	 * Hook for subclasses to manipulate the action state based on the current
-	 * selection.
-	 * 
-	 * @param selection
-	 *            the current selection
-	 * @param action
-	 *            the action
-	 * 
-	 */
-	protected void afterSelectionChanged(List<IElement> selection, IAction action) {
-	}
+    /**
+     * Hook for subclasses to manipulate the action state based on the current
+     * selection.
+     * 
+     * @param selection
+     *            the current selection
+     * @param action
+     *            the action
+     * 
+     */
+    protected void afterSelectionChanged(List<IElement> selection, IAction action) {
+        boolean isLibraryFolder = CompareUtil.containsLibraryFolder(selection);
+        boolean isPartOfLibraryFolder = CompareUtil.childOfLibaryFolder(selection);
+        action.setEnabled(!(isLibraryFolder || isPartOfLibraryFolder));
+    }
 
-	/**
-	 * Returns the {@link IProject} that is currently displayed in the outline.
-	 * 
-	 * @return the current project
-	 */
-	protected final IProject getProject() {
-		IProject result = null;
-		IPage currentPage = outlineView.getCurrentPage();
+    /**
+     * Returns the {@link IProject} that is currently displayed in the outline.
+     * 
+     * @return the current project
+     */
+    protected final IProject getProject() {
+        IProject result = null;
+        IPage currentPage = outlineView.getCurrentPage();
 
-		if (currentPage instanceof OutlinePage) {
-			result = ((OutlinePage) currentPage).getInput();
-		}
+        if (currentPage instanceof OutlinePage) {
+            result = ((OutlinePage) currentPage).getInput();
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	/**
-	 * Executes the specified command.
-	 * 
-	 * @param command
-	 *            a command
-	 */
-	private void execute(Command command) {
-		CommandStack commandStack = getCommandStack();
-		if (commandStack != null) {
-			commandStack.execute(command);
-		} else {
-			throw new IllegalArgumentException("Could not execute command. No command stack available");
-		}
-	}
+    /**
+     * Executes the specified command.
+     * 
+     * @param command
+     *            a command
+     */
+    private void execute(Command command) {
+        CommandStack commandStack = getCommandStack();
+        if (commandStack != null) {
+            commandStack.execute(command);
+        } else {
+            throw new IllegalArgumentException("Could not execute command. No command stack available");
+        }
+    }
 
-	/**
-	 * Returns the command stack.
-	 * 
-	 * @return the central command stack
-	 */
-	private CommandStack getCommandStack() {
-		CommandStack result = null;
+    /**
+     * Returns the command stack.
+     * 
+     * @return the central command stack
+     */
+    private CommandStack getCommandStack() {
+        CommandStack result = null;
 
-		IPage currentPage = outlineView.getCurrentPage();
+        IPage currentPage = outlineView.getCurrentPage();
 
-		if (currentPage instanceof OutlinePage) {
-			result = ((OutlinePage) currentPage).getCommandStack();
-		}
+        if (currentPage instanceof OutlinePage) {
+            result = ((OutlinePage) currentPage).getCommandStack();
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	public ContentOutline getOutlineView() {
-		return outlineView;
-	}
+    public ContentOutline getOutlineView() {
+        return outlineView;
+    }
 }

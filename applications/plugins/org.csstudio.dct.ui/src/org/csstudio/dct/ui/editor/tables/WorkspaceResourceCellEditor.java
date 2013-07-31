@@ -21,7 +21,6 @@
  */
 package org.csstudio.dct.ui.editor.tables;
 
-
 import org.csstudio.ui.util.dialogs.ResourceSelectionDialog;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -38,59 +37,73 @@ import org.eclipse.swt.widgets.Shell;
  */
 public final class WorkspaceResourceCellEditor extends AbstractDialogCellEditor {
 
-	private IPath _path;
-	private String[] _fileExtensions;
+    private IPath path;
+    private String[] fileExtensions;
+    private Runnable callback;
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param parent a parent composite
-	 * @param fileExtensions accepted file extensions
-	 * @param title the dialog title 
-	 */
-	public WorkspaceResourceCellEditor(final Composite parent, final String[] fileExtensions, String title) {
-		super(parent, title);
-		_fileExtensions = fileExtensions;
-	}
+    /**
+     * Constructor.
+     * 
+     * @param parent
+     *            a parent composite
+     * @param fileExtensions
+     *            accepted file extensions
+     * @param title
+     *            the dialog title
+     */
+    public WorkspaceResourceCellEditor(final Composite parent, final String[] fileExtensions, String title) {
+        super(parent, title);
+        this.fileExtensions = fileExtensions;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected Object doGetValue() {
-		return _path;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected Object doGetValue() {
+        return path;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void doSetValue(final Object value) {
-		if (value == null || !(value instanceof IPath)) {
-			_path = new Path("");
-		} else {
-			_path = (IPath) value;
-		}
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void doSetValue(final Object value) {
+        if (value == null || !(value instanceof IPath)) {
+            path = new Path("");
+        } else {
+            path = (IPath) value;
+        }
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void openDialog(final Shell parentShell, final String dialogTitle) {
-		ResourceSelectionDialog rsd = new ResourceSelectionDialog(parentShell, dialogTitle, _fileExtensions);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void openDialog(final Shell parentShell, final String dialogTitle) {
 
-		if (_path != null) {
-			rsd.setSelectedResource(_path);
-		}
+        ResourceSelectionDialog rsd = new ResourceSelectionDialog(parentShell, dialogTitle, fileExtensions);
 
-		if (rsd.open() == Window.OK) {
-			if (rsd.getSelectedResource() != null) {
-				_path = rsd.getSelectedResource();
-			}
-			fireApplyEditorValue();
-		} else {
-			fireCancelEditor();
-		}
-	}
+        if (path != null) {
+            rsd.setSelectedResource(path);
+        }
+
+        if (rsd.open() == Window.OK) {
+            if (rsd.getSelectedResource() != null) {
+                path = rsd.getSelectedResource();
+            }
+            fireApplyEditorValue();
+            if (callback != null) {
+                parentShell.getDisplay().asyncExec(new Runnable() {
+                    public void run() {
+                        callback.run();
+                    }
+
+                });
+            }
+        } else {
+            fireCancelEditor();
+        }
+
+    }
 }

@@ -46,4 +46,6 @@ public interface IArchiveSample<V extends Serializable, T extends ISystemVariabl
 
     @Nonnull
     V getValue();
+    @Nonnull
+    String getRequestType();
 }

@@ -69,6 +69,26 @@ public final class DefaultDisplayPreferencePage extends FieldEditorPreferencePag
             }
         });
         addField(displayPathFieldEditor);
+
+        WorkspaceFileFieldEditor displayPathFieldEditorNoRtyp = new WorkspaceFileFieldEditor(DefaultDisplayPreference.DEFAULT_DISPLAY_PATH_NO_RTYP
+        		.getKeyAsString(),
+        		"Default display file for no rtyp",
+        		getFieldEditorParent());
+        displayPathFieldEditor.setFilter(new ViewerFilter() {
+        	
+        	@Override
+        	public boolean select(Viewer viewer, Object parentElement, Object element) {
+        		if (element instanceof IFile) {
+        			IFile file = (IFile) element;
+        			if (file != null && file.getFileExtension() != null) {
+        				return file.getFileExtension().toLowerCase().equals("css-sds");
+        			}
+        			return false;
+        		}
+        		return true;
+        	}
+        });
+        addField(displayPathFieldEditorNoRtyp);
         
         addField(new StringFieldEditor(DefaultDisplayPreference.DEFAULT_DISPLAY_ALIAS.getKeyAsString(),
                                        "Alias:",

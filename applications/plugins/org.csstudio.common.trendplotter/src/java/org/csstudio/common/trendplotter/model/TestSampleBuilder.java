@@ -31,8 +31,9 @@ public class TestSampleBuilder
     public static IValue makeValue(final int i)
     {
         // return ValueFactory.createDoubleValue(TimestampFactory.fromMillisecs(start + i*500),
-        return ValueFactory.createDoubleValue(TimestampFactory.fromDouble(i),
-               ok, "Test", PlotSample.dummy_meta, IValue.Quality.Original, new double[] { i });
+      /*  return ValueFactory.createDoubleValue(TimestampFactory.fromDouble(i),
+               ok, "Test", PlotSample.dummy_meta, IValue.Quality.Original, new double[] { i });*/
+        return null;
     }
 
     /** @param i Pseudo-timestamp
@@ -58,9 +59,10 @@ public class TestSampleBuilder
             public String toString()   { return "INVALID"; }
         };
         // return ValueFactory.createDoubleValue(TimestampFactory.fromMillisecs(start + i*500),
-        return ValueFactory.createDoubleValue(TimestampFactory.fromDouble(i),
+      /*  return ValueFactory.createDoubleValue(TimestampFactory.fromDouble(i),
                 no_value, error, PlotSample.dummy_meta, IValue.Quality.Original,
-                new double[] { Double.NaN });
+                new double[] { Double.NaN });*/
+        return null;
     }
 
 
@@ -69,7 +71,8 @@ public class TestSampleBuilder
      */
     public static PlotSample makePlotSample(final int i)
     {
-        return new PlotSample("Test", makeValue(i));
+      //  return new PlotSample("Test", makeValue(i));
+        return null;
     }
 
     /** Create array of samples

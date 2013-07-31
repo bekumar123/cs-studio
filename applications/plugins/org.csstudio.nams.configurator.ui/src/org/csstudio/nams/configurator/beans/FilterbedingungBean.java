@@ -12,7 +12,7 @@ public class FilterbedingungBean extends
 		filterbedingungID, description, name, filterSpecificBean
 	}
 
-	private int filterbedinungID;
+	private int filterbedingungID;
 	private String description = ""; //$NON-NLS-1$
 
 	private String name = ""; //$NON-NLS-1$
@@ -20,6 +20,7 @@ public class FilterbedingungBean extends
 	private FilterConditionAddOnBean filterSpecificBean;
 
 	public FilterbedingungBean() {
+		this.filterbedingungID = -1;
 		this.filterSpecificBean = new StringFilterConditionBean();
 	}
 
@@ -49,7 +50,7 @@ public class FilterbedingungBean extends
 		} else if (!this.filterSpecificBean.equals(other.filterSpecificBean)) {
 			return false;
 		}
-		if (this.filterbedinungID != other.filterbedinungID) {
+		if (this.filterbedingungID != other.filterbedingungID) {
 			return false;
 		}
 		if (this.name == null) {
@@ -71,8 +72,8 @@ public class FilterbedingungBean extends
 		return this.name == null ? Messages.FilterbedingungBean_without_name : this.name;
 	}
 
-	public int getFilterbedinungID() {
-		return this.filterbedinungID;
+	public int getFilterbedingungID() {
+		return this.filterbedingungID;
 	}
 
 	public AbstractConfigurationBean<?> getFilterSpecificBean() {
@@ -81,7 +82,7 @@ public class FilterbedingungBean extends
 
 	@Override
     public int getID() {
-		return this.getFilterbedinungID();
+		return this.getFilterbedingungID();
 	}
 
 	public String getName() {
@@ -99,7 +100,7 @@ public class FilterbedingungBean extends
 				* result
 				+ ((this.filterSpecificBean == null) ? 0
 						: this.filterSpecificBean.hashCode());
-		result = prime * result + this.filterbedinungID;
+		result = prime * result + this.filterbedingungID;
 		result = prime * result
 				+ ((this.name == null) ? 0 : this.name.hashCode());
 		return result;
@@ -112,11 +113,11 @@ public class FilterbedingungBean extends
 				description);
 	}
 
-	public void setFilterbedinungID(final int filterbedinungID) {
-		final int oldValue = this.filterbedinungID;
-		this.filterbedinungID = filterbedinungID;
+	public void setFilterbedingungID(final int filterbedingungID) {
+		final int oldValue = this.filterbedingungID;
+		this.filterbedingungID = filterbedingungID;
 		this.pcs.firePropertyChange(PropertyNames.filterbedingungID.name(),
-				oldValue, filterbedinungID);
+				oldValue, filterbedingungID);
 	}
 
 	public void setFilterSpecificBean(
@@ -129,7 +130,7 @@ public class FilterbedingungBean extends
 
 	@Override
     public void setID(final int id) {
-		this.setFilterbedinungID(id);
+		this.setFilterbedingungID(id);
 	}
 
 	public void setName(final String name) {
@@ -147,7 +148,7 @@ public class FilterbedingungBean extends
 	protected void doUpdateState(final FilterbedingungBean bean) {
 		this.setDescription(bean.getDescription());
 		this.setName(bean.getName());
-		this.setFilterbedinungID(bean.getFilterbedinungID());
+		this.setFilterbedingungID(bean.getFilterbedingungID());
 		this.setFilterSpecificBean((FilterConditionAddOnBean) bean
 				.getFilterSpecificBean());
 

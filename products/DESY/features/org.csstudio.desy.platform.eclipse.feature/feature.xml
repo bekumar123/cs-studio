@@ -2,7 +2,7 @@
 <feature
       id="org.csstudio.desy.platform.eclipse.feature"
       label="Platform Eclipse Feature"
-      version="1.0.0.qualifier"
+      version="1.0.0.201212201100"
       provider-name="DESY, Jan Hatje &lt;css-developer@desy.de&gt;">
 
    <description url="http://css.desy.de">
@@ -1481,6 +1481,65 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          download-size="0"
          install-size="0"
          version="3.3.100.v20100512"
+         unpack="false"/>
+
+   <plugin
+         id="org.ehcache"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.nebula.widgets.gallery"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.equinox.p2.ui.importexport"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.equinox.p2.ql"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.equinox.p2.transport.ecf"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.update.core.linux"
+         os="linux"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.update.core.win32"
+         os="win32"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.update.scheduler"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
          unpack="false"/>
 
 </feature>

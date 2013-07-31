@@ -24,7 +24,6 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
-import org.csstudio.alarm.service.declaration.AlarmPreference;
 import org.csstudio.alarm.treeview.model.IAlarmTreeNode;
 import org.csstudio.alarm.treeview.model.ProcessVariableNode;
 import org.csstudio.alarm.treeview.preferences.AlarmTreePreference;

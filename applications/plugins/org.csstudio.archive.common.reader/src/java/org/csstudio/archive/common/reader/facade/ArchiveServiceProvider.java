@@ -24,6 +24,7 @@ package org.csstudio.archive.common.reader.facade;
 import javax.annotation.Nonnull;
 
 import org.csstudio.archive.common.reader.MysqlArchiveReaderActivator;
+import org.csstudio.archive.common.service.IArchiveEngineFacade;
 import org.csstudio.archive.common.service.IArchiveReaderFacade;
 import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
 
@@ -44,5 +45,14 @@ public class ArchiveServiceProvider implements IArchiveServiceProvider {
     public IArchiveReaderFacade getReaderFacade() throws OsgiServiceUnavailableException {
         return MysqlArchiveReaderActivator.getDefault().getArchiveReaderService();
     }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Nonnull
+    public IArchiveEngineFacade getEngineFacade() throws OsgiServiceUnavailableException {
+        return MysqlArchiveReaderActivator.getDefault().getArchiveEngineService();
+    }
+
 
 }

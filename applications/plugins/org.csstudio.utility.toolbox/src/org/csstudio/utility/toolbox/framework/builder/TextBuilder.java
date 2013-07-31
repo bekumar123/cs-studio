@@ -9,6 +9,7 @@ import org.csstudio.utility.toolbox.framework.property.Property.PropertyNameHint
 import org.csstudio.utility.toolbox.framework.property.SearchTermType;
 import org.csstudio.utility.toolbox.framework.proposal.TextValueProposalProvider;
 import org.csstudio.utility.toolbox.func.Option;
+import org.eclipse.core.databinding.Binding;
 import org.eclipse.jface.bindings.keys.KeyStroke;
 import org.eclipse.jface.bindings.keys.ParseException;
 import org.eclipse.jface.fieldassist.ContentProposalAdapter;
@@ -29,7 +30,7 @@ public class TextBuilder extends AbstractControlWithLabelBuilder<TextBuilder> {
 	private final Binder<?> binder;
 
 	private boolean textArea = false;
-	private boolean isJoined = false;
+	private boolean isJoinedForSeearch = false;
 	private boolean enableEditingOnNew = false;
 	private boolean useBigDecimalConverter = false;
 	private boolean limitInputToDigits = false;
@@ -53,8 +54,8 @@ public class TextBuilder extends AbstractControlWithLabelBuilder<TextBuilder> {
 		return this;
 	}
 
-	public TextBuilder isJoined() {
-		this.isJoined = true;
+	public TextBuilder isJoinedForSearch() {
+		this.isJoinedForSeearch = true;
 		return this;
 	}
 		
@@ -83,10 +84,13 @@ public class TextBuilder extends AbstractControlWithLabelBuilder<TextBuilder> {
 		controlDecoration.hide();
 
 		text.setData(BuilderConstant.USE_BIG_DECIMAL_CONVERTER, Boolean.valueOf(useBigDecimalConverter));
+		
 		text.setData(BuilderConstant.NO_BINDING, Boolean.valueOf(isNoBinding()));
 
-		binder.bindPropertyToText(getProperty(), text, controlDecoration, useBigDecimalConverter);
+		Binding binding = binder.bindPropertyToText(getProperty(), text, controlDecoration, useBigDecimalConverter);
 
+		text.setData(BuilderConstant.BINDING, binding);
+		
 		text.setData(BuilderConstant.DECORATOR, controlDecoration);
 
 	}
@@ -145,7 +149,7 @@ public class TextBuilder extends AbstractControlWithLabelBuilder<TextBuilder> {
 		}
 
 		// Indicate speical treatment of this property. Relevant for building the sql query.
-		if (isJoined) {
+		if (isJoinedForSeearch) {
 			getProperty().setHint(PropertyNameHint.SubQueryOnly);
 		}
 

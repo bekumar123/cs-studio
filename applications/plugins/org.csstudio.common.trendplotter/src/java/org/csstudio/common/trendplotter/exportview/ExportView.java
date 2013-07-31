@@ -13,6 +13,8 @@ import org.csstudio.apputil.time.RelativeTime;
 import org.csstudio.apputil.time.StartEndTimeParser;
 import org.csstudio.apputil.ui.swt.ScrolledContainerHelper;
 import org.csstudio.apputil.ui.time.StartEndDialog;
+import org.csstudio.archive.vtype.Style;
+import org.csstudio.archive.vtype.TimestampHelper;
 import org.csstudio.common.trendplotter.Messages;
 import org.csstudio.common.trendplotter.editor.DataBrowserAwareView;
 import org.csstudio.common.trendplotter.export.ExportErrorHandler;
@@ -24,9 +26,6 @@ import org.csstudio.common.trendplotter.export.ValueFormatter;
 import org.csstudio.common.trendplotter.export.ValueWithInfoFormatter;
 import org.csstudio.common.trendplotter.model.Model;
 import org.csstudio.common.trendplotter.preferences.Preferences;
-import org.csstudio.data.values.ITimestamp;
-import org.csstudio.data.values.IValue.Format;
-import org.csstudio.data.values.TimestampFactory;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.window.Window;
@@ -43,6 +42,7 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.epics.util.time.Timestamp;
 
 /** View for exporting data from the current Data Browser plot
  *  to a file.
@@ -408,7 +408,7 @@ public class ExportView extends DataBrowserAwareView implements ExportErrorHandl
             return;
 
         // Determine start/end time
-        final ITimestamp start_time, end_time;
+        final Timestamp start_time, end_time;
         if (use_plot_times.getSelection())
         {
             start_time = model.getStartTime();
@@ -420,8 +420,8 @@ public class ExportView extends DataBrowserAwareView implements ExportErrorHandl
             {
                 final StartEndTimeParser times =
                     new StartEndTimeParser(start.getText(), end.getText());
-                start_time = TimestampFactory.fromCalendar(times.getStart());
-                end_time = TimestampFactory.fromCalendar(times.getEnd());
+                start_time =  TimestampHelper.fromCalendar(times.getStart());
+                end_time =  TimestampHelper.fromCalendar(times.getEnd());
             }
             catch (final Exception ex)
             {
@@ -476,15 +476,15 @@ public class ExportView extends DataBrowserAwareView implements ExportErrorHandl
         }
         else
         {   // Spreadsheet file export
-            final Format format;
+            final Style style;
             if (format_decimal.getSelection())
-                format = Format.Decimal;
+                style = Style.Decimal;
             else if (format_expo.getSelection())
-                format = Format.Exponential;
+                style = Style.Exponential;
             else
-                format = Format.Default;
+                style = Style.Default;
             final int precision;
-            if (format == Format.Default)
+            if (style == Style.Default)
                 precision = 0; // Not used
             else
             {
@@ -501,9 +501,9 @@ public class ExportView extends DataBrowserAwareView implements ExportErrorHandl
             }
             final ValueFormatter formatter;
             if (sev_stat.getSelection())
-                formatter = new ValueWithInfoFormatter(format, precision);
+                formatter = new ValueWithInfoFormatter(style, precision);
             else
-                formatter = new ValueFormatter(format, precision);
+                formatter = new ValueFormatter(style, precision);
             if (tabular.getSelection())
                 export = new SpreadsheetExportJob(model, start_time, end_time, source,
                         optimize_count, formatter, filename, this);

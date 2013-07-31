@@ -25,6 +25,7 @@ import org.csstudio.sds.model.PropertyTypesEnum;
 import org.csstudio.sds.model.WidgetProperty;
 import org.csstudio.sds.model.WidgetPropertyCategory;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 
 /**
  * A property, which is able to handle a IPath values.
@@ -64,11 +65,14 @@ public final class ResourceProperty extends WidgetProperty {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Object checkValue(final Object value) {
+	public Object checkValue(Object value) {
 		assert value != null : "value!=null"; //$NON-NLS-1$
 
 		Object acceptedValue = null;
 
+		if (value instanceof String) {
+			value = Path.fromOSString((String) value);
+		}
 		if (value instanceof IPath) {
 			IPath path = (IPath) value;
 			if (_fileExtensions!=null && _fileExtensions.length>0) {

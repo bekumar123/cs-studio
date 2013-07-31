@@ -144,7 +144,7 @@ public class FilterBean extends AbstractConfigurationBean<FilterBean> {
 	public void setConditions(final List<FilterbedingungBean> conditions) {
 		final List<FilterbedingungBean> oldValue = this.conditions;
 		this.conditions = conditions;
-		Collections.sort(this.conditions);
+		Collections.sort(this.conditions, new FilterbedingungBeanComparator());
 		this.pcs.firePropertyChange(PropertyNames.conditions.name(), oldValue,
 				conditions);
 	}

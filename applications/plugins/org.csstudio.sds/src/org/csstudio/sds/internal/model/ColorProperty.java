@@ -25,6 +25,7 @@ import org.csstudio.sds.model.PropertyTypesEnum;
 import org.csstudio.sds.model.WidgetProperty;
 import org.csstudio.sds.model.WidgetPropertyCategory;
 import org.csstudio.sds.util.ColorAndFontUtil;
+import org.eclipse.swt.graphics.RGB;
 
 /**
  * A property, which is able to handle RGB values.
@@ -58,15 +59,24 @@ public final class ColorProperty extends WidgetProperty {
 	public Object checkValue(final Object value) {
 		assert value != null : "value!=null"; //$NON-NLS-1$
 
+		
 		String acceptedValue = null;
 
 		if (value instanceof String) {
 			String s = (String) value;
 			if(ColorAndFontUtil.isHex(s) || ColorAndFontUtil.isVariable(s)) {
 				acceptedValue = s;
+				return acceptedValue;
 			}
 		}
-		
+
+		//Some script rules return the color as RGB type
+		if (value instanceof RGB) {
+			acceptedValue = ColorAndFontUtil.toHex(((RGB) value).red, ((RGB) value).green, ((RGB) value).blue);
+			if(ColorAndFontUtil.isHex(acceptedValue) || ColorAndFontUtil.isVariable(acceptedValue)) {
+				return acceptedValue;
+			}
+		}
 		return acceptedValue;
 	}
 	

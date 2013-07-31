@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: trendplotter VType support for archive
+Bundle-SymbolicName: org.csstudio.archive.vtype.trendplotter
+Bundle-Version: 1.0.0.201305241400
+Bundle-Vendor: Kay Kasemir <kasemirk@ornl.gov> - SNS
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.epics.util;bundle-version="0.1.0";visibility:=reexport,
+ org.epics.vtype;bundle-version="2.0.0";visibility:=reexport,
+ org.csstudio.archive.vtype;bundle-version="1.0.0"
+Export-Package: org.csstudio.archive.vtype.trendplotter

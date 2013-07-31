@@ -11,4 +11,4 @@ public class OpenArticleDescriptionEditorAction extends AbstractOpenEditorAction
 		super(ArticleDescriptionEditorPart.ID, "Article Description", ArticleDescription.class);
 		this.setImageDescriptor(ToolboxPlugin.getImageDescriptor("icons/view_bottom.png"));
 	}
-}
+} 

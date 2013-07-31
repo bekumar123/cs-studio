@@ -17,7 +17,6 @@
 package org.csstudio.alarm.treeview.views;
 
 import java.util.ArrayList;
-
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -31,6 +30,7 @@ import javax.annotation.Nullable;
 import org.csstudio.alarm.service.declaration.AlarmPreference;
 import org.csstudio.alarm.service.declaration.IAlarmConnection;
 import org.csstudio.alarm.service.declaration.IAlarmService;
+import org.csstudio.alarm.treeview.AlarmTreePlugin;
 import org.csstudio.alarm.treeview.jobs.ConnectionJob;
 import org.csstudio.alarm.treeview.jobs.JobFactory;
 import org.csstudio.alarm.treeview.localization.Messages;
@@ -41,6 +41,7 @@ import org.csstudio.alarm.treeview.model.IProcessVariableNodeListener;
 import org.csstudio.alarm.treeview.model.ProcessVariableNode;
 import org.csstudio.alarm.treeview.model.SubtreeNode;
 import org.csstudio.alarm.treeview.model.TreeNodeSource;
+import org.csstudio.alarm.treeview.preferences.AlarmTreePreference;
 import org.csstudio.alarm.treeview.service.AlarmMessageListener;
 import org.csstudio.alarm.treeview.views.actions.AlarmTreeViewActionFactory;
 import org.csstudio.auth.ui.security.AbstractUserDependentAction;
@@ -59,16 +60,22 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.util.DelegatingDragAdapter;
 import org.eclipse.jface.util.DelegatingDropAdapter;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -191,11 +198,6 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
     private ViewerFilter _currentAlarmFilter;
     
     /**
-     * Whether the filter is active.
-     */
-    private Boolean _isFilterActive = Boolean.FALSE;
-    
-    /**
      * The root node of this alarm tree. Shall only be generated once per view!
      */
     private final IAlarmSubtreeNode _rootNode;
@@ -211,6 +213,8 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
     
     // Listener for the remote command telling the view to reload the configuration
     private IAlarmService.IListener _configurationUpdateListener;
+
+	private Action _unacknowledgedAlarmFilterAction;
     
     /**
      * Constructor.
@@ -286,6 +290,7 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
                                @Nonnull final AlarmMessageListener alarmListener,
                                @Nonnull final IWorkbenchPartSite site,
                                @Nonnull final ViewerFilter currentAlarmFilter,
+                               @Nonnull final ViewerFilter unacknowledgedAlarmFilter,
                                @Nonnull final Queue<ITreeModificationItem> modificationItems) {
         
         _reloadAction = AlarmTreeViewActionFactory
@@ -340,7 +345,9 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
                 .createShowMessageAreaAction(_myMessageArea);
         
         _toggleFilterAction = AlarmTreeViewActionFactory
-                .createToggleFilterAction(this, viewer, currentAlarmFilter);
+                .createToggleFilterAction(viewer, currentAlarmFilter);
+        
+        _unacknowledgedAlarmFilterAction = AlarmTreeViewActionFactory.createToggleUnacknowledgedAlarmFilterAction(viewer, unacknowledgedAlarmFilter);
         
         _saveAsXmlFileAction = AlarmTreeViewActionFactory.createSaveAsXmlFileAction(site, viewer);
         
@@ -383,6 +390,7 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
                       _alarmListener,
                       getSite(),
                       _currentAlarmFilter,
+                      new UnacknowledgedAlarmFilter(),
                       _ldapModificationItems);
         
         createAndRegisterReloadCommand();
@@ -402,8 +410,8 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
         viewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         
         viewer.setContentProvider(new AlarmTreeContentProvider());
-        viewer.setLabelProvider(new AlarmTreeLabelProvider());
-        //viewer.setComparator(new ViewerComparator());
+        AlarmTreeLabelProvider labelProvider = new AlarmTreeLabelProvider();
+		viewer.setLabelProvider(labelProvider);
         
         final ISelectionChangedListener selectionChangedListener = new ISelectionChangedListener() {
             @SuppressWarnings("synthetic-access")
@@ -413,6 +421,17 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
             }
         };
         viewer.addSelectionChangedListener(selectionChangedListener);
+        
+        final IPreferenceStore preferenceStore = AlarmTreePlugin.getDefault().getPreferenceStore();
+        FontData fontData = PreferenceConverter.getFontData(preferenceStore, AlarmTreePreference.FONT.getKeyAsString());
+        Font font = new Font(Display.getDefault(), fontData);
+		viewer.getTree().setFont(font);
+        
+        GC gc = new GC(parent);
+		gc.setFont(font);
+		int height = gc.getFontMetrics().getAscent();
+		gc.dispose();
+		labelProvider.setImagePixelHeight(height);
         
         return viewer;
     }
@@ -496,6 +515,7 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
      * @param manager the menu manager.
      */
     private void fillLocalToolBar(@Nonnull final IToolBarManager manager) {
+    	manager.add(_unacknowledgedAlarmFilterAction);
         manager.add(_toggleFilterAction);
         manager.add(new Separator());
         manager.add(_showPropertyViewAction);
@@ -515,11 +535,6 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
     @CheckForNull
     public AlarmMessageListener getAlarmListener() {
         return _alarmListener;
-    }
-    
-    @Nonnull
-    public Boolean getIsFilterActive() {
-        return _isFilterActive;
     }
     
     /**
@@ -647,7 +662,7 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
                                  @Nonnull final EpicsAlarmcfgTreeNodeAttribute attribute) {
         if (node instanceof IAlarmTreeNode) {
             String display = ((IAlarmTreeNode) node).getInheritedPropertyWithUrlProtocol(attribute);
-            return display != null && display.matches(".+\\.css-sds"); //$NON-NLS-1$
+            return display != null && display.matches(".+\\.css-sds(\\?.+)?"); //$NON-NLS-1$
         }
         return false;
     }
@@ -752,10 +767,6 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
     @Override
     public void setFocus() {
         _viewer.getControl().setFocus();
-    }
-    
-    public void setIsFilterActive(@Nonnull final Boolean isFilterActive) {
-        _isFilterActive = isFilterActive;
     }
     
     /**
@@ -976,4 +987,30 @@ public final class AlarmTreeView extends ViewPart implements ISaveablePart2 {
         }
 
     }
+
+	public void select(String pvName) {
+		Object object = _viewer.getInput();
+		if (object instanceof IAlarmSubtreeNode) {
+			List<IAlarmTreeNode> leafs = getLeafNodes(((IAlarmSubtreeNode) object).getChildren(), pvName);
+			for (IAlarmTreeNode iAlarmTreeNode : leafs) {
+				_viewer.expandToLevel(iAlarmTreeNode, TreeViewer.ALL_LEVELS);
+			}
+			if (leafs.size() > 0) {
+				_viewer.setSelection(new StructuredSelection(leafs.get(0)));
+			}
+		}
+		
+	}
+	
+	private List<IAlarmTreeNode> getLeafNodes(List<IAlarmTreeNode> nodes, String pvName) {
+		List<IAlarmTreeNode> result = new ArrayList<IAlarmTreeNode>();
+		for (IAlarmTreeNode iAlarmTreeNode : nodes) {
+			if (iAlarmTreeNode instanceof IAlarmSubtreeNode) {
+				result.addAll(getLeafNodes(((IAlarmSubtreeNode) iAlarmTreeNode).getChildren(), pvName));
+			} else if (iAlarmTreeNode instanceof IAlarmProcessVariableNode && iAlarmTreeNode.getName().equals(pvName)) {
+				result.add(iAlarmTreeNode);
+			}
+		}
+		return result;
+	}
 }

@@ -43,7 +43,7 @@ import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
  * 
  */
 public final class NewDctFileWizard extends Wizard implements INewWizard {
-	private NewDisplayWizardPage _sdsFilePage;
+	private NewDisplayWizardPage sdsFilePage;
 
 	/**
 	 * The current selection.
@@ -55,9 +55,10 @@ public final class NewDctFileWizard extends Wizard implements INewWizard {
 	 */
 	@Override
 	public void addPages() {
-		_sdsFilePage = new NewDisplayWizardPage("sdsFilePage", //$NON-NLS-1$
+		sdsFilePage = new NewDisplayWizardPage("sdsFilePage", //$NON-NLS-1$
 				_selection);
-		addPage(_sdsFilePage);
+		sdsFilePage.setFileExtension(ProjectFactory.getDctFileExtension());
+		addPage(sdsFilePage);
 	}
 
 	/**
@@ -66,7 +67,7 @@ public final class NewDctFileWizard extends Wizard implements INewWizard {
 	@Override
 	public boolean performFinish() {
 		boolean result = true;
-		IFile file = _sdsFilePage.createNewFile();
+		IFile file = sdsFilePage.createNewFile();
 
 		if (file == null) {
 			result = false;
@@ -108,8 +109,8 @@ public final class NewDctFileWizard extends Wizard implements INewWizard {
 		public NewDisplayWizardPage(final String pageName,
 				final IStructuredSelection selection) {
 			super(pageName, selection);
-			setTitle("Create a new display");
-			setDescription("Create a new display in the selected project or folder.");
+			setTitle("New database configuration");
+			setDescription("Create a newdatabase configuration in the selected project.");
 		}
 
 		/**
@@ -132,14 +133,7 @@ public final class NewDctFileWizard extends Wizard implements INewWizard {
 		protected String getNewFileLabel() {
 			return "DCT File Name:";
 		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public String getFileExtension() {
-			return ProjectFactory.getDctFileExtension();
-		}
+		
 	}
 
 }

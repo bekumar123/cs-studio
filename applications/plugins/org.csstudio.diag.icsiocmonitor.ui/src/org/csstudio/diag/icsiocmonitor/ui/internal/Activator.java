@@ -26,7 +26,8 @@ public class Activator extends AbstractUIPlugin {
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
 	 */
-	public void doStart(BundleContext context) throws Exception {
+	public void start(BundleContext context) throws Exception {
+		super.start(context);
 		plugin = this;
 		bundleContext = context;
 	}
@@ -35,7 +36,8 @@ public class Activator extends AbstractUIPlugin {
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
 	 */
-	public void doStop(BundleContext context) throws Exception {
+	public void stop(BundleContext context) throws Exception {
+		super.stop(context);
 		plugin = null;
 		bundleContext = null;
 	}

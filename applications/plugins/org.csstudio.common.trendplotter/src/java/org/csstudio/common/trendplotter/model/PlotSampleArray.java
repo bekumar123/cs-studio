@@ -9,7 +9,7 @@ package org.csstudio.common.trendplotter.model;
 
 import java.util.ArrayList;
 
-import org.csstudio.data.values.IValue;
+import org.epics.vtype.VType;
 
 /** Plain array implementation of PlotSamples
  *  @author Kay Kasemir
@@ -35,7 +35,7 @@ public class PlotSampleArray extends PlotSamples
     /** @param source Source of the values
      *  @param values Values from which to set the sample array
      */
-    synchronized public void set(final String source, final ArrayList<IValue> values)
+    synchronized public void set(final String source, final ArrayList<VType> values)
     {
         samples = new PlotSample[values.size()];
         for (int i = 0; i < samples.length; ++i)

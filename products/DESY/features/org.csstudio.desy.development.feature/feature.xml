@@ -2,7 +2,7 @@
 <feature
       id="org.csstudio.desy.development.feature"
       label="Development Feature"
-      version="1.0.0.qualifier"
+      version="1.0.0.201212201100"
       provider-name="Desy, Jan Hatje &lt;jan.hatje@desy.de&gt;">
 
    <description url="http://www.example.com/description">
@@ -30,6 +30,48 @@
 
    <plugin
          id="org.csstudio.config.authorizeid"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.csstudio.diag.jmssender"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.csstudio.diag.snlDebugger"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.csstudio.diag.IOCremoteManagement"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.csstudio.utility.IOC-Socket-Communication"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.csstudio.utility.caSnooper"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.csstudio.utility.caSnooperUi"
          download-size="0"
          install-size="0"
          version="0.0.0"

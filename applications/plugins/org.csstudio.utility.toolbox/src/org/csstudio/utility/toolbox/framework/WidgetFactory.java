@@ -36,6 +36,7 @@ import org.csstudio.utility.toolbox.func.Func1;
 import org.csstudio.utility.toolbox.func.Func1Void;
 import org.csstudio.utility.toolbox.func.Option;
 import org.csstudio.utility.toolbox.guice.provider.SimpleDateFormatProvider;
+import org.eclipse.core.databinding.Binding;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.viewers.AbstractListViewer;
 import org.eclipse.jface.viewers.ComboViewer;
@@ -57,381 +58,402 @@ import com.google.inject.Inject;
 
 public class WidgetFactory<T extends BindingEntity> implements Iterable<SearchTerm> {
 
-	private Map<Property, Widget> properties = new HashMap<Property, Widget>();
+   private Map<Property, Widget> properties = new HashMap<Property, Widget>();
 
-	private Map<Property, AbstractListViewer> viewers = new HashMap<Property, AbstractListViewer>();
+   private Map<Property, AbstractListViewer> viewers = new HashMap<Property, AbstractListViewer>();
 
-	private Map<Property, TableViewer> tableViewers = new HashMap<Property, TableViewer>();
+   private Map<Property, TableViewer> tableViewers = new HashMap<Property, TableViewer>();
 
-	private GenericEditorInput<T> editorInput;
+   private GenericEditorInput<T> editorInput;
 
-	private boolean isSearchMode;
+   private boolean isSearchMode;
 
-	@Inject
-	private AppLogger logger;
+   @Inject
+   private AppLogger logger;
 
-	@Inject
-	private SimpleDateFormatProvider simpleDateFormatProvider;
+   @Inject
+   private SimpleDateFormatProvider simpleDateFormatProvider;
 
-	private Binder<T> binder;
+   private Binder<T> binder;
 
-	private static WidgetFactory<?> focusedWidgetFactory;
+   private static WidgetFactory<?> focusedWidgetFactory;
 
-	public static void setFocusedWidgetFactory(WidgetFactory<?> wf) {
-		WidgetFactory.focusedWidgetFactory = wf;
-	}
+   public static void setFocusedWidgetFactory(WidgetFactory<?> wf) {
+      WidgetFactory.focusedWidgetFactory = wf;
+   }
 
-	public static WidgetFactory<?> getFocusedWidgetFactory() {
-		return WidgetFactory.focusedWidgetFactory;
-	}
+   public static WidgetFactory<?> getFocusedWidgetFactory() {
+      return WidgetFactory.focusedWidgetFactory;
+   }
 
-	public void init() {
-		this.isSearchMode = true;
-		this.editorInput = null;
-	}
-	
-	public void init(GenericEditorInput<T> editorInput, Option<CrudController<T>> crudController, boolean isSearchMode,
-				Binder<T> binder) {
-		this.isSearchMode = isSearchMode;
-		this.editorInput = editorInput;
-		this.binder = binder;
-	}
+   public void init() {
+      this.isSearchMode = true;
+      this.editorInput = null;
+   }
 
-	public void setText(Property property, String text) {
-		Widget widget = getWidget(property);
-		if (widget instanceof Text) {
-			((Text) widget).setText(StringUtils.trimToEmpty(text));
-		} else if (widget instanceof Combo) {
-			((Combo) widget).setText(StringUtils.trimToEmpty(text));
-		} else {
-			throw new IllegalStateException("Unsupported widget for setText");
-		}
-	}
+   public void init(GenericEditorInput<T> editorInput, Option<CrudController<T>> crudController, boolean isSearchMode,
+         Binder<T> binder) {
+      this.isSearchMode = isSearchMode;
+      this.editorInput = editorInput;
+      this.binder = binder;
+   }
 
-	public void setReadOnly(Property property) {
-		Widget widget = getWidget(property);
-		if (widget instanceof Text) {			
-			((Text) widget).setBackground(AbstractControlWithLabelBuilder.getDisplay().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
-			((Text) widget).setEditable(false);
-		} else {
-			throw new IllegalStateException("Unsupported widget for setText");
-		}
-	}
+   public void setText(Property property, final String text) {
+      Widget widget = getWidget(property);
+      if (widget instanceof Text) {
+         ((Text) widget).setText(StringUtils.trimToEmpty(text));
+      } else if (widget instanceof Combo) {
+         AbstractListViewer viewer = (AbstractListViewer) viewers.get(property);
+         Object list = viewer.getInput();
+         if (list instanceof ArrayList) {
+            TextValue textValue = new TextValue() {
+               @Override
+               public String getValue() {
+                  return text;
+               }
+            };
+            @SuppressWarnings("unchecked")
+            ArrayList<TextValue> arrayList = (ArrayList<TextValue>) list;
+            if (!arrayList.contains(textValue)) {
+               arrayList.add(textValue);
+            }
+            viewer.setInput(list);
+         }
+         ((Combo) widget).setText(StringUtils.trimToEmpty(text));
+      } else {
+         throw new IllegalStateException("Unsupported widget for setText");
+      }
+   }
 
-	public int getSelectionIndex(Property property) {
-		Widget widget = getWidget(property);
-		if (widget instanceof Combo) {
-			return ((Combo) widget).getSelectionIndex();
-		} else {
-			throw new IllegalStateException("Unsupported widget for setText");
-		}
-	}
+   public void setReadOnly(Property property) {
+      Widget widget = getWidget(property);
+      if (widget instanceof Text) {
+         ((Text) widget).setBackground(AbstractControlWithLabelBuilder.getDisplay().getSystemColor(
+               SWT.COLOR_INFO_BACKGROUND));
+         ((Text) widget).setEditable(false);
+      } else {
+         throw new IllegalStateException("Unsupported widget for setText");
+      }
+   }
 
-	public boolean isSelected(Property property) {
-		Widget widget = getWidget(property);
-		if (widget instanceof Button) {
-			return ((Button) widget).getSelection();
-		} else {
-			throw new IllegalStateException("Unsupported widget for isSelected");
-		}
-	}
+   public int getSelectionIndex(Property property) {
+      Widget widget = getWidget(property);
+      if (widget instanceof Combo) {
+         return ((Combo) widget).getSelectionIndex();
+      } else {
+         throw new IllegalStateException("Unsupported widget for setText");
+      }
+   }
 
-	public void select(Property property, int index) {
-		Widget widget = getWidget(property);
-		if (widget instanceof Combo) {
-			((Combo) widget).select(index);
-		} else {
-			throw new IllegalStateException("Unsupported widget for setText");
-		}
-	}
+   public boolean isSelected(Property property) {
+      Widget widget = getWidget(property);
+      if (widget instanceof Button) {
+         return ((Button) widget).getSelection();
+      } else {
+         throw new IllegalStateException("Unsupported widget for isSelected");
+      }
+   }
 
-	public void notifyListenersWithSelectionEvent(Property property) {
-		Widget widget = getWidget(property);
-		if (widget instanceof Combo) {
-			((Combo) widget).notifyListeners(SWT.Selection, new Event());
-		} else {
-			throw new IllegalStateException("Unsupported widget for setText");
-		}
-	}
+   public void select(Property property, int index) {
+      Widget widget = getWidget(property);
+      if (widget instanceof Combo) {
+         ((Combo) widget).select(index);
+      } else {
+         throw new IllegalStateException("Unsupported widget for setText");
+      }
+   }
 
-	public IStructuredSelection getSelection(Property property) {
-		AbstractListViewer listViewer = viewers.get(property);
-		return (IStructuredSelection) listViewer.getSelection();
-	}
+   public void notifyListenersWithSelectionEvent(Property property) {
+      Widget widget = getWidget(property);
+      if (widget instanceof Combo) {
+         ((Combo) widget).notifyListeners(SWT.Selection, new Event());
+      } else {
+         throw new IllegalStateException("Unsupported widget for setText");
+      }
+   }
 
-	public String getText(Property property) {
-		Widget widget = getWidget(property);
-		if (widget instanceof Text) {
-			return ((Text) widget).getText();
-		} else if (widget instanceof Combo) {
-			return ((Combo) widget).getText();
-		} else {
-			throw new IllegalStateException("Unsupported widget for getText");
-		}
-	}
+   public IStructuredSelection getSelection(Property property) {
+      AbstractListViewer listViewer = viewers.get(property);
+      return (IStructuredSelection) listViewer.getSelection();
+   }
 
-	public void setInput(Property property, List<? extends TextValue> data) {
-		AbstractListViewer listViewer = viewers.get(property);
-		if (listViewer == null) {
-			Widget widget = getWidget(property);
-			if (widget instanceof Text) {
-				TextValueProposalProvider proposalProvider = (TextValueProposalProvider) widget
-							.getData(AbstractControlWithLabelBuilder.CONTENT_PROPOSAL_PROVIDER);
-				if (proposalProvider == null) {
-					throw new IllegalStateException("proposalProvider must not be null");
-				}
-				proposalProvider.setData(data);
-			} else {
-				throw new IllegalStateException("Unsupported widget type: " + property);
-			}
-		} else {
-			ComboViewer comboViewer = (ComboViewer) listViewer;
-			comboViewer.setInput(data);
-		}
-	}
+   public String getText(Property property) {
+      Widget widget = getWidget(property);
+      if (widget instanceof Text) {
+         return ((Text) widget).getText();
+      } else if (widget instanceof Combo) {
+         return ((Combo) widget).getText();
+      } else {
+         throw new IllegalStateException("Unsupported widget for getText");
+      }
+   }
 
-	public void setEnabled(Property property, boolean enabled) {
-		Widget widget = getWidget(property);
-		if (widget instanceof Text) {
-			((Text) widget).setEnabled(enabled);
-		} else if (widget instanceof Combo) {
-			((Combo) widget).setEnabled(enabled);
-		} else if (widget instanceof Button) {
-			((Button) widget).setEnabled(enabled);
-		} else {
-			throw new IllegalStateException("Unsupported widget for setEnabled");
-		}
-	}
+   public void setInput(Property property, List<? extends TextValue> data) {
+      AbstractListViewer listViewer = viewers.get(property);
+      if (listViewer == null) {
+         Widget widget = getWidget(property);
+         if (widget instanceof Text) {
+            TextValueProposalProvider proposalProvider = (TextValueProposalProvider) widget
+                  .getData(AbstractControlWithLabelBuilder.CONTENT_PROPOSAL_PROVIDER);
+            if (proposalProvider == null) {
+               throw new IllegalStateException("proposalProvider must not be null");
+            }
+            proposalProvider.setData(data);
+         } else {
+            throw new IllegalStateException("Unsupported widget type: " + property);
+         }
+      } else {
+         ComboViewer comboViewer = (ComboViewer) listViewer;
+         comboViewer.setInput(data);
+      }
+   }
 
-	private Widget getWidget(Property property) {
-		Widget widget = properties.get(property);
-		if (widget == null) {
-			throw new IllegalStateException("Property not found: " + property);
-		}
-		return widget;
-	}
+   public void setEnabled(Property property, boolean enabled) {
+      Widget widget = getWidget(property);
+      if (widget instanceof Text) {
+         ((Text) widget).setEnabled(enabled);
+      } else if (widget instanceof Combo) {
+         ((Combo) widget).setEnabled(enabled);
+      } else if (widget instanceof Button) {
+         ((Button) widget).setEnabled(enabled);
+      } else {
+         throw new IllegalStateException("Unsupported widget for setEnabled");
+      }
+   }
 
-	public void doCommand(Property property, Func1Void<Widget> widgetCommand) {
-		Widget widget = properties.get(property);
-		if (widget != null) {
-			widgetCommand.apply(widget);
-		} else {
-			logger.logInfo("=== Property not found: " + property.getName());
-		}
-	}
+   private Widget getWidget(Property property) {
+      Widget widget = properties.get(property);
+      if (widget == null) {
+         throw new IllegalStateException("Property not found: " + property);
+      }
+      return widget;
+   }
 
-	public void doCommandForViewer(Property property, Func1Void<AbstractListViewer> widgetCommand) {
-		AbstractListViewer viewer = viewers.get(property);
-		if (viewer != null) {
-			widgetCommand.apply(viewer);
-		} else {
-			logger.logInfo("=== Property not found: " + property.getName());
-		}
-	}
+   public void doCommand(Property property, Func1Void<Widget> widgetCommand) {
+      Widget widget = properties.get(property);
+      if (widget != null) {
+         widgetCommand.apply(widget);
+      } else {
+         logger.logInfo("=== Property not found: " + property.getName());
+      }
+   }
 
-	public void doCommandForTableViewer(Property property, Func1Void<TableViewer> widgetCommand) {
-		TableViewer viewer = tableViewers.get(property);
-		if (viewer != null) {
-			widgetCommand.apply(viewer);
-		} else {
-			logger.logInfo("=== Property not found: " + property.getName());
-		}
-	}
+   public void doCommandForViewer(Property property, Func1Void<AbstractListViewer> widgetCommand) {
+      AbstractListViewer viewer = viewers.get(property);
+      if (viewer != null) {
+         widgetCommand.apply(viewer);
+      } else {
+         logger.logInfo("=== Property not found: " + property.getName());
+      }
+   }
 
-	public int doCommandReturnInt(Property property, Func1<Integer, Widget> widgetCommand) {
-		if (!Environment.isTestMode()) {
-			throw new IllegalStateException("Only supported in testmode");
-		}
-		Widget widget = properties.get(property);
-		if (widget == null) {
-			throw new IllegalStateException("=== Property not found: " + property.getName());
-		}
-		return (widgetCommand.apply(widget));
-	}
+   public void doCommandForTableViewer(Property property, Func1Void<TableViewer> widgetCommand) {
+      TableViewer viewer = tableViewers.get(property);
+      if (viewer != null) {
+         widgetCommand.apply(viewer);
+      } else {
+         logger.logInfo("=== Property not found: " + property.getName());
+      }
+   }
 
-	public String doCommandReturnString(Property property, Func1<String, Widget> widgetCommand) {
-		if (!Environment.isTestMode()) {
-			throw new IllegalStateException("Only supported in testmode");
-		}
-		Widget widget = properties.get(property);
-		if (widget == null) {
-			throw new IllegalStateException("=== Property not found: " + property.getName());
-		}
-		return (widgetCommand.apply(widget));
-	}
+   public int doCommandReturnInt(Property property, Func1<Integer, Widget> widgetCommand) {
+      if (!Environment.isTestMode()) {
+         throw new IllegalStateException("Only supported in testmode");
+      }
+      Widget widget = properties.get(property);
+      if (widget == null) {
+         throw new IllegalStateException("=== Property not found: " + property.getName());
+      }
+      return (widgetCommand.apply(widget));
+   }
 
-	public Boolean doCommandReturnBoolean(Property property, Func1<Boolean, Widget> widgetCommand) {
-		if (!Environment.isTestMode()) {
-			throw new IllegalStateException("Only supported in testmode");
-		}
-		Widget widget = properties.get(property);
-		if (widget == null) {
-			throw new IllegalStateException("=== Property not found: " + property.getName());
-		}
-		return (widgetCommand.apply(widget));
-	}
+   public String doCommandReturnString(Property property, Func1<String, Widget> widgetCommand) {
+      if (!Environment.isTestMode()) {
+         throw new IllegalStateException("Only supported in testmode");
+      }
+      Widget widget = properties.get(property);
+      if (widget == null) {
+         throw new IllegalStateException("=== Property not found: " + property.getName());
+      }
+      return (widgetCommand.apply(widget));
+   }
 
-	public void replaceBindings(T data) {
-		binder.replaceBindings(properties,data);
-	}
+   public Boolean doCommandReturnBoolean(Property property, Func1<Boolean, Widget> widgetCommand) {
+      if (!Environment.isTestMode()) {
+         throw new IllegalStateException("Only supported in testmode");
+      }
+      Widget widget = properties.get(property);
+      if (widget == null) {
+         throw new IllegalStateException("=== Property not found: " + property.getName());
+      }
+      return (widgetCommand.apply(widget));
+   }
 
-	public boolean markError(Path propertyPath, String message) {
-		return markError(new Property(propertyPath.toString()), message);
-	}
+   public void replaceBindings(T data) {
+      binder.replaceBindings(properties, data);
+   }
 
-	public boolean markError(Property property, String message) {
-		Widget widget = properties.get(property);
-		if (widget == null) {
-			return false;
-		}
-		ControlDecoration controlDecoration = (ControlDecoration) widget.getData(BuilderConstant.DECORATOR);
-		if (controlDecoration != null) {
-			controlDecoration.setDescriptionText(message);
-			controlDecoration.show();
-		}
-		return true;
-	}
+   public boolean markError(Path propertyPath, String message) {
+      return markError(new Property(propertyPath.toString()), message);
+   }
 
-	public void resetErrorMarkers() {
-		for (Widget widget : getWidgets()) {
-			ControlDecoration controlDecoration = (ControlDecoration) widget.getData(BuilderConstant.DECORATOR);
-			if (controlDecoration != null) {
-				controlDecoration.hide();
-			}
-		}
-	}
+   public boolean markError(Property property, String message) {
+      Widget widget = properties.get(property);
+      if (widget == null) {
+         return false;
+      }
+      ControlDecoration controlDecoration = (ControlDecoration) widget.getData(BuilderConstant.DECORATOR);
+      if (controlDecoration != null) {
+         controlDecoration.setDescriptionText(message);
+         controlDecoration.show();
+      }
+      return true;
+   }
 
-	public void clearWidgetContent() {
-		List<Widget> widgets = getWidgets();
-		for (Widget widget : widgets) {
-			if (widget instanceof Text) {
-				Text text = (Text) widget;
-				text.setText("");
-			} else if (widget instanceof Combo) {
-				Combo combo = (Combo) widget;
-				combo.setText("");
-			} else if (widget instanceof Button) {
-				Button button = (Button) widget;
-				int style = button.getStyle();
-				if ((style & SWT.CHECK) == SWT.CHECK) {
-					button.setSelection(false);
-				}
-			}
-		}
-	}
+   public void resetErrorMarkers() {
+      for (Widget widget : getWidgets()) {
+         ControlDecoration controlDecoration = (ControlDecoration) widget.getData(BuilderConstant.DECORATOR);
+         if (controlDecoration != null) {
+            controlDecoration.hide();
+         }
+      }
+   }
 
-	private List<Widget> getWidgets() {
-		Set<Entry<Property, Widget>> entries = properties.entrySet();
-		List<Widget> widgets = new ArrayList<Widget>();
-		for (Entry<Property, Widget> entry : entries) {
-			widgets.add(entry.getValue());
-		}
-		return widgets;
-	}
+   public void clearWidgetContent() {
+      List<Widget> widgets = getWidgets();
+      for (Widget widget : widgets) {
+         if (widget instanceof Text) {
+            Text text = (Text) widget;
+            text.setText("");
+         } else if (widget instanceof Combo) {
+            Combo combo = (Combo) widget;
+            combo.setText("");
+         } else if (widget instanceof Button) {
+            Button button = (Button) widget;
+            int style = button.getStyle();
+            if ((style & SWT.CHECK) == SWT.CHECK) {
+               button.setSelection(false);
+            }
+         }
+      }
+   }
 
-	public void createExpandItem(ExpandBar bar, String title, Composite composite, Property property) {
-		ExpandItem expandItem = new ExpandItem(bar, SWT.NONE, 0);
-		expandItem.setText(title);
-		expandItem.setHeight(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
-		expandItem.setControl(composite);
-		expandItem.setExpanded(true);
-		properties.put(property, expandItem);
-	}
+   private List<Widget> getWidgets() {
+      Set<Entry<Property, Widget>> entries = properties.entrySet();
+      List<Widget> widgets = new ArrayList<Widget>();
+      for (Entry<Property, Widget> entry : entries) {
+         widgets.add(entry.getValue());
+      }
+      return widgets;
+   }
 
-	public CheckboxBuilder checkbox(Composite composite, String propertyName) {
-		return new CheckboxBuilder(composite, propertyName, properties, binder);
-	}
+   public void createExpandItem(ExpandBar bar, String title, Composite composite, Property property) {
+      ExpandItem expandItem = new ExpandItem(bar, SWT.NONE, 0);
+      expandItem.setText(title);
+      expandItem.setHeight(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+      expandItem.setControl(composite);
+      expandItem.setExpanded(true);
+      properties.put(property, expandItem);
+   }
 
-	public RadioButtonBuilder radioButton(Composite composite, String propertyName) {
-		return new RadioButtonBuilder(composite, propertyName, properties, binder);
-	}
+   public CheckboxBuilder checkbox(Composite composite, String propertyName) {
+      return new CheckboxBuilder(composite, propertyName, properties, binder);
+   }
 
-	public LabelBuilder label(Composite composite) {
-		return new LabelBuilder(composite, editorInput);
-	}
+   public RadioButtonBuilder radioButton(Composite composite, String propertyName) {
+      return new RadioButtonBuilder(composite, propertyName, properties, binder);
+   }
 
-	public TextBuilder text(Composite composite, String propertyName) {
-		return new TextBuilder(composite, propertyName, properties, editorInput, binder, SearchTermType.STRING,
-					isSearchMode);
-	}
+   public LabelBuilder label(Composite composite) {
+      return new LabelBuilder(composite, editorInput);
+   }
 
-	public TextBuilder numericText(Composite composite, String propertyName) {
-		return new TextBuilder(composite, propertyName, properties, editorInput, binder, SearchTermType.NUMERIC,
-					isSearchMode);
-	}
+   public TextBuilder text(Composite composite, String propertyName, SearchTermType searchTermType) {
+      return new TextBuilder(composite, propertyName, properties, editorInput, binder, searchTermType, isSearchMode);
+   }
 
-	public ComboBuilder combo(Composite composite, String propertyName) {
-		return new ComboBuilder(composite, propertyName, properties, editorInput, viewers, binder, isSearchMode);
-	}
+   public TextBuilder text(Composite composite, String propertyName) {
+      return new TextBuilder(composite, propertyName, properties, editorInput, binder, SearchTermType.STRING,
+            isSearchMode);
+   }
 
-	public DateBuilder date(Composite composite, String propertyName) {
-		return new DateBuilder(composite, propertyName, properties, editorInput, binder, isSearchMode,
-					simpleDateFormatProvider.get());
-	}
+   public TextBuilder numericText(Composite composite, String propertyName) {
+      return new TextBuilder(composite, propertyName, properties, editorInput, binder, SearchTermType.NUMERIC,
+            isSearchMode);
+   }
 
-	public TableViewerBuilder tableViewer(Composite composite, String propertyName) {
-		return new TableViewerBuilder(composite, propertyName, properties, tableViewers);
-	}
+   public ComboBuilder combo(Composite composite, String propertyName) {
+      return new ComboBuilder(composite, propertyName, properties, editorInput, viewers, binder, isSearchMode);
+   }
 
-	public ButtonBuilder button(Composite composite, String propertyName) {
-		return new ButtonBuilder(composite, propertyName, properties);
-	}
+   public DateBuilder date(Composite composite, String propertyName) {
+      return new DateBuilder(composite, propertyName, properties, editorInput, binder, isSearchMode,
+            simpleDateFormatProvider.get());
+   }
 
-	public TabFolder createTabFolder(Composite composite) {
-		return new TabFolder(composite, SWT.BORDER);
-	}
+   public TableViewerBuilder tableViewer(Composite composite, String propertyName) {
+      return new TableViewerBuilder(composite, propertyName, properties, tableViewers);
+   }
 
-	public TabItem createTabItem(String text, TabFolder tf) {
-		TabItem ti = new TabItem(tf, SWT.BORDER);
-		ti.setText(text);
-		return ti;
-	}
+   public ButtonBuilder button(Composite composite, String propertyName) {
+      return new ButtonBuilder(composite, propertyName, properties);
+   }
 
-	public static class WidgetFactoryIterator implements Iterator<SearchTerm> {
+   public TabFolder createTabFolder(Composite composite) {
+      return new TabFolder(composite, SWT.BORDER);
+   }
 
-		private final Map<Property, Widget> map;
+   public TabItem createTabItem(String text, TabFolder tf) {
+      TabItem ti = new TabItem(tf, SWT.BORDER);
+      ti.setText(text);
+      return ti;
+   }
 
-		private Iterator<Property> it;
+   public static class WidgetFactoryIterator implements Iterator<SearchTerm> {
 
-		public WidgetFactoryIterator(Map<Property, Widget> map) {
-			this.map = map;
-			it = map.keySet().iterator();
-		}
+      private final Map<Property, Widget> map;
 
-		@Override
-		public boolean hasNext() {
-			return it.hasNext();
-		}
+      private Iterator<Property> it;
 
-		@Override
-		public SearchTerm next() {
-			Property property = it.next();
-			Widget widget = map.get(property);
-			String value = null;
-			if (widget instanceof Text) {
-				value = ((Text) widget).getText();
-			} else if (widget instanceof Button) {
-				Button button = (Button) widget;
-				int style = button.getStyle();
-				if (((style & SWT.CHECK) == SWT.CHECK) && (button.getSelection())) {
-					value = "1";
-				}
-			} else if (widget instanceof Combo) {
-				value = ((Combo) widget).getText();
-			}
-			return new SearchTerm(property, value, property.getType());
-		}
+      public WidgetFactoryIterator(Map<Property, Widget> map) {
+         this.map = map;
+         it = map.keySet().iterator();
+      }
 
-		@Override
-		public void remove() {
-			throw new IllegalStateException("Collection is Read Only");
-		}
+      @Override
+      public boolean hasNext() {
+         return it.hasNext();
+      }
 
-	}
+      @Override
+      public SearchTerm next() {
+         Property property = it.next();
+         Widget widget = map.get(property);
+         String value = null;
+         if (widget instanceof Text) {
+            value = ((Text) widget).getText();
+         } else if (widget instanceof Button) {
+            Button button = (Button) widget;
+            int style = button.getStyle();
+            if (((style & SWT.CHECK) == SWT.CHECK) && (button.getSelection())) {
+               value = "1";
+            }
+         } else if (widget instanceof Combo) {
+            value = ((Combo) widget).getText();
+         }
+         return new SearchTerm(property, value, property.getType());
+      }
 
-	@Override
-	public Iterator<SearchTerm> iterator() {
-		return new WidgetFactoryIterator(this.properties);
-	}
+      @Override
+      public void remove() {
+         throw new IllegalStateException("Collection is Read Only");
+      }
+
+   }
+
+   @Override
+   public Iterator<SearchTerm> iterator() {
+      return new WidgetFactoryIterator(this.properties);
+   }
 
 }

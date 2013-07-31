@@ -2,7 +2,7 @@
 <feature
       id="org.csstudio.desy.sds.feature"
       label="SDS Feature"
-      version="1.0.0.qualifier"
+      version="1.0.0.201304241100"
       provider-name="DESY, Jan Hatje &lt;css-developer@desy.de&gt;">
 
    <description url="http://www.example.com/description">
@@ -120,6 +120,13 @@
 
    <plugin
          id="org.csstudio.utility.displayBrowser.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.csstudio.sds.service.pvvalidation.mkk"
          download-size="0"
          install-size="0"
          version="0.0.0"

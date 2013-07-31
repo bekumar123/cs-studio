@@ -693,7 +693,7 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 			bean = notBean;
 		}
 
-		bean.setFilterbedinungID(filterCondtionDTO.getIFilterConditionID());
+		bean.setFilterbedingungID(filterCondtionDTO.getIFilterConditionID());
 		bean.setDescription(filterCondtionDTO.getCDesc());
 		bean.setName(filterCondtionDTO.getCName());
 		bean.setRubrikName(this.getRubrikNameForId(filterCondtionDTO
@@ -748,7 +748,7 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 		for (final FilterConditionDTO potentialdto : this.entireConfiguration
 				.gibAlleFilterConditions()) {
 			if (potentialdto.getIFilterConditionID() == bean
-					.getFilterbedinungID()) {
+					.getFilterbedingungID()) {
 				filterConditionDTO = potentialdto;
 				break;
 			}
@@ -1124,7 +1124,7 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 			boolean useOld = false;
 			for (FilterActionDTO actionDTO : filterActionDTOs) {
 				if (filterAction.getReceiver().getID() == actionDTO
-						.getIReceiverRef()) {
+						.getIReceiverRef() && filterActionType.equals(actionDTO.getFilterActionType())) {
 					actionDTO.setMessage(filterAction.getMessage());
 					actionDTO.setReceiver(findDTO4Bean(filterAction
 							.getReceiver()));
@@ -1242,9 +1242,9 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 			}
 
 			junctorConditionDTO.setFirstFilterConditionRef(specificBean
-					.getFirstCondition().getFilterbedinungID());
+					.getFirstCondition().getFilterbedingungID());
 			junctorConditionDTO.setSecondFilterConditionRef(specificBean
-					.getSecondCondition().getFilterbedinungID());
+					.getSecondCondition().getFilterbedingungID());
 
 			// FIXME mw, mz 2008-07-21: Dieses Verhalten auf andrem Wege wieder
 			// herstellen: Einfache Injektion der ersten und zweiten FC
@@ -1337,7 +1337,7 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 				final StrgArFiltCondCompValDTO newCompValue = new StrgArFiltCondCompValDTO();
 				final StrgArFiltCondCompValDTOPK pk = new StrgArFiltCondCompValDTOPK();
 				pk.setCompValue(compValue);
-				pk.setFilterConditionRef(bean.getFilterbedinungID());
+				pk.setFilterConditionRef(bean.getFilterbedingungID());
 				newCompValue.setPk(pk);
 				currentCompareValues.add(newCompValue);
 			}

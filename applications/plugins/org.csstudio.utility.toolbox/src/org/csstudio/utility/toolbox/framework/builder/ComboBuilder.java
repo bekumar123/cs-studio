@@ -21,135 +21,138 @@ import org.eclipse.swt.widgets.Widget;
 
 public class ComboBuilder extends AbstractControlWithLabelBuilder<ComboBuilder> {
 
-	private final Map<Property, AbstractListViewer> viewers;
-	private final Binder<?> binder;
-	private final boolean isSearchMode;
+   private final Map<Property, AbstractListViewer> viewers;
+   private final Binder<?> binder;
+   private final boolean isSearchMode;
 
-	private WritableList observableData = null;
+   private WritableList observableData = null;
 
-	private boolean isJoined = false;
-	private boolean selectFirst = false;
-	private Object selectObject = null;
-	private Property accessor = null;
+   private boolean isJoined = false;
+   private boolean selectFirst = false;
+   private Object selectObject = null;
+   private Property accessor = null;
 
-	public ComboBuilder(Composite composite, String property, Map<Property, Widget> properties,
-				GenericEditorInput<?> editorInput, Map<Property, AbstractListViewer> viewers, Binder<?> binder,
-				boolean isSearchMode) {
-		super(composite, property, properties, editorInput, SearchTermType.STRING);
-		this.viewers = viewers;
-		this.binder = binder;
-		this.isSearchMode = isSearchMode;
-		notEditable();
-	}
+   //@formatter:off
+	public ComboBuilder(Composite composite, String property, 
+	      Map<Property, Widget> properties,
+			GenericEditorInput<?> editorInput,
+			Map<Property, AbstractListViewer> viewers, Binder<?> binder,
+			boolean isSearchMode) {
+	      //@formatter:on
+      super(composite, property, properties, editorInput, SearchTermType.STRING);
+      this.viewers = viewers;
+      this.binder = binder;
+      this.isSearchMode = isSearchMode;
+      notEditable();
+   }
 
-	public ComboBuilder isJoined() {
-		this.isJoined = true;
-		return this;
-	}
+   public ComboBuilder isJoined() {
+      this.isJoined = true;
+      return this;
+   }
 
-	public ComboBuilder selectFirst() {
-		this.selectFirst = true;
-		return this;
-	}
+   public ComboBuilder selectFirst() {
+      this.selectFirst = true;
+      return this;
+   }
 
-	public ComboBuilder select(Object object) {
-		this.selectObject = object;
-		return this;
-	}
+   public ComboBuilder select(Object object) {
+      this.selectObject = object;
+      return this;
+   }
 
-	public ComboBuilder data(WritableList data, Property accessor) {
-		this.observableData = data;
-		this.accessor = accessor;
-		return this;
-	}
+   public ComboBuilder data(WritableList data, Property accessor) {
+      this.observableData = data;
+      this.accessor = accessor;
+      return this;
+   }
 
-	private int calculateStyle() {
-		int style = SWT.SINGLE | SWT.BORDER;
-		if ((!isSearchMode) && (!isEditable())) {
-			style = style | SWT.READ_ONLY;
-		}
-		return style;
-	}
+   private int calculateStyle() {
+      int style = SWT.SINGLE | SWT.BORDER;
+      if ((!isSearchMode) && (!isEditable())) {
+         style = style | SWT.READ_ONLY;
+      }
+      return style;
+   }
 
-	private static class SimpleLabelProvider extends LabelProvider {
-		public String getText(Object element) {
-			TextValue textValue = (TextValue) element;
-			return textValue.getValue();
-		}
-	}
+   private static class SimpleLabelProvider extends LabelProvider {
+      public String getText(Object element) {
+         TextValue textValue = (TextValue) element;
+         return textValue.getValue();
+      }
+   }
 
-	private void setData(ComboViewer comboViewer) {
-		comboViewer.setContentProvider(new ArrayContentProvider());
-		comboViewer.setUseHashlookup(true);
-		comboViewer.setInput(getData());
-		comboViewer.setLabelProvider(new SimpleLabelProvider());
-		if (selectObject != null) {
-			int index = getData().indexOf(selectObject);
-			if (index != -1) {
-				comboViewer.getCombo().select(index);
-			}
-		}
-	}
+   private void setData(ComboViewer comboViewer) {
+      comboViewer.setContentProvider(new ArrayContentProvider());
+      comboViewer.setUseHashlookup(true);
+      comboViewer.setInput(getData());
+      comboViewer.setLabelProvider(new SimpleLabelProvider());
+      if (selectObject != null) {
+         int index = getData().indexOf(selectObject);
+         if (index != -1) {
+            comboViewer.getCombo().select(index);
+         }
+      }
+   }
 
-	private void setObservableData(ComboViewer comboViewer) {
-		if (accessor == null) {
-			throw new IllegalStateException("Accesor must not be null.");
-		}
-		ViewerSupport.bind(comboViewer, observableData, BeanProperties.values(new String[] { accessor.getName() }));
-		if (observableData.size() == 1) {
-			comboViewer.getCombo().select(0);
-		} else {
-			if (selectObject != null) {
-				int index = observableData.indexOf(selectObject);
-				if (index != -1) {
-					comboViewer.getCombo().select(index);
-				}
-			}
-		}
-	}
+   private void setObservableData(ComboViewer comboViewer) {
+      if (accessor == null) {
+         throw new IllegalStateException("Accesor must not be null.");
+      }
+      ViewerSupport.bind(comboViewer, observableData, BeanProperties.values(new String[] { accessor.getName() }));
+      if (observableData.size() == 1) {
+         comboViewer.getCombo().select(0);
+      } else {
+         if (selectObject != null) {
+            int index = observableData.indexOf(selectObject);
+            if (index != -1) {
+               comboViewer.getCombo().select(index);
+            }
+         }
+      }
+   }
 
-	public Combo build() {
+   public Combo build() {
 
-		if (getLabel() != null) {
-			buildLabel();
-		}
+      if (getLabel() != null) {
+         buildLabel();
+      }
 
-		int style = calculateStyle();
+      int style = calculateStyle();
 
-		Combo combo = new Combo(getComposite(), style);
-		combo.setLayoutData(getLayoutData());
-		combo.pack();
+      Combo combo = new Combo(getComposite(), style);
+      combo.setLayoutData(getLayoutData());
+      combo.pack();
 
-		ComboViewer comboViewer = new ComboViewer(combo);
+      ComboViewer comboViewer = new ComboViewer(combo);
 
-		if (getData() != null) {
-			setData(comboViewer);
-		} else if (observableData != null) {
-			setObservableData(comboViewer);
-		}
+      if (getData() != null) {
+         setData(comboViewer);
+      } else if (observableData != null) {
+         setObservableData(comboViewer);
+      }
 
-		if (!isNoBinding()) {
-			if (isJoined) {
-				getProperty().setHint(PropertyNameHint.SubQueryOnly);
-			}
-			binder.bindPropertyToCombo(getProperty(), comboViewer.getCombo());
-		}
+      if (!isNoBinding()) {
+         if (isJoined) {
+            getProperty().setHint(PropertyNameHint.SubQueryOnly);
+         }
 
-		// set flag if we use binding or not
-		combo.setData(BuilderConstant.NO_BINDING, Boolean.valueOf(isNoBinding()));
+         binder.bindPropertyToCombo(getProperty(), comboViewer.getCombo());
+      }
 
-		if (selectFirst) {
-			if (combo.getSelectionIndex() == -1) {
-				combo.select(0);
-			}
-		}
-		
-		getProperties().put(getProperty(), combo);
-		viewers.put(getProperty(), comboViewer);
+      // set flag if we use binding or not
+      combo.setData(BuilderConstant.NO_BINDING, Boolean.valueOf(isNoBinding()));
 
-		getProperty().setType(SearchTermType.STRING_SEARCH_EXACT);
+      if ((selectFirst) && (combo.getSelectionIndex() == -1)) {
+         combo.select(0);
+      }
 
-		return combo;
+      getProperties().put(getProperty(), combo);
+      viewers.put(getProperty(), comboViewer);
 
-	}
+      getProperty().setType(SearchTermType.STRING_SEARCH_EXACT);
+
+      return combo;
+
+   }
 }

@@ -2,7 +2,7 @@
 <feature
       id="org.csstudio.desy.dct.feature"
       label="DCT Feature"
-      version="1.0.0.qualifier"
+      version="1.0.0.201307031400"
       provider-name="DESY, Jan Hatje &lt;css-developer@desy.de&gt;">
 
    <description url="http://www.example.com/description">
@@ -20,10 +20,6 @@
    <url>
       <update label="Desy Update Site" url="http://eclipse.desy.de/css/update/"/>
    </url>
-
-   <requires>
-      <import feature="org.csstudio.desy.librarydesy.feature" version="1.0.0.qualifier"/>
-   </requires>
 
    <plugin
          id="org.csstudio.dct"

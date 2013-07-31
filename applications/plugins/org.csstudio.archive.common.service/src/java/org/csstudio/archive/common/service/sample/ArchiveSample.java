@@ -51,7 +51,7 @@ public class ArchiveSample<V extends Serializable,
     private final ArchiveChannelId _channelId;
     private final T _sysVar;
     private final IAlarm _alarm;
-
+    private final String _requestType;
     /**
      * Constructor.
      */
@@ -62,12 +62,27 @@ public class ArchiveSample<V extends Serializable,
             LOG.error("Timestamp for sample of channel {} is <= 0! Invalid for archive samples.", sysVar.getName());
             throw new IllegalStateException("Invalid sample timestamp");
         }
-
+        _requestType="";
         _channelId = channelId;
         _sysVar = sysVar;
         _alarm = alarm;
     }
+    /**
+     * Constructor.
+     */
+    public ArchiveSample(@Nonnull final ArchiveChannelId channelId,
+                         @Nonnull final T sysVar,
+                         @Nullable final IAlarm alarm,final String requestType) {
+        if (sysVar.getTimestamp().getNanos() <= 0L) {
+            LOG.error("Timestamp for sample of channel {} is <= 0! Invalid for archive samples.", sysVar.getName());
+            throw new IllegalStateException("Invalid sample timestamp");
+        }
 
+        _channelId = channelId;
+        _sysVar = sysVar;
+        _alarm = alarm;
+        _requestType=requestType;
+    }
     /**
      * {@inheritDoc}
      */
@@ -98,5 +113,8 @@ public class ArchiveSample<V extends Serializable,
     @CheckForNull
     public IAlarm getAlarm() {
         return _alarm;
+    }
+    public String getRequestType() {
+        return _requestType;
     }
 }

@@ -82,6 +82,9 @@ public final class DeleteRecursivelyModificationItem extends AbstractTreeModific
             throw new AlarmTreeModificationException("Content model could not be constructed for subtree of " + _nodeName.toString(), e);
         } catch (LdapServiceException e) {
             throw new AlarmTreeModificationException("LDAP service exception when removing " + _nodeName.toString(), e);
-        }
+        } catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 }

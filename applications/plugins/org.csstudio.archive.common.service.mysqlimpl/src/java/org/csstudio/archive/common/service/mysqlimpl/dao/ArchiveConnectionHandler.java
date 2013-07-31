@@ -26,6 +26,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
 import javax.annotation.Nonnull;
+import javax.sql.DataSource;
 
 import org.csstudio.archive.common.service.ArchiveConnectionException;
 import org.csstudio.archive.common.service.mysqlimpl.MySQLArchivePreferenceService;
@@ -35,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 /**
@@ -50,33 +52,35 @@ public class ArchiveConnectionHandler {
     static final Logger LOG = LoggerFactory.getLogger(ArchiveConnectionHandler.class);
     static final Logger WORKER_LOG = LoggerFactory.getLogger(PersistDataWorker.class);
 
-    private static final String ARCHIVE_CONNECTION_EXCEPTION_MSG =
-        "Archive connection could not be established";
-
+    private static final String ARCHIVE_CONNECTION_EXCEPTION_MSG = "Archive connection could not be established";
 
     /**
      * The datasource that specifies the connections.
      */
-    private final MysqlDataSource _dataSource;
+    //    private final MysqlDataSource _dataSource;
+    private final DataSource _dataSource;
+
+    private String _dataBaseName;
 
     /**
      * Each thread owns a connection, some of which may not close it.
      */
-    private final ThreadLocal<Connection> _archiveConnection =
-        new ThreadLocal<Connection>();
+    private final ThreadLocal<Connection> _archiveConnection = new ThreadLocal<Connection>();
 
     /**
      * Constructor.
      */
     @Inject
     public ArchiveConnectionHandler(@Nonnull final MySQLArchivePreferenceService prefs) {
-        _dataSource = createDataSource(prefs);
+        //        _dataSource = createDataSource(prefs);
+        _dataSource = createPooledDataSource(prefs);
     }
 
+    //TODO CME: remove when pooled data source is permanently used
     @Nonnull
     private MysqlDataSource createDataSource(@Nonnull final MySQLArchivePreferenceService prefs) {
 
-        final MysqlDataSource ds = new MysqlDataSource(); //TODO CME: connection pooling
+        final MysqlDataSource ds = new MysqlDataSource();
         String hosts = prefs.getHost();
         final String failoverHost = prefs.getFailOverHost();
         if (!Strings.isNullOrEmpty(failoverHost)) {
@@ -84,24 +88,18 @@ public class ArchiveConnectionHandler {
         }
         final Integer port = prefs.getPort();
         final String databaseName = prefs.getDatabaseName();
+        _dataBaseName = databaseName;
         final String user = prefs.getUser();
-        LOG.info("DB preferences - hosts: " + hosts + "; DB Name: " + databaseName + " ; User: " + user + "; port: " + port);
+        LOG.info("DB preferences - hosts: " + hosts + "; DB Name: " + databaseName + " ; User: "
+                + user + "; port: " + port);
 
-        // TODO CME: remove hardcoded values
-        ds.setServerName("127.0.0.1");
-        ds.setPort(3306);
-        ds.setDatabaseName("archive");
-        ds.setUser("cssuser");
-        ds.setPassword("cssuser");
-        ds.setConnectTimeout(10000);
-
-        /*ds.setServerName(hosts);
+        ds.setServerName(hosts);
         ds.setPort(port);
         ds.setDatabaseName(databaseName);
         ds.setUser(user);
         ds.setPassword(prefs.getPassword());
-        ds.setMaxAllowedPacket(prefs.getMaxAllowedPacketSizeInKB()*1024);
-        ds.setUseTimezone(true); */
+        ds.setMaxAllowedPacket(prefs.getMaxAllowedPacketSizeInKB() * 1024);
+        ds.setUseTimezone(true);
 
         ds.setRewriteBatchedStatements(true);
 
@@ -118,6 +116,44 @@ public class ArchiveConnectionHandler {
         return ds;
     }
 
+    private ComboPooledDataSource createPooledDataSource(final MySQLArchivePreferenceService prefs) {
+        ComboPooledDataSource pooledDataSource = null;
+
+        String hosts = prefs.getHost();
+        final String failoverHost = prefs.getFailOverHost();
+        if (!Strings.isNullOrEmpty(failoverHost)) { //TODO CME: test failover host with pooled datasource
+            hosts += "," + failoverHost;
+        }
+        final Integer port = prefs.getPort();
+        final String databaseName = prefs.getDatabaseName();
+        _dataBaseName = databaseName;
+        final String user = prefs.getUser();
+        LOG.info("DB preferences - hosts: " + hosts + "; DB Name: " + databaseName + " ; User: "
+                + user + "; port: " + port);
+
+        final String jdbcUrl = "jdbc:mysql://" + hosts + ":" + prefs.getPort() + "/" + prefs.getDatabaseName();
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+
+            pooledDataSource = new ComboPooledDataSource();
+            pooledDataSource.setDriverClass("com.mysql.jdbc.Driver");
+            pooledDataSource.setJdbcUrl(jdbcUrl);
+            pooledDataSource.setUser(user);
+            pooledDataSource.setPassword(prefs.getPassword());
+            pooledDataSource.setAcquireIncrement(1);
+            pooledDataSource.setMaxStatements(100);
+            pooledDataSource.setMaxPoolSize(10);
+            pooledDataSource.setMinPoolSize(0);
+            pooledDataSource.setMaxIdleTime(60);
+
+        } catch (final Exception e) {
+            e.printStackTrace();
+        }
+
+        return pooledDataSource;
+    }
+
     /**
      * Connects with the RDB instance for the given datasource.
      *
@@ -128,8 +164,7 @@ public class ArchiveConnectionHandler {
      * @throws ArchiveConnectionException
      */
     @Nonnull
-    private Connection connect(@Nonnull final MysqlDataSource ds) throws ArchiveConnectionException {
-
+    private Connection connect(@Nonnull final DataSource ds) throws ArchiveConnectionException {
         Connection connection = null;
         try {
             // Get class loader to find the driver
@@ -140,7 +175,9 @@ public class ArchiveConnectionHandler {
             if (connection != null) {
                 final DatabaseMetaData meta = connection.getMetaData();
                 if (meta != null) {
-                    LOG.debug("MySQL connection:\n{} {}", meta.getDatabaseProductName(), meta.getDatabaseProductVersion());
+                    LOG.debug("MySQL connection:\n{} {}",
+                              meta.getDatabaseProductName(),
+                              meta.getDatabaseProductVersion());
                 } else {
                     LOG.debug("No meta data for MySQL connection");
                 }
@@ -150,8 +187,9 @@ public class ArchiveConnectionHandler {
         } catch (final Exception e) {
             throw new ArchiveConnectionException(ARCHIVE_CONNECTION_EXCEPTION_MSG, e);
         }
-        if (connection == null || Strings.isNullOrEmpty(_dataSource.getDatabaseName())) {
-            throw new ArchiveConnectionException("Connection could not be established or database name is not set.", null);
+        if (connection == null /*|| Strings.isNullOrEmpty(_dataSource.getDatabaseName())*/) {
+            throw new ArchiveConnectionException("Connection could not be established or database name is not set.",
+                                                 null);
         }
         return connection;
     }
@@ -167,7 +205,6 @@ public class ArchiveConnectionHandler {
             _archiveConnection.set(null);
         }
     }
-
 
     /**
      * Creates a new connection.
@@ -200,20 +237,16 @@ public class ArchiveConnectionHandler {
                 _archiveConnection.set(createConnection());
             }
         } catch (final SQLException e) {
-            LOG.warn("Thread current 'permanent' connection has been closed. A new one for this {} is created", Thread.currentThread().getName());
+            LOG.warn("Thread current 'permanent' connection has been closed. A new one for this {} is created",
+                     Thread.currentThread().getName());
         }
-        return  _archiveConnection.get();
+        return _archiveConnection.get();
 
     }
 
     @Nonnull
     public String getDatabaseName() {
-        return _dataSource.getDatabaseName();
-    }
-
-    @Nonnull
-    public Integer getMaxAllowedPacketInBytes() {
-        return Integer.valueOf(_dataSource.getMaxAllowedPacket());
+        return _dataBaseName;
+        //        return _dataSource.getDatabaseName(); //TODO CME: remove when pooled datasource is permanently used.
     }
 }
-

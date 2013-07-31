@@ -249,7 +249,7 @@ public class Plot
             @Override
             public void positionChanged(double xPosition, boolean mouseUp) {
                DateTime timePosition = new DateTime((long) xPosition); //TODO CME: review cast
-               listener.timeIndexPositionChanged(timePosition, mouseUp);
+               listener.timeIndexPositionChanged(timePosition, true); //CME: hard coded 'true': Every mouse move will update history data
             }
         });
     }

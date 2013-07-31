@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: HistoryUI
+Bundle-SymbolicName: org.csstudio.history.ui;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.csstudio.sds.history.internal.HistoryUiActivator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.csstudio.sds.history.domain;bundle-version="1.0.0",
+ de.c1wps.geneal.desy.service.common;bundle-version="1.0.0",
+ org.joda.time;bundle-version="1.6.2",
+ org.csstudio.sds.ui;bundle-version="1.3.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ClassPath: .,
+ swing2swt.jar

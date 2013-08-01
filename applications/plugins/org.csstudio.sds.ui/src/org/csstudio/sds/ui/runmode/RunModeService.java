@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.csstudio.sds.internal.runmode.DataAccessType;
 import org.csstudio.sds.internal.runmode.RunModeBoxInput;
 import org.csstudio.sds.internal.runmode.RunModeType;
 import org.csstudio.sds.model.DisplayModel;
@@ -62,7 +63,7 @@ public final class RunModeService {
 	 * A Map of the already displayed IFiles and their RunModeBoxes.
 	 */
 	private HashMap<RunModeBoxInput, AbstractRunModeBox> _activeBoxes;
-
+	
 	private ArrayList<IOpenDisplayListener> _openDisplayListener;
 
 	/**
@@ -98,13 +99,33 @@ public final class RunModeService {
 	 *            The IPath of the Display
 	 * @param aliases
 	 *            A Map of new Aliases for the Display (can be null)
+	 * @param predecessor
+	 *            If called from an other Display, this is the {@link RunModeBoxInput} of the calling Display.
 	 */
 	public void openDisplayShellInRunMode(final IPath path,
 			final Map<String, String> aliases, RunModeBoxInput predecessor) {
 		assert path != null;
+		
+		DataAccessType dataAccessType = predecessor != null ? predecessor.getDataAccessType() : DataAccessType.REALTIME;
+		
+		openDisplayShellInRunMode(path, aliases, predecessor, dataAccessType);
+	}
 
-		final RunModeBoxInput runModeBoxInput = new RunModeBoxInput(path,
-				aliases, RunModeType.SHELL);
+	/**
+	 * Opens a Display in a new Shell and adds the new Aliases.
+	 * 
+	 * @param path
+	 *            The IPath of the Display
+	 * @param aliases
+	 *            A Map of new Aliases for the Display (can be null)
+	 * @param predecessor
+	 *            If called from an other Display, this is the {@link RunModeBoxInput} of the calling Display.
+	 * @param dataAccessType
+	 *            Represents real time mode or history mode.           
+	 */
+	private void openDisplayShellInRunMode(final IPath path, final Map<String, String> aliases, RunModeBoxInput predecessor, DataAccessType dataAccessType) {
+		
+		final RunModeBoxInput runModeBoxInput = new RunModeBoxInput(path, aliases, RunModeType.SHELL, dataAccessType);
 
 		runModeBoxInput.setPredecessorBox(predecessor);
 		
@@ -232,8 +253,9 @@ public final class RunModeService {
 			final Map<String, String> aliases, final DisplayViewPart view) {
 		assert path != null;
 
+		//TODO CME: hard coded real time mode
 		final RunModeBoxInput runModeBoxInput = new RunModeBoxInput(path,
-				aliases, RunModeType.VIEW);
+				aliases, RunModeType.VIEW, DataAccessType.REALTIME);
 
 		if (_activeBoxes.containsKey(runModeBoxInput)) {
 			AbstractRunModeBox box = _activeBoxes.get(runModeBoxInput);
@@ -296,7 +318,6 @@ public final class RunModeService {
 						"The display file was not found: " + path.toString());
 			}
 		}
-
 	}
 
 	/**
@@ -307,6 +328,17 @@ public final class RunModeService {
 	 */
 	public void openDisplayShellInRunMode(final IPath filePath) {
 		openDisplayShellInRunMode(filePath, new HashMap<String, String>());
+	}
+	
+	
+	/**
+	 * Opens a Display in a new Shell in history mode.
+	 * 
+	 * @param filePath
+	 *            The IPath of the Display
+	 */
+	public void openDisplayShellInHistoryRunMode(final IPath filePath) {
+		openDisplayShellInRunMode(filePath, new HashMap<String, String>(), null, DataAccessType.HISTORY);
 	}
 
 	/**

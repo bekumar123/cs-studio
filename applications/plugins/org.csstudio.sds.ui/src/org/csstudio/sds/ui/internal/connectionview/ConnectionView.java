@@ -1,6 +1,6 @@
 package org.csstudio.sds.ui.internal.connectionview;
 
-import org.csstudio.dal.simple.SimpleDALBroker;
+import org.csstudio.dal.simple.ISimpleDalBroker;
 import org.csstudio.sds.model.DisplayModel;
 import org.csstudio.sds.ui.runmode.IOpenDisplayListener;
 import org.csstudio.sds.ui.runmode.RunModeService;
@@ -62,7 +62,7 @@ public class ConnectionView extends ViewPart {
 			public boolean hasChildren(Object element) {
 				if (element instanceof DisplayModel) {
 					DisplayModel current = (DisplayModel) element;
-					SimpleDALBroker broker = current.getRuntimeContext().getBroker();
+					ISimpleDalBroker broker = current.getRuntimeContext().getBroker();
 					int mapSize = broker.getPropertiesMapSize();
 					return mapSize > 0;
 				}
@@ -86,7 +86,7 @@ public class ConnectionView extends ViewPart {
 			public Object[] getChildren(Object parentElement) {
 				if (parentElement instanceof DisplayModel) {
 					DisplayModel current = (DisplayModel) parentElement;
-					SimpleDALBroker broker = current.getRuntimeContext().getBroker();
+					ISimpleDalBroker broker = current.getRuntimeContext().getBroker();
 					System.out
 							.println("ConnectionView.createContentProvider().new ITreeContentProvider() {...}.getChildren() " + broker);
 					int size = broker.getPropertiesMapSize();

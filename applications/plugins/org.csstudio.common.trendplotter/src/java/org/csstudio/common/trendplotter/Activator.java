@@ -7,17 +7,24 @@
  ******************************************************************************/
 package org.csstudio.common.trendplotter;
 
+import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.csstudio.archive.common.service.ArchiveEngineServiceTracker;
 import org.csstudio.archive.common.service.ArchiveReaderServiceTracker;
 import org.csstudio.archive.common.service.IArchiveReaderFacade;
 import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
+import org.csstudio.sds.history.domain.listener.ITimeChangeListener;
+import org.csstudio.sds.history.domain.listener.ITimeperiodUpdateListener;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+
+import de.c1wps.geneal.desy.service.common.tracker.GenericServiceTracker;
+import de.c1wps.geneal.desy.service.common.tracker.IGenericServiceListener;
 
 /** Eclipse Plugin Activator
  *  @author Kay Kasemir
@@ -41,7 +48,12 @@ public class Activator extends AbstractUIPlugin
     // FIXME (bknerr) : find out about proper dependency injection for osgi eclipse rcp
     private ArchiveEngineServiceTracker _archiveEngineConfigServiceTracker;
     private ArchiveReaderServiceTracker _archiveReaderServiceTracker;
-
+    
+    private GenericServiceTracker<ITimeperiodUpdateListener> _timeperiodUpdateListenerTracker;
+    private GenericServiceTracker<ITimeChangeListener> _timeChangeListenerTracker;
+    
+    private List<ITimeChangeListener> _timeChangeListeners;
+    
     /** {@inheritDoc} */
     @Override
     public void start(BundleContext context) throws Exception
@@ -54,6 +66,14 @@ public class Activator extends AbstractUIPlugin
 
         _archiveReaderServiceTracker = new ArchiveReaderServiceTracker(context);
         _archiveReaderServiceTracker.open();
+        
+        _timeperiodUpdateListenerTracker = new GenericServiceTracker<>(context, ITimeperiodUpdateListener.class);
+        _timeperiodUpdateListenerTracker.open();
+        
+        _timeChangeListeners = new ArrayList<ITimeChangeListener>();
+        _timeChangeListenerTracker = new GenericServiceTracker<>(context, ITimeChangeListener.class);
+        _timeChangeListenerTracker.open();
+        _timeChangeListenerTracker.addServiceListener(createITimeChangeServiceTracker());
     }
 
     /** {@inheritDoc} */
@@ -68,6 +88,14 @@ public class Activator extends AbstractUIPlugin
 
         if (_archiveReaderServiceTracker != null) {
             _archiveReaderServiceTracker.close();
+        }
+        
+        if (_timeperiodUpdateListenerTracker != null) {
+            _timeperiodUpdateListenerTracker.close();
+        }
+        
+        if (_timeChangeListenerTracker != null) {
+            _timeChangeListenerTracker.close();
         }
         
         super.stop(context);
@@ -131,4 +159,33 @@ public class Activator extends AbstractUIPlugin
         }
         return service;
     }
+    
+    
+    public void addUpdateTimeperiodServiceListener(IGenericServiceListener<ITimeperiodUpdateListener> serviceListener) {
+        _timeperiodUpdateListenerTracker.addServiceListener(serviceListener);
+    }
+
+    public void addTimeChangeServiceListener(IGenericServiceListener<ITimeChangeListener> serviceListener) {
+        _timeChangeListenerTracker.addServiceListener(serviceListener);
+    }
+    
+    public List<ITimeChangeListener> getTimeChangeListeners() {
+        return _timeChangeListeners;
+    }
+    
+    private IGenericServiceListener<ITimeChangeListener> createITimeChangeServiceTracker() {
+        return new IGenericServiceListener<ITimeChangeListener>() {
+            @Override
+            public void bindService(ITimeChangeListener service) {
+                _timeChangeListeners.add(service);
+                
+            }
+            @Override
+            public void unbindService(ITimeChangeListener service) {
+                _timeChangeListeners.remove(service);
+            }
+        };
+    }
+    
+    
 }

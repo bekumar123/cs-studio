@@ -44,7 +44,11 @@ public class RunModeBoxInput implements Serializable {
 	private transient Map<String, String> _aliases;
 
 	private RunModeType _type;
-
+	
+	//CME: This variable is now included in equals/hashCode.
+	//To run two instances of a display (one in history mode and one in realtime mode, see RunModeService).
+	private DataAccessType _dataAccessType; 
+	
 	private RunModeBoxInput _predecessorBox;
 
 	private long _timestamp;
@@ -60,13 +64,14 @@ public class RunModeBoxInput implements Serializable {
 	 *            the run mode type
 	 */
 	public RunModeBoxInput(IPath filePath, Map<String, String> aliases,
-			RunModeType type) {
+			RunModeType type, DataAccessType dataAccessType) {
 		assert filePath != null;
 		assert aliases != null;
 		assert type != null;
 		_filePath = filePath;
 		_aliases = aliases;
 		_type = type;
+		_dataAccessType = dataAccessType;
 		_timestamp = System.currentTimeMillis();
 	}
 
@@ -100,6 +105,10 @@ public class RunModeBoxInput implements Serializable {
 	public RunModeType getType() {
 		return _type;
 	}
+	
+	public DataAccessType getDataAccessType() {
+		return _dataAccessType;
+	}
 
 	public long getTimestamp() {
 		return _timestamp;
@@ -110,8 +119,10 @@ public class RunModeBoxInput implements Serializable {
 	 */
 	@Override
 	public int hashCode() {
-		String fullpath = calculateFullPath();
-		return fullpath.hashCode();
+		int result = calculateFullPath().hashCode();
+		result = 37 * result + _dataAccessType.hashCode();
+		
+		return result ;
 	}
 
 	/**
@@ -125,6 +136,7 @@ public class RunModeBoxInput implements Serializable {
 			RunModeBoxInput input = (RunModeBoxInput) obj;
 
 			result = calculateFullPath().equals(input.calculateFullPath());
+			result = result && (_dataAccessType.equals(input.getDataAccessType()));
 		}
 
 		return result;

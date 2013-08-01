@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Domain
+Bundle-SymbolicName: de.c1wps.geneal.desy.domain.plant
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: de.c1wps.geneal.desy.domain.plant.domainvalues,
+ de.c1wps.geneal.desy.domain.plant.filter,
+ de.c1wps.geneal.desy.domain.plant.listener,
+ de.c1wps.geneal.desy.domain.plant.plantinformationservice,
+ de.c1wps.geneal.desy.domain.plant.plantmaterials,
+ de.c1wps.geneal.desy.domain.plant.plantmaterials.nodes,
+ de.c1wps.geneal.desy.domain.plant.plantmaterials.values,
+ de.c1wps.geneal.desy.domain.plant.service
+Require-Bundle: org.eclipse.core.resources;bundle-version="3.6.0",
+ org.eclipse.core.runtime;bundle-version="3.6.0"
+Import-Package: org.eclipse.swt.graphics

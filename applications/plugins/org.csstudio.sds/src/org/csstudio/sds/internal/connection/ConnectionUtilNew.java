@@ -24,6 +24,11 @@ package org.csstudio.sds.internal.connection;
 import java.util.Map;
 
 import org.csstudio.auth.security.ActivationService;
+import org.csstudio.dal.simple.ConnectionParameters;
+import org.csstudio.dal.simple.ISimpleDalBroker;
+import org.csstudio.dal.simple.RemoteInfo;
+import org.csstudio.dal.simple.SimpleDALBroker;
+import org.csstudio.domain.common.strings.Strings;
 import org.csstudio.platform.model.pvs.IProcessVariableAddress;
 import org.csstudio.platform.model.pvs.ValueType;
 import org.csstudio.sds.SdsPlugin;
@@ -37,10 +42,6 @@ import org.csstudio.sds.model.DynamicsDescriptor;
 import org.csstudio.sds.model.WidgetProperty;
 import org.csstudio.sds.util.ChannelReferenceValidationException;
 import org.csstudio.sds.util.ChannelReferenceValidationUtil;
-import org.csstudio.dal.simple.ConnectionParameters;
-import org.csstudio.dal.simple.RemoteInfo;
-import org.csstudio.dal.simple.SimpleDALBroker;
-import org.csstudio.domain.common.strings.Strings;
 
 /**
  * Utility class that provides facilities to connect SDS widgets to a control
@@ -74,7 +75,7 @@ public final class ConnectionUtilNew {
 	public static void connectDynamizedProperties(
 			final WidgetProperty property, final Map<String, String> aliases,
 			final boolean writeAccessAllowed, final IListenerRegistry registry,
-			final SimpleDALBroker broker) {
+			final ISimpleDalBroker broker) {
 		// read the dynamics descriptor
 		final DynamicsDescriptor dynamicsDescriptor = property
 				.getDynamicsDescriptor();

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.csstudio.sds.internal.runmode.DataAccessType;
 import org.csstudio.sds.internal.runmode.RunModeBoxInput;
 import org.csstudio.sds.ui.SdsUiPlugin;
 import org.csstudio.sds.ui.internal.actions.OpenScreenshotAction;
@@ -140,17 +141,24 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
         scrollComposite.setLayoutData(GridDataFactory.fillDefaults().grab(true, true).indent(0, 0)
                 .create());
         scrollComposite.setLayout(getFillLayout());
-        scrollComposite.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
+        scrollComposite.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
         
         // create a parent composite that fills the whole shell
         GridLayout parentLayout = new GridLayout(1, false);
+        
+        //TODO CME: maybe there is a better way to indicate history mode. Seems to be a hack for me. This does not affect "view run mode"!
+        int historyMargin = 0;
+        if (getInput().getDataAccessType() == DataAccessType.HISTORY) { 
+			historyMargin = 6;
+		}
+        
         parentLayout.horizontalSpacing = 0;
-        parentLayout.marginWidth = 0;
-        parentLayout.marginHeight = 0;
+        parentLayout.marginWidth = historyMargin;
+        parentLayout.marginHeight = historyMargin;
         parentLayout.verticalSpacing = 0;
         final Composite parent = new Composite(scrollComposite, SWT.NONE);
-        parent.setLayout(parentLayout);
-        parent.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW));
+		parent.setLayout(parentLayout);
+        parent.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE)); // CME: color of margin in history mode
         
         // create a composite for the graphical viewer
         Composite c = new Composite(parent, SWT.NONE);
@@ -180,7 +188,7 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
             Point size = navigation.computeSize(width, SWT.DEFAULT);
             fullHeight = fullHeight + size.y;
         }
-        _shell.setSize(fullWidth + SCROLLBAR_MARGIN, fullHeight + SHELL_BORDER + SCROLLBAR_MARGIN);
+        _shell.setSize(fullWidth + SCROLLBAR_MARGIN + (historyMargin * 3), fullHeight + SHELL_BORDER + SCROLLBAR_MARGIN + (historyMargin * 3));
         
         // configure a graphical viewer
         final GraphicalViewer graphicalViewer = createGraphicalViewer(c);
@@ -428,6 +436,7 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
                     + new SimpleDateFormat("hh:mm").format(new Date(input.getTimestamp())) + "]");
         }
         
+        //TODO CME: real time or history mode?
         @Override
         public void mouseUp(MouseEvent e) {
             RunModeService.getInstance().openDisplayShellInRunMode(_input.getFilePath(),

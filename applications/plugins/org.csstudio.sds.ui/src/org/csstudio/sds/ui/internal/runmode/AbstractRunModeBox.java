@@ -30,10 +30,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.csstudio.dal.CssApplicationContext;
-import org.csstudio.dal.simple.SimpleDALBroker;
+import org.csstudio.dal.simple.ISimpleDalBroker;
 import org.csstudio.sds.internal.persistence.DisplayModelLoadAdapter;
 import org.csstudio.sds.internal.persistence.PersistenceUtil;
+import org.csstudio.sds.internal.runmode.DataAccessType;
 import org.csstudio.sds.internal.runmode.RunModeBoxInput;
 import org.csstudio.sds.model.AbstractWidgetModel;
 import org.csstudio.sds.model.DisplayModel;
@@ -103,8 +103,8 @@ public abstract class AbstractRunModeBox {
 	 * Contains all property change listeners that will be added to the display
 	 * model or widgets.
 	 */
-	private HashMap<WidgetProperty, IPropertyChangeListener> _propertyListeners;
-
+	private HashMap<WidgetProperty, IPropertyChangeListener> _propertyListeners; //TODO CME: what does this do ? nothing!?
+	
 	private IDisplayLoadedCallback callback;
 
 	/**
@@ -151,12 +151,11 @@ public abstract class AbstractRunModeBox {
 
 					public void onDisplayPropertiesLoaded() {
 						// expose runtime information to the model
-						RuntimeContext runtimeContext = new RuntimeContext(
-								_input.getFilePath(), _input.getAliases());
-						runtimeContext.setRunModeBoxInput(_input);
-						
+						RuntimeContext runtimeContext = new RuntimeContext(_input);
+
 						// .. we create a separate broker instance for each running display 
-						runtimeContext.setBroker(SimpleDALBroker.newInstance(new CssApplicationContext("CSS")));
+						//runtimeContext.setBroker(SimpleDALBroker.newInstance(new CssApplicationContext("CSS")));
+						
 						LOG.info("SimpleDALBroker instance created");
 						
 						_displayModel.setRuntimeContext(runtimeContext);
@@ -170,23 +169,24 @@ public abstract class AbstractRunModeBox {
 						PlatformUI.getWorkbench().getDisplay().syncExec(
 								new Runnable() {
 									public void run() {
-										Map<String, String> aliases = _input
-												.getAliases();
+										Map<String, String> aliases = _input.getAliases();
 
 										// create and open the viewer
 										StringBuffer title = new StringBuffer();
 
+										if (_input.getDataAccessType() == DataAccessType.HISTORY) {
+											title.append(">>>History Mode<<< ");
+										}
+										
 										// title
 										title.append(_input.getFilePath()
 												.makeRelative()
 												.toPortableString());
 
-										if ((aliases != null)
-												&& !aliases.isEmpty()) {
+										if ((aliases != null) && !aliases.isEmpty()) {
 											title.append("?");
 
-											Iterator<String> it = aliases
-													.keySet().iterator();
+											Iterator<String> it = aliases.keySet().iterator();
 
 											while (it.hasNext()) {
 												String key = it.next();
@@ -194,24 +194,20 @@ public abstract class AbstractRunModeBox {
 												title.append(key);
 												title.append("=");
 												title.append(val);
-												title.append(it.hasNext() ? "&"
-														: "");
+												title.append(it.hasNext() ? "&"	: "");
 											}
 										}
 
-										_graphicalViewer = doOpen(x, y, openRelative, width,
-												height, title.toString());
-
+										_graphicalViewer = doOpen(x, y, openRelative, width, height, title.toString());
+										
 										// configure the viewer
-										_graphicalViewer
-												.setContents(_displayModel);
+										_graphicalViewer.setContents(_displayModel);
 
 										String bgColor = _displayModel.getColor(AbstractWidgetModel.PROP_COLOR_BACKGROUND);
 
 										_graphicalViewer
 												.getControl()
 												.setBackground(SdsUiPlugin.getDefault().getColorAndFontService().getColor(bgColor));
-
 
 										// execute the runnable
 										if (runAfterOpen != null) {
@@ -310,9 +306,9 @@ public abstract class AbstractRunModeBox {
 			RuntimeContext context = _displayModel.getRuntimeContext();
 			
 			if(context!=null) {
-				SimpleDALBroker broker = context.getBroker();
+				ISimpleDalBroker broker = context.getBroker();
 				broker.releaseAll();
-				context.setBroker(null);
+				context.setBroker(null); // TODO CME: css threading will interfere with this. Maybe no harm
 				LOG.info("SimpleDALBroker instance released.");
 				callback.displayClosed();
 			}

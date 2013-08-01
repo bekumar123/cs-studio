@@ -127,4 +127,11 @@ public class ToolbarArmedXYGraph extends Figure {
     {
         toolbar.addButton(button);
     }
+    
+    /**
+     * Adds a separator to the end of the tool bar
+     */
+    public void addToolbarSeparator() {
+    	toolbar.addSeparator();
+    }
 }

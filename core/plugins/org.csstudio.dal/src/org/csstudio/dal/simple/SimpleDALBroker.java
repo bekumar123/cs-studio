@@ -41,7 +41,7 @@ import com.cosylab.util.CommonException;
  * @author ikriznar
  *
  */
-public class SimpleDALBroker {
+public class SimpleDALBroker implements ISimpleDalBroker {
 
 	private class PropertiesCleanupTask extends TimerTask {
 

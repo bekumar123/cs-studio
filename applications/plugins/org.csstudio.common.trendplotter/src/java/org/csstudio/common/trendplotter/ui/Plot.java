@@ -27,6 +27,7 @@ import org.csstudio.swt.xygraph.figures.Annotation.CursorLineStyle;
 import org.csstudio.swt.xygraph.figures.Axis;
 import org.csstudio.swt.xygraph.figures.IAxisListener;
 import org.csstudio.swt.xygraph.figures.ITraceListener;
+import org.csstudio.swt.xygraph.figures.PlotArea;
 import org.csstudio.swt.xygraph.figures.ToolbarArmedXYGraph;
 import org.csstudio.swt.xygraph.figures.Trace;
 import org.csstudio.swt.xygraph.figures.Trace.PointStyle;
@@ -51,6 +52,7 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Display;
 import org.epics.util.time.Timestamp;
+import org.joda.time.DateTime;
 
 /**
  * Data Browser 'Plot' that displays the samples in a {@link Model}.
@@ -98,6 +100,12 @@ public class Plot
     final private AutoScaleButton autoScaleButton;
     
     final private InitScaleButton initScaleButton;
+
+    private SyncTimeperiodButton syncTimeperiodBtn;
+
+    private IndexTimelineButton timeIndexLineBtn;
+    
+    private TimeIndexLine timeIndexLine;
 
     /**
      * Create a plot that is attached to an SWT canvas
@@ -163,6 +171,16 @@ public class Plot
         initScaleButton = new InitScaleButton();
         plot.addToolbarButton(initScaleButton);
 
+        plot.addToolbarSeparator();
+        
+        syncTimeperiodBtn = new SyncTimeperiodButton();
+        plot.addToolbarButton(syncTimeperiodBtn);
+        
+        timeIndexLineBtn = new IndexTimelineButton();
+        plot.addToolbarButton(timeIndexLineBtn);
+        
+        timeIndexLine = new TimeIndexLine(plot.getXYGraph().primaryXAxis, plot.getXYGraph().primaryYAxis);
+        
         // Configure axes
         final Axis time_axis = xygraph.primaryXAxis;
         time_axis.setDateEnabled(true);
@@ -225,6 +243,15 @@ public class Plot
         });
 
         xygraph.primaryYAxis.addListener(createValueAxisListener(0));
+        
+        timeIndexLine.setPositonListener(new IPositionListener() {
+           
+            @Override
+            public void positionChanged(double xPosition, boolean mouseUp) {
+               DateTime timePosition = new DateTime((long) xPosition); //TODO CME: review cast
+               listener.timeIndexPositionChanged(timePosition, true); //CME: hard coded 'true': Every mouse move will update history data
+            }
+        });
     }
 
     /**
@@ -306,6 +333,8 @@ public class Plot
         time_config_button.addPlotListener(listener);
         autoScaleButton.addPlotListener(listener);
         initScaleButton.addPlotListener(listener);
+        syncTimeperiodBtn.addPlotListener(listener);
+        timeIndexLineBtn.addPlotListener(listener);
 
         // Ajout L.PHILIPPE
         PlotConfigListener configListener = new PlotConfigListener(listener);
@@ -317,6 +346,22 @@ public class Plot
     public OperationsManager getOperationsManager()
     {
         return xygraph.getOperationsManager();
+    }
+    
+    public void setTimeIndexLineVisible(final boolean visible) {
+        PlotArea plotArea = getXYGraph().getPlotArea();
+        if (visible) {
+            plotArea.addFigureToUpperLayer(timeIndexLine);
+            timeIndexLine.updateToDefaultPosition();
+            plotArea.revalidate();
+            plotArea.repaint();
+        } else {
+            plotArea.removeFigureFromUpperLayer(timeIndexLine);
+        }
+    }
+    
+    public void setTimeIndexLinePosition(DateTime timeIndex) {
+        timeIndexLine.setPosition(timeIndex.getMillis());
     }
 
     /** @return <code>true</code> if toolbar is visible */

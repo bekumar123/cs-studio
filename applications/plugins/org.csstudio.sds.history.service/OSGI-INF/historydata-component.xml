@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.csstudio.sds.history">
+   <implementation class="org.csstudio.sds.history.impl.HistoryDataService"/>
+   <service>
+      <provide interface="org.csstudio.sds.history.IHistoryDataService"/>
+      <provide interface="org.csstudio.sds.history.domain.listener.ITimeChangeListener"/>
+   </service>
+   <reference bind="bindPvValueHistoryService" cardinality="1..1" interface="org.csstudio.sds.history.domain.service.IPvValueHistoryDataService" name="IPvValueHistoryDataService" policy="static" unbind="unbindPvValueHistoryService"/>
+</scr:component>

@@ -21,6 +21,7 @@
  */
 package org.csstudio.sds.ui.internal.runmode;
 
+import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
@@ -30,6 +31,7 @@ import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.csstudio.sds.internal.runmode.DataAccessType;
 import org.csstudio.sds.internal.runmode.RunModeBoxInput;
 import org.csstudio.sds.internal.runmode.RunModeType;
 import org.eclipse.core.runtime.Path;
@@ -42,50 +44,50 @@ public class RunModeBoxInputTest {
 
 	private Path _path1;
 	private Path _path2;
-	
+
 	private Map<String, String> _aliases1;
 	private Map<String, String> _aliases2;
-	
+
 	@Before
 	public void setUp() throws Exception {
 		_aliases1 = new HashMap<String, String>();
 		_aliases1.put("channel", "local://myvalue1");
-		
+
 		_aliases2 = new HashMap<String, String>();
 		_aliases2.put("channel", "local://myvalue2");
-		
+
 		_path1 = new Path("/SDS/display1.css-sds");
 		_path2 = new Path("/SDS/display2.css-sds");
-		
-		_input = new RunModeBoxInput(_path1, _aliases1,
-				RunModeType.SHELL);
+
+		_input = new RunModeBoxInput(_path1, _aliases1, RunModeType.SHELL, DataAccessType.REALTIME);
 	}
 
 	@After
 	public void tearDown() throws Exception {
 
-		
 	}
 
+	// TODO CME: dieser test ist vieleicht kaputt. Statt assertNotSame ist wahrscheinlich "not equal" gemeint!
+	// Zusätzlich wird in der equals implementierung "aliases" und "RunModeType" nicht mit einbezogen! Wahrscheinlich bewusst!
 	@Test
 	public void testEquality() {
-		// same path, same alias
-		assertEquals(new RunModeBoxInput(_path1, _aliases1,
-				RunModeType.SHELL), new RunModeBoxInput(_path1, _aliases1,
-				RunModeType.SHELL));
+		// same path, same alias, same access type
+		assertEquals(new RunModeBoxInput(_path1, _aliases1, RunModeType.SHELL, DataAccessType.REALTIME),
+				new RunModeBoxInput(_path1, _aliases1, RunModeType.SHELL, DataAccessType.REALTIME));
 
-		// same path, different alias
-		assertNotSame(new RunModeBoxInput(_path1, _aliases1,
-				RunModeType.SHELL), new RunModeBoxInput(_path1, _aliases2,
-				RunModeType.SHELL));
-		
-		// different path, same alias
-		assertNotSame(new RunModeBoxInput(_path1, _aliases1,
-				RunModeType.SHELL), new RunModeBoxInput(_path2, _aliases1,
-				RunModeType.SHELL));
+		// same path, different alias, same access type
+		assertNotSame(new RunModeBoxInput(_path1, _aliases1, RunModeType.SHELL, DataAccessType.REALTIME),
+				new RunModeBoxInput(_path1, _aliases2, RunModeType.SHELL, DataAccessType.REALTIME));
+
+		// different path, same alias, same access type
+		assertNotSame(new RunModeBoxInput(_path1, _aliases1, RunModeType.SHELL, DataAccessType.REALTIME),
+				new RunModeBoxInput(_path2, _aliases1, RunModeType.SHELL, DataAccessType.REALTIME));
+
+		// same path, same alias, different access type
+		assertFalse(new RunModeBoxInput(_path1, _aliases1, RunModeType.SHELL, DataAccessType.REALTIME)
+		.equals((new RunModeBoxInput(_path1, _aliases1,	RunModeType.SHELL, DataAccessType.HISTORY))));
 	}
-	
-	
+
 	@Test
 	public void testSerialization() {
 		ByteArrayOutputStream bot = new ByteArrayOutputStream();

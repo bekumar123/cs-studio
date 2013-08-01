@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Domain
+Bundle-SymbolicName: org.csstudio.sds.history.domain
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: org.csstudio.sds.history.domain,
+ org.csstudio.sds.history.domain.events,
+ org.csstudio.sds.history.domain.listener,
+ org.csstudio.sds.history.domain.service
+Require-Bundle: de.c1wps.geneal.desy.domain.plant;bundle-version="1.0.0",
+ org.joda.time;bundle-version="1.6.2",
+ javax.annotation;bundle-version="1.3.0"

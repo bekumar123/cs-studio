@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: History
+Bundle-SymbolicName: org.csstudio.sds.history.service
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: de.c1wps.geneal.desy.domain.plant;bundle-version="1.0.0",
+ org.slf4j;bundle-version="1.6.1",
+ org.joda.time;bundle-version="1.6.2",
+ org.csstudio.sds.history.domain;bundle-version="1.0.0",
+ org.csstudio.sds.history.pvvaluehistorydata;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: org.csstudio.sds.history
+Service-Component: OSGI-INF/historydata-component.xml

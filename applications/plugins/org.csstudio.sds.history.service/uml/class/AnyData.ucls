@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class-diagram version="1.1.1" icons="true" automaticImage="PNG" always-add-relationships="true" generalizations="true" 
+  realizations="true" associations="true" dependencies="true" nesting-relationships="true">  
+  <interface id="1" language="java" name="org.csstudio.dal.simple.AnyData" project="org.csstudio.dal" 
+    file="/org.csstudio.dal/src/org/csstudio/dal/simple/AnyData.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="492" y="83"/>    
+    <display autosize="true" stereotype="false" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </interface>  
+  <interface id="2" language="java" name="org.csstudio.dal.DynamicValueProperty" project="org.csstudio.dal" 
+    file="/org.csstudio.dal/src/org/csstudio/dal/DynamicValueProperty.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="940" y="245"/>    
+    <display autosize="true" stereotype="false" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </interface>  
+  <class id="3" language="java" name="org.csstudio.dal.simple.impl.AbstractAnyDataImpl" project="org.csstudio.dal" 
+    file="/org.csstudio.dal/src/org/csstudio/dal/simple/impl/AbstractAnyDataImpl.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="494" y="225"/>    
+    <display autosize="true" stereotype="false" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <interface id="4" language="java" name="org.csstudio.dal.simple.MetaData" project="org.csstudio.dal" 
+    file="/org.csstudio.dal/src/org/csstudio/dal/simple/MetaData.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="270" y="110"/>    
+    <display autosize="true" stereotype="false" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </interface>  
+  <interface id="5" language="java" name="org.csstudio.dal.Response" project="org.csstudio.dal" 
+    file="/org.csstudio.dal/src/org/csstudio/dal/Response.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="730" y="377"/>    
+    <display autosize="true" stereotype="false" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </interface>  
+  <class id="6" language="java" name="org.csstudio.dal.simple.impl.DoubleAnyDataImpl" project="org.csstudio.dal" 
+    file="/org.csstudio.dal/src/org/csstudio/dal/simple/impl/DoubleAnyDataImpl.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="497" y="363"/>    
+    <display autosize="true" stereotype="false" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="7" language="java" name="org.csstudio.dal.impl.DoublePropertyImpl" project="org.csstudio.dal" 
+    file="/org.csstudio.dal/src/org/csstudio/dal/impl/DoublePropertyImpl.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="1028" y="584"/>    
+    <display autosize="true" stereotype="false" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <interface id="8" language="java" name="org.csstudio.dal.simple.AnyDataChannel" project="org.csstudio.dal" 
+    file="/org.csstudio.dal/src/org/csstudio/dal/simple/AnyDataChannel.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="960" y="-4"/>    
+    <display autosize="true" stereotype="false" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </interface>  
+  <interface id="9" language="java" name="org.csstudio.dal.SimpleProperty" project="org.csstudio.dal" 
+    file="/org.csstudio.dal/src/org/csstudio/dal/SimpleProperty.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="997" y="78"/>    
+    <display autosize="true" stereotype="false" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </interface>  
+  <class id="10" language="java" name="org.csstudio.dal.impl.DynamicValuePropertyImpl" project="org.csstudio.dal" 
+    file="/org.csstudio.dal/src/org/csstudio/dal/impl/DynamicValuePropertyImpl.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="1014" y="423"/>    
+    <display autosize="true" stereotype="false" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="11" language="java" name="org.csstudio.dal.impl.NumericPropertyImpl" project="org.csstudio.dal" 
+    file="/org.csstudio.dal/src/org/csstudio/dal/impl/NumericPropertyImpl.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="1021" y="499"/>    
+    <display autosize="true" stereotype="false" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="12" language="java" name="org.csstudio.dal.simple.impl.NumericMetaDataImpl" project="org.csstudio.dal" 
+    file="/org.csstudio.dal/src/org/csstudio/dal/simple/impl/NumericMetaDataImpl.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="95" y="302"/>    
+    <display autosize="true" stereotype="false" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="13" language="java" name="org.csstudio.dal.simple.impl.MetaDataImpl" project="org.csstudio.dal" 
+    file="/org.csstudio.dal/src/org/csstudio/dal/simple/impl/MetaDataImpl.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="267" y="426"/>    
+    <display autosize="true" stereotype="false" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="14" language="java" name="org.csstudio.dal.impl.SimplePropertyImpl" project="org.csstudio.dal" 
+    file="/org.csstudio.dal/src/org/csstudio/dal/impl/SimplePropertyImpl.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="1393" y="228"/>    
+    <display autosize="true" stereotype="false" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <class id="15" language="java" name="org.csstudio.dal.impl.DataAccessImpl" project="org.csstudio.dal" 
+    file="/org.csstudio.dal/src/org/csstudio/dal/impl/DataAccessImpl.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="1237" y="3"/>    
+    <display autosize="true" stereotype="false" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="false" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
+  <interface id="16" language="java" name="org.csstudio.dal.NumericProperty" project="org.csstudio.dal" 
+    file="/org.csstudio.dal/src/org/csstudio/dal/NumericProperty.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="1240" y="460"/>    
+    <display autosize="true" stereotype="false" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </interface>  
+  <generalization id="17">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="3"/>  
+  </generalization>  
+  <association id="18">    
+    <bendpoint x="819" y="423"/>    
+    <end type="SOURCE" refId="10" navigable="false">      
+      <attribute id="19" name="lastValueResponse"/>      
+      <multiplicity id="20" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="5" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <dependency id="21">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="2"/>  
+  </dependency>  
+  <realization id="22">    
+    <end type="SOURCE" refId="14"/>    
+    <end type="TARGET" refId="9"/>  
+  </realization>  
+  <realization id="23">    
+    <end type="SOURCE" refId="11"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <generalization id="24">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="9"/>  
+  </generalization>  
+  <association id="25">    
+    <end type="SOURCE" refId="3" navigable="false">      
+      <attribute id="26" name="metaData"/>      
+      <multiplicity id="27" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <dependency id="28">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="8"/>  
+  </dependency>  
+  <realization id="29">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="1"/>  
+  </realization>  
+  <generalization id="30">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="11"/>  
+  </generalization>  
+  <generalization id="31">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="14"/>  
+  </generalization>  
+  <generalization id="32">    
+    <end type="SOURCE" refId="16"/>    
+    <end type="TARGET" refId="2"/>  
+  </generalization>  
+  <realization id="33">    
+    <end type="SOURCE" refId="12"/>    
+    <end type="TARGET" refId="4"/>  
+  </realization>  
+  <generalization id="34">    
+    <end type="SOURCE" refId="9"/>    
+    <end type="TARGET" refId="8"/>  
+  </generalization>  
+  <dependency id="35">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="4"/>  
+  </dependency>  
+  <generalization id="36">    
+    <end type="SOURCE" refId="11"/>    
+    <end type="TARGET" refId="10"/>  
+  </generalization>  
+  <dependency id="37">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="1"/>  
+  </dependency>  
+  <realization id="38">    
+    <end type="SOURCE" refId="13"/>    
+    <end type="TARGET" refId="4"/>  
+  </realization>  
+  <dependency id="39">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="8"/>  
+  </dependency>  
+  <dependency id="40">    
+    <bendpoint x="885" y="105"/>    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="2"/>  
+  </dependency>  
+  <association id="41">    
+    <end type="SOURCE" refId="3" navigable="false">      
+      <attribute id="42" name="response"/>      
+      <multiplicity id="43" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="5" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <realization id="44">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="2"/>  
+  </realization>  
+  <dependency id="45">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="1"/>  
+  </dependency>  
+  <dependency id="46">    
+    <end type="SOURCE" refId="15"/>    
+    <end type="TARGET" refId="9"/>  
+  </dependency>  
+  <dependency id="47">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="5"/>  
+  </dependency>  
+  <dependency id="48">    
+    <bendpoint x="1084" y="248"/>    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="9"/>  
+  </dependency>  
+  <association id="49">    
+    <bendpoint x="899" y="376"/>    
+    <end type="SOURCE" refId="10" navigable="false">      
+      <attribute id="50" name="lastResponse"/>      
+      <multiplicity id="51" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="5" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="52">    
+    <end type="SOURCE" refId="14"/>    
+    <end type="TARGET" refId="15"/>  
+  </generalization>  
+  <dependency id="53">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="13"/>  
+  </dependency>  
+  <association id="54">    
+    <end type="SOURCE" refId="3" navigable="false">      
+      <attribute id="55" name="property"/>      
+      <multiplicity id="56" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="2" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <dependency id="57">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="2"/>  
+  </dependency>  
+  <classifier-display autosize="true" stereotype="false" package="true" initial-value="false" signature="true" 
+    accessors="true" visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true"/>    
+    <operations public="true" package="true" protected="true" private="true"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>

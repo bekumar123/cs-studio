@@ -158,6 +158,8 @@ public final class ViewRunModeBox extends AbstractRunModeBox implements
 	@Override
 	protected GraphicalViewer doOpen(int x, int y, boolean openRelative, int width, int height,
 			String title) {
+		//TODO CME: IMPORTANT! The view run mode has no visible indicator when in history mode.
+		
 		if (_viewPart != null) {
 			// the view was already instantiated by the workbench (this usually
 			// happens on a perspective restore)

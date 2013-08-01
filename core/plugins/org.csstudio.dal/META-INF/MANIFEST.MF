@@ -37,4 +37,5 @@ Export-Package: com.cosylab.application.state,
  org.csstudio.dal.simple,
  org.csstudio.dal.simple.impl,
  org.csstudio.dal.spi
+Service-Component: OSGI-INF/realtime_dalbroker_factory-component.xml
 

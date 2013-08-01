@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.csstudio.sds.history.HistoryPerspective"
+            icon="images/perspective_history.png"
+            id="de.cmein.da.ui.history.historyperspective"
+            name="History Mode">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="false"
+            class="org.csstudio.sds.history.playcontrol.HistoryControlViewController"
+            icon="images/perspective_history.png"
+            id="de.cmein.da.ui.history.historyplaycontrolview"
+            name="History Control"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="de.cmein.da.ui.history.historyperspective">
+         <view
+               id="de.cmein.da.ui.history.historyplaycontrolview"
+               minimized="false"
+               ratio="0.95"
+               relationship="left"
+               relative="org.eclipse.ui.editorss">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="false"
+            id="org.csstudio.sds.ui.HistoryRunModeAction"
+            nameFilter="*.css-sds"
+            objectClass="org.eclipse.core.resources.IResource">
+         <action
+               class="org.csstudio.sds.history.internal.OpenAsHistoryShellAction"
+               icon="images/runHistory.gif"
+               id="de.cmein.da.ui.history.OpenAsHistoryShellAction"
+               label="Run As History Shell">
+         </action>
+      </objectContribution>
+   </extension>
+
+</plugin>

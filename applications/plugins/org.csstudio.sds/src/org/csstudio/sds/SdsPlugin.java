@@ -21,14 +21,11 @@
  */
 package org.csstudio.sds;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-
+import org.csstudio.dal.CssApplicationContext;
+import org.csstudio.dal.simple.IRealtimeDataServiceFactory;
+import org.csstudio.dal.simple.ISimpleDalBroker;
 import org.csstudio.sds.cursorservice.ICursorService;
+import org.csstudio.sds.history.anticorruption.service.IHistoryDataServiceFactory;
 import org.csstudio.sds.internal.SdsResourceChangeListener;
 import org.csstudio.sds.internal.eventhandling.BehaviorService;
 import org.csstudio.sds.internal.eventhandling.IBehaviorService;
@@ -37,11 +34,13 @@ import org.csstudio.sds.internal.eventhandling.WidgetPropertyPostProcessingServi
 import org.csstudio.sds.internal.rules.RuleService;
 import org.csstudio.sds.util.StringUtil;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.c1wps.geneal.desy.service.common.tracker.GenericServiceTracker;
+import de.c1wps.geneal.desy.service.common.tracker.IGenericServiceListener;
 
 /**
  * The activator class controls the plug-in life cycle.
@@ -127,7 +126,15 @@ public final class SdsPlugin extends Plugin {
 	private SdsResourceChangeListener _resourceChangeListener;
 	
     private static final Logger LOG = LoggerFactory.getLogger(SdsPlugin.class);
-
+    
+    private GenericServiceTracker<IRealtimeDataServiceFactory> _realtimeDalFactoryTracker;
+    
+    private IRealtimeDataServiceFactory _realtimeDalServiceFactory;
+    
+    private GenericServiceTracker<IHistoryDataServiceFactory> _historyDalFactoryTracker;
+    
+    private IHistoryDataServiceFactory _historyDalServiceFactory;
+    
 //	TODO (jhatje): remove if patch in jca lib works
 //	/**
 //	 * List of Strings to match records that should be asked for Strings.
@@ -191,12 +198,60 @@ public final class SdsPlugin extends Plugin {
 		}
 		
 		_behaviourService = new BehaviorService();
+		
+		//TODO: (CME) added removed service registration
+		context.registerService(IBehaviorService.class.getName(),
+				_behaviourService, null);
+		
 		_widgetPropertyPostProcessingService = new WidgetPropertyPostProcessingService();
 //		TODO (jhatje): remove if patch in jca lib works
 //		readWorkaroundStrings();
+		
+		_realtimeDalFactoryTracker = new GenericServiceTracker<IRealtimeDataServiceFactory>(context, IRealtimeDataServiceFactory.class);
+		_realtimeDalFactoryTracker.addServiceListener(createRealtimeServiceListener());
+		_realtimeDalFactoryTracker.open();
+		
+		_historyDalFactoryTracker = new GenericServiceTracker<IHistoryDataServiceFactory>(context, IHistoryDataServiceFactory.class);
+		_historyDalFactoryTracker.addServiceListener(createhistoryServiceListener());
+		_historyDalFactoryTracker.open();
 	}
 
-
+	private IGenericServiceListener<IRealtimeDataServiceFactory> createRealtimeServiceListener() {
+		return new IGenericServiceListener<IRealtimeDataServiceFactory>() {
+			@Override
+			public void bindService(IRealtimeDataServiceFactory service) {
+				_realtimeDalServiceFactory = service;
+				
+			}
+			@Override
+			public void unbindService(IRealtimeDataServiceFactory service) {
+				_realtimeDalServiceFactory = null;
+			}
+		};
+	}
+	
+	private IGenericServiceListener<IHistoryDataServiceFactory> createhistoryServiceListener() {
+		return new IGenericServiceListener<IHistoryDataServiceFactory>() {
+			@Override
+			public void bindService(IHistoryDataServiceFactory service) {
+				_historyDalServiceFactory = service;
+				
+			}
+			@Override
+			public void unbindService(IHistoryDataServiceFactory service) {
+				_historyDalServiceFactory = null;
+			}
+		};
+	}
+	
+	public ISimpleDalBroker getRealtimeDalBroker(CssApplicationContext cssApplicationContext) {
+		return _realtimeDalServiceFactory.getNewDataService(cssApplicationContext);
+	}
+	
+	public ISimpleDalBroker getHistoryDalBroker() {
+		return _historyDalServiceFactory.getDataService();
+	}
+	
 	/**
 	 * {@inheritDoc}.
 	 */
@@ -206,6 +261,12 @@ public final class SdsPlugin extends Plugin {
 		// de-register the workspace listener
 		ResourceService.getInstance().removeResourceChangeListener(
 				_resourceChangeListener);
+		
+		_realtimeDalFactoryTracker.close();
+		_realtimeDalFactoryTracker = null;
+		
+		_historyDalFactoryTracker.close();
+		_historyDalFactoryTracker = null;
 	}
 	
 	public IBehaviorService getBehaviourService() {
@@ -215,6 +276,8 @@ public final class SdsPlugin extends Plugin {
 	public IWidgetPropertyPostProcessingService getWidgetPropertyPostProcessingService() {
 		return _widgetPropertyPostProcessingService;
 	}
+	
+	
 
 //	TODO (jhatje): remove if patch in jca lib works
 //	public ArrayList<String> getRecordTails() {

@@ -143,7 +143,8 @@ public class EngineHttpServer {
                                     new ShowGroupResponse(model), null, httpContext);
         httpService.registerServlet(GetChannelResponse.baseUrl(),
                                     new GetChannelResponse(model), null, httpContext);
-
+        httpService.registerServlet(ManageResponse.baseUrl(),
+                                    new ManageResponse(model), null, httpContext);
         httpService.registerServlet(StartGroupResponse.baseUrl(),
                                     new StartGroupResponse(model), null, httpContext);
         httpService.registerServlet(StopGroupResponse.baseUrl(), new StopGroupResponse(model, adminParamKey, adminParamValue),

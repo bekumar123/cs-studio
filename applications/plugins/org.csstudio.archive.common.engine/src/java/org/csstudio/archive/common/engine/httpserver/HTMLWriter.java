@@ -13,6 +13,8 @@ import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletResponse;
 
 import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
+import org.epics.util.time.Timestamp;
+import org.epics.util.time.TimestampFormat;
 
 /** Helper for creating uniform HTML pages for a servlet response.
  *  @author Kay Kasemir
@@ -53,6 +55,7 @@ public class HTMLWriter {
         createNavigationBar(MainResponse.linkTo(),
                             GroupsResponse.linkTo(),
                             DisconnectedResponse.linkTo(Messages.HTTP_DISCONNECTED),
+                            ManageResponse.linkTo(),
                             HelpResponse.linkTo());
         text("</div>");
 
@@ -81,6 +84,7 @@ public class HTMLWriter {
         createNavigationBar(MainResponse.linkTo(),
                             GroupsResponse.linkTo(),
                             DisconnectedResponse.linkTo(Messages.HTTP_DISCONNECTED),
+                            ManageResponse.linkTo(),
                             HelpResponse.linkTo());
         text("</div>");
 
@@ -98,7 +102,8 @@ public class HTMLWriter {
         text("</div>");
         text("<hr width='100%' align='left'>");
         text("<div id=\"timeAndHint\">");
-        text(TimeInstantBuilder.fromNow().formatted());
+        text( new TimestampFormat("dd.MM.yyyy' 'HH:mm:ss").format(Timestamp.of( TimeInstantBuilder.fromNow().getSeconds(), 0)));
+     //   text(TimeInstantBuilder.fromNow().formatted());
         text("(Use web browser's Reload to refresh this page)");
         text("</div>");
 
@@ -142,7 +147,9 @@ public class HTMLWriter {
         text("    <th align='center' colspan='" + initialColSpan + "'>" +
                         headers[0] + "</th>");
         for (int i=1; i<headers.length; ++i) {
-            text("    <th align='center'>" + headers[i] + "</th>");
+            if( headers[i] !=null) {
+                text("    <th align='center'>" + headers[i] + "</th>");
+            }
         }
         text("  </tr>");
         text("</thead>");
@@ -159,6 +166,7 @@ public class HTMLWriter {
         text("  <tr>");
         boolean first = true;
         for (final String column : columns) {
+             if( column !=null){
             if (first) {
                 first = false;
                 if (oddTableRow) {
@@ -173,6 +181,7 @@ public class HTMLWriter {
                     text("    <td align='center' valign='top' bgcolor='#DFDFFF'>" + column + "</td>");
                 }
             }
+         }
         }
         text("  </tr>");
         oddTableRow = !oddTableRow;

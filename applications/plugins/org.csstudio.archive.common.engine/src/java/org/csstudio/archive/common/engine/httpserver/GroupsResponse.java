@@ -37,10 +37,8 @@ class GroupsResponse extends AbstractResponse {
     }
 
     @Override
-    protected void fillResponse(@Nonnull final HttpServletRequest req,
-                                @Nonnull final HttpServletResponse resp) throws Exception {
-        final HTMLWriter html =
-            new HTMLWriter(resp, "Archive Engine Groups");
+    protected void fillResponse(@Nonnull final HttpServletRequest req, @Nonnull final HttpServletResponse resp) throws Exception {
+        final HTMLWriter html = new HTMLWriter(resp, "Archive Engine Groups");
 
         createGroupsTable(html);
 
@@ -48,35 +46,74 @@ class GroupsResponse extends AbstractResponse {
     }
 
     private void openTableWithHeader(@Nonnull final HTMLWriter html) {
-        html.openTable(1, new String[] {Messages.HTTP_COLUMN_GROUP,
-                                        numOf(Messages.HTTP_COLUMN_CHANNELS),
-                                        numOf(Messages.HTTP_START_CHANNEL),
-                                        numOf(Messages.HTTP_CONNECTED),
+        html.openTable(1, new String[] { Messages.HTTP_COLUMN_GROUP, numOf(Messages.HTTP_COLUMN_CHANNELS),
+                                        numOf(Messages.HTTP_START_CHANNEL), numOf(Messages.HTTP_CONNECTED),
                                         numOf(Messages.HTTP_CONNECTED_CHANNEL_STATE),
                                         numOf(Messages.HTTP_DISCONNECTED_CHANNEL),
-                                        numOf(Messages.HTTP_NEVERCONNECTED_CHANNEL),
-                                        numOf(Messages.HTTP_CLOSED_CHANNEL),
-                                        numOf(Messages.HTTP_UNKNOWN_CHANNEL),
-                                        numOf(Messages.HTTP_COLUMN_RECEIVEDVALUES),
-                                        Messages.HTTP_COLUMN_QUEUEAVG,
-                                        Messages.HTTP_COLUMN_QUEUEMAX,
-                                        });
+                                        numOf(Messages.HTTP_NEVERCONNECTED_CHANNEL), numOf(Messages.HTTP_CLOSED_CHANNEL),
+                                        numOf(Messages.HTTP_UNKNOWN_CHANNEL), numOf(Messages.HTTP_COLUMN_RECEIVEDVALUES),
+                                        Messages.HTTP_COLUMN_QUEUEAVG, Messages.HTTP_COLUMN_QUEUEMAX, });
     }
 
     private void createGroupsTable(@Nonnull final HTMLWriter html) {
 
-        openTableWithHeader(html);
-
         int totalNumOfChannels = 0;
         int totalNumOfConnectedChannels = 0;
-         int totalNumOfConnectedStateChannels = 0;
-         int totalNumOfStartedChannels = 0;
-         int totalNumOfDisconnectedStateChannels = 0;
-         int totalNumOfNeverConnectedStateChannels = 0;
-         int totalNumOfColsedStateChannels = 0;
-         int totalNumOfUnknownStateChannels = 0;
+        int totalNumOfConnectedStateChannels = 0;
+        int totalNumOfStartedChannels = 0;
+        int totalNumOfDisconnectedStateChannels = 0;
+        int totalNumOfNeverConnectedStateChannels = 0;
+        int totalNumOfColsedStateChannels = 0;
+        int totalNumOfUnknownStateChannels = 0;
         long totalNumOfReceivedSamples = 0;
-
+        boolean hasNumOfConnectedStateChannels = false;
+        boolean hasNumOfDisconnectedStateChannels = false;
+        boolean hasNumOfNeverConnectedStateChannels = false;
+        boolean hasNumOfClosedStateChannels = false;
+        boolean hasNumOfUnknownStateChannels = false;
+        for (final ArchiveGroup group : getModel().getGroups()) {
+            final Collection<ArchiveChannelBuffer> channels = group.getChannels();
+            for (@SuppressWarnings("rawtypes")
+            final ArchiveChannelBuffer channel : channels) {
+                if(channel!=null) {
+                    if(channel.getConnectState()!=null) {
+                        switch (channel.getConnectState().getValue()) {
+                            case 2:
+                                hasNumOfConnectedStateChannels = true;
+                                break;
+                            case 1:
+                                hasNumOfDisconnectedStateChannels = true;
+                                break;
+                            case 0:
+                                hasNumOfNeverConnectedStateChannels = true;
+                                break;
+                            case 3:
+                                hasNumOfClosedStateChannels = true;
+                                break;
+                            default:
+                                hasNumOfUnknownStateChannels = true;
+                                break;
+                        }
+                    }else{
+                        hasNumOfUnknownStateChannels = true;
+                    }
+                }
+            }
+        }
+        html.openTable(1,
+                       new String[] {
+                                     Messages.HTTP_COLUMN_GROUP,
+                                     numOf(Messages.HTTP_COLUMN_CHANNELS),
+                                     numOf(Messages.HTTP_START_CHANNEL),
+                                     numOf(Messages.HTTP_CONNECTED),
+                                     hasNumOfConnectedStateChannels ? numOf(Messages.HTTP_CONNECTED_CHANNEL_STATE) : null,
+                                     hasNumOfDisconnectedStateChannels ? numOf(Messages.HTTP_DISCONNECTED_CHANNEL) : null,
+                                     hasNumOfNeverConnectedStateChannels ? numOf(Messages.HTTP_NEVERCONNECTED_CHANNEL)
+                                                                        : null,
+                                     hasNumOfClosedStateChannels ? numOf(Messages.HTTP_CLOSED_CHANNEL) : null,
+                                     hasNumOfUnknownStateChannels ? numOf(Messages.HTTP_UNKNOWN_CHANNEL) : null,
+                                     numOf(Messages.HTTP_COLUMN_RECEIVEDVALUES), Messages.HTTP_COLUMN_QUEUEAVG,
+                                     Messages.HTTP_COLUMN_QUEUEMAX, });
         for (final ArchiveGroup group : getModel().getGroups()) {
 
             int numOfConnectedChannels = 0;
@@ -92,16 +129,19 @@ class GroupsResponse extends AbstractResponse {
 
             @SuppressWarnings("rawtypes")
             final Collection<ArchiveChannelBuffer> channels = group.getChannels();
-            for (@SuppressWarnings("rawtypes") final ArchiveChannelBuffer channel : channels) {
+            for (@SuppressWarnings("rawtypes")
+            final ArchiveChannelBuffer channel : channels) {
                 if (channel.isConnected()) {
                     ++numOfConnectedChannels;
                 }
-                 numOfStartedChannels += channel.isStarted()?1:0;
-                 numOfConnectedStateChannels += ConnectionState.CONNECTED.equals(channel.getConnectState()) ? 1:0;
-                 numOfDisconnectedStateChannels += ConnectionState.DISCONNECTED.equals(channel.getConnectState())? 1:0;
-                 numOfNeverConnectedStateChannels += ConnectionState.NEVER_CONNECTED.equals(channel.getConnectState())? 1:0;
-                 numOfClosedStateChannels += ConnectionState.CLOSED.equals(channel.getConnectState())? 1:0;
-                 numOfUnknownStateChannels += channel.getConnectState()==null ? 1:0;
+                numOfStartedChannels += channel.isStarted() ? 1 : 0;
+                numOfConnectedStateChannels += ConnectionState.CONNECTED.equals(channel.getConnectState()) ? 1 : 0;
+                numOfDisconnectedStateChannels += ConnectionState.DISCONNECTED.equals(channel.getConnectState()) ? 1 : 0;
+                numOfNeverConnectedStateChannels +=
+                                                    ConnectionState.NEVER_CONNECTED.equals(channel.getConnectState()) ? 1
+                                                                                                                     : 0;
+                numOfClosedStateChannels += ConnectionState.CLOSED.equals(channel.getConnectState()) ? 1 : 0;
+                numOfUnknownStateChannels += channel.getConnectState() == null ? 1 : 0;
                 numOfReceivedSamples += channel.getReceivedValues();
                 final SampleBufferStatistics stats = channel.getSampleBuffer().getBufferStats();
                 avgQueueLength += stats.getAverageSize();
@@ -112,48 +152,79 @@ class GroupsResponse extends AbstractResponse {
                 avgQueueLength /= numOfChannels;
             }
             totalNumOfChannels += numOfChannels;
-            totalNumOfStartedChannels+=numOfStartedChannels;
+            totalNumOfStartedChannels += numOfStartedChannels;
             totalNumOfConnectedChannels += numOfConnectedChannels;
             totalNumOfReceivedSamples += numOfReceivedSamples;
             totalNumOfConnectedStateChannels += numOfConnectedStateChannels;
             totalNumOfDisconnectedStateChannels += numOfDisconnectedStateChannels;
             totalNumOfNeverConnectedStateChannels += numOfNeverConnectedStateChannels;
             totalNumOfColsedStateChannels += numOfClosedStateChannels;
-            totalNumOfUnknownStateChannels +=numOfUnknownStateChannels;
+            totalNumOfUnknownStateChannels += numOfUnknownStateChannels;
             html.tableLine(new String[] {
                                          ShowGroupResponse.linkTo(group.getName()),
                                          Integer.toString(numOfChannels),
                                          createChannelConnectedTableEntry(numOfStartedChannels, numOfChannels),
                                          createChannelConnectedTableEntry(numOfConnectedChannels, numOfChannels),
-                                         createChannelConnectedTableEntry(numOfConnectedStateChannels, numOfChannels),
-                                         createChannelConnectedTableEntry(numOfDisconnectedStateChannels, 0),
-                                         createChannelConnectedTableEntry(numOfNeverConnectedStateChannels, 0),
-                                         createChannelConnectedTableEntry(numOfClosedStateChannels, 0),
-                                         createChannelConnectedTableEntry(numOfUnknownStateChannels, 0),
-                                         Long.toString(numOfReceivedSamples),
-                                         String.format("%.1f", avgQueueLength),
-                                         Integer.toString(maxQueueLength),
-                                         });
+                                         hasNumOfConnectedStateChannels
+                                                                       ? createChannelConnectedTableEntry(numOfConnectedStateChannels,
+                                                                                                          numOfChannels)
+                                                                       : null,
+                                         hasNumOfDisconnectedStateChannels
+                                                                          ? createChannelConnectedTableEntry(numOfDisconnectedStateChannels,
+                                                                                                             0) : null,
+                                         hasNumOfNeverConnectedStateChannels
+                                                                            ? createChannelConnectedTableEntry(numOfNeverConnectedStateChannels,
+                                                                                                               0) : null,
+                                         hasNumOfClosedStateChannels
+                                                                    ? createChannelConnectedTableEntry(numOfClosedStateChannels,
+                                                                                                       0) : null,
+                                         hasNumOfUnknownStateChannels
+                                                                     ? createChannelConnectedTableEntry(numOfUnknownStateChannels,
+                                                                                                        0) : null,
+                                         Long.toString(numOfReceivedSamples), String.format("%.1f", avgQueueLength),
+                                         Integer.toString(maxQueueLength), });
         }
-
-        closeTableWithSummaryRow(html,
-                                 totalNumOfChannels,
-                                 totalNumOfStartedChannels,
-                                 totalNumOfConnectedChannels,
-                                 totalNumOfConnectedStateChannels,
-                                 totalNumOfDisconnectedStateChannels,
-                                 totalNumOfNeverConnectedStateChannels,
-                                 totalNumOfColsedStateChannels,
-                                 totalNumOfUnknownStateChannels,
-                                 totalNumOfReceivedSamples);
+        html.tableLine(new String[] {
+                                     Messages.HTTP_ROW_TOTAL,
+                                     Integer.toString(totalNumOfChannels),
+                                     createChannelConnectedTableEntry(totalNumOfStartedChannels, totalNumOfChannels),
+                                     createChannelConnectedTableEntry(totalNumOfConnectedChannels, totalNumOfChannels),
+                                     hasNumOfConnectedStateChannels
+                                                                   ? createChannelConnectedTableEntry(totalNumOfConnectedStateChannels,
+                                                                                                      totalNumOfChannels)
+                                                                   : null,
+                                     hasNumOfDisconnectedStateChannels
+                                                                      ? createChannelConnectedTableEntry(totalNumOfDisconnectedStateChannels,
+                                                                                                         0) : null,
+                                     hasNumOfNeverConnectedStateChannels
+                                                                        ? createChannelConnectedTableEntry(totalNumOfNeverConnectedStateChannels,
+                                                                                                           0) : null,
+                                     hasNumOfClosedStateChannels
+                                                                ? createChannelConnectedTableEntry(totalNumOfColsedStateChannels,
+                                                                                                   0) : null,
+                                     hasNumOfUnknownStateChannels
+                                                                 ? createChannelConnectedTableEntry(totalNumOfUnknownStateChannels,
+                                                                                                    0) : null,
+                                     Long.toString(totalNumOfReceivedSamples), "", "", });
+        html.closeTable();
+        /*    closeTableWithSummaryRow(html,
+                                     totalNumOfChannels,
+                                     totalNumOfStartedChannels,
+                                     totalNumOfConnectedChannels,
+                                     totalNumOfConnectedStateChannels,
+                                     totalNumOfDisconnectedStateChannels,
+                                     totalNumOfNeverConnectedStateChannels,
+                                     totalNumOfColsedStateChannels,
+                                     totalNumOfUnknownStateChannels,
+                                     totalNumOfReceivedSamples);*/
     }
 
     @Nonnull
-    private String createChannelConnectedTableEntry(final int numOfConnectedChannels,
-                                                    final int numOfChannels) {
-        final String connected = numOfChannels == numOfConnectedChannels
-            ? Integer.toString(numOfConnectedChannels)
-            : HTMLWriter.makeRedText(Integer.toString(numOfConnectedChannels));
+    private String createChannelConnectedTableEntry(final int numOfConnectedChannels, final int numOfChannels) {
+        final String connected =
+                                 numOfChannels == numOfConnectedChannels ? Integer.toString(numOfConnectedChannels)
+                                                                        : HTMLWriter.makeRedText(Integer
+                                                                                .toString(numOfConnectedChannels));
         return connected;
     }
 
@@ -167,20 +238,15 @@ class GroupsResponse extends AbstractResponse {
                                           final int totalNumOfColsedStateChannels,
                                           final int totalNumOfUnknownStateChannels,
                                           final long totalNumOfReceivedSamples) {
-        html.tableLine(new String[] {
-            Messages.HTTP_ROW_TOTAL,
-            Integer.toString(totalNumOfChannels),
-            createChannelConnectedTableEntry(totalNumOfStartedChannels, totalNumOfChannels),
-            createChannelConnectedTableEntry(totalNumOfConnectedChannels, totalNumOfChannels),
-            createChannelConnectedTableEntry(totalNumOfConnectedStateChannels, totalNumOfChannels),
-            createChannelConnectedTableEntry(totalNumOfDisconnectedStateChannels, 0),
-            createChannelConnectedTableEntry(totalNumOfNeverConnectedStateChannels, 0),
-            createChannelConnectedTableEntry(totalNumOfColsedStateChannels, 0),
-            createChannelConnectedTableEntry(totalNumOfUnknownStateChannels, 0),
-            Long.toString(totalNumOfReceivedSamples),
-            "",
-            "",
-        });
+        html.tableLine(new String[] { Messages.HTTP_ROW_TOTAL, Integer.toString(totalNumOfChannels),
+                                     createChannelConnectedTableEntry(totalNumOfStartedChannels, totalNumOfChannels),
+                                     createChannelConnectedTableEntry(totalNumOfConnectedChannels, totalNumOfChannels),
+                                     createChannelConnectedTableEntry(totalNumOfConnectedStateChannels, totalNumOfChannels),
+                                     createChannelConnectedTableEntry(totalNumOfDisconnectedStateChannels, 0),
+                                     createChannelConnectedTableEntry(totalNumOfNeverConnectedStateChannels, 0),
+                                     createChannelConnectedTableEntry(totalNumOfColsedStateChannels, 0),
+                                     createChannelConnectedTableEntry(totalNumOfUnknownStateChannels, 0),
+                                     Long.toString(totalNumOfReceivedSamples), "", "", });
         html.closeTable();
     }
 
@@ -193,6 +259,7 @@ class GroupsResponse extends AbstractResponse {
     public static String linkTo(@Nonnull final String linkText) {
         return new Url(baseUrl()).link(linkText);
     }
+
     @Nonnull
     public static String linkTo() {
         return new Url(baseUrl()).link(URL_BASE_DESC);

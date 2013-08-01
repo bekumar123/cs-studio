@@ -18,6 +18,9 @@ public final class Messages {
     public static final String HTTP_ACTION = "Action";
     public static final String HTTP_AVG_WRITE = "Average Write";
     public static final String HTTP_CHANNEL = "Channel";
+    public static final String HTTP_CHANNEL_DATATYPE = "Datatype";
+    public static final String HTTP_CHANNEL_DISPLAYLOW = "Displalow";
+    public static final String HTTP_CHANNEL_DISPLAYHIGH = "Displayhigh";
     public static final String HTTP_CHANNEL_INFO = "Channel Info";
     public static final String HTTP_COLUMN_CHANNELS = "Channels";
     public static final String HTTP_CHANNELS = "Channels";
@@ -28,17 +31,22 @@ public final class Messages {
     public static final String HTTP_COLUMN_QUEUEMAX = "Queue Max.";
     public static final String HTTP_COLUMN_RECEIVEDVALUES = "Received Values";
     public static final String HTTP_CURRENT_VALUE = "Current Value";
+    public static final String HTTP_DEADBAND_VALUE = "Deadband";
     public static final String HTTP_DESCRIPTION = "Description";
     public static final String HTTP_DISABLE_CHANNEL = "Disable permanently";
     public static final String HTTP_DISCONNECTED = "Disconnected";
     public static final String HTTP_DISCONNECTED_TITLE = "Disconnected Channels";
     public static final String HTTP_GROUPS = "Groups";
+    public static final String HTTP_GROUP = "Group";
     public static final String HTTP_HELP = "Help";
     public static final String HTTP_HOST = "HTTP Server";
     public static final String HTTP_INTERNAL_STATE = "Internal EngineState";
     public static final String HTTP_LAST_ARCHIVED_VALUE = "Last Archived Value";
     public static final String HTTP_LAST_WRITETIME = "Last Written";
     public static final String HTTP_MAIN = "Main";
+    public static final String HTTP_MANAGE = "Manage";
+    public static final String HTTP_MANAGE_ADD_CHANNEL = "Add Channel";
+    public static final String HTTP_MANAGE_STOP_ENGINE = "Stop Engine";
     public static final String HTTP_MAIN_TITLE = "Archive Engine";
     public static final String HTTP_NEVER = "never";
     public static final String HTTP_NO = "No";
@@ -60,7 +68,7 @@ public final class Messages {
     public static final String HTTP_CONN_STATE = "Conn. State";
     public static final String HTTP_UNKNOWN_CHANNEL="Unknown state";
     public static final String HTTP_START_GROUP = "Start Group";
-    public static final String HTTP_STARTTIME = "Start Time (UTC)";
+    public static final String HTTP_STARTTIME = "Start Time";
     public static final String HTTP_STATE = "EngineState";
     public static final String HTTP_STATUS = "Status";
     public static final String HTTP_STOP = "Stop";
@@ -79,6 +87,7 @@ public final class Messages {
     public static final String HTTP_WRITE_STATE = "Write EngineState";
     public static final String HTTP_YES = "Yes";
     public static final String HTTP_SUB_TABLETITLE = "Last 10 channel update:";
+    public static final String PASSWORD = "Password";
     /**
      * Constructor.
      */

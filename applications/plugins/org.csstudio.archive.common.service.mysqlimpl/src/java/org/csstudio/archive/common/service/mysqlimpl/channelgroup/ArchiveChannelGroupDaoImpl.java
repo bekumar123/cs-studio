@@ -133,6 +133,7 @@ public class ArchiveChannelGroupDaoImpl extends AbstractArchiveDao implements IA
                 stmt.addBatch();
             }
             stmt.executeBatch();
+            notAddedGroups =groups;
         } catch (final BatchUpdateException e) {
             notAddedGroups = createNotAddedGroups(groups, e);
         } catch (final Exception e) {

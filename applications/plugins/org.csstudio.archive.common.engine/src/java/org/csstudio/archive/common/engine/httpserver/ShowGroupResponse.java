@@ -20,6 +20,8 @@ import org.csstudio.archive.common.engine.model.SampleBuffer;
 import org.csstudio.archive.common.engine.model.SampleBufferStatistics;
 import org.csstudio.domain.desy.system.ISystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
+import org.epics.util.time.Timestamp;
+import org.epics.util.time.TimestampFormat;
 
 import com.google.common.base.Strings;
 
@@ -84,7 +86,7 @@ class ShowGroupResponse extends AbstractGroupResponse {
         final TimeInstant lastWriteTime = getModel().getLastWriteTime();
         html.tableLine(new String[] {
                 Messages.HTTP_LAST_WRITETIME,
-                lastWriteTime != null ? lastWriteTime.formatted() : Messages.HTTP_NOT_AVAILABLE,
+                lastWriteTime != null ? new TimestampFormat("dd.MM.yyyy' 'HH:mm:ss").format(Timestamp.of(lastWriteTime.getSeconds(), 0)): Messages.HTTP_NOT_AVAILABLE,
         });
         if (!group.isStarted()) {
             html.tableLine(new String[] {
@@ -94,7 +96,18 @@ class ShowGroupResponse extends AbstractGroupResponse {
         }
         html.closeTable();
     }
+    private String getAdel(@Nonnull final String channelName){
+        final ArchiveChannelBuffer<?, ?> channel =getModel().getChannel(channelName+".ADEL");
 
+             if(channel!=null)
+             {
+                 final ISystemVariable<?> mostRecentSample = channel.getMostRecentSample();
+                 return  limitLength(getValueAsString(mostRecentSample), MAX_VALUE_DISPLAY);
+             }
+
+
+        return "";
+    }
     private void createChannelsTable(@Nonnull final ArchiveGroup group,
                                      @Nonnull final HTMLWriter html) {
         // HTML Table of all channels in the group
@@ -105,9 +118,10 @@ class ShowGroupResponse extends AbstractGroupResponse {
             Messages.HTTP_STARTED,
             Messages.HTTP_CONNECTED,
             Messages.HTTP_CONN_STATE,
-            "CAJ direct",
-            "DB direct",
+      //      "CAJ direct",
+         //   "DB direct",
             Messages.HTTP_CURRENT_VALUE,
+            Messages.HTTP_DEADBAND_VALUE,
             Messages.HTTP_TIMESTAMP,
             Messages.HTTP_COLUMN_RECEIVEDVALUES,
             Messages.HTTP_QUEUELEN,
@@ -140,8 +154,8 @@ class ShowGroupResponse extends AbstractGroupResponse {
                 final String curVal = limitLength(getValueAsString(mostRecentSample), MAX_VALUE_DISPLAY);
 
                 final String curValTimestamp =
-                    mostRecentSample != null ? mostRecentSample.getTimestamp().formatted() :
-                        "null";
+                    mostRecentSample != null ?   new TimestampFormat("dd.MM.yyyy' 'HH:mm:ss").format(Timestamp.of( mostRecentSample.getTimestamp().getSeconds(), 0)) :
+                        "";
 
                     html.tableLine(new String[] {
                             Integer.toString(number),
@@ -149,9 +163,10 @@ class ShowGroupResponse extends AbstractGroupResponse {
                             started,
                             connected,
                             connState,
-                            cajDirectconnState,
-                            isChannelConnected,
+                        //    cajDirectconnState,
+                        //    isChannelConnected,
                             curVal,
+                            getAdel(channel.getName()),
                             curValTimestamp,
                             Long.toString(channel.getReceivedValues()),
                             Integer.toString(buffer.size()),

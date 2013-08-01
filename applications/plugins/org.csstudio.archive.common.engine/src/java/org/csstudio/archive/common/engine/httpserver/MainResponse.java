@@ -7,8 +7,6 @@
  ******************************************************************************/
 package org.csstudio.archive.common.engine.httpserver;
 
-import gov.aps.jca.Channel.ConnectionState;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -23,6 +21,8 @@ import org.csstudio.archive.common.engine.model.EngineModel;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
 import org.eclipse.core.runtime.Platform;
+import org.epics.util.time.Timestamp;
+import org.epics.util.time.TimestampFormat;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,8 +108,10 @@ class MainResponse extends AbstractResponse {
         html.tableLine(new String[] {Messages.HTTP_STATE, getModel().getState().name()});
 
         final TimeInstant start = getModel().getStartTime();
+
         if (start != null) {
-            html.tableLine(new String[] {Messages.HTTP_STARTTIME, start.formatted()});
+
+            html.tableLine(new String[] {Messages.HTTP_STARTTIME,  new TimestampFormat("dd.MM.yyyy' 'HH:mm:ss").format(   Timestamp.of( getModel().getStartTime().getSeconds(), 0)) });
             final Duration dur = new Duration(start.getInstant(),
                                               TimeInstantBuilder.fromNow().getInstant());
             html.tableLine(new String[] {Messages.HTTP_UPTIME,
@@ -137,12 +139,22 @@ class MainResponse extends AbstractResponse {
             for (final ArchiveChannelBuffer<?, ?> channel : group.getChannels()) {
                 numOfConnectedChannels += channel.isConnected() ? 1 : 0;
                 numOfStartedChannels += channel.isStarted()?1:0;
-                numOfConnectedStateChannels += ConnectionState.CONNECTED.equals(channel.getConnectState()) ? 1:0;
-                numOfDisconnectedStateChannels += ConnectionState.DISCONNECTED.equals(channel.getConnectState())? 1:0;
-                numOfNeverConnectedStateChannels += ConnectionState.NEVER_CONNECTED.equals(channel.getConnectState())? 1:0;
-                numOfClosedStateChannels += ConnectionState.CLOSED.equals(channel.getConnectState())? 1:0;
-                numOfUnknownStateChannels += channel.getConnectState()==null ? 1:0;
-
+                if(channel.getConnectState()!=null)
+                {
+                    switch (channel.getConnectState().getValue()){
+                        case 2: numOfConnectedStateChannels++;
+                        break;
+                        case 1: numOfDisconnectedStateChannels++;
+                        break;
+                        case 0: numOfNeverConnectedStateChannels++;
+                        break;
+                        case 3: numOfClosedStateChannels++;
+                        break;
+                        default: numOfUnknownStateChannels++;
+                            System.out.println("MainResponse.createChannelStatsRows()  "+channel.getConnectState().toString());
+                        break;
+                    }
+                }
             }
         }
         html.tableLine(new String[] {numOf(Messages.HTTP_COLUMN_GROUPCOUNT),
@@ -199,7 +211,7 @@ class MainResponse extends AbstractResponse {
         final TimeInstant lastWriteTime = getModel().getLastWriteTime();
         html.tableLine(new String[] {Messages.HTTP_LAST_WRITETIME,
                                      lastWriteTime == null ? Messages.HTTP_NEVER :
-                                                              lastWriteTime.formatted(),
+                                         new TimestampFormat("dd.MM.yyyy' 'HH:mm:ss").format(Timestamp.of( getModel().getLastWriteTime().getSeconds(), 0))
                                                               });
 
         final Double avgWriteCount = getModel().getAvgWriteCount();

@@ -23,6 +23,9 @@ import org.csstudio.archive.common.engine.model.SampleBuffer;
 import org.csstudio.archive.common.engine.model.SampleBufferStatistics;
 import org.csstudio.archive.common.service.sample.IArchiveSample;
 import org.csstudio.domain.desy.epics.name.EpicsChannelName;
+import org.csstudio.domain.desy.system.ISystemVariable;
+import org.epics.util.time.Timestamp;
+import org.epics.util.time.TimestampFormat;
 
 /** Provide web page with detail for one channel.
  *  @author Kay Kasemir
@@ -98,6 +101,18 @@ class GetChannelResponse extends AbstractChannelResponse {
     protected void text(@Nonnull final String text) {
         _html.println(text);
     }
+    private String getAdel(@Nonnull final String channelName){
+        final ArchiveChannelBuffer<?, ?> channel =getModel().getChannel(channelName+".ADEL");
+
+             if(channel!=null)
+             {
+                 final ISystemVariable<?> mostRecentSample = channel.getMostRecentSample();
+                 return  limitLength(getValueAsString(mostRecentSample), 60);
+             }
+
+
+        return "";
+    }
     private void createChannelTable(@Nonnull final ArchiveChannelBuffer<?, ?> channel) {
         try {
         text("<table>");
@@ -125,11 +140,12 @@ class GetChannelResponse extends AbstractChannelResponse {
             isChannelConnected=HTMLWriter.makeRedText("UNKNOWN");
         }
         tableLine(new String[] {Messages.HTTP_CONN_STATE, connState});
-        tableLine(new String[] {"CAJ direct", cajDirectconnState});
-        tableLine(new String[] {"DB Direct", isChannelConnected });
+      //  tableLine(new String[] {"CAJ direct", cajDirectconnState});
+    //    tableLine(new String[] {"DB Direct", isChannelConnected });
 
         tableLine(new String[] {Messages.HTTP_INTERNAL_STATE, channel.getInternalState()});
         tableLine(new String[] {Messages.HTTP_CURRENT_VALUE, getValueAsString(channel.getMostRecentSample())});
+        tableLine(new String[] {Messages.HTTP_DEADBAND_VALUE, getAdel(channel.getName())});
 
         final SampleBuffer<?, ?, ?> buffer = channel.getSampleBuffer();
         tableLine(new String[] {Messages.HTTP_QUEUELEN, Integer.toString(buffer.size())});
@@ -141,7 +157,7 @@ class GetChannelResponse extends AbstractChannelResponse {
         final RingBuffer<IArchiveSample<?,?>> ringbuffer=channel.getRingBuffer();
         for(int i=0; i<ringbuffer.size();i++){
             final IArchiveSample<?,?> sample=ringbuffer.get(i);
-            tableLine(new String[]{sample.getSystemVariable().getTimestamp().formatted(),sample.getSystemVariable().getData().toString()});
+            tableLine(new String[]{ new TimestampFormat("dd.MM.yyyy' 'HH:mm:ss").format(Timestamp.of( sample.getSystemVariable().getTimestamp().getSeconds(), 0)),sample.getSystemVariable().getData().toString()});
         }
 
         if (channel.isStarted()) {

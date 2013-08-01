@@ -119,7 +119,7 @@ abstract class AbstractResponse extends HttpServlet {
     @Nonnull
     protected String getValueAsString(@CheckForNull final ISystemVariable<?> var) {
         if (var == null) {
-            return "null";
+            return "";
         }
         if (Collection.class.isAssignableFrom(var.getData().getClass())) {
             return CollectionsUtil.toLimitLengthString((Collection<?>) var.getData(), 10);

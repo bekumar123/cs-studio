@@ -79,7 +79,6 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
     private volatile boolean needsMonitor;
     private volatile boolean largeArray = false;
     private boolean putCallback = false;
-    private volatile ConnectionState connectionState;
     private boolean isConnected = false;
     private boolean isFirst = true;
     private final static Pattern hasOptions = Pattern.compile(".* \\{.*\\}");
@@ -208,7 +207,7 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
                         if (getLastMessagePayload() != null) {
                             event = getLastMessagePayload().getEvent();
                             //testen um deadlock
-                            // connectionState=((Channel)event.getSource()).getConnectionState();
+                     //        connectionState=((Channel)event.getSource()).getConnectionState();
                         }
                         processMessage(new DesyJCAMessagePayload(ev.getDBR(), event));
                     }
@@ -235,7 +234,7 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
                         if (getLastMessagePayload() != null) {
                             event = getLastMessagePayload().getEvent();
                             //testen um deadlock
-                            //connectionState=((Channel)event.getSource()).getConnectionState();
+                        //    connectionState=((Channel)event.getSource()).getConnectionState();
                         }
                         processMessage(new DesyJCAMessagePayload(ev.getDBR(), event));
                     }
@@ -262,9 +261,10 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
                         //(wenhua) fix for Single Thread Context
                         channel.getContext().attachCurrentThread();
 
-                        //testen um deadlock
-                        // connectionState=channel.getConnectionState();
+
                         if(channel!=null) {
+                        	   //testen um deadlock
+                         //   connectionState=channel.getConnectionState();
                    		 if(isFirst) {
                    			 isFirst=false;
 							} else {
@@ -349,7 +349,7 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
     }
    public  ConnectionState getConnectState(){
 	   synchronized(DesyJCAChannelHandler.this) {
-		   return connectionState;
+		   return channel.getConnectionState();
 	   }
     }
     public ConnectionState getCAJDirectConnectState(){

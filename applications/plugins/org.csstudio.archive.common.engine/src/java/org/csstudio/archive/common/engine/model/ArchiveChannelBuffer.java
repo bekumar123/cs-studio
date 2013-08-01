@@ -9,7 +9,7 @@ package org.csstudio.archive.common.engine.model;
 
 import static org.epics.pvmanager.ExpressionLanguage.channel;
 import static org.epics.pvmanager.ExpressionLanguage.newValuesOf;
-import static org.epics.pvmanager.util.TimeDuration.ms;
+import static org.epics.util.time.TimeDuration.ofMillis;
 import gov.aps.jca.Channel.ConnectionState;
 
 import java.io.Serializable;
@@ -36,7 +36,7 @@ import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
 import org.epics.pvmanager.ChannelHandler;
 import org.epics.pvmanager.PVManager;
 import org.epics.pvmanager.PVReader;
-import org.epics.pvmanager.util.TimeDuration;
+import org.epics.util.time.TimeDuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +52,7 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
 
     private static final Logger LOG = LoggerFactory.getLogger(ArchiveChannelBuffer.class);
 
-    private static final TimeDuration RATE = ms(2000);
+    private static final TimeDuration RATE = ofMillis(2000);
 
     /** Channel name.
      *  This is the name by which the channel was created,
@@ -112,6 +112,7 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
     private DesyArchivePVManagerListener _listener;
 
     private final TimeInstant _timeOfLastSampleBeforeChannelStart;
+    private Short _precision;
 
     /**
      * Constructor.
@@ -197,7 +198,8 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
             _pv.close();
         }
 
-        _pv = PVManager.read(newValuesOf(channel(_name))).every(RATE);
+        _pv = PVManager.read(newValuesOf(channel(_name))).maxRate(RATE);
+
         _listener = new DesyArchivePVManagerListener(this, _pv, _provider, _name, _id, _datatype) {
             @SuppressWarnings("synthetic-access")
             @Override
@@ -350,4 +352,14 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
           return null;
         }
   }
+
+
+    public Short getPrecision() {
+        return _precision;
+    }
+
+
+    public void setPrecision(final Short precision) {
+        _precision = precision;
+    }
 }

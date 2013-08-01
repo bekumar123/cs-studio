@@ -153,6 +153,7 @@ public abstract class DesyArchivePVManagerListener<V extends Serializable,
         final EpicsMetaData metaData = pv.getMetaData();
         if (metaData != null) {
             handleMetaDataInfo(id, metaData);
+            _buffer.setPrecision(metaData.getPrecision());
         }
     }
 

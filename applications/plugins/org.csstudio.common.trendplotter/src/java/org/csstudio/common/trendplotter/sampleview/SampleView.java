@@ -145,6 +145,8 @@ public class SampleView extends DataBrowserAwareView
             public void update(final ViewerCell cell)
             {
                 final PlotSample sample = (PlotSample) cell.getElement();
+           //     cell.setText(sample.getValue().toString());
+                
                 cell.setText(format.format(sample.getValue()));
             }
 

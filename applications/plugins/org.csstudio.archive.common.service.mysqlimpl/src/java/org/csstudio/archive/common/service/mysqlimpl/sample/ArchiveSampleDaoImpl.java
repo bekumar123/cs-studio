@@ -445,10 +445,18 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                 }
                 break;
             case AVG_PER_MINUTE :
-                stmt = conn.prepareStatement(_selectOptSamplesStmt.replaceFirst(ARCH_TABLE_PLACEHOLDER, TAB_SAMPLE_M));
+                if(dataType.equals("EpicsEnum")) {
+                    stmt = conn.prepareStatement(_selectRawSamplesStmt.replaceFirst(ARCH_TABLE_PLACEHOLDER, TAB_SAMPLE));
+                } else {
+                    stmt = conn.prepareStatement(_selectOptSamplesStmt.replaceFirst(ARCH_TABLE_PLACEHOLDER, TAB_SAMPLE_M));
+                }
                 break;
             case AVG_PER_HOUR :
-                stmt = conn.prepareStatement(_selectOptSamplesStmt.replaceFirst(ARCH_TABLE_PLACEHOLDER, TAB_SAMPLE_H));
+                if(dataType.equals("EpicsEnum")) {
+                    stmt = conn.prepareStatement(_selectRawSamplesStmt.replaceFirst(ARCH_TABLE_PLACEHOLDER, TAB_SAMPLE));
+                } else {
+                    stmt = conn.prepareStatement(_selectOptSamplesStmt.replaceFirst(ARCH_TABLE_PLACEHOLDER, TAB_SAMPLE_H));
+                }
                 break;
             default :
         }
@@ -471,7 +479,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         V max = null;
         EpicsAlarm alarm=null;
         switch (type) {
-            case RAW : { // (..., value)
+            case RAW: { // (..., value)
                 if (ArchiveTypeConversionSupport.isDataTypeSerializableCollection(typeClass)) {
                     value = ArchiveTypeConversionSupport.fromByteArray(result.getBytes(COLUMN_VALUE));
                     alarm=new EpicsAlarm(EpicsAlarmSeverity.parseSeverity( result.getString(COLUMN_SERVERTY)), EpicsAlarmStatus.parseStatus( result.getString(COLUMN_STATUS)));
@@ -484,9 +492,13 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             }
             case AVG_PER_MINUTE :
             case AVG_PER_HOUR : { // (..., avg_val, min_val, max_val)
+                if(channel.getDataType().equals("EpicsEnum")) {
+                    value = ArchiveTypeConversionSupport.fromArchiveString(typeClass, result.getString(COLUMN_VALUE));
+                 }else{
                 value = ArchiveTypeConversionSupport.fromDouble(typeClass, result.getDouble(COLUMN_AVG));
                 min = ArchiveTypeConversionSupport.fromDouble(typeClass, result.getDouble(COLUMN_MIN));
                 max = ArchiveTypeConversionSupport.fromDouble(typeClass, result.getDouble(COLUMN_MAX));
+                }
                 break;
             }
             default:
@@ -502,6 +514,9 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         if (min == null || max == null) {
             return new ArchiveSample<V, T>(channel.getId(), (T) sysVar, alarm,type.name());
         }
+        if(channel.getDataType().equals("EpicsEnum")) {
+            return new ArchiveSample<V, T>(channel.getId(), (T) sysVar, alarm,"RAW");
+        }
         return new ArchiveMinMaxSample<V, T>(channel.getId(), (T) sysVar, alarm, min, max,type.name());
     }
 
@@ -510,10 +525,11 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
     @CheckForNull
     private <V> Class<V> createDataTypeClass(@Nonnull final IArchiveChannel channel)
                                              throws ArchiveDaoException, TypeSupportException {
-        final String datatype = channel.getDataType();
+        String datatype = channel.getDataType();
         if (datatype == null) {
             throw new ArchiveDaoException("The datatype of channel " + channel.getName() + " is unknown!", null);
         }
+        datatype=datatype.equals("EpicsEnum")?"Integer":datatype;
         return (Class<V>) ArchiveTypeConversionSupport.createTypeClassFromArchiveString(datatype);
     }
 

@@ -163,6 +163,7 @@ public class PVSamples extends PlotSamples
     @Override
     synchronized public PlotSample getSample(final int index)
     {
+        synchronized(this){
         final int raw_count = getRawSize();
 
         if (index < raw_count) {
@@ -170,7 +171,7 @@ public class PVSamples extends PlotSamples
         }
         final PlotSample sample = getRawSample(raw_count-1);
         return  new PlotSample(sample.getSource(), VTypeHelper.transformTimestampToNow(sample.getValue()));
-            
+        }    
          // return ValueButcher.changeTimestampToNow(sample);
     }
 

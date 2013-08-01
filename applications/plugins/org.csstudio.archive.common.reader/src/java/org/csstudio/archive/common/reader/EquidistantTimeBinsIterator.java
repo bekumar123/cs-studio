@@ -192,12 +192,15 @@ public class EquidistantTimeBinsIterator extends AbstractValueIterator {
         if (ch == null) {
             throw new ArchiveServiceException("Channel retrieval failed for channel '" + channelName + "'!", null);
         }
-        final Limits<?> l = service.readDisplayLimits(channelName);
+       // final Limits<?> l = service.readDisplayLimits(channelName);
+        final Limits<?> l = ch.getDisplayLimits();
         if (l != null) {
-            return ValueFactory.newDisplay(new Double(l.getLow().toString()),  new Double(0.0),  new Double(0.0), "", NumberFormats.toStringFormat(),  new Double(0.0),
+            return ValueFactory.newDisplay((Double)l.getLow(),  new Double(0.0),  new Double(0.0), "", NumberFormats.toStringFormat(),  new Double(0.0),
                                            new Double(0.0), new Double(l.getHigh().toString()),  new Double(0.0),  new Double(l.getLow().toString()));
         }
-        return null;
+        return ValueFactory.newDisplay( new Double(0.0),  new Double(0.0),  new Double(0.0), "", NumberFormats.toStringFormat(),  new Double(0.0),
+                                               new Double(0.0), new Double(0.0),  new Double(0.0),  new Double(0.0));
+
     }
 
 

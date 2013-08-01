@@ -157,8 +157,6 @@ public class LiveSamplesCompressor {
         PlotSample min = next;
         PlotSample max = next;
         long nextWindowEnd = Math.min(startOfCompressionMS + windowLengthMS, endOfCompressionMS);
-        //System.out.println("-w: " + nextWindowEnd);
-        LOG.info("Compress Min Max Value am:  {}",ValueFactory.timeNow().getTimestamp().toString());
         List<PlotSample> result = Lists.newLinkedList();
         int count=0;
         while ( next != null ) {

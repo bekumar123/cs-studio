@@ -47,6 +47,7 @@ import org.csstudio.utility.pv.PV;
 import org.csstudio.utility.pv.PVFactory;
 import org.csstudio.utility.pv.PVListener;
 import org.eclipse.swt.widgets.Display;
+import org.epics.util.text.NumberFormats;
 import org.epics.util.time.Timestamp;
 import org.epics.vtype.AlarmSeverity;
 import org.epics.vtype.VType;
@@ -453,11 +454,14 @@ public class PVItem extends ModelItem implements PVListener {
          if(!value.getSeverity().hasValue()) alarm=AlarmSeverity.UNDEFINED;
          status=value.getStatus();
          Quality quality = value.getQuality()== org.csstudio.data.values.IValue.Quality.Interpolated?Quality.Interpolated:Quality.Original;
+         org.epics.vtype.Display display=  ValueFactory.newDisplay( new Double(0.0),  new Double(0.0),  new Double(0.0), "", NumberFormats.toStringFormat(),  new Double(0.0),
+                 new Double(0.0), new Double(0.0),  new Double(0.0),  new Double(0.0));
          if(value instanceof IEnumeratedValue)
-             return  new ArchiveVString(t,alarm, status,new Integer(((IEnumeratedValue)value).getValue()).toString());
+           //  return  new ArchiveVString(t,alarm, status,new Integer(((IEnumeratedValue)value).getValue()).toString());
+             return  new ArchiveVNumber(t,alarm, status,display,((IEnumeratedValue)value).getValue());
              
         // System.out.println("PVItem.getVTypeValue() "+value.getClass());
-         org.epics.vtype.Display display= ValueFactory.newDisplay(
+          display= ValueFactory.newDisplay(
                                         (Double) ((INumericMetaData)value.getMetaData()).getDisplayLow(),
                                         (Double) ((INumericMetaData)value.getMetaData()).getAlarmLow(),
                                         (Double) ((INumericMetaData)value.getMetaData()).getWarnLow(),
@@ -483,6 +487,7 @@ public class PVItem extends ModelItem implements PVListener {
              return  new ArchiveVString(t,alarm, status,((IStringValue)value).getValue());
         }
          if(value instanceof IEnumeratedValue){
+          
              return  new ArchiveVString(t,alarm, status,((IEnumeratedValue)value).getMetaData().getStates().toString());
         }
         return null;

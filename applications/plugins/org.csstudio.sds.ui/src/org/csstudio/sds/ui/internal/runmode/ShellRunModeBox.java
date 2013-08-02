@@ -313,6 +313,7 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
      */
     protected void doDispose() {
         // close the shell
+    	zoomManager = null;
         if (!_shell.isDisposed()) {
             _shell.close();
             _shell = null;

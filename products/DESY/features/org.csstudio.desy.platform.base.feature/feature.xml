@@ -2,7 +2,7 @@
 <feature
       id="org.csstudio.desy.platform.base.feature"
       label="CSS Platform Base Feature"
-      version="1.0.0.201307301400"
+      version="1.5.1.201308021400"
       provider-name="Desy, Jan Hatje &lt;jan.hatje@desy.de&gt;">
 
    <description url="http://www.example.com/description">

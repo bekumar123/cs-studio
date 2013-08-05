@@ -121,6 +121,8 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
                                      final int width,
                                      final int height,
                                      final String title) {
+        final Runtime runtime = Runtime.getRuntime();
+    	LOG.info("Free mem: " + runtime.freeMemory() + " - Total mem: " + runtime.totalMemory() + " - Max mem: " + runtime.maxMemory());
         List<RunModeBoxInput> predecessors = getPredecessors(getInput());
         
         if(openRelative && this.parentLocation != null) {
@@ -312,6 +314,8 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
      * Disposes the shell.
      */
     protected void doDispose() {
+        final Runtime runtime = Runtime.getRuntime();
+    	LOG.info("Free mem: " + runtime.freeMemory() + " - Total mem: " + runtime.totalMemory() + " - Max mem: " + runtime.maxMemory());
         // close the shell
     	zoomManager = null;
         if (!_shell.isDisposed()) {

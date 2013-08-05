@@ -33,6 +33,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Vector;
@@ -52,6 +53,8 @@ import org.slf4j.LoggerFactory;
  */
 
 public class MessageFileHandler {
+
+    public static final int MAX_READ_FILES = 1000;
 
     /** the class logger */
     private static final Logger LOG = LoggerFactory.getLogger(MessageFileHandler.class);
@@ -94,14 +97,15 @@ public class MessageFileHandler {
      */
     public int getMessageFilesNumber() {
 
-        String[] fileList = null;
         int result = -1;
 
         try {
             final File file = dataDirectories.getDataDirectory();
-            fileList = file.list(archiveMessageFilter);
+            String[] fileList = file.list(archiveMessageFilter);
             if(fileList != null) {
                 result = fileList.length;
+                Arrays.fill(fileList, null);
+                fileList = null;
             }
         } catch (final DataDirectoryException e) {
             LOG.error("[*** DataDirectoryException ***]: " + e.getMessage());
@@ -349,18 +353,26 @@ public class MessageFileHandler {
     }
 
     public Vector<ArchiveMessage> readMessagesFromFile() {
+        return readMessagesFromFile(MAX_READ_FILES);
+    }
+
+    public Vector<ArchiveMessage> readMessagesFromFile(int max) {
         Vector<ArchiveMessage> result = new Vector<ArchiveMessage>();
         try {
             File file = dataDirectories.getDataDirectory();
             String path = file.getAbsolutePath() + System.getProperty("file.separator");
             String[] fileNames = file.list(archiveMessageFilter);
             if (fileNames != null) {
-                if (fileNames.length > 0) {
-                    for (String s : fileNames) {
-                        ArchiveMessage am = readMessageContent(path + s);
-                        result.add(am);
-                    }
+                int read = fileNames.length;
+                if (read > max) {
+                    read = max;
                 }
+                for (int i = 0;i < read;i++) {
+                    ArchiveMessage am = readMessageContent(path + fileNames[i]);
+                    result.add(am);
+                }
+                Arrays.fill(fileNames, null);
+                fileNames = null;
             }
         } catch (DataDirectoryException e) {
             LOG.error("[*** DataDirectoryException ***]: {}", e.getMessage());

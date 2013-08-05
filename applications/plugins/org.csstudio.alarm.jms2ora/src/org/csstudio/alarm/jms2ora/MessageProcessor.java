@@ -212,13 +212,16 @@ public class MessageProcessor extends Thread implements IMessageProcessor {
     public void run() {
 
         Vector<ArchiveMessage> storeMe;
-        boolean success;
+        boolean dbSuccess;
 
         LOG.info("{} starting.", this.getClass().getSimpleName());
         LOG.info("Waiting for messages...");
 
         // First look for stored messages on disk
-        checkForDiskMessages();
+        int written = checkForDiskMessages();
+        if (written > 0) {
+            LOG.info("{} messages from the local disk has been written to the database.", written);
+        }
 
         while(running) {
 
@@ -229,8 +232,8 @@ public class MessageProcessor extends Thread implements IMessageProcessor {
                 storeMe = this.getMessagesToArchive();
                 int number = storeMe.size();
                 if (number > 0) {
-                    success = writerService.writeMessage(storeMe);
-                    if(!success) {
+                    dbSuccess = writerService.writeMessage(storeMe);
+                    if(!dbSuccess) {
                         // Store the message in a file, if it was not possible to write it to the DB.
                         LOG.warn("Could not store the message into the database. Try to write message(s) on disk.");
                         int result = persistenceService.writeMessages(storeMe);
@@ -246,6 +249,9 @@ public class MessageProcessor extends Thread implements IMessageProcessor {
 
                     storeMe.clear();
                     storeMe = null;
+                } else {
+                    checkForDiskMessages();
+                    collector.addStoredMessages(number);
                 }
 
                 if (logStatistic) {
@@ -295,9 +301,9 @@ public class MessageProcessor extends Thread implements IMessageProcessor {
         if (!archiveMessages.isEmpty()) {
 
             storeMe = this.getMessagesToArchive();
-            success = writerService.writeMessage(storeMe);
-            LOG.info("Remaining messages written to database: {}", success);
-            if(!success) {
+            dbSuccess = writerService.writeMessage(storeMe);
+            LOG.info("Remaining messages written to database: {}", dbSuccess);
+            if(!dbSuccess) {
 
                 // Store the message in a file, if it was not possible to write it to the DB.
                 persistenceService.writeMessages(storeMe);

@@ -3,10 +3,7 @@
       id="org.csstudio.alarm.jms2ora.feature"
       label="Jms2Ora Feature"
       version="1.0.0.qualifier"
-      provider-name="Markus Moeller &lt;markus.moeller@desy.de&gt;"
-      os="solaris,win32"
-      ws="gtk,win32"
-      arch="sparc,x86,x86_64">
+      provider-name="Markus Moeller &lt;markus.moeller@desy.de&gt;">
 
    <description url="http://www.example.com/description">
       [Enter Feature Description here.]
@@ -239,9 +236,9 @@
 
    <plugin
          id="org.eclipse.core.filesystem.solaris.sparc"
-         os="solaris,win32"
-         ws="gtk,win32"
-         arch="sparc,x86"
+         os="solaris"
+         ws="gtk"
+         arch="sparc"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -250,6 +247,9 @@
 
    <plugin
          id="org.eclipse.core.filesystem.win32.x86"
+         os="win32"
+         ws="win32"
+         arch="x86"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -272,6 +272,9 @@
 
    <plugin
          id="org.eclipse.core.resources.win32.x86"
+         os="win32"
+         ws="win32"
+         arch="x86"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -472,6 +475,9 @@
 
    <plugin
          id="org.eclipse.equinox.security.win32.x86"
+         os="win32"
+         ws="win32"
+         arch="x86"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -515,6 +521,9 @@
 
    <plugin
          id="org.eclipse.swt.gtk.solaris.sparc"
+         os="solaris"
+         ws="gtk"
+         arch="sparc"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -523,6 +532,9 @@
 
    <plugin
          id="org.eclipse.swt.win32.win32.x86"
+         os="win32"
+         ws="win32"
+         arch="x86"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -662,6 +674,9 @@
 
    <plugin
          id="org.eclipse.core.filesystem.win32.x86_64"
+         os="win32"
+         ws="win32"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -670,6 +685,9 @@
 
    <plugin
          id="org.eclipse.core.net.win32.x86_64"
+         os="win32"
+         ws="win32"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -678,6 +696,9 @@
 
    <plugin
          id="org.eclipse.equinox.security.win32.x86_64"
+         os="win32"
+         ws="win32"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -686,6 +707,9 @@
 
    <plugin
          id="org.eclipse.swt.win32.win32.x86_64"
+         os="win32"
+         ws="win32"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"

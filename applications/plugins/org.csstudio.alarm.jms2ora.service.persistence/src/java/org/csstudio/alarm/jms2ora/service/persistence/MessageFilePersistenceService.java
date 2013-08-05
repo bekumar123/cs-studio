@@ -71,7 +71,7 @@ public class MessageFilePersistenceService implements IPersistenceHandler {
         Vector<ArchiveMessage> message = new Vector<ArchiveMessage>();
         message.add(content);
         int result = fileHandler.writeMessagesToFile(message);
-        return (result >= 0);
+        return result >= 0;
     }
 
     /**
@@ -95,6 +95,14 @@ public class MessageFilePersistenceService implements IPersistenceHandler {
      */
     @Override
     public Vector<ArchiveMessage> readMessagesFromFile() {
-        return fileHandler.readMessagesFromFile();
+        return this.readMessagesFromFile(MessageFileHandler.MAX_READ_FILES);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Vector<ArchiveMessage> readMessagesFromFile(int max) {
+        return fileHandler.readMessagesFromFile(max);
     }
 }

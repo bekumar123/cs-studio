@@ -56,17 +56,14 @@ final class WriteWorker extends AbstractTimeMeasuredRunnable {
     /**
      * See configuration of this logger - if log4j is used - see log4j.properties
      */
-    private static final Logger EMAIL_LOG =
-        LoggerFactory.getLogger("ErrorPerEmailLogger");
-
+    private static final Logger EMAIL_LOG = LoggerFactory.getLogger("ErrorPerEmailLogger");
+    private static boolean hasWarnung = false;
     private final String _name;
     private final Collection<ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> _channels;
 
     private final long _periodInMS;
     /** Average number of values per write run */
-    private final AverageWithExponentialDecayCache _avgWriteCount =
-        new AverageWithExponentialDecayCache(0.9);
-
+    private final AverageWithExponentialDecayCache _avgWriteCount = new AverageWithExponentialDecayCache(0.9);
 
     private final IServiceProvider _provider;
 
@@ -87,7 +84,7 @@ final class WriteWorker extends AbstractTimeMeasuredRunnable {
         _channels = channels;
 
         _periodInMS = periodInMS;
-        _model=model;
+        _model = model;
 
         WORKER_LOG.info("{} created with period {}ms", _name, periodInMS);
     }
@@ -116,28 +113,25 @@ final class WriteWorker extends AbstractTimeMeasuredRunnable {
         }
     }
 
-
-    private long collectSampleFromBuffersAndWriteToService(@Nonnull final Collection<ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> channels)
-    throws ArchiveServiceException {
+    private long collectSampleFromBuffersAndWriteToService(@Nonnull final Collection<ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> channels) throws ArchiveServiceException {
 
         long written = 0;
 
-        final LinkedList<IArchiveSample<Serializable, ISystemVariable<Serializable>>> bufferSamples =
-            Lists.newLinkedList();
+        final LinkedList<IArchiveSample<Serializable, ISystemVariable<Serializable>>> bufferSamples = Lists.newLinkedList();
 
         for (final ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>> channel : channels) {
 
             final SampleBuffer<Serializable, ISystemVariable<Serializable>, IArchiveSample<Serializable, ISystemVariable<Serializable>>> buffer =
-                channel.getSampleBuffer();
-            if(!buffer.isEmpty()) {
+                                                                                                                                                  channel.getSampleBuffer();
+            if (!buffer.isEmpty()) {
 
-            buffer.updateStats();
+                buffer.updateStats();
 
-            buffer.drainTo(bufferSamples);
+                buffer.drainTo(bufferSamples);
 
-            written += writeSamples(_provider,  bufferSamples);
+                written += writeSamples(_provider, bufferSamples);
 
-            bufferSamples.clear();
+                bufferSamples.clear();
             }
         }
         return written;
@@ -155,20 +149,19 @@ final class WriteWorker extends AbstractTimeMeasuredRunnable {
             return 0;
         }
         // when there's a service, the service impl handles the rescue of data
-
-
-       final int  size =  service.writeSamples(samples);
-
-       if (size > 100000) {
-           EMAIL_LOG.info("More than {} samples in  BatchQueue at {}", size, TimeInstantBuilder.fromNow()
-                   .formatted());
-           //TODO (wenhua xu):
-           if (size > 300000) {
-               EMAIL_LOG.info("MySQL restarted at {}", TimeInstantBuilder.fromNow().formatted());
-               _model.requestShutdown();
-
-                }
-       }
+        final int size = service.writeSamples(samples);
+        if (size > 100000) {
+            if (!hasWarnung) {
+                EMAIL_LOG.info("More than {} samples in  BatchQueue at {}", size, TimeInstantBuilder.fromNow().formatted());
+                hasWarnung = true;
+            }
+            if (hasWarnung && size > 300000) {
+                EMAIL_LOG.info("MySQL restarted at {}", TimeInstantBuilder.fromNow().formatted());
+                _model.requestShutdown();
+            }
+        } else {
+            hasWarnung = false;
+        }
         return samples.size();
     }
 

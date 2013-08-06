@@ -207,17 +207,7 @@ class GroupsResponse extends AbstractResponse {
                                                                                                     0) : null,
                                      Long.toString(totalNumOfReceivedSamples), "", "", });
         html.closeTable();
-        /*    closeTableWithSummaryRow(html,
-                                     totalNumOfChannels,
-                                     totalNumOfStartedChannels,
-                                     totalNumOfConnectedChannels,
-                                     totalNumOfConnectedStateChannels,
-                                     totalNumOfDisconnectedStateChannels,
-                                     totalNumOfNeverConnectedStateChannels,
-                                     totalNumOfColsedStateChannels,
-                                     totalNumOfUnknownStateChannels,
-                                     totalNumOfReceivedSamples);*/
-    }
+     }
 
     @Nonnull
     private String createChannelConnectedTableEntry(final int numOfConnectedChannels, final int numOfChannels) {
@@ -226,28 +216,6 @@ class GroupsResponse extends AbstractResponse {
                                                                         : HTMLWriter.makeRedText(Integer
                                                                                 .toString(numOfConnectedChannels));
         return connected;
-    }
-
-    private void closeTableWithSummaryRow(@Nonnull final HTMLWriter html,
-                                          final int totalNumOfChannels,
-                                          final int totalNumOfStartedChannels,
-                                          final int totalNumOfConnectedChannels,
-                                          final int totalNumOfConnectedStateChannels,
-                                          final int totalNumOfDisconnectedStateChannels,
-                                          final int totalNumOfNeverConnectedStateChannels,
-                                          final int totalNumOfColsedStateChannels,
-                                          final int totalNumOfUnknownStateChannels,
-                                          final long totalNumOfReceivedSamples) {
-        html.tableLine(new String[] { Messages.HTTP_ROW_TOTAL, Integer.toString(totalNumOfChannels),
-                                     createChannelConnectedTableEntry(totalNumOfStartedChannels, totalNumOfChannels),
-                                     createChannelConnectedTableEntry(totalNumOfConnectedChannels, totalNumOfChannels),
-                                     createChannelConnectedTableEntry(totalNumOfConnectedStateChannels, totalNumOfChannels),
-                                     createChannelConnectedTableEntry(totalNumOfDisconnectedStateChannels, 0),
-                                     createChannelConnectedTableEntry(totalNumOfNeverConnectedStateChannels, 0),
-                                     createChannelConnectedTableEntry(totalNumOfColsedStateChannels, 0),
-                                     createChannelConnectedTableEntry(totalNumOfUnknownStateChannels, 0),
-                                     Long.toString(totalNumOfReceivedSamples), "", "", });
-        html.closeTable();
     }
 
     @Nonnull

@@ -9,6 +9,7 @@ package org.csstudio.archive.common.engine.httpserver;
 
 import gov.aps.jca.Channel.ConnectionState;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 import javax.annotation.Nonnull;
@@ -19,6 +20,7 @@ import org.csstudio.archive.common.engine.model.ArchiveChannelBuffer;
 import org.csstudio.archive.common.engine.model.ArchiveGroup;
 import org.csstudio.archive.common.engine.model.EngineModel;
 import org.csstudio.archive.common.engine.model.SampleBufferStatistics;
+import org.csstudio.domain.desy.system.ISystemVariable;
 
 /** Provide web page with basic info for all the groups.
  *  @author Kay Kasemir
@@ -72,7 +74,7 @@ class GroupsResponse extends AbstractResponse {
         boolean hasNumOfClosedStateChannels = false;
         boolean hasNumOfUnknownStateChannels = false;
         for (final ArchiveGroup group : getModel().getGroups()) {
-            final Collection<ArchiveChannelBuffer> channels = group.getChannels();
+            final Collection<ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> channels = group.getChannels();
             for (@SuppressWarnings("rawtypes")
             final ArchiveChannelBuffer channel : channels) {
                 if(channel!=null) {
@@ -128,7 +130,7 @@ class GroupsResponse extends AbstractResponse {
             long numOfReceivedSamples = 0;
 
             @SuppressWarnings("rawtypes")
-            final Collection<ArchiveChannelBuffer> channels = group.getChannels();
+            final Collection<ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> channels = group.getChannels();
             for (@SuppressWarnings("rawtypes")
             final ArchiveChannelBuffer channel : channels) {
                 if (channel.isConnected()) {

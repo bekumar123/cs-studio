@@ -117,7 +117,7 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
             if (!elements.isEmpty()) {
                 PreparedStatement stmt = null;
                 try {//bei jedes Mal SQL Statement erzeugen, connection neue prüfen, ob die Connection closed ist
-                    while (connection == null || connection.isClosed()) {
+                    while (connection== null || connection.isClosed()) {
                         connection = _connectionHandler.getThreadLocalConnection();
                     }
                     stmt = handler.createNewStatement(connection);

@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.SortedSet;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -61,7 +62,8 @@ public class PersistEngineDataManager {
     //jhatje 22.2.12: back to previous thread number
     //    private final ScheduledThreadPoolExecutor _executor =
     //            (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1);
-
+    private final ScheduledExecutorService _writeSamplesExecutor =
+            Executors.newSingleThreadScheduledExecutor();
     /**
      * Sorted set for submitted periodic workers - decreasing by period
      */
@@ -132,7 +134,7 @@ public class PersistEngineDataManager {
                                               "PERIODIC Worker: " + workerId.getAndIncrement(),
                                               prefPeriodInMS,
                                               handlerProvider);
-            executor.scheduleAtFixedRate(newWorker1, 0L, 1000, TimeUnit.MILLISECONDS);
+            _writeSamplesExecutor.scheduleAtFixedRate(newWorker1, 0L, 1000, TimeUnit.MILLISECONDS);
             /*  executor.scheduleWithFixedDelay(newWorker,
                              1L,
                              newWorker.getPeriodInMS(),

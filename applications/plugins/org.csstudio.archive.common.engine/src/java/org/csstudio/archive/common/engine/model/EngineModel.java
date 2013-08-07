@@ -186,12 +186,12 @@ public final class EngineModel {
         setState(EngineState.RUNNING);
 
         checkAndUpdateLastShutdownStatus(_provider, _engine, _channelMap.values());
-
+        startChannelGroups(_groupMap.values());
 
         _writeExecutor = new WriteExecutor(_provider, _engine.getId(), _channelMap.values(), this);
         _writeExecutor.start(_heartBeatPeriodInMS, _writePeriodInMS);
 
-        startChannelGroups(_groupMap.values());
+
     }
 
 

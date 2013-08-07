@@ -7,6 +7,7 @@
  ******************************************************************************/
 package org.csstudio.archive.common.engine.model;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
 
@@ -15,6 +16,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 
 import org.csstudio.archive.common.service.channelgroup.ArchiveChannelGroupId;
+import org.csstudio.domain.desy.system.ISystemVariable;
 
 import com.google.common.collect.MapMaker;
 
@@ -34,7 +36,7 @@ public class ArchiveGroup {
      *  Using thread-safe array to allow HTTPD as well as main
      *  thread to traverse
      */
-    private final ConcurrentMap<String, ArchiveChannelBuffer<?, ?>> _channelMap;
+    private final ConcurrentMap<String, ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> _channelMap;
 
     /** Set to <code>true</code> while running. */
     @GuardedBy("this")
@@ -71,15 +73,15 @@ public class ArchiveGroup {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Nonnull
-    public Collection<ArchiveChannelBuffer> getChannels() {
-        return (Collection) _channelMap.values();
+    public Collection<ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> getChannels() {
+        return _channelMap.values();
     }
 
     /** Add channel to group
      *  @param channel Channel to add
      */
     @SuppressWarnings("nls")
-    final synchronized void add(@Nonnull final ArchiveChannelBuffer<?, ?> channel) {
+    final synchronized void add(@Nonnull final ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>> channel) {
         _channelMap.put(channel.getName(), channel);
     }
 

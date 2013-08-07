@@ -212,7 +212,7 @@ public final class EngineModelConfigurator {
             final IArchiveChannel cfg =
                 provider.getEngineFacade().getChannelByName(epicsName.toString());
             if (cfg != null) {
-                final ArchiveChannelBuffer<?, ?> channelBuffer =
+                final ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>> channelBuffer =
                     createAndAddArchiveChannelBuffer(provider, cfg, channelMap, dataSource);
                 group.add(channelBuffer);
 

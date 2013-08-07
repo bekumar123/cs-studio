@@ -67,6 +67,8 @@ public class MessageFileHandler {
     @SuppressWarnings("unused")
     private RawMessageFilter rawMessageFilter;
 
+    private RescuedFilesInfo filesInfo;
+
     /** Prefix for the file names of the archive messages */
     private final String archivePrefix = "archive-message-";
 
@@ -86,6 +88,7 @@ public class MessageFileHandler {
         dataDirectories = new DataDirectory(messageDir, messageAltDir);
         archiveMessageFilter = new ArchiveMessageFilter(archivePrefix);
         rawMessageFilter = new RawMessageFilter(rawPrefix);
+        filesInfo = new RescuedFilesInfo();
     }
 
     /**
@@ -97,13 +100,18 @@ public class MessageFileHandler {
      */
     public int getMessageFilesNumber() {
 
-        int result = -1;
+        if (filesInfo.isUpToDate()) {
+            return filesInfo.getNumberOfFiles();
+        }
 
+        int result = -1;
         try {
             final File file = dataDirectories.getDataDirectory();
             String[] fileList = file.list(archiveMessageFilter);
             if(fileList != null) {
                 result = fileList.length;
+                filesInfo.setNumberOfFiles(result);
+                filesInfo.setUpToDate();
                 Arrays.fill(fileList, null);
                 fileList = null;
             }
@@ -249,7 +257,10 @@ public class MessageFileHandler {
         }
 
         if (file.delete()) {
-            LOG.debug("{} deleted.", fileName);
+            filesInfo.decrementNumberOfFiles(1);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("{} deleted.", fileName);
+            }
         }
 
         return content;
@@ -295,6 +306,7 @@ public class MessageFileHandler {
         }
 
         list = null;
+        filesInfo.decrementNumberOfFiles(result);
 
         return result;
     }
@@ -322,10 +334,10 @@ public class MessageFileHandler {
         DecimalFormat nf = new DecimalFormat("#");
         nf.setMinimumIntegerDigits(String.valueOf(content.size()).length());
 
-        int count = 1;
+        int count = 0;
         for (ArchiveMessage o : content) {
 
-            String fn = archivePrefix + dateString + "-" + nf.format(count++);
+            String fn = archivePrefix + dateString + "-" + nf.format(++count);
 
             FileOutputStream fos = null;
             ObjectOutputStream oos = null;
@@ -343,12 +355,17 @@ public class MessageFileHandler {
             } finally {
                 if(oos != null){try{oos.close();}catch(final IOException ioe){/* Can be ignored */}}
                 if(fos != null){try{fos.close();}catch(final IOException ioe){/* Can be ignored */}}
-
                 oos = null;
                 fos = null;
             }
         }
-        count--;
+
+        if (count > 0) {
+            // Force file counting
+            filesInfo.setUpToDate();
+            filesInfo.incrementNumberOfFiles(count);
+        }
+
         return count;
     }
 
@@ -376,6 +393,11 @@ public class MessageFileHandler {
             }
         } catch (DataDirectoryException e) {
             LOG.error("[*** DataDirectoryException ***]: {}", e.getMessage());
+        }
+
+        if (!result.isEmpty()) {
+            // Force file counting
+            filesInfo.setUpToDate();
         }
         return result;
     }

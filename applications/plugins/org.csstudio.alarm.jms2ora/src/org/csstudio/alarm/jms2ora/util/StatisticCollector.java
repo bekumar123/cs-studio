@@ -57,6 +57,11 @@ public class StatisticCollector {
      */
     private final Collector storedMessages;
 
+    /**
+     * Number of messages that are stored on local disk
+     */
+    private final Collector rescuedMessages;
+
     public StatisticCollector() {
 
         receivedMessages = new Collector();
@@ -82,6 +87,12 @@ public class StatisticCollector {
         storedMessages.setDescriptor("Stored messages");
         storedMessages.setContinuousPrint(false);
         storedMessages.setContinuousPrintCount(1000.0);
+
+        rescuedMessages = new Collector();
+        rescuedMessages.setApplication(VersionInfo.NAME);
+        rescuedMessages.setDescriptor("Rescued messages");
+        rescuedMessages.setContinuousPrint(false);
+        rescuedMessages.setContinuousPrintCount(1000.0);
     }
 
     public final Double getReceivedMessageCount() {
@@ -115,9 +126,27 @@ public class StatisticCollector {
     public void incrementStoredMessages() {
         storedMessages.incrementValue();
     }
-    
+
     public void addStoredMessages(int value) {
         double current = storedMessages.getActualValue().getValue();
         storedMessages.setValue(value + current);
+    }
+
+    public final Double getRescuedMessagesCount() {
+        return rescuedMessages.getActualValue().getValue();
+    }
+
+    public void incrementRescuedMessages() {
+        rescuedMessages.incrementValue();
+    }
+
+    public void addRescuedMessages(int value) {
+        double current = rescuedMessages.getActualValue().getValue();
+        rescuedMessages.setValue(value + current);
+    }
+
+    public void decrementRescuedMessages(int value) {
+        double current = rescuedMessages.getActualValue().getValue();
+        rescuedMessages.setValue(current - value);
     }
 }

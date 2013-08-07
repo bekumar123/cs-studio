@@ -6,6 +6,7 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.csstudio.alarm.jms2ora.service.persistence.Activator
 Bundle-Vendor: Markus Moeller <markus.moeller@desy.de>
 Require-Bundle: org.eclipse.core.runtime,
+ org.joda.time;bundle-version="1.6.2",
  org.slf4j;bundle-version="1.6.1"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy

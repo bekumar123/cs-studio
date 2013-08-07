@@ -95,6 +95,8 @@ public class ApplicationChecker {
      */
     private long maxStoreDiffTime;
 
+    private int maxRescuedFiles;
+
     /**
      *
      */
@@ -102,11 +104,19 @@ public class ApplicationChecker {
 
         final IPreferencesService prefs = Platform.getPreferencesService();
         maxReceiveDiffTime = prefs.getLong(Jms2OraActivator.PLUGIN_ID,
-                               PreferenceConstants.MAX_RECEIVE_DIFF_TIME, 10, null);
+                                           PreferenceConstants.MAX_RECEIVE_DIFF_TIME,
+                                           10,
+                                           null);
 
         maxStoreDiffTime = prefs.getLong(Jms2OraActivator.PLUGIN_ID,
-                                           PreferenceConstants.MAX_STORE_DIFF_TIME, 10, null);
+                                         PreferenceConstants.MAX_STORE_DIFF_TIME,
+                                         10,
+                                         null);
 
+        maxRescuedFiles = prefs.getInt(Jms2OraActivator.PLUGIN_ID,
+                                       PreferenceConstants.MAX_RESCUED_FILES,
+                                       50000,
+                                       null);
         // Convert the time to ms
         maxReceiveDiffTime *= 60000L;
         LOG.info("Max receive time difference: {}", maxReceiveDiffTime);
@@ -296,30 +306,24 @@ public class ApplicationChecker {
 
         final StringReader reader = new StringReader(xmlText);
         final SAXBuilder builder = new SAXBuilder();
-        Document xmlDoc = null;
-        Element rootElement = null;
-        Element child = null;
-        String receivedDateStr = null;
-        String storedDateStr = null;
-        String filteredDateStr = null;
-        String discardedDateStr = null;
         boolean result = false;
 
         try {
-            xmlDoc = builder.build(reader);
+            Document xmlDoc = builder.build(reader);
 
-            rootElement = xmlDoc.getRootElement();
+            Element rootElement = xmlDoc.getRootElement();
             if (rootElement.getName().compareTo("StatisticProtocol") != 0) {
                 LOG.warn(" NOT a statistic XML output. Discarding...");
                 return result;
             }
 
-            child = rootElement.getChild("CollectionSupervisor");
+            Element child = rootElement.getChild("CollectionSupervisor");
 
-            receivedDateStr = getActualDate(child, "Jms2Ora", "Received messages");
-            storedDateStr = getActualDate(child, "Jms2Ora", "Stored messages");
-            filteredDateStr = getActualDate(child, "Jms2Ora", "Filtered messages");
-            discardedDateStr = getActualDate(child, "Jms2Ora", "Discarded messages");
+            String receivedDateStr = getActualDate(child, "Jms2Ora", "Received messages");
+            String storedDateStr = getActualDate(child, "Jms2Ora", "Stored messages");
+            String filteredDateStr = getActualDate(child, "Jms2Ora", "Filtered messages");
+            String discardedDateStr = getActualDate(child, "Jms2Ora", "Discarded messages");
+            int rescuedValue = getActualValue(child, "Jms2Ora", "Rescued messages");
 
             final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
@@ -339,22 +343,14 @@ public class ApplicationChecker {
                     LOG.info("Stored messages:    " + storedDateStr + " (" + storedDate.getTime() + ")");
                     LOG.info("Filtered messages:  " + filteredDateStr + " (" + filteredDate.getTime() + ")");
                     LOG.info("Discarded messages: " + discardedDateStr + " (" + discardedDate.getTime() + ")");
+                    LOG.info("Rescued messages:   " + rescuedValue);
 
                     final long timeReceivedDiff = currentTime - receivedDate.getTime();
                     final long timeStoredDiff = currentTime - storedDate.getTime();
-                    if (timeReceivedDiff > maxReceiveDiffTime) {
-                        return false;
-                    }
-
-                    if (timeStoredDiff > maxStoreDiffTime) {
+                    if (timeReceivedDiff > maxReceiveDiffTime || timeStoredDiff > maxStoreDiffTime) {
                         result = false;
-//                        if (filteredDate.getTime() > storedDate.getTime()
-//                            || discardedDate.getTime() > storedDate.getTime()) {
-//
-//                            result = true;
-//                        } else {
-//                            result = false;
-//                        }
+                    } else if (rescuedValue > maxRescuedFiles) {
+                        result = false;
                     } else {
                         result = true;
                     }
@@ -455,6 +451,82 @@ public class ApplicationChecker {
         return result;
     }
 
+    private int getActualValue(final Element child, final String app, final String desc) {
+
+        Element column = null;
+        Attribute attr = null;
+        String value = null;
+        Double elementValue = null;
+        boolean doNext = false;
+
+        // Collectors
+        final List<?> list = child.getChildren();
+        for (int i = 0;i < list.size();i++) {
+
+            Element subElement = (Element) list.get(i);
+            if (subElement.getName().toLowerCase().compareTo("collector") == 0) {
+
+                // Columns
+                final List<?> colList = subElement.getChildren();
+                for(int c = 0;c < colList.size();c++) {
+                    column = (Element)colList.get(c);
+                    attr = column.getAttribute("Name");
+                    value = attr.getValue();
+                    if (value.toLowerCase().compareTo("application") == 0) {
+                        if (column.getValue().compareTo(app) == 0) {
+                            doNext = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (doNext) {
+                    for (int c = 0; c < colList.size(); c++) {
+                        column = (Element) colList.get(c);
+                        attr = column.getAttribute("Name");
+                        value = attr.getValue();
+                        if (value.toLowerCase().compareTo("descriptor") == 0) {
+                            if(column.getValue().compareTo(desc) == 0) {
+                                doNext = true;
+                            } else {
+                                doNext = false;
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                if (doNext) {
+                    for (int c = 0; c < colList.size(); c++) {
+                        column = (Element) colList.get(c);
+                        attr = column.getAttribute("Name");
+                        value = attr.getValue();
+                        if (value.toLowerCase().compareTo("actual value") == 0) {
+                            String valueStr = column.getValue();
+                            try {
+                                elementValue = Double.parseDouble(valueStr);
+                            } catch (NumberFormatException e) {
+                                elementValue = new Double(0.0);
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                if (elementValue != null) {
+                    break;
+                }
+            }
+        }
+
+        int result = 0;
+        if (elementValue != null) {
+            result = elementValue.intValue();
+        }
+
+        return result;
+    }
+
     /**
      *
      * @return
@@ -535,9 +607,9 @@ public class ApplicationChecker {
             final Iterator<IRosterEntry> list = rosterEntries.iterator();
             while (list.hasNext()) {
                 final IRosterEntry ce = list.next();
-                name = ce.getUser().getID().toExternalForm();
+                name = ce.getUser().getID().toExternalForm().toLowerCase();
                 if (name.contains(applicName)) {
-                    if (name.indexOf(host) > -1 && name.indexOf(user) > -1) {
+                    if (name.indexOf(host.toLowerCase()) > -1 && name.indexOf(user.toLowerCase()) > -1) {
                         currentApplic = ce;
                         break;
                     }

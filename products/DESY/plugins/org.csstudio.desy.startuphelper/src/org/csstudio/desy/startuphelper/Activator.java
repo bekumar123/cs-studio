@@ -1,7 +1,10 @@
 package org.csstudio.desy.startuphelper;
 
+
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -14,6 +17,8 @@ public class Activator extends AbstractUIPlugin {
 	// The shared instance
 	private static Activator plugin;
 	
+	private static final Logger LOG = LoggerFactory.getLogger(Activator.class);
+
 	/**
 	 * The constructor
 	 */
@@ -26,6 +31,7 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
+		LOG.error("******** CSS startup - Hostname " + System.getenv("hostname") + " - computername " + System.getenv("computername"));
 		plugin = this;
 	}
 

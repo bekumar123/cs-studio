@@ -38,11 +38,11 @@ public class SinglePropertyWriteConnector implements IPropertyChangeListener {
 		try {
 			broker.setValueAsync(new ConnectionParameters(rinfo), manualValue, new ResponseListener() {
 				public void responseError(ResponseEvent event) {
-					LOG.error("Could not set value for ["+pv.toString()+"].");
+					LOG.warn("Could not set value for ["+pv.toString()+"].");
 				}
 
 				public void responseReceived(ResponseEvent event) {
-					LOG.error("Value for ["+pv.toString()+"] was set.");
+					LOG.info("Value for ["+pv.toString()+"] was set.");
 				}
 
 			});

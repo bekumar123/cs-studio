@@ -31,7 +31,7 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
-		LOG.error("******** CSS startup - Hostname " + System.getenv("hostname") + " - computername " + System.getenv("computername"));
+		LOG.error("******** CSS startup - " + System.getenv("computername"));
 		plugin = this;
 	}
 

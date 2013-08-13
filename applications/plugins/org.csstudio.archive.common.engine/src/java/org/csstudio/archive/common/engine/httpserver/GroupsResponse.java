@@ -97,7 +97,6 @@ class GroupsResponse extends AbstractResponse {
                                 break;
                         }
                     }else{
-                        hasNumOfUnknownStateChannels = true;
                     }
                 }
             }

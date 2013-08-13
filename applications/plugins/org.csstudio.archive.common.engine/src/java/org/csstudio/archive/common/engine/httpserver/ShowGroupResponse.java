@@ -117,7 +117,7 @@ class ShowGroupResponse extends AbstractGroupResponse {
             Messages.HTTP_CHANNEL,
             Messages.HTTP_STARTED,
             Messages.HTTP_CONNECTED,
-            Messages.HTTP_CONN_STATE,
+         //   Messages.HTTP_CONN_STATE,
       //      "CAJ direct",
          //   "DB direct",
             Messages.HTTP_CURRENT_VALUE,
@@ -147,10 +147,7 @@ class ShowGroupResponse extends AbstractGroupResponse {
                 cajDirectconnState = ConnectionState.CONNECTED.equals(state) && channel.isConnected()?   state.getName() : !ConnectionState.CONNECTED.equals(state) && !channel.isConnected() ?  HTMLWriter.makeRedText(  state.getName()) : HTMLWriter.makeRedText( channel.getCAJDirectConnectState().getName());
                 isChannelConnected = ConnectionState.CONNECTED.equals(state) && channel.isConnected()?   Messages.HTTP_YES  : !ConnectionState.CONNECTED.equals(state) && !channel.isConnected() ?  HTMLWriter.makeRedText(  Messages.HTTP_NO) : channel.isChannelConnected() ? Messages.HTTP_YES :
                     HTMLWriter.makeRedText(Messages.HTTP_NO);;
-                 }else{
-                    cajDirectconnState=HTMLWriter.makeRedText("UNKNOWN");
-                    isChannelConnected=HTMLWriter.makeRedText("UNKNOWN");
-                }
+                 }
                 final String curVal = limitLength(getValueAsString(mostRecentSample), MAX_VALUE_DISPLAY);
 
                 final String curValTimestamp =
@@ -162,7 +159,7 @@ class ShowGroupResponse extends AbstractGroupResponse {
                             ShowChannelResponse.linkTo(channel.getName()),
                             started,
                             connected,
-                            connState,
+                //            connState,
                         //    cajDirectconnState,
                         //    isChannelConnected,
                             curVal,

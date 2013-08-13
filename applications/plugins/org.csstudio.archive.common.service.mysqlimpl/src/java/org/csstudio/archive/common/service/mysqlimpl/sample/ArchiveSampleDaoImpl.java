@@ -50,6 +50,7 @@ import org.csstudio.archive.common.service.sample.ArchiveSample;
 import org.csstudio.archive.common.service.sample.IArchiveSample;
 import org.csstudio.archive.common.service.sample.SampleMinMaxAggregator;
 import org.csstudio.archive.common.service.util.ArchiveTypeConversionSupport;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarm;
 import org.csstudio.domain.desy.epics.typesupport.EpicsSystemVariableSupport;
 import org.csstudio.domain.desy.system.ControlSystem;
 import org.csstudio.domain.desy.system.ISystemVariable;
@@ -94,7 +95,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
     private static final String RETRIEVAL_FAILED = "Sample retrieval from archive failed.";
 
     private static final String SELECT_RAW_PREFIX =
-        "SELECT " + Joiner.on(",").join(COLUMN_CHANNEL_ID, COLUMN_TIME, COLUMN_VALUE) + " ";
+        "SELECT " + Joiner.on(",").join(COLUMN_CHANNEL_ID, COLUMN_TIME, COLUMN_VALUE,COLUMN_SERVERTY,COLUMN_STATUS) + " ";
     private final String _selectRawSamplesStmt =
         SELECT_RAW_PREFIX +
         "FROM " + getDatabaseName() + "." + ARCH_TABLE_PLACEHOLDER + " WHERE " + COLUMN_CHANNEL_ID + "=? " +
@@ -180,14 +181,15 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             final Double minValue = sample.getMin();
             final Double maxValue = sample.getMax();
             final TimeInstant time = sample.getTimestamp();
-
+            final String severty=sample.getSeverty();
+            final String status=sample.getStatus();
             final SampleMinMaxAggregator agg = retrieveAndInitializeAggregator(channelId,
                                                                                aggregatorMap,
                                                                                newValue,
                                                                                minValue,
                                                                                maxValue,
                                                                                time);
-            processHourSampleOnTimeCondition(hourSamples, channelId, newValue, time, agg);
+            processHourSampleOnTimeCondition(hourSamples, channelId, newValue, time, agg,status,severty);
         }
         return hourSamples;
     }
@@ -196,13 +198,14 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                                                   @Nonnull final ArchiveChannelId channelId,
                                                   @Nonnull final Double newValue,
                                                   @Nonnull final TimeInstant time,
-                                                  @Nonnull final SampleMinMaxAggregator agg) {
+                                                  @Nonnull final SampleMinMaxAggregator agg,  @Nonnull final String status,
+                                                  @Nonnull final String severty) {
         if (isReducedDataWriteDueAndHasChanged(newValue, agg, time, Hours.ONE.toStandardDuration())) {
             final Double avg = agg.getAvg();
             final Double min = agg.getMin();
             final Double max = agg.getMax();
             if (avg != null && min != null && max != null) {
-                hourSamples.add(new HourReducedDataSample(channelId, time, avg, min, max));
+                hourSamples.add(new HourReducedDataSample(channelId, time, avg, min, max,status,severty));
             }
             agg.reset();
         }
@@ -228,6 +231,14 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                 if (newValue == null) {
                     continue;
                 }
+                final EpicsAlarm alarm=(EpicsAlarm)((ArchiveSample)sample).getAlarm();
+                String severty="";
+                String status="";
+                if(alarm!=null){
+                    severty=alarm.getSeverity().toString();
+                    status=alarm.getStatus().toString();
+                }
+
                 final ArchiveChannelId channelId = sample.getChannelId();
                 final Double minValue = newValue;
                 final Double maxValue = newValue;
@@ -239,7 +250,8 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                                                                                    minValue,
                                                                                    maxValue,
                                                                                    time);
-                processMinuteSampleOnTimeCondition(minuteSamples, newValue, channelId, time, agg);
+                processMinuteSampleOnTimeCondition(minuteSamples, newValue, channelId, time, agg,status,severty);
+
             }
         }
         return minuteSamples;
@@ -250,13 +262,15 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                                                     @Nonnull final Double newValue,
                                                     @Nonnull final ArchiveChannelId channelId,
                                                     @Nonnull final TimeInstant time,
-                                                    @Nonnull final SampleMinMaxAggregator agg) {
+                                                    @Nonnull final SampleMinMaxAggregator agg,
+                                                    @Nonnull final String status,
+                                                    @Nonnull final String severty) {
         if (isReducedDataWriteDueAndHasChanged(newValue, agg, time, Minutes.ONE.toStandardDuration())) {
             final Double avg = agg.getAvg();
             final Double min = agg.getMin();
             final Double max = agg.getMax();
             if (avg != null && min != null && max != null) {
-                minuteSamples.add(new MinuteReducedDataSample(channelId, time, avg, min, max));
+                minuteSamples.add(new MinuteReducedDataSample(channelId, time, avg, min, max,status,severty));
             }
             agg.reset();
         }

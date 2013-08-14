@@ -349,14 +349,19 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
     }
    public  ConnectionState getConnectState(){
 	   synchronized(DesyJCAChannelHandler.this) {
+		   try{
 		   return channel.getConnectionState();
+		   }catch(final IllegalStateException e){
+			  // e.printStackTrace();
+			   return null;
+		   }
 	   }
     }
     public ConnectionState getCAJDirectConnectState(){
     	 synchronized(DesyJCAChannelHandler.this) {
     		 if(channel != null ) {
     			    //testen um deadlock
-                 //return channel.getConnectionState();
+                 return channel.getConnectionState();
 			}
   		   return null;
   	   }
@@ -366,7 +371,7 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
         final Map<String, Object> properties = new HashMap<String, Object>();
         if (channel != null) {
             properties.put("Channel name", channel.getName());
-            properties.put("Connection state", channel.getConnectionState().getName());
+            properties.put("Connection state", channel.getConnectionState());
             if (channel.getConnectionState() == Channel.ConnectionState.CONNECTED) {
                 properties.put("Hostname", channel.getHostName());
                 properties.put("Channel type", channel.getFieldType().getName());

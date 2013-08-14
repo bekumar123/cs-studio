@@ -151,7 +151,6 @@ class MainResponse extends AbstractResponse {
                         case 3: numOfClosedStateChannels++;
                         break;
                         default: numOfUnknownStateChannels++;
-                            System.out.println("MainResponse.createChannelStatsRows()  "+channel.getConnectState().toString());
                         break;
                     }
                 }

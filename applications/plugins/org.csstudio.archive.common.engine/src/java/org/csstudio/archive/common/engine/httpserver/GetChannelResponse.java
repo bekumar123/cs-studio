@@ -126,7 +126,7 @@ class GetChannelResponse extends AbstractChannelResponse {
                         : HTMLWriter.makeRedText(Messages.HTTP_NO);
         tableLine(new String[] {Messages.HTTP_CONNECTED, connected});
         final ConnectionState state=channel.getConnectState();
-        final String connState = state!=null? ConnectionState.CONNECTED.equals(state)?   state.getName() : HTMLWriter.makeRedText( state.getName()): HTMLWriter.makeRedText("UNKNOWN");
+        final String connState = state!=null? ConnectionState.CONNECTED.equals(state)?   state.getName() : HTMLWriter.makeRedText( state.getName()):null;
         final String cajDirectconnState ;
         final String isChannelConnected ;
         if( state!=null){
@@ -139,9 +139,12 @@ class GetChannelResponse extends AbstractChannelResponse {
             cajDirectconnState=HTMLWriter.makeRedText("UNKNOWN");
             isChannelConnected=HTMLWriter.makeRedText("UNKNOWN");
         }
+       if( connState!=null)
+     {
         tableLine(new String[] {Messages.HTTP_CONN_STATE, connState});
-      //  tableLine(new String[] {"CAJ direct", cajDirectconnState});
-    //    tableLine(new String[] {"DB Direct", isChannelConnected });
+          //  tableLine(new String[] {"CAJ direct", cajDirectconnState});
+        //    tableLine(new String[] {"DB Direct", isChannelConnected });
+    }
 
         tableLine(new String[] {Messages.HTTP_INTERNAL_STATE, channel.getInternalState()});
         tableLine(new String[] {Messages.HTTP_CURRENT_VALUE, getValueAsString(channel.getMostRecentSample())});

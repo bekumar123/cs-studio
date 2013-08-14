@@ -112,12 +112,18 @@ class ShowGroupResponse extends AbstractGroupResponse {
                                      @Nonnull final HTMLWriter html) {
         // HTML Table of all channels in the group
         String errorChannels="";
+        boolean hasNumOfConnectedStateChannels = false;
+        for (final ArchiveChannelBuffer<?, ?> channel : group.getChannels()) {
+            if(channel.getConnectState()!=null) {
+                hasNumOfConnectedStateChannels = true;
+            }
+        }
         html.openTable(1, new String[] {
                 "#",
             Messages.HTTP_CHANNEL,
             Messages.HTTP_STARTED,
             Messages.HTTP_CONNECTED,
-         //   Messages.HTTP_CONN_STATE,
+            hasNumOfConnectedStateChannels?   Messages.HTTP_CONN_STATE:null,
       //      "CAJ direct",
          //   "DB direct",
             Messages.HTTP_CURRENT_VALUE,
@@ -159,7 +165,7 @@ class ShowGroupResponse extends AbstractGroupResponse {
                             ShowChannelResponse.linkTo(channel.getName()),
                             started,
                             connected,
-                //            connState,
+                            hasNumOfConnectedStateChannels?  connState:null,
                         //    cajDirectconnState,
                         //    isChannelConnected,
                             curVal,

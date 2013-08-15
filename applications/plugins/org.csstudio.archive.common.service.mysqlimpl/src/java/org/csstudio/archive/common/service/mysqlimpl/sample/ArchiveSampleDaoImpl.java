@@ -96,13 +96,13 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
     private static final String RETRIEVAL_FAILED = "Sample retrieval from archive failed.";
 
     private static final String SELECT_RAW_PREFIX =
-        "SELECT " + Joiner.on(",").join(COLUMN_CHANNEL_ID, COLUMN_TIME, COLUMN_VALUE) + " ";
+        "SELECT " + Joiner.on(",").join(COLUMN_CHANNEL_ID, COLUMN_TIME, COLUMN_VALUE,COLUMN_STATUS,COLUMN_SERVERTY) + " ";
     private final String _selectRawSamplesStmt =
         SELECT_RAW_PREFIX +
         "FROM " + getDatabaseName() + "." + ARCH_TABLE_PLACEHOLDER + " WHERE " + COLUMN_CHANNEL_ID + "=? " +
         "AND " + COLUMN_TIME + " BETWEEN ? AND ?";
     private final String _selectOptSamplesStmt =
-        "SELECT " + Joiner.on(",").join(COLUMN_CHANNEL_ID, COLUMN_TIME, COLUMN_AVG, COLUMN_MIN, COLUMN_MAX) + " " +
+        "SELECT " + Joiner.on(",").join(COLUMN_CHANNEL_ID, COLUMN_TIME, COLUMN_AVG, COLUMN_MIN, COLUMN_MAX,COLUMN_STATUS,COLUMN_SERVERTY) + " " +
         "FROM " + getDatabaseName() + "."+ ARCH_TABLE_PLACEHOLDER + " WHERE " + COLUMN_CHANNEL_ID + "=? " +
         "AND " + COLUMN_TIME + " BETWEEN ? AND ?";
     private final String _selectLatestSampleBeforeTimeStmt =
@@ -485,7 +485,11 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                     alarm=new EpicsAlarm(EpicsAlarmSeverity.parseSeverity( result.getString(COLUMN_SERVERTY)), EpicsAlarmStatus.parseStatus( result.getString(COLUMN_STATUS)));
 
                 } else {
+                    final String s1= result.getString(COLUMN_SERVERTY);
+                    final String s2= result.getString(COLUMN_STATUS);
                     value = ArchiveTypeConversionSupport.fromArchiveString(typeClass, result.getString(COLUMN_VALUE));
+                    alarm=new EpicsAlarm(EpicsAlarmSeverity.parseSeverity(s1), EpicsAlarmStatus.parseStatus(s2));
+
                 }
 
                 break;
@@ -494,10 +498,14 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             case AVG_PER_HOUR : { // (..., avg_val, min_val, max_val)
                 if(channel.getDataType().equals("EpicsEnum")) {
                     value = ArchiveTypeConversionSupport.fromArchiveString(typeClass, result.getString(COLUMN_VALUE));
+                    alarm=new EpicsAlarm(EpicsAlarmSeverity.parseSeverity( result.getString(COLUMN_SERVERTY)), EpicsAlarmStatus.parseStatus( result.getString(COLUMN_STATUS)));
+
                  }else{
                 value = ArchiveTypeConversionSupport.fromDouble(typeClass, result.getDouble(COLUMN_AVG));
                 min = ArchiveTypeConversionSupport.fromDouble(typeClass, result.getDouble(COLUMN_MIN));
                 max = ArchiveTypeConversionSupport.fromDouble(typeClass, result.getDouble(COLUMN_MAX));
+                alarm=new EpicsAlarm(EpicsAlarmSeverity.parseSeverity( result.getString(COLUMN_SERVERTY)), EpicsAlarmStatus.parseStatus( result.getString(COLUMN_STATUS)));
+
                 }
                 break;
             }
@@ -510,7 +518,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         final ISystemVariable<V> sysVar = SystemVariableSupport.create(channel.getName(),
                                                                        value,
                                                                        ControlSystem.valueOf(cs.getName(), cs.getType()),
-                                                                       timeInstant);
+                                                                       timeInstant,alarm);
         if (min == null || max == null) {
             return new ArchiveSample<V, T>(channel.getId(), (T) sysVar, alarm,type.name());
         }

@@ -10,7 +10,7 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
  lib/jca-2.3.6.jar,
- lib/caj-1.1.10.jar
+ lib/caj-1.1.13.jar
 Export-Package: 
  com.cosylab.epics.caj,
  com.cosylab.epics.caj.cas,
@@ -26,6 +26,7 @@ Export-Package:
  com.cosylab.epics.caj.impl.sync,
  com.cosylab.epics.caj.util,
  com.cosylab.epics.caj.util.logging,
+ com.cosylab.epics.caj.util.nif,
  gov.aps.jca,
  gov.aps.jca.cas,
  gov.aps.jca.configuration,

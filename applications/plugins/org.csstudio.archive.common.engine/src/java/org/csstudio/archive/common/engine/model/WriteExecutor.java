@@ -109,9 +109,10 @@ public class WriteExecutor {
                                                         writePeriodInMS,_model);
         _writeSamplesExecutor.scheduleAtFixedRate(writeWorker, i*10L, writePeriodInMS, TimeUnit.MILLISECONDS);
         */
+         WriteWorker writeWorker=null;
        for (final ArchiveGroup g : _model.getGroups()) {
             if(  g.getChannels().size()>0){
-            final WriteWorker writeWorker =
+            writeWorker =
                                             new WriteWorker(provider,
                                                             "Periodic Archive Engine Writer  " +i,
                                                             g.getChannels(),
@@ -123,7 +124,7 @@ public class WriteExecutor {
             }
             //   return writeWorker;
         }
-        return null;
+        return writeWorker;
     }
 
     private long adjustWritePeriod(final long pWritePeriod, final long minWritePeriodMs) {

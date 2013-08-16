@@ -4,7 +4,7 @@
  */
 package org.epics.pvmanager.jca;
 
-import com.cosylab.epics.caj.CAJMonitor;
+//import com.cosylab.epics.caj.CAJMonitor;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;

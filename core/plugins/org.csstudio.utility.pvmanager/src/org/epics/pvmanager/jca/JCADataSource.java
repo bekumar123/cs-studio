@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 import org.epics.pvmanager.ChannelHandler;
 import org.epics.pvmanager.DataSource;
 import org.epics.pvmanager.data.DataTypeSupport;
-import com.cosylab.epics.caj.CAJContext;
+//import com.cosylab.epics.caj.CAJContext;
 import gov.aps.jca.jni.JNIContext;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

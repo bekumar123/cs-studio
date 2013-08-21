@@ -112,6 +112,7 @@ public abstract class DesyArchivePVManagerListener<V extends Serializable,
             if(sysVars==null || sysVars.isEmpty()) {
                 return;
             }
+
             if (_firstConnection && !sysVars.isEmpty()) {
 
                 handleOnConnectionInformation(_provider, sysVars.get(0), _channelId, _buffer.isConnected(), _startInfo);
@@ -130,6 +131,9 @@ public abstract class DesyArchivePVManagerListener<V extends Serializable,
             }
             for (final EpicsSystemVariable sysVar : sysVars) {
                 handleValueUpdateInformation(sysVar);
+                if(_channelName.endsWith("CMTBSL2R50_ai")){
+                    System.out.println("DesyArchivePVManagerListener.pvChanged()  CMTBSL2R50_ai "+sysVar.getAlarm().getSeverity());
+                }
             }
         } catch (final Throwable t) {
             LOG.error("Unexpected exception in PVListener for: {}:\n{}", _channelName, t.getMessage());

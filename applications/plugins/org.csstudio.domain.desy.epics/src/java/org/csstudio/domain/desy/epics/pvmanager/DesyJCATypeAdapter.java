@@ -155,7 +155,12 @@ abstract class DesyJCATypeAdapter implements DataSourceTypeAdapter<Channel, Desy
 
         final Object data = toData(eVal, eMeta);
 
-        return new EpicsSystemVariable(channelName, data, ControlSystem.EPICS_DEFAULT, timestamp, dMeta);
+        if(channelName.equals("CMTBSL2R50_ai"))
+        {
+     	 System.out.println("DesyJCATypeAdapter.createValue()   " +dMeta.getAlarm().getSeverity()+"   emeta  "+((STS)eMeta).getSeverity());
+
+        }
+        return new EpicsSystemVariable(channelName, data, ControlSystem.EPICS_DEFAULT, timestamp, createMetaData((STS)eMeta));
     }
 
 

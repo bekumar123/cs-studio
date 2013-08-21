@@ -305,6 +305,7 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
                    if (getLastMessagePayload() != null) {
                     metadata = getLastMessagePayload().getMetadata();
                 }
+
                 processMessage(new DesyJCAMessagePayload(metadata, event));
             }
         }

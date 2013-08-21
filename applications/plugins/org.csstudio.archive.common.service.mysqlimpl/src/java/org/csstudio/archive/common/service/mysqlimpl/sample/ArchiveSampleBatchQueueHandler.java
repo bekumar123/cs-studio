@@ -95,6 +95,7 @@ public class ArchiveSampleBatchQueueHandler extends BatchQueueHandlerSupport<Arc
         if((EpicsAlarm)type.getAlarm()!=null){
         stmt.setString(4,((EpicsAlarm)type.getAlarm()).getStatus().toString());
         stmt.setString(5, ((EpicsAlarm)type.getAlarm()).getSeverity().toString());
+
         }else
         { stmt.setString(4,"");
           stmt.setString(5,"");
@@ -102,6 +103,9 @@ public class ArchiveSampleBatchQueueHandler extends BatchQueueHandlerSupport<Arc
         try {
             final String archiveString = ArchiveTypeConversionSupport.toArchiveString(type.getValue());
             stmt.setString(3, archiveString);
+            if( type.getChannelId().intValue()==2163){
+                System.out.println("ArchiveSampleBatchQueueHandler.fillStatement()  "+stmt.toString());
+            }
          //   System.out.println("ArchiveSampleBatchQueueHandler.fillStatement()  \n"+stmt.toString());
         } catch (final TypeSupportException e) {
             throw new ArchiveDaoException("No type support found for " + type.getValue().getClass().getName(), e);

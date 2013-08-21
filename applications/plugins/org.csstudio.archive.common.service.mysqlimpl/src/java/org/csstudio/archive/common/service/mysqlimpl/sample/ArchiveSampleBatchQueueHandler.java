@@ -104,7 +104,7 @@ public class ArchiveSampleBatchQueueHandler extends BatchQueueHandlerSupport<Arc
             final String archiveString = ArchiveTypeConversionSupport.toArchiveString(type.getValue());
             stmt.setString(3, archiveString);
             if( type.getChannelId().intValue()==2163){
-                System.out.println("ArchiveSampleBatchQueueHandler.fillStatement()  "+stmt.toString());
+                LOG.info("ArchiveSampleBatchQueueHandler.fillStatement()  "+stmt.toString());
             }
          //   System.out.println("ArchiveSampleBatchQueueHandler.fillStatement()  \n"+stmt.toString());
         } catch (final TypeSupportException e) {

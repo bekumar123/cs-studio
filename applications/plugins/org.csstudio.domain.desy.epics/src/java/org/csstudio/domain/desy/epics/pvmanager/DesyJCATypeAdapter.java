@@ -27,6 +27,8 @@ import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.types.Limits;
 import org.epics.pvmanager.DataSourceTypeAdapter;
 import org.epics.pvmanager.ValueCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
@@ -34,7 +36,7 @@ abstract class DesyJCATypeAdapter implements DataSourceTypeAdapter<Channel, Desy
 
     private final Class<?> typeClass;
     private final DBRType epicsValueType;
-
+    static final Logger LOG = LoggerFactory.getLogger(DesyJCATypeAdapter.class);
 	private final DBRType epicsMetaType;
     private final DBRType channelFieldType;
     private Boolean array;
@@ -157,7 +159,7 @@ abstract class DesyJCATypeAdapter implements DataSourceTypeAdapter<Channel, Desy
 
         if(channelName.equals("CMTBSL2R50_ai"))
         {
-     	 System.out.println("DesyJCATypeAdapter.createValue()   " +dMeta.getAlarm().getSeverity()+"   emeta  "+((STS)eMeta).getSeverity());
+     	 LOG.info("DesyJCATypeAdapter.createValue()   " +dMeta.getAlarm().getSeverity()+"   emeta  "+((STS)eMeta).getSeverity());
 
         }
         return new EpicsSystemVariable(channelName, data, ControlSystem.EPICS_DEFAULT, timestamp, createMetaData((STS)eMeta));

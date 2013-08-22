@@ -382,8 +382,8 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             } while (type == null && reqType != null); // no other request type of lower order
 
         } catch (final Exception ex) {
-            System.out.println("ArchiveSampleDaoImpl.retrieveSamples() " +channel.getName());
-            handleExceptions(RETRIEVAL_FAILED, ex);
+          ;
+            handleExceptions(RETRIEVAL_FAILED+"\n"+ "ArchiveSampleDaoImpl.retrieveSamples() " +channel.getName(), ex);
         } finally {
             closeSqlResources(result, stmt, conn, "Samples retrieval for " + channel.getName());
         }

@@ -80,11 +80,6 @@ public class DisplayAutoStart implements Runnable {
 		final String quickstartFiles = preferenceStore
 				.getString(PreferenceConstants.SDS_FILES);
 		final String[] array = quickstartFiles.split(";");
-		try {
-			waitForWorkbench();
-		} catch (final InterruptedException e) {
-			LOG.error("Quickstart startup error, ", e);
-		}
 		for (final String element : array) {
 			final String[] ItemFromPreferences = element.split("\\?");
 			final String[] checkedPrefItem = preferenceValidator
@@ -134,25 +129,4 @@ public class DisplayAutoStart implements Runnable {
 			LOG.debug("already open: {}", sdsFilePath);
 		}
 	}
-
-	/**
-	 * Wait until the workbench is available to start SDS displays.
-	 * 
-	 * @throws InterruptedException
-	 */
-	private void waitForWorkbench() throws InterruptedException {
-		boolean workbenchNotAvailable = true;
-		while (workbenchNotAvailable) {
-			try {
-				final IWorkbench workbench = PlatformUI.getWorkbench();
-				if (workbench != null) {
-					workbenchNotAvailable = false;
-				}
-			} catch (final IllegalStateException e) {
-				// TODO (jhatje) : what shall happen here?
-			}
-			Thread.sleep(1000);
-		}
-	}
-
 }

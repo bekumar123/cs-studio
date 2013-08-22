@@ -47,11 +47,9 @@ public abstract class AbstractRunDisplayHandler extends AbstractHandler {
 				//separate the filePath from menu name.
 			    String[] filePathString = sdsFileList[tmpfileNo].split("\\?");
 			    final IPath filePath = new Path(filePathString[0]);
-			    IPath location = Platform.getLocation();
-                IPath absolotPath = location.append(filePath);
 				
 				if (filePathString[0].endsWith(SDS_FILE_EXTENSION.toLowerCase())) {
-					RunModeService.getInstance().openDisplayShellInRunMode(absolotPath);
+					RunModeService.getInstance().openDisplayShellInRunMode(filePath);
             	}
             	if (filePathString[0].endsWith(PLT_FILE_EXTENSION.toLowerCase())) {
 // TODO (jhatje): Enable when Databrwoser2 is integrated in CSS.

@@ -186,7 +186,7 @@ public class ArchiveEngineApplication implements IApplication {
                     if (!oldValue.getData().equals(newValue.getData())) {
                         return new Notification<EpicsSystemVariable>(true, newValue);
                     }
-                    return new Notification<EpicsSystemVariable>(true, newValue);
+                    return new Notification<EpicsSystemVariable>(false, newValue);
                 } else if (oldValue == null && newValue == null) {
                     return new Notification<EpicsSystemVariable>(false, null);
                 }

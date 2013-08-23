@@ -17,6 +17,7 @@ public enum SpsType {
     INT("INT", 2),
     S5TIME("S5TIME", 2),
     DWORD("DWORD", 4), 
+    TIME("TIME", 4), 
     DINT("DINT", 4), 
     REAL("REAL", 4),
     TIME_OF_DAY("TIME_OF_DAY", 4),

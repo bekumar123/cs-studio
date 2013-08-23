@@ -1,296 +1,296 @@
-SendTask;WORD;W#16#0;W#16#0;Counter of send tasks
-SendErr;WORD;W#16#0;W#16#0;Send with error
-RES[1];BYTE;B#16#0;B#16#0;Spare
-RES[2];BYTE;B#16#0;B#16#0;
-RES[3];BYTE;B#16#0;B#16#0;
-RES[4];BYTE;B#16#0;B#16#0;
-RES[5];BYTE;B#16#0;B#16#0;
-RES[6];BYTE;B#16#0;B#16#0;
+#SendTask;WORD;W#16#0;W#16#0;Counter of send tasks
+#SendErr;WORD;W#16#0;W#16#0;Send with error
+#RES[1];BYTE;B#16#0;B#16#0;Spare
+#RES[2];BYTE;B#16#0;B#16#0;
+#RES[3];BYTE;B#16#0;B#16#0;
+#RES[4];BYTE;B#16#0;B#16#0;
+#RES[5];BYTE;B#16#0;B#16#0;
+#RES[6];BYTE;B#16#0;B#16#0;
 SE_LC1140_Sp;REAL;5,00E+07;5,00E+07;Soll-Wert
 SE_LC1140_BypVal;REAL;0.000000e+000;0.000000e+000;Bypass-Wert
 SE_LC1140_OffVal;REAL;0.000000e+000;0.000000e+000;Offset-Wert
 SE_LC1140_RmpUp;REAL;2,00E+06;2,00E+06;Geschwindigkeit Sollwertrampe auf
 SE_LC1140_RmpDn;REAL;2,00E+06;2,00E+06;Geschwindigkeit Sollwertrampe ab
-SE_LC1140_CV1139_Gain;REAL;5,00E+06;5,00E+06;Verst„rkungsfaktor
+SE_LC1140_CV1139_Gain;REAL;5,00E+06;5,00E+06;Verstï¿½rkungsfaktor
 SE_LC1140_CV1139_LL;REAL;0.000000e+000;0.000000e+000;Oberer Grenzwert Ventil
 SE_LC1140_CV1139_HL;REAL;1,00E+08;1,00E+08;Unterer Grenzwert Ventil
-SE_LC1140_CVxxxx_Gain;REAL;6,00E+07;6,00E+07;Verst„rkungsfaktor
+SE_LC1140_CVxxxx_Gain;REAL;6,00E+07;6,00E+07;Verstï¿½rkungsfaktor
 SE_LC1140_CVxxxx_LL;REAL;0.000000e+000;0.000000e+000;Unterer Grenzwert Ventil
 SE_LC1140_CVxxxx_HL;REAL;1,00E+08;1,00E+08;Oberer Grenzwert Ventil
 SE_LC1140_TI;TIME;T#30S;T#30S;Integrations-Zeit
 SE_LC1140_DeadB;REAL;1,00E+05;1,00E+05;Totzonenband
-SE_LC1140_spare[0];INT;0;0;Spare
-SE_LC1140_spare[1];INT;0;0;
-SE_LC1140_spare[2];INT;0;0;
-SE_LC1140_spare[3];INT;0;0;
-SE_LC1140_spare[4];INT;0;0;
-SE_LC1140_spare[5];INT;0;0;
-SE_LC1140_spare[6];INT;0;0;
-SE_LC1140_spare[7];INT;0;0;
-SE_LC1140_spare[8];INT;0;0;
-SE_LC1140_spare[9];INT;0;0;
-SE_LC1140_spare[10];INT;0;0;
-SE_LC1140_spare[11];INT;0;0;
-SE_LC1140_spare[12];INT;0;0;
-SE_LC1140_spare[13];INT;0;0;
-SE_LC1140_spare[14];INT;0;0;
-SE_LC1140_spare[15];INT;0;0;
-SE_LC1140_spare[16];INT;0;0;
-SE_LC1140_spare[17];INT;0;0;
-SE_LC1140_spare[18];INT;0;0;
+#SE_LC1140_spare[0];INT;0;0;Spare
+#SE_LC1140_spare[1];INT;0;0;
+#SE_LC1140_spare[2];INT;0;0;
+#SE_LC1140_spare[3];INT;0;0;
+#SE_LC1140_spare[4];INT;0;0;
+#SE_LC1140_spare[5];INT;0;0;
+#SE_LC1140_spare[6];INT;0;0;
+#SE_LC1140_spare[7];INT;0;0;
+#SE_LC1140_spare[8];INT;0;0;
+#SE_LC1140_spare[9];INT;0;0;
+#SE_LC1140_spare[10];INT;0;0;
+#SE_LC1140_spare[11];INT;0;0;
+#SE_LC1140_spare[12];INT;0;0;
+#SE_LC1140_spare[13];INT;0;0;
+#SE_LC1140_spare[14];INT;0;0;
+#SE_LC1140_spare[15];INT;0;0;
+#SE_LC1140_spare[16];INT;0;0;
+#SE_LC1140_spare[17];INT;0;0;
+#SE_LC1140_spare[18];INT;0;0;
 SE_GC1231_Sp;REAL;5,00E+07;5,00E+07;Soll-Wert
 SE_GC1231_BypVal;REAL;0.000000e+000;0.000000e+000;Bypass-Wert
 SE_GC1231_OffVal;REAL;0.000000e+000;0.000000e+000;Offset-Wert
 SE_GC1231_RmpUp;REAL;2,00E+06;2,00E+06;Geschwindigkeit Sollwertrampe auf
 SE_GC1231_RmpDn;REAL;2,00E+06;2,00E+06;Geschwindigkeit Sollwertrampe ab
-SE_GC1231_CV1230_Gain;REAL;5,00E+06;5,00E+06;Verst„rkungsfaktor
+SE_GC1231_CV1230_Gain;REAL;5,00E+06;5,00E+06;Verstï¿½rkungsfaktor
 SE_GC1231_CV1230_LL;REAL;0.000000e+000;0.000000e+000;Oberer Grenzwert Ventil
 SE_GC1231_CV1230_HL;REAL;1,00E+08;1,00E+08;Unterer Grenzwert Ventil
-SE_GC1231_CVxxxx_Gain;REAL;6,00E+07;6,00E+07;Verst„rkungsfaktor
+SE_GC1231_CVxxxx_Gain;REAL;6,00E+07;6,00E+07;Verstï¿½rkungsfaktor
 SE_GC1231_CVxxxx_LL;REAL;0.000000e+000;0.000000e+000;Unterer Grenzwert Ventil
 SE_GC1231_CVxxxx_HL;REAL;1,00E+08;1,00E+08;Oberer Grenzwert Ventil
 SE_GC1231_TI;TIME;T#30S;T#30S;Integrations-Zeit
 SE_GC1231_DeadB;REAL;1,00E+05;1,00E+05;Totzonenband
-SE_GC1231_spare[0];INT;0;0;Spare
-SE_GC1231_spare[1];INT;0;0;
-SE_GC1231_spare[2];INT;0;0;
-SE_GC1231_spare[3];INT;0;0;
-SE_GC1231_spare[4];INT;0;0;
-SE_GC1231_spare[5];INT;0;0;
-SE_GC1231_spare[6];INT;0;0;
-SE_GC1231_spare[7];INT;0;0;
-SE_GC1231_spare[8];INT;0;0;
-SE_GC1231_spare[9];INT;0;0;
-SE_GC1231_spare[10];INT;0;0;
-SE_GC1231_spare[11];INT;0;0;
-SE_GC1231_spare[12];INT;0;0;
-SE_GC1231_spare[13];INT;0;0;
-SE_GC1231_spare[14];INT;0;0;
-SE_GC1231_spare[15];INT;0;0;
-SE_GC1231_spare[16];INT;0;0;
-SE_GC1231_spare[17];INT;0;0;
-SE_GC1231_spare[18];INT;0;0;
+#SE_GC1231_spare[0];INT;0;0;Spare
+#SE_GC1231_spare[1];INT;0;0;
+#SE_GC1231_spare[2];INT;0;0;
+#SE_GC1231_spare[3];INT;0;0;
+#SE_GC1231_spare[4];INT;0;0;
+#SE_GC1231_spare[5];INT;0;0;
+#SE_GC1231_spare[6];INT;0;0;
+#SE_GC1231_spare[7];INT;0;0;
+#SE_GC1231_spare[8];INT;0;0;
+#SE_GC1231_spare[9];INT;0;0;
+#SE_GC1231_spare[10];INT;0;0;
+#SE_GC1231_spare[11];INT;0;0;
+#SE_GC1231_spare[12];INT;0;0;
+#SE_GC1231_spare[13];INT;0;0;
+#SE_GC1231_spare[14];INT;0;0;
+#SE_GC1231_spare[15];INT;0;0;
+#SE_GC1231_spare[16];INT;0;0;
+#SE_GC1231_spare[17];INT;0;0;
+#SE_GC1231_spare[18];INT;0;0;
 SE_FC1215_Sp;REAL;5,00E+07;5,00E+07;Soll-Wert
 SE_FC1215_BypVal;REAL;0.000000e+000;0.000000e+000;Bypass-Wert
 SE_FC1215_OffVal;REAL;0.000000e+000;0.000000e+000;Offset-Wert
 SE_FC1215_RmpUp;REAL;2,00E+06;2,00E+06;Geschwindigkeit Sollwertrampe auf
 SE_FC1215_RmpDn;REAL;2,00E+06;2,00E+06;Geschwindigkeit Sollwertrampe ab
-SE_FC1215_CV1231_Gain;REAL;5,00E+06;5,00E+06;Verst„rkungsfaktor
+SE_FC1215_CV1231_Gain;REAL;5,00E+06;5,00E+06;Verstï¿½rkungsfaktor
 SE_FC1215_CV1231_LL;REAL;0.000000e+000;0.000000e+000;Oberer Grenzwert Ventil
 SE_FC1215_CV1231_HL;REAL;1,00E+08;1,00E+08;Unterer Grenzwert Ventil
-SE_FC1215_CVxxxx_Gain;REAL;6,00E+07;6,00E+07;Verst„rkungsfaktor
+SE_FC1215_CVxxxx_Gain;REAL;6,00E+07;6,00E+07;Verstï¿½rkungsfaktor
 SE_FC1215_CVxxxx_LL;REAL;0.000000e+000;0.000000e+000;Unterer Grenzwert Ventil
 SE_FC1215_CVxxxx_HL;REAL;1,00E+08;1,00E+08;Oberer Grenzwert Ventil
 SE_FC1215_TI;TIME;T#30S;T#30S;Integrations-Zeit
 SE_FC1215_DeadB;REAL;1,00E+05;1,00E+05;Totzonenband
-SE_FC1215_spare[0];INT;0;0;Spare
-SE_FC1215_spare[1];INT;0;0;
-SE_FC1215_spare[2];INT;0;0;
-SE_FC1215_spare[3];INT;0;0;
-SE_FC1215_spare[4];INT;0;0;
-SE_FC1215_spare[5];INT;0;0;
-SE_FC1215_spare[6];INT;0;0;
-SE_FC1215_spare[7];INT;0;0;
-SE_FC1215_spare[8];INT;0;0;
-SE_FC1215_spare[9];INT;0;0;
-SE_FC1215_spare[10];INT;0;0;
-SE_FC1215_spare[11];INT;0;0;
-SE_FC1215_spare[12];INT;0;0;
-SE_FC1215_spare[13];INT;0;0;
-SE_FC1215_spare[14];INT;0;0;
-SE_FC1215_spare[15];INT;0;0;
-SE_FC1215_spare[16];INT;0;0;
-SE_FC1215_spare[17];INT;0;0;
-SE_FC1215_spare[18];INT;0;0;
+#SE_FC1215_spare[0];INT;0;0;Spare
+#SE_FC1215_spare[1];INT;0;0;
+#SE_FC1215_spare[2];INT;0;0;
+#SE_FC1215_spare[3];INT;0;0;
+#SE_FC1215_spare[4];INT;0;0;
+#SE_FC1215_spare[5];INT;0;0;
+#SE_FC1215_spare[6];INT;0;0;
+#SE_FC1215_spare[7];INT;0;0;
+#SE_FC1215_spare[8];INT;0;0;
+#SE_FC1215_spare[9];INT;0;0;
+#SE_FC1215_spare[10];INT;0;0;
+#SE_FC1215_spare[11];INT;0;0;
+#SE_FC1215_spare[12];INT;0;0;
+#SE_FC1215_spare[13];INT;0;0;
+#SE_FC1215_spare[14];INT;0;0;
+#SE_FC1215_spare[15];INT;0;0;
+#SE_FC1215_spare[16];INT;0;0;
+#SE_FC1215_spare[17];INT;0;0;
+#SE_FC1215_spare[18];INT;0;0;
 SE_GC1241_Sp;REAL;5,00E+07;5,00E+07;Soll-Wert
 SE_GC1241_BypVal;REAL;0.000000e+000;0.000000e+000;Bypass-Wert
 SE_GC1241_OffVal;REAL;0.000000e+000;0.000000e+000;Offset-Wert
 SE_GC1241_RmpUp;REAL;2,00E+06;2,00E+06;Geschwindigkeit Sollwertrampe auf
 SE_GC1241_RmpDn;REAL;2,00E+06;2,00E+06;Geschwindigkeit Sollwertrampe ab
-SE_GC1241_CV1240_Gain;REAL;5,00E+06;5,00E+06;Verst„rkungsfaktor
+SE_GC1241_CV1240_Gain;REAL;5,00E+06;5,00E+06;Verstï¿½rkungsfaktor
 SE_GC1241_CV1240_LL;REAL;0.000000e+000;0.000000e+000;Oberer Grenzwert Ventil
 SE_GC1241_CV1240_HL;REAL;1,00E+08;1,00E+08;Unterer Grenzwert Ventil
-SE_GC1241_CVxxxx_Gain;REAL;6,00E+07;6,00E+07;Verst„rkungsfaktor
+SE_GC1241_CVxxxx_Gain;REAL;6,00E+07;6,00E+07;Verstï¿½rkungsfaktor
 SE_GC1241_CVxxxx_LL;REAL;0.000000e+000;0.000000e+000;Unterer Grenzwert Ventil
 SE_GC1241_CVxxxx_HL;REAL;1,00E+08;1,00E+08;Oberer Grenzwert Ventil
 SE_GC1241_TI;TIME;T#30S;T#30S;Integrations-Zeit
 SE_GC1241_DeadB;REAL;1,00E+05;1,00E+05;Totzonenband
-SE_GC1241_spare[0];INT;0;0;Spare
-SE_GC1241_spare[1];INT;0;0;
-SE_GC1241_spare[2];INT;0;0;
-SE_GC1241_spare[3];INT;0;0;
-SE_GC1241_spare[4];INT;0;0;
-SE_GC1241_spare[5];INT;0;0;
-SE_GC1241_spare[6];INT;0;0;
-SE_GC1241_spare[7];INT;0;0;
-SE_GC1241_spare[8];INT;0;0;
-SE_GC1241_spare[9];INT;0;0;
-SE_GC1241_spare[10];INT;0;0;
-SE_GC1241_spare[11];INT;0;0;
-SE_GC1241_spare[12];INT;0;0;
-SE_GC1241_spare[13];INT;0;0;
-SE_GC1241_spare[14];INT;0;0;
-SE_GC1241_spare[15];INT;0;0;
-SE_GC1241_spare[16];INT;0;0;
-SE_GC1241_spare[17];INT;0;0;
-SE_GC1241_spare[18];INT;0;0;
+#SE_GC1241_spare[0];INT;0;0;Spare
+#SE_GC1241_spare[1];INT;0;0;
+#SE_GC1241_spare[2];INT;0;0;
+#SE_GC1241_spare[3];INT;0;0;
+#SE_GC1241_spare[4];INT;0;0;
+#SE_GC1241_spare[5];INT;0;0;
+#SE_GC1241_spare[6];INT;0;0;
+#SE_GC1241_spare[7];INT;0;0;
+#SE_GC1241_spare[8];INT;0;0;
+#SE_GC1241_spare[9];INT;0;0;
+#SE_GC1241_spare[10];INT;0;0;
+#SE_GC1241_spare[11];INT;0;0;
+#SE_GC1241_spare[12];INT;0;0;
+#SE_GC1241_spare[13];INT;0;0;
+#SE_GC1241_spare[14];INT;0;0;
+#SE_GC1241_spare[15];INT;0;0;
+#SE_GC1241_spare[16];INT;0;0;
+#SE_GC1241_spare[17];INT;0;0;
+#SE_GC1241_spare[18];INT;0;0;
 SE_TC1211_Sp;REAL;5,00E+07;5,00E+07;Soll-Wert
 SE_TC1211_BypVal;REAL;0.000000e+000;0.000000e+000;Bypass-Wert
 SE_TC1211_OffVal;REAL;0.000000e+000;0.000000e+000;Offset-Wert
 SE_TC1211_RmpUp;REAL;2,00E+06;2,00E+06;Geschwindigkeit Sollwertrampe auf
 SE_TC1211_RmpDn;REAL;2,00E+06;2,00E+06;Geschwindigkeit Sollwertrampe ab
-SE_TC1211_CV1231_Gain;REAL;5,00E+06;5,00E+06;Verst„rkungsfaktor
+SE_TC1211_CV1231_Gain;REAL;5,00E+06;5,00E+06;Verstï¿½rkungsfaktor
 SE_TC1211_CV1231_LL;REAL;0.000000e+000;0.000000e+000;Oberer Grenzwert Ventil
 SE_TC1211_CV1231_HL;REAL;1,00E+08;1,00E+08;Unterer Grenzwert Ventil
-SE_TC1211_CV1241_Gain;REAL;6,00E+07;6,00E+07;Verst„rkungsfaktor
+SE_TC1211_CV1241_Gain;REAL;6,00E+07;6,00E+07;Verstï¿½rkungsfaktor
 SE_TC1211_CV1241_LL;REAL;0.000000e+000;0.000000e+000;Unterer Grenzwert Ventil
 SE_TC1211_CV1241_HL;REAL;1,00E+08;1,00E+08;Oberer Grenzwert Ventil
 SE_TC1211_TI;TIME;T#30S;T#30S;Integrations-Zeit
 SE_TC1211_DeadB;REAL;1,00E+05;1,00E+05;Totzonenband
-SE_TC1211_spare[0];INT;0;0;Spare
-SE_TC1211_spare[1];INT;0;0;
-SE_TC1211_spare[2];INT;0;0;
-SE_TC1211_spare[3];INT;0;0;
-SE_TC1211_spare[4];INT;0;0;
-SE_TC1211_spare[5];INT;0;0;
-SE_TC1211_spare[6];INT;0;0;
-SE_TC1211_spare[7];INT;0;0;
-SE_TC1211_spare[8];INT;0;0;
-SE_TC1211_spare[9];INT;0;0;
-SE_TC1211_spare[10];INT;0;0;
-SE_TC1211_spare[11];INT;0;0;
-SE_TC1211_spare[12];INT;0;0;
-SE_TC1211_spare[13];INT;0;0;
-SE_TC1211_spare[14];INT;0;0;
-SE_TC1211_spare[15];INT;0;0;
-SE_TC1211_spare[16];INT;0;0;
-SE_TC1211_spare[17];INT;0;0;
-SE_TC1211_spare[18];INT;0;0;
+#SE_TC1211_spare[0];INT;0;0;Spare
+#SE_TC1211_spare[1];INT;0;0;
+#SE_TC1211_spare[2];INT;0;0;
+#SE_TC1211_spare[3];INT;0;0;
+#SE_TC1211_spare[4];INT;0;0;
+#SE_TC1211_spare[5];INT;0;0;
+#SE_TC1211_spare[6];INT;0;0;
+#SE_TC1211_spare[7];INT;0;0;
+#SE_TC1211_spare[8];INT;0;0;
+#SE_TC1211_spare[9];INT;0;0;
+#SE_TC1211_spare[10];INT;0;0;
+#SE_TC1211_spare[11];INT;0;0;
+#SE_TC1211_spare[12];INT;0;0;
+#SE_TC1211_spare[13];INT;0;0;
+vSE_TC1211_spare[14];INT;0;0;
+#SE_TC1211_spare[15];INT;0;0;
+#SE_TC1211_spare[16];INT;0;0;
+vSE_TC1211_spare[17];INT;0;0;
+vSE_TC1211_spare[18];INT;0;0;
 SE_TC1230_Sp;REAL;5,00E+07;5,00E+07;Soll-Wert
 SE_TC1230_BypVal;REAL;0.000000e+000;0.000000e+000;Bypass-Wert
 SE_TC1230_OffVal;REAL;0.000000e+000;0.000000e+000;Offset-Wert
 SE_TC1230_RmpUp;REAL;2,00E+06;2,00E+06;Geschwindigkeit Sollwertrampe auf
 SE_TC1230_RmpDn;REAL;2,00E+06;2,00E+06;Geschwindigkeit Sollwertrampe ab
-SE_TC1230_CV2130_Gain;REAL;5,00E+06;5,00E+06;Verst„rkungsfaktor
+SE_TC1230_CV2130_Gain;REAL;5,00E+06;5,00E+06;Verstï¿½rkungsfaktor
 SE_TC1230_CV2130_LL;REAL;0.000000e+000;0.000000e+000;Oberer Grenzwert Ventil
 SE_TC1230_CV2130_HL;REAL;1,00E+08;1,00E+08;Unterer Grenzwert Ventil
-SE_TC1230_CVxxxx_Gain;REAL;6,00E+07;6,00E+07;Verst„rkungsfaktor
+SE_TC1230_CVxxxx_Gain;REAL;6,00E+07;6,00E+07;Verstï¿½rkungsfaktor
 SE_TC1230_CVxxxx_LL;REAL;0.000000e+000;0.000000e+000;Unterer Grenzwert Ventil
 SE_TC1230_CVxxxx_HL;REAL;1,00E+08;1,00E+08;Oberer Grenzwert Ventil
 SE_TC1230_TI;TIME;T#30S;T#30S;Integrations-Zeit
 SE_TC1230_DeadB;REAL;1,00E+05;1,00E+05;Totzonenband
-SE_TC1230_spare[0];INT;0;0;Spare
-SE_TC1230_spare[1];INT;0;0;
-SE_TC1230_spare[2];INT;0;0;
-SE_TC1230_spare[3];INT;0;0;
-SE_TC1230_spare[4];INT;0;0;
-SE_TC1230_spare[5];INT;0;0;
-SE_TC1230_spare[6];INT;0;0;
-SE_TC1230_spare[7];INT;0;0;
-SE_TC1230_spare[8];INT;0;0;
-SE_TC1230_spare[9];INT;0;0;
-SE_TC1230_spare[10];INT;0;0;
-SE_TC1230_spare[11];INT;0;0;
-SE_TC1230_spare[12];INT;0;0;
-SE_TC1230_spare[13];INT;0;0;
-SE_TC1230_spare[14];INT;0;0;
-SE_TC1230_spare[15];INT;0;0;
-SE_TC1230_spare[16];INT;0;0;
-SE_TC1230_spare[17];INT;0;0;
-SE_TC1230_spare[18];INT;0;0;
+#SE_TC1230_spare[0];INT;0;0;Spare
+#SE_TC1230_spare[1];INT;0;0;
+#SE_TC1230_spare[2];INT;0;0;
+#SE_TC1230_spare[3];INT;0;0;
+#SE_TC1230_spare[4];INT;0;0;
+#SE_TC1230_spare[5];INT;0;0;
+#SE_TC1230_spare[6];INT;0;0;
+#SE_TC1230_spare[7];INT;0;0;
+#SE_TC1230_spare[8];INT;0;0;
+#SE_TC1230_spare[9];INT;0;0;
+#SE_TC1230_spare[10];INT;0;0;
+#SE_TC1230_spare[11];INT;0;0;
+#SE_TC1230_spare[12];INT;0;0;
+#SE_TC1230_spare[13];INT;0;0;
+#SE_TC1230_spare[14];INT;0;0;
+#SE_TC1230_spare[15];INT;0;0;
+#SE_TC1230_spare[16];INT;0;0;
+#SE_TC1230_spare[17];INT;0;0;
+#SE_TC1230_spare[18];INT;0;0;
 SE_FC2227_Sp;REAL;5,00E+07;5,00E+07;Soll-Wert
 SE_FC2227_BypVal;REAL;0.000000e+000;0.000000e+000;Bypass-Wert
 SE_FC2227_OffVal;REAL;0.000000e+000;0.000000e+000;Offset-Wert
 SE_FC2227_RmpUp;REAL;2,00E+06;2,00E+06;Geschwindigkeit Sollwertrampe auf
 SE_FC2227_RmpDn;REAL;2,00E+06;2,00E+06;Geschwindigkeit Sollwertrampe ab
-SE_FC2227_CV2227_Gain;REAL;5,00E+06;5,00E+06;Verst„rkungsfaktor
+SE_FC2227_CV2227_Gain;REAL;5,00E+06;5,00E+06;Verstï¿½rkungsfaktor
 SE_FC2227_CV2227_LL;REAL;0.000000e+000;0.000000e+000;Oberer Grenzwert Ventil
 SE_FC2227_CV2227_HL;REAL;1,00E+08;1,00E+08;Unterer Grenzwert Ventil
-SE_FC2227_CVxxxx_Gain;REAL;6,00E+07;6,00E+07;Verst„rkungsfaktor
+SE_FC2227_CVxxxx_Gain;REAL;6,00E+07;6,00E+07;Verstï¿½rkungsfaktor
 SE_FC2227_CVxxxx_LL;REAL;0.000000e+000;0.000000e+000;Unterer Grenzwert Ventil
 SE_FC2227_CVxxxx_HL;REAL;1,00E+08;1,00E+08;Oberer Grenzwert Ventil
 SE_FC2227_TI;TIME;T#30S;T#30S;Integrations-Zeit
 SE_FC2227_DeadB;REAL;1,00E+05;1,00E+05;Totzonenband
-SE_FC2227_spare[0];INT;0;0;Spare
-SE_FC2227_spare[1];INT;0;0;
-SE_FC2227_spare[2];INT;0;0;
-SE_FC2227_spare[3];INT;0;0;
-SE_FC2227_spare[4];INT;0;0;
-SE_FC2227_spare[5];INT;0;0;
-SE_FC2227_spare[6];INT;0;0;
-SE_FC2227_spare[7];INT;0;0;
-SE_FC2227_spare[8];INT;0;0;
-SE_FC2227_spare[9];INT;0;0;
-SE_FC2227_spare[10];INT;0;0;
-SE_FC2227_spare[11];INT;0;0;
-SE_FC2227_spare[12];INT;0;0;
-SE_FC2227_spare[13];INT;0;0;
-SE_FC2227_spare[14];INT;0;0;
-SE_FC2227_spare[15];INT;0;0;
-SE_FC2227_spare[16];INT;0;0;
-SE_FC2227_spare[17];INT;0;0;
-SE_FC2227_spare[18];INT;0;0;
+#SE_FC2227_spare[0];INT;0;0;Spare
+#SE_FC2227_spare[1];INT;0;0;
+#SE_FC2227_spare[2];INT;0;0;
+#SE_FC2227_spare[3];INT;0;0;
+#SE_FC2227_spare[4];INT;0;0;
+#SE_FC2227_spare[5];INT;0;0;
+#SE_FC2227_spare[6];INT;0;0;
+#SE_FC2227_spare[7];INT;0;0;
+#SE_FC2227_spare[8];INT;0;0;
+#SE_FC2227_spare[9];INT;0;0;
+#SE_FC2227_spare[10];INT;0;0;
+#SE_FC2227_spare[11];INT;0;0;
+#SE_FC2227_spare[12];INT;0;0;
+#SE_FC2227_spare[13];INT;0;0;
+#SE_FC2227_spare[14];INT;0;0;
+#SE_FC2227_spare[15];INT;0;0;
+#SE_FC2227_spare[16];INT;0;0;
+#SE_FC2227_spare[17];INT;0;0;
+#SE_FC2227_spare[18];INT;0;0;
 SE_PC2241_Sp;REAL;5,00E+07;5,00E+07;Soll-Wert
 SE_PC2241_BypVal;REAL;0.000000e+000;0.000000e+000;Bypass-Wert
 SE_PC2241_OffVal;REAL;0.000000e+000;0.000000e+000;Offset-Wert
 SE_PC2241_RmpUp;REAL;2,00E+06;2,00E+06;Geschwindigkeit Sollwertrampe auf
 SE_PC2241_RmpDn;REAL;2,00E+06;2,00E+06;Geschwindigkeit Sollwertrampe ab
-SE_PC2241_CV2241_Gain;REAL;5,00E+06;5,00E+06;Verst„rkungsfaktor
+SE_PC2241_CV2241_Gain;REAL;5,00E+06;5,00E+06;Verstï¿½rkungsfaktor
 SE_PC2241_CV2241_LL;REAL;0.000000e+000;0.000000e+000;Oberer Grenzwert Ventil
 SE_PC2241_CV2241_HL;REAL;1,00E+08;1,00E+08;Unterer Grenzwert Ventil
-SE_PC2241_CVxxxx_Gain;REAL;6,00E+07;6,00E+07;Verst„rkungsfaktor
+SE_PC2241_CVxxxx_Gain;REAL;6,00E+07;6,00E+07;Verstï¿½rkungsfaktor
 SE_PC2241_CVxxxx_LL;REAL;0.000000e+000;0.000000e+000;Unterer Grenzwert Ventil
 SE_PC2241_CVxxxx_HL;REAL;1,00E+08;1,00E+08;Oberer Grenzwert Ventil
 SE_PC2241_TI;TIME;T#30S;T#30S;Integrations-Zeit
 SE_PC2241_DeadB;REAL;1,00E+05;1,00E+05;Totzonenband
-SE_PC2241_spare[0];INT;0;0;Spare
-SE_PC2241_spare[1];INT;0;0;
-SE_PC2241_spare[2];INT;0;0;
-SE_PC2241_spare[3];INT;0;0;
-SE_PC2241_spare[4];INT;0;0;
-SE_PC2241_spare[5];INT;0;0;
-SE_PC2241_spare[6];INT;0;0;
-SE_PC2241_spare[7];INT;0;0;
-SE_PC2241_spare[8];INT;0;0;
-SE_PC2241_spare[9];INT;0;0;
-SE_PC2241_spare[10];INT;0;0;
-SE_PC2241_spare[11];INT;0;0;
-SE_PC2241_spare[12];INT;0;0;
-SE_PC2241_spare[13];INT;0;0;
-SE_PC2241_spare[14];INT;0;0;
-SE_PC2241_spare[15];INT;0;0;
-SE_PC2241_spare[16];INT;0;0;
-SE_PC2241_spare[17];INT;0;0;
-SE_PC2241_spare[18];INT;0;0;
+#SE_PC2241_spare[0];INT;0;0;Spare
+#SE_PC2241_spare[1];INT;0;0;
+#SE_PC2241_spare[2];INT;0;0;
+#SE_PC2241_spare[3];INT;0;0;
+#SE_PC2241_spare[4];INT;0;0;
+#SE_PC2241_spare[5];INT;0;0;
+#SE_PC2241_spare[6];INT;0;0;
+#SE_PC2241_spare[7];INT;0;0;
+#SE_PC2241_spare[8];INT;0;0;
+#SE_PC2241_spare[9];INT;0;0;
+#SE_PC2241_spare[10];INT;0;0;
+#SE_PC2241_spare[11];INT;0;0;
+#SE_PC2241_spare[12];INT;0;0;
+#SE_PC2241_spare[13];INT;0;0;
+#SE_PC2241_spare[14];INT;0;0;
+#SE_PC2241_spare[15];INT;0;0;
+#SE_PC2241_spare[16];INT;0;0;
+#SE_PC2241_spare[17];INT;0;0;
+#SE_PC2241_spare[18];INT;0;0;
 SE_TC1291_Sp;REAL;5,00E+07;5,00E+07;Soll-Wert
 SE_TC1291_BypVal;REAL;0.000000e+000;0.000000e+000;Bypass-Wert
 SE_TC1291_OffVal;REAL;0.000000e+000;0.000000e+000;Offset-Wert
 SE_TC1291_RmpUp;REAL;2,00E+06;2,00E+06;Geschwindigkeit Sollwertrampe auf
 SE_TC1291_RmpDn;REAL;2,00E+06;2,00E+06;Geschwindigkeit Sollwertrampe ab
-SE_TC1291_HSY2242_Gain;REAL;5,00E+06;5,00E+06;Verst„rkungsfaktor
+SE_TC1291_HSY2242_Gain;REAL;5,00E+06;5,00E+06;Verstï¿½rkungsfaktor
 SE_TC1291_HSY2242_LL;REAL;0.000000e+000;0.000000e+000;Oberer Grenzwert Ventil
 SE_TC1291_HSY2242_HL;REAL;1,00E+08;1,00E+08;Unterer Grenzwert Ventil
-SE_TC1291_CVxxxx_Gain;REAL;6,00E+07;6,00E+07;Verst„rkungsfaktor
+SE_TC1291_CVxxxx_Gain;REAL;6,00E+07;6,00E+07;Verstï¿½rkungsfaktor
 SE_TC1291_CVxxxx_LL;REAL;0.000000e+000;0.000000e+000;Unterer Grenzwert Ventil
 SE_TC1291_CVxxxx_HL;REAL;1,00E+08;1,00E+08;Oberer Grenzwert Ventil
 SE_TC1291_TI;TIME;T#30S;T#30S;Integrations-Zeit
 SE_TC1291_DeadB;REAL;1,00E+05;1,00E+05;Totzonenband
-SE_TC1291_spare[0];INT;0;0;Spare
-SE_TC1291_spare[1];INT;0;0;
-SE_TC1291_spare[2];INT;0;0;
-SE_TC1291_spare[3];INT;0;0;
-SE_TC1291_spare[4];INT;0;0;
-SE_TC1291_spare[5];INT;0;0;
-SE_TC1291_spare[6];INT;0;0;
-SE_TC1291_spare[7];INT;0;0;
-SE_TC1291_spare[8];INT;0;0;
-SE_TC1291_spare[9];INT;0;0;
-SE_TC1291_spare[10];INT;0;0;
-SE_TC1291_spare[11];INT;0;0;
-SE_TC1291_spare[12];INT;0;0;
-SE_TC1291_spare[13];INT;0;0;
-SE_TC1291_spare[14];INT;0;0;
-SE_TC1291_spare[15];INT;0;0;
-SE_TC1291_spare[16];INT;0;0;
-SE_TC1291_spare[17];INT;0;0;
-SE_TC1291_spare[18];INT;0;0;
+#SE_TC1291_spare[0];INT;0;0;Spare
+#SE_TC1291_spare[1];INT;0;0;
+#SE_TC1291_spare[2];INT;0;0;
+#SE_TC1291_spare[3];INT;0;0;
+#SE_TC1291_spare[4];INT;0;0;
+#SE_TC1291_spare[5];INT;0;0;
+#SE_TC1291_spare[6];INT;0;0;
+#SE_TC1291_spare[7];INT;0;0;
+#SE_TC1291_spare[8];INT;0;0;
+#SE_TC1291_spare[9];INT;0;0;
+#SE_TC1291_spare[10];INT;0;0;
+#SE_TC1291_spare[11];INT;0;0;
+#SE_TC1291_spare[12];INT;0;0;
+#SE_TC1291_spare[13];INT;0;0;
+#SE_TC1291_spare[14];INT;0;0;
+#SE_TC1291_spare[15];INT;0;0;
+#SE_TC1291_spare[16];INT;0;0;
+#SE_TC1291_spare[17];INT;0;0;
+#SE_TC1291_spare[18];INT;0;0;

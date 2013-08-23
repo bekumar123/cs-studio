@@ -1,11 +1,11 @@
-SendTask;WORD;W#16#0;W#16#0;Counter of send tasks
-SendErr;WORD;W#16#0;W#16#0;Send with error
-RES[1];BYTE;B#16#0;B#16#0;Spare
-RES[2];BYTE;B#16#0;B#16#0;
-RES[3];BYTE;B#16#0;B#16#0;
-RES[4];BYTE;B#16#0;B#16#0;
-RES[5];BYTE;B#16#0;B#16#0;
-RES[6];BYTE;B#16#0;B#16#0;
+#SendTask;WORD;W#16#0;W#16#0;Counter of send tasks
+#SendErr;WORD;W#16#0;W#16#0;Send with error
+#RES[1];BYTE;B#16#0;B#16#0;Spare
+#RES[2];BYTE;B#16#0;B#16#0;
+#RES[3];BYTE;B#16#0;B#16#0;
+#RES[4];BYTE;B#16#0;B#16#0;
+#RES[5];BYTE;B#16#0;B#16#0;
+#RES[6];BYTE;B#16#0;B#16#0;
 SE_44SI1211_Value;REAL;0.000000e+000;0.000000e+000;44C1211 Drehzahl
 SE_44SI1212_Value;REAL;0.000000e+000;0.000000e+000;44C1212 Drehzahl
 SE_44SI1213_Value;REAL;0.000000e+000;0.000000e+000;44C1213 Drehzahl
@@ -27,52 +27,52 @@ SE_44TI1212_Value;REAL;0.000000e+000;0.000000e+000;Lagertemperatur 44CC1212 (PT1
 SE_44TI1213_Value;REAL;0.000000e+000;0.000000e+000;Lagertemperatur 44CC1213 (PT100)
 SE_44TI1214_Value;REAL;0.000000e+000;0.000000e+000;Lagertemperatur 44CC1214 (PT100)
 SE_44PI2101_Value;REAL;0.000000e+000;0.000000e+000;5K Vorlauf CB44 Eintritt
-SE_44PI2251_Value;REAL;0.000000e+000;0.000000e+000;20K RÅcklauf CC Austritt
+SE_44PI2251_Value;REAL;0.000000e+000;0.000000e+000;20K RÔøΩcklauf CC Austritt
 SE_44PI3101_Value;REAL;0.000000e+000;0.000000e+000;40K Vorlauf CB44 Eintritt
 SE_44PI0027_Value;REAL;0.000000e+000;0.000000e+000;Guardsystem Vorlauf
-SE_44PI3201_Value;REAL;0.000000e+000;0.000000e+000;80K RÅcklauf CB44 Austritt
-SE_44PI2291_Value;REAL;0.000000e+000;0.000000e+000;8K RÅcklauf CB44 Eintritt
+SE_44PI3201_Value;REAL;0.000000e+000;0.000000e+000;80K RÔøΩcklauf CB44 Austritt
+SE_44PI2291_Value;REAL;0.000000e+000;0.000000e+000;8K RÔøΩcklauf CB44 Eintritt
 SE_44PI3191_Value;REAL;0.000000e+000;0.000000e+000;40K Vorlauf CB44 Austritt
-SE_44PI3291_Value;REAL;0.000000e+000;0.000000e+000;80K RÅcklauf CB44 Eintritt
-SE_44PI2201_Value;REAL;0.000000e+000;0.000000e+000;4K RÅcklauf CB44 Austritt
-SE_44PI1222_Value;REAL;0.000000e+000;0.000000e+000;20K RÅcklauf CC Austritt
+SE_44PI3291_Value;REAL;0.000000e+000;0.000000e+000;80K RÔøΩcklauf CB44 Eintritt
+SE_44PI2201_Value;REAL;0.000000e+000;0.000000e+000;4K RÔøΩcklauf CB44 Austritt
+SE_44PI1222_Value;REAL;0.000000e+000;0.000000e+000;20K RÔøΩcklauf CC Austritt
 SE_44PI1191_Value;REAL;0.000000e+000;0.000000e+000;2K Vorlauf CB44 Austritt
 SE_44PI2191_Value;REAL;0.000000e+000;0.000000e+000;5K Vorlauf CB44 Austritt
-SE_44PI2241_Value;REAL;0.000000e+000;0.000000e+000;4K RÅcklauf CB44 Eintritt
+SE_44PI2241_Value;REAL;0.000000e+000;0.000000e+000;4K RÔøΩcklauf CB44 Eintritt
 SE_44PDI1201_Value;REAL;0.000000e+000;0.000000e+000;Kaltkompressoren Eintritt
 SE_44PI1240_Value;REAL;0.000000e+000;0.000000e+000;LHe Verdampfer Austritt
-SE_44PI1291_Value;REAL;0.000000e+000;0.000000e+000;2K RÅcklauf CB44 Eintritt
-SE_44PI1292_Value;REAL;0.000000e+000;0.000000e+000;2K RÅcklauf CB44 Eintritt
-SE_44CV1201A_IstPos;REAL;0.000000e+000;0.000000e+000;Kaltkompressoren Eintritt Ventilposition RÅcklesewert
-SE_44CV1201B_IstPos;REAL;0.000000e+000;0.000000e+000;Kaltkompressoren Eintritt Ventilposition RÅcklesewert
-SE_44CV1202_IstPos;REAL;0.000000e+000;0.000000e+000;Kaltkompr. Eintritt Druckausgleich Ventilposition RÅcklesewert
-SE_44CV1142_IstPos;REAL;0.000000e+000;0.000000e+000;Gasblase ablassen Ventilposition RÅcklesewert
-SE_44CV1101_IstPos;REAL;0.000000e+000;0.000000e+000;2K Vorlauf CB44 Eintritt Ventilposition RÅcklesewert
-SE_44CV1223_IstPos;REAL;0.000000e+000;0.000000e+000;Kaltkompressoren Bypass Ventilposition RÅcklesewert
-SE_44CV1245_IstPos;REAL;0.000000e+000;0.000000e+000;CC-Teillast RÅcklauf Ventilposition RÅcklesewert
-SE_44CV1141_IstPos;REAL;0.000000e+000;0.000000e+000;FlÅssigkeitsgefÑss Austritt Ventilposition RÅcklesewert
-SE_44CV1230_IstPos;REAL;0.000000e+000;0.000000e+000;CC-Teillast VorkÅhler Austritt Ventilposition RÅcklesewert
-SE_44CV1215_IstPos;REAL;0.000000e+000;0.000000e+000;44C1214 Austritt Ventilposition RÅcklesewert
-SE_44CV1240_IstPos;REAL;0.000000e+000;0.000000e+000;LHe Verdampfer Austritt Reg. Ventilposition RÅcklesewert
-SE_44CV1241_IstPos;REAL;0.000000e+000;0.000000e+000;LHe Verdampfer Austritt Reg. Ventilposition RÅcklesewert
-SE_44CV1231_IstPos;REAL;0.000000e+000;0.000000e+000;CC-Teillast VorkÅhler Austritt Reg. Ventilposition RÅcklesewert
-SE_44CV1121_IstPos;REAL;0.000000e+000;0.000000e+000;CC-Teillast Eintritt Ventilposition RÅcklesewert
-SE_44CV1222_IstPos;REAL;0.000000e+000;0.000000e+000;20K RÅcklauf CC Austritt Ventilposition RÅcklesewert
-SE_44CV3127_IstPos;REAL;0.000000e+000;0.000000e+000;Kaltkompressoren Kaltfahren Ventilposition RÅcklesewert
-SE_44CV2130_IstPos;REAL;0.000000e+000;0.000000e+000;CC-Teillast VorkÅhler HD-Eintritt Ventilposition RÅcklesewert
-SE_44CV2227_IstPos;REAL;0.000000e+000;0.000000e+000;Sattdampf RÅcknahme Ventilposition RÅcklesewert
-SE_44CV1139_IstPos;REAL;0.000000e+000;0.000000e+000;JT-Ventil CC44 Ventilposition RÅcklesewert
-SE_44CV1140_IstPos;REAL;0.000000e+000;0.000000e+000;FlÅssigkeitsgefÑss FÅllstandsonde RÅcklesewert
-SE_44CV2242_IstPos;REAL;0.000000e+000;0.000000e+000;Testheizung KK-Vorlauf Ventilposition RÅcklesewert
+SE_44PI1291_Value;REAL;0.000000e+000;0.000000e+000;2K RÔøΩcklauf CB44 Eintritt
+SE_44PI1292_Value;REAL;0.000000e+000;0.000000e+000;2K RÔøΩcklauf CB44 Eintritt
+SE_44CV1201A_IstPos;REAL;0.000000e+000;0.000000e+000;Kaltkompressoren Eintritt Ventilposition RÔøΩcklesewert
+SE_44CV1201B_IstPos;REAL;0.000000e+000;0.000000e+000;Kaltkompressoren Eintritt Ventilposition RÔøΩcklesewert
+SE_44CV1202_IstPos;REAL;0.000000e+000;0.000000e+000;Kaltkompr. Eintritt Druckausgleich Ventilposition RÔøΩcklesewert
+SE_44CV1142_IstPos;REAL;0.000000e+000;0.000000e+000;Gasblase ablassen Ventilposition RÔøΩcklesewert
+SE_44CV1101_IstPos;REAL;0.000000e+000;0.000000e+000;2K Vorlauf CB44 Eintritt Ventilposition RÔøΩcklesewert
+SE_44CV1223_IstPos;REAL;0.000000e+000;0.000000e+000;Kaltkompressoren Bypass Ventilposition RÔøΩcklesewert
+SE_44CV1245_IstPos;REAL;0.000000e+000;0.000000e+000;CC-Teillast RÔøΩcklauf Ventilposition RÔøΩcklesewert
+SE_44CV1141_IstPos;REAL;0.000000e+000;0.000000e+000;FlÔøΩssigkeitsgefÔøΩss Austritt Ventilposition RÔøΩcklesewert
+SE_44CV1230_IstPos;REAL;0.000000e+000;0.000000e+000;CC-Teillast VorkÔøΩhler Austritt Ventilposition RÔøΩcklesewert
+SE_44CV1215_IstPos;REAL;0.000000e+000;0.000000e+000;44C1214 Austritt Ventilposition RÔøΩcklesewert
+SE_44CV1240_IstPos;REAL;0.000000e+000;0.000000e+000;LHe Verdampfer Austritt Reg. Ventilposition RÔøΩcklesewert
+SE_44CV1241_IstPos;REAL;0.000000e+000;0.000000e+000;LHe Verdampfer Austritt Reg. Ventilposition RÔøΩcklesewert
+SE_44CV1231_IstPos;REAL;0.000000e+000;0.000000e+000;CC-Teillast VorkÔøΩhler Austritt Reg. Ventilposition RÔøΩcklesewert
+SE_44CV1121_IstPos;REAL;0.000000e+000;0.000000e+000;CC-Teillast Eintritt Ventilposition RÔøΩcklesewert
+SE_44CV1222_IstPos;REAL;0.000000e+000;0.000000e+000;20K RÔøΩcklauf CC Austritt Ventilposition RÔøΩcklesewert
+SE_44CV3127_IstPos;REAL;0.000000e+000;0.000000e+000;Kaltkompressoren Kaltfahren Ventilposition RÔøΩcklesewert
+SE_44CV2130_IstPos;REAL;0.000000e+000;0.000000e+000;CC-Teillast VorkÔøΩhler HD-Eintritt Ventilposition RÔøΩcklesewert
+SE_44CV2227_IstPos;REAL;0.000000e+000;0.000000e+000;Sattdampf RÔøΩcknahme Ventilposition RÔøΩcklesewert
+SE_44CV1139_IstPos;REAL;0.000000e+000;0.000000e+000;JT-Ventil CC44 Ventilposition RÔøΩcklesewert
+SE_44CV1140_IstPos;REAL;0.000000e+000;0.000000e+000;FlÔøΩssigkeitsgefÔøΩss FÔøΩllstandsonde RÔøΩcklesewert
+SE_44CV2242_IstPos;REAL;0.000000e+000;0.000000e+000;Testheizung KK-Vorlauf Ventilposition RÔøΩcklesewert
 SE_44PI1101_Value;REAL;0.000000e+000;0.000000e+000;2K Vorlauf CB44 Eintritt
-SE_44PI1140_Value;REAL;0.000000e+000;0.000000e+000;FlÅssigkeitsgefÑss FÅllstandsonde
+SE_44PI1140_Value;REAL;0.000000e+000;0.000000e+000;FlÔøΩssigkeitsgefÔøΩss FÔøΩllstandsonde
 SE_44PDI1102_Value;REAL;0.000000e+000;0.000000e+000;2K Vorlauf CB44
 SE_44PDI1140_Value;REAL;0.000000e+000;0.000000e+000;2K Vorlauf CB44
 SE_44FI1215_Value;REAL;0.000000e+000;0.000000e+000;44C1214 Austritt
-SE_44FI1230_Value;REAL;0.000000e+000;0.000000e+000;CC-Teillast VorkÅhler Austritt
-SE_44FI2227_Value;REAL;0.000000e+000;0.000000e+000;Sattdampf RÅcknahme
+SE_44FI1230_Value;REAL;0.000000e+000;0.000000e+000;CC-Teillast VorkÔøΩhler Austritt
+SE_44FI2227_Value;REAL;0.000000e+000;0.000000e+000;Sattdampf RÔøΩcknahme
 SE_44PI7080_Value;REAL;0.000000e+000;0.000000e+000;CB44 Vakuumsystem Eintritt
-SE_44LI1140_Value;REAL;0.000000e+000;0.000000e+000;FlÅssigkeitsgefÑss FÅllstandsonde
+SE_44LI1140_Value;REAL;0.000000e+000;0.000000e+000;FlÔøΩssigkeitsgefÔøΩss FÔøΩllstandsonde
 SE_EW914_Value;REAL;0.000000e+000;0.000000e+000;Spare
 SE_EW916_Value;REAL;0.000000e+000;0.000000e+000;Spare
 SE_EW918_Value;REAL;0.000000e+000;0.000000e+000;Spare
@@ -81,25 +81,25 @@ SE_EW922_Value;REAL;0.000000e+000;0.000000e+000;Spare
 SE_EW924_Value;REAL;0.000000e+000;0.000000e+000;Spare
 SE_44TI1101_Value;REAL;0.000000e+000;0.000000e+000;2K Vorlauf CB44 Eintritt
 SE_44TI1191_Value;REAL;0.000000e+000;0.000000e+000;2K Vorlauf CB44 Austritt
-SE_44TI1222_Value;REAL;0.000000e+000;0.000000e+000;20K RÅcklauf CC Austritt
-SE_44TI1228_Value;REAL;0.000000e+000;0.000000e+000;CC-Teillast VorkÅhler Eintritt
-SE_44TI1230_Value;REAL;0.000000e+000;0.000000e+000;CC-Teillast VorkÅhler Austritt
+SE_44TI1222_Value;REAL;0.000000e+000;0.000000e+000;20K RÔøΩcklauf CC Austritt
+SE_44TI1228_Value;REAL;0.000000e+000;0.000000e+000;CC-Teillast VorkÔøΩhler Eintritt
+SE_44TI1230_Value;REAL;0.000000e+000;0.000000e+000;CC-Teillast VorkÔøΩhler Austritt
 SE_44TI1240_Value;REAL;0.000000e+000;0.000000e+000;LHe Verdampfer Austritt
-SE_44TI1245_Value;REAL;0.000000e+000;0.000000e+000;CC-Teillast RÅcklauf
-SE_44TI1291_Value;REAL;0.000000e+000;0.000000e+000;2K RÅcklauf CB44 Eintritt
+SE_44TI1245_Value;REAL;0.000000e+000;0.000000e+000;CC-Teillast RÔøΩcklauf
+SE_44TI1291_Value;REAL;0.000000e+000;0.000000e+000;2K RÔøΩcklauf CB44 Eintritt
 SE_44TI2101_Value;REAL;0.000000e+000;0.000000e+000;5K Vorlauf CB44 Eintritt
-SE_44TI2128_Value;REAL;0.000000e+000;0.000000e+000;CC-Teillast VorkÅhler HD-Austritt
+SE_44TI2128_Value;REAL;0.000000e+000;0.000000e+000;CC-Teillast VorkÔøΩhler HD-Austritt
 SE_44TI2191_Value;REAL;0.000000e+000;0.000000e+000;5K Vorlauf CB44 Austritt
-SE_44TI2201_Value;REAL;0.000000e+000;0.000000e+000;4K RÅcklauf CB44 Austritt
+SE_44TI2201_Value;REAL;0.000000e+000;0.000000e+000;4K RÔøΩcklauf CB44 Austritt
 SE_44TI2240_Value;REAL;0.000000e+000;0.000000e+000;Sattdampf
-SE_44TI2241_Value;REAL;0.000000e+000;0.000000e+000;4K RÅcklauf CB44 Eintritt
-SE_44TI2251_Value;REAL;0.000000e+000;0.000000e+000;8K RÅcklauf CB44 Austritt
-SE_44TI2291_Value;REAL;0.000000e+000;0.000000e+000;8K RÅcklauf CB44 Eintritt
+SE_44TI2241_Value;REAL;0.000000e+000;0.000000e+000;4K RÔøΩcklauf CB44 Eintritt
+SE_44TI2251_Value;REAL;0.000000e+000;0.000000e+000;8K RÔøΩcklauf CB44 Austritt
+SE_44TI2291_Value;REAL;0.000000e+000;0.000000e+000;8K RÔøΩcklauf CB44 Eintritt
 SE_44TI3101_Value;REAL;0.000000e+000;0.000000e+000;40K Vorlauf CB44 Eintritt
-SE_44TI3104_Value;REAL;0.000000e+000;0.000000e+000;Intercept KÅhlung RÅcklauf
-SE_44TI3111_Value;REAL;0.000000e+000;0.000000e+000;Intercept KÅhlung Vorlauf
+SE_44TI3104_Value;REAL;0.000000e+000;0.000000e+000;Intercept KÔøΩhlung RÔøΩcklauf
+SE_44TI3111_Value;REAL;0.000000e+000;0.000000e+000;Intercept KÔøΩhlung Vorlauf
 SE_44TI3191_Value;REAL;0.000000e+000;0.000000e+000;40K Vorlauf CB44 Austritt
-SE_44TI3201_Value;REAL;0.000000e+000;0.000000e+000;80K RÅcklauf CB44 Austritt
+SE_44TI3201_Value;REAL;0.000000e+000;0.000000e+000;80K RÔøΩcklauf CB44 Austritt
 SE_44TI3202_Value;REAL;0.000000e+000;0.000000e+000;Thermische Schild CB44
 SE_44TI3291_Value;REAL;0.000000e+000;0.000000e+000;Thermische Schild CB44
 SE_ED1120_Value;REAL;0.000000e+000;0.000000e+000;Spare
@@ -262,52 +262,52 @@ SE_44TI1212_State;BYTE;B#16#0;B#16#0;Lagertemperatur 44CC1212 (PT100)
 SE_44TI1213_State;BYTE;B#16#0;B#16#0;Lagertemperatur 44CC1213 (PT100)
 SE_44TI1214_State;BYTE;B#16#0;B#16#0;Lagertemperatur 44CC1214 (PT100)
 SE_44PI2101_State;BYTE;B#16#0;B#16#0;5K Vorlauf CB44 Eintritt
-SE_44PI2251_State;BYTE;B#16#0;B#16#0;20K RÅcklauf CC Austritt
+SE_44PI2251_State;BYTE;B#16#0;B#16#0;20K RÔøΩcklauf CC Austritt
 SE_44PI3101_State;BYTE;B#16#0;B#16#0;40K Vorlauf CB44 Eintritt
 SE_44PI0027_State;BYTE;B#16#0;B#16#0;Guardsystem Vorlauf
-SE_44PI3201_State;BYTE;B#16#0;B#16#0;80K RÅcklauf CB44 Austritt
-SE_44PI2291_State;BYTE;B#16#0;B#16#0;8K RÅcklauf CB44 Eintritt
+SE_44PI3201_State;BYTE;B#16#0;B#16#0;80K RÔøΩcklauf CB44 Austritt
+SE_44PI2291_State;BYTE;B#16#0;B#16#0;8K RÔøΩcklauf CB44 Eintritt
 SE_44PI3191_State;BYTE;B#16#0;B#16#0;40K Vorlauf CB44 Austritt
-SE_44PI3291_State;BYTE;B#16#0;B#16#0;80K RÅcklauf CB44 Eintritt
-SE_44PI2201_State;BYTE;B#16#0;B#16#0;4K RÅcklauf CB44 Austritt
-SE_44PI1222_State;BYTE;B#16#0;B#16#0;20K RÅcklauf CC Austritt
+SE_44PI3291_State;BYTE;B#16#0;B#16#0;80K RÔøΩcklauf CB44 Eintritt
+SE_44PI2201_State;BYTE;B#16#0;B#16#0;4K RÔøΩcklauf CB44 Austritt
+SE_44PI1222_State;BYTE;B#16#0;B#16#0;20K RÔøΩcklauf CC Austritt
 SE_44PI1191_State;BYTE;B#16#0;B#16#0;2K Vorlauf CB44 Austritt
 SE_44PI2191_State;BYTE;B#16#0;B#16#0;5K Vorlauf CB44 Austritt
-SE_44PI2241_State;BYTE;B#16#0;B#16#0;4K RÅcklauf CB44 Eintritt
+SE_44PI2241_State;BYTE;B#16#0;B#16#0;4K RÔøΩcklauf CB44 Eintritt
 SE_44PDI1201_State;BYTE;B#16#0;B#16#0;Kaltkompressoren Eintritt
 SE_44PI1240_State;BYTE;B#16#0;B#16#0;LHe Verdampfer Austritt
-SE_44PI1291_State;BYTE;B#16#0;B#16#0;2K RÅcklauf CB44 Eintritt
-SE_44PI1292_State;BYTE;B#16#0;B#16#0;2K RÅcklauf CB44 Eintritt
-SE_44CV1201A_IstPosState;BYTE;B#16#0;B#16#0;Kaltkompressoren Eintritt Ventilposition RÅcklesewert
-SE_44CV1201B_IstPosState;BYTE;B#16#0;B#16#0;Kaltkompressoren Eintritt Ventilposition RÅcklesewert
-SE_44CV1202_IstPosState;BYTE;B#16#0;B#16#0;Kaltkompr. Eintritt Druckausgleich Ventilposition RÅcklesewert
-SE_44CV1142_IstPosState;BYTE;B#16#0;B#16#0;Gasblase ablassen Ventilposition RÅcklesewert
-SE_44CV1101_IstPosState;BYTE;B#16#0;B#16#0;2K Vorlauf CB44 Eintritt Ventilposition RÅcklesewert
-SE_44CV1223_IstPosState;BYTE;B#16#0;B#16#0;Kaltkompressoren Bypass Ventilposition RÅcklesewert
-SE_44CV1245_IstPosState;BYTE;B#16#0;B#16#0;CC-Teillast RÅcklauf Ventilposition RÅcklesewert
-SE_44CV1141_IstPosState;BYTE;B#16#0;B#16#0;FlÅssigkeitsgefÑss Austritt Ventilposition RÅcklesewert
-SE_44CV1230_IstPosState;BYTE;B#16#0;B#16#0;CC-Teillast VorkÅhler Austritt Ventilposition RÅcklesewert
-SE_44CV1215_IstPosState;BYTE;B#16#0;B#16#0;44C1214 Austritt Ventilposition RÅcklesewert
-SE_44CV1240_IstPosState;BYTE;B#16#0;B#16#0;LHe Verdampfer Austritt Reg. Ventilposition RÅcklesewert
-SE_44CV1241_IstPosState;BYTE;B#16#0;B#16#0;LHe Verdampfer Austritt Reg. Ventilposition RÅcklesewert
-SE_44CV1231_IstPosState;BYTE;B#16#0;B#16#0;CC-Teillast VorkÅhler Austritt Reg. Ventilposition RÅcklesewert
-SE_44CV1121_IstPosState;BYTE;B#16#0;B#16#0;CC-Teillast Eintritt Ventilposition RÅcklesewert
-SE_44CV1222_IstPosState;BYTE;B#16#0;B#16#0;20K RÅcklauf CC Austritt Ventilposition RÅcklesewert
-SE_44CV3127_IstPosState;BYTE;B#16#0;B#16#0;Kaltkompressoren Kaltfahren Ventilposition RÅcklesewert
-SE_44CV2130_IstPosState;BYTE;B#16#0;B#16#0;CC-Teillast VorkÅhler HD-Eintritt Ventilposition RÅcklesewert
-SE_44CV2227_IstPosState;BYTE;B#16#0;B#16#0;Sattdampf RÅcknahme Ventilposition RÅcklesewert
-SE_44CV1139_IstPosState;BYTE;B#16#0;B#16#0;JT-Ventil CC44 Ventilposition RÅcklesewert
-SE_44CV1140_IstPosState;BYTE;B#16#0;B#16#0;FlÅssigkeitsgefÑss FÅllstandsonde RÅcklesewert
-SE_44CV2242_IstPosState;BYTE;B#16#0;B#16#0;Testheizung KK-Vorlauf Ventilposition RÅcklesewert
+SE_44PI1291_State;BYTE;B#16#0;B#16#0;2K RÔøΩcklauf CB44 Eintritt
+SE_44PI1292_State;BYTE;B#16#0;B#16#0;2K RÔøΩcklauf CB44 Eintritt
+SE_44CV1201A_IstPosState;BYTE;B#16#0;B#16#0;Kaltkompressoren Eintritt Ventilposition RÔøΩcklesewert
+SE_44CV1201B_IstPosState;BYTE;B#16#0;B#16#0;Kaltkompressoren Eintritt Ventilposition RÔøΩcklesewert
+SE_44CV1202_IstPosState;BYTE;B#16#0;B#16#0;Kaltkompr. Eintritt Druckausgleich Ventilposition RÔøΩcklesewert
+SE_44CV1142_IstPosState;BYTE;B#16#0;B#16#0;Gasblase ablassen Ventilposition RÔøΩcklesewert
+SE_44CV1101_IstPosState;BYTE;B#16#0;B#16#0;2K Vorlauf CB44 Eintritt Ventilposition RÔøΩcklesewert
+SE_44CV1223_IstPosState;BYTE;B#16#0;B#16#0;Kaltkompressoren Bypass Ventilposition RÔøΩcklesewert
+SE_44CV1245_IstPosState;BYTE;B#16#0;B#16#0;CC-Teillast RÔøΩcklauf Ventilposition RÔøΩcklesewert
+SE_44CV1141_IstPosState;BYTE;B#16#0;B#16#0;FlÔøΩssigkeitsgefÔøΩss Austritt Ventilposition RÔøΩcklesewert
+SE_44CV1230_IstPosState;BYTE;B#16#0;B#16#0;CC-Teillast VorkÔøΩhler Austritt Ventilposition RÔøΩcklesewert
+SE_44CV1215_IstPosState;BYTE;B#16#0;B#16#0;44C1214 Austritt Ventilposition RÔøΩcklesewert
+SE_44CV1240_IstPosState;BYTE;B#16#0;B#16#0;LHe Verdampfer Austritt Reg. Ventilposition RÔøΩcklesewert
+SE_44CV1241_IstPosState;BYTE;B#16#0;B#16#0;LHe Verdampfer Austritt Reg. Ventilposition RÔøΩcklesewert
+SE_44CV1231_IstPosState;BYTE;B#16#0;B#16#0;CC-Teillast VorkÔøΩhler Austritt Reg. Ventilposition RÔøΩcklesewert
+SE_44CV1121_IstPosState;BYTE;B#16#0;B#16#0;CC-Teillast Eintritt Ventilposition RÔøΩcklesewert
+SE_44CV1222_IstPosState;BYTE;B#16#0;B#16#0;20K RÔøΩcklauf CC Austritt Ventilposition RÔøΩcklesewert
+SE_44CV3127_IstPosState;BYTE;B#16#0;B#16#0;Kaltkompressoren Kaltfahren Ventilposition RÔøΩcklesewert
+SE_44CV2130_IstPosState;BYTE;B#16#0;B#16#0;CC-Teillast VorkÔøΩhler HD-Eintritt Ventilposition RÔøΩcklesewert
+SE_44CV2227_IstPosState;BYTE;B#16#0;B#16#0;Sattdampf RÔøΩcknahme Ventilposition RÔøΩcklesewert
+SE_44CV1139_IstPosState;BYTE;B#16#0;B#16#0;JT-Ventil CC44 Ventilposition RÔøΩcklesewert
+SE_44CV1140_IstPosState;BYTE;B#16#0;B#16#0;FlÔøΩssigkeitsgefÔøΩss FÔøΩllstandsonde RÔøΩcklesewert
+SE_44CV2242_IstPosState;BYTE;B#16#0;B#16#0;Testheizung KK-Vorlauf Ventilposition RÔøΩcklesewert
 SE_44PI1101_State;BYTE;B#16#0;B#16#0;2K Vorlauf CB44 Eintritt
-SE_44PI1140_State;BYTE;B#16#0;B#16#0;FlÅssigkeitsgefÑss FÅllstandsonde
+SE_44PI1140_State;BYTE;B#16#0;B#16#0;FlÔøΩssigkeitsgefÔøΩss FÔøΩllstandsonde
 SE_44PDI1102_State;BYTE;B#16#0;B#16#0;2K Vorlauf CB44
 SE_44PDI1140_State;BYTE;B#16#0;B#16#0;2K Vorlauf CB44
 SE_44FI1215_State;BYTE;B#16#0;B#16#0;44C1214 Austritt
-SE_44FI1230_State;BYTE;B#16#0;B#16#0;CC-Teillast VorkÅhler Austritt
-SE_44FI2227_State;BYTE;B#16#0;B#16#0;Sattdampf RÅcknahme
+SE_44FI1230_State;BYTE;B#16#0;B#16#0;CC-Teillast VorkÔøΩhler Austritt
+SE_44FI2227_State;BYTE;B#16#0;B#16#0;Sattdampf RÔøΩcknahme
 SE_44PI7080_State;BYTE;B#16#0;B#16#0;CB44 Vakuumsystem Eintritt
-SE_44LI1140_State;BYTE;B#16#0;B#16#0;FlÅssigkeitsgefÑss FÅllstandsonde
+SE_44LI1140_State;BYTE;B#16#0;B#16#0;FlÔøΩssigkeitsgefÔøΩss FÔøΩllstandsonde
 SE_EW914_State;BYTE;B#16#0;B#16#0;Spare
 SE_EW916_State;BYTE;B#16#0;B#16#0;Spare
 SE_EW918_State;BYTE;B#16#0;B#16#0;Spare
@@ -316,25 +316,25 @@ SE_EW922_State;BYTE;B#16#0;B#16#0;Spare
 SE_EW924_State;BYTE;B#16#0;B#16#0;Spare
 SE_44TI1101_State;BYTE;B#16#0;B#16#0;2K Vorlauf CB44 Eintritt
 SE_44TI1191_State;BYTE;B#16#0;B#16#0;2K Vorlauf CB44 Austritt
-SE_44TI1222_State;BYTE;B#16#0;B#16#0;20K RÅcklauf CC Austritt
-SE_44TI1228_State;BYTE;B#16#0;B#16#0;CC-Teillast VorkÅhler Eintritt
-SE_44TI1230_State;BYTE;B#16#0;B#16#0;CC-Teillast VorkÅhler Austritt
+SE_44TI1222_State;BYTE;B#16#0;B#16#0;20K RÔøΩcklauf CC Austritt
+SE_44TI1228_State;BYTE;B#16#0;B#16#0;CC-Teillast VorkÔøΩhler Eintritt
+SE_44TI1230_State;BYTE;B#16#0;B#16#0;CC-Teillast VorkÔøΩhler Austritt
 SE_44TI1240_State;BYTE;B#16#0;B#16#0;LHe Verdampfer Austritt
-SE_44TI1245_State;BYTE;B#16#0;B#16#0;CC-Teillast RÅcklauf
-SE_44TI1291_State;BYTE;B#16#0;B#16#0;2K RÅcklauf CB44 Eintritt
+SE_44TI1245_State;BYTE;B#16#0;B#16#0;CC-Teillast RÔøΩcklauf
+SE_44TI1291_State;BYTE;B#16#0;B#16#0;2K RÔøΩcklauf CB44 Eintritt
 SE_44TI2101_State;BYTE;B#16#0;B#16#0;5K Vorlauf CB44 Eintritt
-SE_44TI2128_State;BYTE;B#16#0;B#16#0;CC-Teillast VorkÅhler HD-Austritt
+SE_44TI2128_State;BYTE;B#16#0;B#16#0;CC-Teillast VorkÔøΩhler HD-Austritt
 SE_44TI2191_State;BYTE;B#16#0;B#16#0;5K Vorlauf CB44 Austritt
-SE_44TI2201_State;BYTE;B#16#0;B#16#0;4K RÅcklauf CB44 Austritt
+SE_44TI2201_State;BYTE;B#16#0;B#16#0;4K RÔøΩcklauf CB44 Austritt
 SE_44TI2240_State;BYTE;B#16#0;B#16#0;Sattdampf
-SE_44TI2241_State;BYTE;B#16#0;B#16#0;4K RÅcklauf CB44 Eintritt
-SE_44TI2251_State;BYTE;B#16#0;B#16#0;8K RÅcklauf CB44 Austritt
-SE_44TI2291_State;BYTE;B#16#0;B#16#0;8K RÅcklauf CB44 Eintritt
+SE_44TI2241_State;BYTE;B#16#0;B#16#0;4K RÔøΩcklauf CB44 Eintritt
+SE_44TI2251_State;BYTE;B#16#0;B#16#0;8K RÔøΩcklauf CB44 Austritt
+SE_44TI2291_State;BYTE;B#16#0;B#16#0;8K RÔøΩcklauf CB44 Eintritt
 SE_44TI3101_State;BYTE;B#16#0;B#16#0;40K Vorlauf CB44 Eintritt
-SE_44TI3104_State;BYTE;B#16#0;B#16#0;Intercept KÅhlung RÅcklauf
-SE_44TI3111_State;BYTE;B#16#0;B#16#0;Intercept KÅhlung Vorlauf
+SE_44TI3104_State;BYTE;B#16#0;B#16#0;Intercept KÔøΩhlung RÔøΩcklauf
+SE_44TI3111_State;BYTE;B#16#0;B#16#0;Intercept KÔøΩhlung Vorlauf
 SE_44TI3191_State;BYTE;B#16#0;B#16#0;40K Vorlauf CB44 Austritt
-SE_44TI3201_State;BYTE;B#16#0;B#16#0;80K RÅcklauf CB44 Austritt
+SE_44TI3201_State;BYTE;B#16#0;B#16#0;80K RÔøΩcklauf CB44 Austritt
 SE_44TI3202_State;BYTE;B#16#0;B#16#0;Thermische Schild CB44
 SE_44TI3291_State;BYTE;B#16#0;B#16#0;Thermische Schild CB44
 SE_ED1120_State;BYTE;B#16#0;B#16#0;Spare
@@ -410,20 +410,20 @@ SE_44CV1202_PercOut;REAL;0.000000e+000;0.000000e+000;Kaltkompr. Eintritt Druckau
 SE_44CV1142_PercOut;REAL;0.000000e+000;0.000000e+000;Gasblase ablassen Ventilposition 
 SE_44CV1101_PercOut;REAL;0.000000e+000;0.000000e+000;2K Vorlauf CB44 Eintritt Ventilposition 
 SE_44CV1223_PercOut;REAL;0.000000e+000;0.000000e+000;Kaltkompressoren Bypass Ventilposition 
-SE_44CV1245_PercOut;REAL;0.000000e+000;0.000000e+000;CC-Teillast RÅcklauf Ventilposition 
-SE_44CV1141_PercOut;REAL;0.000000e+000;0.000000e+000;FlÅssigkeitsgefÑss Austritt Ventilposition 
-SE_44CV1230_PercOut;REAL;0.000000e+000;0.000000e+000;CC-Teillast VorkÅhler Austritt Ventilposition 
+SE_44CV1245_PercOut;REAL;0.000000e+000;0.000000e+000;CC-Teillast RÔøΩcklauf Ventilposition 
+SE_44CV1141_PercOut;REAL;0.000000e+000;0.000000e+000;FlÔøΩssigkeitsgefÔøΩss Austritt Ventilposition 
+SE_44CV1230_PercOut;REAL;0.000000e+000;0.000000e+000;CC-Teillast VorkÔøΩhler Austritt Ventilposition 
 SE_44CV1215_PercOut;REAL;0.000000e+000;0.000000e+000;44C1214 Austritt Ventilposition 
 SE_44CV1240_PercOut;REAL;0.000000e+000;0.000000e+000;LHe Verdampfer Austritt Ventilposition 
 SE_44CV1241_PercOut;REAL;0.000000e+000;0.000000e+000;LHe Verdampfer Austritt Reg. Ventilposition 
-SE_44CV1231_PercOut;REAL;0.000000e+000;0.000000e+000;CC-Teillast VorkÅhler Austritt Reg. Ventilposition 
+SE_44CV1231_PercOut;REAL;0.000000e+000;0.000000e+000;CC-Teillast VorkÔøΩhler Austritt Reg. Ventilposition 
 SE_44CV1121_PercOut;REAL;0.000000e+000;0.000000e+000;CC-Teillast Eintritt Ventilposition 
-SE_44CV1222_PercOut;REAL;0.000000e+000;0.000000e+000;20K RÅcklauf CC Austritt Ventilposition 
+SE_44CV1222_PercOut;REAL;0.000000e+000;0.000000e+000;20K RÔøΩcklauf CC Austritt Ventilposition 
 SE_44CV3127_PercOut;REAL;0.000000e+000;0.000000e+000;Kaltkompressoren Kaltfahren Ventilposition 
-SE_44CV2130_PercOut;REAL;0.000000e+000;0.000000e+000;CC-Teillast VorkÅhler HD-Eintritt Ventilposition 
-SE_44CV2227_PercOut;REAL;0.000000e+000;0.000000e+000;Sattdampf RÅcknahme Ventilposition 
+SE_44CV2130_PercOut;REAL;0.000000e+000;0.000000e+000;CC-Teillast VorkÔøΩhler HD-Eintritt Ventilposition 
+SE_44CV2227_PercOut;REAL;0.000000e+000;0.000000e+000;Sattdampf RÔøΩcknahme Ventilposition 
 SE_44CV1139_PercOut;REAL;0.000000e+000;0.000000e+000;JT-Ventil CC44 Ventilposition 
-SE_44CV1140_PercOut;REAL;0.000000e+000;0.000000e+000;FlÅssigkeitsgefÑss FÅllstandsonde 
+SE_44CV1140_PercOut;REAL;0.000000e+000;0.000000e+000;FlÔøΩssigkeitsgefÔøΩss FÔøΩllstandsonde 
 SE_44CV2242_PercOut;REAL;0.000000e+000;0.000000e+000;Testheizung KK-Vorlauf Ventilposition 
 SE_54EUY1241_PercOut;REAL;0.000000e+000;0.000000e+000;"54R1241 - Testheizung KK-Vorlauf Temp. ; Soll-Wert - Heizleistung"
 SE_54EUY1242_PercOut;REAL;0.000000e+000;0.000000e+000;"54R1242 - Testheizung KK-Vorlauf Temp. ; Soll-Wert - Heizleistung"
@@ -504,20 +504,20 @@ SE_44CV1202_State;BYTE;B#16#0;B#16#0;Kaltkompr. Eintritt Druckausgleich Ventilpo
 SE_44CV1142_State;BYTE;B#16#0;B#16#0;Gasblase ablassen Ventilposition 
 SE_44CV1101_State;BYTE;B#16#0;B#16#0;2K Vorlauf CB44 Eintritt Ventilposition 
 SE_44CV1223_State;BYTE;B#16#0;B#16#0;Kaltkompressoren Bypass Ventilposition 
-SE_44CV1245_State;BYTE;B#16#0;B#16#0;CC-Teillast RÅcklauf Ventilposition 
-SE_44CV1141_State;BYTE;B#16#0;B#16#0;FlÅssigkeitsgefÑss Austritt Ventilposition 
-SE_44CV1230_State;BYTE;B#16#0;B#16#0;CC-Teillast VorkÅhler Austritt Ventilposition 
+SE_44CV1245_State;BYTE;B#16#0;B#16#0;CC-Teillast RÔøΩcklauf Ventilposition 
+SE_44CV1141_State;BYTE;B#16#0;B#16#0;FlÔøΩssigkeitsgefÔøΩss Austritt Ventilposition 
+SE_44CV1230_State;BYTE;B#16#0;B#16#0;CC-Teillast VorkÔøΩhler Austritt Ventilposition 
 SE_44CV1215_State;BYTE;B#16#0;B#16#0;44C1214 Austritt Ventilposition 
 SE_44CV1240_State;BYTE;B#16#0;B#16#0;LHe Verdampfer Austritt Ventilposition 
 SE_44CV1241_State;BYTE;B#16#0;B#16#0;LHe Verdampfer Austritt Reg. Ventilposition 
-SE_44CV1231_State;BYTE;B#16#0;B#16#0;CC-Teillast VorkÅhler Austritt Reg. Ventilposition 
+SE_44CV1231_State;BYTE;B#16#0;B#16#0;CC-Teillast VorkÔøΩhler Austritt Reg. Ventilposition 
 SE_44CV1121_State;BYTE;B#16#0;B#16#0;CC-Teillast Eintritt Ventilposition 
-SE_44CV1222_State;BYTE;B#16#0;B#16#0;20K RÅcklauf CC Austritt Ventilposition 
+SE_44CV1222_State;BYTE;B#16#0;B#16#0;20K RÔøΩcklauf CC Austritt Ventilposition 
 SE_44CV3127_State;BYTE;B#16#0;B#16#0;Kaltkompressoren Kaltfahren Ventilposition 
-SE_44CV2130_State;BYTE;B#16#0;B#16#0;CC-Teillast VorkÅhler HD-Eintritt Ventilposition 
-SE_44CV2227_State;BYTE;B#16#0;B#16#0;Sattdampf RÅcknahme Ventilposition 
+SE_44CV2130_State;BYTE;B#16#0;B#16#0;CC-Teillast VorkÔøΩhler HD-Eintritt Ventilposition 
+SE_44CV2227_State;BYTE;B#16#0;B#16#0;Sattdampf RÔøΩcknahme Ventilposition 
 SE_44CV1139_State;BYTE;B#16#0;B#16#0;JT-Ventil CC44 Ventilposition 
-SE_44CV1140_State;BYTE;B#16#0;B#16#0;FlÅssigkeitsgefÑss FÅllstandsonde 
+SE_44CV1140_State;BYTE;B#16#0;B#16#0;FlÔøΩssigkeitsgefÔøΩss FÔøΩllstandsonde 
 SE_44CV2242_State;BYTE;B#16#0;B#16#0;Testheizung KK-Vorlauf Ventilposition 
 SE_54EUY1241_State;BYTE;B#16#0;B#16#0;"54R1241 - Testheizung KK-Vorlauf Temp. ; Soll-Wert - Heizleistung"
 SE_54EUY1242_State;BYTE;B#16#0;B#16#0;"54R1242 - Testheizung KK-Vorlauf Temp. ; Soll-Wert - Heizleistung"

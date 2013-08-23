@@ -1,11 +1,11 @@
-RecTask;WORD;W#16#0;W#16#0;Counter of recived tasks
-RecErr;WORD;W#16#0;W#16#0;Recive with error
-RES[1];BYTE;B#16#0;B#16#0;Spare
-RES[2];BYTE;B#16#0;B#16#0;
-RES[3];BYTE;B#16#0;B#16#0;
-RES[4];BYTE;B#16#0;B#16#0;
-RES[5];BYTE;B#16#0;B#16#0;
-RES[6];BYTE;B#16#0;B#16#0;
+#RecTask;WORD;W#16#0;W#16#0;Counter of recived tasks
+#RecErr;WORD;W#16#0;W#16#0;Recive with error
+#RES[1];BYTE;B#16#0;B#16#0;Spare
+#RES[2];BYTE;B#16#0;B#16#0;
+#RES[3];BYTE;B#16#0;B#16#0;
+#RES[4];BYTE;B#16#0;B#16#0;
+#RES[5];BYTE;B#16#0;B#16#0;
+#RES[6];BYTE;B#16#0;B#16#0;
 RC_OP_K01;BOOL;FALSE;FALSE;OP key K01 - 
 RC_OP_K02;BOOL;FALSE;FALSE;OP key K02 - 
 RC_OP_K03;BOOL;FALSE;FALSE;OP key K03 - 

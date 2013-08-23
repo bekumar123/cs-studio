@@ -1,11 +1,11 @@
-RecTask;WORD;W#16#0;W#16#0;Counter of recived tasks
-RecErr;WORD;W#16#0;W#16#0;Recive with error
-RES[1];BYTE;B#16#0;B#16#0;Spare
-RES[2];BYTE;B#16#0;B#16#0;
-RES[3];BYTE;B#16#0;B#16#0;
-RES[4];BYTE;B#16#0;B#16#0;
-RES[5];BYTE;B#16#0;B#16#0;
-RES[6];BYTE;B#16#0;B#16#0;
+#RecTask;WORD;W#16#0;W#16#0;Counter of recived tasks
+#RecErr;WORD;W#16#0;W#16#0;Recive with error
+#RES[1];BYTE;B#16#0;B#16#0;Spare
+#RES[2];BYTE;B#16#0;B#16#0;
+#RES[3];BYTE;B#16#0;B#16#0;
+#RES[4];BYTE;B#16#0;B#16#0;
+#RES[5];BYTE;B#16#0;B#16#0;
+#RES[6];BYTE;B#16#0;B#16#0;
 RC_44HSY1140_Man;BOOL;FALSE;FALSE;Manual mode 1=man
 RC_AW12_Man;BOOL;FALSE;FALSE;Manual mode 1=man
 RC_AW14_Man;BOOL;FALSE;FALSE;Manual mode 1=man
@@ -168,41 +168,41 @@ RC_AO_ManVal_Spare1[55];BYTE;B#16#0;B#16#0;
 RC_AO_ManVal_Spare1[56];BYTE;B#16#0;B#16#0;
 RC_AO_ManVal_Spare1[57];BYTE;B#16#0;B#16#0;
 RC_AO_ManVal_Spare1[58];BYTE;B#16#0;B#16#0;
-RC_44HSY1140_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_AW12_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_AW14_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_AW16_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_44CV1201A_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_44CV1201B_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_44CV1202_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_44CV1142_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_44CV1101_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_44CV1223_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_44CV1245_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_44CV1141_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_44CV1230_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_44CV1215_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_44CV1240_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_44CV1241_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_44CV1231_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_44CV1121_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_44CV1222_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_44CV3127_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_44CV2130_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_44CV2227_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_44CV1139_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_44CV1140_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_44CV2242_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_54EUY1241_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_54EUY1242_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_54EUY2192_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_54EUY2242_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_54EUY3192_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_54EUY3193_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_54EUY3194_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_AW1424_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_AW1426_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
-RC_AW1428_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fr ”ffnen/schliessen in manual mode
+RC_44HSY1140_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_AW12_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_AW14_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_AW16_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_44CV1201A_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_44CV1201B_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_44CV1202_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_44CV1142_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_44CV1101_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_44CV1223_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_44CV1245_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_44CV1141_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_44CV1230_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_44CV1215_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_44CV1240_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_44CV1241_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_44CV1231_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_44CV1121_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_44CV1222_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_44CV3127_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_44CV2130_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_44CV2227_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_44CV1139_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_44CV1140_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_44CV2242_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_54EUY1241_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_54EUY1242_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_54EUY2192_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_54EUY2242_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_54EUY3192_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_54EUY3193_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_54EUY3194_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_AW1424_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_AW1426_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
+RC_AW1428_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fï¿½r ï¿½ffnen/schliessen in manual mode
 RC_AO_ManRmp_Spare[0];BYTE;B#16#0;B#16#0;
 RC_AO_ManRmp_Spare[1];BYTE;B#16#0;B#16#0;
 RC_AO_ManRmp_Spare[2];BYTE;B#16#0;B#16#0;

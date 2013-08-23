@@ -1,11 +1,11 @@
-SendTask;WORD;W#16#0;W#16#0;Counter of send tasks
-SendErr;WORD;W#16#0;W#16#0;Send with error
-RES[1];BYTE;B#16#0;B#16#0;Spare
-RES[2];BYTE;B#16#0;B#16#0;
-RES[3];BYTE;B#16#0;B#16#0;
-RES[4];BYTE;B#16#0;B#16#0;
-RES[5];BYTE;B#16#0;B#16#0;
-RES[6];BYTE;B#16#0;B#16#0;
+#SendTask;WORD;W#16#0;W#16#0;Counter of send tasks
+#SendErr;WORD;W#16#0;W#16#0;Send with error
+#RES[1];BYTE;B#16#0;B#16#0;Spare
+#RES[2];BYTE;B#16#0;B#16#0;
+#RES[3];BYTE;B#16#0;B#16#0;
+#RES[4];BYTE;B#16#0;B#16#0;
+#RES[5];BYTE;B#16#0;B#16#0;
+#RES[6];BYTE;B#16#0;B#16#0;
 SE_OP_K01;BOOL;FALSE;FALSE;OP key K01 - 
 SE_OP_K02;BOOL;FALSE;FALSE;OP key K02 - 
 SE_OP_K03;BOOL;FALSE;FALSE;OP key K03 - 

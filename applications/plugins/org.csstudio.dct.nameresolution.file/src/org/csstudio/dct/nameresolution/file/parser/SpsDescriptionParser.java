@@ -60,8 +60,9 @@ public class SpsDescriptionParser {
                                 fileName);
                                 //@formatter:on                            
                         parseResult.add(descriptionEntry);
+                        
                     }
-
+                                        
                     lastSpsType = Optional.of(currentSpsType);
 
                 }

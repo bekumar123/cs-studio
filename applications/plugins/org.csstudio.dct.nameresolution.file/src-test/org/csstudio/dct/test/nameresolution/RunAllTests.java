@@ -5,6 +5,7 @@ import org.csstudio.dct.test.nameresolution.file.types.TestIoNameDictionary;
 import org.csstudio.dct.test.nameresolution.file.types.TestSpsType;
 import org.csstudio.dct.test.nameresolution.test.file.parser.TestCatalogParser;
 import org.csstudio.dct.test.nameresolution.test.file.parser.TestSpsDescriptionParser;
+import org.csstudio.dct.test.nameresolution.test.file.parser.TestSpsDescriptionParserDs33;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -15,6 +16,7 @@ import org.junit.runners.Suite;
    TestIoNameResolutionFromFile.class,
    TestSpsType.class, 
    TestCatalogParser.class,
+   TestSpsDescriptionParserDs33.class,
    TestSpsDescriptionParser.class})
    //@formatter:on
 public class RunAllTests {

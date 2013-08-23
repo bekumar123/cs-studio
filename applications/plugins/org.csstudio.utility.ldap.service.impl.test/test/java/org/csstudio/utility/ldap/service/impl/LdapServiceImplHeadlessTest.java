@@ -250,7 +250,9 @@ public class LdapServiceImplHeadlessTest {
             Assert.fail("Content model could not be created:\n" + e.getMessage());
         } catch (LdapServiceException e) {
             Assert.fail("Content model could not be created:\n" + e.getMessage());
-        }
+        } catch (Exception e) {
+            Assert.fail("Content model could not be created:\n" + e.getMessage());
+		}
     }
 
 }

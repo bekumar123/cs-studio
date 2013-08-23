@@ -33,7 +33,7 @@ package org.csstudio.websuite.utils;
  */
 public class IocName {
 
-    private String iocName;
+   private String iocName;
     
     public IocName(String name) {
         if (name == null) {

@@ -1,0 +1,4 @@
+# entries with same TcpConnection identifier
+0;complex.txt
+1;test.txt
+1;test2.txt

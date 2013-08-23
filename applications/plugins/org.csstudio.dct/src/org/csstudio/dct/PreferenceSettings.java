@@ -7,30 +7,32 @@ package org.csstudio.dct;
  * 
  */
 public enum PreferenceSettings {
-	FIELD_DESCRIPTION_SHOW_DESCRIPTION("show description for record fields"),
+   FIELD_DESCRIPTION_SHOW_DESCRIPTION("show description for record fields"),
 
-	FIELD_DESCRIPTION_SHOW_INITIAL_VALUE("show initial value for record fields"),
+   FIELD_DESCRIPTION_SHOW_INITIAL_VALUE("show initial value for record fields"),
 
-	DATALINK_FUNCTION_PARAMETER_3_PROPOSAL("datalink() function, auto completion proposal for parameter 3"),
+   DATALINK_FUNCTION_PARAMETER_3_PROPOSAL("datalink() function, auto completion proposal for parameter 3"),
 
-	DATALINK_FUNCTION_PARAMETER_4_PROPOSAL("datalink() function, auto completion proposal for parameter 4"),
+   DATALINK_FUNCTION_PARAMETER_4_PROPOSAL("datalink() function, auto completion proposal for parameter 4"),
 
-	IO_NAME_SERVICE_ID("io name service"),
+   DIRECTORY_FILE_SPS_DESCRIPTION("S7 catalog file"),
 
-	SENSOR_ID_SERVICE_ID("sensor id service");
+   IO_NAME_SERVICE_ID("io name service"),
 
-	private String label;
+   SENSOR_ID_SERVICE_ID("sensor id service");
 
-	private PreferenceSettings(String label) {
-		this.label = label;
-	}
+   private String label;
 
-	/**
-	 * Returns a label for this preference.
-	 * 
-	 * @return a label for this preference
-	 */
-	public String getLabel() {
-		return label;
-	}
+   private PreferenceSettings(String label) {
+      this.label = label;
+   }
+
+   /**
+    * Returns a label for this preference.
+    * 
+    * @return a label for this preference
+    */
+   public String getLabel() {
+      return label;
+   }
 }

@@ -1,0 +1,6 @@
+# Beginn der Beispiel-Datei
+#
+# Index-Datei für die CSV-Import-Dateien
+# Erste Verbindung zur SPS
+0;test.txt
+# Ende der Beispieldatei

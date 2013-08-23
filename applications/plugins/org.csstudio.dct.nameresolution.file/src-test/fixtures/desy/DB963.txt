@@ -1,0 +1,264 @@
+RecTask;WORD;W#16#0;W#16#0;Counter of recived tasks
+RecErr;WORD;W#16#0;W#16#0;Recive with error
+RES[1];BYTE;B#16#0;B#16#0;Spare
+RES[2];BYTE;B#16#0;B#16#0;
+RES[3];BYTE;B#16#0;B#16#0;
+RES[4];BYTE;B#16#0;B#16#0;
+RES[5];BYTE;B#16#0;B#16#0;
+RES[6];BYTE;B#16#0;B#16#0;
+RC_44HSY1140_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_AW12_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_AW14_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_AW16_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_44CV1201A_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_44CV1201B_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_44CV1202_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_44CV1142_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_44CV1101_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_44CV1223_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_44CV1245_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_44CV1141_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_44CV1230_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_44CV1215_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_44CV1240_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_44CV1241_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_44CV1231_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_44CV1121_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_44CV1222_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_44CV3127_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_44CV2130_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_44CV2227_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_44CV1139_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_44CV1140_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_44CV2242_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_54EUY1241_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_54EUY1242_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_54EUY2192_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_54EUY2242_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_54EUY3192_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_54EUY3193_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_54EUY3194_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_AW1424_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_AW1426_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_AW1428_Man;BOOL;FALSE;FALSE;Manual mode 1=man
+RC_AO_Man_Spare[0];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[1];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[2];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[3];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[4];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[5];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[6];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[7];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[8];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[9];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[10];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[11];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[12];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[13];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[14];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[15];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[16];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[17];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[18];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[19];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[20];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[21];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[22];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[23];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[24];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[25];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[26];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[27];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[28];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[29];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[30];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[31];BYTE;B#16#0;B#16#0;
+RC_AO_Man_Spare[32];BYTE;B#16#0;B#16#0;
+RC_44HSY1140_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_AW12_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_AW14_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_AW16_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_44CV1201A_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_44CV1201B_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_44CV1202_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_44CV1142_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_44CV1101_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_44CV1223_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_44CV1245_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_44CV1141_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_44CV1230_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_44CV1215_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_44CV1240_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_44CV1241_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_44CV1231_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_44CV1121_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_44CV1222_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_44CV3127_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_44CV2130_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_44CV2227_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_44CV1139_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_44CV1140_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_44CV2242_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_54EUY1241_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_54EUY1242_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_54EUY2192_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_54EUY2242_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_54EUY3192_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_54EUY3193_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_54EUY3194_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_AW1424_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_AW1426_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_AW1428_ManVal;REAL;0.000000e+000;0.000000e+000;
+RC_AO_ManVal_Spare1[0];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[1];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[2];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[3];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[4];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[5];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[6];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[7];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[8];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[9];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[10];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[11];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[12];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[13];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[14];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[15];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[16];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[17];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[18];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[19];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[20];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[21];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[22];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[23];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[24];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[25];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[26];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[27];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[28];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[29];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[30];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[31];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[32];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[33];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[34];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[35];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[36];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[37];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[38];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[39];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[40];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[41];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[42];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[43];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[44];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[45];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[46];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[47];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[48];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[49];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[50];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[51];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[52];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[53];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[54];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[55];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[56];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[57];BYTE;B#16#0;B#16#0;
+RC_AO_ManVal_Spare1[58];BYTE;B#16#0;B#16#0;
+RC_44HSY1140_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_AW12_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_AW14_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_AW16_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_44CV1201A_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_44CV1201B_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_44CV1202_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_44CV1142_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_44CV1101_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_44CV1223_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_44CV1245_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_44CV1141_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_44CV1230_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_44CV1215_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_44CV1240_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_44CV1241_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_44CV1231_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_44CV1121_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_44CV1222_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_44CV3127_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_44CV2130_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_44CV2227_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_44CV1139_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_44CV1140_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_44CV2242_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_54EUY1241_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_54EUY1242_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_54EUY2192_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_54EUY2242_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_54EUY3192_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_54EUY3193_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_54EUY3194_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_AW1424_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_AW1426_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_AW1428_RmpMan;REAL;0.000000e+000;0.000000e+000;Ramp in %/s fÅr îffnen/schliessen in manual mode
+RC_AO_ManRmp_Spare[0];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[1];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[2];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[3];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[4];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[5];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[6];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[7];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[8];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[9];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[10];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[11];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[12];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[13];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[14];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[15];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[16];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[17];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[18];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[19];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[20];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[21];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[22];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[23];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[24];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[25];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[26];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[27];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[28];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[29];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[30];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[31];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[32];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[33];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[34];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[35];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[36];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[37];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[38];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[39];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[40];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[41];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[42];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[43];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[44];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[45];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[46];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[47];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[48];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[49];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[50];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[51];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[52];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[53];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[54];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[55];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[56];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[57];BYTE;B#16#0;B#16#0;
+RC_AO_ManRmp_Spare[58];BYTE;B#16#0;B#16#0;

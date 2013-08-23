@@ -1,0 +1,594 @@
+SendTask;WORD;W#16#0;W#16#0;Counter of send tasks
+SendErr;WORD;W#16#0;W#16#0;Send with error
+RES[1];BYTE;B#16#0;B#16#0;Spare
+RES[2];BYTE;B#16#0;B#16#0;
+RES[3];BYTE;B#16#0;B#16#0;
+RES[4];BYTE;B#16#0;B#16#0;
+RES[5];BYTE;B#16#0;B#16#0;
+RES[6];BYTE;B#16#0;B#16#0;
+SE_44SI1211_Value;REAL;0.000000e+000;0.000000e+000;44C1211 Drehzahl
+SE_44SI1212_Value;REAL;0.000000e+000;0.000000e+000;44C1212 Drehzahl
+SE_44SI1213_Value;REAL;0.000000e+000;0.000000e+000;44C1213 Drehzahl
+SE_44SI1214_Value;REAL;0.000000e+000;0.000000e+000;44C1214 Drehzahl
+SE_44PI1210_Value;REAL;0.000000e+000;0.000000e+000;44C1211 Eintritt
+SE_44PI1211_Value;REAL;0.000000e+000;0.000000e+000;44C1211 Eintritt
+SE_44PI1212_Value;REAL;0.000000e+000;0.000000e+000;44C1212 Eintritt
+SE_44PI1213_Value;REAL;0.000000e+000;0.000000e+000;44C1213 Eintritt
+SE_44PI1214_Value;REAL;0.000000e+000;0.000000e+000;44C1214 Eintritt
+SE_44PI1215_Value;REAL;0.000000e+000;0.000000e+000;44C1214 Austritt
+SE_EW30_Value;REAL;0.000000e+000;0.000000e+000;Spare
+SE_EW32_Value;REAL;0.000000e+000;0.000000e+000;Spare
+SE_EW34_Value;REAL;0.000000e+000;0.000000e+000;Spare
+SE_EW36_Value;REAL;0.000000e+000;0.000000e+000;Spare
+SE_EW38_Value;REAL;0.000000e+000;0.000000e+000;Spare
+SE_EW40_Value;REAL;0.000000e+000;0.000000e+000;Spare
+SE_44TI1211_Value;REAL;0.000000e+000;0.000000e+000;Lagertemperatur 44CC1211 (PT100)
+SE_44TI1212_Value;REAL;0.000000e+000;0.000000e+000;Lagertemperatur 44CC1212 (PT100)
+SE_44TI1213_Value;REAL;0.000000e+000;0.000000e+000;Lagertemperatur 44CC1213 (PT100)
+SE_44TI1214_Value;REAL;0.000000e+000;0.000000e+000;Lagertemperatur 44CC1214 (PT100)
+SE_44PI2101_Value;REAL;0.000000e+000;0.000000e+000;5K Vorlauf CB44 Eintritt
+SE_44PI2251_Value;REAL;0.000000e+000;0.000000e+000;20K R…klauf CC Austritt
+SE_44PI3101_Value;REAL;0.000000e+000;0.000000e+000;40K Vorlauf CB44 Eintritt
+SE_44PI0027_Value;REAL;0.000000e+000;0.000000e+000;Guardsystem Vorlauf
+SE_44PI3201_Value;REAL;0.000000e+000;0.000000e+000;80K R…klauf CB44 Austritt
+SE_44PI2291_Value;REAL;0.000000e+000;0.000000e+000;8K R…klauf CB44 Eintritt
+SE_44PI3191_Value;REAL;0.000000e+000;0.000000e+000;40K Vorlauf CB44 Austritt
+SE_44PI3291_Value;REAL;0.000000e+000;0.000000e+000;80K R…klauf CB44 Eintritt
+SE_44PI2201_Value;REAL;0.000000e+000;0.000000e+000;4K R…klauf CB44 Austritt
+SE_44PI1222_Value;REAL;0.000000e+000;0.000000e+000;20K R…klauf CC Austritt
+SE_44PI1191_Value;REAL;0.000000e+000;0.000000e+000;2K Vorlauf CB44 Austritt
+SE_44PI2191_Value;REAL;0.000000e+000;0.000000e+000;5K Vorlauf CB44 Austritt
+SE_44PI2241_Value;REAL;0.000000e+000;0.000000e+000;4K R…klauf CB44 Eintritt
+SE_44PDI1201_Value;REAL;0.000000e+000;0.000000e+000;Kaltkompressoren Eintritt
+SE_44PI1240_Value;REAL;0.000000e+000;0.000000e+000;LHe Verdampfer Austritt
+SE_44PI1291_Value;REAL;0.000000e+000;0.000000e+000;2K R…klauf CB44 Eintritt
+SE_44PI1292_Value;REAL;0.000000e+000;0.000000e+000;2K R…klauf CB44 Eintritt
+SE_44CV1201A_IstPos;REAL;0.000000e+000;0.000000e+000;Kaltkompressoren Eintritt Ventilposition R…klesewert
+SE_44CV1201B_IstPos;REAL;0.000000e+000;0.000000e+000;Kaltkompressoren Eintritt Ventilposition R…klesewert
+SE_44CV1202_IstPos;REAL;0.000000e+000;0.000000e+000;Kaltkompr. Eintritt Druckausgleich Ventilposition R…klesewert
+SE_44CV1142_IstPos;REAL;0.000000e+000;0.000000e+000;Gasblase ablassen Ventilposition R…klesewert
+SE_44CV1101_IstPos;REAL;0.000000e+000;0.000000e+000;2K Vorlauf CB44 Eintritt Ventilposition R…klesewert
+SE_44CV1223_IstPos;REAL;0.000000e+000;0.000000e+000;Kaltkompressoren Bypass Ventilposition R…klesewert
+SE_44CV1245_IstPos;REAL;0.000000e+000;0.000000e+000;CC-Teillast R…klauf Ventilposition R…klesewert
+SE_44CV1141_IstPos;REAL;0.000000e+000;0.000000e+000;Fl《sigkeitsgefгs Austritt Ventilposition R…klesewert
+SE_44CV1230_IstPos;REAL;0.000000e+000;0.000000e+000;CC-Teillast Vork”ler Austritt Ventilposition R…klesewert
+SE_44CV1215_IstPos;REAL;0.000000e+000;0.000000e+000;44C1214 Austritt Ventilposition R…klesewert
+SE_44CV1240_IstPos;REAL;0.000000e+000;0.000000e+000;LHe Verdampfer Austritt Reg. Ventilposition R…klesewert
+SE_44CV1241_IstPos;REAL;0.000000e+000;0.000000e+000;LHe Verdampfer Austritt Reg. Ventilposition R…klesewert
+SE_44CV1231_IstPos;REAL;0.000000e+000;0.000000e+000;CC-Teillast Vork”ler Austritt Reg. Ventilposition R…klesewert
+SE_44CV1121_IstPos;REAL;0.000000e+000;0.000000e+000;CC-Teillast Eintritt Ventilposition R…klesewert
+SE_44CV1222_IstPos;REAL;0.000000e+000;0.000000e+000;20K R…klauf CC Austritt Ventilposition R…klesewert
+SE_44CV3127_IstPos;REAL;0.000000e+000;0.000000e+000;Kaltkompressoren Kaltfahren Ventilposition R…klesewert
+SE_44CV2130_IstPos;REAL;0.000000e+000;0.000000e+000;CC-Teillast Vork”ler HD-Eintritt Ventilposition R…klesewert
+SE_44CV2227_IstPos;REAL;0.000000e+000;0.000000e+000;Sattdampf R…knahme Ventilposition R…klesewert
+SE_44CV1139_IstPos;REAL;0.000000e+000;0.000000e+000;JT-Ventil CC44 Ventilposition R…klesewert
+SE_44CV1140_IstPos;REAL;0.000000e+000;0.000000e+000;Fl《sigkeitsgefгs F〕lstandsonde R…klesewert
+SE_44CV2242_IstPos;REAL;0.000000e+000;0.000000e+000;Testheizung KK-Vorlauf Ventilposition R…klesewert
+SE_44PI1101_Value;REAL;0.000000e+000;0.000000e+000;2K Vorlauf CB44 Eintritt
+SE_44PI1140_Value;REAL;0.000000e+000;0.000000e+000;Fl《sigkeitsgefгs F〕lstandsonde
+SE_44PDI1102_Value;REAL;0.000000e+000;0.000000e+000;2K Vorlauf CB44
+SE_44PDI1140_Value;REAL;0.000000e+000;0.000000e+000;2K Vorlauf CB44
+SE_44FI1215_Value;REAL;0.000000e+000;0.000000e+000;44C1214 Austritt
+SE_44FI1230_Value;REAL;0.000000e+000;0.000000e+000;CC-Teillast Vork”ler Austritt
+SE_44FI2227_Value;REAL;0.000000e+000;0.000000e+000;Sattdampf R…knahme
+SE_44PI7080_Value;REAL;0.000000e+000;0.000000e+000;CB44 Vakuumsystem Eintritt
+SE_44LI1140_Value;REAL;0.000000e+000;0.000000e+000;Fl《sigkeitsgefгs F〕lstandsonde
+SE_EW914_Value;REAL;0.000000e+000;0.000000e+000;Spare
+SE_EW916_Value;REAL;0.000000e+000;0.000000e+000;Spare
+SE_EW918_Value;REAL;0.000000e+000;0.000000e+000;Spare
+SE_EW920_Value;REAL;0.000000e+000;0.000000e+000;Spare
+SE_EW922_Value;REAL;0.000000e+000;0.000000e+000;Spare
+SE_EW924_Value;REAL;0.000000e+000;0.000000e+000;Spare
+SE_44TI1101_Value;REAL;0.000000e+000;0.000000e+000;2K Vorlauf CB44 Eintritt
+SE_44TI1191_Value;REAL;0.000000e+000;0.000000e+000;2K Vorlauf CB44 Austritt
+SE_44TI1222_Value;REAL;0.000000e+000;0.000000e+000;20K R…klauf CC Austritt
+SE_44TI1228_Value;REAL;0.000000e+000;0.000000e+000;CC-Teillast Vork”ler Eintritt
+SE_44TI1230_Value;REAL;0.000000e+000;0.000000e+000;CC-Teillast Vork”ler Austritt
+SE_44TI1240_Value;REAL;0.000000e+000;0.000000e+000;LHe Verdampfer Austritt
+SE_44TI1245_Value;REAL;0.000000e+000;0.000000e+000;CC-Teillast R…klauf
+SE_44TI1291_Value;REAL;0.000000e+000;0.000000e+000;2K R…klauf CB44 Eintritt
+SE_44TI2101_Value;REAL;0.000000e+000;0.000000e+000;5K Vorlauf CB44 Eintritt
+SE_44TI2128_Value;REAL;0.000000e+000;0.000000e+000;CC-Teillast Vork”ler HD-Austritt
+SE_44TI2191_Value;REAL;0.000000e+000;0.000000e+000;5K Vorlauf CB44 Austritt
+SE_44TI2201_Value;REAL;0.000000e+000;0.000000e+000;4K R…klauf CB44 Austritt
+SE_44TI2240_Value;REAL;0.000000e+000;0.000000e+000;Sattdampf
+SE_44TI2241_Value;REAL;0.000000e+000;0.000000e+000;4K R…klauf CB44 Eintritt
+SE_44TI2251_Value;REAL;0.000000e+000;0.000000e+000;8K R…klauf CB44 Austritt
+SE_44TI2291_Value;REAL;0.000000e+000;0.000000e+000;8K R…klauf CB44 Eintritt
+SE_44TI3101_Value;REAL;0.000000e+000;0.000000e+000;40K Vorlauf CB44 Eintritt
+SE_44TI3104_Value;REAL;0.000000e+000;0.000000e+000;Intercept K”lung R…klauf
+SE_44TI3111_Value;REAL;0.000000e+000;0.000000e+000;Intercept K”lung Vorlauf
+SE_44TI3191_Value;REAL;0.000000e+000;0.000000e+000;40K Vorlauf CB44 Austritt
+SE_44TI3201_Value;REAL;0.000000e+000;0.000000e+000;80K R…klauf CB44 Austritt
+SE_44TI3202_Value;REAL;0.000000e+000;0.000000e+000;Thermische Schild CB44
+SE_44TI3291_Value;REAL;0.000000e+000;0.000000e+000;Thermische Schild CB44
+SE_ED1120_Value;REAL;0.000000e+000;0.000000e+000;Spare
+SE_ED1125_Value;REAL;0.000000e+000;0.000000e+000;Spare
+SE_ED1130_Value;REAL;0.000000e+000;0.000000e+000;Spare
+SE_ED1135_Value;REAL;0.000000e+000;0.000000e+000;Spare
+SE_44TI1211_TVO_Value;REAL;0.000000e+000;0.000000e+000;44C1211 Eintritt
+SE_44TI1212_TVO_Value;REAL;0.000000e+000;0.000000e+000;44C1212 Eintritt
+SE_44TI1213_TVO_Value;REAL;0.000000e+000;0.000000e+000;44C1213 Eintritt
+SE_44TI1214_TVO_Value;REAL;0.000000e+000;0.000000e+000;44C1214 Eintritt
+SE_44TI1215_TVO_Value;REAL;0.000000e+000;0.000000e+000;44C1214 Austritt
+SE_ED1220_TVO_Value;REAL;0.000000e+000;0.000000e+000;Spare
+SE_54EUI1241_Value;REAL;0.000000e+000;0.000000e+000;"54R1241 - Testheizung KK-Vorlauf Temp. ; Ist-Wert - Heizleistung"
+SE_54EUI1242_Value;REAL;0.000000e+000;0.000000e+000;"54R1242 - Testheizung KK-Vorlauf Temp. ; Ist-Wert - Heizleistung"
+SE_54EUI2192_Value;REAL;0.000000e+000;0.000000e+000;"54R2192 - 5K Schild Testheizer Temp. ; Ist-Wert - Heizleistung"
+SE_54EUI2242_Value;REAL;0.000000e+000;0.000000e+000;"54R2242 - Testheizung KK-Vorlauf Temp. ; Ist-Wert - Heizleistung"
+SE_54EUI3192_Value;REAL;0.000000e+000;0.000000e+000;"54R3192 - 40K Schild Testzeizer Temp. ; Ist-Wert - Heizleistung"
+SE_54EUI3193_Value;REAL;0.000000e+000;0.000000e+000;"54R3193 - 40K Schild Testzeizer Temp. ; Ist-Wert - Heizleistung"
+SE_54EUI3194_Value;REAL;0.000000e+000;0.000000e+000;"54R3194 - 40K Schild Testzeizer Temp. ; Ist-Wert - Heizleistung"
+SE_EW1424_Value;REAL;0.000000e+000;0.000000e+000;Spare 
+SE_EW1426_Value;REAL;0.000000e+000;0.000000e+000;Spare 
+SE_EW1428_Value;REAL;0.000000e+000;0.000000e+000;Spare 
+SE_EW1430_Value;REAL;0.000000e+000;0.000000e+000;Spare 
+SE_EW1432_Value;REAL;0.000000e+000;0.000000e+000;Spare 
+SE_AI_SpareValue[0];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[1];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[2];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[3];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[4];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[5];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[6];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[7];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[8];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[9];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[10];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[11];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[12];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[13];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[14];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[15];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[16];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[17];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[18];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[19];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[20];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[21];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[22];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[23];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[24];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[25];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[26];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[27];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[28];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[29];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[30];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[31];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[32];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[33];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[34];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[35];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[36];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[37];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[38];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[39];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[40];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[41];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[42];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[43];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[44];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[45];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[46];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[47];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[48];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[49];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[50];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[51];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[52];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[53];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[54];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[55];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[56];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[57];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[58];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[59];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[60];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[61];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[62];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[63];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[64];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[65];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[66];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[67];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[68];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[69];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[70];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[71];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[72];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[73];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[74];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[75];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[76];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[77];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[78];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[79];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[80];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[81];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[82];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[83];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[84];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[85];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[86];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[87];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[88];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[89];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[90];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[91];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[92];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[93];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[94];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[95];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[96];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[97];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[98];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[99];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[100];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[101];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[102];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[103];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[104];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[105];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[106];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[107];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[108];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[109];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[110];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[111];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[112];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[113];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[114];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[115];BYTE;B#16#0;B#16#0;
+SE_AI_SpareValue[116];BYTE;B#16#0;B#16#0;
+SE_44SI1211_State;BYTE;B#16#0;B#16#0;44C1211 Drehzahl
+SE_44SI1212_State;BYTE;B#16#0;B#16#0;44C1212 Drehzahl
+SE_44SI1213_State;BYTE;B#16#0;B#16#0;44C1213 Drehzahl
+SE_44SI1214_State;BYTE;B#16#0;B#16#0;44C1214 Drehzahl
+SE_44PI1210_State;BYTE;B#16#0;B#16#0;44C1211 Eintritt
+SE_44PI1211_State;BYTE;B#16#0;B#16#0;44C1211 Eintritt
+SE_44PI1212_State;BYTE;B#16#0;B#16#0;44C1212 Eintritt
+SE_44PI1213_State;BYTE;B#16#0;B#16#0;44C1213 Eintritt
+SE_44PI1214_State;BYTE;B#16#0;B#16#0;44C1214 Eintritt
+SE_44PI1215_State;BYTE;B#16#0;B#16#0;44C1214 Austritt
+SE_EW30_State;BYTE;B#16#0;B#16#0;Spare
+SE_EW32_State;BYTE;B#16#0;B#16#0;Spare
+SE_EW34_State;BYTE;B#16#0;B#16#0;Spare
+SE_EW36_State;BYTE;B#16#0;B#16#0;Spare
+SE_EW38_State;BYTE;B#16#0;B#16#0;Spare
+SE_EW40_State;BYTE;B#16#0;B#16#0;Spare
+SE_44TI1211_State;BYTE;B#16#0;B#16#0;Lagertemperatur 44CC1211 (PT100)
+SE_44TI1212_State;BYTE;B#16#0;B#16#0;Lagertemperatur 44CC1212 (PT100)
+SE_44TI1213_State;BYTE;B#16#0;B#16#0;Lagertemperatur 44CC1213 (PT100)
+SE_44TI1214_State;BYTE;B#16#0;B#16#0;Lagertemperatur 44CC1214 (PT100)
+SE_44PI2101_State;BYTE;B#16#0;B#16#0;5K Vorlauf CB44 Eintritt
+SE_44PI2251_State;BYTE;B#16#0;B#16#0;20K R…klauf CC Austritt
+SE_44PI3101_State;BYTE;B#16#0;B#16#0;40K Vorlauf CB44 Eintritt
+SE_44PI0027_State;BYTE;B#16#0;B#16#0;Guardsystem Vorlauf
+SE_44PI3201_State;BYTE;B#16#0;B#16#0;80K R…klauf CB44 Austritt
+SE_44PI2291_State;BYTE;B#16#0;B#16#0;8K R…klauf CB44 Eintritt
+SE_44PI3191_State;BYTE;B#16#0;B#16#0;40K Vorlauf CB44 Austritt
+SE_44PI3291_State;BYTE;B#16#0;B#16#0;80K R…klauf CB44 Eintritt
+SE_44PI2201_State;BYTE;B#16#0;B#16#0;4K R…klauf CB44 Austritt
+SE_44PI1222_State;BYTE;B#16#0;B#16#0;20K R…klauf CC Austritt
+SE_44PI1191_State;BYTE;B#16#0;B#16#0;2K Vorlauf CB44 Austritt
+SE_44PI2191_State;BYTE;B#16#0;B#16#0;5K Vorlauf CB44 Austritt
+SE_44PI2241_State;BYTE;B#16#0;B#16#0;4K R…klauf CB44 Eintritt
+SE_44PDI1201_State;BYTE;B#16#0;B#16#0;Kaltkompressoren Eintritt
+SE_44PI1240_State;BYTE;B#16#0;B#16#0;LHe Verdampfer Austritt
+SE_44PI1291_State;BYTE;B#16#0;B#16#0;2K R…klauf CB44 Eintritt
+SE_44PI1292_State;BYTE;B#16#0;B#16#0;2K R…klauf CB44 Eintritt
+SE_44CV1201A_IstPosState;BYTE;B#16#0;B#16#0;Kaltkompressoren Eintritt Ventilposition R…klesewert
+SE_44CV1201B_IstPosState;BYTE;B#16#0;B#16#0;Kaltkompressoren Eintritt Ventilposition R…klesewert
+SE_44CV1202_IstPosState;BYTE;B#16#0;B#16#0;Kaltkompr. Eintritt Druckausgleich Ventilposition R…klesewert
+SE_44CV1142_IstPosState;BYTE;B#16#0;B#16#0;Gasblase ablassen Ventilposition R…klesewert
+SE_44CV1101_IstPosState;BYTE;B#16#0;B#16#0;2K Vorlauf CB44 Eintritt Ventilposition R…klesewert
+SE_44CV1223_IstPosState;BYTE;B#16#0;B#16#0;Kaltkompressoren Bypass Ventilposition R…klesewert
+SE_44CV1245_IstPosState;BYTE;B#16#0;B#16#0;CC-Teillast R…klauf Ventilposition R…klesewert
+SE_44CV1141_IstPosState;BYTE;B#16#0;B#16#0;Fl《sigkeitsgefгs Austritt Ventilposition R…klesewert
+SE_44CV1230_IstPosState;BYTE;B#16#0;B#16#0;CC-Teillast Vork”ler Austritt Ventilposition R…klesewert
+SE_44CV1215_IstPosState;BYTE;B#16#0;B#16#0;44C1214 Austritt Ventilposition R…klesewert
+SE_44CV1240_IstPosState;BYTE;B#16#0;B#16#0;LHe Verdampfer Austritt Reg. Ventilposition R…klesewert
+SE_44CV1241_IstPosState;BYTE;B#16#0;B#16#0;LHe Verdampfer Austritt Reg. Ventilposition R…klesewert
+SE_44CV1231_IstPosState;BYTE;B#16#0;B#16#0;CC-Teillast Vork”ler Austritt Reg. Ventilposition R…klesewert
+SE_44CV1121_IstPosState;BYTE;B#16#0;B#16#0;CC-Teillast Eintritt Ventilposition R…klesewert
+SE_44CV1222_IstPosState;BYTE;B#16#0;B#16#0;20K R…klauf CC Austritt Ventilposition R…klesewert
+SE_44CV3127_IstPosState;BYTE;B#16#0;B#16#0;Kaltkompressoren Kaltfahren Ventilposition R…klesewert
+SE_44CV2130_IstPosState;BYTE;B#16#0;B#16#0;CC-Teillast Vork”ler HD-Eintritt Ventilposition R…klesewert
+SE_44CV2227_IstPosState;BYTE;B#16#0;B#16#0;Sattdampf R…knahme Ventilposition R…klesewert
+SE_44CV1139_IstPosState;BYTE;B#16#0;B#16#0;JT-Ventil CC44 Ventilposition R…klesewert
+SE_44CV1140_IstPosState;BYTE;B#16#0;B#16#0;Fl《sigkeitsgefгs F〕lstandsonde R…klesewert
+SE_44CV2242_IstPosState;BYTE;B#16#0;B#16#0;Testheizung KK-Vorlauf Ventilposition R…klesewert
+SE_44PI1101_State;BYTE;B#16#0;B#16#0;2K Vorlauf CB44 Eintritt
+SE_44PI1140_State;BYTE;B#16#0;B#16#0;Fl《sigkeitsgefгs F〕lstandsonde
+SE_44PDI1102_State;BYTE;B#16#0;B#16#0;2K Vorlauf CB44
+SE_44PDI1140_State;BYTE;B#16#0;B#16#0;2K Vorlauf CB44
+SE_44FI1215_State;BYTE;B#16#0;B#16#0;44C1214 Austritt
+SE_44FI1230_State;BYTE;B#16#0;B#16#0;CC-Teillast Vork”ler Austritt
+SE_44FI2227_State;BYTE;B#16#0;B#16#0;Sattdampf R…knahme
+SE_44PI7080_State;BYTE;B#16#0;B#16#0;CB44 Vakuumsystem Eintritt
+SE_44LI1140_State;BYTE;B#16#0;B#16#0;Fl《sigkeitsgefгs F〕lstandsonde
+SE_EW914_State;BYTE;B#16#0;B#16#0;Spare
+SE_EW916_State;BYTE;B#16#0;B#16#0;Spare
+SE_EW918_State;BYTE;B#16#0;B#16#0;Spare
+SE_EW920_State;BYTE;B#16#0;B#16#0;Spare
+SE_EW922_State;BYTE;B#16#0;B#16#0;Spare
+SE_EW924_State;BYTE;B#16#0;B#16#0;Spare
+SE_44TI1101_State;BYTE;B#16#0;B#16#0;2K Vorlauf CB44 Eintritt
+SE_44TI1191_State;BYTE;B#16#0;B#16#0;2K Vorlauf CB44 Austritt
+SE_44TI1222_State;BYTE;B#16#0;B#16#0;20K R…klauf CC Austritt
+SE_44TI1228_State;BYTE;B#16#0;B#16#0;CC-Teillast Vork”ler Eintritt
+SE_44TI1230_State;BYTE;B#16#0;B#16#0;CC-Teillast Vork”ler Austritt
+SE_44TI1240_State;BYTE;B#16#0;B#16#0;LHe Verdampfer Austritt
+SE_44TI1245_State;BYTE;B#16#0;B#16#0;CC-Teillast R…klauf
+SE_44TI1291_State;BYTE;B#16#0;B#16#0;2K R…klauf CB44 Eintritt
+SE_44TI2101_State;BYTE;B#16#0;B#16#0;5K Vorlauf CB44 Eintritt
+SE_44TI2128_State;BYTE;B#16#0;B#16#0;CC-Teillast Vork”ler HD-Austritt
+SE_44TI2191_State;BYTE;B#16#0;B#16#0;5K Vorlauf CB44 Austritt
+SE_44TI2201_State;BYTE;B#16#0;B#16#0;4K R…klauf CB44 Austritt
+SE_44TI2240_State;BYTE;B#16#0;B#16#0;Sattdampf
+SE_44TI2241_State;BYTE;B#16#0;B#16#0;4K R…klauf CB44 Eintritt
+SE_44TI2251_State;BYTE;B#16#0;B#16#0;8K R…klauf CB44 Austritt
+SE_44TI2291_State;BYTE;B#16#0;B#16#0;8K R…klauf CB44 Eintritt
+SE_44TI3101_State;BYTE;B#16#0;B#16#0;40K Vorlauf CB44 Eintritt
+SE_44TI3104_State;BYTE;B#16#0;B#16#0;Intercept K”lung R…klauf
+SE_44TI3111_State;BYTE;B#16#0;B#16#0;Intercept K”lung Vorlauf
+SE_44TI3191_State;BYTE;B#16#0;B#16#0;40K Vorlauf CB44 Austritt
+SE_44TI3201_State;BYTE;B#16#0;B#16#0;80K R…klauf CB44 Austritt
+SE_44TI3202_State;BYTE;B#16#0;B#16#0;Thermische Schild CB44
+SE_44TI3291_State;BYTE;B#16#0;B#16#0;Thermische Schild CB44
+SE_ED1120_State;BYTE;B#16#0;B#16#0;Spare
+SE_ED1125_State;BYTE;B#16#0;B#16#0;Spare
+SE_ED1130_State;BYTE;B#16#0;B#16#0;Spare
+SE_ED1135_State;BYTE;B#16#0;B#16#0;Spare
+SE_44TI1211_TVO_State;BYTE;B#16#0;B#16#0;44C1211 Eintritt
+SE_44TI1212_TVO_State;BYTE;B#16#0;B#16#0;44C1212 Eintritt
+SE_44TI1213_TVO_State;BYTE;B#16#0;B#16#0;44C1213 Eintritt
+SE_44TI1214_TVO_State;BYTE;B#16#0;B#16#0;44C1214 Eintritt
+SE_44TI1215_TVO_State;BYTE;B#16#0;B#16#0;44C1214 Austritt
+SE_ED1220_TVO_State;BYTE;B#16#0;B#16#0;Spare
+SE_54EUI1241_State;BYTE;B#16#0;B#16#0;"54R1241 - Testheizung KK-Vorlauf Temp. ; Ist-Wert - Heizleistung"
+SE_54EUI1242_State;BYTE;B#16#0;B#16#0;"54R1242 - Testheizung KK-Vorlauf Temp. ; Ist-Wert - Heizleistung"
+SE_54EUI2192_State;BYTE;B#16#0;B#16#0;"54R2192 - 5K Schild Testheizer Temp. ; Ist-Wert - Heizleistung"
+SE_54EUI2242_State;BYTE;B#16#0;B#16#0;"54R2242 - Testheizung KK-Vorlauf Temp. ; Ist-Wert - Heizleistung"
+SE_54EUI3192_State;BYTE;B#16#0;B#16#0;"54R3192 - 40K Schild Testzeizer Temp. ; Ist-Wert - Heizleistung"
+SE_54EUI3193_State;BYTE;B#16#0;B#16#0;"54R3193 - 40K Schild Testzeizer Temp. ; Ist-Wert - Heizleistung"
+SE_54EUI3194_State;BYTE;B#16#0;B#16#0;"54R3194 - 40K Schild Testzeizer Temp. ; Ist-Wert - Heizleistung"
+SE_EW1424_State;BYTE;B#16#0;B#16#0;Spare 
+SE_EW1426_State;BYTE;B#16#0;B#16#0;Spare 
+SE_EW1428_State;BYTE;B#16#0;B#16#0;Spare 
+SE_EW1430_State;BYTE;B#16#0;B#16#0;Spare 
+SE_EW1432_State;BYTE;B#16#0;B#16#0;Spare 
+SE_AI_Spare_State[0];INT;0;0;
+SE_AI_Spare_State[1];INT;0;0;
+SE_AI_Spare_State[2];INT;0;0;
+SE_AI_Spare_State[3];INT;0;0;
+SE_AI_Spare_State[4];INT;0;0;
+SE_AI_Spare_State[5];INT;0;0;
+SE_AI_Spare_State[6];INT;0;0;
+SE_AI_Spare_State[7];INT;0;0;
+SE_AI_Spare_State[8];INT;0;0;
+SE_AI_Spare_State[9];INT;0;0;
+SE_AI_Spare_State[10];INT;0;0;
+SE_AI_Spare_State[11];INT;0;0;
+SE_AI_Spare_State[12];INT;0;0;
+SE_AI_Spare_State[13];INT;0;0;
+SE_AI_Spare_State[14];INT;0;0;
+SE_AI_Spare_State[15];INT;0;0;
+SE_AI_Spare_State[16];INT;0;0;
+SE_AI_Spare_State[17];INT;0;0;
+SE_AI_Spare_State[18];INT;0;0;
+SE_AI_Spare_State[19];INT;0;0;
+SE_AI_Spare_State[20];INT;0;0;
+SE_AI_Spare_State[21];INT;0;0;
+SE_AI_Spare_State[22];INT;0;0;
+SE_AI_Spare_State[23];INT;0;0;
+SE_AI_Spare_State[24];INT;0;0;
+SE_AI_Spare_State[25];INT;0;0;
+SE_AI_Spare_State[26];INT;0;0;
+SE_AI_Spare_State[27];INT;0;0;
+SE_AI_Spare_State[28];INT;0;0;
+SE_AI_Spare_State[29];INT;0;0;
+SE_AI_Spare_State[30];INT;0;0;
+SE_AI_Spare_State[31];INT;0;0;
+SE_AI_Spare_State[32];INT;0;0;
+SE_AI_Spare_State[33];INT;0;0;
+SE_AI_Spare_State[34];INT;0;0;
+SE_AI_Spare_State[35];INT;0;0;
+SE_AI_Spare_State[36];INT;0;0;
+SE_AI_Spare_State[37];INT;0;0;
+SE_AI_Spare_State[38];INT;0;0;
+SE_AI_Spare_State[39];INT;0;0;
+SE_AI_Spare_State[40];INT;0;0;
+SE_44HSY1140_PercOut;REAL;0.000000e+000;0.000000e+000;Sollwert Heizung 44R1140
+SE_AW12_PercOut;REAL;0.000000e+000;0.000000e+000;
+SE_AW14_PercOut;REAL;0.000000e+000;0.000000e+000;
+SE_AW16_PercOut;REAL;0.000000e+000;0.000000e+000;
+SE_44CV1201A_PercOut;REAL;0.000000e+000;0.000000e+000;Kaltkompressoren Eintritt Ventilposition 
+SE_44CV1201B_PercOut;REAL;0.000000e+000;0.000000e+000;Kaltkompressoren Eintritt Ventilposition 
+SE_44CV1202_PercOut;REAL;0.000000e+000;0.000000e+000;Kaltkompr. Eintritt Druckausgleich Ventilposition 
+SE_44CV1142_PercOut;REAL;0.000000e+000;0.000000e+000;Gasblase ablassen Ventilposition 
+SE_44CV1101_PercOut;REAL;0.000000e+000;0.000000e+000;2K Vorlauf CB44 Eintritt Ventilposition 
+SE_44CV1223_PercOut;REAL;0.000000e+000;0.000000e+000;Kaltkompressoren Bypass Ventilposition 
+SE_44CV1245_PercOut;REAL;0.000000e+000;0.000000e+000;CC-Teillast R…klauf Ventilposition 
+SE_44CV1141_PercOut;REAL;0.000000e+000;0.000000e+000;Fl《sigkeitsgefгs Austritt Ventilposition 
+SE_44CV1230_PercOut;REAL;0.000000e+000;0.000000e+000;CC-Teillast Vork”ler Austritt Ventilposition 
+SE_44CV1215_PercOut;REAL;0.000000e+000;0.000000e+000;44C1214 Austritt Ventilposition 
+SE_44CV1240_PercOut;REAL;0.000000e+000;0.000000e+000;LHe Verdampfer Austritt Ventilposition 
+SE_44CV1241_PercOut;REAL;0.000000e+000;0.000000e+000;LHe Verdampfer Austritt Reg. Ventilposition 
+SE_44CV1231_PercOut;REAL;0.000000e+000;0.000000e+000;CC-Teillast Vork”ler Austritt Reg. Ventilposition 
+SE_44CV1121_PercOut;REAL;0.000000e+000;0.000000e+000;CC-Teillast Eintritt Ventilposition 
+SE_44CV1222_PercOut;REAL;0.000000e+000;0.000000e+000;20K R…klauf CC Austritt Ventilposition 
+SE_44CV3127_PercOut;REAL;0.000000e+000;0.000000e+000;Kaltkompressoren Kaltfahren Ventilposition 
+SE_44CV2130_PercOut;REAL;0.000000e+000;0.000000e+000;CC-Teillast Vork”ler HD-Eintritt Ventilposition 
+SE_44CV2227_PercOut;REAL;0.000000e+000;0.000000e+000;Sattdampf R…knahme Ventilposition 
+SE_44CV1139_PercOut;REAL;0.000000e+000;0.000000e+000;JT-Ventil CC44 Ventilposition 
+SE_44CV1140_PercOut;REAL;0.000000e+000;0.000000e+000;Fl《sigkeitsgefгs F〕lstandsonde 
+SE_44CV2242_PercOut;REAL;0.000000e+000;0.000000e+000;Testheizung KK-Vorlauf Ventilposition 
+SE_54EUY1241_PercOut;REAL;0.000000e+000;0.000000e+000;"54R1241 - Testheizung KK-Vorlauf Temp. ; Soll-Wert - Heizleistung"
+SE_54EUY1242_PercOut;REAL;0.000000e+000;0.000000e+000;"54R1242 - Testheizung KK-Vorlauf Temp. ; Soll-Wert - Heizleistung"
+SE_54EUY2192_PercOut;REAL;0.000000e+000;0.000000e+000;"54R2192 - 5K Schild Testheizer Temp. ; Soll-Wert - Heizleistung"
+SE_54EUY2242_PercOut;REAL;0.000000e+000;0.000000e+000;"54R2242 - Testheizung KK-Vorlauf Temp. ; Soll-Wert - Heizleistung"
+SE_54EUY3192_PercOut;REAL;0.000000e+000;0.000000e+000;"54R3192 - 40K Schild Testzeizer Temp. ; Soll-Wert - Heizleistung"
+SE_54EUY3193_PercOut;REAL;0.000000e+000;0.000000e+000;"54R3193 - 40K Schild Testzeizer Temp. ; Soll-Wert - Heizleistung"
+SE_54EUY3194_PercOut;REAL;0.000000e+000;0.000000e+000;"54R3194 - 40K Schild Testzeizer Temp. ; Soll-Wert - Heizleistung"
+SE_AW1424_PercOut;REAL;0.000000e+000;0.000000e+000;
+SE_AW1426_PercOut;REAL;0.000000e+000;0.000000e+000;
+SE_AW1428_PercOut;REAL;0.000000e+000;0.000000e+000;
+SE_AO_Value_Spare[0];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[1];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[2];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[3];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[4];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[5];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[6];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[7];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[8];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[9];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[10];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[11];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[12];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[13];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[14];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[15];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[16];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[17];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[18];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[19];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[20];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[21];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[22];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[23];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[24];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[25];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[26];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[27];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[28];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[29];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[30];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[31];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[32];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[33];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[34];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[35];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[36];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[37];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[38];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[39];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[40];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[41];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[42];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[43];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[44];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[45];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[46];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[47];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[48];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[49];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[50];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[51];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[52];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[53];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[54];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[55];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[56];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[57];BYTE;B#16#0;B#16#0;
+SE_AO_Value_Spare[58];BYTE;B#16#0;B#16#0;
+SE_44HSY1140_State;BYTE;B#16#0;B#16#0;Sollwert Heizung 44R1140
+SE_AW12_State;BYTE;B#16#0;B#16#0;
+SE_AW14_State;BYTE;B#16#0;B#16#0;
+SE_AW16_State;BYTE;B#16#0;B#16#0;
+SE_44CV1201A_State;BYTE;B#16#0;B#16#0;Kaltkompressoren Eintritt Ventilposition 
+SE_44CV1201B_State;BYTE;B#16#0;B#16#0;Kaltkompressoren Eintritt Ventilposition 
+SE_44CV1202_State;BYTE;B#16#0;B#16#0;Kaltkompr. Eintritt Druckausgleich Ventilposition 
+SE_44CV1142_State;BYTE;B#16#0;B#16#0;Gasblase ablassen Ventilposition 
+SE_44CV1101_State;BYTE;B#16#0;B#16#0;2K Vorlauf CB44 Eintritt Ventilposition 
+SE_44CV1223_State;BYTE;B#16#0;B#16#0;Kaltkompressoren Bypass Ventilposition 
+SE_44CV1245_State;BYTE;B#16#0;B#16#0;CC-Teillast R…klauf Ventilposition 
+SE_44CV1141_State;BYTE;B#16#0;B#16#0;Fl《sigkeitsgefгs Austritt Ventilposition 
+SE_44CV1230_State;BYTE;B#16#0;B#16#0;CC-Teillast Vork”ler Austritt Ventilposition 
+SE_44CV1215_State;BYTE;B#16#0;B#16#0;44C1214 Austritt Ventilposition 
+SE_44CV1240_State;BYTE;B#16#0;B#16#0;LHe Verdampfer Austritt Ventilposition 
+SE_44CV1241_State;BYTE;B#16#0;B#16#0;LHe Verdampfer Austritt Reg. Ventilposition 
+SE_44CV1231_State;BYTE;B#16#0;B#16#0;CC-Teillast Vork”ler Austritt Reg. Ventilposition 
+SE_44CV1121_State;BYTE;B#16#0;B#16#0;CC-Teillast Eintritt Ventilposition 
+SE_44CV1222_State;BYTE;B#16#0;B#16#0;20K R…klauf CC Austritt Ventilposition 
+SE_44CV3127_State;BYTE;B#16#0;B#16#0;Kaltkompressoren Kaltfahren Ventilposition 
+SE_44CV2130_State;BYTE;B#16#0;B#16#0;CC-Teillast Vork”ler HD-Eintritt Ventilposition 
+SE_44CV2227_State;BYTE;B#16#0;B#16#0;Sattdampf R…knahme Ventilposition 
+SE_44CV1139_State;BYTE;B#16#0;B#16#0;JT-Ventil CC44 Ventilposition 
+SE_44CV1140_State;BYTE;B#16#0;B#16#0;Fl《sigkeitsgefгs F〕lstandsonde 
+SE_44CV2242_State;BYTE;B#16#0;B#16#0;Testheizung KK-Vorlauf Ventilposition 
+SE_54EUY1241_State;BYTE;B#16#0;B#16#0;"54R1241 - Testheizung KK-Vorlauf Temp. ; Soll-Wert - Heizleistung"
+SE_54EUY1242_State;BYTE;B#16#0;B#16#0;"54R1242 - Testheizung KK-Vorlauf Temp. ; Soll-Wert - Heizleistung"
+SE_54EUY2192_State;BYTE;B#16#0;B#16#0;"54R2192 - 5K Schild Testheizer Temp. ; Soll-Wert - Heizleistung"
+SE_54EUY2242_State;BYTE;B#16#0;B#16#0;"54R2242 - Testheizung KK-Vorlauf Temp. ; Soll-Wert - Heizleistung"
+SE_54EUY3192_State;BYTE;B#16#0;B#16#0;"54R3192 - 40K Schild Testzeizer Temp. ; Soll-Wert - Heizleistung"
+SE_54EUY3193_State;BYTE;B#16#0;B#16#0;"54R3193 - 40K Schild Testzeizer Temp. ; Soll-Wert - Heizleistung"
+SE_54EUY3194_State;BYTE;B#16#0;B#16#0;"54R3194 - 40K Schild Testzeizer Temp. ; Soll-Wert - Heizleistung"
+SE_AW1424_State;BYTE;B#16#0;B#16#0;
+SE_AW1426_State;BYTE;B#16#0;B#16#0;
+SE_AW1428_State;BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[0];BYTE;B#16#0;B#16#0;spare
+SE_AO_State_Spare[1];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[2];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[3];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[4];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[5];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[6];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[7];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[8];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[9];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[10];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[11];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[12];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[13];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[14];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[15];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[16];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[17];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[18];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[19];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[20];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[21];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[22];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[23];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[24];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[25];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[26];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[27];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[28];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[29];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[30];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[31];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[32];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[33];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[34];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[35];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[36];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[37];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[38];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[39];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[40];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[41];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[42];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[43];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[44];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[45];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[46];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[47];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[48];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[49];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[50];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[51];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[52];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[53];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[54];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[55];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[56];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[57];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[58];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[59];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[60];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[61];BYTE;B#16#0;B#16#0;
+SE_AO_State_Spare[62];BYTE;B#16#0;B#16#0;

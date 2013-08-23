@@ -27,26 +27,27 @@ import org.csstudio.domain.common.AbstractResult;
 
 /**
  * Result of service access for Retrieve.
- *
+ * 
  * @author bknerr
  * @since 30.09.2011
  */
 public final class RetrieveResult extends AbstractResult {
 
-    /**
-     * Constructor.
-     */
-    private RetrieveResult(@Nonnull final Boolean result,
-                     @Nonnull final String message) {
-        super(result, message);
-    }
+   /**
+    * Constructor.
+    */
+   private RetrieveResult(@Nonnull final Boolean result, @Nonnull final String message) {
+      super(result, message);
+   }
 
-    @Nonnull
-    public static RetrieveResult failed(@Nonnull final String msg) {
-        return new RetrieveResult(Boolean.FALSE, msg);
-    }
-    @Nonnull
-    public static RetrieveResult succeeded(@Nonnull final String msg) {
-        return new RetrieveResult(Boolean.TRUE, msg);
-    }
+   @Nonnull
+   public static RetrieveResult failed(@Nonnull final String msg) {
+      return new RetrieveResult(Boolean.FALSE, msg);
+   }
+
+   @Nonnull
+   public static RetrieveResult succeeded(@Nonnull final String msg) {
+      return new RetrieveResult(Boolean.TRUE, msg);
+   }
+
 }

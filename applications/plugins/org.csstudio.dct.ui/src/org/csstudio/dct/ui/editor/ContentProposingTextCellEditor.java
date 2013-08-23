@@ -22,12 +22,8 @@ import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ContentProposingTextCellEditor extends TextCellEditor implements IContentProposalListener2 {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ContentProposingTextCellEditor.class);
 
     IRecord record;
 
@@ -119,7 +115,6 @@ public class ContentProposingTextCellEditor extends TextCellEditor implements IC
             // .. propose function parameters
             Pattern pattern = Pattern.compile(">([^(]+)\\((([^,()]*[,]?)*)[)]?");
             Matcher matcher = pattern.matcher(contents.substring(0, position));
-            LOG.info(contents.substring(0, position));
 
             if (matcher.matches()) {
                 String name = matcher.group(1);

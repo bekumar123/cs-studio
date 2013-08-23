@@ -69,6 +69,12 @@
             name="sensorid"
             signature="sensorid(&lt;record&gt;)">
       </fieldfunction>
+      <fieldfunction
+            class="org.csstudio.dct.nameresolution.internal.IoNameFileFieldFunction"
+            description="Function. Resolves the name from external file."
+            name="ionamefile"
+            signature="ionamefile(&lt;record&gt;)">
+      </fieldfunction>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">

@@ -31,12 +31,12 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 /**
- * Test for the DAL implementation of the alarm connection
+ * Test for the DAL2 implementation of the alarm connection
  * 
- * @author jpenning
+ * @author jpenning, ascharping
  * @since 08.11.2010
  */
-public class AlarmConnectionDALImplUnitTest {
+public class AlarmConnectionDAL2ImplUnitTest {
     
 	private IDalService _dalServiceMock;
 

@@ -16,7 +16,6 @@ public class Type<T> {
 
 	private static Map<Class<?>, Type<?>> registredTypes = new HashMap<Class<?>, Type<?>>();
 
-	public static final Type<Timestamp> TIMESTAMP = new Type<Timestamp>(Timestamp.class);
 	public static final Type<EpicsAlarmSeverity> SEVERITY = new Type<EpicsAlarmSeverity>(EpicsAlarmSeverity.class);
 	public static final Type<EnumType> ENUM = new Type<EnumType>(EnumType.class);
 

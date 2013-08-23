@@ -26,7 +26,11 @@ public abstract class TypeMapper<T> {
 
 	private static final int CTRL_TYPE_OFFSET = 28;
 
+	/** Seconds of epoch start since UTC time start. */
+	public static long TS_EPOCH_SEC_PAST_1970 = 7305 * 86400;
+
 	private final static Map<Type<?>, TypeMapper<?>> _typeMapper = new HashMap<Type<?>, TypeMapper<?>>();
+	private final static Map<DBRType, TypeMapper<?>> _dbr2mapper = new HashMap<DBRType, TypeMapper<?>>();
 
 	private Type<T> _type;
 
@@ -90,6 +94,7 @@ public abstract class TypeMapper<T> {
 						.forValue(enumValue));
 			}
 		});
+
 		// registerMapper(new TypeMapper<String[]>(Type.NUMBER_SEQ,
 		// DBRType.STRING) {
 		// @Override
@@ -110,10 +115,12 @@ public abstract class TypeMapper<T> {
 
 	private static void registerMapper(TypeMapper<?> mapper) {
 		_typeMapper.put(mapper.getType(), mapper);
+		_dbr2mapper.put(mapper.getDBRType(), mapper);
 	}
 
 	/**
 	 * Provides the mapper for a given dal2 type
+	 * 
 	 * @param type
 	 * @return
 	 */
@@ -130,17 +137,17 @@ public abstract class TypeMapper<T> {
 	/**
 	 * Provides the suitable type for a given dbr type
 	 * 
-	 * @throws IllegalSelectorException if no mapping is defined
+	 * @throws IllegalSelectorException
+	 *             if no mapping is defined
 	 */
 	public static Type<?> getType(DBRType dbrType) {
-		for (Type<?> type : _typeMapper.keySet()) {
-			TypeMapper<?> mapper = _typeMapper.get(type);
-			if (mapper.getDBRType().equals(dbrType)) {
-				return type;
-			}
+
+		TypeMapper<?> result = _dbr2mapper.get(dbrType);
+		if (result == null) {
+			throw new IllegalStateException("No mapping defined for dbrType "
+					+ dbrType);
 		}
-		throw new IllegalStateException("No mapping defined for dbrType "
-				+ dbrType);
+		return result.getType();
 	}
 
 	/**
@@ -169,7 +176,7 @@ public abstract class TypeMapper<T> {
 	/**
 	 * Provides the DBRType mapped by this mapper
 	 */
-	public DBRType getDBRType() {
+	private DBRType getDBRType() {
 		return _dbrType;
 	}
 

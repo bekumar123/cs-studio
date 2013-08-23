@@ -3,6 +3,7 @@
 
 <product name="dal2jmsServer" uid="dal2jms" id="org.csstudio.alarm.dal2jms.product" application="org.csstudio.alarm.dal2jms.application" version="1.0.0.201202071200" useFeatures="true" includeLaunchers="true">
 
+
    <configIni use="default">
    </configIni>
 
@@ -24,9 +25,11 @@
       </win>
    </launcher>
 
+
    <vm>
       <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6</windows>
    </vm>
+
 
    <plugins>
       <plugin id="com.ibm.icu"/>
@@ -76,6 +79,8 @@
    </features>
 
    <configurations>
+      <plugin id="org.csstudio.dal2" autoStart="true" startLevel="0" />
+      <plugin id="org.csstudio.dal2.epics" autoStart="true" startLevel="0" />
       <plugin id="org.csstudio.utility.ldap.service.impl" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />

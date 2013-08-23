@@ -80,7 +80,7 @@ public class AlarmServiceJMSImplUnitTest {
 
 	@Before
 	public void setup() throws Exception {
-		File file = new File(AlarmConnectionDALImplUnitTest.class
+		File file = new File(AlarmConnectionDAL2ImplUnitTest.class
 				.getClassLoader().getResource("EpicsTest.db").toURI());
 
 		_softIOC = new TestSoftIOC(file);

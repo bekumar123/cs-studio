@@ -19,75 +19,75 @@ import com.google.common.base.Preconditions;
 
 public class IoNameResolutionFromFileImpl implements IoNameResolutionFromFile {
 
-   private static final Logger LOG = LoggerFactory.getLogger(IoNameResolutionFromFileImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IoNameResolutionFromFileImpl.class);
 
-   private static IoNameDictionary ioNameDictionary = new IoNameDictionary();
+    private static IoNameDictionary ioNameDictionary = new IoNameDictionary();
 
-   /**
-    * Translate an ioname to a an Epics-Address.
-    */
-   @Override
-   public String resolveName(final String ioName, final String fieldName) {
-      Preconditions.checkNotNull(ioName, "ioName must not be null");
-      Preconditions.checkNotNull(fieldName, "fieldName must not be null");
-      return ioNameDictionary.get(new IoName(ioName)).getAddress();
-   }
+    /**
+     * Translate an ioname to a an Epics-Address.
+     */
+    @Override
+    public String resolveName(final String ioName, final String fieldName) {
+        Preconditions.checkNotNull(ioName, "ioName must not be null");
+        Preconditions.checkNotNull(fieldName, "fieldName must not be null");
+        return ioNameDictionary.get(new IoName(ioName)).getAddress();
+    }
 
-   /**
-    * Load all files listed in the catalog file.
-    */
-   @Override
-   public void loadCatalog(final String catalog) throws SpsParseException, IOException {
+    /**
+     * Load all files listed in the catalog file.
+     */
+    @Override
+    public void loadCatalog(final String catalog) throws SpsParseException, IOException {
 
-      Preconditions.checkNotNull(catalog, "catalog must not be null");
+        Preconditions.checkNotNull(catalog, "catalog must not be null");
 
-      LOG.debug("loading catalog file: " + catalog);
+        LOG.debug("loading catalog file: " + catalog);
 
-      List<CatalogEntry> catalogEntries = readCatalogEntries(catalog);
+        List<CatalogEntry> catalogEntries = readCatalogEntries(catalog);
 
-      String catalogDirectory = getCatalogDirectory(catalog);
-      ioNameDictionary = new IoNameDictionary();
+        String catalogDirectory = getCatalogDirectory(catalog);
+        ioNameDictionary = new IoNameDictionary();
 
-      for (CatalogEntry entry : catalogEntries) {
-         String nextFile = catalogDirectory + entry.getFileName();
+        for (CatalogEntry entry : catalogEntries) {
+            String nextFile = catalogDirectory + entry.getFileName();
 
-         List<String> spsContent = Utils.readTextFromFile(nextFile);
+            List<String> spsContent = Utils.readTextFromFile(nextFile);
 
-         //@formatter:off
+            //@formatter:off
             SpsDescriptionParser spsDescriptionParser = new SpsDescriptionParser(
                   entry.getTcpConnectionNr(),
                   spsContent,
                   nextFile);
                   //@formatter:on
 
-         spsDescriptionParser.parse();
+            spsDescriptionParser.parse();
 
-         ioNameDictionary.addEntries(spsDescriptionParser.getParseResult());
-      }
+            ioNameDictionary.addEntries(spsDescriptionParser.getParseResult());
+        }
 
-   }
+    }
 
-   @Override
-   public void clearDictionary() {
-      ioNameDictionary = new IoNameDictionary();
-   }
+    @Override
+    public void clearDictionary() {
+        ioNameDictionary = new IoNameDictionary();
+    }
 
-   private List<CatalogEntry> readCatalogEntries(String catalog) throws IOException, SpsParseException {
-      List<String> content = Utils.readTextFromFile(catalog);
-      CatalogParser catalogParser = new CatalogParser(content);
-      catalogParser.parse();
-      return catalogParser.getParseResult();
-   }
+    private List<CatalogEntry> readCatalogEntries(String catalog) throws IOException, SpsParseException {
+        List<String> content = Utils.readTextFromFile(catalog);
+        CatalogParser catalogParser = new CatalogParser(content);
+        catalogParser.parse();
+        return catalogParser.getParseResult();
+    }
 
-   private String getCatalogDirectory(String catalog) {
-      File catalogFile = new File(catalog);
-      String catalogDirectory = catalogFile.getParent();
-      if (!catalog.endsWith(File.separator)) {
-         return catalogDirectory + File.separator;
-      } else {
-         return catalogDirectory;
-      }
+    private String getCatalogDirectory(String catalog) {
+        File catalogFile = new File(catalog);
+        String catalogDirectory = catalogFile.getParent();
+        if (!catalog.endsWith(File.separator)) {
+            return catalogDirectory + File.separator;
+        } else {
+            return catalogDirectory;
+        }
 
-   }
+    }
 
 }

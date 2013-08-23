@@ -4,9 +4,9 @@ import java.io.IOException;
 
 public interface IoNameResolutionFromFile {
 
-   void loadCatalog(String catalog) throws SpsParseException, IOException;
+    void loadCatalog(String catalog) throws SpsParseException, IOException;
 
-   String resolveName(String ioname, String fieldName);
+    String resolveName(String ioname, String fieldName);
 
-   void clearDictionary();
+    void clearDictionary();
 }

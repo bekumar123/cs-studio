@@ -21,10 +21,13 @@ public enum SpsType {
     DINT("DINT", 4), 
     REAL("REAL", 4),
     TIME_OF_DAY("TIME_OF_DAY", 4),
-    STRING("STRING"),
-    ARRAY("ARRAY"),
+    STRING(SpsType.STRING_TYPE),
+    ARRAY(SpsType.ARRAY_TYPE),
     DS33("'DS33'", 5);
     //@formatter:on
+
+    private final static String STRING_TYPE = "STRING";
+    private final static String ARRAY_TYPE = "ARRAY";
 
     private String typeName;
     private int size;
@@ -40,11 +43,11 @@ public enum SpsType {
     }
 
     public static SpsType getSpsType(String typeName) throws SpsParseException {
-        if (typeName.startsWith("STRING")) {
+        if (typeName.startsWith(STRING_TYPE)) {
             SpsType type = SpsType.STRING;
             type.setSize(SpsType.calculateStringSize(typeName));
             return type;
-        } else if (typeName.startsWith("ARRAY")) {
+        } else if (typeName.startsWith(ARRAY_TYPE)) {
             SpsType type = SpsType.ARRAY;
             type.setSize(SpsType.calculateArraySize(typeName));
             return type;
@@ -125,11 +128,11 @@ public enum SpsType {
             throw new IllegalStateException("BOOL without bit position.");
         }
         //@formatter:off
-      if (lastType.isPresent() && 
-         (lastType.get() == SpsType.BOOL) &&
-         (nextBitPos > Constant.MAX_BIT)) {
-            return new SpsAddress(currentAddress + 1, 0);
-            //@formatter:on
+        if (lastType.isPresent() && 
+           (lastType.get() == SpsType.BOOL) &&
+           (nextBitPos > Constant.MAX_BIT)) {
+               return new SpsAddress(currentAddress + 1, 0);
+               //@formatter:on
         }
         return new SpsAddress(currentAddress, nextBitPos);
     }
@@ -150,7 +153,7 @@ public enum SpsType {
             throw new SpsParseException("Invalid Array format: " + typeName);
         }
         if (!typeName.contains("]")) {
-            throw new SpsParseException("Invalid String format: " + typeName);
+            throw new SpsParseException("Invalid Array format: " + typeName);
         }
         String theDigits = CharMatcher.DIGIT.retainFrom(typeName);
         return Integer.valueOf(theDigits) + 1;

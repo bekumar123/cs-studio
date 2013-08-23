@@ -18,18 +18,16 @@
 package org.csstudio.alarm.service.internal;
 
 import javax.annotation.Nonnull;
-
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.Session;
 
 import org.csstudio.alarm.service.declaration.AlarmConnectionException;
-import org.csstudio.alarm.service.declaration.AlarmPreference;
+import org.csstudio.alarm.service.declaration.AlarmResource;
 import org.csstudio.alarm.service.declaration.IAlarmConnection;
 import org.csstudio.alarm.service.declaration.IAlarmConnectionMonitor;
 import org.csstudio.alarm.service.declaration.IAlarmListener;
-import org.csstudio.alarm.service.declaration.AlarmResource;
 import org.csstudio.utility.jms.IConnectionMonitor;
 import org.csstudio.utility.jms.TransportEvent;
 import org.csstudio.utility.jms.sharedconnection.IMessageListenerSession;

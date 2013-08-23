@@ -1,0 +1,9 @@
+2013-06-19 18:26:10,460 INFO  [Component Resolve Thread] org.csstudio.diag.interconnectionServer.Activator: Watching log4j properties in file /C:/Users/Arne/Documents/DESY/DAL/master/cs-studio/products/DESY/plugins/org.csstudio.diag.interconnectionserver.log4j/log4j.properties
+2013-06-19 18:26:10,467 INFO  [Component Resolve Thread] org.csstudio.diag.interconnectionServer.Activator: Installed bridge from java.util.logging to sl4j
+2013-06-19 18:26:10,495 INFO  [Component Resolve Thread] org.csstudio.diag.interconnectionServer.Activator: Registered local service implementation for ILdapServiceFacade
+2013-06-19 18:26:10,510 INFO  [Component Resolve Thread] org.csstudio.diag.interconnectionServer.Activator: Registered local service implementation for IIocConnectionManager
+2013-06-19 18:26:10,552 INFO  [Component Resolve Thread] org.csstudio.diag.interconnectionServer.Activator: Registered local service implementation for IInterconnectionServer
+2013-06-19 18:26:10,576 INFO  [Component Resolve Thread] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: LDAP service implementation
+2013-06-19 18:26:10,940 INFO  [Component Resolve Thread] org.csstudio.servicelocator.ServiceLocatorFactory: Registering OSGi service: Remote command service implementation
+2013-06-19 18:26:11,033 INFO  [Component Resolve Thread] org.remotercp.filetransfer.receiver.IncomingFiletransferReceiver: ******* Starting service: org.remotercp.filetransfer.receiver.IncomingFiletransferReceiver ********
+2013-06-19 18:26:11,577 INFO  [main] org.csstudio.diag.interconnectionServer.Activator: ICS activator stops, will shutdown the log manager

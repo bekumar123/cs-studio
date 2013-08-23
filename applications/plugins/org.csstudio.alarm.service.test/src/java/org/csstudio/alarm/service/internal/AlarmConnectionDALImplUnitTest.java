@@ -1,10 +1,17 @@
 package org.csstudio.alarm.service.internal;
 
 
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -13,18 +20,15 @@ import org.csstudio.alarm.service.declaration.AlarmConnectionException;
 import org.csstudio.alarm.service.declaration.AlarmResource;
 import org.csstudio.alarm.service.declaration.IAlarmConnectionMonitor;
 import org.csstudio.alarm.service.declaration.IAlarmListener;
-import org.csstudio.dal.DynamicValueListener;
-import org.csstudio.dal.simple.ConnectionParameters;
-import org.csstudio.dal.simple.RemoteInfo;
-import org.csstudio.dal.simple.SimpleDALBroker;
+import org.csstudio.dal2.dv.ListenerType;
+import org.csstudio.dal2.dv.PvAddress;
+import org.csstudio.dal2.dv.Type;
+import org.csstudio.dal2.service.IDalService;
+import org.csstudio.dal2.service.IPvAccess;
+import org.csstudio.dal2.service.IPvListener;
+import org.junit.Before;
 import org.junit.Test;
-
-import com.cosylab.util.CommonException;
-
-import static org.junit.Assert.*;
-
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import org.mockito.ArgumentCaptor;
 
 /**
  * Test for the DAL implementation of the alarm connection
@@ -34,146 +38,168 @@ import static org.mockito.Mockito.*;
  */
 public class AlarmConnectionDALImplUnitTest {
     
+	private IDalService _dalServiceMock;
+
+	@Before
+	public void setUp() {
+		_dalServiceMock = mock(IDalService.class);
+	}
+	
     @Test
     public void testCreate() throws Exception {
-        SimpleDALBroker simpleDALBroker = mock(SimpleDALBroker.class);
-        AlarmConnectionDALImpl connectionUnderTest = new AlarmConnectionDALImpl(simpleDALBroker);
-        
+        AlarmConnectionDAL2Impl connectionUnderTest = new AlarmConnectionDAL2Impl(_dalServiceMock);
         assertFalse(connectionUnderTest.canHandleTopics());
     }
     
-    @Test
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	@Test
     public void testConnectDisconnectOne() throws Exception {
-        SimpleDALBroker simpleDALBroker = mock(SimpleDALBroker.class);
-        AlarmConnectionDALImpl connectionUnderTest = new TestAlarmConnectionDALImpl(simpleDALBroker);
         
+    	PvAddress pv1 = PvAddress.getValue("mypv");
+    	
+    	IPvAccess<String> pvAccess = mock(IPvAccess.class);
+		when(_dalServiceMock.getPVAccess(eq(pv1), any(Type.class), eq(ListenerType.ALARM))).thenReturn(pvAccess);
+    	
+    	AlarmConnectionDAL2Impl connectionUnderTest = new TestAlarmConnectionDALImpl(_dalServiceMock);
+
+    	
         IAlarmConnectionMonitor connectionMonitor = mock(IAlarmConnectionMonitor.class);
         connect(connectionUnderTest, connectionMonitor);
         verify(connectionMonitor, times(1)).onConnect();
-        verifyRegister(simpleDALBroker, "mypv", 1);
+        
+        verify(_dalServiceMock).getPVAccess(PvAddress.getValue("mypv"), Type.STRING, ListenerType.ALARM);
+        
+        ArgumentCaptor<IPvListener> listenerCaptor = ArgumentCaptor.forClass(IPvListener.class);
+        verify(pvAccess).registerListener(listenerCaptor.capture());
         
         connectionUnderTest.disconnect();
-        verifyDeregister(simpleDALBroker, "mypv", 1);
+        
+        verify(pvAccess, times(1)).deregisterListener(listenerCaptor.getValue());
         
         // disconnect is robust
         connectionUnderTest.disconnect();
-        verifyDeregister(simpleDALBroker, "mypv", 1);
+        
+        verify(pvAccess, times(1)).deregisterListener(listenerCaptor.getValue());
     }
     
-    @Test
+    @SuppressWarnings("unchecked")
+	@Test
     public void testConnectAndRegister() throws Exception {
-        SimpleDALBroker simpleDALBroker = mock(SimpleDALBroker.class);
-        AlarmConnectionDALImpl connectionUnderTest = new TestAlarmConnectionDALImpl(simpleDALBroker);
+        
+    	PvAddress pv0 = PvAddress.getValue("mypv");
+    	PvAddress pv1 = PvAddress.getValue("pv1");
+    	PvAddress pv2 = PvAddress.getValue("pv2");
+    	
+    	IPvAccess<String> pv0Access = mock(IPvAccess.class);
+    	IPvAccess<String> pv1Access = mock(IPvAccess.class);
+    	IPvAccess<String> pv2Access = mock(IPvAccess.class);
+		
+    	when(_dalServiceMock.getPVAccess(eq(pv0), any(Type.class), eq(ListenerType.ALARM))).thenReturn(pv0Access);
+    	when(_dalServiceMock.getPVAccess(eq(pv1), any(Type.class), eq(ListenerType.ALARM))).thenReturn(pv1Access);
+    	when(_dalServiceMock.getPVAccess(eq(pv2), any(Type.class), eq(ListenerType.ALARM))).thenReturn(pv2Access);
+    	
+    	AlarmConnectionDAL2Impl connectionUnderTest = new TestAlarmConnectionDALImpl(_dalServiceMock);
         
         IAlarmConnectionMonitor connectionMonitor = mock(IAlarmConnectionMonitor.class);
         connect(connectionUnderTest, connectionMonitor);
-        
         verify(connectionMonitor, times(1)).onConnect();
-        verifyRegister(simpleDALBroker, "mypv", 1);
+        
+        verify(_dalServiceMock, times(1)).getPVAccess(pv0, Type.STRING, ListenerType.ALARM);
+        verify(pv0Access, times(1)).registerListener(any(IPvListener.class));
         
         connectionUnderTest.registerPV("pv1");
-        verifyRegister(simpleDALBroker, "mypv", 1);
-        verifyRegister(simpleDALBroker, "pv1", 1);
-        
+
+        verify(_dalServiceMock, times(1)).getPVAccess(pv1, Type.STRING, ListenerType.ALARM);
+        verify(pv1Access, times(1)).registerListener(any(IPvListener.class));
+
         // Registering the 2nd time is ignored
         connectionUnderTest.registerPV("pv1");
-        verifyRegister(simpleDALBroker, "mypv", 1);
-        verifyRegister(simpleDALBroker, "pv1", 1);
+
+        verify(_dalServiceMock, times(1)).getPVAccess(pv1, Type.STRING, ListenerType.ALARM);
+        verify(pv1Access, times(1)).registerListener(any(IPvListener.class));
         
         connectionUnderTest.registerPV("pv2");
-        verifyRegister(simpleDALBroker, "mypv", 1);
-        verifyRegister(simpleDALBroker, "pv1", 1);
-        verifyRegister(simpleDALBroker, "pv2", 1);
+
+        verify(_dalServiceMock, times(1)).getPVAccess(pv0, Type.STRING, ListenerType.ALARM);
+        verify(_dalServiceMock, times(1)).getPVAccess(pv1, Type.STRING, ListenerType.ALARM);
+        verify(_dalServiceMock, times(1)).getPVAccess(pv2, Type.STRING, ListenerType.ALARM);
+        verify(pv0Access, times(1)).registerListener(any(IPvListener.class));
+        verify(pv1Access, times(1)).registerListener(any(IPvListener.class));
+        verify(pv2Access, times(1)).registerListener(any(IPvListener.class));
         
         connectionUnderTest.deregisterPV("pv1");
-        verifyDeregister(simpleDALBroker, "pv1", 1);
+        
+        verify(pv1Access, times(1)).deregisterListener(any(IPvListener.class));
         
         connectionUnderTest.disconnect();
-        verifyDeregister(simpleDALBroker, "mypv", 1);
-        verifyDeregister(simpleDALBroker, "pv1", 1);
-        verifyDeregister(simpleDALBroker, "pv2", 1);
+        
+        verify(pv0Access, times(1)).deregisterListener(any(IPvListener.class));
+        verify(pv1Access, times(1)).deregisterListener(any(IPvListener.class));
+        verify(pv2Access, times(1)).deregisterListener(any(IPvListener.class));
     }
     
-    @Test
+    @SuppressWarnings("unchecked")
+	@Test
     public void testReloadPVsFromResource() throws Exception {
+    	
         Set<String> pvSetStart = new HashSet<String>(Arrays.asList("pv1", "pv2", "pv3"));
         
-        SimpleDALBroker simpleDALBroker = mock(SimpleDALBroker.class);
-        TestAlarmConnectionDALImpl connectionUnderTest = new TestAlarmConnectionDALImpl(simpleDALBroker,
+        PvAddress pv1 = PvAddress.getValue("pv1");
+    	PvAddress pv2 = PvAddress.getValue("pv2");
+    	PvAddress pv3 = PvAddress.getValue("pv3");
+    	PvAddress pv4 = PvAddress.getValue("pv4");
+    	PvAddress pv5 = PvAddress.getValue("pv5");
+    	
+    	IPvAccess<String> pv1Access = mock(IPvAccess.class);
+    	IPvAccess<String> pv2Access = mock(IPvAccess.class);
+    	IPvAccess<String> pv3Access = mock(IPvAccess.class);
+    	IPvAccess<String> pv4Access = mock(IPvAccess.class);
+    	IPvAccess<String> pv5Access = mock(IPvAccess.class);
+		
+    	when(_dalServiceMock.getPVAccess(eq(pv1), any(Type.class), eq(ListenerType.ALARM))).thenReturn(pv1Access);
+    	when(_dalServiceMock.getPVAccess(eq(pv2), any(Type.class), eq(ListenerType.ALARM))).thenReturn(pv2Access);
+    	when(_dalServiceMock.getPVAccess(eq(pv3), any(Type.class), eq(ListenerType.ALARM))).thenReturn(pv3Access);
+    	when(_dalServiceMock.getPVAccess(eq(pv4), any(Type.class), eq(ListenerType.ALARM))).thenReturn(pv4Access);
+    	when(_dalServiceMock.getPVAccess(eq(pv5), any(Type.class), eq(ListenerType.ALARM))).thenReturn(pv5Access);
+        
+        TestAlarmConnectionDALImpl connectionUnderTest = new TestAlarmConnectionDALImpl(_dalServiceMock,
                                                                                         pvSetStart);
         connect(connectionUnderTest);
-        verifyRegister(simpleDALBroker, "pv1", 1);
-        verifyRegister(simpleDALBroker, "pv2", 1);
-        verifyRegister(simpleDALBroker, "pv3", 1);
+        
+        verify(_dalServiceMock, times(1)).getPVAccess(pv1, Type.STRING, ListenerType.ALARM);
+        verify(_dalServiceMock, times(1)).getPVAccess(pv2, Type.STRING, ListenerType.ALARM);
+        verify(_dalServiceMock, times(1)).getPVAccess(pv3, Type.STRING, ListenerType.ALARM);
+        verify(pv1Access, times(1)).registerListener(any(IPvListener.class));
+        verify(pv2Access, times(1)).registerListener(any(IPvListener.class));
+        verify(pv3Access, times(1)).registerListener(any(IPvListener.class));
         
         Set<String> pvSetReload = new HashSet<String>(Arrays.asList("pv2", "pv3", "pv4", "pv5"));
         connectionUnderTest.setPvNames(pvSetReload);
         
         // the implementation takes care of the difference when de/registering
         connectionUnderTest.reloadPVsFromResource();
-        verifyDeregister(simpleDALBroker, "pv1", 1);
-        verifyDeregister(simpleDALBroker, "pv2", 0);
-        verifyDeregister(simpleDALBroker, "pv3", 0);
         
-        verifyRegister(simpleDALBroker, "pv1", 1);
-        verifyRegister(simpleDALBroker, "pv2", 1);
-        verifyRegister(simpleDALBroker, "pv3", 1);
-        verifyRegister(simpleDALBroker, "pv4", 1);
-        verifyRegister(simpleDALBroker, "pv5", 1);
+        verify(pv1Access, times(1)).deregisterListener(any(IPvListener.class));
+        verify(pv2Access, times(0)).deregisterListener(any(IPvListener.class));
+        verify(pv3Access, times(0)).deregisterListener(any(IPvListener.class));
+
+        verify(pv1Access, times(1)).registerListener(any(IPvListener.class));
+        verify(pv2Access, times(1)).registerListener(any(IPvListener.class));
+        verify(pv3Access, times(1)).registerListener(any(IPvListener.class));
+        verify(pv4Access, times(1)).registerListener(any(IPvListener.class));
+        verify(pv5Access, times(1)).registerListener(any(IPvListener.class));
     }
     
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private void verifyRegister(@Nonnull final SimpleDALBroker simpleDALBroker,
-                                @Nonnull final String pvName,
-                                final int times) throws InstantiationException, CommonException {
-        if (times == 0) {
-            verify(simpleDALBroker, never()).registerListener(eq(newConnectionParameters(pvName)),
-                                                              (DynamicValueListener) any(),
-                                                              (Map<String, Object>) any());
-            
-        } else {
-            verify(simpleDALBroker, times(times))
-                    .registerListener(eq(newConnectionParameters(pvName)),
-                                      (DynamicValueListener) any(),
-                                      (Map<String, Object>) any());
-        }
-    }
-    
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private void verifyDeregister(@Nonnull final SimpleDALBroker simpleDALBroker,
-                                  @Nonnull final String pvName,
-                                  final int times) throws InstantiationException, CommonException {
-        if (times == 0) {
-            verify(simpleDALBroker, never())
-                    .deregisterListener(eq(newConnectionParameters(pvName)),
-                                        (DynamicValueListener) any(),
-                                        (Map<String, Object>) any());
-        } else {
-            verify(simpleDALBroker, times(times))
-                    .deregisterListener(eq(newConnectionParameters(pvName)),
-                                        (DynamicValueListener) any(),
-                                        (Map<String, Object>) any());
-        }
-    }
-    
-    private void connect(@Nonnull final AlarmConnectionDALImpl connectionUnderTest,
+    private void connect(@Nonnull final AlarmConnectionDAL2Impl connectionUnderTest,
                          @Nonnull final IAlarmConnectionMonitor connectionMonitor) throws AlarmConnectionException {
         IAlarmListener listener = mock(IAlarmListener.class);
         AlarmResource resource = mock(AlarmResource.class);
         connectionUnderTest.connect(connectionMonitor, listener, resource);
     }
     
-    private void connect(@Nonnull final AlarmConnectionDALImpl connectionUnderTest) throws AlarmConnectionException {
+    private void connect(@Nonnull final AlarmConnectionDAL2Impl connectionUnderTest) throws AlarmConnectionException {
         IAlarmConnectionMonitor connectionMonitor = mock(IAlarmConnectionMonitor.class);
         connect(connectionUnderTest, connectionMonitor);
-    }
-    
-    private ConnectionParameters newConnectionParameters(@Nonnull final String pvName) {
-        return new ConnectionParameters(newRemoteInfo(pvName), String.class);
-    }
-    
-    private RemoteInfo newRemoteInfo(@Nonnull final String pvName) {
-        return new RemoteInfo(RemoteInfo.DAL_TYPE_PREFIX + "EPICS", pvName, null, null);
     }
     
     /**
@@ -181,17 +207,17 @@ public class AlarmConnectionDALImplUnitTest {
      * framework for retrieval of preferences and access to ldap or file system. This way this test can be run
      * as a simple unit test.
      */
-    private static class TestAlarmConnectionDALImpl extends AlarmConnectionDALImpl {
+    private static class TestAlarmConnectionDALImpl extends AlarmConnectionDAL2Impl {
         
         private Set<String> _pvSet;
         
-        public TestAlarmConnectionDALImpl(@Nonnull final SimpleDALBroker simpleDALBroker) {
-            this(simpleDALBroker, Collections.singleton("mypv"));
+        public TestAlarmConnectionDALImpl(@Nonnull final IDalService dalService) {
+            this(dalService, Collections.singleton("mypv"));
         }
         
-        public TestAlarmConnectionDALImpl(@Nonnull final SimpleDALBroker simpleDALBroker,
+        public TestAlarmConnectionDALImpl(@Nonnull final IDalService dalService,
                                           @Nonnull final Set<String> pvSet) {
-            super(simpleDALBroker);
+            super(dalService);
             _pvSet = pvSet;
         }
         

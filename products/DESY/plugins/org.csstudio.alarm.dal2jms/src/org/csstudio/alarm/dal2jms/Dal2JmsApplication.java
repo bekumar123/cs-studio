@@ -107,12 +107,12 @@ public class Dal2JmsApplication implements IApplication {
             return IApplication.EXIT_OK;
         }
         
-        final ISessionService sessionService = ServiceLocator.getService(ISessionService.class);
-        if (sessionService != null) {
-            connectToXmpp(sessionService);
-        } else {
-            LOG.error("dal2jms headless application could not connect to Xmpp. Session service was not available.");
-        }
+        //final ISessionService sessionService = ServiceLocator.getService(ISessionService.class);
+        //if (sessionService != null) {
+        //    connectToXmpp(sessionService);
+        //} else {
+        //    LOG.error("dal2jms headless application could not connect to Xmpp. Session service was not available.");
+        //}
         
         final IAlarmService alarmService = ServiceLocator.getService(IAlarmService.class);
         createAndRegisterReloadCommand(alarmService);

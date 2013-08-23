@@ -40,8 +40,8 @@
       <plugin id="org.csstudio.platform.libs.jms"/>
       <plugin id="org.csstudio.platform.test" fragment="true"/>
       <plugin id="org.csstudio.platform.utility.jms"/>
-      <plugin id="org.csstudio.platform.workspace" fragment=""/>
-      <plugin id="org.csstudio.utility.ldap" fragment=""/>
+      <plugin id="org.csstudio.platform.workspace"/>
+      <plugin id="org.csstudio.utility.ldap"/>
       <plugin id="org.csstudio.utility.namespace.utility"/>
       <plugin id="org.eclipse.ant.core"/>
       <plugin id="org.eclipse.core.contenttype"/>
@@ -71,7 +71,8 @@
    </plugins>
 
    <features>
-      <feature id="org.csstudio.alarm.dal2jms.feature" version="1.0.0.201107111400"/>
+      <feature id="org.csstudio.alarm.dal2jms.feature" version="1.0.0.qualifier"/>
+      <feature id="org.eclipse.rcp"/>
    </features>
 
    <configurations>

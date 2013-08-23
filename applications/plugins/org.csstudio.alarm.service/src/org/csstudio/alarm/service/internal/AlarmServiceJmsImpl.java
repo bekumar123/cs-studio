@@ -26,6 +26,7 @@ package org.csstudio.alarm.service.internal;
 import javax.annotation.Nonnull;
 
 import org.csstudio.alarm.service.declaration.IAlarmConnection;
+import org.csstudio.dal2.service.IDalService;
 
 /**
  * Jms-based implementation
@@ -34,10 +35,16 @@ import org.csstudio.alarm.service.declaration.IAlarmConnection;
  * @since 24.01.2012
  */
 public class AlarmServiceJmsImpl extends AbstractAlarmService {
-    //    private static final Logger LOG = CentralLogger.getInstance()
-    //            .getLogger(AlarmService2JmsImpl.class);    
 
-    @Override
+	public AlarmServiceJmsImpl(IDalService dalService) {
+		super(dalService);
+		INITIAL_RETRIEVAL_TIMEOUT = 2;
+	}
+	
+    public AlarmServiceJmsImpl() {
+	}
+
+	@Override
     @Nonnull
     public final IAlarmConnection newAlarmConnection() {
         return new AlarmConnectionJMSImpl();

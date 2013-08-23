@@ -33,7 +33,7 @@ import org.csstudio.alarm.service.declaration.IRemoteAcknowledgeService;
 import org.csstudio.alarm.service.declaration.TimeService;
 import org.csstudio.alarm.service.internal.AcknowledgeServiceImpl;
 import org.csstudio.alarm.service.internal.AlarmConfigurationServiceImpl;
-import org.csstudio.alarm.service.internal.AlarmServiceDalImpl;
+import org.csstudio.alarm.service.internal.AlarmServiceDal2Impl;
 import org.csstudio.alarm.service.internal.AlarmServiceJmsImpl;
 import org.csstudio.servicelocator.ServiceLocatorFactory;
 import org.csstudio.utility.jms.JmsUtilityException;
@@ -139,12 +139,12 @@ public class AlarmServiceActivator extends AbstractUIPlugin {
 		// we have to construct a new plugin providing prefs and ui to set them
         String jmsUrl1 = prefs.getString("org.csstudio.platform.utility.jms", "receiverBrokerURL1", "", null);
         String jmsUrl2 = prefs.getString("org.csstudio.platform.utility.jms", "receiverBrokerURL2", "", null);
-        String id = "AlarmService"; 
+
         LOG.info("AlarmServiceActivator injecting receiver url 1 {}, receiver url 2 {} to SharedJmsConnections", jmsUrl1, jmsUrl2);
-    	SharedJmsConnections.staticInjectConsumerUrlAndClientId(jmsUrl1, jmsUrl2, id);
+    	SharedJmsConnections.staticInjectConsumerUrlAndClientId(jmsUrl1, jmsUrl2, "AlarmServiceReceiver");
     	
         String jmsUrl3 = prefs.getString("org.csstudio.platform.utility.jms", "senderBrokerURL", "", null);
-        SharedJmsConnections.staticInjectPublisherUrlAndClientId(jmsUrl3, id);
+        SharedJmsConnections.staticInjectPublisherUrlAndClientId(jmsUrl3, "AlarmServiceProducer");
     	
     	// we still have to trigger the lazy creation of the receiver service
     	try {
@@ -180,9 +180,9 @@ public class AlarmServiceActivator extends AbstractUIPlugin {
         LOG.debug("Registering DAL implementation for the alarm service");
         
         ServiceLocatorFactory
-                .registerServiceWithTracker("DAL implementation of the alarm service.",
+                .registerServiceWithTracker("DAL2 implementation of the alarm service.",
                                             context,
                                             IAlarmService.class,
-                                            new AlarmServiceDalImpl());
+                                            new AlarmServiceDal2Impl());
     }
 }

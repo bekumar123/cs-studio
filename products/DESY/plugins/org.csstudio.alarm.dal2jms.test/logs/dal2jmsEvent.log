@@ -1,0 +1,2 @@
+2013-06-19 18:26:10,446 INFO  [Component Resolve Thread] org.csstudio.diag.interconnectionServer.Activator: ICS activator starts
+2013-06-19 18:26:10,447 INFO  [Component Resolve Thread] org.csstudio.diag.interconnectionServer.Activator: Initializing slf4j over log4j logging

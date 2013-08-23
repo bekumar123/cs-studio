@@ -26,8 +26,8 @@ public enum SpsType {
     DS33("'DS33'", 5);
     //@formatter:on
 
-    private final static String STRING_TYPE = "STRING";
-    private final static String ARRAY_TYPE = "ARRAY";
+    private static final String STRING_TYPE = "STRING";
+    private static final String ARRAY_TYPE = "ARRAY";
 
     private String typeName;
     private int size;

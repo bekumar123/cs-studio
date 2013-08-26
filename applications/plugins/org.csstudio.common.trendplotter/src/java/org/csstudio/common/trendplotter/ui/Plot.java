@@ -99,6 +99,9 @@ public class Plot
     
     final private InitScaleButton initScaleButton;
 
+    final private LogScaleButton logScaleButton;
+
+    final private LinearScaleButton linearScaleButton;
     /**
      * Create a plot that is attached to an SWT canvas
      *
@@ -163,6 +166,12 @@ public class Plot
         initScaleButton = new InitScaleButton();
         plot.addToolbarButton(initScaleButton);
 
+        logScaleButton = new LogScaleButton();
+        plot.addToolbarButton(logScaleButton);
+        
+        linearScaleButton = new LinearScaleButton();
+        plot.addToolbarButton(linearScaleButton);
+        
         // Configure axes
         final Axis time_axis = xygraph.primaryXAxis;
         time_axis.setDateEnabled(true);
@@ -306,7 +315,9 @@ public class Plot
         time_config_button.addPlotListener(listener);
         autoScaleButton.addPlotListener(listener);
         initScaleButton.addPlotListener(listener);
-
+        logScaleButton.addPlotListener(listener);
+        linearScaleButton.addPlotListener(listener);
+        
         // Ajout L.PHILIPPE
         PlotConfigListener configListener = new PlotConfigListener(listener);
         xygraph.addPropertyChangeListener(configListener);

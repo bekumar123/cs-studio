@@ -243,7 +243,9 @@ public class TraceTableHandler implements IStructuredContentProvider
             public void update(final ViewerCell cell)
             {
                 final ModelItem item = (ModelItem) cell.getElement();
+             //  String s=item.getSamples().getSample(0).getDeadband().toString();
                 cell.setText(item.getDisplayName());
+             
             }
 
             @Override
@@ -270,6 +272,40 @@ public class TraceTableHandler implements IStructuredContentProvider
                 new ChangeDisplayNameCommand(operations_manager,
                         item, new_name);
             }
+        });
+        // ADEL Column ----------
+        view_col = TableHelper.createColumn(table_layout, table_viewer, Messages.ADEL, 20, 10);
+        view_col.setLabelProvider(new CellLabelProvider()
+        {
+            @Override
+            public void update(final ViewerCell cell)
+            {
+                final PVItem item = (PVItem) cell.getElement();
+                String s=item.getSamples().getAdel();
+                cell.setText(s);
+             
+            }
+
+            @Override
+            public String getToolTipText(Object element)
+            {
+                return Messages.ADELInfo;
+            }
+        });
+        // MDEL Column ----------
+        view_col = TableHelper.createColumn(table_layout, table_viewer, "MDEL", 20, 10);
+        view_col.setLabelProvider(new CellLabelProvider()
+        {
+            @Override
+            public void update(final ViewerCell cell)
+            {
+                final PVItem item = (PVItem) cell.getElement();
+                String s=item.getSamples().getMedl();
+                cell.setText(s);
+             
+            }
+
+          
         });
 
         // Color Column ----------

@@ -365,7 +365,7 @@ public class PVItem extends ModelItem implements PVListener {
 
         pv_deadband = createAndStartMdelPV(samples);
         //has_deadband = retrieveDeadbandExistenceInfoFor(name);
-
+        createAndStartAdelPV(samples);
         this.scan_timer = timer;
         pv.addListener(this);
         pv.start();
@@ -652,7 +652,34 @@ public class PVItem extends ModelItem implements PVListener {
         mdel_pv.start();
         return mdel_pv;
     }
+    private PV createAndStartAdelPV(final PVSamples pv_samples) throws Exception {
+        final String mdelChannelName = EpicsNameSupport.parseBaseName(super.toString())
+                + EpicsChannelName.FIELD_SEP + RecordField.ADEL.getFieldName();
+        final PV adel_pv = PVFactory.createPV(mdelChannelName);
+        adel_pv.addListener(new PVListener() {
 
+            @Override
+            public void pvValueUpdate(final PV newPV) {
+                final IValue mdelValue = newPV.getValue();
+                Number adel;
+                if (mdelValue instanceof IDoubleValue) {
+                    adel = Double.valueOf(((IDoubleValue) mdelValue).getValue());
+                } else if (mdelValue instanceof ILongValue) {
+                    adel = Long.valueOf(((ILongValue) mdelValue).getValue());
+                } else {
+                    return;
+                }
+                pv_samples.setHistorySamplesDeadband(adel);
+            }
+
+            @Override
+            public void pvDisconnected(final PV newPV) {
+                pv_samples.setHistorySamplesDeadband(null);
+            }
+        });
+        adel_pv.start();
+        return adel_pv;
+    }
     /**
      * @param b
      */

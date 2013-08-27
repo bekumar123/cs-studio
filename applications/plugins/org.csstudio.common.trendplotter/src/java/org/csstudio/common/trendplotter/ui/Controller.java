@@ -178,14 +178,12 @@ public class Controller implements ArchiveFetchJobListener
             @Override
             public void timeConfigRequested()
             {
-                System.out.println("Controller.Controller(...).new PlotListener() {...}.timeConfigRequested() s "+System.currentTimeMillis());
                 StartEndTimeAction.run(shell, model, plot.getOperationsManager());
-                System.out.println("Controller.Controller(...).new PlotListener() {...}.timeConfigRequested() e "+System.currentTimeMillis());
             }
 
             @Override
             public void timeAxisChanged(final long start_ms, final long end_ms)
-            {System.out.println("Controller.Controller(...).new PlotListener() {...}.timeAxisChanged()  s   " +System.currentTimeMillis());
+            {
                 if (model.isScrollEnabled())
                 {
                     final long dist = Math.abs(end_ms - System.currentTimeMillis());
@@ -217,8 +215,7 @@ public class Controller implements ArchiveFetchJobListener
                 // Update model's time range
                 model.setTimerange(start_time, end_time);
                 // Controller's ModelListener will fetch new archived data
-                System.out.println("Controller.Controller(...).new PlotListener() {...}.timeAxisChanged()  e  "+ System.currentTimeMillis());
-            }
+             }
 
             @Override
             public void valueAxisChanged(final int index, final double lower, final double upper)
@@ -230,22 +227,19 @@ public class Controller implements ArchiveFetchJobListener
             @Override
             public void droppedName(final String name)
             {
-                System.out.println("Controller.Controller(...).new PlotListener() {...}.droppedName()  s  " +System.currentTimeMillis()  );
-                // Offer potential PV name in dialog so user can edit/cancel
+                 // Offer potential PV name in dialog so user can edit/cancel
                 final AddPVAction add = new AddPVAction(plot.getOperationsManager(), shell, model, false);
                 // Allow passing in many names, assuming that white space separates them
                 final String[] names = name.split("[\\r\\n\\t ]+"); //$NON-NLS-1$
                 for (String n : names)
                     if (! add.runWithSuggestedName(n, null))
                         break;
-                System.out.println("Controller.Controller(...).new PlotListener() {...}.droppedName()  e  " +System.currentTimeMillis()  );
             }
 
             @Override
             public void droppedPVName(final ProcessVariable name, final ArchiveDataSource archive)
             {
-                System.out.println("Controller.Controller(...).new PlotListener() {...}.droppedPVName()  s  "+System.currentTimeMillis() );
-                if (name == null)
+                 if (name == null)
                 {
                     if (archive == null)
                         return;
@@ -283,13 +277,11 @@ public class Controller implements ArchiveFetchJobListener
 //                            axis, archive);
 //                    return;
                 }
-                System.out.println("Controller.Controller(...).new PlotListener() {...}.droppedPVName()  e  "+System.currentTimeMillis() );
             }
 
             @Override
             public void droppedFilename(String file_name)
             {
-              System.out.println("Controller.Controller(...).new PlotListener() {...}.droppedFilename()   s  "    +System.currentTimeMillis() );
                 final FileImportDialog dlg = new FileImportDialog(shell, file_name);
                 if (dlg.open() != Window.OK)
                     return;
@@ -310,15 +302,12 @@ public class Controller implements ArchiveFetchJobListener
                 AddModelItemCommand.forPV(shell, operations_manager,
                         model, dlg.getItemName(), Preferences.getScanPeriod(),
                         axis, imported);
-                System.out.println("Controller.Controller(...).new PlotListener() {...}.droppedFilename()   e  "    +System.currentTimeMillis() );
             }
 
             @Override
             public void xyGraphConfigChanged(XYGraph newValue)
             {
-                System.out.println("Controller.Controller(...).new PlotListener() {...}.xyGraphConfigChanged()  s  "+System.currentTimeMillis() );
                 model.fireGraphConfigChanged();
-                System.out.println("Controller.Controller(...).new PlotListener() {...}.xyGraphConfigChanged()  s  "+System.currentTimeMillis() );
             }
 
             @Override

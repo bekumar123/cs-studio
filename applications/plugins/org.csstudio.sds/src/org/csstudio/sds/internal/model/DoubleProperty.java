@@ -32,7 +32,7 @@ import org.csstudio.sds.model.WidgetPropertyCategory;
  * @version $Revision: 1.1 $
  * 
  */
-public final class DoubleProperty extends WidgetProperty {
+public class DoubleProperty extends WidgetProperty {
 
 	/**
 	 * Lower border for the property value.

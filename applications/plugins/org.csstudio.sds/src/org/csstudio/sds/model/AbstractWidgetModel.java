@@ -42,6 +42,7 @@ import org.csstudio.sds.internal.model.ArrayOptionProperty;
 import org.csstudio.sds.internal.model.BehaviorProperty;
 import org.csstudio.sds.internal.model.BooleanProperty;
 import org.csstudio.sds.internal.model.ColorProperty;
+import org.csstudio.sds.internal.model.CorrelatedDoubleProperty;
 import org.csstudio.sds.internal.model.DoubleArrayProperty;
 import org.csstudio.sds.internal.model.DoubleProperty;
 import org.csstudio.sds.internal.model.FontProperty;
@@ -928,6 +929,25 @@ public abstract class AbstractWidgetModel implements IAdaptable {
 
 	public final void addDoubleProperty(final String id, final String description, final WidgetPropertyCategory category, final double defaultValue, final boolean before, final String... relative) {
 		addDoubleProperty(id, description, null, category, defaultValue, -Double.MAX_VALUE, Double.MAX_VALUE, before, relative);
+	}
+
+
+	public final void addCorrelatedDoubleProperties(final String id, final String description,
+	                                    final WidgetPropertyCategory category,
+	                                    final double defaultValue, final String compareId, final String compareDescription,
+	                                    final WidgetPropertyCategory compareCategory,
+	                                    final double compareDefaultValue,
+	                                    final CorrelationChecker<Double> correlator, final boolean before, final String... relative) {
+		CorrelatedDoubleProperty property = new CorrelatedDoubleProperty(description, category, defaultValue, -Double.MAX_VALUE, Double.MAX_VALUE, correlator);
+		property.setId(id);
+		CorrelatedDoubleProperty compareProperty = new CorrelatedDoubleProperty(compareDescription, compareCategory, compareDefaultValue, -Double.MAX_VALUE, Double.MAX_VALUE, correlator);
+		compareProperty.setId(compareId);
+		
+		property.setOtherProperty(compareProperty);
+		compareProperty.setOtherProperty(property);
+		
+		doAddProperty(property, before, relative);
+		doAddProperty(compareProperty, before, relative);
 	}
 
 	public final void addStringProperty(final String id, final String description, final WidgetPropertyCategory category, final String defaultValue, final boolean before, final String... relative) {

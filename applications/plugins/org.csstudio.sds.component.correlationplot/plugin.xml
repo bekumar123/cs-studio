@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.csstudio.sds.ui.widgetEditParts">
+      <widgetEditPart
+            class="org.csstudio.sds.component.correlationplot.ui.editpart.CorrelationPlotEditPart"
+            typeId="org.csstudio.sds.component.CorrelationPlot">
+      </widgetEditPart>
+   </extension>
+   <extension
+         point="org.csstudio.sds.widgetModelFactories">
+      <widgetModelFactory
+            category="Monitors"
+            class="org.csstudio.sds.component.correlationplot.model.CorrelationPlotModelFactory"
+            description="Correlation Plot"
+            icon="icons/correlationplot.gif"
+            name="Correlation Plot"
+            typeId="org.csstudio.sds.component.CorrelationPlot">
+      </widgetModelFactory>
+   </extension>
+
+</plugin>

@@ -67,14 +67,51 @@ public final class RunCssAlarmDisplayAction extends Action {
         final Object selected = selection.getFirstElement();
         if (selected instanceof IAlarmTreeNode) {
             final IAlarmTreeNode node = (IAlarmTreeNode) selected;
-            final IPath path = new Path(node.getInheritedPropertyWithUrlProtocol(EpicsAlarmcfgTreeNodeAttribute.CSS_ALARM_DISPLAY));
-            final Map<String, String> aliases = new HashMap<String, String>();
+            
+            String inheritedPropertyWithUrlProtocol = node.getInheritedPropertyWithUrlProtocol(EpicsAlarmcfgTreeNodeAttribute.CSS_ALARM_DISPLAY);
+            AlarmsDisplayWithProperties alarmsDisplayWithProperties = new AlarmsDisplayWithProperties(inheritedPropertyWithUrlProtocol);
+            Map<String, String> aliases = alarmsDisplayWithProperties.getAliases();
+
             if (node instanceof ProcessVariableNode) {
                 String key = AlarmTreePreference.ALARM_DISPLAY_ALIAS.getValue();
                 aliases.put(key, node.getName());
             }
-            LOG.debug("Opening display: " + path);
-            RunModeService.getInstance().openDisplayShellInRunMode(path, aliases);
+            LOG.debug("Opening display: " + alarmsDisplayWithProperties.getPath());
+            RunModeService.getInstance().openDisplayShellInRunMode(alarmsDisplayWithProperties.getPath(), aliases);
         }
+    }
+    
+    class AlarmsDisplayWithProperties {
+    	private Map<String, String> aliases;
+    	private IPath displayPath;
+    	
+    	public AlarmsDisplayWithProperties(String encodedDisplayWithProperties) {
+            // split aliases from display name
+            String[] propertyComponents = encodedDisplayWithProperties.split("\\?");
+            
+            displayPath = new Path(propertyComponents[0]);
+            aliases = new HashMap<String, String>();
+            
+            if (propertyComponents.length > 1) {
+            	String[] keyValuePairs = propertyComponents[1].split(",");
+            	for (String keyValuePair : keyValuePairs) {
+					String[] keyAndValue = keyValuePair.split("=");
+					if (keyAndValue.length > 1) {
+						aliases.put(keyAndValue[0], keyAndValue[1]);
+					} else {
+						LOG.warn("Malformed Arguments in Alarm-Display: " + keyValuePair);
+					}
+				}
+            }
+
+    	}
+
+		public Map<String, String> getAliases() {
+			return aliases;
+		}
+
+		public IPath getPath() {
+			return displayPath;
+		}
     }
 }

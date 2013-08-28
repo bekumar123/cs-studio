@@ -37,6 +37,7 @@ import org.csstudio.alarm.service.internal.AlarmServiceDalImpl;
 import org.csstudio.alarm.service.internal.AlarmServiceJmsImpl;
 import org.csstudio.servicelocator.ServiceLocatorFactory;
 import org.csstudio.utility.jms.JmsUtilityException;
+import org.csstudio.utility.jms.sharedconnection.ISharedConnectionHandle;
 import org.csstudio.utility.jms.sharedconnection.SharedJmsConnections;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
@@ -147,14 +148,42 @@ public class AlarmServiceActivator extends AbstractUIPlugin {
         SharedJmsConnections.staticInjectPublisherUrlAndClientId(jmsUrl3, id);
     	
     	// we still have to trigger the lazy creation of the receiver service
-    	try {
-            SharedJmsConnections.sharedReceiverConnections();
-        } catch (JMSException e) {
-            LOG.error("AlarmServiceActivator failed to start SharedJmsConnections", e);
-        } catch (JmsUtilityException e) {
-            LOG.error("AlarmServiceActivator failed to start SharedJmsConnections", e);
-        }
+        //(jhatje 31.5.2013: move initialization from AlarmServiceActivator to AlarmConnectionJMSImpl because in Activator the 
+        //connection is initialzed on CSS startup even if no Alarm Table is started.
+//    	try {
+//            SharedJmsConnections.sharedReceiverConnections();
+//        } catch (JMSException e) {
+//            LOG.error("AlarmServiceActivator failed to start SharedJmsConnections", e);
+//        } catch (JmsUtilityException e) {
+//            LOG.error("AlarmServiceActivator failed to start SharedJmsConnections", e);
+//        }
 	}
+
+    public ISharedConnectionHandle[] getJmsConnectionHandle() {
+    	ISharedConnectionHandle[] connectionHandle = null;
+    	IPreferencesService prefs = Platform.getPreferencesService();
+    	
+    	// TODO (jp  2012-10-09) strings are used to prevent dependency to outdated plugin
+    	// we have to construct a new plugin providing prefs and ui to set them
+    	String jmsUrl1 = prefs.getString("org.csstudio.platform.utility.jms", "receiverBrokerURL1", "", null);
+    	String jmsUrl2 = prefs.getString("org.csstudio.platform.utility.jms", "receiverBrokerURL2", "", null);
+    	String id = "AlarmService"; 
+    	LOG.info("AlarmServiceActivator injecting receiver url 1 {}, receiver url 2 {} to SharedJmsConnections", jmsUrl1, jmsUrl2);
+    	SharedJmsConnections.staticInjectConsumerUrlAndClientId(jmsUrl1, jmsUrl2, id);
+    	
+    	String jmsUrl3 = prefs.getString("org.csstudio.platform.utility.jms", "senderBrokerURL", "", null);
+    	SharedJmsConnections.staticInjectPublisherUrlAndClientId(jmsUrl3, id);
+    	
+    	// we still have to trigger the lazy creation of the receiver service
+    	try {
+    		connectionHandle = SharedJmsConnections.sharedReceiverConnections();
+    	} catch (JMSException e) {
+    		LOG.error("AlarmServiceActivator failed to start SharedJmsConnections", e);
+    	} catch (JmsUtilityException e) {
+    		LOG.error("AlarmServiceActivator failed to start SharedJmsConnections", e);
+    	}
+    	return connectionHandle;
+    }
 
 	private void registerAlarmConfigurationService(@Nonnull final BundleContext context) {
         LOG.debug("Registering Alarm configuration service implementation");

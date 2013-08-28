@@ -2,8 +2,9 @@ package org.csstudio.sds.ui.runmode;
 
 public interface IDisplayLoadedCallback {
 	
-	public void displayLoaded();
+	void displayLoaded();
 
-	public void displayClosed();
+	void displayWillClose();
 
+	void displayClosed();
 }

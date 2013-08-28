@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Archive API3 (VType)
 Bundle-SymbolicName: org.csstudio.archive.reader;singleton:=true
-Bundle-Version: 3.0.0.201305241400
+Bundle-Version: 3.0.0.201307091400
 Bundle-Vendor: Kay Kasemir <kasemirk@ornl.gov> - SNS
 Require-Bundle: org.junit4,
  org.eclipse.core.runtime,

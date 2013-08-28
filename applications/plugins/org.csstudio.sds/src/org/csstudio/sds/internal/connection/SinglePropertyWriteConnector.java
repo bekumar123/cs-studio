@@ -42,7 +42,7 @@ public class SinglePropertyWriteConnector implements IPropertyChangeListener {
 				}
 
 				public void responseReceived(ResponseEvent event) {
-					LOG.error("Value for ["+pv.toString()+"] was set.");
+					LOG.warn("Value for ["+pv.toString()+"] was set.");
 				}
 
 			});

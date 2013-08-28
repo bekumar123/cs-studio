@@ -1,6 +1,8 @@
 package org.csstudio.config.savevalue.service;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.runtime.PlatformObject;
 
@@ -90,5 +92,18 @@ public final class ChangelogEntry extends PlatformObject implements Serializable
 	 */
 	public String getLastModified() {
 		return _lastModified;
+	}
+
+	/**
+	 * @return all properties as ArrayList
+	 */
+	public List<String> getProperties() {
+		List<String> properties = new ArrayList<String>();
+		properties.add(_pvName);
+		properties.add(_value);
+		properties.add(_username);
+		properties.add(_hostname);
+		properties.add(_lastModified);
+		return properties;
 	}
 }

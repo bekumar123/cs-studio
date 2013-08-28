@@ -31,6 +31,7 @@ import org.csstudio.alarm.service.declaration.IAlarmConnectionMonitor;
 import org.csstudio.alarm.service.declaration.IAlarmListener;
 import org.csstudio.alarm.service.declaration.AlarmResource;
 import org.csstudio.utility.jms.IConnectionMonitor;
+import org.csstudio.utility.jms.JmsUtilityException;
 import org.csstudio.utility.jms.TransportEvent;
 import org.csstudio.utility.jms.sharedconnection.IMessageListenerSession;
 import org.csstudio.utility.jms.sharedconnection.SharedJmsConnections;
@@ -77,6 +78,9 @@ public final class AlarmConnectionJMSImpl implements IAlarmConnection {
         
         try {
             _listener = new AlarmListenerAdapter(listener);
+            //(jhatje 31.5.2013: move initialization from AlarmServiceActivator because in Activator the 
+            //connection is initialzed on CSS startup even if no Alarm Table is started.
+			SharedJmsConnections.sharedReceiverConnections();
             _listenerSession = SharedJmsConnections.startMessageListener(_listener, resource
                     .getTopics().toArray(new String[0]), Session.AUTO_ACKNOWLEDGE);
             
@@ -89,6 +93,9 @@ public final class AlarmConnectionJMSImpl implements IAlarmConnection {
         } catch (final JMSException e) {
             LOG.error(COULD_NOT_CREATE_LISTENER_SESSION);
             throw new AlarmConnectionException(COULD_NOT_CREATE_LISTENER_SESSION, e);
+        } catch (JmsUtilityException e) {
+        	LOG.error(COULD_NOT_CREATE_LISTENER_SESSION);
+        	throw new AlarmConnectionException(COULD_NOT_CREATE_LISTENER_SESSION, e);
         }
     }
     

@@ -36,7 +36,4 @@ public class RawAapiValueIterator extends AapiValueIterator {
 		   result.add(ValueFactory.newVDoubleArray(value, ValueFactory.newAlarm(value[0], display), ValueFactory.newTime(time), display));
 		}	
 	}
-
-	
-
 }

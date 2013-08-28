@@ -161,7 +161,7 @@
             allPopups="false"
             locationURI="menu:diag">
          <command
-               commandId="org.csstudio.utility.ldap.newnamespacebrowser"
+               commandId="org.csstudio.config.savevalue.ui.OpenChangelog"
                icon="icons/save.gif"
                label="%ChangelogView.Name"
                style="push"

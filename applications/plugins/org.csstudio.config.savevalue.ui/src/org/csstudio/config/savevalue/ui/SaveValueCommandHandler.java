@@ -47,12 +47,12 @@ public class SaveValueCommandHandler extends AbstractHandler {
 	/**
 	 * The id of the PV parameter.
 	 */
-	private static final String PV_PARAM_ID = "org.csstudio.platform.ui.commands.saveValue.pv"; //$NON-NLS-1$
+	private static final String PV_PARAM_ID = "org.csstudio.config.savevalue.ui.commands.saveValue.pv"; //$NON-NLS-1$
 	
 	/**
 	 * The id of the value paramter.
 	 */
-	private static final String VALUE_PARAM_ID = "org.csstudio.platform.ui.commands.saveValue.value"; //$NON-NLS-1$
+	private static final String VALUE_PARAM_ID = "org.csstudio.config.savevalue.ui.commands.saveValue.value"; //$NON-NLS-1$
 
 	/**
 	 * {@inheritDoc}

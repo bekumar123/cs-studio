@@ -440,6 +440,28 @@ public class Controller implements ArchiveFetchJobListener
                     command.rememberNewConfig();
                 }
             }
+
+            @Override
+            public void logScaleRequested() {
+                int axisCount = model.getAxisCount();
+                for (int i=0; i<axisCount; i++) {
+                    AxisConfig axis = model.getAxis(i);
+                    final ChangeAxisConfigCommand command = new ChangeAxisConfigCommand(plot.getOperationsManager(), axis);
+                    axis.setLogScale(true);
+                    command.rememberNewConfig();
+                }
+            }
+
+            @Override
+            public void linearScaleRequested() {
+                int axisCount = model.getAxisCount();
+                for (int i=0; i<axisCount; i++) {
+                    AxisConfig axis = model.getAxis(i);
+                    final ChangeAxisConfigCommand command = new ChangeAxisConfigCommand(plot.getOperationsManager(), axis);
+                    axis.setLogScale(false);
+                    command.rememberNewConfig();
+                }
+            }
         });
 
         model_listener = new ModelListener()

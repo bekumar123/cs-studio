@@ -53,7 +53,48 @@ public class Preferences
                                COMPR_HIST = "compress_historic_samples",
                                HIST_BUFFER = "historic_buffer_size",
                                UNCOMP_LIVE_SAMPLES = "uncompressed_live_sample_size",
+                               MYSQL_USERNAME="user",
+                               MYSQL_PASSWORD="password",
+                               MYSQL_DATEBASE="databaseName",
+                               MYSQL_SERVER="host",
+                               MYSQL_SERVER_FAILOVER="failoverHost",
                                SECURITY_COMP_LIVE_SAMPLES="security_compressed_live_sample_size";
+    
+    public static String getMySqlUser()
+    {
+        final IPreferencesService prefs = Platform.getPreferencesService();
+        if (prefs == null) // Allow some JUnit tests without prefs
+            return "cssUser";
+        return prefs.getString("org.csstudio.archive.common.service.mysqlimpl", MYSQL_USERNAME, "cssUser", null);
+    }
+    public static String getMySqlPassword()
+    {
+        final IPreferencesService prefs = Platform.getPreferencesService();
+        if (prefs == null) // Allow some JUnit tests without prefs
+            return "cssUser";
+        return prefs.getString("org.csstudio.archive.common.service.mysqlimpl", MYSQL_PASSWORD,"cssUser", null);
+    }
+    public static String getMySqlDatebasen()
+    {
+        final IPreferencesService prefs = Platform.getPreferencesService();
+        if (prefs == null) // Allow some JUnit tests without prefs
+            return "archive";
+        return prefs.getString("org.csstudio.archive.common.service.mysqlimpl", MYSQL_DATEBASE, "archive", null);
+    }
+    public static String getMySqlServer()
+    {
+        final IPreferencesService prefs = Platform.getPreferencesService();
+        if (prefs == null) // Allow some JUnit tests without prefs
+            return "krynfs.desy.de";
+        return prefs.getString("org.csstudio.archive.common.service.mysqlimpl", MYSQL_SERVER, "krynfs.desy.de", null);
+    }
+    public static String getMySqlServerfailover()
+    {
+        final IPreferencesService prefs = Platform.getPreferencesService();
+        if (prefs == null) // Allow some JUnit tests without prefs
+            return "krynfs.desy.de";
+        return prefs.getString("org.csstudio.archive.common.service.mysqlimpl", MYSQL_SERVER_FAILOVER,"krynfs.desy.de", null);
+    }
 
     public static double getTimeSpan()
     {

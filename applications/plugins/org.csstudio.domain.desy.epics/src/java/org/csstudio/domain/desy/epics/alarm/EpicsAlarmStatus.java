@@ -131,7 +131,7 @@ public enum EpicsAlarmStatus {
     }
 
     @Nonnull
-    private static EpicsAlarmStatus byJCACode(final int code) {
+    public static EpicsAlarmStatus byJCACode(final int code) {
         if (code < 0 || code >= STATUS_BY_CODE.size()) {
             return UNKNOWN;
         }

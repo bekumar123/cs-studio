@@ -162,7 +162,7 @@ public enum EpicsAlarmSeverity {
     }
 
     @Nonnull
-    private static EpicsAlarmSeverity byJCACode(final int code) {
+    public static EpicsAlarmSeverity byJCACode(final int code) {
         if (code < 0 || code >= SEVS_BY_CODE.size()) {
             return UNKNOWN;
         }

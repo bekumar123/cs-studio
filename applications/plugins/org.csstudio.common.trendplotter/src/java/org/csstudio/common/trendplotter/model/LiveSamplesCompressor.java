@@ -174,19 +174,16 @@ public class LiveSamplesCompressor {
             }
             min = next.getYValue() < min.getYValue() ? next : min;
             max = next.getYValue() > max.getYValue() ? next : max;
-
-
-            next= samples.poll();
-
             if(count>10000){ 
                 LOG.info("Stop Compress stage manuel {}. Sample count : ",samples.size()); 
                 break;
                 }
-            if (!isSampleBefore(next, nextWindowEnd)) {
+            if (isSampleBefore(next, nextWindowEnd)) {
                 result = storeMinMax(min, max, result);
                 min = next;
                 max = next;
             }
+            next= samples.poll();       
         }
         LOG.info("Compress Min Max Value result: von  {} to {} ",samples.size(),result.size());
        return result;

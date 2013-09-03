@@ -275,11 +275,16 @@ public class Messages extends NLS
     public static String WaveformStatus;
     public static String WaveformTimeSelector;
     public static String WaveformTimestamp;
+    public static String mySqlPrefPagePort;
+    public static String mySqlPrefPagePeriodInMS;
+    public static String mySqlPrefPageTerminationTimeInMS;
+    public static String mySqlPrefPageDataRescueDir;
     public static String mySqlPrefPageUsername;
     public static String mySqlPrefPagePassword;
     public static String mySqlPrefPageDatebase;
     public static String mySqlPrefPageHost;
-    public static String mySqlPrefPageHotFailover;
+    public static String mySqlPrefPageHostFailover;
+    public static String mySqlPrefPageMaxAllowedPacketInKB;
     
 
     static

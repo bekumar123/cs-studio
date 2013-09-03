@@ -7,17 +7,12 @@
  ******************************************************************************/
 package org.csstudio.common.trendplotter.preferences;
 
-import org.csstudio.common.trendplotter.Activator;
 import org.csstudio.common.trendplotter.Messages;
-import org.csstudio.common.trendplotter.model.ArchiveRescale;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
-import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
@@ -54,8 +49,12 @@ public class PreferenceMysqlPage extends FieldEditorPreferencePage
         addField(host);
         // hostFailover
         final StringFieldEditor hostFailover = new StringFieldEditor(Preferences.MYSQL_SERVER_FAILOVER,
-                Messages.mySqlPrefPageHotFailover, parent);
+                Messages.mySqlPrefPageHostFailover, parent);
         addField(hostFailover);
+        
+        final IntegerFieldEditor port = new IntegerFieldEditor(Preferences.MYSQL_PORT,
+                                                                     Messages.mySqlPrefPagePort, parent);
+        addField(port);
         // dateBase
         final StringFieldEditor dateBase = new StringFieldEditor(Preferences.MYSQL_DATEBASE,
                 Messages.mySqlPrefPageDatebase, parent);
@@ -69,6 +68,26 @@ public class PreferenceMysqlPage extends FieldEditorPreferencePage
         final StringFieldEditor password = new StringFieldEditor(Preferences.MYSQL_PASSWORD,
                 Messages.mySqlPrefPagePassword, parent);
         addField(password);
+        
+        //periode
+        final IntegerFieldEditor periode = new IntegerFieldEditor(Preferences.MYSQL_PERIODE,
+                Messages.mySqlPrefPagePeriodInMS, parent);
+        addField(periode);
+        
+        //maxiPacket
+        final IntegerFieldEditor maxiPacket = new IntegerFieldEditor(Preferences.MYSQL_MAXIMALPACKETINKB,
+                Messages.mySqlPrefPageMaxAllowedPacketInKB, parent);
+        addField(maxiPacket);
+          
+        //terminationTime
+        final IntegerFieldEditor terminationTime = new IntegerFieldEditor(Preferences.MYSQL_TERMINATIONTIME,
+                Messages.mySqlPrefPageTerminationTimeInMS, parent);
+        addField(terminationTime);
+               
+        //dataRescue
+        final StringFieldEditor dataRescue = new StringFieldEditor(Preferences.MYSQL_DATARESCUE,
+                Messages.mySqlPrefPageDataRescueDir, parent);
+        addField(dataRescue);
         
     
    

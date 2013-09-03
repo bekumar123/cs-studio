@@ -53,6 +53,11 @@ public class Preferences
                                COMPR_HIST = "compress_historic_samples",
                                HIST_BUFFER = "historic_buffer_size",
                                UNCOMP_LIVE_SAMPLES = "uncompressed_live_sample_size",
+                               MYSQL_PORT="port",
+                               MYSQL_PERIODE="periodInMS",
+                               MYSQL_TERMINATIONTIME="terminationTimeInMS",
+                               MYSQL_DATARESCUE="dataRescueDir",
+                               MYSQL_MAXIMALPACKETINKB="maxAllowedPacketInKB",
                                MYSQL_USERNAME="user",
                                MYSQL_PASSWORD="password",
                                MYSQL_DATEBASE="databaseName",
@@ -60,6 +65,41 @@ public class Preferences
                                MYSQL_SERVER_FAILOVER="failoverHost",
                                SECURITY_COMP_LIVE_SAMPLES="security_compressed_live_sample_size";
     
+    public static int getMySqlPort()
+    {
+        final IPreferencesService prefs = Platform.getPreferencesService();
+        if (prefs == null) // Allow some JUnit tests without prefs
+            return 3306;
+        return prefs.getInt("org.csstudio.archive.common.service.mysqlimpl", MYSQL_PORT, 3306, null);
+    }
+    public static int getMySqlPeriode()
+    {
+        final IPreferencesService prefs = Platform.getPreferencesService();
+        if (prefs == null) // Allow some JUnit tests without prefs
+            return 4000;
+        return prefs.getInt("org.csstudio.archive.common.service.mysqlimpl", MYSQL_PERIODE, 4000, null);
+    }
+    public static int getMySqlTerminationTime()
+    {
+        final IPreferencesService prefs = Platform.getPreferencesService();
+        if (prefs == null) // Allow some JUnit tests without prefs
+            return 25000;
+        return prefs.getInt("org.csstudio.archive.common.service.mysqlimpl", MYSQL_TERMINATIONTIME, 25000, null);
+    }
+    public static String getMySqlDataRescue()
+    {
+        final IPreferencesService prefs = Platform.getPreferencesService();
+        if (prefs == null) // Allow some JUnit tests without prefs
+            return "./rescueStmts";
+        return prefs.getString("org.csstudio.archive.common.service.mysqlimpl", MYSQL_DATARESCUE, "./rescueStmts", null);
+    }
+    public static int getMySqlMaximalPacket()
+    {
+        final IPreferencesService prefs = Platform.getPreferencesService();
+        if (prefs == null) // Allow some JUnit tests without prefs
+            return 65536;
+        return prefs.getInt("org.csstudio.archive.common.service.mysqlimpl", MYSQL_MAXIMALPACKETINKB, 65536, null);
+    }
     public static String getMySqlUser()
     {
         final IPreferencesService prefs = Platform.getPreferencesService();
@@ -67,6 +107,7 @@ public class Preferences
             return "cssUser";
         return prefs.getString("org.csstudio.archive.common.service.mysqlimpl", MYSQL_USERNAME, "cssUser", null);
     }
+    
     public static String getMySqlPassword()
     {
         final IPreferencesService prefs = Platform.getPreferencesService();

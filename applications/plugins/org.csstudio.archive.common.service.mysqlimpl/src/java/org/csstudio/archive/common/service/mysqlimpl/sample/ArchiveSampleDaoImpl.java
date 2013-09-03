@@ -29,12 +29,14 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.csstudio.archive.common.service.ArchiveConnectionException;
 import org.csstudio.archive.common.service.channel.ArchiveChannelId;
 import org.csstudio.archive.common.service.channel.IArchiveChannel;
 import org.csstudio.archive.common.service.controlsystem.IArchiveControlSystem;
@@ -119,7 +121,8 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         new MapMaker().concurrencyLevel(2).weakKeys().makeMap();
 
     private final IArchiveChannelDao _channelDao;
-
+    private static Map<Integer,String> _statusmap   =  new MapMaker().makeMap();
+    private static Map<Integer,String> _servertymap =  new MapMaker().makeMap();
     /**
      * Constructor.
      */
@@ -482,13 +485,13 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             case RAW: { // (..., value)
                 if (ArchiveTypeConversionSupport.isDataTypeSerializableCollection(typeClass)) {
                     value = ArchiveTypeConversionSupport.fromByteArray(result.getBytes(COLUMN_VALUE));
-                    alarm=new EpicsAlarm(EpicsAlarmSeverity.parseSeverity( result.getString(COLUMN_SERVERTY)), EpicsAlarmStatus.parseStatus( result.getString(COLUMN_STATUS)));
+                    alarm=createAlarm(result);//new EpicsAlarm(EpicsAlarmSeverity.parseSeverity( result.getString(COLUMN_SERVERTY)), EpicsAlarmStatus.parseStatus( result.getString(COLUMN_STATUS)));
 
                 } else {
-                    final String s1= result.getString(COLUMN_SERVERTY);
-                    final String s2= result.getString(COLUMN_STATUS);
+                  //  final String s1= result.getString(COLUMN_SERVERTY);
+                  //  final String s2= result.getString(COLUMN_STATUS);
                     value = ArchiveTypeConversionSupport.fromArchiveString(typeClass, result.getString(COLUMN_VALUE));
-                    alarm=new EpicsAlarm(EpicsAlarmSeverity.parseSeverity(s1), EpicsAlarmStatus.parseStatus(s2));
+                    alarm=createAlarm(result); // alarm=new EpicsAlarm(EpicsAlarmSeverity.parseSeverity(s1), EpicsAlarmStatus.parseStatus(s2));
 
                 }
 
@@ -498,13 +501,13 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             case AVG_PER_HOUR : { // (..., avg_val, min_val, max_val)
                 if(channel.getDataType().equals("EpicsEnum")) {
                     value = ArchiveTypeConversionSupport.fromArchiveString(typeClass, result.getString(COLUMN_VALUE));
-                    alarm=new EpicsAlarm(EpicsAlarmSeverity.parseSeverity( result.getString(COLUMN_SERVERTY)), EpicsAlarmStatus.parseStatus( result.getString(COLUMN_STATUS)));
+                    alarm=createAlarm(result); //  alarm=new EpicsAlarm(EpicsAlarmSeverity.parseSeverity( result.getString(COLUMN_SERVERTY)), EpicsAlarmStatus.parseStatus( result.getString(COLUMN_STATUS)));
 
                  }else{
                 value = ArchiveTypeConversionSupport.fromDouble(typeClass, result.getDouble(COLUMN_AVG));
                 min = ArchiveTypeConversionSupport.fromDouble(typeClass, result.getDouble(COLUMN_MIN));
                 max = ArchiveTypeConversionSupport.fromDouble(typeClass, result.getDouble(COLUMN_MAX));
-                alarm=new EpicsAlarm(EpicsAlarmSeverity.parseSeverity( result.getString(COLUMN_SERVERTY)), EpicsAlarmStatus.parseStatus( result.getString(COLUMN_STATUS)));
+                alarm=createAlarm(result); //  alarm=new EpicsAlarm(EpicsAlarmSeverity.parseSeverity( result.getString(COLUMN_SERVERTY)), EpicsAlarmStatus.parseStatus( result.getString(COLUMN_STATUS)));
 
                 }
                 break;
@@ -628,4 +631,69 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         }
         return false;
     }
+    private EpicsAlarm createAlarm( @Nonnull final ResultSet result){
+        try {
+            return new EpicsAlarm(EpicsAlarmSeverity.parseSeverity(getServerty(result.getInt(COLUMN_SERVERTY)%100)), EpicsAlarmStatus.parseStatus(getStatus(result.getInt(COLUMN_STATUS)%100)));
+        } catch (final SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+
+    private String getStatus(@Nonnull final Integer id) {
+        if(_servertymap.isEmpty()){
+            updateAlarm();
+      }
+      return _statusmap.get(id);
+       }
+
+    private String getServerty(@Nonnull final Integer id) {
+          if(_servertymap.isEmpty()){
+              updateAlarm();
+        }
+        return _servertymap.get(id);
+
+    }
+    private void updateAlarm(){
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet result = null;
+        final String _selectRawServertyStmt =
+                "Select * FROM " + getDatabaseName() + ".epics_serverty";
+        final String _selectRawStatusStmt =
+                "Select * FROM " + getDatabaseName() + ".epics_status";
+        try {
+            conn = createConnection();
+            stmt =conn.prepareStatement(_selectRawServertyStmt);
+            result = stmt.executeQuery();
+            while (result != null && !result.isAfterLast()) {
+                if(result.next()){
+                    final Integer i=result.getInt("id");
+                    final String s= result.getString("name");
+                    _servertymap.put(i,s);
+                    }
+
+            }
+            stmt =conn.prepareStatement(_selectRawStatusStmt);
+            result = stmt.executeQuery();
+            while (result != null && !result.isAfterLast()) {
+                if(result.next()){
+                    final Integer i=result.getInt("id");
+                    final String s= result.getString("name");
+                    _statusmap.put(i,s);
+                    }
+
+            }
+        } catch (final ArchiveConnectionException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }catch (final SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+    }
+
 }

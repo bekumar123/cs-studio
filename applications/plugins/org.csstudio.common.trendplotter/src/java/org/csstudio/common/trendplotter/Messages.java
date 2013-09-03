@@ -163,6 +163,8 @@ public class Messages extends NLS
     public static String LogentryDefaultBody;
     public static String LogentryDefaultTitle;
     public static String LogScale;
+    public static String LinScaleButtonTT;
+    public static String LogScaleButtonTT;
     public static String Model_Disconnected;
     public static String NegErrColumn;
     public static String Name;

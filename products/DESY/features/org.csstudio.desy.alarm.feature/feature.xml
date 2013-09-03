@@ -2,7 +2,7 @@
 <feature
       id="org.csstudio.desy.alarm.feature"
       label="Alarm Feature"
-      version="1.5.2.201308081100"
+      version="1.5.3.201308281100"
       provider-name="DESY, Jan Hatje &lt;css-developer@desy.de&gt;">
 
    <description url="http://www.example.com/description">

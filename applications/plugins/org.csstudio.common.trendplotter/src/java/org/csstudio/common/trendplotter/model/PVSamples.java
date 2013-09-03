@@ -143,10 +143,10 @@ public class PVSamples extends PlotSamples
         }
         final PlotSample last = getSample(raw-1);
         if (VTypeHelper.getSeverity(last.getValue())!=null) {
-            return raw;
+            return raw+1;
         }
         // Last sample is valid, so it should still apply 'now'
-        return raw+1;
+        return raw;
     }
 
     /** @return Size of the actual historic and liveSamples samples

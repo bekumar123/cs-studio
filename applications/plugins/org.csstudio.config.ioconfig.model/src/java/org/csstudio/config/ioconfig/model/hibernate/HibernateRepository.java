@@ -446,7 +446,7 @@ public class HibernateRepository implements IRepository {
                         + " where length(image) > 0");
                 final List<DocumentDBO> nodes = query.list();
 
-                return nodes.isEmpty() ? null : nodes;
+                return nodes==null ? new ArrayList<DocumentDBO>() : nodes;
             }
         });
     }

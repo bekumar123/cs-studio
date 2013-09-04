@@ -32,5 +32,5 @@ Export-Package:
  org.csstudio.platform.libs.epics
 Bundle-Vendor: BNL/DESY/ORNL/SLAC
 Bundle-Description: EPICS Channel Access V3 Library
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 

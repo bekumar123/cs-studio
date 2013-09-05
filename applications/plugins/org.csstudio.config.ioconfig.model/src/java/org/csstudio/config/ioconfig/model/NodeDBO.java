@@ -123,9 +123,9 @@ public class NodeDBO<P extends NodeDBO, C extends NodeDBO> extends NamedDBClass 
 
     /**
      *  Die Tabellen MIME_FILES und MIME_FILES_DDB_NODE liegen auf einer anderen DB.
-     *  Daher wird hier mit einem Link gearbeitet der folgenden Rechte benötigt.
-     *  -  Für MIME_FILES ist das Grant: select.
-     *  -  Für MIME_FILES_DDB_NODE ist das Grant: select, insert, update, delete.
+     *  Daher wird hier mit einem Link gearbeitet der folgenden Rechte benoetigt.
+     *  -  Fuer MIME_FILES ist das Grant: select.
+     *  -  Fuer MIME_FILES_DDB_NODE ist das Grant: select, insert, update, delete.
      *
      *  Beim erstellen sind leider die Columname vertauscht worden. In der Column docs_id stehen
      *  die node_id und in der id stehen die doc_ids.
@@ -173,7 +173,7 @@ public class NodeDBO<P extends NodeDBO, C extends NodeDBO> extends NamedDBClass 
         _krykNo = krykNo;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity=NodeDBO.class)
     @Nonnull
     public P getParent() {
         return _parent;

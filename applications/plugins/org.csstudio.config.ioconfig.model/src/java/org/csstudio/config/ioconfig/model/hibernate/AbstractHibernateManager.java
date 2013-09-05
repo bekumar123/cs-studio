@@ -41,6 +41,7 @@ import org.csstudio.config.ioconfig.model.PV2IONameMatcherModelDBO;
 import org.csstudio.config.ioconfig.model.PersistenceException;
 import org.csstudio.config.ioconfig.model.SearchNodeDBO;
 import org.csstudio.config.ioconfig.model.SensorsDBO;
+import org.csstudio.config.ioconfig.model.VirtualRoot;
 import org.csstudio.config.ioconfig.model.pbmodel.ChannelDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ChannelStructureDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDFileDBO;
@@ -86,7 +87,6 @@ public abstract class AbstractHibernateManager extends Observable implements IHi
      */
     protected AbstractHibernateManager() {
         super();
-//        CLASSES.add(VirtualRoot.class);
         CLASSES.add(NodeImageDBO.class);
         CLASSES.add(ChannelDBO.class);
         CLASSES.add(ChannelStructureDBO.class);
@@ -107,6 +107,7 @@ public abstract class AbstractHibernateManager extends Observable implements IHi
         CLASSES.add(PV2IONameMatcherModelDBO.class);
         CLASSES.add(Node4ServicesDBO.class);
         CLASSES.add(Channel4ServicesDBO.class);
+        CLASSES.add(VirtualRoot.class);
     }
 
     protected abstract void buildConfig();
@@ -114,7 +115,7 @@ public abstract class AbstractHibernateManager extends Observable implements IHi
     @Override
     public final synchronized void closeSession() {
         if (_sessionLazy != null && _sessionLazy.isOpen()) {
-            //            _sessionLazy.close();
+            // _sessionLazy.close();
             _sessionLazy.disconnect();
             _sessionLazy = null;
         }
@@ -128,7 +129,8 @@ public abstract class AbstractHibernateManager extends Observable implements IHi
 
     @Override
     @CheckForNull
-    public final <T> T doInDevDBHibernateEager(@Nonnull final IHibernateCallback hibernateCallback) throws PersistenceException {
+    public final <T> T doInDevDBHibernateEager(@Nonnull final IHibernateCallback hibernateCallback)
+            throws PersistenceException {
         try {
             initSessionFactoryDevDB();
         } catch (final Exception e) {
@@ -157,7 +159,7 @@ public abstract class AbstractHibernateManager extends Observable implements IHi
     }
 
     /**
-     *
+     * 
      * @param <T>
      *            The result Object type.
      * @param hibernateCallback
@@ -166,7 +168,8 @@ public abstract class AbstractHibernateManager extends Observable implements IHi
      */
     @Override
     @CheckForNull
-    public final <T> T doInDevDBHibernateLazy(@Nonnull final IHibernateCallback hibernateCallback) throws PersistenceException {
+    public final <T> T doInDevDBHibernateLazy(@Nonnull final IHibernateCallback hibernateCallback)
+            throws PersistenceException {
         initSessionFactoryDevDB();
         _trx = null;
         try {
@@ -214,7 +217,7 @@ public abstract class AbstractHibernateManager extends Observable implements IHi
             setChanged();
             notifyObservers();
         } catch (final HibernateException e) {
-            LOG.error("Can't init device database:",e);
+            LOG.error("Can't init device database:", e);
             throw e;
         }
     }
@@ -234,7 +237,7 @@ public abstract class AbstractHibernateManager extends Observable implements IHi
     }
 
     /**
-     *
+     * 
      * @param timeout
      *            set the DB Timeout.
      */

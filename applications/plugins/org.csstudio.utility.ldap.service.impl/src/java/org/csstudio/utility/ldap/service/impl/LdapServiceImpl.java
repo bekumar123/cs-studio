@@ -24,8 +24,10 @@ package org.csstudio.utility.ldap.service.impl;
 import static org.csstudio.utility.ldap.service.util.LdapUtils.any;
 import static org.csstudio.utility.ldap.treeconfiguration.LdapFieldsAndAttributes.ATTR_FIELD_OBJECT_CLASS;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,6 +41,7 @@ import javax.naming.NameNotFoundException;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
@@ -58,6 +61,9 @@ import org.csstudio.utility.ldap.service.ILdapSearchParams;
 import org.csstudio.utility.ldap.service.ILdapSearchResult;
 import org.csstudio.utility.ldap.service.ILdapService;
 import org.csstudio.utility.ldap.service.LdapServiceException;
+import org.csstudio.utility.ldap.service.util.LdapUtils;
+import org.csstudio.utility.ldap.treeconfiguration.LdapEpicsControlsConfiguration;
+import org.csstudio.utility.ldap.treeconfiguration.LdapEpicsControlsFieldsAndAttributes;
 import org.csstudio.utility.ldap.utils.LdapSearchParams;
 import org.csstudio.utility.ldap.utils.LdapSearchResult;
 import org.csstudio.utility.treemodel.ContentModel;
@@ -208,6 +214,134 @@ public final class LdapServiceImpl<ControllerSubtreeNode> implements ILdapServic
         }
         return null;
 
+    }
+
+    @CheckForNull
+    private Set<SearchResult> retrieveAnswerSetSynchronously(@Nonnull final LdapName searchRoot,
+            @Nonnull final String filter) {
+
+        final DirContext context = DirContextHolder.INSTANCE.get();
+
+        if (context != null) {
+            final SearchControls ctrl = new SearchControls();
+            ctrl.setSearchScope(SearchControls.ONELEVEL_SCOPE);
+            NamingEnumeration<SearchResult> answer = null;
+            try {
+
+                answer = context.search(searchRoot, filter, ctrl);
+
+                final Set<SearchResult> answerSet = new HashSet<SearchResult>();
+                while (answer.hasMore()) {
+                    SearchResult result = answer.next();
+                    answerSet.add(result);
+                }
+
+                return answerSet;
+
+            } catch (final NameNotFoundException nnfe) {
+                LOG.info("Wrong LDAP name?" + nnfe.getExplanation() + " (" + searchRoot + ")");
+            } catch (final NamingException e) {
+                LOG.info("Wrong LDAP query. " + e.getExplanation() + " (" + searchRoot + ")");
+            } finally {
+                try {
+                    if (answer != null) {
+                        answer.close();
+                    }
+                } catch (final NamingException e) {
+                    LOG.warn("Error closing search results: ", e);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * Query he LDAP tree but perform single queries with scope ONELEVEL_SCOPE to improve performance.
+     */
+    @CheckForNull
+    public LdapSearchResult retrieveTreeContentSynchronously(@Nonnull final LdapName searchRootEfan,
+            @Nonnull final String filterEfan) {
+
+        final DirContext context = DirContextHolder.INSTANCE.get();
+        if (context != null) {
+
+            final Set<SearchResult> answerSet = retrieveAnswerSetSynchronously(searchRootEfan, filterEfan);
+
+            List<Set<SearchResult>> addOn = new ArrayList<Set<SearchResult>>();
+            
+            for (SearchResult searchResult : answerSet) {
+
+                Attributes attrs = searchResult.getAttributes();
+                Attribute efan = attrs.get(LdapEpicsControlsConfiguration.FACILITY.getNodeTypeName());
+
+                LdapName base;
+                try {
+            
+                    String facility =  (String) efan.get(0);
+                    
+                    //@formatter:off
+                    base = LdapUtils.createLdapName(
+                            LdapEpicsControlsConfiguration.FACILITY.getNodeTypeName(), 
+                            facility, 
+                            //
+                            LdapEpicsControlsConfiguration.VIRTUAL_ROOT.getNodeTypeName(),
+                            LdapEpicsControlsConfiguration.VIRTUAL_ROOT.getUnitTypeValue()); 
+                            //@formatter:on
+            
+                    //@formatter:off
+                    final Set<SearchResult> answerSetEcom = retrieveAnswerSetSynchronously(
+                            base,
+                            any(LdapEpicsControlsConfiguration.COMPONENT.getNodeTypeName()));
+                            //@formatter:on
+                                        
+                    if (answerSetEcom != null) {
+                        addOn.add(answerSetEcom);
+                    }
+                                     
+                    //@formatter:off
+                    base = LdapUtils.createLdapName(
+                            LdapEpicsControlsConfiguration.COMPONENT.getNodeTypeName(), 
+                            LdapEpicsControlsFieldsAndAttributes.ECOM_EPICS_IOC_FIELD_VALUE,
+                            //
+                            LdapEpicsControlsConfiguration.FACILITY.getNodeTypeName(), 
+                            facility, 
+                            //
+                            LdapEpicsControlsConfiguration.VIRTUAL_ROOT.getNodeTypeName(),
+                            LdapEpicsControlsConfiguration.VIRTUAL_ROOT.getUnitTypeValue()); 
+                            //@formatter:on
+                    
+                    //@formatter:off
+                    final Set<SearchResult> answerSetEcon = retrieveAnswerSetSynchronously(
+                            base,
+                            any(LdapEpicsControlsConfiguration.IOC.getNodeTypeName()));
+                            //@formatter:on
+
+                    if (answerSetEcon != null) {
+                        addOn.add(answerSetEcon);
+                    }
+
+                } catch (NamingException e) {
+                    LOG.info("Wrong LDAP name?" + e.getExplanation() + " (" + searchRootEfan + ")");
+                }
+
+            }
+
+            for (Set<SearchResult> sr : addOn) {
+                for (SearchResult singleResult: sr) {
+                    answerSet.add(singleResult);
+                }
+            }
+
+            final LdapSearchResult result = new LdapSearchResult();
+            result.setResult(new LdapSearchParams(searchRootEfan, filterEfan, SearchControls.ONELEVEL_SCOPE), answerSet);
+
+            return result;
+
+        }
+
+        return null;
     }
 
     /**

@@ -110,7 +110,7 @@ public final class LdapControllerService {
      */
     public static void removeNode(LdapName ldapName) throws Exception {
         Preconditions.checkNotNull(ldapName, "ldapName must not be null");
-        
+
         LdapNode ldapNode = new LdapNode(ldapName);
         if (ldapNode.allowsRemovalOfChilds()) {
             LDAP_SERVICE.removeComponent(LdapEpicsControlsConfiguration.VIRTUAL_ROOT, ldapName);
@@ -187,14 +187,15 @@ public final class LdapControllerService {
 
     /**
      * Rename a node:
-     *
-     * Attention: We do not know if the LDAP server is configured to allow the renaming of nodes with childs.
-     * Therefore we simulate the rename operation as a combination of a move and delete operation.
+     * 
+     * Attention: We do not know if the LDAP server is configured to allow the
+     * renaming of nodes with childs. Therefore we simulate the rename operation
+     * as a combination of a move and delete operation.
      */
     public static void rename(@Nonnull final LdapName oldLdapName, @Nonnull final String newName) throws Exception {
         Preconditions.checkNotNull(oldLdapName, "oldLdapName must not be null");
         Preconditions.checkNotNull(newName, "newName must not be null");
-        
+
         LdapNode ldapNode = new LdapNode(oldLdapName);
         if (ldapNode.isFacility()) {
             // rename a Facility
@@ -210,7 +211,8 @@ public final class LdapControllerService {
             LdapName newLdapName = (LdapName) oldLdapName.clone();
             newLdapName.remove(newLdapName.size() - 1);
 
-            // create the new name by replacing the old econ value (the name) with the new one.
+            // create the new name by replacing the old econ value (the name)
+            // with the new one.
             Optional<LdapName> newLdapNode = LdapControllerService.createNewNode(newLdapName, newName);
             if (!newLdapNode.isPresent()) {
                 throw new IllegalStateException("Can't create new node: " + newName);
@@ -219,7 +221,8 @@ public final class LdapControllerService {
             LDAP_SERVICE.moveSubTrees(LdapEpicsControlsConfiguration.VIRTUAL_ROOT, oldLdapName, newLdapNode.get());
             removeNode(oldLdapName);
         } else {
-            throw new IllegalStateException("Unsupported target for rename operation. Only Facility and IOC are supported.");
+            throw new IllegalStateException(
+                    "Unsupported target for rename operation. Only Facility and IOC are supported.");
         }
     }
 
@@ -231,48 +234,49 @@ public final class LdapControllerService {
     public static void addNewFacility(@Nonnull final LdapName parent, final String newName) throws Exception {
         Preconditions.checkNotNull(parent, "parent must not be null");
         Preconditions.checkNotNull(newName, "newName must not be null");
-        
+
         Optional<LdapName> newLdapName = LdapControllerService.createNewNode(parent, newName);
         if (newLdapName.isPresent()) {
-            LdapControllerService.createNewNode(newLdapName.get(), LdapEpicsControlsFieldsAndAttributes.ECOM_EPICS_IOC_FIELD_VALUE);
+            LdapControllerService.createNewNode(newLdapName.get(),
+                    LdapEpicsControlsFieldsAndAttributes.ECOM_EPICS_IOC_FIELD_VALUE);
         }
     }
 
     /**
-     * Add a new IOC node and init the node with soem default values. 
+     * Add a new IOC node and init the node with soem default values.
      */
     public static void addNewIOC(@Nonnull final LdapName parent, final String newName) throws Exception {
         Preconditions.checkNotNull(parent, "parent must not be null");
         Preconditions.checkNotNull(newName, "newName must not be null");
-        
+
         LdapControllerService.createNewNode(parent, newName);
     }
 
-    
     private static Optional<LdapName> createNewNode(@Nonnull final LdapName parent, final String newName)
             throws Exception {
         Preconditions.checkNotNull(parent, "parent must not be null");
         Preconditions.checkNotNull(newName, "newName must not be null");
-        
+
         LdapNode ldapNode = new LdapNode(parent);
-        
+
         // We found the needed information, therefore we can create a new node.
         if (ldapNode.getChildAttribute().isPresent()) {
-            
+
             LdapName newLdapName = (LdapName) parent.clone();
             newLdapName.add(new Rdn(ldapNode.getChildAttribute().get() + "=" + newName));
-            
+
             // add two objectClass entries
             BasicAttribute oc1 = new BasicAttribute(LdapFieldsAndAttributes.ATTR_FIELD_OBJECT_CLASS);
             oc1.add("top"); // entry 1
             oc1.add(ldapNode.getChildAttributeValue()); // entry 2
-            
-            // now add the new attribute containing the name 
+
+            // now add the new attribute containing the name
             Attributes attrs = new BasicAttributes(false);
             attrs.put(oc1);
             attrs.put(ldapNode.getChildAttribute().get(), newName);
-            
-            // The selected node should contain an IOC node. Therefore provide some initialization values;
+
+            // The selected node should contain an IOC node. Therefore provide
+            // some initialization values;
             if (ldapNode.isParentOfEcon()) {
                 attrs.put(new BasicAttribute(ControllerProperty.SAVE_ENABLED.getName(), ControllerProperty.SAVE_ENABLED
                         .getInitValue()));
@@ -287,13 +291,13 @@ public final class LdapControllerService {
                 attrs.put(new BasicAttribute(ControllerProperty.SERVICE_PHONE.getName(),
                         ControllerProperty.SERVICE_PHONE.getInitValue()));
             }
-            
+
             if (!LDAP_SERVICE.createComponent(newLdapName, attrs)) {
                 throw new IllegalStateException("Can't create new node.");
             }
-            
+
             return Optional.of(newLdapName);
-            
+
         }
         return Optional.absent();
     }
@@ -339,7 +343,7 @@ public final class LdapControllerService {
             }
         }
     }
-
+ 
     /*
      * Returns the {@code ContentModel} from the LDAP.
      * 
@@ -354,26 +358,16 @@ public final class LdapControllerService {
 
         //@formatter:off
         // Construct the ldap query but make sure that we see nodes that have no children yet.
-        ILdapSearchResult searchResult = LDAP_SERVICE.retrieveSearchResultSynchronously(
+        ILdapSearchResult searchResult = LDAP_SERVICE.retrieveTreeContentSynchronously(
                 createLdapName(
                         LdapEpicsControlsConfiguration.VIRTUAL_ROOT.getNodeTypeName(),
                         LdapEpicsControlsConfiguration.VIRTUAL_ROOT.getUnitTypeValue() 
                 ), 
-                or(
-                    any(
-                        LdapEpicsControlsConfiguration.FACILITY.getNodeTypeName()
-                    ),
-                    or(
-                        any(
-                            LdapEpicsControlsConfiguration.IOC.getNodeTypeName()
-                        ),
-                        any(
-                            LdapEpicsControlsConfiguration.COMPONENT.getNodeTypeName()
-                        )
-                    )
-                ), 
-                SearchControls.SUBTREE_SCOPE);
-                //@formatter:on
+                any(
+                      LdapEpicsControlsConfiguration.FACILITY.getNodeTypeName()
+                )
+        ); 
+        //@formatter:on
 
         ContentModel<LdapEpicsControlsConfiguration> model;
 

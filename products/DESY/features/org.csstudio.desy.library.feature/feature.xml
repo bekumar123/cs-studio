@@ -2,7 +2,7 @@
 <feature
       id="org.csstudio.desy.library.feature"
       label="Library Feature"
-      version="1.5.3.201308281100"
+      version="1.5.3.201309051400"
       provider-name="Desy, Jan Hatje &lt;jan.hatje@desy.de&gt;">
 
    <description url="http://www.example.com/description">

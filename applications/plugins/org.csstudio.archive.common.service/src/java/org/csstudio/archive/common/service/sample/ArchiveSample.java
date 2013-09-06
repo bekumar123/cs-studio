@@ -51,6 +51,8 @@ public class ArchiveSample<V extends Serializable,
     private final ArchiveChannelId _channelId;
     private final T _sysVar;
     private final IAlarm _alarm;
+    private Integer servertyIndex;
+    private Integer statusIndex;
 
     /**
      * Constructor.
@@ -99,4 +101,22 @@ public class ArchiveSample<V extends Serializable,
     public IAlarm getAlarm() {
         return _alarm;
     }
+
+    public Integer getServertyIndex() {
+        return servertyIndex;
+    }
+
+    public void setServertyIndex(final Integer servertyIndex) {
+        this.servertyIndex = servertyIndex;
+    }
+
+    public Integer getStatusIndex() {
+        return statusIndex;
+    }
+
+    public void setStatusIndex(final Integer statusIndex) {
+        this.statusIndex = statusIndex;
+    }
+
+
 }

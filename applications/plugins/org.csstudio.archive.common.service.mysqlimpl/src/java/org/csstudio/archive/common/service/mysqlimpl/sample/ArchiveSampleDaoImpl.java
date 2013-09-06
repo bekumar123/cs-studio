@@ -29,12 +29,15 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.csstudio.archive.common.service.ArchiveConnectionException;
 import org.csstudio.archive.common.service.channel.ArchiveChannelId;
 import org.csstudio.archive.common.service.channel.IArchiveChannel;
 import org.csstudio.archive.common.service.controlsystem.IArchiveControlSystem;
@@ -95,7 +98,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
     private static final String RETRIEVAL_FAILED = "Sample retrieval from archive failed.";
 
     private static final String SELECT_RAW_PREFIX =
-        "SELECT " + Joiner.on(",").join(COLUMN_CHANNEL_ID, COLUMN_TIME, COLUMN_VALUE,COLUMN_SERVERTY,COLUMN_STATUS) + " ";
+        "SELECT * ";
     private final String _selectRawSamplesStmt =
         SELECT_RAW_PREFIX +
         "FROM " + getDatabaseName() + "." + ARCH_TABLE_PLACEHOLDER + " WHERE " + COLUMN_CHANNEL_ID + "=? " +
@@ -118,7 +121,8 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         new MapMaker().concurrencyLevel(2).weakKeys().makeMap();
 
     private final IArchiveChannelDao _channelDao;
-
+    private static Map<Integer,String> _statusmap   =  new MapMaker().makeMap();
+    private static Map<Integer,String> _servertymap =  new MapMaker().makeMap();
     /**
      * Constructor.
      */
@@ -143,6 +147,14 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
     public <V extends Serializable, T extends ISystemVariable<V>>
     int createSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveDaoException {
         int size=0;
+        final Collection<IArchiveSample<V, T>> s=Collections.EMPTY_LIST;
+        for(final IArchiveSample<V, T> ss:samples ){
+            final ArchiveSample<V, T> mySample=(ArchiveSample<V, T>)ss;
+            if(ss instanceof ArchiveSample){
+                mySample.setStatusIndex(((EpicsAlarm) ((ArchiveSample) ss).getAlarm()).getStatus().ordinal()*100+getStatusId(((EpicsAlarm) ((ArchiveSample) ss).getAlarm()).getStatus().toString()));
+                mySample.setServertyIndex(((EpicsAlarm) ((ArchiveSample) ss).getAlarm()).getSeverity().ordinal()*100+getServertyId(((EpicsAlarm) ((ArchiveSample) ss).getAlarm()).getSeverity().toString()));
+                }
+        }
         try {
             size = getEngineMgr().submitToBatch(samples);
             final List<? extends AbstractReducedDataSample> minuteSamples =
@@ -235,8 +247,8 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                 String severty="";
                 String status="";
                 if(alarm!=null){
-                    severty=alarm.getSeverity().toString();
-                    status=alarm.getStatus().toString();
+                    severty=((ArchiveSample<V,T>)sample).getServertyIndex().toString();
+                    status=((ArchiveSample<V,T>)sample).getStatusIndex().toString();
                 }
 
                 final ArchiveChannelId channelId = sample.getChannelId();
@@ -382,7 +394,6 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             } while (type == null && reqType != null); // no other request type of lower order
 
         } catch (final Exception ex) {
-          ;
             handleExceptions(RETRIEVAL_FAILED+"\n"+ "ArchiveSampleDaoImpl.retrieveSamples() " +channel.getName(), ex);
         } finally {
             closeSqlResources(result, stmt, conn, "Samples retrieval for " + channel.getName());
@@ -468,9 +479,9 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         switch (type) {
             case RAW : { // (..., value)
                 if (ArchiveTypeConversionSupport.isDataTypeSerializableCollection(typeClass)) {
-                    value = ArchiveTypeConversionSupport.fromByteArray(result.getBytes(COLUMN_VALUE));
+                        value = ArchiveTypeConversionSupport.fromByteArray(result.getBytes(COLUMN_VALUE));
                 } else {
-                    value = ArchiveTypeConversionSupport.fromArchiveString(typeClass, result.getString(COLUMN_VALUE));
+                       value = ArchiveTypeConversionSupport.fromArchiveString(typeClass, result.getString(COLUMN_VALUE));
                 }
                 break;
             }
@@ -487,6 +498,9 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         final long time = result.getLong(COLUMN_TIME);
         final TimeInstant timeInstant = TimeInstantBuilder.fromNanos(time);
         final IArchiveControlSystem cs = channel.getControlSystem();
+        if(value==null) {
+            return null;
+        }
         final ISystemVariable<V> sysVar = SystemVariableSupport.create(channel.getName(),
                                                                        value,
                                                                        ControlSystem.valueOf(cs.getName(), cs.getType()),
@@ -595,4 +609,93 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         }
         return false;
     }
+
+
+    private int getStatusId(@Nonnull final String name) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet result = null;
+        final String _selectRawStatusStmt =
+                "Select * FROM " + getDatabaseName() + ".epics_status";
+        Integer id=null;
+        if(!_statusmap.isEmpty() || _statusmap.containsValue(name)){
+           for(final Entry<Integer, String> entry: _statusmap.entrySet()){
+               if( name.equals(entry.getValue()) ) {
+                id =entry.getKey() ;
+            }
+           }
+
+        }else{
+        try {
+            conn =createConnection();
+            stmt =conn.prepareStatement(_selectRawStatusStmt);
+            result = stmt.executeQuery();
+            while (result != null && !result.isAfterLast()) {
+                if(result.next()){
+                final Integer i=result.getInt("id");
+                final String s= result.getString("name");
+                _statusmap.put(i,s);
+                }
+
+            }
+            for(final Entry<Integer, String> entry: _statusmap.entrySet()){
+                if( name.equals(entry.getValue()) ) {
+                    id =entry.getKey() ;
+                }
+            }
+        } catch (final ArchiveConnectionException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }catch (final SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        }
+        return id;
+
+    }
+    private int getServertyId(@Nonnull final String name) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet result = null;
+        final String _selectRawServertyStmt =
+                "Select * FROM " + getDatabaseName() + ".epics_serverty";
+        Integer id=null;
+        if(!_servertymap.isEmpty() || _servertymap.containsValue(name)){
+           for(final Entry<Integer, String> entry: _servertymap.entrySet()){
+               if( name.equals(entry.getValue()) ) {
+                id =entry.getKey() ;
+            }
+           }
+
+        }else{
+        try {
+            conn = createConnection();
+            stmt =conn.prepareStatement(_selectRawServertyStmt);
+            result = stmt.executeQuery();
+            while (result != null && !result.isAfterLast()) {
+                if(result.next()){
+                    final Integer i=result.getInt("id");
+                    final String s= result.getString("name");
+                    _servertymap.put(i,s);
+                    }
+
+            }
+            for(final Entry<Integer, String> entry: _servertymap.entrySet()){
+                if( name.equals(entry.getValue()) ) {
+                    id =entry.getKey() ;
+                }
+            }
+        } catch (final ArchiveConnectionException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }catch (final SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        }
+        return id;
+
+    }
+
 }

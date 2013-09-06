@@ -5,13 +5,13 @@ package org.csstudio.dal2.dv;
  */
 public class PvAddress {
 
-	private String _address;
+	private final String _address;
 
 	private PvAddress(String address) {
 		_address = address;
 	}
 	
-	public String getAddress() {
+	public final String getAddress() {
 		return _address;
 	}
 
@@ -30,5 +30,10 @@ public class PvAddress {
 			return _address.equals(((PvAddress)obj)._address);
 		}
 		return false;
+	}
+	
+	@Override
+	public String toString() {
+		return "PVAdress[" + _address + "]";
 	}
 }

@@ -1,5 +1,11 @@
 package org.csstudio.dal2.epics.service;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Context;
 import gov.aps.jca.JCALibrary;
@@ -13,6 +19,8 @@ import org.csstudio.dal2.dv.ListenerType;
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
 import org.csstudio.dal2.service.cs.CsPvData;
+import org.csstudio.dal2.service.cs.ICsOperationHandle;
+import org.csstudio.dal2.service.cs.ICsResponseListener;
 import org.csstudio.domain.desy.epics.alarm.EpicsAlarmSeverity;
 import org.csstudio.domain.desy.softioc.AbstractSoftIocConfigurator;
 import org.csstudio.domain.desy.softioc.ISoftIocConfigurator;
@@ -21,6 +29,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class EpicsPVAccessTest {
@@ -255,6 +264,54 @@ public class EpicsPVAccessTest {
 		Assert.assertEquals(0, listenerMock.getConnectionChangedCalled());
 		Assert.assertFalse(listenerMock.isConnected());
 
+		stopSoftIoc();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testGetFieldType() throws Exception {
+		startUpSoftIoc();
+
+		EpicsPvAccessFactory factory = new EpicsPvAccessFactory(_jcaContext);
+
+		{
+			ICsResponseListener<Type<?>> callback = mock(ICsResponseListener.class);
+			factory.requestNativeType(PvAddress.getValue("TestDal:ConstantPV"),
+					callback);
+			verify(callback, times(0)).onFailure(any(Throwable.class));
+			verify(callback, timeout(100)).onSuccess(eq(Type.DOUBLE));
+		}
+
+		{
+			ICsResponseListener<Type<?>> callback = mock(ICsResponseListener.class);
+			ICsOperationHandle operationHandle = factory.requestNativeType(PvAddress.getValue("TestDal:NotExisting"),
+					callback);
+			Thread.sleep(50);
+			verify(callback, times(0)).onFailure(any(Throwable.class));
+			verify(callback, times(0)).onSuccess(any(Type.class));
+			
+			operationHandle.cancel();
+		}
+		
+		stopSoftIoc();
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test @Ignore
+	public void testGetFieldTypeForCharacteristic() throws Exception {
+		startUpSoftIoc();
+
+		EpicsPvAccessFactory factory = new EpicsPvAccessFactory(_jcaContext);
+
+		{
+			ICsResponseListener<Type<?>> callback = mock(ICsResponseListener.class);
+			factory.requestNativeType(PvAddress.getValue("TestDal:ConstantPV.HSV"),
+					callback);
+			Thread.sleep(50);
+			verify(callback, times(0)).onFailure(any(Throwable.class));
+			verify(callback, timeout(100)).onSuccess(eq(Type.SEVERITY));
+		}
+		
 		stopSoftIoc();
 	}
 

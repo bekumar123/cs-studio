@@ -37,9 +37,13 @@ import org.csstudio.dal2.service.DalException;
 public interface ICsPvAccessFactory {
 
 	/**
-	 * Creates the control system specific PV Access for a given process variable with a specific type
-	 * @param pv the process variable address
-	 * @param type the type to be used for the connection
+	 * Creates the control system specific PV Access for a given process
+	 * variable with a specific type
+	 * 
+	 * @param pv
+	 *            the process variable address
+	 * @param type
+	 *            the type to be used for the connection
 	 * @return the pv access object
 	 * 
 	 * @require pv != null
@@ -49,13 +53,23 @@ public interface ICsPvAccessFactory {
 	<T> ICsPvAccess<T> createPVAccess(PvAddress pv, Type<T> type);
 
 	/**
-	 * Asynchronous request of the native type of the given pv 
-	 * @param pv the process variable address
-	 * @param callback the callback to provide the result
+	 * Asynchronous request of the native type of the given pv
+	 * <p>
+	 * This method does not provide any timeout detection. So the client is
+	 * responsible for canceling the request using the provides operation
+	 * handle.
+	 * 
+	 * @param pv
+	 *            the process variable address
+	 * @param callback
+	 *            the callback to provide the result
+	 * @return an operation handle that allows to cancel the request
 	 * @throws DalException
 	 * 
 	 * @require pv != null
 	 * @require callback != null
+	 * @ensure result != null
 	 */
-	ICsOperationHandle requestNativeType(PvAddress pv, ICsResponseListener<Type<?>> callback) throws DalException;
+	ICsOperationHandle requestNativeType(PvAddress pv,
+			ICsResponseListener<Type<?>> callback) throws DalException;
 }

@@ -136,5 +136,9 @@ public abstract class AbstractChannelOperator implements ConnectionListener, ICs
 	protected final Channel getChannel() {
 		return _channel;
 	}
+	
+	public PvAddress getAddress() {
+		return _address;
+	}
 
 }

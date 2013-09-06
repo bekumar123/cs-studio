@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import java.util.logging.Logger;
 
 import com.cosylab.epics.caj.CAJContext;
 import com.cosylab.epics.caj.impl.reactor.ReactorHandler;
@@ -50,8 +49,6 @@ public class CAConnector implements Connector {
 	 */
 	private static final int LOCK_TIMEOUT = 20 * 1000;	// 20s
 
-	private static final Logger logger = Logger.getLogger(CATransport.class.getName());
-	
 	/**
 	 * @param context
 	 */
@@ -67,7 +64,6 @@ public class CAConnector implements Connector {
 							 InetSocketAddress address, short transportRevision, short priority)
 		throws ConnectionException
 	{
-		logger.warning("enter connect");
 		SocketChannel socket = null;
 		
 		// first try to check cache w/o named lock...
@@ -92,8 +88,6 @@ public class CAConnector implements Connector {
 					if (transport.acquire(client))
 						return transport;
 				}
-				logger.warning("create connection");
-				
 				     
 				context.getLogger().finer("Connecting to CA server: " + address);
 				
@@ -117,8 +111,6 @@ public class CAConnector implements Connector {
 				ReactorHandler handler = transport;
 				if (context.getLeaderFollowersThreadPool() != null)
 				    handler = new LeaderFollowersHandler(context.getReactor(), handler, context.getLeaderFollowersThreadPool());
-				
-				logger.warning("register reactor");
 				
 				// register to reactor
 				context.getReactor().register(socket, SelectionKey.OP_READ, handler);

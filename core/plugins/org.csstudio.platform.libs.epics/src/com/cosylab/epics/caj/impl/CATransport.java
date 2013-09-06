@@ -755,10 +755,10 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	 */
 	public boolean flushInternal()
 	{
-		logger.warning("enter flushInternal");
 	    // tricky closed check
 	    if (sendBuffer == null)
 	        return false;
+	    
 		try
 		{
 			while (sendQueue.size() > 0)
@@ -767,7 +767,6 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 				// dont want to block while sending...
 				synchronized (sendQueue)
 				{
-					logger.warning("empty queue");
 					if (sendQueue.size() == 0)
 						return true;
 						
@@ -778,12 +777,10 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 				}
 				
 				try {
-					logger.warning("send buffer");
 				    send(buf);
 				}
 				finally {
 				    // return back to the cache
-					logger.warning("put buffer allocator");
 				    bufferAllocator.put(buf);
 				}
 			}
@@ -793,7 +790,6 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 		catch (IOException ioex)
 		{
 			// close connection
-			logger.warning("close");
 			close(true);
 			return false;
 		}
@@ -806,7 +802,6 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 			    
 			    // possible race condition check
 				if (!closed && sendQueue.size() > 0)
-					logger.warning("spawn flushing");
 				    spawnFlushing();
 			}
 		}

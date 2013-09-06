@@ -36,6 +36,7 @@ HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
    <launcherArgs>
       <programArgs>-plugincustomization plugin_customization.ini</programArgs>
       <vmArgs>-Xmx512m
+-XX:-UseSplitVerifier
 -Duser.language=de -Duser.country=DE -Duser.variant=DE</vmArgs>
    </launcherArgs>
 

@@ -89,8 +89,8 @@ public class Dal2JmsActivator extends Plugin {
         
         setupShutdownHook();
         setupLogging();
-//        ServiceLocator.registerServiceTracker(ISessionService.class, ServiceLocatorFactory
-//                .createServiceTracker(context, ISessionService.class));
+        ServiceLocator.registerServiceTracker(ISessionService.class, ServiceLocatorFactory
+                .createServiceTracker(context, ISessionService.class));
     }
     
     private void setupShutdownHook() {

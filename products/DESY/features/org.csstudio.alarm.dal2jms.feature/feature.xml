@@ -972,13 +972,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.csstudio.desy.common.product.log4j"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"/>
-
-   <plugin
          id="org.slf4j-log4j12"
          download-size="0"
          install-size="0"

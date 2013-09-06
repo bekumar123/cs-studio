@@ -173,7 +173,7 @@ public abstract class AbstractAlarmService implements IAlarmService {
 						.retrieveInitialContentModel(AlarmPreference
 								.getFacilityNames());
 			} else {
-				LOG.trace("retrieve configuration from file");
+				LOG.trace("retrieve configuration from file " + AlarmPreference.getConfigFilename());
 				model = configService
 						.retrieveInitialContentModelFromFile(AlarmPreference
 								.getConfigFilename());

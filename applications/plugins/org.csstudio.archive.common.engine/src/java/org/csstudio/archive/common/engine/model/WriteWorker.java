@@ -95,11 +95,12 @@ final class WriteWorker extends AbstractTimeMeasuredRunnable {
     @Override
     public void measuredRun() {
         try {
-            WORKER_LOG.info("WRITER RUN: {}", _name);
+         //   WORKER_LOG.info("WRITER RUN: {}", _name);
 
             final long written = collectSampleFromBuffersAndWriteToService(_channels);
-
-            WORKER_LOG.info("WRITER WRITTEN: {}", written);
+           if(written>0) {
+            WORKER_LOG.info("WRITER RUN {},  WRITTEN: {}", _name, written);
+        }
 
             _lastWriteTime = TimeInstantBuilder.fromNow();
             _avgWriteCount.accumulate(Double.valueOf(written));

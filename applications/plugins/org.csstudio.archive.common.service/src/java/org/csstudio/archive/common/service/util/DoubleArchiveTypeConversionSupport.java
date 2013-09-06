@@ -47,6 +47,9 @@ public class DoubleArchiveTypeConversionSupport extends AbstractNumberArchiveTyp
     @Nonnull
     public Double convertFromArchiveString(@Nonnull final String value) throws TypeSupportException {
         try {
+        	if(value==null) {
+            return null;
+        }
             return Double.parseDouble(value);
         } catch (final NumberFormatException e) {
             throw new TypeSupportException("Parsing failed.", e);

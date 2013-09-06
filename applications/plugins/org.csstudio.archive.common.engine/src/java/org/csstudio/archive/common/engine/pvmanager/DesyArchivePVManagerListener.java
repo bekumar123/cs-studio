@@ -169,7 +169,7 @@ public abstract class DesyArchivePVManagerListener<V extends Serializable,
 
         final String actualTypeFromData = ArchiveTypeConversionSupport.createArchiveTypeStringFromData(data);
 
-        if (_datatype == null) {
+        if (_datatype == null || _datatype.isEmpty()) {
             _datatype = actualTypeFromData;
             final IArchiveEngineFacade service = provider.getEngineFacade();
             service.writeChannelDataTypeInfo(id, actualTypeFromData);

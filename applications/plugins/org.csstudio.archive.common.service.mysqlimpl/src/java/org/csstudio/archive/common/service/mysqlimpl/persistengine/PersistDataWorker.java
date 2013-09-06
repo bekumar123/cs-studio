@@ -149,6 +149,8 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
                 while (myStmt.getConnection() == null || myStmt == null || myStmt.isClosed()) {
                     myStmt = handler.createNewStatement(_connectionHandler.getThreadLocalConnection());
                 }
+
+
                 addElementToBatchAndRescueList(handler, myStmt, element, rescueDataList);
                 // executeBatchAndClearListOnCondition(handler, myStmt, rescueDataList, 1000);
                 size = rescueDataList.size();
@@ -208,6 +210,7 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
                                                     @Nonnull final T element,
                                                     @Nonnull final List<T> rescueDataList) throws ArchiveDaoException {
         rescueDataList.add(element);
+
         handler.applyBatch(stmt, element);
     }
 
@@ -304,7 +307,9 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
     public long getPeriodInMS() {
         return _periodInMS;
     }
-
+    private String getDatabaseName() {
+        return _connectionHandler.getDatabaseName();
+    }
     void rescueDataToFileSystem(@Nonnull final Iterable<String> statements) {
         final int noOfRescuedStmts = Iterables.size(statements);
         LOG.warn("Rescue statements: " + noOfRescuedStmts);

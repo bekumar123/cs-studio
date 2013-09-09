@@ -30,17 +30,21 @@ public class FieldOfWork {
 		return combinedLine.containsPoint(point);
 	}
 	
+	public Polyline getFieldPolygon() {
+		return combinedLine;
+	}
+
 	private Polyline combinePolylines(Polyline first, Polyline second) {
 		
 		Coordinate2D[] coordinatesFirst = first.getCoordinates();
 		Coordinate2D[] coordinatesSecond = second.getCoordinates();
 
-		Coordinate2D[] resultCoordinates = Arrays.copyOf(coordinatesFirst, coordinatesFirst.length + coordinatesSecond.length);
+		Coordinate2D[] resultCoordinates = Arrays.copyOf(coordinatesFirst, coordinatesFirst.length + coordinatesSecond.length + 1);
 		for (int index = 0; index < coordinatesSecond.length; index++) {
-			
 			Coordinate2D coordinate2d = coordinatesSecond[coordinatesSecond.length - index - 1];
 			resultCoordinates[index + coordinatesFirst.length] = coordinate2d;
 		}
+		resultCoordinates[resultCoordinates.length-1] = resultCoordinates[0];
 		return new Polyline(resultCoordinates);
 	}
 }

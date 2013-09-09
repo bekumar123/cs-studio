@@ -1,6 +1,7 @@
 package org.csstudio.sds.component.correlationplot.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -102,10 +103,8 @@ public class PlotController {
 	private void setFieldOfWork(FieldOfWork fieldOfWork, boolean plot) {
 		//TODO hier noch nach neuen warnings suchen?
 		this.fieldOfWork = fieldOfWork;
-		ArrayList<Polyline> lines = new ArrayList<Polyline>();
-		lines.add(fieldOfWork.getUpperLine());
-		lines.add(fieldOfWork.getLowerLine());
-		this.plot.setPolylines(lines);
+		this.plot.setPolylines(Collections.singletonList(fieldOfWork.getFieldPolygon()));
+		this.plot.setMask(fieldOfWork.getFieldPolygon());
 		if (plot) {
 			plot();
 		}

@@ -19,4 +19,5 @@ public interface Plot {
 	void onUpdatetedConfiguration();
 	
 	void setStyleProvider(PlotStyleProvider styleProvider);
+	void setMask(Polyline mask);
 }

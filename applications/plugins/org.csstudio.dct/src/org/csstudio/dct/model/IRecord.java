@@ -71,6 +71,37 @@ public interface IRecord extends IPropertyContainer, IElement {
     Boolean getDisabled();
 
     /**
+     * Returns the archived value for the given field.
+     * 
+     * @param the
+     *            field name. the field Name
+     * @return true or false
+     */
+    Boolean getArchived(String name);
+
+    /**
+     * Sets the archive value for the given field.
+     * 
+     * @param the
+     *            field name.
+     * @param value
+     *            true or false
+     */
+    void setArchived(String name, Boolean value);
+
+    /**
+     * 
+     * @return true ift htis record should be archived.
+     */
+    Boolean getRecordArchived();
+
+    /**
+     * 
+     * @return true ift htis record should be archived.
+     */
+    void setRecordArchived(Boolean value);
+
+    /**
      * Returns the EPICS name.
      * 
      * @return the EPICS name

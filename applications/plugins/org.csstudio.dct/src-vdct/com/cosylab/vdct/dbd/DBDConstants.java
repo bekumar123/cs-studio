@@ -64,6 +64,7 @@ public interface DBDConstants {
 	// lower number means higer pos. in property-window
 	public static final int GUI_UNDEFINED = Integer.MAX_VALUE;
 	
+	//@formatter:off
 	public static final int GUI_COMMON	 =  0;
 	public static final int GUI_LINKS	 =  1;
 	public static final int GUI_INPUTS	 =  2;
@@ -89,6 +90,8 @@ public interface DBDConstants {
 	public static final int GUI_SUB	 	 = 22;
 	public static final int GUI_TIMER	 = 23;
 	public static final int GUI_WAVE	 = 24;
-
+	public static final int DCT_ARCHIVE  = 25;
+	//@formatter:on
+	
 	public static final char quoteChar = '"';
 }

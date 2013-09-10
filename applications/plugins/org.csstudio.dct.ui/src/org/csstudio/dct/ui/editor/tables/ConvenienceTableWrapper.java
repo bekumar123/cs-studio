@@ -2,23 +2,15 @@ package org.csstudio.dct.ui.editor.tables;
 
 import java.util.List;
 
-import org.csstudio.dct.model.IContainer;
-import org.csstudio.dct.model.IElement;
-import org.csstudio.dct.model.IInstance;
-import org.csstudio.dct.model.IRecord;
-import org.csstudio.dct.model.internal.Instance;
-import org.csstudio.dct.ui.editor.GenericContentProposingTextCellEditor;
-import org.csstudio.dct.ui.editor.HierarchicalBeanPropertyTableRowAdapter;
-import org.csstudio.ui.util.CustomMediaFactory;
+import org.csstudio.dct.ui.editor.tables.editingsupport.ArchivedColumnLabelProvider;
+import org.csstudio.dct.ui.editor.tables.editingsupport.ArchivedEditingSupport;
+import org.csstudio.dct.ui.editor.tables.editingsupport.DelegatingColumnEditingSupport;
+import org.csstudio.dct.ui.editor.tables.editingsupport.LabelProvider;
 import org.eclipse.gef.commands.CommandStack;
-import org.eclipse.jface.viewers.CellEditor;
-import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.ColumnViewerEditor;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationEvent;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationStrategy;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
-import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.FocusCellOwnerDrawHighlighter;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.TableViewer;
@@ -26,15 +18,9 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TableViewerEditor;
 import org.eclipse.jface.viewers.TableViewerFocusCellManager;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 
@@ -60,6 +46,7 @@ import org.eclipse.swt.widgets.Table;
  * 
  */
 public final class ConvenienceTableWrapper {
+        
     private ColumnConfig[] columnConfigurations;
     private TableViewer viewer;
     private CommandStack commandStack;
@@ -126,17 +113,26 @@ public final class ConvenienceTableWrapper {
 
         // create viewer
         viewer = new TableViewer(table);
-
+        viewer.setContentProvider(new ContentProvider());
+        
         // create columns
         String[] columnNames = new String[columnConfigurations.length];
 
         for (int i = 0; i < columnConfigurations.length; i++) {
+            
             columnNames[i] = columnConfigurations[i].getId();
             TableViewerColumn column = new TableViewerColumn(viewer, SWT.NONE);
             column.getColumn().setText(columnConfigurations[i].getTitle());
             column.getColumn().setMoveable(false);
             column.getColumn().setWidth(columnConfigurations[i].getWidth());
-            column.setEditingSupport(new DelegatingColumnEditingSupport(viewer, i, commandStack));
+                        
+            if (columnConfigurations[i].isCheckBox()) {
+                column.setEditingSupport(new ArchivedEditingSupport(viewer, commandStack));                
+                column.setLabelProvider(new ArchivedColumnLabelProvider());
+            } else {
+                column.setEditingSupport(new DelegatingColumnEditingSupport(viewer, i, commandStack));
+                column.setLabelProvider(new LabelProvider());
+            }
         }
 
         viewer.setColumnProperties(columnNames);
@@ -171,98 +167,10 @@ public final class ConvenienceTableWrapper {
             }
         });
 
-        viewer.setContentProvider(new ContentProvider());
-        viewer.setLabelProvider(new LabelProvider());
-
         return viewer;
     }
 
-    /**
-     * Editing support implementation.
-     * 
-     * @author Sven Wende
-     */
-    static final class DelegatingColumnEditingSupport extends EditingSupport {
-
-        private TableViewer tableViewer;
-        private int columnIndex;
-        private CommandStack commandStack;
-
-        public DelegatingColumnEditingSupport(TableViewer viewer, int columnIndex, CommandStack commandStack) {
-            super(viewer);
-            assert columnIndex >= 0 : "columnIndex>=0";
-            assert commandStack != null;
-            this.columnIndex = columnIndex;
-            this.commandStack = commandStack;
-            tableViewer = viewer;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        protected boolean canEdit(Object element) {
-            ITableRow row = (ITableRow) element;
-            return row.canModify(columnIndex);
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        protected CellEditor getCellEditor(Object element) {
-            ITableRow row = (ITableRow) element;
-            CellEditor result = null;
-            if (element instanceof HierarchicalBeanPropertyTableRowAdapter) {
-                HierarchicalBeanPropertyTableRowAdapter rowAdapter = (HierarchicalBeanPropertyTableRowAdapter) row;
-                if (rowAdapter.getBeanProperty().equalsIgnoreCase("epicsName")) {
-                    IElement currentElement = rowAdapter.getDelegate();
-                    if (currentElement instanceof IRecord) {
-                        IRecord currentRecord = (IRecord) currentElement;
-                        IContainer container = currentRecord.getContainer();
-                        result = new GenericContentProposingTextCellEditor(((TableViewer) getViewer()).getTable(),
-                                container);
-                        result.getControl().setFont(row.getFont(columnIndex));
-                        Color foreGround = CustomMediaFactory.getInstance().getColor(
-                                row.getForegroundColor(columnIndex));
-                        result.getControl().setForeground(foreGround);
-                    }
-                }
-            }
-            if (result == null) {
-                result = row.getCellEditor(columnIndex, ((TableViewer) getViewer()).getTable());
-            }
-            return result;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        protected Object getValue(Object element) {
-            ITableRow row = (ITableRow) element;
-            return row.getEditingValue(columnIndex);
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        protected void setValue(Object element, Object value) {
-            ITableRow row = (ITableRow) element;
-            row.setValue(columnIndex, value, commandStack);
-            getViewer().refresh();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public ColumnViewer getViewer() {
-            return super.getViewer();
-        }
-    }
-
+  
     /**
      * Content provider implementation.
      * 
@@ -292,98 +200,5 @@ public final class ConvenienceTableWrapper {
         }
     }
 
-    /**
-     * Label provider implementation.
-     * 
-     * @author Sven Wende
-     */
-    final class LabelProvider extends ColumnLabelProvider {
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void update(final ViewerCell cell) {
-            ITableRow row = (ITableRow) cell.getElement();
-
-            int index = cell.getColumnIndex();
-
-            // set the text
-            cell.setText(getText(row, index));
-
-            // image
-            Image img = row.getImage(index);
-
-            if (img != null) {
-                cell.setImage(img);
-            }
-
-            // background color
-            RGB bgColor = row.getBackgroundColor(index);
-
-            if (bgColor != null) {
-                cell.setBackground(CustomMediaFactory.getInstance().getColor(bgColor));
-            }
-
-            // foreground color
-            RGB fgColor = row.getForegroundColor(index);
-
-            if (fgColor != null) {
-                cell.setForeground(CustomMediaFactory.getInstance().getColor(fgColor));
-            }
-
-            // font
-            Font font = row.getFont(index);
-
-            if (font != null) {
-                cell.setFont(font);
-            }
-        }
-
-        /**
-         * Returns the text to display.
-         * 
-         * @param element
-         *            the current element
-         * @param column
-         *            the current column index
-         * @return The text to display in the viewer
-         */
-        private String getText(final Object element, final int column) {
-            ITableRow row = (ITableRow) element;
-            String result = row.getDisplayValue(column);
-            return result;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public String getToolTipText(final Object element) {
-            ITableRow row = (ITableRow) element;
-            return row.getTooltip();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public Point getToolTipShift(final Object object) {
-            return new Point(5, 5);
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public int getToolTipDisplayDelayTime(final Object object) {
-            return 100;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public int getToolTipTimeDisplayed(final Object object) {
-            return 10000;
-        }
-
-    }
-
+ 
 }

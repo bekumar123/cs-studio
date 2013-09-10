@@ -99,6 +99,7 @@ public final class RecordFactory {
 		// copy field values from original
 		for (String key : original.getFields().keySet()) {
 			clone.addField(key, original.getField(key));
+			clone.setArchived(key,  original.getArchived(key));
 		}
 
 		return clone;

@@ -21,6 +21,7 @@ import org.csstudio.dct.model.internal.ProjectFactory;
 import org.csstudio.dct.model.internal.Prototype;
 import org.csstudio.dct.model.internal.Record;
 import org.csstudio.dct.model.internal.RecordFactory;
+import org.csstudio.domain.common.strings.Strings;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -126,8 +127,10 @@ public final class XmlToProject {
 
                 XmlNode xmlNode = new XmlNode(e);
 
-                // Ignore errors that are caused by missing elements from the Library. We assume
-                // that the missing elements were removed from the Library on purpose.
+                // Ignore errors that are caused by missing elements from the
+                // Library. We assume that the missing elements were removed
+                // from the Library on
+                // purpose.
                 if (xmlNode.isFromLibrary()) {
                     LOG.info("Ignoring error for " + e.getAttributeValue(XmlAttributes.ID)
                             + " because element is not present in Library.");
@@ -448,11 +451,23 @@ public final class XmlToProject {
         String disabled = xmlRecordElement.getAttributeValue("disabled", "{inherited}");
         record.setDisabled(disabled.equals("{inherited}") ? null : Boolean.valueOf(disabled));
 
+        // READ RECORD ARCHIVED
+        String recordArchived = xmlRecordElement.getAttributeValue("recordArchived", "{inherited}");
+        record.setRecordArchived(recordArchived.equals("{inherited}") ? null : Boolean.valueOf(recordArchived));
+
         // READ FIELD INFORMATION
         for (Element xmlFieldElement : (List<Element>) xmlRecordElement.getChildren("field")) {
             String name = xmlFieldElement.getAttributeValue("name");
             String value = xmlFieldElement.getAttributeValue("value");
             record.addField(name, value);
+        }
+
+        String archivedFields = xmlRecordElement.getAttributeValue("archived");
+        if (archivedFields != null) {
+            String[] archived = Strings.splitOnCommaIgnoreInQuotes(archivedFields);
+            for (String fieldName : archived) {
+                record.setArchived(fieldName, true);
+            }
         }
 
         // READ PROPERTIES

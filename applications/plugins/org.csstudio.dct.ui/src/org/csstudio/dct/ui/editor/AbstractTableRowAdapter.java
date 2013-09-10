@@ -57,6 +57,14 @@ public abstract class AbstractTableRowAdapter<E> implements ITableRow {
     }
 
     /**
+     * 
+     * @return the error  message
+     */
+    protected String getError() {
+        return this.error;
+    }
+    
+    /**
      * Returns the domain object.
      * 
      * @return the domain object
@@ -86,7 +94,7 @@ public abstract class AbstractTableRowAdapter<E> implements ITableRow {
             result = doGetValueForDisplay(delegate);
             break;
         case 2:
-            result = error;
+            result = null;
             break;
         default:
             break;

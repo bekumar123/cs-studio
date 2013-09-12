@@ -179,7 +179,10 @@ public abstract class DesyArchivePVManagerListener<V extends Serializable,
                                " which is not assignable from datatype " + actualTypeFromData + " of first received value.";
             LOG.info(msg);
             EMAIL_LOG.info(msg);
-            return false;
+            _datatype = actualTypeFromData;
+            final IArchiveEngineFacade service = provider.getEngineFacade();
+            service.writeChannelDataTypeInfo(id, actualTypeFromData);
+
         }
         return true;
     }

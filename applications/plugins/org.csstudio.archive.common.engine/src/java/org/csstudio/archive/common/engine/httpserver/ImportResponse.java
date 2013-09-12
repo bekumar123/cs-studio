@@ -59,7 +59,11 @@ public class ImportResponse extends AbstractResponse {
     protected void fillResponse(@Nonnull final HttpServletRequest req,
                                 @Nonnull final HttpServletResponse resp) throws Exception {
             final FileArchiveConfigure config = new FileArchiveConfigure(getModel());
+
+             final String s ="";
+            //Here request is the reference of HttpServletRequest.
             final List<EpicsChannelName> channelList = config.configureChannelsFromFile();
+            channelList.addAll(config.configureChannelsFromFile(req.getInputStream()));
             ImportResultResponse.setResult(channelList);
             resp.sendRedirect(new Url(ImportResultResponse.baseUrl()).url());//ShowChannelResponse.urlTo(name.toString()));
     }

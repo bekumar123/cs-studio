@@ -39,6 +39,7 @@ import org.csstudio.archive.common.service.mysqlimpl.batch.IBatchQueueHandlerPro
 import org.csstudio.archive.common.service.mysqlimpl.dao.ArchiveConnectionHandler;
 import org.csstudio.archive.common.service.mysqlimpl.dao.ArchiveDaoException;
 import org.csstudio.archive.common.service.mysqlimpl.notification.ArchiveNotifications;
+import org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleBatchQueueHandler;
 import org.csstudio.domain.desy.task.AbstractTimeMeasuredRunnable;
 import org.csstudio.domain.desy.time.StopWatch;
 import org.csstudio.domain.desy.time.StopWatch.RunningStopWatch;
@@ -102,7 +103,6 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
             t.printStackTrace();
             EMAIL_LOG.info("Unknown throwable in thread {}. See event.log for more info.", _name);
         }
-
     }
 
     @SuppressWarnings("unchecked")
@@ -112,6 +112,9 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
         final Collection<T> elements = Lists.newLinkedList();
 
         for (final BatchQueueHandlerSupport<T> handler : handlerProvider.getHandlers()) {
+            if(handler instanceof ArchiveSampleBatchQueueHandler) {
+                return;
+            }
             final BlockingQueue<T> queue = handler.getQueue();
             queue.drainTo(elements);
             if (!elements.isEmpty()) {
@@ -149,9 +152,8 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
                 while (myStmt.getConnection() == null || myStmt == null || myStmt.isClosed()) {
                     myStmt = handler.createNewStatement(_connectionHandler.getThreadLocalConnection());
                 }
-
-
                 addElementToBatchAndRescueList(handler, myStmt, element, rescueDataList);
+
                 // executeBatchAndClearListOnCondition(handler, myStmt, rescueDataList, 1000);
                 size = rescueDataList.size();
                 if (size >= 1000) {
@@ -212,6 +214,7 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
         rescueDataList.add(element);
 
         handler.applyBatch(stmt, element);
+
     }
 
     @Nonnull

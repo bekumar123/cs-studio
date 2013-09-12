@@ -79,6 +79,27 @@ abstract class AbstractResponse extends HttpServlet {
     protected EngineModel getModel() {
         return _model;
     }
+    /** {@inheritDoc} */
+    @Override
+    protected void doPost(@Nonnull final HttpServletRequest req,
+                         @Nonnull final HttpServletResponse resp)
+                         throws ServletException, IOException {
+        try {
+            if (!Strings.isNullOrEmpty(_adminParamKey)) {
+                final String parameter = req.getParameter(_adminParamKey);
+                if (!_adminParamValue.equals(parameter)) {
+                    redirectToErrorPage(resp, "This command or URL is secured by an admin key=value pair for " + _adminParamKey + "=?" +
+                                              "\nPlease ensure to add the correct admin key=value pair.");
+                    return;
+                }
+            }
+            fillResponse(req, resp);
+        } catch (final Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        }
 
     /** {@inheritDoc} */
     @Override

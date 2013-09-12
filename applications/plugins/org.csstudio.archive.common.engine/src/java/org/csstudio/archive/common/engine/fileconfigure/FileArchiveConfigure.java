@@ -11,6 +11,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.ServletInputStream;
+
 import org.csstudio.archive.common.engine.model.ArchiveChannelBuffer;
 import org.csstudio.archive.common.engine.model.EngineModel;
 import org.csstudio.archive.common.engine.model.EngineModelException;
@@ -24,7 +26,59 @@ public class FileArchiveConfigure {
     public FileArchiveConfigure(final EngineModel model) {
         _model = model;
     }
+    public List<EpicsChannelName> configureChannelsFromFile(final ServletInputStream in) {
 
+        final List<EpicsChannelName> channelList = new ArrayList<EpicsChannelName>();
+        String line;
+        String groupName = null;
+        final byte b[] = new byte[255];
+        int len;
+
+        try{
+            while((len = in.readLine(b, 0, 255))!=-1) {
+                line=new String(b,0,len);
+            if (line.startsWith("#")) {
+                continue;
+            }
+            final String[] split = line.split("\\s+");
+            if (split.length == 0) {
+                continue;
+            }
+            if (split[0] == null) {
+                continue;
+            }
+            if (split[0].equals("group") && split.length > 1) {
+                groupName = split[1];
+                continue;
+            }
+            if (groupName == null) {
+                continue;
+            }
+            try {
+                final EpicsChannelName channelName = new EpicsChannelName(split[0]);
+                channelList.add(channelName);
+                addChannel(channelName, groupName);
+                startChannel(channelName);
+            } catch (final EngineModelException e) {
+                System.out.println("add channel " + split[0] + " failed, " + e.toString());
+            } catch (final IllegalArgumentException e) {
+                System.out.println("invalid name " + e.toString());
+            }
+        }
+        Thread.sleep(2000);
+    } catch (final MalformedURLException e) {
+        e.printStackTrace();
+    } catch (final FileNotFoundException e) {
+        e.printStackTrace();
+    } catch (final IOException e) {
+        e.printStackTrace();
+    } catch (final InterruptedException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }
+
+        return channelList;
+    }
     public List<EpicsChannelName> configureChannelsFromFile() {
         final List<EpicsChannelName> channelList = new ArrayList<EpicsChannelName>();
         try {
@@ -67,15 +121,20 @@ public class FileArchiveConfigure {
             Thread.sleep(2000);
         } catch (final URISyntaxException e1) {
             e1.printStackTrace();
+            return channelList;
         } catch (final MalformedURLException e) {
             e.printStackTrace();
+            return channelList;
         } catch (final FileNotFoundException e) {
             e.printStackTrace();
+            return channelList;
         } catch (final IOException e) {
             e.printStackTrace();
+            return channelList;
         } catch (final InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+            return channelList;
         }
         return channelList;
     }

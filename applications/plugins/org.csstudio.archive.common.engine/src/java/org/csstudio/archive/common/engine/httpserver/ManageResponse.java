@@ -108,7 +108,7 @@ class ManageResponse extends AbstractResponse {
         };
         stopEngineForm(req, html);
         createAddChannelForm(req, html);
-
+    //    importChannelForm(req, html);
 
         html.close();
     }
@@ -139,11 +139,11 @@ class ManageResponse extends AbstractResponse {
            st += "<option value=\"ArrayList&lt;" +type+"&gt;\">ArrayList&lt;" +type+"&gt;</option>";
         }
         st += "</select>";
-        html.tableLine(new String[] { Messages.HTTP_CHANNEL_DATATYPE, st });
+       // html.tableLine(new String[] { Messages.HTTP_CHANNEL_DATATYPE, st });
         st = "<input type=\"text\" name=\"lopr\" size=\"" + size*1.5 + "\">";
-        html.tableLine(new String[] { Messages.HTTP_CHANNEL_DISPLAYLOW, st });
+     //   html.tableLine(new String[] { Messages.HTTP_CHANNEL_DISPLAYLOW, st });
         st = "<input type=\"text\" name=\"hopr\" size=\"" + size*1.5 + "\">";
-        html.tableLine(new String[] { Messages.HTTP_CHANNEL_DISPLAYHIGH, st });
+      //  html.tableLine(new String[] { Messages.HTTP_CHANNEL_DISPLAYHIGH, st });
         final String button = "<input type=\"submit\" value=\""+ Messages.HTTP_MANAGE_ADD_CHANNEL+"\">";
 
         html.tableLine(new String[] { "", button });
@@ -173,6 +173,27 @@ class ManageResponse extends AbstractResponse {
     }
 
 
+    private void importChannelForm(@Nonnull final HttpServletRequest req, @Nonnull final HTMLWriter html) {
+
+        String form =
+                      "<form action=\"" + ImportResponse.baseUrl()
+                              + "\" method=\"POST\" name=\"name\" enctype=\"multipart/form-data\">";
+        html.text(form);
+        html.openTable(2, new String[] { "Channels Import" });
+        final String passwordName = "<input type=\"password\" name=\"httpAdmin\" size=\"" + size*1.5 + "\">";
+        html.tableLine(new String[] { Messages.PASSWORD, passwordName });
+        final String datei = "<input type=\"file\" name=\"datei\" size=\"50\" maxlength=\"100000\" accept=\"text/config\">";
+        html.tableLine(new String[] { "W&auml;hlen Sie eine Importatei von Ihrem Rechner aus:"});
+        html.tableLine(new String[] { "", datei });
+
+        final String button = "<input type=\"submit\" value=\"Import\">";
+
+        html.tableLine(new String[] { "", button });
+        html.closeTable();
+        form = "</form>";
+        html.text(form);
+
+    }
     @Nonnull
     public static final String baseUrl() {
         return URL_BASE_PAGE;

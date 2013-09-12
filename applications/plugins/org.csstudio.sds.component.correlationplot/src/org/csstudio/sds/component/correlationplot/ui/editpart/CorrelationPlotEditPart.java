@@ -10,6 +10,7 @@ import org.csstudio.sds.component.correlationplot.model.DefaultPlotStyleProvider
 import org.csstudio.sds.component.correlationplot.model.FieldOfWork;
 import org.csstudio.sds.component.correlationplot.model.Plot;
 import org.csstudio.sds.component.correlationplot.model.PlotController;
+import org.csstudio.sds.component.correlationplot.model.PlotWarningListener;
 import org.csstudio.sds.component.correlationplot.model.Polynomial;
 import org.csstudio.sds.component.correlationplot.model.RGB;
 import org.csstudio.sds.component.correlationplot.ui.figure.CorrelationPlotFigure;
@@ -29,7 +30,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 	@Override
 	protected IFigure doCreateFigure() {
 		// get the model
-		CorrelationPlotModel model = (CorrelationPlotModel)getModel();
+		final CorrelationPlotModel model = (CorrelationPlotModel)getModel();
 		
 		// create the axis
 		xAxis = new Axis(model.getXAxisName(), model.getXAxisMinimum(), model.getXAxisMaximum());
@@ -51,6 +52,8 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 		styleProvider.setWarningTextColor(convertColorToRGB(getModelColor(CorrelationPlotModel.PROP_WARNING_TEXT_COLOR)));
 		styleProvider.setWarningTextPosition(new Coordinate2D(model.getWarningTextPositionX(), model.getWarningTextPositionY()));
 		styleProvider.setNumberOfPoints(model.getNumberOfPoints());
+		styleProvider.setBackgroundColor(convertColorToRGB(getModelColor(CorrelationPlotModel.PROP_COLOR_BACKGROUND)));
+		
 		
 		// create the figure
 		CorrelationPlotFigure figure = new CorrelationPlotFigure(xAxis, yAxis, styleProvider);
@@ -78,12 +81,38 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 		long waitTime1 = model.getWaittime1InMillis();
 		final long waitTime2 = model.getWaittime2InMillis();
 		
-		String warningTextNearBounds = model.getWarningTextNearBounds();
+		String warningTextNearUpperBound = model.getWarningTextNearUpperBound();
+		String warningTextNearLowerBound = model.getWarningTextNearLowerBound();
 		String warningTextOutOfBounds = model.getWarningTextOutOfBounds();
 		
 		plotController = new PlotController(figure,
-				polynomials, fieldOfWork, minDistance, numberOfPoints,waitTimeForSecondValue, waitTime1, waitTime2, warningTextNearBounds, warningTextOutOfBounds);
-		
+				polynomials, fieldOfWork, minDistance, numberOfPoints,waitTimeForSecondValue, waitTime1, waitTime2, warningTextNearUpperBound, warningTextNearLowerBound, warningTextOutOfBounds);
+		plotController.setWarningListener(new PlotWarningListener() {
+			@Override
+			public void onOutOfBounds() {
+				model.setPropertyValue(CorrelationPlotModel.PROP_ALARM_UPPER_BOUND, false);
+				model.setPropertyValue(CorrelationPlotModel.PROP_ALARM_LOWER_BOUND, false);
+				model.setPropertyValue(CorrelationPlotModel.PROP_ALARM_OUT_OF_BOUNDS, true);
+			}
+			@Override
+			public void onNearUpperBound() {
+				model.setPropertyValue(CorrelationPlotModel.PROP_ALARM_OUT_OF_BOUNDS, false);
+				model.setPropertyValue(CorrelationPlotModel.PROP_ALARM_LOWER_BOUND, false);
+				model.setPropertyValue(CorrelationPlotModel.PROP_ALARM_UPPER_BOUND, true);
+			}
+			@Override
+			public void onNearLowerBound() {
+				model.setPropertyValue(CorrelationPlotModel.PROP_ALARM_OUT_OF_BOUNDS, false);
+				model.setPropertyValue(CorrelationPlotModel.PROP_ALARM_UPPER_BOUND, false);
+				model.setPropertyValue(CorrelationPlotModel.PROP_ALARM_LOWER_BOUND, true);
+			}
+			@Override
+			public void onNoWarning() {
+				model.setPropertyValue(CorrelationPlotModel.PROP_ALARM_OUT_OF_BOUNDS, false);
+				model.setPropertyValue(CorrelationPlotModel.PROP_ALARM_UPPER_BOUND, false);
+				model.setPropertyValue(CorrelationPlotModel.PROP_ALARM_LOWER_BOUND, false);
+			}
+		});
 		
 		
 		// TODO remove! it is just for some first test values
@@ -351,7 +380,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			@Override
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
-				styleProvider.setBrightness((Integer)newValue);
+				styleProvider.setBrightness((Double) newValue);
 				((Plot)refreshableFigure).onUpdatetedConfiguration();
 				return true;
 			}
@@ -383,12 +412,21 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 				return true;
 			}
 		});
-		setPropertyChangeHandler(CorrelationPlotModel.PROP_WARNING_TEXT_NEAR_BOUNDS, new IWidgetPropertyChangeHandler() {
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_WARNING_TEXT_NEAR_UPPER_BOUND, new IWidgetPropertyChangeHandler() {
 			@Override
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
 				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
-				plotController.setWarningTextNearBounds(model.getWarningTextNearBounds());
+				plotController.setWarningTextNearUpperBound(model.getWarningTextNearUpperBound());
+				return true;
+			}
+		});
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_WARNING_TEXT_NEAR_LOWER_BOUND, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
+				plotController.setWarningTextNearLowerBound(model.getWarningTextNearLowerBound());
 				return true;
 			}
 		});
@@ -443,7 +481,14 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 				return true;
 			}
 		});
-		
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_COLOR_BACKGROUND, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				styleProvider.setBackgroundColor(convertColorToRGB(getModelColor(CorrelationPlotModel.PROP_COLOR_BACKGROUND)));
+				return true;
+			}
+		});
 	}
 	
 	private RGB convertColorToRGB(Color modelColor){

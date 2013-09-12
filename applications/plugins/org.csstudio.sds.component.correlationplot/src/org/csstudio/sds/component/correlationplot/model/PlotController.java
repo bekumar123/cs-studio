@@ -44,17 +44,20 @@ public class PlotController {
 
 	private State state = State.WAIT_FOR_DATA;
 	private int numberOfPoints;
-	private String warningTextNearBounds;
 	private String warningTextOutOfBounds;
+	private String warningTextNearUpperBound;
+	private String warningTextNearLowerBound;
+	private PlotWarningListener warningListener;
 
 	
 	
 	public PlotController(Plot plot,
 			List<Polynomial> polynomials, FieldOfWork fieldOfWork,
 			double minDistance, int numberOfPoints, long waitTimeForSecondValue, long waitTime1,
-			long waitTime2, String warningTextNearBounds, String warningTextOutOfBounds) {
+			long waitTime2, String warningTextNearUpperBound, String warningTextNearLowerBound, String warningTextOutOfBounds) {
 		this.plot = plot;
-		this.warningTextNearBounds = warningTextNearBounds;
+		this.warningTextNearUpperBound = warningTextNearUpperBound;
+		this.warningTextNearLowerBound = warningTextNearLowerBound;
 		this.warningTextOutOfBounds = warningTextOutOfBounds;
 		setFieldOfWork(fieldOfWork, false);
 		this.warningDistance = minDistance;
@@ -110,12 +113,20 @@ public class PlotController {
 		}
 	}
 	
-	public void setWarningTextNearBounds(String warningTextNearBounds) {
-		this.warningTextNearBounds = warningTextNearBounds;
+	public void setWarningTextNearUpperBound(String warningTextNearUpperBound) {
+		this.warningTextNearUpperBound = warningTextNearUpperBound;
+	}
+
+	public void setWarningTextNearLowerBound(String warningTextNearLowerBound) {
+		this.warningTextNearLowerBound = warningTextNearLowerBound;
 	}
 	
 	public void setWarningTextOutOfBounds(String warningTextOutOfBounds) {
 		this.warningTextOutOfBounds = warningTextOutOfBounds;
+	}
+	
+	public void setWarningListener(PlotWarningListener warningListener) {
+		this.warningListener = warningListener;
 	}
 	
 	public void handleXValue(double xValue) {
@@ -169,12 +180,25 @@ public class PlotController {
 		if(!fieldOfWork.containsPoint(point)) {
 			plot.setWarning(warningTextOutOfBounds);
 			point.setAlarm(true);
+			if (warningListener != null) {
+				warningListener.onOutOfBounds();
+			}
 		} else {
-			if (calculateMinDistance(point, fieldOfWork.getUpperLine()) < this.warningDistance || calculateMinDistance(point, fieldOfWork.getLowerLine()) < this.warningDistance) {
-				plot.setWarning(warningTextNearBounds);
+			if (calculateMinDistance(point, fieldOfWork.getUpperLine()) < this.warningDistance) {
+				plot.setWarning(warningTextNearUpperBound);
 				point.setAlarm(true);
+				if (warningListener != null) {
+					warningListener.onNearUpperBound();
+				}
+			} else if (calculateMinDistance(point, fieldOfWork.getLowerLine()) < this.warningDistance) {
+				plot.setWarning(warningTextNearLowerBound);
+				point.setAlarm(true);
+				if (warningListener != null) {
+					warningListener.onNearLowerBound();
+				}
 			} else {
 				plot.setWarning("");
+				warningListener.onNoWarning();
 			}
 		}
 		

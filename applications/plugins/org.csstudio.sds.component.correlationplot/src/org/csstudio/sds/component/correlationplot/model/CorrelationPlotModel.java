@@ -41,7 +41,8 @@ public class CorrelationPlotModel extends AbstractWidgetModel {
 	public static final String PROP_WAITTIME_1 = "waittime1"; //$NON-NLS-1$
 	public static final String PROP_WAITTIME_2 = "waittime2"; //$NON-NLS-1$
 	public static final String PROP_WARNING_DISTANCE = "warning_distance"; //$NON-NLS-1$
-	public static final String PROP_WARNING_TEXT_NEAR_BOUNDS = "warning_text_near_bounds";
+	public static final String PROP_WARNING_TEXT_NEAR_UPPER_BOUND = "warning_text_near_upper_bound";
+	public static final String PROP_WARNING_TEXT_NEAR_LOWER_BOUND = "warning_text_near_lower_bound";
 	public static final String PROP_WARNING_TEXT_OUT_OF_BOUNDS = "warning_text_out_of_bounds";
 	public static final String PROP_WARNING_TEXT_COLOR = "warning_text_color";
 	public static final String PROP_WARNING_TEXT_FONT = "warning_text_font";
@@ -49,6 +50,9 @@ public class CorrelationPlotModel extends AbstractWidgetModel {
 	public static final String PROP_WARNING_TEXT_Y_POS = "warning_text_y_pos";
 	public static final String PROP_X_VALUE = "x_value";
 	public static final String PROP_Y_VALUE = "y_value";
+	public static final String PROP_ALARM_UPPER_BOUND = "alarm_upper_bound";
+	public static final String PROP_ALARM_LOWER_BOUND = "alarm_lower_bound";
+	public static final String PROP_ALARM_OUT_OF_BOUNDS = "alarm_out_of_bounds";
 
 	@Override
 	protected void configureProperties() {
@@ -98,7 +102,7 @@ public class CorrelationPlotModel extends AbstractWidgetModel {
 		// Durchmesser eines Punktes
 		addIntegerProperty(PROP_POINT_SIZE, "Point size", WidgetPropertyCategory.MISC, 3, 1, 20, false);
 		// Helligkeitswert für den letzten Punkt
-		addIntegerProperty(PROP_POINT_BRIGHTNESS, "Last point brightness", WidgetPropertyCategory.MISC, 200, 0, 255, false);
+		addDoubleProperty(PROP_POINT_BRIGHTNESS, "Second point brightness", WidgetPropertyCategory.MISC, 0.4, 0.0, 1.0, false);
 		// Wartezeit 1 und Wartezeit 2 (größer als W1)
 		addIntegerProperty(PROP_WAITTIME_1, "Waittime 1", WidgetPropertyCategory.MISC, 5, 1, 1000, false);
 		addIntegerProperty(PROP_WAITTIME_2, "Waittime 2", WidgetPropertyCategory.MISC, 60, 2, 1000, false);
@@ -107,12 +111,18 @@ public class CorrelationPlotModel extends AbstractWidgetModel {
 		addDoubleProperty(PROP_WARNING_DISTANCE, "Warning distance", WidgetPropertyCategory.MISC, 0.2, 0, Double.MAX_VALUE, false);
 		
 		// Warnungstext... Position, Information...
-		addStringProperty(PROP_WARNING_TEXT_NEAR_BOUNDS, "Warning text near bounds", WidgetPropertyCategory.MISC, "Punkt naehert sich Grenze", false);
+		addStringProperty(PROP_WARNING_TEXT_NEAR_UPPER_BOUND, "Warning text near upper bound", WidgetPropertyCategory.MISC, "Punkt naehert sich oberer Grenze", false);
+		addStringProperty(PROP_WARNING_TEXT_NEAR_LOWER_BOUND, "Warning text near lower bound", WidgetPropertyCategory.MISC, "Punkt naehert sich unterer Grenze", false);
 		addStringProperty(PROP_WARNING_TEXT_OUT_OF_BOUNDS, "Warning text out of bounds", WidgetPropertyCategory.MISC, "Punkt ausserhalb des Arbeitsfelds", false);
 		addColorProperty(PROP_WARNING_TEXT_COLOR, "Warning text color", WidgetPropertyCategory.MISC, "#ff0000", false);
 		addFontProperty(PROP_WARNING_TEXT_FONT, "Warning text font", WidgetPropertyCategory.MISC, "", false);
 		addIntegerProperty(PROP_WARNING_TEXT_X_POS, "Warning text position x", WidgetPropertyCategory.MISC, 50, false);
 		addIntegerProperty(PROP_WARNING_TEXT_Y_POS, "Warning text position y", WidgetPropertyCategory.MISC, 50, false);
+		
+		// Warning output boolean
+		addBooleanProperty(PROP_ALARM_UPPER_BOUND, "true if values near upper bound", WidgetPropertyCategory.MISC, false, false);
+		addBooleanProperty(PROP_ALARM_LOWER_BOUND, "true if values near lower bound", WidgetPropertyCategory.MISC, false, false);
+		addBooleanProperty(PROP_ALARM_OUT_OF_BOUNDS, "true if values out of bounds", WidgetPropertyCategory.MISC, false, false);
 	}
 
 	public final String getXAxisName() {
@@ -221,8 +231,8 @@ public class CorrelationPlotModel extends AbstractWidgetModel {
 		return getIntegerProperty(PROP_POINT_SIZE);
 	}
 	
-	public final int getPointBrightness() {
-		return getIntegerProperty(PROP_POINT_BRIGHTNESS);
+	public final double getPointBrightness() {
+		return getDoubleProperty(PROP_POINT_BRIGHTNESS);
 	}
 	
 	public final long getWaittime1InMillis() {
@@ -237,8 +247,12 @@ public class CorrelationPlotModel extends AbstractWidgetModel {
 		return getDoubleProperty(PROP_WARNING_DISTANCE);
 	}
 	
-	public final String getWarningTextNearBounds() {
-		return getStringProperty(PROP_WARNING_TEXT_NEAR_BOUNDS);
+	public final String getWarningTextNearUpperBound() {
+		return getStringProperty(PROP_WARNING_TEXT_NEAR_UPPER_BOUND);
+	}
+	
+	public final String getWarningTextNearLowerBound() {
+		return getStringProperty(PROP_WARNING_TEXT_NEAR_LOWER_BOUND);
 	}
 	
 	public final String getWarningTextOutOfBounds() {

@@ -20,4 +20,9 @@ public class CsPvData<T> {
 		return _characteristics;
 	}
 	
+	@Override
+	public String toString() {
+		return "CsPvData [value:" + _value + ", " + _characteristics + "]";
+	}
+	
 }

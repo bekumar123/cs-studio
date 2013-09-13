@@ -40,5 +40,10 @@ public class EnumType {
 			return false;
 		return _value == ((EnumType) obj)._value;
 	}
+	
+	@Override
+	public String toString() {
+		return "EnumType [" + _value + ":" + _name + "]";
+	}
 
 }

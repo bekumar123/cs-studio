@@ -5,6 +5,7 @@ import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.dbr.DBR_Int;
+import gov.aps.jca.dbr.DBR_LABELS_Enum;
 import gov.aps.jca.dbr.DBR_String;
 
 import java.nio.channels.IllegalSelectorException;
@@ -13,6 +14,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.csstudio.dal2.dv.EnumType;
 import org.csstudio.dal2.dv.Type;
 import org.csstudio.domain.desy.epics.alarm.EpicsAlarmSeverity;
 import org.slf4j.Logger;
@@ -95,7 +97,8 @@ public abstract class TypeMapper<T> {
 				return dbrString.getStringValue()[0];
 			}
 		});
-		registerMapper(new TypeMapper<String[]>(Type.STRING_SEQ, DBRType.STRING, false) {
+		registerMapper(new TypeMapper<String[]>(Type.STRING_SEQ,
+				DBRType.STRING, false) {
 			@Override
 			public String[] mapValue(DBR dbrValue) {
 				DBR_String dbrString = (DBR_String) dbrValue;
@@ -110,6 +113,15 @@ public abstract class TypeMapper<T> {
 				short enumValue = dbrEnum.getEnumValue()[0];
 				return EpicsAlarmSeverity.valueOf(gov.aps.jca.dbr.Severity
 						.forValue(enumValue));
+			}
+		});
+		registerMapper(new TypeMapper<EnumType>(Type.ENUM, DBRType.ENUM, true) {
+			@Override
+			public EnumType mapValue(DBR dbrValue) {
+				DBR_LABELS_Enum dbrEnum = (DBR_LABELS_Enum) dbrValue;
+				short enumValue = dbrEnum.getEnumValue()[0];
+				String name = dbrEnum.getLabels()[enumValue];
+				return EnumType.valueOf(name, enumValue);
 			}
 		});
 
@@ -222,10 +234,17 @@ public abstract class TypeMapper<T> {
 	}
 
 	/**
-	 * Provide a corresponding DBR control type
+	 * Provide a corresponding DBR control type, if such an type is available.
+	 * Otherwise the "best known" type is provided.
 	 */
 	public DBRType getDBRCtrlType() {
-		return DBRType.forValue(_dbrType.getValue() + CTRL_TYPE_OFFSET);
+
+		if (_dbrType.isENUM()) {
+			// No CTRL type available for enum. Use best known.
+			return DBRType.LABELS_ENUM;
+		} else {
+			return DBRType.forValue(_dbrType.getValue() + CTRL_TYPE_OFFSET);
+		}
 	}
 
 	/**

@@ -1,5 +1,6 @@
 package org.csstudio.dal2.epics.service;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -14,7 +15,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.List;
 
+import org.csstudio.dal2.dv.Characteristic;
+import org.csstudio.dal2.dv.EnumType;
 import org.csstudio.dal2.dv.ListenerType;
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
@@ -31,6 +35,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 public class EpicsPVAccessTest {
 
@@ -227,6 +232,57 @@ public class EpicsPVAccessTest {
 		stopSoftIoc();
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test(timeout = 7000)
+	public void testAsyncGetEnumValue() throws Exception {
+		startUpSoftIoc();
+
+		PvAddress address = PvAddress.getValue("TestDal:STATE_mbbi");
+
+		// retrieve as long
+		{
+			EpicsPvAccess<Long> pva = new EpicsPvAccess<Long>(_jcaContext,
+					address, Type.LONG);
+
+			ICsResponseListener<CsPvData<Long>> callback = mock(ICsResponseListener.class);
+			pva.getValue(callback);
+
+			ArgumentCaptor<CsPvData> captor = ArgumentCaptor
+					.forClass(CsPvData.class);
+			verify(callback, timeout(100)).onSuccess(captor.capture());
+			CsPvData csPvData = captor.getValue();
+
+			assertEquals(4L, csPvData.getValue());
+		}
+
+		// retrieve as enum
+		{
+			EpicsPvAccess<EnumType> pva = new EpicsPvAccess<EnumType>(
+					_jcaContext, address, Type.ENUM);
+
+			ICsResponseListener<CsPvData<EnumType>> callback = mock(ICsResponseListener.class);
+			pva.getValue(callback);
+
+			ArgumentCaptor<CsPvData> captor = ArgumentCaptor
+					.forClass(CsPvData.class);
+			verify(callback, timeout(100)).onSuccess(captor.capture());
+			CsPvData<EnumType> csPvData = captor.getValue();
+
+			assertEquals(4, csPvData.getValue().getValue());
+			assertEquals("laeuft", csPvData.getValue().getName());
+
+			List<String> expectedLabels = Arrays.asList("", "gestoppt",
+					"bereit", "startbereit", "laeuft", "auto geregelt",
+					"man drosseln", "man oeffnen", "soft Stop", "hard Stop",
+					"Hand", "Auto-Start", "Druck abbauen", "mit CV400 abbauen",
+					"mit CV408 abbauen");
+			assertEquals(expectedLabels, Arrays.asList(csPvData.getCharacteristics()
+					.get(Characteristic.LABELS)));
+		}
+
+		stopSoftIoc();
+	}
+
 	@Test
 	public void testSeverityType() throws Exception {
 		startUpSoftIoc();
@@ -284,20 +340,21 @@ public class EpicsPVAccessTest {
 
 		{
 			ICsResponseListener<Type<?>> callback = mock(ICsResponseListener.class);
-			ICsOperationHandle operationHandle = factory.requestNativeType(PvAddress.getValue("TestDal:NotExisting"),
-					callback);
+			ICsOperationHandle operationHandle = factory.requestNativeType(
+					PvAddress.getValue("TestDal:NotExisting"), callback);
 			Thread.sleep(50);
 			verify(callback, times(0)).onFailure(any(Throwable.class));
 			verify(callback, times(0)).onSuccess(any(Type.class));
-			
+
 			operationHandle.cancel();
 		}
-		
+
 		stopSoftIoc();
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	@Test @Ignore
+	@Test
+	@Ignore
 	public void testGetFieldTypeForCharacteristic() throws Exception {
 		startUpSoftIoc();
 
@@ -305,13 +362,13 @@ public class EpicsPVAccessTest {
 
 		{
 			ICsResponseListener<Type<?>> callback = mock(ICsResponseListener.class);
-			factory.requestNativeType(PvAddress.getValue("TestDal:ConstantPV.HSV"),
-					callback);
+			factory.requestNativeType(
+					PvAddress.getValue("TestDal:ConstantPV.HSV"), callback);
 			Thread.sleep(50);
 			verify(callback, times(0)).onFailure(any(Throwable.class));
 			verify(callback, timeout(100)).onSuccess(eq(Type.SEVERITY));
 		}
-		
+
 		stopSoftIoc();
 	}
 

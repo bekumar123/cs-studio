@@ -17,10 +17,12 @@ import org.csstudio.dal2.service.cs.ICsOperationHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractChannelOperator implements ConnectionListener, ICsOperationHandle {
+public abstract class AbstractChannelOperator implements ConnectionListener,
+		ICsOperationHandle {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractChannelOperator.class);
-	
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(AbstractChannelOperator.class);
+
 	private static final Executor EXECUTOR = Executors
 			.newSingleThreadExecutor();
 
@@ -58,14 +60,23 @@ public abstract class AbstractChannelOperator implements ConnectionListener, ICs
 		Runnable handler = new Runnable() {
 			@Override
 			public void run() {
-				synchronized (AbstractChannelOperator.this) {
-					onConnectionChanged(ev);
 
-					if (_channel.getConnectionState() == ConnectionState.CONNECTED
-							&& !_onceConnected.getAndSet(true)) {
-						onFirstConnect(ev);
-						AbstractChannelOperator.this.notifyAll();
+				try {
+
+					synchronized (AbstractChannelOperator.this) {
+						onConnectionChanged(ev);
+
+						if (_channel.getConnectionState() == ConnectionState.CONNECTED
+								&& !_onceConnected.getAndSet(true)) {
+							onFirstConnect(ev);
+							AbstractChannelOperator.this.notifyAll();
+						}
 					}
+
+				} catch (Throwable t) {
+					LOGGER.error(
+							"Error handling connection changed event for pv {}",
+							_address.getAddress(), t);
 				}
 			}
 		};
@@ -101,7 +112,7 @@ public abstract class AbstractChannelOperator implements ConnectionListener, ICs
 	public void dispose() {
 
 		onDispose();
-		
+
 		try {
 			_channel.removeConnectionListener(this);
 		} catch (Exception e) {
@@ -114,7 +125,7 @@ public abstract class AbstractChannelOperator implements ConnectionListener, ICs
 			LOGGER.warn("Error destroying channel.", e);
 		}
 	}
-	
+
 	@Override
 	public void cancel() {
 		dispose();
@@ -128,7 +139,7 @@ public abstract class AbstractChannelOperator implements ConnectionListener, ICs
 	protected void onDispose() {
 		// Override to implement
 	}
-	
+
 	protected final Context getContext() {
 		return _context;
 	}
@@ -136,7 +147,7 @@ public abstract class AbstractChannelOperator implements ConnectionListener, ICs
 	protected final Channel getChannel() {
 		return _channel;
 	}
-	
+
 	public PvAddress getAddress() {
 		return _address;
 	}

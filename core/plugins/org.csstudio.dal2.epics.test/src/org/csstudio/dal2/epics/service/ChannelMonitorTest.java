@@ -1,4 +1,4 @@
-package org.csstudio.dal2.epics.service.test;
+package org.csstudio.dal2.epics.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;

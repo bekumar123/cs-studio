@@ -26,23 +26,41 @@ public class DBGenerator {
 
 	public static void main(String[] args) throws Exception {
 
-		int numberOfPVs = 20000;
+		int numberOfPVs = 5000;
 
-		File file = new File("PVs_" + numberOfPVs + ".db");
-		PrintWriter writer = new PrintWriter(new FileOutputStream(file));
+		{
+			File file = new File("PVs_" + numberOfPVs + ".db");
+			PrintWriter writer = new PrintWriter(new FileOutputStream(file));
+			for (int i = 0; i < numberOfPVs; i++) {
 
-		for (int i = 0; i < numberOfPVs; i++) {
+				int max = (int) (Math.random() * 1000);
+				int value = (int) (max * Math.random());
 
-			int max = (int) (Math.random() * 1000);
-			int value = (int) (max * Math.random());
+				String record = createRecord(i, value, max);
 
-			String record = createRecord(i, value, max);
-
-			writer.println(record);
-//			System.out.println(record);
+				writer.println(record);
+				// System.out.println(record);
+			}
+			writer.close();
 		}
 
-		writer.close();
+		{
+			File file = new File("dal2jmsConfigFragment_" + numberOfPVs + ".txt");
+			PrintWriter writer = new PrintWriter(new FileOutputStream(file));
+			int k= 0;
+			for (int i = 0; i < numberOfPVs; i++) {
+				writer.println("<eren name=\"Test:Ramp_calc_" + i + "\"/>");
+				
+				for (int j = 0; j < 8; j++) {
+					if (Math.random() > 0.85) {
+						writer.println("<eren name=\"Test:Invalid_" + (k++) + "\"/>");
+					}
+				}
+			}
+			writer.close();
+			
+			System.out.println("created " + k  + " invalid pvs");
+		}
 	}
 
 }

@@ -1,8 +1,11 @@
 package org.csstudio.ams.performancetesttool;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Enumeration;
@@ -59,9 +62,22 @@ public class MapMessageTemplate {
     private Map<String, String> constantValues;
     
     public MapMessageTemplate(File templateFile) {
-        Properties properties = new Properties();
         try {
-            properties.load(new FileReader(templateFile));
+			init(new FileReader(templateFile));
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException("Couldn't load message template file: " + templateFile
+                    + "; Exception: " + e.getMessage());
+		}
+    }
+
+    public MapMessageTemplate(String text) {
+    	init(new StringReader(text));
+    }
+
+	private void init(Reader reader) {
+		Properties properties = new Properties();
+        try {
+            properties.load(reader);
             template = new HashMap<String, TemplateValue>();
             constantValues = new HashMap<String, String>();
             Enumeration<Object> keys = properties.keys();
@@ -75,12 +91,12 @@ public class MapMessageTemplate {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException("Couldn't load message template file: " + templateFile
+            throw new RuntimeException("Couldn't load message from reader: " + reader
                     + "; Exception: " + e.getMessage());
         }
-    }
-    
-    private TemplateValue propertyToTemplateValue(String propertyValue) {
+	}
+
+	private TemplateValue propertyToTemplateValue(String propertyValue) {
         int indexOfColon = propertyValue.indexOf(":");
         if (indexOfColon == -1) {
             throw new RuntimeException("Template contains invalid variable: " + propertyValue);

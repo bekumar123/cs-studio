@@ -29,18 +29,17 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.List;
+
 import org.csstudio.domain.common.statistic.Collector;
 import org.csstudio.headless.common.util.ApplicationInfo;
 import org.csstudio.headless.common.util.StandardStreams;
 import org.csstudio.headless.common.xmpp.XmppCredentials;
-import org.csstudio.headless.common.xmpp.XmppSessionException;
 import org.csstudio.headless.common.xmpp.XmppSessionHandler;
 import org.csstudio.nams.application.department.decision.management.InfoCmd;
 import org.csstudio.nams.application.department.decision.management.Restart;
 import org.csstudio.nams.application.department.decision.management.Stop;
 import org.csstudio.nams.application.department.decision.office.decision.AlarmEntscheidungsBuero;
 import org.csstudio.nams.application.department.decision.remote.RemotelyStoppable;
-import org.csstudio.nams.application.department.decision.simplefilter.SimpleFilterWorker;
 import org.csstudio.nams.common.IRemotelyAccesible;
 import org.csstudio.nams.common.activatorUtils.AbstractBundleActivator;
 import org.csstudio.nams.common.activatorUtils.OSGiBundleActivationMethod;
@@ -52,8 +51,8 @@ import org.csstudio.nams.common.decision.StandardAblagekorb;
 import org.csstudio.nams.common.decision.Vorgangsmappe;
 import org.csstudio.nams.common.decision.Vorgangsmappenkennung;
 import org.csstudio.nams.common.material.SyncronisationsBestaetigungSystemNachricht;
-import org.csstudio.nams.common.material.regelwerk.Regelwerk;
 import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
+import org.csstudio.nams.common.material.regelwerk.yaams.NewRegelwerk;
 import org.csstudio.nams.common.service.ExecutionService;
 import org.csstudio.nams.common.service.StepByStepProcessor;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.ConfigurationServiceFactory;
@@ -133,30 +132,22 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                 }
                 DecisionDepartmentActivator.logger.logDebugMessage(this,
                         "gesamtErgebnis: "
-                                + vorgangsmappe.gibPruefliste()
-                                        .gesamtErgebnis());
+                                + vorgangsmappe.getWeiteresVersandVorgehen());
 
-                if (vorgangsmappe.gibPruefliste().gesamtErgebnis() == WeiteresVersandVorgehen.VERSENDEN) {
-                    // Nachricht nicht anreichern. Wird im JMSProducer
-                    // gemacht
-                    // Versenden
+                if (vorgangsmappe.getWeiteresVersandVorgehen() == WeiteresVersandVorgehen.VERSENDEN) {
+                    // Nachricht nicht anreichern. Wird im JMSProducer gemacht 
+                	// Versenden
                     DecisionDepartmentActivator.logger
-                            .logInfoMessage(
-                                    this,
-                                    "decission office ordered message to be send: \""
-                                            + vorgangsmappe
-                                                    .gibAusloesendeAlarmNachrichtDiesesVorganges()
-                                                    .toString()
+                            .logInfoMessage(this, "decission office ordered message to be send: \""
+                                            + vorgangsmappe.getAlarmNachricht().toString()
                                             + "\" [internal process id: "
-                                            + vorgangsmappe.gibMappenkennung()
-                                                    .toString() + "]");
-                    DecisionDepartmentActivator.this.amsAusgangsProducer
-                            .sendeVorgangsmappe(vorgangsmappe);
+                                            + vorgangsmappe.gibMappenkennung().toString() + "]");
+                    
+                    DecisionDepartmentActivator.this.amsAusgangsProducer.sendeVorgangsmappe(vorgangsmappe);
                 }
 
             } catch (final InterruptedException e) {
-                // wird zum stoppen benötigt.
-                // hier muss nichts unternommen werden
+                // wird zum stoppen benötigt. hier muss nichts unternommen werden
             }
         }
     }
@@ -344,8 +335,6 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
      */
     private static boolean _hasReceivedSynchronizationRequest;
 
-	private SimpleFilterWorker simpleFilterWorker;
-
     /**
      * Starts the bundle application instance. Second Step.
      *
@@ -399,11 +388,11 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
         XmppCredentials credentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
         xmppService = new XmppSessionHandler(bundleContext, credentials);
         InfoCmd.staticInject(this);
-        try {
-            xmppService.connect();
-        } catch (XmppSessionException e) {
-            DecisionDepartmentActivator.logger.logWarningMessage(this, e.getMessage());
-        }
+//        try {
+//            xmppService.connect();
+//        } catch (XmppSessionException e) {
+//            DecisionDepartmentActivator.logger.logWarningMessage(this, e.getMessage());
+//        }
 
         configureExecutionService();
         createMessagingConsumer();
@@ -470,9 +459,9 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
             if (this._continueWorking) {
                 createDecisionOffice();
             }
-            if (this._continueWorking) {
-            	createSimpleFilterWorker();
-            }
+//            if (this._continueWorking) {
+//            	createSimpleFilterWorker();
+//            }
 
             if (this._continueWorking) {
                 performNormalWork();
@@ -581,12 +570,12 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                     .logInfoMessage(this,
                             "Decision department application is creating decision office...");
 
-            final List<Regelwerk> alleRegelwerke = DecisionDepartmentActivator.regelwerkBuilderService
-                    .gibKomplexeRegelwerke();
+            final List<NewRegelwerk> alleRegelwerke = DecisionDepartmentActivator.regelwerkBuilderService
+                    .gibAlleRegelwerke();
 
             DecisionDepartmentActivator.logger.logDebugMessage(this,
                     "alleRegelwerke size: " + alleRegelwerke.size());
-            for (final Regelwerk regelwerk : alleRegelwerke) {
+            for (final NewRegelwerk regelwerk : alleRegelwerke) {
                 DecisionDepartmentActivator.logger.logDebugMessage(this,
                         regelwerk.toString());
             }
@@ -600,7 +589,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
             this._alarmEntscheidungsBuero = new AlarmEntscheidungsBuero(
                     DecisionDepartmentActivator.executionService,
                     alleRegelwerke
-                            .toArray(new Regelwerk[alleRegelwerke.size()]),
+                            .toArray(new NewRegelwerk[alleRegelwerke.size()]),
                     this.eingangskorbDesDecisionOffice,
                     this.ausgangskorbDesDecisionOfficeUndEingangskorbDesPostOffice,
                     threadCount);
@@ -614,20 +603,20 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
         }
     }
 
-	private void createSimpleFilterWorker() {
-		try {
-			simpleFilterWorker = new SimpleFilterWorker(localStoreConfigurationService
-					.getEntireFilterConfiguration().gibAlleFilter(),
-					ausgangskorbDesDecisionOfficeUndEingangskorbDesPostOffice, DecisionDepartmentActivator.logger);
-		} catch (final Throwable e) {
-			DecisionDepartmentActivator.logger
-					.logFatalMessage(
-							this,
-							"Exception while initializing the alarm decision department.",
-							e);
-			this._continueWorking = false;
-		}
-	}
+//	private void createSimpleFilterWorker() {
+//		try {
+//			simpleFilterWorker = new SimpleFilterWorker(localStoreConfigurationService
+//					.getEntireFilterConfiguration().gibAlleFilter(),
+//					ausgangskorbDesDecisionOfficeUndEingangskorbDesPostOffice, DecisionDepartmentActivator.logger);
+//		} catch (final Throwable e) {
+//			DecisionDepartmentActivator.logger
+//					.logFatalMessage(
+//							this,
+//							"Exception while initializing the alarm decision department.",
+//							e);
+//			this._continueWorking = false;
+//		}
+//	}
 
 	private void createMessagingProducer() {
         try {
@@ -940,7 +929,6 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                                     Vorgangsmappenkennung.createNew(
                                     InetAddress.getLocalHost(),
                                     new Date()), message.alsAlarmnachricht()));
-                            simpleFilterWorker.bearbeiteAlarmnachricht(message.alsAlarmnachricht());
                         } catch (final UnknownHostException e) {
                             DecisionDepartmentActivator.logger.logFatalMessage(
                                     this, "Host unreachable", e);
@@ -992,22 +980,22 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
             }
 
             // Check XMPP connection
-            if (xmppService.isConnected()) {
-                DecisionDepartmentActivator
-                .logger
-                       .logDebugMessage(this, "XMPP connection is working.");
-            } else {
-                DecisionDepartmentActivator
-                           .logger
-                                  .logWarningMessage(this, "XMPP connection is broken! Try to re-connect.");
-                try {
-                    xmppService.reconnect();
-                } catch (XmppSessionException e) {
-                    DecisionDepartmentActivator
-                           .logger
-                                  .logWarningMessage(this, "Cannot re-connect to the XMPP server.");
-                }
-            }
+//            if (xmppService.isConnected()) {
+//                DecisionDepartmentActivator
+//                .logger
+//                       .logDebugMessage(this, "XMPP connection is working.");
+//            } else {
+//                DecisionDepartmentActivator
+//                           .logger
+//                                  .logWarningMessage(this, "XMPP connection is broken! Try to re-connect.");
+//                try {
+//                    xmppService.reconnect();
+//                } catch (XmppSessionException e) {
+//                    DecisionDepartmentActivator
+//                           .logger
+//                                  .logWarningMessage(this, "Cannot re-connect to the XMPP server.");
+//                }
+//            }
         }
 
         consumersConsumer.close();

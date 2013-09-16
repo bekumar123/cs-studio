@@ -43,6 +43,7 @@ import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.fil
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.JunctorConditionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.NegationCondForFilterTreeDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.ProcessVarFiltCondDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.PropertyCompareFilterConditionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.StrgArFiltCondCompValDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.StringArFilterConditionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.StringFilterConditionDTO;
@@ -276,6 +277,7 @@ public class ConfigurationServiceFactoryImpl implements
 
 				.addAnnotatedClass(JunctorConditionDTO.class)
 				.addAnnotatedClass(StringFilterConditionDTO.class)
+				.addAnnotatedClass(PropertyCompareFilterConditionDTO.class)
 				.addAnnotatedClass(StringArFilterConditionDTO.class)
 
 				.addAnnotatedClass(StrgArFiltCondCompValDTO.class)

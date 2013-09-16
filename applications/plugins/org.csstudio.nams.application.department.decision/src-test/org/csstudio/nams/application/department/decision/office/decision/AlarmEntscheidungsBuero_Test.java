@@ -235,7 +235,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 				.entnehmeAeltestenEingang();
 
 		Assert.assertEquals(alarmNachricht, aelteste
-				.gibAusloesendeAlarmNachrichtDiesesVorganges());
+				.getAlarmNachricht());
 		Assert
 				.assertTrue(aelteste.gibPruefliste().gesamtErgebnis() == WeiteresVersandVorgehen.VERSENDEN);
 		Assert
@@ -245,7 +245,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 		aelteste = alarmVorgangAusgangskorb.entnehmeAeltestenEingang();
 
 		Assert.assertEquals(alarmNachricht, aelteste
-				.gibAusloesendeAlarmNachrichtDiesesVorganges());
+				.getAlarmNachricht());
 		Assert
 				.assertTrue(aelteste.gibPruefliste().gesamtErgebnis() == WeiteresVersandVorgehen.NICHT_VERSENDEN);
 		Assert
@@ -257,7 +257,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 		aelteste = alarmVorgangAusgangskorb.entnehmeAeltestenEingang();
 
 		Assert.assertEquals(alarmNachricht, aelteste
-				.gibAusloesendeAlarmNachrichtDiesesVorganges());
+				.getAlarmNachricht());
 		Assert
 				.assertTrue(aelteste.gibPruefliste().gesamtErgebnis() == WeiteresVersandVorgehen.VERSENDEN);
 		Assert
@@ -332,7 +332,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 
 		Assert.assertNotNull(aelteste);
 		Assert.assertEquals("XXO", aelteste
-				.gibAusloesendeAlarmNachrichtDiesesVorganges()
+				.getAlarmNachricht()
 				.gibNachrichtenText());
 		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aelteste
 				.gibPruefliste().gesamtErgebnis());
@@ -342,7 +342,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 
 		Assert.assertNotNull(aelteste);
 		Assert.assertEquals("Baeh!", aelteste
-				.gibAusloesendeAlarmNachrichtDiesesVorganges()
+				.getAlarmNachricht()
 				.gibNachrichtenText());
 		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aelteste
 				.gibPruefliste().gesamtErgebnis());
@@ -353,7 +353,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 
 		Assert.assertNotNull(vorgangsmappe5);
 		Assert.assertEquals("Ausloeser", vorgangsmappe5
-				.gibAusloesendeAlarmNachrichtDiesesVorganges()
+				.getAlarmNachricht()
 				.gibNachrichtenText());
 		Assert.assertEquals(WeiteresVersandVorgehen.VERSENDEN, vorgangsmappe5
 				.gibPruefliste().gesamtErgebnis());
@@ -367,7 +367,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 
 		Assert.assertNotNull(aelteste);
 		Assert.assertEquals("Bestaetigung", aelteste
-				.gibAusloesendeAlarmNachrichtDiesesVorganges()
+				.getAlarmNachricht()
 				.gibNachrichtenText());
 		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aelteste
 				.gibPruefliste().gesamtErgebnis());
@@ -426,7 +426,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 
 		Assert.assertNotNull(aelteste);
 		Assert.assertEquals("Hallo", aelteste
-				.gibAusloesendeAlarmNachrichtDiesesVorganges()
+				.getAlarmNachricht()
 				.gibNachrichtenText());
 		Assert.assertEquals(WeiteresVersandVorgehen.VERSENDEN, aelteste
 				.gibPruefliste().gesamtErgebnis());
@@ -436,7 +436,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 
 		Assert.assertNotNull(aelteste);
 		Assert.assertEquals("Tach", aelteste
-				.gibAusloesendeAlarmNachrichtDiesesVorganges()
+				.getAlarmNachricht()
 				.gibNachrichtenText());
 		Assert.assertEquals(WeiteresVersandVorgehen.VERSENDEN, aelteste
 				.gibPruefliste().gesamtErgebnis());
@@ -446,7 +446,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 
 		Assert.assertNotNull(aelteste);
 		Assert.assertEquals("Moin!", aelteste
-				.gibAusloesendeAlarmNachrichtDiesesVorganges()
+				.getAlarmNachricht()
 				.gibNachrichtenText());
 		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aelteste
 				.gibPruefliste().gesamtErgebnis());

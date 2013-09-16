@@ -19,6 +19,7 @@ import org.csstudio.nams.configurator.beans.IConfigurationBean;
 import org.csstudio.nams.configurator.beans.filters.FilterConditionAddOnBean;
 import org.csstudio.nams.configurator.beans.filters.JunctorConditionBean;
 import org.csstudio.nams.configurator.beans.filters.PVFilterConditionBean;
+import org.csstudio.nams.configurator.beans.filters.PropertyCompareConditionBean;
 import org.csstudio.nams.configurator.beans.filters.StringArrayFilterConditionBean;
 import org.csstudio.nams.configurator.beans.filters.StringFilterConditionBean;
 import org.csstudio.nams.configurator.beans.filters.TimeBasedFilterConditionBean;
@@ -102,11 +103,12 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
 	}
 
 	public enum SupportedFilterTypes {
-		JUNCTOR_CONDITION(Messages.FilterbedingungEditor_supported_filter_types_or_condition, JunctorConditionBean.class), STRING_CONDITION(
-				Messages.FilterbedingungEditor_supported_filter_types_string_condition, StringFilterConditionBean.class), STRING_ARRAY_CONDITION(
-				Messages.FilterbedingungEditor_supported_filter_types_string_array_condition, StringArrayFilterConditionBean.class), PV_CONDITION(
-				Messages.FilterbedingungEditor_supported_filter_types_pv_condition, PVFilterConditionBean.class), TIMEBASED_CONDITION(
-				Messages.FilterbedingungEditor_supported_filter_types_time_based_condition, TimeBasedFilterConditionBean.class);
+		JUNCTOR_CONDITION(Messages.FilterbedingungEditor_supported_filter_types_or_condition, JunctorConditionBean.class), 
+		STRING_CONDITION(Messages.FilterbedingungEditor_supported_filter_types_string_condition, StringFilterConditionBean.class), 
+		STRING_ARRAY_CONDITION(Messages.FilterbedingungEditor_supported_filter_types_string_array_condition, StringArrayFilterConditionBean.class), 
+		PV_CONDITION(Messages.FilterbedingungEditor_supported_filter_types_pv_condition, PVFilterConditionBean.class), 
+		TIMEBASED_CONDITION(Messages.FilterbedingungEditor_supported_filter_types_time_based_condition, TimeBasedFilterConditionBean.class),
+		PROPERTY_COMPARE_CONDITION(Messages.FilterbedingungEditor_supported_filter_types_property_compare_condition, PropertyCompareConditionBean.class);
 
 		public static SupportedFilterTypes fromClass(final Class<?> cls) {
 			for (final SupportedFilterTypes pValue : SupportedFilterTypes
@@ -241,36 +243,36 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
 		this.filterLayout = new StackLayout();
 		this.filterSpecificComposite.setLayout(this.filterLayout);
 
-		this.stackComposites = new Composite[5];
+		this.stackComposites = new Composite[SupportedFilterTypes.values().length];
 
 		// ConjunctionFilterComposite
-		this.stackComposites[0] = new Composite(this.filterSpecificComposite,
+		this.stackComposites[SupportedFilterTypes.JUNCTOR_CONDITION.ordinal()] = new Composite(this.filterSpecificComposite,
 				SWT.TOP);
-		this.stackComposites[0].setLayout(new GridLayout(this.NUM_COLUMNS,
+		this.stackComposites[SupportedFilterTypes.JUNCTOR_CONDITION.ordinal()].setLayout(new GridLayout(this.NUM_COLUMNS,
 				false));
-		new Label(this.stackComposites[0], SWT.NONE);
-		final Label label = new Label(this.stackComposites[0], SWT.LEFT
+		new Label(this.stackComposites[SupportedFilterTypes.JUNCTOR_CONDITION.ordinal()], SWT.NONE);
+		final Label label = new Label(this.stackComposites[SupportedFilterTypes.JUNCTOR_CONDITION.ordinal()], SWT.LEFT
 				| SWT.WRAP);
 		label.setText(Messages.FilterbedingungEditor_or_condition_warning1
 				+ Messages.FilterbedingungEditor_or_condition_warning2
 				+ Messages.FilterbedingungEditor_or_condition_warning3);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-		this.createTextEntry(this.stackComposites[0], Messages.FilterbedingungEditor_filtercondition, false);
-		this.createTextEntry(this.stackComposites[0], Messages.FilterbedingungEditor_filtercondition, false);
+		this.createTextEntry(this.stackComposites[SupportedFilterTypes.JUNCTOR_CONDITION.ordinal()], Messages.FilterbedingungEditor_filtercondition, false);
+		this.createTextEntry(this.stackComposites[SupportedFilterTypes.JUNCTOR_CONDITION.ordinal()], Messages.FilterbedingungEditor_filtercondition, false);
 
 		// StringFilterComposite
-		this.stackComposites[1] = new Composite(this.filterSpecificComposite,
+		this.stackComposites[SupportedFilterTypes.STRING_CONDITION.ordinal()] = new Composite(this.filterSpecificComposite,
 				SWT.TOP);
-		this.stackComposites[1].setLayout(new GridLayout(this.NUM_COLUMNS,
+		this.stackComposites[SupportedFilterTypes.STRING_CONDITION.ordinal()].setLayout(new GridLayout(this.NUM_COLUMNS,
 				false));
 		final IConfigurationBean stringConfigurationBean = this.specificBeans
 				.get(SupportedFilterTypes.STRING_CONDITION);
 
-		this.createTitledComboForEnumValues(this.stackComposites[1],
+		this.createTitledComboForEnumValues(this.stackComposites[SupportedFilterTypes.STRING_CONDITION.ordinal()],
 				Messages.FilterbedingungEditor_compare_key, MessageKeyEnum.values(), stringConfigurationBean,
 				StringFilterConditionBean.PropertyNames.keyValue.name());
 
-		this.createTitledComboForEnumValues(this.stackComposites[1],
+		this.createTitledComboForEnumValues(this.stackComposites[SupportedFilterTypes.STRING_CONDITION.ordinal()],
 				Messages.FilterbedingungEditor_operator, StringRegelOperator.values(),
 				stringConfigurationBean,
 				StringFilterConditionBean.PropertyNames.operator.name());
@@ -281,30 +283,30 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
 		// .values()));
 
 		this.stringCompareValueText = this.createTextEntry(
-				this.stackComposites[1], Messages.FilterbedingungEditor_compare_value, true);
+				this.stackComposites[SupportedFilterTypes.STRING_CONDITION.ordinal()], Messages.FilterbedingungEditor_compare_value, true);
 		// StringArrayFilterComposite
-		this.stackComposites[2] = new Composite(this.filterSpecificComposite,
+		this.stackComposites[SupportedFilterTypes.STRING_ARRAY_CONDITION.ordinal()] = new Composite(this.filterSpecificComposite,
 				SWT.TOP);
-		this.stackComposites[2].setLayout(new GridLayout(this.NUM_COLUMNS,
+		this.stackComposites[SupportedFilterTypes.STRING_ARRAY_CONDITION.ordinal()].setLayout(new GridLayout(this.NUM_COLUMNS,
 				false));
 
 		final IConfigurationBean stringArrayConfigurationBean = this.specificBeans
 				.get(SupportedFilterTypes.STRING_ARRAY_CONDITION);
-		this.createTitledComboForEnumValues(this.stackComposites[2],
+		this.createTitledComboForEnumValues(this.stackComposites[SupportedFilterTypes.STRING_ARRAY_CONDITION.ordinal()],
 				Messages.FilterbedingungEditor_message_key, MessageKeyEnum.values(),
 				stringArrayConfigurationBean,
 				StringArrayFilterConditionBean.PropertyNames.keyValue.name());
 
-		this.createTitledComboForEnumValues(this.stackComposites[2],
+		this.createTitledComboForEnumValues(this.stackComposites[SupportedFilterTypes.STRING_ARRAY_CONDITION.ordinal()],
 				Messages.FilterbedingungEditor_operator, StringRegelOperator.values(),
 				stringArrayConfigurationBean,
 				StringArrayFilterConditionBean.PropertyNames.operator.name());
 
 		this.arrayCompareValueListViewer = this.createListEntry(
-				this.stackComposites[2], Messages.FilterbedingungEditor_compare_values, true);
+				this.stackComposites[SupportedFilterTypes.STRING_ARRAY_CONDITION.ordinal()], Messages.FilterbedingungEditor_compare_values, true);
 		this.arrayCompareValueList = this.arrayCompareValueListViewer.getList();
 		final Text arrayNewCompareValueText = this.createTextEntry(
-				this.stackComposites[2], Messages.FilterbedingungEditor_new_compare_value, true);
+				this.stackComposites[SupportedFilterTypes.STRING_ARRAY_CONDITION.ordinal()], Messages.FilterbedingungEditor_new_compare_value, true);
 		arrayNewCompareValueText.addKeyListener(new KeyListener() {
 
 			public void keyPressed(final KeyEvent e) {
@@ -320,7 +322,7 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
 			}
 		});
 		final Button buttonAdd = this.createButtonEntry(
-				this.stackComposites[2], Messages.FilterbedingungEditor_add_compare_value_button, true, 2);
+				this.stackComposites[SupportedFilterTypes.STRING_ARRAY_CONDITION.ordinal()], Messages.FilterbedingungEditor_add_compare_value_button, true, 2);
 		buttonAdd.addMouseListener(new MouseListener() {
 
 			@Override
@@ -339,7 +341,7 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
 						.addStringArrayCompareValue(arrayNewCompareValueText);
 			}
 		});
-		final Button button = this.createButtonEntry(this.stackComposites[2],
+		final Button button = this.createButtonEntry(this.stackComposites[SupportedFilterTypes.STRING_ARRAY_CONDITION.ordinal()],
 				Messages.FilterbedingungEditor_remove_compare_value_button, true, 2);
 		button.addMouseListener(new MouseListener() {
 
@@ -376,18 +378,18 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
 			}
 		});
 		// PVComposite
-		this.stackComposites[3] = new Composite(this.filterSpecificComposite,
+		this.stackComposites[SupportedFilterTypes.PV_CONDITION.ordinal()] = new Composite(this.filterSpecificComposite,
 				SWT.TOP);
-		this.stackComposites[3].setLayout(new GridLayout(this.NUM_COLUMNS,
+		this.stackComposites[SupportedFilterTypes.PV_CONDITION.ordinal()].setLayout(new GridLayout(this.NUM_COLUMNS,
 				false));
-		this.pvChannelName = this.createTextEntry(this.stackComposites[3],
+		this.pvChannelName = this.createTextEntry(this.stackComposites[SupportedFilterTypes.PV_CONDITION.ordinal()],
 				Messages.FilterbedingungEditor_channel_name, true);
 
 		final PVFilterConditionBean pvConfigurationBean = (PVFilterConditionBean) this.specificBeans
 				.get(SupportedFilterTypes.PV_CONDITION);
 		
 		// Combo box for the data type
-		ComboViewer suggestedTypeCombo = this.createTitledComboForEnumValues(this.stackComposites[3],
+		ComboViewer suggestedTypeCombo = this.createTitledComboForEnumValues(this.stackComposites[SupportedFilterTypes.PV_CONDITION.ordinal()],
 				Messages.FilterbedingungEditor_suggested_type, SuggestedProcessVariableType.values(),
 				pvConfigurationBean,
 				PVFilterConditionBean.PropertyNames.suggestedType.name());
@@ -401,11 +403,11 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
             }
         });
 		
-		this.createTitledComboForEnumValues(this.stackComposites[3],
+		this.createTitledComboForEnumValues(this.stackComposites[SupportedFilterTypes.PV_CONDITION.ordinal()],
 				Messages.FilterbedingungEditor_operator, Operator.values(), pvConfigurationBean,
 				PVFilterConditionBean.PropertyNames.operator.name());
 
-		this.pvCompareValue = this.createTextEntry(this.stackComposites[3],
+		this.pvCompareValue = this.createTextEntry(this.stackComposites[SupportedFilterTypes.PV_CONDITION.ordinal()],
 				Messages.FilterbedingungEditor_compare_value, true);
 		
 		this.pvCompareValue.addVerifyListener(new VerifyListener() {
@@ -443,7 +445,7 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
         });
 		
 		final Button checkPVChannel = this.createButtonEntry(
-				this.stackComposites[3], Messages.FilterbedingungEditor_pv_connection_test, true, 2);
+				this.stackComposites[SupportedFilterTypes.PV_CONDITION.ordinal()], Messages.FilterbedingungEditor_pv_connection_test, true, 2);
 		
 		checkPVChannel.addMouseListener(new MouseListener() {
 			public void mouseDoubleClick(final MouseEvent e) {
@@ -508,21 +510,21 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
 		});
 
 		// TimeBasedComposite
-		this.stackComposites[4] = new Composite(this.filterSpecificComposite,
+		this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()] = new Composite(this.filterSpecificComposite,
 				SWT.TOP);
-		this.stackComposites[4].setLayout(new GridLayout(this.NUM_COLUMNS,
+		this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()].setLayout(new GridLayout(this.NUM_COLUMNS,
 				false));
 		final IConfigurationBean timeBasedConfigurationBean = this.specificBeans
 				.get(SupportedFilterTypes.TIMEBASED_CONDITION);
 
-		this.timeDelayText = this.createTextEntry(this.stackComposites[4],
+		this.timeDelayText = this.createTextEntry(this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()],
 				Messages.FilterbedingungEditor_delay_time, true);
 		this.timeBehaviorCheck = this.createCheckBoxEntry(
-				this.stackComposites[4], Messages.FilterbedingungEditor_alarm_on_timeout, true);
-		this.addSeparator(this.stackComposites[4]);
+				this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()], Messages.FilterbedingungEditor_alarm_on_timeout, true);
+		this.addSeparator(this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()]);
 		this
 				.createTitledComboForEnumValues(
-						this.stackComposites[4],
+						this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()],
 						Messages.FilterbedingungEditor_start_key_value,
 						MessageKeyEnum.values(),
 						timeBasedConfigurationBean,
@@ -531,7 +533,7 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
 
 		this
 				.createTitledComboForEnumValues(
-						this.stackComposites[4],
+						this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()],
 						Messages.FilterbedingungEditor_start_operator,
 						StringRegelOperator.values(),
 						timeBasedConfigurationBean,
@@ -539,23 +541,45 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
 								.name());
 
 		this.timeStartCompareText = this.createTextEntry(
-				this.stackComposites[4], Messages.FilterbedingungEditor_start_compare_value, true);
-		this.addSeparator(this.stackComposites[4]);
-		this.createTitledComboForEnumValues(this.stackComposites[4],
+				this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()], Messages.FilterbedingungEditor_start_compare_value, true);
+		this.addSeparator(this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()]);
+		this.createTitledComboForEnumValues(this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()],
 				Messages.FilterbedingungEditor_stop_key_value, MessageKeyEnum.values(),
 				timeBasedConfigurationBean,
 				TimeBasedFilterConditionBean.PropertyNames.confirmKeyValue
 						.name());
 
-		this.createTitledComboForEnumValues(this.stackComposites[4],
+		this.createTitledComboForEnumValues(this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()],
 				Messages.FilterbedingungEditor_stop_operator, StringRegelOperator.values(),
 				timeBasedConfigurationBean,
 				TimeBasedFilterConditionBean.PropertyNames.confirmOperator
 						.name());
 
 		this.timeStopCompareText = this.createTextEntry(
-				this.stackComposites[4], Messages.FilterbedingungEditor_stop_compare_value, true);
+				this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()], Messages.FilterbedingungEditor_stop_compare_value, true);
 
+		
+		// PROPERTY COMPARE CONDITION
+		this.stackComposites[SupportedFilterTypes.PROPERTY_COMPARE_CONDITION.ordinal()] = new Composite(this.filterSpecificComposite, SWT.TOP);
+		this.stackComposites[SupportedFilterTypes.PROPERTY_COMPARE_CONDITION.ordinal()].setLayout(new GridLayout(this.NUM_COLUMNS, false));
+		final IConfigurationBean propertyCompareConfigurationBean = this.specificBeans.get(SupportedFilterTypes.PROPERTY_COMPARE_CONDITION);
+
+		this.createTitledComboForEnumValues(this.stackComposites[SupportedFilterTypes.PROPERTY_COMPARE_CONDITION.ordinal()],
+						Messages.FilterbedingungEditor_compare_key, MessageKeyEnum.values(), propertyCompareConfigurationBean,
+						PropertyCompareConditionBean.PropertyNames.messageKeyValue.name());
+
+		this.createTitledComboForEnumValues(this.stackComposites[SupportedFilterTypes.PROPERTY_COMPARE_CONDITION.ordinal()],
+						Messages.FilterbedingungEditor_operator, StringRegelOperator.values(),
+						propertyCompareConfigurationBean,
+						PropertyCompareConditionBean.PropertyNames.operator.name());
+
+		// empty label for left cell of table
+		new Label(this.stackComposites[SupportedFilterTypes.PROPERTY_COMPARE_CONDITION.ordinal()], SWT.NONE);
+		
+		Label propertyCompareDescriptionLabel = new Label(this.stackComposites[SupportedFilterTypes.PROPERTY_COMPARE_CONDITION.ordinal()], SWT.NONE);
+		propertyCompareDescriptionLabel.setText(Messages.FilterbedingungEditor_property_compare_description);
+		
+		
 		// LinkedList<String> types = new LinkedList<String>();
 		// for (JunctorConditionType type : JunctorConditionType.values()) {
 		// types.add(type.toString());
@@ -565,19 +589,17 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
 		final FilterConditionAddOnBean filterSpecificBean = (FilterConditionAddOnBean) this
 				.getOriginalEditorInput().getFilterSpecificBean();
 		if (filterSpecificBean instanceof JunctorConditionBean) {
-			this.selectedFilterType
-					.setType(SupportedFilterTypes.JUNCTOR_CONDITION);
+			this.selectedFilterType.setType(SupportedFilterTypes.JUNCTOR_CONDITION);
 		} else if (filterSpecificBean instanceof StringFilterConditionBean) {
-			this.selectedFilterType
-					.setType(SupportedFilterTypes.STRING_CONDITION);
+			this.selectedFilterType.setType(SupportedFilterTypes.STRING_CONDITION);
+		} else if (filterSpecificBean instanceof PropertyCompareConditionBean) {
+			this.selectedFilterType.setType(SupportedFilterTypes.PROPERTY_COMPARE_CONDITION);
 		} else if (filterSpecificBean instanceof StringArrayFilterConditionBean) {
-			this.selectedFilterType
-					.setType(SupportedFilterTypes.STRING_ARRAY_CONDITION);
+			this.selectedFilterType.setType(SupportedFilterTypes.STRING_ARRAY_CONDITION);
 		} else if (filterSpecificBean instanceof PVFilterConditionBean) {
 			this.selectedFilterType.setType(SupportedFilterTypes.PV_CONDITION);
 		} else if (filterSpecificBean instanceof TimeBasedFilterConditionBean) {
-			this.selectedFilterType
-					.setType(SupportedFilterTypes.TIMEBASED_CONDITION);
+			this.selectedFilterType.setType(SupportedFilterTypes.TIMEBASED_CONDITION);
 		} else {
 			throw new RuntimeException("Unsupported AddOnBean " //$NON-NLS-1$
 					+ filterSpecificBean.getClass());
@@ -740,6 +762,8 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
 				new JunctorConditionBean());
 		this.specificBeans.put(SupportedFilterTypes.STRING_CONDITION,
 				new StringFilterConditionBean());
+		this.specificBeans.put(SupportedFilterTypes.PROPERTY_COMPARE_CONDITION,
+				new PropertyCompareConditionBean());
 		this.specificBeans.put(SupportedFilterTypes.STRING_ARRAY_CONDITION,
 				new StringArrayFilterConditionBean());
 		this.specificBeans.put(SupportedFilterTypes.PV_CONDITION,
@@ -877,6 +901,18 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
 				stringCompareValueTextObservable, null, null);
 	}
 
+	private void initPropertyCompareAddOnBeanDataBinding(final DataBindingContext context) {
+		final IObservableValue stringCompareValueTextObservable = BeansObservables
+				.observeValue(this.specificBeans
+						.get(SupportedFilterTypes.PROPERTY_COMPARE_CONDITION),
+						PropertyCompareConditionBean.PropertyNames.messageKeyValue
+						.name());
+		
+		context.bindValue(SWTObservables.observeText(
+				this.stringCompareValueText, SWT.Modify),
+				stringCompareValueTextObservable, null, null);
+	}
+	
 	private void initStringArrayAddOnBeanDataBinding(
 			final DataBindingContext context) {
 		final StringArrayFilterConditionBean addOn = (StringArrayFilterConditionBean) this.specificBeans

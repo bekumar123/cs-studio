@@ -24,6 +24,7 @@ Export-Package:
    org.csstudio.nams.common.fachwert,
    org.csstudio.nams.common.material,
    org.csstudio.platform.simpledal",
+ org.csstudio.nams.common.material.regelwerk.yaams,
  org.csstudio.nams.common.service,
  org.csstudio.nams.common.testhelper,
  org.csstudio.nams.common.testutils;uses:="junit.framework",

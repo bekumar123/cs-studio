@@ -7,7 +7,6 @@ import org.csstudio.nams.service.configurationaccess.localstore.declaration.Alar
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.AlarmbearbeiterGruppenDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.Configuration;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterConfiguration;
-import org.csstudio.nams.service.configurationaccess.localstore.declaration.DefaultFilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.HistoryDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.LocalStoreConfigurationService;
@@ -214,9 +213,10 @@ class LocalStoreConfigurationServiceImpl implements
 			@Override
             public FilterConfiguration doWork(Mapper mapper) throws Throwable {
 				FilterConfiguration resultOfUnit = null;
-
-				Collection<DefaultFilterDTO> allFilters = mapper.loadAll(
-						DefaultFilterDTO.class, true);
+				
+				mapper.loadAll(FilterConditionDTO.class, true);
+				Collection<FilterDTO> allFilters = mapper.loadAll(
+						FilterDTO.class, true);
 
 				resultOfUnit = new FilterConfiguration(allFilters);
 
@@ -260,7 +260,7 @@ class LocalStoreConfigurationServiceImpl implements
 					"AMS_FILTER_FILTERACTION", "AMS_FILTER_FILTERCONDITION",
 					"AMS_TOPIC", "AMS_USER", "AMS_USERGROUP",
 					"AMS_USERGROUP_USER", "AMS_FILTERCOND_JUNCTION",
-					"AMS_FILTERCOND_FILTERCOND", "AMS_FILTERCOND_NEGATION" };
+					"AMS_FILTERCOND_FILTERCOND", "AMS_FILTERCOND_NEGATION", "AMS_FILTERCOND_PROPCOMPARE" };
 
 			for (String tabelle : tabellen) {
 				query = session.createSQLQuery("delete from " + tabelle

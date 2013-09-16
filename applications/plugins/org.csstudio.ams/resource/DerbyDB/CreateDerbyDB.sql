@@ -1,4 +1,8 @@
 connect 'jdbc:derby://localhost/amsdb;create=true';
+/*
+for virtualbox vm
+connect 'jdbc:derby://192.168.56.101/amsdb;create=true';
+*/
 
 drop table AMS_User;
 create table AMS_User
@@ -71,6 +75,14 @@ create table AMS_FilterCondition_String
 	cCompValue		VARCHAR(128)
 );
 
+drop table AMS_FilterCond_PropCompare;
+create table AMS_FilterCond_PropCompare
+(
+	iFilterConditionRef	INT NOT NULL,
+	cMessageKeyValue	VARCHAR(16),
+	sOperator			SMALLINT
+);
+
 drop table AMS_FilterCond_ArrStr;
 create table AMS_FilterCond_ArrStr
 (
@@ -140,7 +152,17 @@ create table AMS_Filter
 	iGroupRef		INT default -1 NOT NULL,
 	cName			VARCHAR(128),
 	cDefaultMessage	VARCHAR(1024),
+	cFilterType		VARCHAR(128) default 'default' NOT NULL,
 	PRIMARY KEY (iFilterID)
+);
+
+drop table AMS_Filter_Timebased;
+CREATE TABLE AMS_FILTER_TIMEBASED
+(	
+	IFILTERREF 					INT 			NOT NULL, 
+	ITIMEOUT 					INT 			NOT NULL, 
+	ISTARTFILTERCONDITIONREF 	INT DEFAULT -1 	NOT NULL, 
+	ISTOPFILTERCONDITIONREF 	INT DEFAULT -1 	NOT NULL 
 );
 
 drop table AMS_Filter_FilterCondition;

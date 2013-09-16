@@ -4,6 +4,7 @@ import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.csstudio.nams.configurator.messages"; //$NON-NLS-1$
+	
 	public static String AbstractEditor_saveFailed;
 	public static String AbstractNamsView_db_error;
 	public static String AbstractNamsView_new;
@@ -70,6 +71,7 @@ public class Messages extends NLS {
 	public static String FilterbedingungEditor_or_condition_warning1;
 	public static String FilterbedingungEditor_or_condition_warning2;
 	public static String FilterbedingungEditor_or_condition_warning3;
+	public static String FilterbedingungEditor_property_compare_description;
 	public static String FilterbedingungEditor_pv_connection_test;
 	public static String FilterbedingungEditor_pv_connection_test_success1;
 	public static String FilterbedingungEditor_pv_connection_test_success2;
@@ -91,6 +93,7 @@ public class Messages extends NLS {
 	public static String FilterbedingungEditor_supported_filter_types_string_array_condition;
 	public static String FilterbedingungEditor_supported_filter_types_string_condition;
 	public static String FilterbedingungEditor_supported_filter_types_time_based_condition;
+	public static String FilterbedingungEditor_supported_filter_types_property_compare_condition;
 	public static String FilterEditor_add;
 	public static String FilterEditor_add_not;
 	public static String FilterEditor_add_template;

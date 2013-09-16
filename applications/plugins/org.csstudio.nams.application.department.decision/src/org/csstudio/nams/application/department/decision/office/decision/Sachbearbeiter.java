@@ -132,7 +132,7 @@ class Sachbearbeiter implements Arbeitsfaehig {
 	protected void bearbeiteNeuenVorgang(final Vorgangsmappe vorgangsmappe)
 			throws InterruptedException {
 		final AlarmNachricht neueAlarmNachricht = vorgangsmappe
-				.gibAusloesendeAlarmNachrichtDiesesVorganges();
+				.getAlarmNachricht();
 
 		vorgangsmappe.setzePruefliste(this.regelwerk.gibNeueLeerePruefliste());
 		this.regelwerk.pruefeNachrichtErstmalig(neueAlarmNachricht,
@@ -173,7 +173,7 @@ class Sachbearbeiter implements Arbeitsfaehig {
 			throws InterruptedException {
 
 		final AlarmNachricht neueAlarmNachricht = vorgangsmappe
-				.gibAusloesendeAlarmNachrichtDiesesVorganges();
+				.getAlarmNachricht();
 
 		boolean alarmNachrichtHatAuswirkungAufOffeneVorgaenge = false;
 		final Iterator<Vorgangsmappe> iterator = this.ablagekorbFuerOffeneVorgaenge

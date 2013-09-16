@@ -22,7 +22,7 @@ import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.fil
 public class TimeBasedFilterDTO extends FilterDTO implements NewAMSConfigurationElementDTO {
 
 	@Column(name = "iTimeout", nullable = false, table="AMS_FILTER_TIMEBASED")
-	private int timeout = -1; // INT default -1 NOT NULL,
+	private int timeout = 10000; // INT default -1 NOT NULL,
 	
 	@JoinColumn(name = "ISTARTFILTERCONDITIONREF", referencedColumnName="IFILTERCONDITIONREF", nullable = false, table="AMS_FILTER_TIMEBASED")
 	@OneToOne(cascade= CascadeType.ALL)

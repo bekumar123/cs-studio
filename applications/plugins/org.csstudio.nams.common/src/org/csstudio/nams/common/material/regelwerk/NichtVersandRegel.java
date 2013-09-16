@@ -3,6 +3,9 @@ package org.csstudio.nams.common.material.regelwerk;
 
 import java.util.Set;
 
+import org.csstudio.nams.common.material.AlarmNachricht;
+import org.csstudio.nams.common.material.regelwerk.yaams.Regel;
+
 public class NichtVersandRegel extends AbstractNodeVersandRegel {
 
 	public NichtVersandRegel(final VersandRegel versandRegel) {
@@ -31,4 +34,5 @@ public class NichtVersandRegel extends AbstractNodeVersandRegel {
 		stringBuilder.append("]");
 		return stringBuilder.toString();
 	}
+
 }

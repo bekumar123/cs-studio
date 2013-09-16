@@ -4,6 +4,7 @@ package org.csstudio.nams.service.regelwerkbuilder.declaration;
 import java.util.List;
 
 import org.csstudio.nams.common.material.regelwerk.Regelwerk;
+import org.csstudio.nams.common.material.regelwerk.yaams.NewRegelwerk;
 
 public interface RegelwerkBuilderService {
 
@@ -14,14 +15,6 @@ public interface RegelwerkBuilderService {
 	 * @throws RegelwerksBuilderException
 	 *             If an error occurs on loading or creating {@link Regelwerk}-elements.
 	 */
-	public List<Regelwerk> gibAlleRegelwerke()
-			throws RegelwerksBuilderException;
-	
-	/**
-	 * Gib alle {@link Regelwerk}-elemente der Konfiguration, außer denen, deren Filter 
-	 * genau eine Filterbedingung hat, die vom Typ "StringFilter" ist und dessen 
-	 * Filter-Operator "OPERATOR_TEXT_EQUAL" ist.
-	 */ 
-	public List<Regelwerk> gibKomplexeRegelwerke()
+	public List<NewRegelwerk> gibAlleRegelwerke()
 			throws RegelwerksBuilderException;
 }

@@ -5,13 +5,13 @@ import java.util.Collection;
 
 public class FilterConfiguration {
 
-	private Collection<DefaultFilterDTO> allaFilter;
+	private Collection<FilterDTO> allaFilter;
 	
-	public FilterConfiguration(Collection<DefaultFilterDTO> allaFilter) {
+	public FilterConfiguration(Collection<FilterDTO> allaFilter) {
 		this.allaFilter = allaFilter;
 	}
 
-	public Collection<DefaultFilterDTO> gibAlleFilter() {
+	public Collection<FilterDTO> gibAlleFilter() {
 		return this.allaFilter;
 	}
 }

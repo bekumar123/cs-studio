@@ -70,8 +70,6 @@ public enum WeiteresVersandVorgehen {
 			return WeiteresVersandVorgehen.NICHT_VERSENDEN;
 		case NOCH_NICHT_GEPRUEFT:
 			return WeiteresVersandVorgehen.NOCH_NICHT_GEPRUEFT;
-		case VIELLEICHT_ZUTREFFEND:
-			return WeiteresVersandVorgehen.ERNEUT_PRUEFEN;
 		default:// case ZUTREFFEND: sollte ein fünfter fall existieren trozdem
 				// versenden(stichwort BUGfix)
 			return WeiteresVersandVorgehen.VERSENDEN;

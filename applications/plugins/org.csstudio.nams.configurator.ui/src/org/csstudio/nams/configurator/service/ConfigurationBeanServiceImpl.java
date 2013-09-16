@@ -34,6 +34,7 @@ import org.csstudio.nams.configurator.beans.filters.JunctorConditionBean;
 import org.csstudio.nams.configurator.beans.filters.JunctorConditionForFilterTreeBean;
 import org.csstudio.nams.configurator.beans.filters.NotConditionForFilterTreeBean;
 import org.csstudio.nams.configurator.beans.filters.PVFilterConditionBean;
+import org.csstudio.nams.configurator.beans.filters.PropertyCompareConditionBean;
 import org.csstudio.nams.configurator.beans.filters.StringArrayFilterConditionBean;
 import org.csstudio.nams.configurator.beans.filters.StringFilterConditionBean;
 import org.csstudio.nams.configurator.beans.filters.TimeBasedFilterConditionBean;
@@ -74,6 +75,7 @@ import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.fil
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.JunctorConditionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.NegationCondForFilterTreeDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.ProcessVarFiltCondDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.PropertyCompareFilterConditionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.StrgArFiltCondCompValDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.StrgArFiltCondCompValDTOPK;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.StringArFilterConditionDTO;
@@ -660,6 +662,13 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 					.setOperator(((StringFilterConditionDTO) filterCondtionDTO)
 							.getOperatorEnum());
 			filterSpecificBean = stringFilterConditionBean;
+		} else if (filterCondtionDTO instanceof PropertyCompareFilterConditionDTO) {
+			final PropertyCompareConditionBean propertyCompareFilterConditionBean = new PropertyCompareConditionBean();
+			propertyCompareFilterConditionBean.setRubrikName(""); //$NON-NLS-1$
+			propertyCompareFilterConditionBean.setMessageKeyValue(((PropertyCompareFilterConditionDTO) filterCondtionDTO)
+					.getMessageKeyValueEnum());
+			propertyCompareFilterConditionBean.setOperator(((PropertyCompareFilterConditionDTO) filterCondtionDTO).getOperatorEnum());
+			filterSpecificBean = propertyCompareFilterConditionBean;
 		} else if (filterCondtionDTO instanceof TimeBasedFilterConditionDTO) {
 			final TimeBasedFilterConditionBean timeBasedConditionBean = new TimeBasedFilterConditionBean();
 			timeBasedConditionBean.setRubrikName(""); //$NON-NLS-1$
@@ -1341,6 +1350,25 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 
 			// result to be saved with configurationService
 			filterConditionDTO = stringFilterConditionDTO;
+		} else if (PropertyCompareConditionBean.class.equals(beanClass)) {
+			final PropertyCompareConditionBean specificBean = (PropertyCompareConditionBean) bean
+					.getFilterSpecificBean();
+			
+			PropertyCompareFilterConditionDTO propertyCompareFilterConditionDTO = null;
+			final FilterConditionDTO dto4Bean = this.findDTO4Bean(bean);
+			if ((dto4Bean != null)
+					&& (dto4Bean instanceof PropertyCompareFilterConditionDTO)) {
+				propertyCompareFilterConditionDTO = (PropertyCompareFilterConditionDTO) dto4Bean;
+			} else {
+				propertyCompareFilterConditionDTO = new PropertyCompareFilterConditionDTO();
+				inserted = true;
+			}
+			
+			propertyCompareFilterConditionDTO.setMessageKeyValue(specificBean.getMessageKeyValue());
+			propertyCompareFilterConditionDTO.setOperatorEnum(specificBean.getOperator());
+			
+			// result to be saved with configurationService
+			filterConditionDTO = propertyCompareFilterConditionDTO;
 		} else if (StringArrayFilterConditionBean.class.equals(beanClass)) {
 			final StringArrayFilterConditionBean specificBean = (StringArrayFilterConditionBean) bean
 					.getFilterSpecificBean();

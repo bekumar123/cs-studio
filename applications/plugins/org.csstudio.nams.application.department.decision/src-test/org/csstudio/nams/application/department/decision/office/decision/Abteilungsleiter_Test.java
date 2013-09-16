@@ -80,16 +80,16 @@ public class Abteilungsleiter_Test extends
 							.assertNotSame(
 									"Vorgangsmappen.Alarmnachricht nicht identisch",
 									vorgangsmappe
-											.gibAusloesendeAlarmNachrichtDiesesVorganges(),
+											.getAlarmNachricht(),
 									dokument
-											.gibAusloesendeAlarmNachrichtDiesesVorganges());
+											.getAlarmNachricht());
 					Assert
 							.assertEquals(
 									"Vorgangsmappen.Alarmnachrichten bleiben in diesem Büro gleich",
 									vorgangsmappe
-											.gibAusloesendeAlarmNachrichtDiesesVorganges(),
+											.getAlarmNachricht(),
 									dokument
-											.gibAusloesendeAlarmNachrichtDiesesVorganges());
+											.getAlarmNachricht());
 
 					Abteilungsleiter_Test.this.anzahlDerSachbearbeiterDieEineMappeErhaltenHaben++;
 				} catch (Throwable t) {

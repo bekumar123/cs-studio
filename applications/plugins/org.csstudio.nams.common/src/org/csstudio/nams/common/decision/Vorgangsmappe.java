@@ -1,4 +1,3 @@
-
 /* 
  * Copyright (c) 2008 C1 WPS mbH, 
  * HAMBURG, GERMANY.
@@ -28,37 +27,40 @@ package org.csstudio.nams.common.decision;
 
 import org.csstudio.nams.common.contract.Contract;
 import org.csstudio.nams.common.material.AlarmNachricht;
-import org.csstudio.nams.common.material.regelwerk.Pruefliste;
+import org.csstudio.nams.common.material.Regelwerkskennung;
+import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 import org.csstudio.nams.common.wam.Material;
 
 @Material
 public class Vorgangsmappe implements Ablagefaehig {
 
 	private final AlarmNachricht alarmNachricht;
-	private Pruefliste pruefliste;
 	private final Vorgangsmappenkennung kennung;
 	private Vorgangsmappenkennung abgeschlossenDurchMappenkennung;
 	private boolean abgeschlossenDurchTimeOut = false;
+	private WeiteresVersandVorgehen weiteresVersandVorgehen;
+	private Regelwerkskennung bearbeitetMitRegelWerk;
 
-	// @Deprecated
-	// public Vorgangsmappe(AlarmNachricht nachricht) {
-	// Contract.requireNotNull("nachricht", nachricht);
-	//
-	// this.alarmNachricht = nachricht;
-	// this.kennung = null;
-	// }
-
-	public Vorgangsmappe(final Vorgangsmappenkennung k,
-			final AlarmNachricht nachricht) {
+	public Vorgangsmappe(final Vorgangsmappenkennung kennung, final AlarmNachricht nachricht) {
 		Contract.requireNotNull("nachricht", nachricht);
 
 		this.alarmNachricht = nachricht;
-		this.kennung = k;
+		this.kennung = kennung;
+		this.weiteresVersandVorgehen = WeiteresVersandVorgehen.NOCH_NICHT_GEPRUEFT;
+		this.bearbeitetMitRegelWerk = null;
 	}
 
 	public void abgeschlossenDurchTimeOut() {
 		this.abgeschlossenDurchMappenkennung = this.kennung;
 		this.abgeschlossenDurchTimeOut = true;
+	}
+	
+	public void setBearbeitetMitRegelWerk(Regelwerkskennung bearbeitetMitRegelWerk) {
+		this.bearbeitetMitRegelWerk = bearbeitetMitRegelWerk;
+	}
+	
+	public Regelwerkskennung getBearbeitetMitRegelWerk() {
+		return bearbeitetMitRegelWerk;
 	}
 
 	@Override
@@ -82,38 +84,36 @@ public class Vorgangsmappe implements Ablagefaehig {
 		return true;
 	}
 
-	public Vorgangsmappe erstelleKopieFuer(final String bearbeiter) {
-		final Vorgangsmappe kopie = new Vorgangsmappe(Vorgangsmappenkennung
-				.valueOf(this.kennung, bearbeiter), this.alarmNachricht.clone());
-		final Pruefliste prueflisteHier = this.gibPruefliste();
-		if (prueflisteHier != null) {
-			kopie.setzePruefliste(prueflisteHier.clone());
-		}
-		return kopie;
-	}
-
-	public Vorgangsmappenkennung gibAbschliessendeMappenkennung() {
-		return this.abgeschlossenDurchMappenkennung;
-	}
-
-	public AlarmNachricht gibAusloesendeAlarmNachrichtDiesesVorganges() {
-		return this.alarmNachricht;
-	}
-
-	public Vorgangsmappenkennung gibMappenkennung() {
-		return this.kennung;
-	}
-
-	public Pruefliste gibPruefliste() {
-		return this.pruefliste;
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + this.alarmNachricht.hashCode();
 		return result;
+	}
+
+	public Vorgangsmappe erstelleNeueMappeFuer(final String bearbeiter) {
+		return new Vorgangsmappe(Vorgangsmappenkennung.valueOf(this.kennung, bearbeiter), this.alarmNachricht.clone());
+	}
+	
+	public WeiteresVersandVorgehen getWeiteresVersandVorgehen() {
+		return weiteresVersandVorgehen;
+	}
+	
+	public void setWeiteresVersandVorgehen(WeiteresVersandVorgehen weiteresVersandVorgehen) {
+		this.weiteresVersandVorgehen = weiteresVersandVorgehen;
+	}
+
+	public Vorgangsmappenkennung gibAbschliessendeMappenkennung() {
+		return this.abgeschlossenDurchMappenkennung;
+	}
+
+	public AlarmNachricht getAlarmNachricht() {
+		return this.alarmNachricht;
+	}
+
+	public Vorgangsmappenkennung gibMappenkennung() {
+		return this.kennung;
 	}
 
 	public boolean istAbgeschlossen() {
@@ -124,13 +124,8 @@ public class Vorgangsmappe implements Ablagefaehig {
 		return this.abgeschlossenDurchTimeOut;
 	}
 
-	public void pruefungAbgeschlossenDurch(
-			final Vorgangsmappenkennung mappenkennung) {
+	public void pruefungAbgeschlossenDurch(final Vorgangsmappenkennung mappenkennung) {
 		this.abgeschlossenDurchMappenkennung = mappenkennung;
-	}
-
-	public void setzePruefliste(final Pruefliste liste) {
-		this.pruefliste = liste;
 	}
 
 	@Override

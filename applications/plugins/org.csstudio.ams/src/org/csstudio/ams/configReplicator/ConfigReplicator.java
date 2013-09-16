@@ -41,6 +41,7 @@ import org.csstudio.ams.dbAccess.configdb.FilterConditionArrayStringDAO;
 import org.csstudio.ams.dbAccess.configdb.FilterConditionArrayStringValuesDAO;
 import org.csstudio.ams.dbAccess.configdb.FilterConditionDAO;
 import org.csstudio.ams.dbAccess.configdb.FilterConditionProcessVariableDAO;
+import org.csstudio.ams.dbAccess.configdb.FilterConditionPropertyCompareDAO;
 import org.csstudio.ams.dbAccess.configdb.FilterConditionStringDAO;
 import org.csstudio.ams.dbAccess.configdb.FilterConditionTimeBasedDAO;
 import org.csstudio.ams.dbAccess.configdb.FilterConditionTypeDAO;
@@ -86,6 +87,7 @@ public class ConfigReplicator implements AmsConstants {
 			FilterConditionTypeDAO.removeAll(localDB);
 			FilterConditionDAO.removeAll(localDB);
 			FilterConditionStringDAO.removeAll(localDB);
+			FilterConditionPropertyCompareDAO.removeAll(localDB);
 			FilterConditionArrayStringDAO.removeAll(localDB);
 			FilterConditionArrayStringValuesDAO.removeAll(localDB);
 			FilterConditionProcessVariableDAO.removeAll(localDB);
@@ -108,6 +110,7 @@ public class ConfigReplicator implements AmsConstants {
 			FilterConditionTypeDAO.copyFilterConditionType(masterDB, localDB);
 			FilterConditionDAO.copyFilterCondition(masterDB, localDB);
 			FilterConditionStringDAO.copyFilterConditionString(masterDB, localDB);
+			FilterConditionPropertyCompareDAO.copyFilterConditionPropertyCompare(masterDB, localDB);
 			FilterConditionArrayStringDAO.copyFilterConditionArrayString(masterDB, localDB);
 			FilterConditionArrayStringValuesDAO.copyFilterConditionArrayStringValues(masterDB, localDB);
 			FilterConditionProcessVariableDAO.copy(masterDB, localDB);
@@ -215,6 +218,7 @@ public class ConfigReplicator implements AmsConstants {
             FilterConditionTypeDAO.removeAll(hsqlDB);
             FilterConditionDAO.removeAll(hsqlDB);
             FilterConditionStringDAO.removeAll(hsqlDB);
+            FilterConditionPropertyCompareDAO.removeAll(hsqlDB);
             FilterConditionArrayStringDAO.removeAll(hsqlDB);
             FilterConditionArrayStringValuesDAO.removeAll(hsqlDB);
             FilterConditionProcessVariableDAO.removeAll(hsqlDB);
@@ -237,6 +241,8 @@ public class ConfigReplicator implements AmsConstants {
 			FilterConditionTypeDAO.copyFilterConditionType(masterDB, hsqlDB, "");
 			FilterConditionDAO.copyFilterCondition(masterDB, hsqlDB, "");
 			FilterConditionStringDAO.copyFilterConditionString(masterDB,
+					hsqlDB, "");
+			FilterConditionPropertyCompareDAO.copyFilterConditionPropertyCompare(masterDB,
 					hsqlDB, "");
 			FilterConditionArrayStringDAO.copyFilterConditionArrayString(
 					masterDB, hsqlDB, "");
@@ -284,99 +290,5 @@ public class ConfigReplicator implements AmsConstants {
 			throw new ReplicationException(e);
 		}
 		// All O.K.
-	}
-	
-	/**
-	 * Makes a backup of given database (copying data to 'syn'-tables).
-	 */
-	@Deprecated
-	private static boolean backupMasterDbBeforeSync(Connection masterDB) throws SQLException
-	{
-		boolean bReturnValue = false;
-		try
-		{
-			masterDB.setAutoCommit(false);
-			if (FlagDAO.bUpdateFlag(masterDB, FLG_BUP, FLAGVALUE_RPLCFG_IDLE, FLAGVALUE_RPLCFG_CONF_SYNC))
-			{
-				Log.log(Log.INFO, "Start MasterDB-Backup before Replicating Configuration.");
-		
-				Log.log(Log.INFO, "Start deleting MasterDB-Backup Configuration.");
-				FilterConditionTypeDAO.removeAllBackupFromMasterDB(masterDB);
-				FilterConditionDAO.removeAllBackupFromMasterDB(masterDB);
-				FilterConditionStringDAO.removeAllBackupFromMasterDB(masterDB);
-				FilterConditionArrayStringDAO.removeAllBackupFromMasterDB(masterDB);
-				FilterConditionArrayStringValuesDAO.removeAllBackupFromMasterDB(masterDB);
-				FilterConditionProcessVariableDAO.removeAllFromBackup(masterDB);
-				CommonConjunctionFilterConditionDAO.removeAllFromBackup(masterDB);
-
-				FilterConditionTimeBasedDAO.removeAllBackupFromMasterDB(masterDB);
-				FilterDAO.removeAllBackupFromMasterDB(masterDB);
-				TimebasedFilterDAO.removeAllBackupFromMasterDB(masterDB);
-				FilterFilterConditionDAO.removeAllBackupFromMasterDB(masterDB);
-				TopicDAO.removeAllBackupFromMasterDB(masterDB);
-				FilterActionTypeDAO.removeAllBackupFromMasterDB(masterDB);
-				
-				FilterActionDAO.removeAllBackupFromMasterDB(masterDB);
-				FilterFilterActionDAO.removeAllBackupFromMasterDB(masterDB);
-				UserDAO.removeAllBackupFromMasterDB(masterDB);
-				UserGroupDAO.removeAllBackupFromMasterDB(masterDB);
-				UserGroupUserDAO.removeAllBackupFromMasterDB(masterDB);
-		
-				Log.log(Log.INFO, "Start backuping MasterDB Configuration.");
-				FilterConditionTypeDAO.backupFilterConditionType(masterDB);
-				FilterConditionDAO.backupFilterCondition(masterDB);
-				FilterConditionStringDAO.backupFilterConditionString(masterDB);
-				FilterConditionArrayStringDAO.backupFilterConditionArrayString(masterDB);
-				FilterConditionArrayStringValuesDAO.backupFilterConditionArrayStringValues(masterDB);
-				FilterConditionProcessVariableDAO.backup(masterDB);
-				CommonConjunctionFilterConditionDAO.backup(masterDB);
-
-				FilterConditionTimeBasedDAO.backupFilterConditionTimeBased(masterDB);
-				FilterDAO.backupFilter(masterDB);
-				TimebasedFilterDAO.backupFilter(masterDB);
-				FilterFilterConditionDAO.backupFilterFilterCondition(masterDB);	
-				TopicDAO.backupTopic(masterDB);
-				FilterActionTypeDAO.backupFilterActionType(masterDB);
-				
-				FilterActionDAO.backupFilterAction(masterDB);
-				FilterFilterActionDAO.backupFilterFilterAction(masterDB);
-				UserDAO.backupUser(masterDB);
-				UserGroupDAO.backupUserGroup(masterDB);
-				UserGroupUserDAO.backupUserGroupUser(masterDB);
-				
-				Log.log(Log.INFO, "MasterDB-Backup finished.");
-				
-				if (!FlagDAO.bUpdateFlag(masterDB, FLG_BUP, FLAGVALUE_RPLCFG_CONF_SYNC, FLAGVALUE_RPLCFG_IDLE))
-					Log.log(Log.FATAL, "freeing bUpdateReplFlag failed");
-				else
-					bReturnValue = true;
-				
-				if (bReturnValue)
-					masterDB.commit();
-				else
-					masterDB.rollback();
-			}
-		}
-		catch (SQLException ex)
-		{
-			try{
-				masterDB.rollback();
-			}catch(Exception e)
-			{
-				Log.log(Log.WARN, "MasterDB-Backup rollback failed.", e);
-			}
-
-			Log.log(Log.FATAL, "MasterDB-Backup synch failed.", ex);
-			throw ex;
-		}
-		finally 
-		{
-			try{
-				masterDB.setAutoCommit(true);
-			}catch(Exception e) {
-			    // Ignore me
-			}
-		}
-		return bReturnValue;
 	}
 }

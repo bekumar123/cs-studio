@@ -85,6 +85,13 @@ create table AMS_FilterCondition_String
 	cCompValue		VARCHAR(128)
 );
 
+create table AMS_FilterCond_PropCompare
+(
+	iFilterConditionRef	INT NOT NULL,
+	cMessageKeyValue	VARCHAR(16),
+	sOperator			SMALLINT
+);
+
 create table AMS_FilterCond_ArrStr
 (
 	iFilterConditionRef	INT NOT NULL,
@@ -150,6 +157,14 @@ create table AMS_Filter
 	cDefaultMessage		VARCHAR(1024),
 	cFilterType		VARCHAR(200) default 'default' NOT NULL,	
 	PRIMARY KEY (iFilterID)
+);
+
+CREATE TABLE AMS_FILTER_TIMEBASED
+(	
+	IFILTERREF 					INT 			NOT NULL, 
+	ITIMEOUT 					INT 			NOT NULL, 
+	ISTARTFILTERCONDITIONREF 	INT DEFAULT -1 	NOT NULL, 
+	ISTOPFILTERCONDITIONREF 	INT DEFAULT -1 	NOT NULL 
 );
 
 create table AMS_Filter_FilterCondition

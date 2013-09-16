@@ -86,7 +86,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 	@Test
 	public void testBuildStringCondition() {
 		assertEquals(childRegel, regelwerkBuilderService
-				.createVersandRegel(childDTO));
+				.createRegel(childDTO));
 	}
 
 	@Test
@@ -119,7 +119,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		VersandRegel zielRegel = new OderVersandRegel(regeln);
 
 		assertEquals(zielRegel, regelwerkBuilderService
-				.createVersandRegel(arrayDTO));
+				.createRegel(arrayDTO));
 	}
 
 	@Test
@@ -141,7 +141,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		VersandRegel zielRegel = new OderVersandRegel(regeln);
 
 		assertEquals(zielRegel, regelwerkBuilderService
-				.createVersandRegel(junctorDTO));
+				.createRegel(junctorDTO));
 	}
 
 	@Test
@@ -157,7 +157,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		VersandRegel zielRegel = new UndVersandRegel(regeln);
 
 		assertEquals(zielRegel, regelwerkBuilderService
-				.createVersandRegel(junctorDTO));
+				.createRegel(junctorDTO));
 	}
 
 	@Test
@@ -166,7 +166,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		negationDTO.setNegatedFilterCondition(childDTO);
 		VersandRegel zielRegel = new NichtVersandRegel(childRegel);
 		assertEquals(zielRegel, regelwerkBuilderService
-				.createVersandRegel(negationDTO));
+				.createRegel(negationDTO));
 	}
 
 	@Test
@@ -183,7 +183,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		regeln[1] = childRegel2;
 		VersandRegel zielRegel = new UndVersandRegel(regeln);
 		
-		assertEquals(zielRegel, regelwerkBuilderService.createVersandRegel(junctorDTO));
+		assertEquals(zielRegel, regelwerkBuilderService.createRegel(junctorDTO));
 	}
 
 	@Test
@@ -200,7 +200,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		regeln[1] = childRegel2;
 		VersandRegel zielRegel = new OderVersandRegel(regeln);
 		
-		assertEquals(zielRegel, regelwerkBuilderService.createVersandRegel(junctorDTO));
+		assertEquals(zielRegel, regelwerkBuilderService.createRegel(junctorDTO));
 	}
 	
 	@Test

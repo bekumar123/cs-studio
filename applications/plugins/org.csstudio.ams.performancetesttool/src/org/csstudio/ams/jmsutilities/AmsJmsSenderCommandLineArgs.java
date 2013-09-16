@@ -8,4 +8,7 @@ public class AmsJmsSenderCommandLineArgs {
     
     @Parameter(names = "-topic", description = "JMS Topic", required = true)
     public String topic;
+    
+    @Parameter(names = "-template", description = "Message template file", required = false)
+    public String templateFile = "templates/defaultSend.txt";
 }

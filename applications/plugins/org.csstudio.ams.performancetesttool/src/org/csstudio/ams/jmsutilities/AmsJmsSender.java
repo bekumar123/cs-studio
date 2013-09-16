@@ -5,6 +5,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -60,14 +63,18 @@ public class AmsJmsSender {
 				System.exit(0);
 			}
 		});
-		final JTextArea jTextArea = new JTextArea("TYPE=event\n"
-				+ "EVENTTIME={date:yyyy-MM-dd HH:mm:ss.SSS}\n" 
-				+ "HOST=krykpct\n"
-				+ "USER=mmoeller\n" 
-				+ "SEVERITY=NO_ALARM\n" 
-				+ "STATUS=NO_ALARM\n"
-				+ "NAME=TEST\n" 
-				+ "FACILITY={random:1,2,3,4,5,6,7,8,9,10}\n");
+		String text = "";
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(arguments.templateFile));
+			String buf;
+			while ((buf = reader.readLine()) != null) {
+				text += buf + "\n";
+			}
+			reader.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		final JTextArea jTextArea = new JTextArea(text);
 		jFrame.add(jTextArea);
 		JButton jButton = new JButton("SEND");
 		jButton.addActionListener(new ActionListener() {

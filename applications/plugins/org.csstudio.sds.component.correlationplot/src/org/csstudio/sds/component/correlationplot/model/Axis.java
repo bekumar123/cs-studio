@@ -148,4 +148,8 @@ public class Axis {
 		}
 		return result;
 	}
+
+	public int getMappingRange() {
+		return Math.abs(getMappingMaxValue()-getMappingMinValue());
+	}
 }

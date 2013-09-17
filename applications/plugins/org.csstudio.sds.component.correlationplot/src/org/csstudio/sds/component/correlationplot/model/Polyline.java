@@ -48,4 +48,16 @@ public class Polyline {
 	public String toString() {
 		return Arrays.toString(coordinates);
 	}
+
+	public Polyline getClosed() {
+		Coordinate2D[] resultArray;
+		if (coordinates.length > 0 && coordinates[coordinates.length-1] != coordinates[0]) {
+			resultArray = new Coordinate2D[coordinates.length+1];
+			System.arraycopy(coordinates, 0, resultArray, 0, coordinates.length);
+			resultArray[coordinates.length] = coordinates[0];
+		} else {
+			resultArray = coordinates;
+		}
+		return new Polyline(resultArray);
+	}
 }

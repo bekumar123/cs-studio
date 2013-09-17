@@ -1,18 +1,20 @@
 package org.csstudio.sds.component.correlationplot.model;
 
 public class DefaultPlotStyleProvider implements PlotStyleProvider {
-	private int brightness = 200;
+	private double brightness = 0.8;
 	private RGB polynomialColor;
 	private int polynomialLineWidth;
 	private RGB polylineColor;
-	private Integer polylineWidth;
+	private int polylineWidth;
 	private int plotValueSize;
 	private String warningTextFontName;
 	private int warningTextFontHeight;
 	private int warningTextFontStyle;
 	private RGB warningTextColor;
 	private Coordinate2D warningTextPosition;
-	private int brightnessDelta;
+	private int numberOfPoints = 1;
+	private RGB backgroundColor = RGB.WHITE_COLOR;
+	private double brightnessDelta;;
 
 	@Override
 	public int getPolynomialLineWidth() {
@@ -62,19 +64,18 @@ public class DefaultPlotStyleProvider implements PlotStyleProvider {
 
 	@Override
 	public RGB getColorForPlotValue(PlotValue plotValue, int index) {
-		RGB result = null;
-		int brightness = brightnessDelta * index;
-		if(plotValue.hasAlarm()) {
-			result = new RGB(255, brightness, brightness);
-		} 
-		else {
-			result = new RGB(brightness, brightness, brightness);
+		RGB result = (plotValue.hasAlarm()) ? RGB.RED_COLOR : RGB.BLACK_COLOR;
+		if (index > 0) {
+			double brightnessValue = brightness - index * brightnessDelta;
+			result = RGB.createColorBetween(getBackgroundColor(), result, brightnessValue);
 		}
+		
 		return result;
 	}
 	
-	public void setBrightness(int brightness) {
+	public void setBrightness(double brightness) {
 		this.brightness = brightness;
+		brightnessDelta = brightness / numberOfPoints;
 	}
 	
 	@Override
@@ -88,7 +89,11 @@ public class DefaultPlotStyleProvider implements PlotStyleProvider {
 
 	@Override
 	public RGB getBackgroundColor() {
-		return RGB.WHITE_COLOR;
+		return backgroundColor;
+	}
+	
+	public void setBackgroundColor(RGB backgroundColor) {
+		this.backgroundColor = backgroundColor;
 	}
 	
 	@Override
@@ -138,6 +143,7 @@ public class DefaultPlotStyleProvider implements PlotStyleProvider {
 	}
 
 	public void setNumberOfPoints(Integer numberOfPoints) {
+		this.numberOfPoints = numberOfPoints;
 		brightnessDelta = brightness / numberOfPoints;
 	}
 }

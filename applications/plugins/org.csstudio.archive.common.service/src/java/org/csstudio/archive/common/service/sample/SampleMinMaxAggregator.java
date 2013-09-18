@@ -44,6 +44,7 @@ public class SampleMinMaxAggregator {
     private Double _minVal;
     private Double _maxVal;
     private Double _lastAvgBeforeReset;
+    private Double _lastVal;
     private TimeInstant _lastSampleTimeStamp;
     private TimeInstant _resetTimeStamp;
 

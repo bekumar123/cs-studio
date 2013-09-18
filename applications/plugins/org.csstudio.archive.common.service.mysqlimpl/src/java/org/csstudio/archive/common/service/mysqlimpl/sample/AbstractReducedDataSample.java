@@ -39,8 +39,8 @@ abstract class AbstractReducedDataSample {
     private final Double _avg;
     private final Double _min;
     private final Double _max;
-    private final String _status;
-    private final String _severty;
+    private final int _status;
+    private final int _severty;
 
     /**
      * Constructor.
@@ -50,8 +50,8 @@ abstract class AbstractReducedDataSample {
                                         @Nonnull final Double avg,
                                         @Nonnull final Double min,
                                         @Nonnull final Double max,
-                                        @Nonnull final String status,
-                                        @Nonnull final String severty) {
+                                        @Nonnull final int status,
+                                        @Nonnull final int severty) {
         _channelId = id;
         _timestamp = timestamp;
         _avg = avg;
@@ -81,11 +81,11 @@ abstract class AbstractReducedDataSample {
         return _max;
     }
     @Nonnull
-    public String getStatus() {
+    public int getStatus() {
         return _status;
     }
     @Nonnull
-    public String getSeverty() {
+    public int getSeverty() {
         return _severty;
     }
 }

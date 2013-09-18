@@ -87,8 +87,8 @@ public abstract class AbstractReducedDataSampleBatchQueueHandler<T extends Abstr
         stmt.setDouble(3, element.getAvg());
         stmt.setDouble(4, element.getMin());
         stmt.setDouble(5, element.getMax());
-        stmt.setString(6, element.getStatus());
-        stmt.setString(7, element.getSeverty());
+        stmt.setInt(6, element.getStatus());
+        stmt.setInt(7, element.getSeverty());
         }catch(final SQLException e){
             throw new ArchiveDaoException("Filling or adding of batch to prepared statement failed for " + element.getChannelId()+ element.getAvg() , e);
         }

@@ -193,8 +193,8 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             final Double minValue = sample.getMin();
             final Double maxValue = sample.getMax();
             final TimeInstant time = sample.getTimestamp();
-            final String severty=sample.getSeverty();
-            final String status=sample.getStatus();
+            final int severty=sample.getSeverty();
+            final int status=sample.getStatus();
             final SampleMinMaxAggregator agg = retrieveAndInitializeAggregator(channelId,
                                                                                aggregatorMap,
                                                                                newValue,
@@ -210,8 +210,8 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                                                   @Nonnull final ArchiveChannelId channelId,
                                                   @Nonnull final Double newValue,
                                                   @Nonnull final TimeInstant time,
-                                                  @Nonnull final SampleMinMaxAggregator agg,  @Nonnull final String status,
-                                                  @Nonnull final String severty) {
+                                                  @Nonnull final SampleMinMaxAggregator agg,  @Nonnull final int status,
+                                                  @Nonnull final int severty) {
         if (isReducedDataWriteDueAndHasChanged(newValue, agg, time, Hours.ONE.toStandardDuration())) {
             final Double avg = agg.getAvg();
             final Double min = agg.getMin();
@@ -244,11 +244,11 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                     continue;
                 }
                 final EpicsAlarm alarm=(EpicsAlarm)((ArchiveSample)sample).getAlarm();
-                String severty="";
-                String status="";
+                int severty=0;;
+                int status=0;;
                 if(alarm!=null){
-                    severty=((ArchiveSample<V,T>)sample).getServertyIndex().toString();
-                    status=((ArchiveSample<V,T>)sample).getStatusIndex().toString();
+                    severty=((ArchiveSample<V,T>)sample).getServertyIndex();
+                    status=((ArchiveSample<V,T>)sample).getStatusIndex();
                 }
 
                 final ArchiveChannelId channelId = sample.getChannelId();
@@ -275,8 +275,8 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                                                     @Nonnull final ArchiveChannelId channelId,
                                                     @Nonnull final TimeInstant time,
                                                     @Nonnull final SampleMinMaxAggregator agg,
-                                                    @Nonnull final String status,
-                                                    @Nonnull final String severty) {
+                                                    @Nonnull final int status,
+                                                    @Nonnull final int severty) {
         if (isReducedDataWriteDueAndHasChanged(newValue, agg, time, Minutes.ONE.toStandardDuration())) {
             final Double avg = agg.getAvg();
             final Double min = agg.getMin();

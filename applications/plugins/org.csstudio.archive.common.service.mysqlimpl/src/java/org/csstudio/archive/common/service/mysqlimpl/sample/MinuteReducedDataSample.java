@@ -41,8 +41,8 @@ class MinuteReducedDataSample extends AbstractReducedDataSample {
                                    @Nonnull final Double avg,
                                    @Nonnull final Double min,
                                    @Nonnull final Double max,
-                                   @Nonnull final String status,
-                                   @Nonnull final String severty) {
+                                   @Nonnull final int status,
+                                   @Nonnull final int severty) {
         super(id, timestamp, avg, min, max,status,severty);
     }
 }

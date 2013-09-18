@@ -25,7 +25,6 @@ package org.csstudio.config.ioconfigurator.ldap;
 
 import static org.csstudio.utility.ldap.service.util.LdapUtils.any;
 import static org.csstudio.utility.ldap.service.util.LdapUtils.createLdapName;
-import static org.csstudio.utility.ldap.service.util.LdapUtils.or;
 
 import java.util.Collection;
 
@@ -38,7 +37,6 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
@@ -197,6 +195,7 @@ public final class LdapControllerService {
         Preconditions.checkNotNull(newName, "newName must not be null");
 
         LdapNode ldapNode = new LdapNode(oldLdapName);
+
         if (ldapNode.isFacility()) {
             // rename a Facility
             Optional<LdapName> newLdapName = LdapControllerService.createNewNode(new LdapName("ou=EpicsControls"),
@@ -213,13 +212,18 @@ public final class LdapControllerService {
 
             // create the new name by replacing the old econ value (the name)
             // with the new one.
-            Optional<LdapName> newLdapNode = LdapControllerService.createNewNode(newLdapName, newName);
+
+            Attributes attrs = LDAP_SERVICE.getAttributes(oldLdapName);
+
+            Optional<LdapName> newLdapNode = LdapControllerService.duplicateNode(newLdapName, newName, attrs);
+
             if (!newLdapNode.isPresent()) {
                 throw new IllegalStateException("Can't create new node: " + newName);
             }
 
             LDAP_SERVICE.moveSubTrees(LdapEpicsControlsConfiguration.VIRTUAL_ROOT, oldLdapName, newLdapNode.get());
             removeNode(oldLdapName);
+
         } else {
             throw new IllegalStateException(
                     "Unsupported target for rename operation. Only Facility and IOC are supported.");
@@ -302,6 +306,58 @@ public final class LdapControllerService {
         return Optional.absent();
     }
 
+    private static Optional<LdapName> duplicateNode(@Nonnull final LdapName parent, final String newName,
+            Attributes oldAttrs) throws Exception {
+
+        Preconditions.checkNotNull(parent, "parent must not be null");
+        Preconditions.checkNotNull(newName, "newName must not be null");
+        Preconditions.checkNotNull(oldAttrs, "oldAttrs must not be null");
+
+        NamingEnumeration<? extends Attribute> all = oldAttrs.getAll();
+
+        LdapNode ldapNode = new LdapNode(parent);
+
+        // We found the needed information, therefore we can create a new node.
+        if (ldapNode.getChildAttribute().isPresent()) {
+
+            // z.B. ecom=EPICS-IOC,efan=Test,ou=EpicsControls
+            LdapName newLdapName = (LdapName) parent.clone();
+            
+            // ldapNode.getChildAttribute().get() returns econ if we rename ion IOC
+            // newLdapName is now econ=NewName,ecom=EPICS-IOC,efan=Test,ou=EpicsControls
+            newLdapName.add(new Rdn(ldapNode.getChildAttribute().get() + "=" + newName));
+           
+            // add two objectClass entries
+            BasicAttribute oc1 = new BasicAttribute(LdapFieldsAndAttributes.ATTR_FIELD_OBJECT_CLASS);
+            oc1.add("top"); // entry 1
+            oc1.add(ldapNode.getChildAttributeValue()); // entry 2 => this is epicsController if we rename an IOC
+
+            // now add the new attribute containing the name
+            Attributes attrs = new BasicAttributes(false);
+            attrs.put(oc1);
+            attrs.put(ldapNode.getChildAttribute().get(), newName);
+
+            // now copy the attributes
+            if (ldapNode.isParentOfEcon()) {
+                while (all.hasMore()) {
+                    Attribute att = all.next();
+                    ControllerProperty cp = ControllerProperty.getProperty(att.getID());
+                    if (cp != null) {
+                        attrs.put(att.getID(), (String) att.get());
+                    }
+                }
+            }
+
+            if (!LDAP_SERVICE.createComponent(newLdapName, attrs)) {
+                throw new IllegalStateException("Can't create new node.");
+            }
+
+            return Optional.of(newLdapName);
+
+        }
+        return Optional.absent();
+    }
+
     /**
      * Loads the LDAP tree structure to the specified {@code root} node.
      * 
@@ -343,7 +399,7 @@ public final class LdapControllerService {
             }
         }
     }
- 
+
     /*
      * Returns the {@code ContentModel} from the LDAP.
      * 

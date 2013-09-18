@@ -18,4 +18,4 @@ Bundle-ClassPath: lib/activation.jar,
  lib/smtp.jar,
  .
 Export-Package: org.csstudio.utility.screenshot
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

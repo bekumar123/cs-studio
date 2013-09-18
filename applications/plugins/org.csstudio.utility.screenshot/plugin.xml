@@ -45,6 +45,7 @@
    <extension
          point="org.eclipse.ui.views">
       <view
+            allowMultiple="true"
             class="org.csstudio.utility.screenshot.view.ScreenshotView"
             id="screenshotView"
             name="Screenshot"/>

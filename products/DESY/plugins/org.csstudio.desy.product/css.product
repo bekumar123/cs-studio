@@ -184,7 +184,7 @@ HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
       <feature id="org.csstudio.desy.dct.feature" version="1.0.0.201308301100"/>
       <feature id="org.csstudio.desy.alarm.feature" version="1.5.3.201308281100"/>
       <feature id="org.csstudio.desy.pv.feature" version="1.5.3.201308281100"/>
-      <feature id="org.csstudio.desy.desytools.feature" version="1.5.3.201309091100"/>
+      <feature id="org.csstudio.desy.desytools.feature" version="1.5.3.201309181100"/>
       <feature id="org.csstudio.desy.development.feature" version="1.0.0.201212201100"/>
    </features>
 

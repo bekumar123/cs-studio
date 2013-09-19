@@ -18,7 +18,7 @@ public class TestIoNameResolutionFromFile {
       IoNameResolutionFromFile ioNameResolutionFromFile = new IoNameResolutionFromFileImpl();
       ioNameResolutionFromFile.loadCatalog(getSimpleCatalogFile());
       String address = ioNameResolutionFromFile.resolveName("Bsp_BOOL", "fieldName");
-      assertThat(address, is("S7: 0/0 T=BOOL B=0"));
+      assertThat(address, is("@Siemens_S7: 0/0 'T=BOOL B=0'"));
    }
 
    //@Test
@@ -26,7 +26,7 @@ public class TestIoNameResolutionFromFile {
       IoNameResolutionFromFile ioNameResolutionFromFile = new IoNameResolutionFromFileImpl();
       ioNameResolutionFromFile.loadCatalog(getCatalog2File());
       String address = ioNameResolutionFromFile.resolveName("Bsp_INT_Last", "fieldName");
-      assertThat(address, is("S7: 0/312 T=INT"));
+      assertThat(address, is("@Siemens_S7: 0/312 'T=INT'"));
    }
 
    @Test
@@ -34,7 +34,7 @@ public class TestIoNameResolutionFromFile {
       IoNameResolutionFromFile ioNameResolutionFromFile = new IoNameResolutionFromFileImpl();
       ioNameResolutionFromFile.loadCatalog(getDesyCatalogFile());
       String address = ioNameResolutionFromFile.resolveName("SE_44SI1211_Value", "fieldName");
-      assertThat(address, is("S7: 0/0 T=REAL"));
+      assertThat(address, is("@Siemens_S7: 0/0 'T=REAL'"));
    }
 
    private String getSimpleCatalogFile() {

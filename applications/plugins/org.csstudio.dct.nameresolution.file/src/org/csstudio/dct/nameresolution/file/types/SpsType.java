@@ -23,7 +23,7 @@ public enum SpsType {
     TIME_OF_DAY("TIME_OF_DAY", 4),
     STRING(SpsType.STRING_TYPE),
     ARRAY(SpsType.ARRAY_TYPE),
-    DS33("'DS33'", 5);
+    DS33("DS-33", 5);
     //@formatter:on
 
     private static final String STRING_TYPE = "STRING";

@@ -76,7 +76,7 @@ public class AddChannelResponse extends AbstractChannelResponse {
         if (names == null) {
             return;
         }
-        error_msg="<br>";
+        error_msg="";
         final String group = req.getParameter(PARAM_CHANNEL_GROUP);
         if (Strings.isNullOrEmpty(group)) {
             redirectToErrorPage(resp, "The required parameter '" + PARAM_CHANNEL_GROUP + "' is either null or empty!");
@@ -148,6 +148,9 @@ public class AddChannelResponse extends AbstractChannelResponse {
                     startChannel(ename);
                 } catch (final EngineModelException e) {
                     // TODO Auto-generated catch block
+                    if(error_msg.isEmpty()) {
+                        error_msg ="<br>";
+                    }
                     error_msg +=e.getMessage()+"<br>";
                     continue;
                 }

@@ -40,7 +40,9 @@ class ImportResultResponse extends AbstractChannelResponse {
                                 @Nonnull final HttpServletResponse resp) throws Exception {
             // HTML table similar to group's list of channels
             final HTMLWriter html = new HTMLWriter(resp, "Channel import result");
-            html.text("Error on processing request:\n" + _error_msgs);
+            if(!_error_msgs.isEmpty()) {
+                html.text("Error on processing request:\n" + _error_msgs);
+            }
             createChannelListTable(html);
             html.close();
 

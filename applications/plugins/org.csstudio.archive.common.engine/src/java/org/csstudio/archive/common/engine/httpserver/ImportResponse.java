@@ -64,7 +64,7 @@ public class ImportResponse extends AbstractResponse {
             //Here request is the reference of HttpServletRequest.
             final List<EpicsChannelName> channelList = config.configureChannelsFromFile();
             channelList.addAll(config.configureChannelsFromFile(req.getInputStream()));
-            ImportResultResponse.setResult(channelList);
+            ImportResultResponse.setResult(channelList,"");
             resp.sendRedirect(new Url(ImportResultResponse.baseUrl()).url());//ShowChannelResponse.urlTo(name.toString()));
     }
 

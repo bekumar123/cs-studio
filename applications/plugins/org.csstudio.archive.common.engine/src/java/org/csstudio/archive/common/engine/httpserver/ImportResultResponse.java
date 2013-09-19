@@ -30,6 +30,7 @@ class ImportResultResponse extends AbstractChannelResponse {
 
     private static List<EpicsChannelName> _configureChannelsFromFile;
 
+    private static String _error_msgs="";
     ImportResultResponse(@Nonnull final EngineModel model) {
         super(model);
     }
@@ -39,7 +40,7 @@ class ImportResultResponse extends AbstractChannelResponse {
                                 @Nonnull final HttpServletResponse resp) throws Exception {
             // HTML table similar to group's list of channels
             final HTMLWriter html = new HTMLWriter(resp, "Channel import result");
-
+            html.text("Error on processing request:\n" + _error_msgs);
             createChannelListTable(html);
             html.close();
 
@@ -77,8 +78,10 @@ class ImportResultResponse extends AbstractChannelResponse {
         html.closeTable();
     }
 
-    public static void setResult(final List<EpicsChannelName> configureChannelsFromFile) {
+    public static void setResult(final List<EpicsChannelName> configureChannelsFromFile,final String error_msgs) {
+        _error_msgs="";
         _configureChannelsFromFile = configureChannelsFromFile;
+        _error_msgs=error_msgs;
     }
 
     @Nonnull

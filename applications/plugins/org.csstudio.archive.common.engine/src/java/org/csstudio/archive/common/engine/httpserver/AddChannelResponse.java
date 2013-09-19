@@ -58,6 +58,7 @@ public class AddChannelResponse extends AbstractChannelResponse {
     }
 
     private static final long serialVersionUID = 1L;
+    private  String error_msg="";
 
     /**
      * Constructor.
@@ -75,13 +76,20 @@ public class AddChannelResponse extends AbstractChannelResponse {
         if (names == null) {
             return;
         }
+        error_msg="<br>";
         final String group = req.getParameter(PARAM_CHANNEL_GROUP);
+        if (Strings.isNullOrEmpty(group)) {
+            redirectToErrorPage(resp, "The required parameter '" + PARAM_CHANNEL_GROUP + "' is either null or empty!");
+            return;
+        }
         final List<EpicsChannelName> channelList = createEpicsNames(resp, group, names);
 
-        if(channelList.size()>1){
-            ImportResultResponse.setResult(channelList);
+        if (channelList.size() > 1) {
+            ImportResultResponse.setResult(channelList,error_msg);
+            //redirectToErrorPage(resp,error_msg);
+
             resp.sendRedirect(new Url(ImportResultResponse.baseUrl()).url());//ShowChannelResponse.urlTo(name.toString()));
-        }else{
+        } else {
             resp.sendRedirect(ShowChannelResponse.urlTo(channelList.get(0).toString()));
         }
         /*
@@ -119,8 +127,8 @@ public class AddChannelResponse extends AbstractChannelResponse {
     }
 
     private List<EpicsChannelName> createEpicsNames(@Nonnull final HttpServletResponse resp,
-                                                   @Nonnull final String groupName,
-                                                   @Nonnull final String names) throws Exception {
+                                                    @Nonnull final String groupName,
+                                                    @Nonnull final String names) throws Exception {
         final List<EpicsChannelName> channelList = new ArrayList<EpicsChannelName>();
         try {
             if (Strings.isNullOrEmpty(names)) {
@@ -128,13 +136,21 @@ public class AddChannelResponse extends AbstractChannelResponse {
                 return null;
             }
 
-
             final String[] splits = names.split(" ");
             for (final String channelName : splits) {
+                if(channelName.length()<5) {
+                    continue;
+                }
                 final EpicsChannelName ename = new EpicsChannelName(channelName);
-                channelList.add(ename);
-                addChannel(ename, groupName);
-                startChannel(ename);
+                 try {
+                    channelList.add(ename);
+                    getModel().configureNewChannel(ename, groupName, null, null, null);
+                    startChannel(ename);
+                } catch (final EngineModelException e) {
+                    // TODO Auto-generated catch block
+                    error_msg +=e.getMessage()+"<br>";
+                    continue;
+                }
             }
 
         } catch (final IllegalArgumentException e) {
@@ -142,9 +158,10 @@ public class AddChannelResponse extends AbstractChannelResponse {
             redirectToErrorPage(resp, "Channel name is not EPICS compatible:\n" + e.getMessage());
 
         } catch (final EngineModelException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            error_msg+=e.getMessage()+"<br>";
+
         }
+
         return channelList;
     }
 
@@ -162,7 +179,6 @@ public class AddChannelResponse extends AbstractChannelResponse {
     }
 
     private void addChannel(final EpicsChannelName channelName, final String groupName) throws EngineModelException {
-        System.out.println("channel name: " + channelName.toString() + "  group: " + groupName);
         getModel().configureNewChannel(channelName, groupName, null, null, null);
     }
 }

@@ -218,10 +218,11 @@ public enum Validators {
                 if (ControllerTreeViewer.CURRENT_SELECTION.getLdapName().toString().startsWith(sr.getName())) {
                     return null;
                 } else {
-                    return "Error: IP-Address already in use.";
+                    return "Error: IP-Address already in use (" + sr.getName() + ").";
                 }
             } else {
-                return "Error: IP-Address already in use.";
+                SearchResult sr = results.iterator().next();
+                return "Error: IP-Address already in use (" + sr.getName() + ").";
             }
 
         } catch (UnknownHostException e) {

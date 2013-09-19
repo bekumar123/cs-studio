@@ -7,8 +7,7 @@ Bundle-Activator: org.csstudio.platform.libs.epics.EpicsPlugin
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: .,
- lib/caj-1.1.12.jar
+Bundle-ClassPath: .
 Export-Package: 
  com.cosylab.epics.caj,
  com.cosylab.epics.caj.cas,
@@ -33,5 +32,5 @@ Export-Package:
  org.csstudio.platform.libs.epics
 Bundle-Vendor: BNL/DESY/ORNL/SLAC
 Bundle-Description: EPICS Channel Access V3 Library
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 

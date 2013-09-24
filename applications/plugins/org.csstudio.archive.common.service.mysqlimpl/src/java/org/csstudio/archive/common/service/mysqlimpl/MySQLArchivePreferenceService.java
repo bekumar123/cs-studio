@@ -80,6 +80,8 @@ public class MySQLArchivePreferenceService {
         public static final MySQLArchiveServicePreference<Integer> MAX_ALLOWED_PACKET_IN_KB =
             new MySQLArchiveServicePreference<Integer>("maxAllowedPacketInKB", 32768)
                 .with(new MinMaxPreferenceValidator<Integer>(MIN_PACKET_SIZE_KB, MAX_PACKET_SIZE_KB));
+        public static final MySQLArchiveServicePreference<Integer> QUEUE_MAXI_SIZE =
+                new MySQLArchiveServicePreference<Integer>("queueMaxiSize", 600000);
 
 //        public static final MySQLArchiveServicePreference<String> SMTP_HOST =
 //            new MySQLArchiveServicePreference<String>("mailhost", "NOT PUBLIC");
@@ -175,6 +177,10 @@ public class MySQLArchivePreferenceService {
     @Nonnull
     public Integer getPort() {
         return MySQLArchiveServicePreference.PORT.getValue();
+    }
+    @Nonnull
+    public Integer getQueueMaxiSize() {
+        return MySQLArchiveServicePreference.QUEUE_MAXI_SIZE.getValue();
     }
     @Nonnull
     public Integer getTerminationTimeInMS() {

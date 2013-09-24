@@ -159,11 +159,7 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
                 if (size >= 1000) {
                     try {
                         _watch.restart();
-                        //   int iii[] = stmt.executeBatch();
                         LOG.info("{}", myStmt.executeBatch().length);
-
-                        //  stmt.execute();
-                        // stmt.executeUpdate();
                         LOG.info("{}ms for {}x {}", new Object[] { _watch.getElapsedTimeInMillis(), size,
                                                                   handler.getHandlerType().getSimpleName() });
                     } catch (final Throwable t) {
@@ -183,7 +179,6 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
                     _watch.restart();
                     //   int iii[] = stmt.executeBatch();
                     LOG.info("{}", myStmt.executeBatch().length);
-
                     //  stmt.execute();
                     // stmt.executeUpdate();
                     LOG.info("{}ms for {}x {}", new Object[] { _watch.getElapsedTimeInMillis(), size,

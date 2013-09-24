@@ -99,7 +99,7 @@ final class WriteWorker extends AbstractTimeMeasuredRunnable {
 
             final long written = collectSampleFromBuffersAndWriteToService(_channels);
            if(written>0) {
-            WORKER_LOG.info("WRITER RUN {},  WRITTEN: {}", _name, written);
+            WORKER_LOG.debug("WRITER RUN {},  WRITTEN: {}", _name, written);
         }
 
             _lastWriteTime = TimeInstantBuilder.fromNow();
@@ -151,12 +151,12 @@ final class WriteWorker extends AbstractTimeMeasuredRunnable {
         }
         // when there's a service, the service impl handles the rescue of data
         final int size = service.writeSamples(samples);
-        if (size > 100000) {
+        if (size >provider.getPreferencesService().getQueueWarnSize() ) {
             if (!hasWarnung) {
                 EMAIL_LOG.info("More than {} samples in  BatchQueue at {}", size, TimeInstantBuilder.fromNow().formatted());
                 hasWarnung = true;
             }
-            if (hasWarnung && size > 300000) {
+            if (hasWarnung && size >provider.getPreferencesService().getQueueMaxiSize()) {
                 EMAIL_LOG.info("MySQL restarted at {}", TimeInstantBuilder.fromNow().formatted());
                 _model.requestShutdown();
             }

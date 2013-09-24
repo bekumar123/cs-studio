@@ -131,10 +131,7 @@ public abstract class DesyArchivePVManagerListener<V extends Serializable,
             }
             for (final EpicsSystemVariable sysVar : sysVars) {
                 handleValueUpdateInformation(sysVar);
-                if(_channelName.endsWith("CMTBSL2R50_ai")){
-                    System.out.println("DesyArchivePVManagerListener.pvChanged()  CMTBSL2R50_ai "+sysVar.getAlarm().getSeverity());
                 }
-            }
         } catch (final Throwable t) {
             LOG.error("Unexpected exception in PVListener for: {}:\n{}", _channelName, t.getMessage());
         }

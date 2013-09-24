@@ -31,6 +31,7 @@ import java.util.concurrent.BlockingQueue;
 import javax.annotation.Nonnull;
 
 import org.csstudio.archive.common.service.ArchiveConnectionException;
+import org.csstudio.archive.common.service.mysqlimpl.MySQLArchivePreferenceService;
 import org.csstudio.archive.common.service.mysqlimpl.batch.BatchQueueHandlerSupport;
 import org.csstudio.archive.common.service.mysqlimpl.batch.IBatchQueueHandlerProvider;
 import org.csstudio.archive.common.service.mysqlimpl.dao.ArchiveConnectionHandler;
@@ -108,7 +109,7 @@ public class SamplsPersistDataWorker extends PersistDataWorker {
             if(queue.size()<200) {
                 return;
             }
-        if(queue.size()>300000){
+        if(queue.size()>new MySQLArchivePreferenceService().getQueueMaxiSize()){
             for(;queue.size()>0;){
                synchronized (queue) {
                    queue.drainTo(elements, 1000);

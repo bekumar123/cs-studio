@@ -57,6 +57,10 @@ public class ArchiveEnginePreferencesService {
         public static final ArchiveEnginePreference<String> CA_CONTEXT_NAME =
                 new ArchiveEnginePreference<String>("caContext",
                                                     "");
+        public static final ArchiveEnginePreference<Integer> QUEUE_WARN_SIZE =
+                new ArchiveEnginePreference<Integer>("queueWarnSize",  Integer.valueOf(50000));
+        public static final ArchiveEnginePreference<Integer> QUEUE_MAXI_SIZE =
+                new ArchiveEnginePreference<Integer>("queueMaxiSize", Integer.valueOf(600000));
         /**
          * Constructor.
          */
@@ -112,6 +116,14 @@ public class ArchiveEnginePreferencesService {
     @Nonnull
     public String getHttpAdminValue() {
         return ArchiveEnginePreference.HTTP_ADMIN_VALUE.getValue();
+    }
+    @Nonnull
+    public Integer getQueueWarnSize() {
+        return ArchiveEnginePreference.QUEUE_WARN_SIZE.getValue();
+    }
+    @Nonnull
+    public Integer getQueueMaxiSize() {
+        return ArchiveEnginePreference.QUEUE_MAXI_SIZE.getValue();
     }
     @Nonnull
     public String getHttpAdminKey() {

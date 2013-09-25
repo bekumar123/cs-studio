@@ -160,7 +160,7 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
                     try {
                         _watch.restart();
                         LOG.info("{}", myStmt.executeBatch().length);
-                        LOG.info("{}ms for {}x {}", new Object[] { _watch.getElapsedTimeInMillis(), size,
+                        LOG.debug("{}ms for {}x {}", new Object[] { _watch.getElapsedTimeInMillis(), size,
                                                                   handler.getHandlerType().getSimpleName() });
                     } catch (final Throwable t) {
                         handler.getQueue().addAll(elements);
@@ -181,7 +181,7 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
                     LOG.info("{}", myStmt.executeBatch().length);
                     //  stmt.execute();
                     // stmt.executeUpdate();
-                    LOG.info("{}ms for {}x {}", new Object[] { _watch.getElapsedTimeInMillis(), size,
+                    LOG.debug("{}ms for {}x {}", new Object[] { _watch.getElapsedTimeInMillis(), size,
                                                               handler.getHandlerType().getSimpleName() });
                 } catch (final Throwable t) {
                     handler.getQueue().addAll(elements);

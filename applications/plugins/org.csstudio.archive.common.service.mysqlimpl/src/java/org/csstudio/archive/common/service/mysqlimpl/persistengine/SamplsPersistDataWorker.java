@@ -85,7 +85,7 @@ public class SamplsPersistDataWorker extends PersistDataWorker {
     @Override
     public void measuredRun() {
 
-        LOG.info("Sample RUN");
+        LOG.debug("Sample RUN");
         try {
           processBatchHandlers(_connectionHandler.getThreadLocalConnection(), _handlerProvider, _rescueDataList);
 

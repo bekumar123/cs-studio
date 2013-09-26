@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.csstudio.config.ioconfig.model.DocumentDBO;
 import org.csstudio.config.ioconfig.model.INode;
 import org.csstudio.config.ioconfig.model.INodeWithPrototype;
@@ -70,6 +69,7 @@ public class DocumentContent {
     private ListViewer _pvList;
   //TODO jhatje: implement new datatype
 //    private Collection<IProcessVariable> _processVariables = new HashSet<IProcessVariable>();
+    private Collection<String> _processVariables = new HashSet<String>();
 
     /**
      * A List with all Process Variables to show the Documents
@@ -106,6 +106,7 @@ public class DocumentContent {
             public void widgetSelected(final SelectionEvent e) {
             	//TODO jhatje: implement new datatype
 //                getProcessVariables().add(new ProcessVariable(text.getText()));
+                getProcessVariables().add(text.getText());
                 update();
             }
 
@@ -122,13 +123,13 @@ public class DocumentContent {
      * @param processVariables
      */
     //TODO jhatje: implement new datatype
-//    public void setProcessVariables(final IProcessVariable[] processVariables) {
-//        _processVariables = new HashSet<IProcessVariable>(Arrays.asList(processVariables));
-//
-//    }
-//    protected Collection<IProcessVariable> getProcessVariables() {
-//        return _processVariables;
-//    }
+    public void setProcessVariables(final String[] processVariables) {
+        _processVariables = new HashSet<String>(Arrays.asList(processVariables));
+
+    }
+    protected Collection<String> getProcessVariables() {
+        return _processVariables;
+    }
 
     protected TableViewer getFoundsDocumentsTable() {
         return _foundsDocumentsTable;
@@ -153,8 +154,8 @@ public class DocumentContent {
      */
     public void update() {
     	//TODO jhatje: implement new datatype
-//        _pvList.setInput(_processVariables);
-//        callIoNameService(_processVariables);
+        _pvList.setInput(_processVariables);
+        callIoNameService(_processVariables);
     }
 
     /**
@@ -182,53 +183,53 @@ public class DocumentContent {
      * @throws PersistenceException
      */
   //TODO jhatje: implement new datatype
-//    protected void callIoNameService(final Collection<IProcessVariable> processVariables) {
-//        final Thread thread = new Thread() {
-//            /**
-//             * {@inheritDoc}
-//             */
-//            @Override
-//            public void run() {
-//                final IProcessVariable2IONameService pv2IOName = ServiceLocator.getService(IProcessVariable2IONameService.class);
+    protected void callIoNameService(final Collection<String> processVariables) {
+        final Thread thread = new Thread() {
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            public void run() {
+                final IProcessVariable2IONameService pv2IOName = ServiceLocator.getService(IProcessVariable2IONameService.class);
 //                final Collection<String> pcNames = new HashSet<String>(processVariables.size());
 //                for (final IProcessVariable iProcessVariable : processVariables) {
 //                    pcNames.add(iProcessVariable.getName());
 //                }
-//                Collection<INode> nodes;
-//                try {
-//                    nodes = pv2IOName.getNodes(pcNames).values();
-//                    final Collection<HierarchyDocument> hierarchyDocuments = new HashSet<HierarchyDocument>();
-//                    addNodes(hierarchyDocuments, nodes);
-//                    getFoundsDocumentsTable().getTable().setEnabled(true);
-//                    getFoundsDocumentsTable().setInput(hierarchyDocuments);
-//                    getMessageArea().hide();
-//                } catch (final NodeNotFoundException nnfe) {
-//                    getFoundsDocumentsTable().getTable().setEnabled(true);
-//                    switch (nnfe.getState()) {
-//                        case DCT:
-//                            getFoundsDocumentsTable().setInput(new String[] { nnfe
-//                                                                       .getLocalizedMessage() });
-//                            break;
-//                        case DeviceDB:
-//                            getFoundsDocumentsTable().setInput(new String[] { nnfe
-//                                                                       .getLocalizedMessage() });
-//                            break;
-//                    }
-//                    getMessageArea().hide();
-//                } catch (final PersistenceException e) {
+                Collection<INode> nodes;
+                try {
+                    nodes = pv2IOName.getNodes(_processVariables).values();
+                    final Collection<HierarchyDocument> hierarchyDocuments = new HashSet<HierarchyDocument>();
+                    addNodes(hierarchyDocuments, nodes);
+                    getFoundsDocumentsTable().getTable().setEnabled(true);
+                    getFoundsDocumentsTable().setInput(hierarchyDocuments);
+                    getMessageArea().hide();
+                } catch (final NodeNotFoundException nnfe) {
+                    getFoundsDocumentsTable().getTable().setEnabled(true);
+                    switch (nnfe.getState()) {
+                        case DCT:
+                            getFoundsDocumentsTable().setInput(new String[] { nnfe
+                                                                       .getLocalizedMessage() });
+                            break;
+                        case DeviceDB:
+                            getFoundsDocumentsTable().setInput(new String[] { nnfe
+                                                                       .getLocalizedMessage() });
+                            break;
+                    }
+                    getMessageArea().hide();
+                } catch (final PersistenceException e) {
 //                    LOG.error(e);
-//                    getMessageArea().showMessage(SWT.ERROR, "Device Database Error",
-//                                                 e.getLocalizedMessage());
-//                    getMessageArea().show();
-//                    getFoundsDocumentsTable()
-//                            .setInput(new String[] { "Datenbank nicht erreichbar!" });
-//                    getFoundsDocumentsTable().getTable().setEnabled(false);
-//                }
-//            }
-//
-//        };
-//        Display.getCurrent().asyncExec(thread);
-//    }
+                    getMessageArea().showMessage(SWT.ERROR, "Device Database Error",
+                                                 e.getLocalizedMessage());
+                    getMessageArea().show();
+                    getFoundsDocumentsTable()
+                            .setInput(new String[] { "Datenbank nicht erreichbar!" });
+                    getFoundsDocumentsTable().getTable().setEnabled(false);
+                }
+            }
+
+        };
+        Display.getCurrent().asyncExec(thread);
+    }
 
     /**
      * @param all
@@ -300,9 +301,9 @@ public class DocumentContent {
          */
         private void setProcessVariables() {
         	//TODO jhatje: implement new datatype
-//            final Collection<IProcessVariable> processVariables = getProcessVariables();
-//            processVariables.clear();
-//            _viewer.setInput(processVariables);
+            final Collection<String> processVariables = getProcessVariables();
+            processVariables.clear();
+            _viewer.setInput(processVariables);
         }
 
     }
@@ -333,9 +334,9 @@ public class DocumentContent {
             final StructuredSelection selection = (StructuredSelection) _viewer.getSelection();
             final List<?> list = selection.toList();
           //TODO jhatje: implement new datatype
-//            final Collection<IProcessVariable> processVariables = getProcessVariables();
-//            processVariables.removeAll(list);
-//            _viewer.setInput(processVariables);
+            final Collection<String> processVariables = getProcessVariables();
+            processVariables.removeAll(list);
+            _viewer.setInput(processVariables);
         }
 
         /**

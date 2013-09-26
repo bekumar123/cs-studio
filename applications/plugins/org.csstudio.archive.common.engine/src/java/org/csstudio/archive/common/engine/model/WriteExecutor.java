@@ -120,6 +120,7 @@ public class WriteExecutor {
                                                             _model);
             i++;
             _writeSamplesExecutor.scheduleAtFixedRate(writeWorker, i*100L, writePeriodInMS, TimeUnit.MILLISECONDS);
+            LOG.info("group {} Start", g.getName());
             _writeSamplesExecutor = Executors.newSingleThreadScheduledExecutor();
             }
             //   return writeWorker;

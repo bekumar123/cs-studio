@@ -94,7 +94,6 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
     @Override
     public void measuredRun() {
 
-        LOG.info("RUN");
         try {
             processBatchHandlers(_connectionHandler.getThreadLocalConnection(), _handlerProvider, _rescueDataList);
 
@@ -159,7 +158,7 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
                 if (size >= 1000) {
                     try {
                         _watch.restart();
-                        LOG.info("{}", myStmt.executeBatch().length);
+                        LOG.debug("{}", myStmt.executeBatch().length);
                         LOG.debug("{}ms for {}x {}", new Object[] { _watch.getElapsedTimeInMillis(), size,
                                                                   handler.getHandlerType().getSimpleName() });
                     } catch (final Throwable t) {
@@ -178,7 +177,7 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
                 try {
                     _watch.restart();
                     //   int iii[] = stmt.executeBatch();
-                    LOG.info("{}", myStmt.executeBatch().length);
+                    LOG.debug("{}", myStmt.executeBatch().length);
                     //  stmt.execute();
                     // stmt.executeUpdate();
                     LOG.debug("{}ms for {}x {}", new Object[] { _watch.getElapsedTimeInMillis(), size,
@@ -194,7 +193,7 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
         } catch (final Throwable t) {
             handler.getQueue().addAll(elements);
             elements.clear();
-            LOG.info("Update error {}", myStmt.toString());
+            LOG.warn("Update error {}", myStmt.toString());
             handleThrowable(t, handler, rescueDataList);
         } finally {
             closeStatement(myStmt);
@@ -222,11 +221,11 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
             try {
                 _watch.restart();
                 //   int iii[] = stmt.executeBatch();
-                LOG.info("{}", stmt.executeBatch().length);
+                LOG.debug("{}", stmt.executeBatch().length);
 
                 //  stmt.execute();
                 // stmt.executeUpdate();
-                LOG.info("{}ms for {}x {}", new Object[] { _watch.getElapsedTimeInMillis(), size,
+                LOG.debug("{}ms for {}x {}", new Object[] { _watch.getElapsedTimeInMillis(), size,
                                                           handler.getHandlerType().getSimpleName() });
             } finally {
                 rescueDataList.clear();

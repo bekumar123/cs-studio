@@ -105,19 +105,19 @@ public class ArchiveChannelStatusDaoImpl extends AbstractArchiveDao implements I
         try {
             conn = createConnection();
             stmt = conn.prepareStatement(_selectLatestChannelStatusStmt);
-
+            int index=0;
             final List<IArchiveChannelStatus> resultList = Lists.newArrayListWithExpectedSize(ids.size());
             for (final ArchiveChannelId id : ids) {
-                stmt.setInt(1, id.intValue()); // channel_id=?
+                 stmt.setInt(1, id.intValue()); // channel_id=?
                 stmt.setLong(2, start.getNanos()); // time between ?
                 stmt.setLong(3, end.getNanos()); // and ?
-
+                index++;
                 rs = stmt.executeQuery();
                 if (rs.next()) {
                     resultList.add(createChannelStatusFromResult(rs));
                 }
-            }
-            return resultList;
+              }
+               return resultList;
         } catch (final Exception e) {
             handleExceptions(EXC_MSG, e);
         } finally {

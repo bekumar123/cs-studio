@@ -119,7 +119,7 @@ public class PersistEngineDataManager {
                                                             "PERIODIC Worker: " + workerId.getAndIncrement(),
                                                             prefPeriodInMS,
                                                             handlerProvider);
-         executor.scheduleAtFixedRate(newWorker, 0L, newWorker.getPeriodInMS()*2, TimeUnit.MILLISECONDS);
+        _executor.scheduleAtFixedRate(newWorker, 0L, newWorker.getPeriodInMS()*2, TimeUnit.MILLISECONDS);
         /*  executor.scheduleWithFixedDelay(newWorker,
                                        1L,
                                        newWorker.getPeriodInMS(),

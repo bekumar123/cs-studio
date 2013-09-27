@@ -159,21 +159,15 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             size = getEngineMgr().submitToBatch(samples);
             final List<? extends AbstractReducedDataSample> minuteSamples =
                 generatePerMinuteSamples(samples, _reducedDataMapForMinutes);
-            if (minuteSamples.isEmpty()) {
-                return size;
-            }
-            getEngineMgr().submitToBatch(minuteSamples);
+                getEngineMgr().submitToBatch(minuteSamples);
 
             final List<? extends AbstractReducedDataSample> hourSamples =
                 generatePerHourSamples(minuteSamples, _reducedDataMapForHours);
-            if (hourSamples.isEmpty()) {
-                return size;
-            }
-            getEngineMgr().submitToBatch(hourSamples);
-            return size;
-        } catch (final TypeSupportException e) {
+                getEngineMgr().submitToBatch(hourSamples);
+                 } catch (final TypeSupportException e) {
             throw new ArchiveDaoException("Type support for sample type could not be found.", e);
         }
+        return size;
     }
 
     @Nonnull

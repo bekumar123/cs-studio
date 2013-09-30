@@ -7,6 +7,7 @@ import org.csstudio.headless.common.signal.HeadlessSignalHandler;
 import org.csstudio.headless.common.signal.ISignalReceiver;
 import org.csstudio.headless.common.signal.SignalException;
 import org.csstudio.headless.common.util.ApplicationInfo;
+import org.csstudio.headless.common.util.StandardStreams;
 import org.csstudio.headless.common.xmpp.XmppCredentials;
 import org.csstudio.headless.common.xmpp.XmppSessionException;
 import org.csstudio.headless.common.xmpp.XmppSessionHandler;
@@ -38,6 +39,9 @@ public class CaGateway implements IApplication, RemotelyAccessible, ISignalRecei
     public Object start(final IApplicationContext context) throws Exception {
 
 	    LOG.info("Starting caGateway");
+
+	    StandardStreams stdStreams = new StandardStreams("./log");
+	    stdStreams.redirectStreams();
 
 	    try {
 	        HeadlessSignalHandler signalHandler = new HeadlessSignalHandler(this);

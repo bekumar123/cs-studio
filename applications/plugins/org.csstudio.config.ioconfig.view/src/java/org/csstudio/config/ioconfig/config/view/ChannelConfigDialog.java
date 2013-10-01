@@ -93,9 +93,7 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
         /**
          * Constructor.
          */
-        PaintListenerImplementation(@Nonnull final SlaveCfgData slaveCfgData,
-                                    final int leftUperCorner,
-                                    final int size) {
+        PaintListenerImplementation(@Nonnull final SlaveCfgData slaveCfgData, final int leftUperCorner, final int size) {
             _slaveCfgData = slaveCfgData;
             _leftUperCorner = leftUperCorner;
             _size = size;
@@ -116,6 +114,7 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
             }
         }
     }
+
     protected static final Logger LOG = LoggerFactory.getLogger(ChannelConfigDialog.class);
     private static int _DIRTY;
     /**
@@ -143,17 +142,15 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
 
     private DocumentationManageView _documentationManageView;
 
-    public ChannelConfigDialog(@Nullable final Shell parentShell,
-                               @Nonnull final GsdModuleModel2 gsdModuleModel,
-                               @Nonnull final GSDModuleDBO gsdModule) {
+    public ChannelConfigDialog(@Nullable final Shell parentShell, @Nonnull final GsdModuleModel2 gsdModuleModel,
+            @Nonnull final GSDModuleDBO gsdModule) {
         super(parentShell);
         setShellStyle(SWT.MODELESS | SWT.CLOSE | SWT.MAX | SWT.TITLE | SWT.BORDER | SWT.RESIZE);
         _moduleModel = gsdModuleModel;
         _gsdModule = gsdModule;
         _inputChannelPrototypeModelList = new ArrayList<ModuleChannelPrototypeDBO>();
         _outputChannelPrototypeModelList = new ArrayList<ModuleChannelPrototypeDBO>();
-        for (final ModuleChannelPrototypeDBO moduleChannelPrototype : _gsdModule
-                .getModuleChannelPrototypeNH()) {
+        for (final ModuleChannelPrototypeDBO moduleChannelPrototype : _gsdModule.getModuleChannelPrototypeNH()) {
             if (moduleChannelPrototype.isInput()) {
                 _inputChannelPrototypeModelList.add(moduleChannelPrototype);
             } else {
@@ -163,12 +160,12 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
     }
 
     public void closeAllCellEditors(@CheckForNull final TableViewer tableViewer) {
-        if(tableViewer != null) {
+        if (tableViewer != null) {
             tableViewer.getTable().setFocus();
             // finish last edit
             try {
                 for (final CellEditor editor : tableViewer.getCellEditors()) {
-                    if(editor != null) {
+                    if (editor != null) {
                         editor.deactivate();
                     }
                 }
@@ -178,10 +175,8 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
         }
     }
 
-    public void createGraphicalDataStructurePresentation(final int size,
-                                                         final int leftUperCorner,
-                                                         @Nonnull final SlaveCfgData slaveCfgData,
-                                                         @Nonnull final Composite box) {
+    public void createGraphicalDataStructurePresentation(final int size, final int leftUperCorner,
+            @Nonnull final SlaveCfgData slaveCfgData, @Nonnull final Composite box) {
         for (int i = 0; i < slaveCfgData.getNumber(); i++) {
             final Canvas canvas = new Canvas(box, SWT.NONE);
             final int horizSpan = slaveCfgData.getWordSize() / 8;
@@ -214,11 +209,11 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
      */
     public void setEmptyChannelPrototypeName2Unused() {
         final Set<ModuleChannelPrototypeDBO> moduleChannelPrototype;
-        moduleChannelPrototype =  _gsdModule.getModuleChannelPrototype();
+        moduleChannelPrototype = _gsdModule.getModuleChannelPrototype();
         if (moduleChannelPrototype != null) {
             for (final ModuleChannelPrototypeDBO moduleChannelPrototypeDBO : moduleChannelPrototype) {
                 String name = moduleChannelPrototypeDBO.getName();
-                if(name == null || name.isEmpty()) {
+                if (name == null || name.isEmpty()) {
                     name = "unused"; //$NON-NLS-1$
                     moduleChannelPrototypeDBO.setName(name);
                 }
@@ -260,7 +255,7 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
             }
 
             private void docTabSelectionAction(@Nonnull final SelectionEvent e) {
-                if(e.item.equals(item)) {
+                if (e.item.equals(item)) {
                     _documentationManageView.onActivate();
                 }
             }
@@ -269,7 +264,7 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
     }
 
     /**
-     *
+     * 
      * @param infoDialogArea
      */
     private void createInfo(@Nonnull final Composite infoDialogArea) {
@@ -277,13 +272,16 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
         final int leftUperCorner = 0;
 
         final List<SlaveCfgData> slaveCfgDataList = new SlaveCfgDataBuilder(_moduleModel.getValue())
-        .getSlaveCfgDataList();
+                .getSlaveCfgDataList();
 
         final Composite info = new Composite(infoDialogArea, SWT.NONE);
         info.setLayout(new GridLayout(4, true));
         info.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
         final TabFolder tabFolder = new TabFolder(info, SWT.TOP);
         tabFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 4, 1));
+
+        _haveInputFields = false;
+        _haveOutputFields = false;
 
         for (final SlaveCfgData slaveCfgData : slaveCfgDataList) {
             final TabItem tabItem = new TabItem(tabFolder, SWT.NONE);
@@ -293,19 +291,24 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
             box.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 
             String dataFormat;
-            if(slaveCfgData.isWordSize()) {
+            if (slaveCfgData.isWordSize()) {
                 _isWordSize &= true;
                 dataFormat = "Word's: "; //$NON-NLS-1$
             } else {
                 _isWordSize &= false;
                 dataFormat = "Byte's: "; //$NON-NLS-1$
             }
-            new Label(box, SWT.NONE).setText(Messages.ChannelConfigDialog_Count + dataFormat + slaveCfgData.getNumber());
-            _haveInputFields |= slaveCfgData.isInput();
+
+            new Label(box, SWT.NONE)
+                    .setText(Messages.ChannelConfigDialog_Count + dataFormat + slaveCfgData.getNumber());
+            _haveInputFields = _haveInputFields || slaveCfgData.isInput();
+
             new Label(box, SWT.NONE).setText(Messages.ChannelConfigDialog_Input_ + slaveCfgData.isInput());
-            _haveOutputFields = slaveCfgData.isOutput();
+            _haveOutputFields = _haveOutputFields || slaveCfgData.isOutput();
+
             new Label(box, SWT.NONE).setText(Messages.ChannelConfigDialog_Output_ + slaveCfgData.isOutput());
-            new Label(box, SWT.NONE).setText(Messages.ChannelConfigDialog_Parameter_ + slaveCfgData.getParameterAsHexString());
+            new Label(box, SWT.NONE).setText(Messages.ChannelConfigDialog_Parameter_
+                    + slaveCfgData.getParameterAsHexString());
 
             createGraphicalDataStructurePresentation(size, leftUperCorner, slaveCfgData, box);
             tabItem.setControl(box);
@@ -332,24 +335,14 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
         gridLayout.marginHeight = 0;
         left.setLayout(gridLayout);
         final Button addButton = createButton(left, IDialogConstants.NEXT_ID, Messages.ChannelConfigDialog_Add, false);
-        addButton
-                .addSelectionListener(new AddChannelPrototypeModelSelectionListener(this,
-                                                                                    _gsdModule,
-                                                                                    _outputChannelPrototypeModelList,
-                                                                                    _inputChannelPrototypeModelList,
-                                                                                    _outputTableViewer,
-                                                                                    _inputTableViewer));
-        final Button removeButton = createButton(left,
-                                                 IDialogConstants.BACK_ID,
-                                                 Messages.ChannelConfigDialog_Remove,
-                                                 false);
+        addButton.addSelectionListener(new AddChannelPrototypeModelSelectionListener(this, _gsdModule,
+                _outputChannelPrototypeModelList, _inputChannelPrototypeModelList, _outputTableViewer,
+                _inputTableViewer));
+        final Button removeButton = createButton(left, IDialogConstants.BACK_ID, Messages.ChannelConfigDialog_Remove,
+                false);
         final RemoveChannelPrototypeModelSelectionListener rsListener;
-        rsListener = new RemoveChannelPrototypeModelSelectionListener(_gsdModule,
-                                                                      _outputChannelPrototypeModelList,
-                                                                      _outputTableViewer,
-                                                                      _inputChannelPrototypeModelList,
-                                                                      _inputTableViewer,
-                                                                      _ioTabFolder);
+        rsListener = new RemoveChannelPrototypeModelSelectionListener(_gsdModule, _outputChannelPrototypeModelList,
+                _outputTableViewer, _inputChannelPrototypeModelList, _inputTableViewer, _ioTabFolder);
         removeButton.addSelectionListener(rsListener);
 
         // Button Left side
@@ -369,18 +362,22 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
     @Override
     @Nonnull
     protected final Control createDialogArea(@Nonnull final Composite parent) {
+        
         getShell().setText(Messages.ChannelConfigDialog_Module + _moduleModel.getName());
+        
         final Composite dialogAreaComposite = (Composite) super.createDialogArea(parent);
         createInfo(dialogAreaComposite);
+        
         _ioTabFolder = new TabFolder(dialogAreaComposite, SWT.TOP);
         _ioTabFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-        if(_haveInputFields) {
+
+        if (_haveInputFields) {
             final TabItem inputTabItem = new TabItem(_ioTabFolder, SWT.NONE);
             inputTabItem.setText(Messages.ChannelConfigDialog_Input);
             _inputTableViewer = createChannelTable(_ioTabFolder, _inputChannelPrototypeModelList);
             inputTabItem.setControl(_inputTableViewer.getTable());
         }
-        if(_haveOutputFields) {
+        if (_haveOutputFields) {
             final TabItem outputTabItem = new TabItem(_ioTabFolder, SWT.NONE);
             outputTabItem.setText(Messages.ChannelConfigDialog_Output);
             _outputTableViewer = createChannelTable(_ioTabFolder, _outputChannelPrototypeModelList);
@@ -412,7 +409,7 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
 
     @Nonnull
     public static CellEditor buildIntegerEdior(@Nonnull final Table table,
-                                               @Nullable final ICellEditorValidator cellEditorValidator) {
+            @Nullable final ICellEditorValidator cellEditorValidator) {
         final TextCellEditor editor = new TextCellEditor(table);
         editor.setValidator(cellEditorValidator);
         editor.activate();
@@ -425,7 +422,7 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
             @Override
             @CheckForNull
             public String isValid(@Nullable final Object value) {
-                if(value instanceof String) {
+                if (value instanceof String) {
                     final String stringValue = (String) value;
                     try {
                         Integer.parseInt(stringValue);
@@ -444,8 +441,7 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
         editors[0] = buildIntegerEdior(table, cellEditorValidator);
         editors[1] = buildNameEditor(table);
         // Type
-        editors[2] = new ComboBoxCellEditor(table, DataType.getNames(), SWT.DROP_DOWN
-                                            | SWT.READ_ONLY);
+        editors[2] = new ComboBoxCellEditor(table, DataType.getNames(), SWT.DROP_DOWN | SWT.READ_ONLY);
         editors[2].activate();
         // Size isn't to edit
         editors[3] = null;
@@ -465,15 +461,17 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
     }
 
     /**
-     * @param table The parent table for the new column.
-     * @param style the style of control to construct.
-     * @param width Sets the new width of the receiver.
-     * @param header the new column header text.
+     * @param table
+     *            The parent table for the new column.
+     * @param style
+     *            the style of control to construct.
+     * @param width
+     *            Sets the new width of the receiver.
+     * @param header
+     *            the new column header text.
      */
-    private static void addTableColumn(@Nonnull final Table table,
-                                       final int style,
-                                       final int width,
-                                       @Nonnull final String header) {
+    private static void addTableColumn(@Nonnull final Table table, final int style, final int width,
+            @Nonnull final String header) {
         final TableColumn tc = new TableColumn(table, style);
         tc.setText(header);
         tc.setResizable(true);
@@ -490,21 +488,20 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
             public void propertyChange(@Nonnull final PropertyChangeEvent event) {
                 final String oldValue = (String) event.getOldValue();
                 final String newValue = (String) event.getNewValue();
-                if( isNoOldValueAndNewValue(oldValue, newValue)) {
+                if (isNoOldValueAndNewValue(oldValue, newValue)) {
                     ChannelConfigDialog.dirtyPlus();
-                } else if( isOldValueAndNoNewValue(oldValue, newValue)) {
+                } else if (isOldValueAndNoNewValue(oldValue, newValue)) {
                     ChannelConfigDialog.dirtyMinus();
                 }
             }
 
             private boolean isOldValueAndNoNewValue(@Nonnull final String oldValue, @Nonnull final String newValue) {
-                return oldValue != null && oldValue.length() > 0
-                        && (newValue == null || newValue.length() < 1);
+                return oldValue != null && oldValue.length() > 0 && (newValue == null || newValue.length() < 1);
             }
 
-            private boolean isNoOldValueAndNewValue(@CheckForNull final String oldValue, @CheckForNull final String newValue) {
-                return (oldValue == null || oldValue.length() == 0) && newValue != null
-                        && newValue.length() > 0;
+            private boolean isNoOldValueAndNewValue(@CheckForNull final String oldValue,
+                    @CheckForNull final String newValue) {
+                return (oldValue == null || oldValue.length() == 0) && newValue != null && newValue.length() > 0;
             }
 
         });
@@ -513,9 +510,9 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
 
     @Nonnull
     private static TableViewer createChannelTable(@Nonnull final Composite tableParent,
-                                                  @Nullable final ArrayList<ModuleChannelPrototypeDBO> channelPrototypeModelList) {
+            @Nullable final ArrayList<ModuleChannelPrototypeDBO> channelPrototypeModelList) {
         final int style = SWT.SINGLE | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION
-        | SWT.HIDE_SELECTION;
+                | SWT.HIDE_SELECTION;
 
         final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
         gd.minimumHeight = 100;

@@ -2,9 +2,11 @@ package org.csstudio.config.ioconfig.model.pbmodel.gsdParser;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import org.csstudio.config.ioconfig.model.pbmodel.GSDFileDBO;
+import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,6 +20,61 @@ import org.junit.Test;
 public class ExtUserPrmDataUnitTest {
     
     private GSDFileDBO _gsdFileDBO;
+    
+    private final static String EXPECTED_OUTPUT = "BitArea(2-3)";
+    private final static String WRONG_EXAMPLE = "BitArea(2-3) 1";
+    private final static String SIMPLE_EXAMPLE = "BitArea(2-3)  0 0-1";
+    private final static String EXAMPLE_WITH_COMMENT = "BitArea(2-3)  0 0-1; ignore me";
+    private final static String EXAMPLE_WITH_TAB = "BitArea(2-3) \t  0 0-1; ignore me";
+    private final static String EXAMPLE_WITH_MULTIPLE_SPACES = "BitArea(2-3)       0     0-1    ;   ignore me";
+    private final static String EXAMPLE_WITH_WHITESPACE = "BitArea(2-3) \t \t\n 0 0-1\t\t";
+    
+    @Before
+    public void setUp() throws Exception {
+        _gsdFileDBO = new GSDFileDBO("JUnitTest", "#Profibus_DP\nVendor_Name            = JUnitTest");
+    }
+
+    @Test
+    public void testBuildDataTypeParameter() {
+        final ExtUserPrmData extUserPrmData = new ExtUserPrmData(new ParsedGsdFileModel(_gsdFileDBO), 1, "");
+        extUserPrmData.buildDataTypeParameter(SIMPLE_EXAMPLE);
+        assertThat(extUserPrmData.getDataType(), Is.is(EXPECTED_OUTPUT));
+    }
+
+    @Test
+    public void testBuildDataTypeParameterWithErrpr() {
+        final ExtUserPrmData extUserPrmData = new ExtUserPrmData(new ParsedGsdFileModel(_gsdFileDBO), 1, "");
+        extUserPrmData.buildDataTypeParameter(WRONG_EXAMPLE);
+        assertThat(extUserPrmData.getDataType(), Is.is(""));
+    }
+
+    @Test
+    public void testBuildDataTypeParameterWithComment() {
+        final ExtUserPrmData extUserPrmData = new ExtUserPrmData(new ParsedGsdFileModel(_gsdFileDBO), 1, "");
+        extUserPrmData.buildDataTypeParameter(EXAMPLE_WITH_COMMENT);
+        assertThat(extUserPrmData.getDataType(), Is.is(EXPECTED_OUTPUT));        
+    }
+    
+    @Test
+    public void testBuildDataTypeParameterWithTab() {
+        final ExtUserPrmData extUserPrmData = new ExtUserPrmData(new ParsedGsdFileModel(_gsdFileDBO), 1, "");
+        extUserPrmData.buildDataTypeParameter(EXAMPLE_WITH_TAB);
+        assertThat(extUserPrmData.getDataType(), Is.is(EXPECTED_OUTPUT));        
+    }
+
+    @Test
+    public void testBuildDataTypeParameterWithMultipleSpaces() {
+        final ExtUserPrmData extUserPrmData = new ExtUserPrmData(new ParsedGsdFileModel(_gsdFileDBO), 1, "");
+        extUserPrmData.buildDataTypeParameter(EXAMPLE_WITH_MULTIPLE_SPACES);
+        assertThat(extUserPrmData.getDataType(), Is.is(EXPECTED_OUTPUT));        
+    }
+    
+    @Test
+    public void testBuildDataTypeParameterWithWhitespace() {
+        final ExtUserPrmData extUserPrmData = new ExtUserPrmData(new ParsedGsdFileModel(_gsdFileDBO), 1, "");
+        extUserPrmData.buildDataTypeParameter(EXAMPLE_WITH_WHITESPACE);
+        assertThat(extUserPrmData.getDataType(), Is.is(EXPECTED_OUTPUT));        
+    }
     
     @Test
     public void defaults() {
@@ -103,20 +160,15 @@ public class ExtUserPrmDataUnitTest {
         assertFalse(out.getMinBit()==10);
         assertTrue(out.getMinBit()==0);
     }
-    
-    @Before
-    public void setUp() throws Exception {
-        _gsdFileDBO = new GSDFileDBO("JUnitTest", "#Profibus_DP\nVendor_Name            = JUnitTest");
-    }
-    
+        
     @Test
     public void text() {
         final ExtUserPrmData out = new ExtUserPrmData(new ParsedGsdFileModel(_gsdFileDBO), 1, "desc");
         assertEquals(out.getText(), "desc");
         out.setText("");
         assertEquals(out.getText(), "");
-        out.setText("^1234567890ß´qwertzuiopü+asdfghjklöä#yxcvbnm,.-QAY\\\"");
-        assertEquals(out.getText(), "^1234567890ß´qwertzuiopü+asdfghjklöä#yxcvbnm,.-QAY\\\"");
+        out.setText("^1234567890ß´qwertzuiopï¿½+asdfghjklï¿½ï¿½#yxcvbnm,.-QAY\\\"");
+        assertEquals(out.getText(), "^1234567890ß´qwertzuiopï¿½+asdfghjklï¿½ï¿½#yxcvbnm,.-QAY\\\"");
         
     }
 }

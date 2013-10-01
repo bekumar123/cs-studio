@@ -99,11 +99,10 @@ public class ExtUserPrmData {
     }
 
     /**
-     * @param tmpLine
+     * @param dataTypeParameter
      */
     public void buildDataTypeParameter(@Nonnull final String dataTypeParameter) {
-        final String replaceDataTypeParameter = dataTypeParameter.replaceAll("  ", " ");
-        final String[] dataTypeParameterParts = replaceDataTypeParameter.split(";")[0].split("[ ]");
+        final String[] dataTypeParameterParts = dataTypeParameter.split(";")[0].split("\\s+");
         if (dataTypeParameterParts.length == 3) {
             setDataType(dataTypeParameterParts[0]);
             setDefault(dataTypeParameterParts[1]);
@@ -118,7 +117,6 @@ public class ExtUserPrmData {
         } else {
             LOG.error("Unkown DataType!");
         }
-
     }
 
     /**

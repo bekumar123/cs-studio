@@ -5,7 +5,7 @@ import com.google.common.base.Preconditions;
 
 public class DescriptionEntry {
 
-    private static final String SPS_TYPE = "S7";
+    private static final String SPS_TYPE = "@Siemens_S7";
 
     private final TcpConnectionNr tcpConnectionNr;
     private final IoName ioName;
@@ -51,7 +51,7 @@ public class DescriptionEntry {
         //@formatter:off
         String text = SPS_TYPE + ": " 
             + tcpConnectionNr.toString() + "/" + spsAddress.toString() 
-            + " T=" + spsType.getTypeName();
+            + " 'T=" + spsType.getTypeName();
             //@formatter:on
         if (spsType == SpsType.BOOL) {
             Optional<Integer> bitPos = spsAddress.getBitPos();
@@ -63,6 +63,7 @@ public class DescriptionEntry {
             }
             text = text + " B=" + bit;
         }
+        text = text + "'";
         return new EpicsAddress(text);
     }
 

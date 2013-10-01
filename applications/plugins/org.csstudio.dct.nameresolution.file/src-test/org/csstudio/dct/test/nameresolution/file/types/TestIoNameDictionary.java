@@ -39,9 +39,9 @@ public class TestIoNameDictionary {
    @Test
    public void testGetExistingName() {
       EpicsAddress epcisAddress = ioNameDictionary.get(new IoName("Bsp_BOOL"));
-      assertThat(epcisAddress.getAddress(), is("S7: 0/0 T=BOOL B=0"));
+      assertThat(epcisAddress.getAddress(), is("@Siemens_S7: 0/0 'T=BOOL B=0'"));
       epcisAddress = ioNameDictionary.get(new IoName("Bsp_BYTE_ARRAY"));
-      assertThat(epcisAddress.getAddress(), is("S7: 0/30 T=ARRAY"));
+      assertThat(epcisAddress.getAddress(), is("@Siemens_S7: 0/30 'T=ARRAY'"));
    }
 
    @Test

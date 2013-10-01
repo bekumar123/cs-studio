@@ -135,7 +135,7 @@ public class TestSpsDescriptionParser {
                 "complex.txt");
         spsDescriptionParser.parse();
         List<DescriptionEntry> result = spsDescriptionParser.getParseResult();
-        assertThat(result.get(0).getEcpisAddress().getAddress(), is("S7: 1/0 T=BOOL B=0"));
+        assertThat(result.get(0).getEcpisAddress().getAddress(), is("@Siemens_S7: 1/0 'T=BOOL B=0'"));
     }
 
 }

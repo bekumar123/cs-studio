@@ -40,23 +40,25 @@ public class CaGateway implements IApplication, RemotelyAccessible, ISignalRecei
 
 	    LOG.info("Starting caGateway");
 
-	    StandardStreams stdStreams = new StandardStreams("./log");
-	    stdStreams.redirectStreams();
-
-	    try {
-	        HeadlessSignalHandler signalHandler = new HeadlessSignalHandler(this);
-	        signalHandler.activateIntSignal();
-	        signalHandler.activateTermSignal();
-	    } catch (SignalException e) {
-	        LOG.warn("CANNOT create the signal handler. Any signal will be ignored.");
+	    if (CAGatewayPreference.REDIRECT_STD_STREAMS.getValue()) {
+    	    StandardStreams stdStreams = new StandardStreams("./log");
+    	    stdStreams.redirectStreams();
 	    }
 
-		InfoCmd.staticInject(this);
-		try {
-		    xmppSessionHandler.connect();
-		} catch (XmppSessionException e) {
-		    LOG.warn("Cannot connect to the XMPP server.");
-		}
+	    InfoCmd.staticInject(this);
+	    try {
+	        xmppSessionHandler.connect();
+	    } catch (XmppSessionException e) {
+	        LOG.warn("Cannot connect to the XMPP server.");
+	    }
+
+        try {
+            HeadlessSignalHandler signalHandler = new HeadlessSignalHandler(this);
+            signalHandler.activateIntSignal();
+            signalHandler.activateTermSignal();
+        } catch (SignalException e) {
+            LOG.warn("CANNOT create the signal handler. Any signal will be ignored.");
+        }
 
 		context.applicationRunning();
 

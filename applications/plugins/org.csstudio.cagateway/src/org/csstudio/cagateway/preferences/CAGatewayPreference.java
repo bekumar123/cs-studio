@@ -23,7 +23,6 @@ package org.csstudio.cagateway.preferences;
 
 
 import javax.annotation.Nonnull;
-
 import org.csstudio.cagateway.Activator;
 import org.csstudio.domain.desy.preferences.AbstractPreference;
 
@@ -46,14 +45,16 @@ public final class CAGatewayPreference<T> extends AbstractPreference<T> {
         new CAGatewayPreference<String>("XmppUserName", "cagateway");
     public static final CAGatewayPreference<String> XMPP_PASSWORD =
         new CAGatewayPreference<String>("XmppPassword", "cagateway");
-    
-	public static final CAGatewayPreference<Integer> JMS_TIME_TO_LIVE_ALARMS = 
+
+	public static final CAGatewayPreference<Integer> JMS_TIME_TO_LIVE_ALARMS =
 		new CAGatewayPreference<Integer> ("jmsTimeToLiveAlarms",3600000);
-	public static final CAGatewayPreference<Integer> JMS_TIME_TO_LIVE_LOGS = 
+	public static final CAGatewayPreference<Integer> JMS_TIME_TO_LIVE_LOGS =
 		new CAGatewayPreference<Integer> ("jmsTimeToLiveLogs", 600000);
-	public static final CAGatewayPreference<Integer> JMS_TIME_TO_LIVE_PUT_LOGS = 
+	public static final CAGatewayPreference<Integer> JMS_TIME_TO_LIVE_PUT_LOGS =
 		new CAGatewayPreference<Integer> ("jmsTimeToLivePutLogs", 3600000);
 
+    public static final CAGatewayPreference<Boolean> REDIRECT_STD_STREAMS =
+            new CAGatewayPreference<Boolean> ("redirectStdStreams", false);
 
     private CAGatewayPreference(@Nonnull final String keyAsString, @Nonnull final T defaultValue) {
         super(keyAsString, defaultValue);

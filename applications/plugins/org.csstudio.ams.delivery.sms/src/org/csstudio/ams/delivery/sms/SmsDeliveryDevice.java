@@ -80,7 +80,7 @@ public class SmsDeliveryDevice implements Runnable,
     private static final String SMS_TEST_TEXT = "[MODEMTEST{$CHECKID,$GATEWAYID}]";
 
     private Object deviceLock;
-    
+
     private JmsProperties jmsProps;
 
     private Service modemService;
@@ -95,10 +95,10 @@ public class SmsDeliveryDevice implements Runnable,
     private ModemTestStatus testStatus;
 
     private SmsWorkerStatus workerStatus;
-    
+
     /** Reading period (in ms) for the modem */
     private long readWaitingPeriod;
-    
+
     private boolean working;
 
     public SmsDeliveryDevice(final ModemInfoContainer deviceInfo,
@@ -118,9 +118,9 @@ public class SmsDeliveryDevice implements Runnable,
 
     @Override
     public void run() {
-        
+
         while (working) {
-            
+
             synchronized (deviceLock) {
                 try {
                     deviceLock.wait(readWaitingPeriod);
@@ -128,14 +128,14 @@ public class SmsDeliveryDevice implements Runnable,
                     LOG.warn("I have been interrupted.");
                 }
             }
-            
+
             LinkedList<InboundMessage> inMsgs = new LinkedList<InboundMessage>();
             int count = readMessages(inMsgs);
-            
+
             if (count > 0) {
-                
+
                 for (InboundMessage message : inMsgs) {
-                    
+
                     if (message instanceof InboundBinaryMessage) {
                         LOG.warn("Incoming message has type InboundBinaryMessage");
                         if (deleteMessage(message)) {
@@ -148,12 +148,12 @@ public class SmsDeliveryDevice implements Runnable,
                                                  message.getOriginator(),
                                                  message.getGatewayId() };
                         LOG.info("Incoming message: {} from phone number {} received by gateway {}", param);
-                        
+
                         final IncomingSmsMessage inMsg = new IncomingSmsMessage(message);
                         for (final DeviceListener o : listener) {
                             o.onIncomingMessage(new DeviceObject(this, inMsg));
                         }
-                
+
                         if (deleteMessage(message)) {
                             LOG.info("Message has been deleted.");
                         } else {
@@ -164,7 +164,7 @@ public class SmsDeliveryDevice implements Runnable,
             }
         }
     }
-    
+
     public void addDeviceListener(final DeviceListener l) {
         listener.add(l);
     }
@@ -244,12 +244,12 @@ public class SmsDeliveryDevice implements Runnable,
         }
 
         workerStatus.setSmsSent(success);
-        
+
         return success;
     }
 
     public void announceDeviceTest(final DeviceTestMessageContent msg) {
-        
+
         // If we have an active check, reset it and force a new check
         if (testStatus.isActive()) {
             LOG.info("A modem check is still active. Forcing a new modem check.");
@@ -293,7 +293,7 @@ public class SmsDeliveryDevice implements Runnable,
             mapMessage.setString("NAME", "AMS_SYSTEM_CHECK_ANSWER");
             mapMessage.setString("APPLICATION-ID", "SmsDeliveryWorker");
             mapMessage.setString("DESTINATION", "AmsMonitor");
-            
+
             producer.sendMessage(mapMessage);
         } catch(final JMSException jmse) {
             LOG.error("Answer message could NOT be sent: {}", jmse.getMessage());
@@ -604,6 +604,8 @@ public class SmsDeliveryDevice implements Runnable,
                         synchronized (getDeviceService()) {
                             if(getDeviceService().sendMessage(outMsg, name)) {
                                 modemTestStatus.addGatewayId(name);
+                                getLogger().info("Number of sent SMS: {}",
+                                                 getDeviceService().getOutboundMessageCount());
                             }
                         }
                     } catch(final Exception e) {

@@ -43,6 +43,7 @@
       <plugin id="org.csstudio.servicelocator"/>
       <plugin id="org.csstudio.utility.jms"/>
       <plugin id="org.csstudio.utility.pvmanager"/>
+      <plugin id="org.csstudio.utility.pvmanager.epics"/>
       <plugin id="org.csstudio.workspace"/>
       <plugin id="org.eclipse.ant.core"/>
       <plugin id="org.eclipse.core.commands"/>

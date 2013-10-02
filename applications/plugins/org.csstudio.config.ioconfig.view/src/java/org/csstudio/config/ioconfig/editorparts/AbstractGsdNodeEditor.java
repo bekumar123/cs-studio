@@ -755,8 +755,15 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
 
             }
         }
+        
+        afterSaveUserPrmData();
+        
     }
 
+    protected void afterSaveUserPrmData() {
+        // for configuration purposes
+    }
+    
     abstract void setGsdFile(@Nullable GSDFileDBO gsdFile);
 
     abstract void setPrmUserData(@Nonnull Integer index, @Nonnull Integer value);

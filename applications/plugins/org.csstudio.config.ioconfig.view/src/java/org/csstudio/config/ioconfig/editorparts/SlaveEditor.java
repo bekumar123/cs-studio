@@ -483,6 +483,26 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         }
     }
 
+    private void refreshUserPrmTable() {
+        // Settings - USER PRM MODE
+        final ArrayList<AbstractNodeSharedImpl<?,?>> nodes = new ArrayList<AbstractNodeSharedImpl<?,?>>();
+        nodes.add(_slave);
+        nodes.addAll(_slave.getChildrenAsMap().values());
+
+        _userPrmDataList.setInput(nodes);
+
+        final TableColumn[] columns = _userPrmDataList.getTable().getColumns();
+        for (final TableColumn tableColumn : columns) {
+            if(tableColumn != null) {
+                tableColumn.pack();
+            }
+        } 
+    }
+    
+    protected void afterSaveUserPrmData() {
+        refreshUserPrmTable();
+    }
+    
     /** {@inheritDoc}
      * @throws PersistenceException */
     @Override
@@ -514,17 +534,8 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         // Modules
         _maxSize = parsedGsdFileModel.getMaxModule();
         setSlots();
-        // Settings - USER PRM MODE
-        final ArrayList<AbstractNodeSharedImpl<?,?>> nodes = new ArrayList<AbstractNodeSharedImpl<?,?>>();
-        nodes.add(_slave);
-        nodes.addAll(_slave.getChildrenAsMap().values());
-        _userPrmDataList.setInput(nodes);
-        final TableColumn[] columns = _userPrmDataList.getTable().getColumns();
-        for (final TableColumn tableColumn : columns) {
-            if(tableColumn != null) {
-                tableColumn.pack();
-            }
-        }
+       
+        refreshUserPrmTable();
     }
 
     /** {@inheritDoc} */

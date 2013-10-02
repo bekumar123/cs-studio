@@ -599,7 +599,9 @@ public class MasterEditor extends AbstractGsdNodeEditor<MasterDBO> {
 
         final Group gMemoryAddressing = new Group(comp, SWT.NONE);
         gMemoryAddressing.setText("Memory Address Mode:");
-        gMemoryAddressing.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+        GridData layoutData = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
+        layoutData.minimumWidth = 240;
+        gMemoryAddressing.setLayoutData(layoutData);
         gMemoryAddressing.setLayout(new GridLayout(2, false));
 
         final Button direct = new Button(gMemoryAddressing, SWT.RADIO);

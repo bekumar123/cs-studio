@@ -408,7 +408,7 @@ public class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
 
         final Text text = new Text(topGroup, SWT.SINGLE | SWT.LEAD | SWT.READ_ONLY | SWT.BORDER);
         text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1));
-        // TODO (hrickens) [02.05.2011]: Hier sollte bei jeder änderung der Werte Aktualisiert werden. (Momentan garnicht aber auch nicht nur beim Speichern)
+        // TODO (hrickens) [02.05.2011]: Hier sollte bei jeder ï¿½nderung der Werte Aktualisiert werden. (Momentan garnicht aber auch nicht nur beim Speichern)
         text.setText(_module.getConfigurationData());
 
         final Composite filterComposite = buildFilterComposite(topGroup);
@@ -584,7 +584,7 @@ public class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
                                                      "Sort Index",
                                                      getProfiBusTreeView(), 99));
     }
-
+  
     /**
      * @param topGroup The parent Group for the CurrentUserParamData content.
      * @throws IOException
@@ -593,6 +593,7 @@ public class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
         if(_currentUserParamDataGroup != null) {
             _currentUserParamDataGroup.dispose();
         }
+                     
         // Current User Param Data Group
         _currentUserParamDataGroup = new Group(topGroup, SWT.NONE);
         final GridData gd = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 3);

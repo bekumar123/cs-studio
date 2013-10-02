@@ -44,6 +44,7 @@ import org.csstudio.config.ioconfig.model.pbmodel.GSDFileDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.Ranges;
 import org.csstudio.config.ioconfig.model.pbmodel.SlaveDBO;
+import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.AbstractGsdPropertyModel;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdModuleModel2;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.ParsedGsdFileModel;
 import org.csstudio.config.ioconfig.view.DeviceDatabaseErrorDialog;
@@ -726,6 +727,19 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         _maxSlots.setEditable(false);
     }
 
+    private int getElementCount() {
+        AbstractGsdPropertyModel parsedGsdFileModel;
+        try {
+            parsedGsdFileModel = getGsdPropertyModel();
+            if (parsedGsdFileModel == null) {
+                return 0;
+            }
+            return parsedGsdFileModel.getExtUserPrmDataRefMap().values().size();
+        } catch (IOException e) {
+            return 0;
+        }
+    }
+    
     /**
      *
      * @param topGroup
@@ -736,12 +750,19 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         if (_currentUserParamDataGroup != null) {
             _currentUserParamDataGroup.dispose();
         }
+
+        if (getElementCount() == 0) {
+            return;
+        }
+
         // Current User Param Data Group
         _currentUserParamDataGroup = new Group(topGroup, SWT.NONE);
         final GridData gd = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 3);
+        gd.minimumWidth = 100;
         _currentUserParamDataGroup.setLayoutData(gd);
-        _currentUserParamDataGroup.setLayout(new FillLayout());
-        _currentUserParamDataGroup.setText("Current User Param Data:");
+        _currentUserParamDataGroup.setLayout(new FillLayout());        
+         _currentUserParamDataGroup.setText("Current User Param Data:");
+        
         final ScrolledComposite scrollComposite = new ScrolledComposite(_currentUserParamDataGroup,
                                                                         SWT.V_SCROLL);
         final Composite currentUserParamDataComposite = new Composite(scrollComposite, SWT.NONE);
@@ -771,15 +792,16 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         buildCurrentUserPrmData(currentUserParamDataComposite);
         topGroup.layout();
     }
-
+ 
     /**
      * @param comp
      */
     private void makeOperationMode(@Nonnull final Composite comp) {
         // Operation Mode
+        
         final Group operationModeGroup = new Group(comp, SWT.NONE);
         final GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-        layoutData.minimumWidth = 170;
+        layoutData.minimumWidth = 240;
         operationModeGroup.setLayoutData(layoutData);
         operationModeGroup.setText("Operation Mode");
         operationModeGroup.setLayout(new GridLayout(3, false));
@@ -968,7 +990,7 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         final Label slavePrmDataLabel = new Label(slaveDataGroup, SWT.NONE);
         slavePrmDataLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
         slavePrmDataLabel.setText("Slave Prm Data");
-        // TODO (hrickens) [02.05.2011]: Hier sollte bei jeder änderung der Werte Aktualisiert werden. (Momentan garnicht aber auch nciht nur beim Speichern)
+        // TODO (hrickens) [02.05.2011]: Hier sollte bei jeder ï¿½nderung der Werte Aktualisiert werden. (Momentan garnicht aber auch nciht nur beim Speichern)
         _slavePrmDataText = new Text(slaveDataGroup, SWT.SINGLE | SWT.LEAD | SWT.READ_ONLY | SWT.BORDER);
         _slavePrmDataText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
         _slavePrmDataText.setText(_slave.getPrmUserData());
@@ -981,14 +1003,17 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         _slaveCfgDataText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
         _slaveCfgDataText.setText(_slave.getSlaveCfgDataString());
     }
-
+    
     /**
      * @param comp
      */
     private void makeSettingsGroups(@Nonnull final Composite comp) {
         // Groups
         _groupsRadioButtons = new Group(comp, SWT.NONE);
-        _groupsRadioButtons.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+        final GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
+        layoutData.minimumWidth = 200;
+        _groupsRadioButtons.setLayoutData(layoutData);
+       
         _groupsRadioButtons.setLayout(new GridLayout(4, true));
         _groupsRadioButtons.setText("Groups");
         _groupIdentStored = _slave.getGroupIdent();

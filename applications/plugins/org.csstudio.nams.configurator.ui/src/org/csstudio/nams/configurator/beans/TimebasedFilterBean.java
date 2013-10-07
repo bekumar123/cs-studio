@@ -1,15 +1,15 @@
 package org.csstudio.nams.configurator.beans;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.csstudio.nams.configurator.beans.filters.JunctorConditionForFilterTreeBean;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.JunctorConditionType;
 
 
 public class TimebasedFilterBean extends FilterBean<TimebasedFilterBean> {
+	
+	public static enum TimebasedPropertyNames {timeout, sendOnTimeout}
 
-	private int timeOut;
+	private int timeout = 10;
+	private boolean sendOnTimeout = true;
 	private JunctorConditionForFilterTreeBean startRootCondition;
 	private JunctorConditionForFilterTreeBean stopRootCondition;
 	
@@ -20,14 +20,28 @@ public class TimebasedFilterBean extends FilterBean<TimebasedFilterBean> {
 		stopRootCondition.setJunctorConditionType(JunctorConditionType.AND);
 	}
 	
-	public void setTimeOut(int timeOut) {
-		this.timeOut = timeOut;
+	public void setTimeout(int timeout) {
+		int oldValue = this.timeout;
+		this.timeout = timeout;
+		this.pcs.firePropertyChange(TimebasedPropertyNames.timeout.name(), oldValue,
+				this.getTimeout());
 	}
 	
-	public int getTimeOut() {
-		return timeOut;
+	public int getTimeout() {
+		return timeout;
 	}
 
+	public boolean isSendOnTimeout() {
+		return sendOnTimeout;
+	}
+	
+	public void setSendOnTimeout(boolean sendOnTimeout) {
+		boolean oldValue = this.sendOnTimeout;
+		this.sendOnTimeout = sendOnTimeout;
+		this.pcs.firePropertyChange(
+				TimebasedPropertyNames.sendOnTimeout.name(), oldValue, this.isSendOnTimeout());
+	}
+	
 	public JunctorConditionForFilterTreeBean getStartRootCondition() {
 		return startRootCondition;
 	}
@@ -52,7 +66,8 @@ public class TimebasedFilterBean extends FilterBean<TimebasedFilterBean> {
 			
 		this.startRootCondition = (JunctorConditionForFilterTreeBean) bean.startRootCondition.getClone();
 		this.stopRootCondition = (JunctorConditionForFilterTreeBean) bean.stopRootCondition.getClone();
-		this.timeOut = bean.timeOut;
+		this.timeout = bean.timeout;
+		this.sendOnTimeout = bean.isSendOnTimeout();
 	}
 
 	@Override
@@ -67,7 +82,8 @@ public class TimebasedFilterBean extends FilterBean<TimebasedFilterBean> {
 				* result
 				+ ((stopRootCondition == null) ? 0 : stopRootCondition
 						.hashCode());
-		result = prime * result + timeOut;
+		result = prime * result + timeout;
+		result = prime * result + (sendOnTimeout ? 1 : 2);
 		return result;
 	}
 
@@ -90,7 +106,9 @@ public class TimebasedFilterBean extends FilterBean<TimebasedFilterBean> {
 				return false;
 		} else if (!stopRootCondition.equals(other.stopRootCondition))
 			return false;
-		if (timeOut != other.timeOut)
+		if (timeout != other.timeout)
+			return false;
+		if(sendOnTimeout != other.sendOnTimeout)
 			return false;
 		return true;
 	}

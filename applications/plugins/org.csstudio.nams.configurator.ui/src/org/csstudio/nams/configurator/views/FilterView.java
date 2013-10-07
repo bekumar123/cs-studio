@@ -8,6 +8,7 @@ import org.csstudio.nams.configurator.actions.BeanToEditorId;
 import org.csstudio.nams.configurator.beans.DefaultFilterBean;
 import org.csstudio.nams.configurator.beans.IConfigurationBean;
 import org.csstudio.nams.configurator.beans.TimebasedFilterBean;
+import org.csstudio.nams.configurator.beans.WatchDogFilterBean;
 import org.csstudio.nams.configurator.editor.ConfigurationEditorInput;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -31,7 +32,7 @@ public class FilterView extends AbstractNamsView {
 	
 	@Override
 	protected List<IAction> getMenuActions() {
-		List<IAction> result = new ArrayList<IAction>(2);
+		List<IAction> result = new ArrayList<IAction>(3);
 		
 		result.add(new Action() {
 			@Override
@@ -78,6 +79,30 @@ public class FilterView extends AbstractNamsView {
 			@Override
 			public String getText() {
 				return "New Filter";
+			}
+		});
+		
+		result.add(new Action() {
+			@Override
+			public void run() {
+				ConfigurationEditorInput editorInput = new ConfigurationEditorInput(
+						new WatchDogFilterBean());
+
+				final IWorkbenchPage activePage = PlatformUI.getWorkbench()
+						.getActiveWorkbenchWindow().getActivePage();
+				final String editorId = BeanToEditorId.getEnumForClass(
+						WatchDogFilterBean.class).getEditorId();
+
+				try {
+					activePage.openEditor(editorInput, editorId);
+				} catch (PartInitException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			@Override
+			public String getText() {
+				return "New WatchDog Filter";
 			}
 		});
 		

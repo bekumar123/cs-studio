@@ -96,14 +96,14 @@ public class FilterTreeContentProvider_Test extends TestCase {
 
 	@Test
 	public void testMethodsThatShouldDoNothing() {
-		final FilterTreeContentProvider provider = new FilterTreeContentProvider();
+		final DefaultFilterTreeContentProvider provider = new DefaultFilterTreeContentProvider();
 		provider.inputChanged(null, null, null);
 		provider.dispose();
 	}
 
 	@Test
 	public void testNormalUse() {
-		final FilterTreeContentProvider provider = new FilterTreeContentProvider();
+		final DefaultFilterTreeContentProvider provider = new DefaultFilterTreeContentProvider();
 
 		// Get Parent liefert zu begin für alles null
 		Assert.assertNull(provider.getParent(new Object()));

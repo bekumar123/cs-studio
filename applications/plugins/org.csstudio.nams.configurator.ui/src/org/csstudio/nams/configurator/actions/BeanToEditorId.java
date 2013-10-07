@@ -8,12 +8,14 @@ import org.csstudio.nams.configurator.beans.DefaultFilterBean;
 import org.csstudio.nams.configurator.beans.FilterbedingungBean;
 import org.csstudio.nams.configurator.beans.IConfigurationBean;
 import org.csstudio.nams.configurator.beans.TimebasedFilterBean;
+import org.csstudio.nams.configurator.beans.WatchDogFilterBean;
 import org.csstudio.nams.configurator.editor.AlarmbearbeiterEditor;
 import org.csstudio.nams.configurator.editor.AlarmbearbeitergruppenEditor;
 import org.csstudio.nams.configurator.editor.AlarmtopicEditor;
 import org.csstudio.nams.configurator.editor.FilterEditor;
 import org.csstudio.nams.configurator.editor.FilterbedingungEditor;
 import org.csstudio.nams.configurator.editor.TimebasedFilterEditor;
+import org.csstudio.nams.configurator.editor.WatchDogFilterEditor;
 
 /**
  * Zuordnung der Editoren zu den Konfigurationselementen.
@@ -26,6 +28,7 @@ public enum BeanToEditorId {
 	AlarmTopic(AlarmtopicBean.class, AlarmtopicEditor.getId()),
 	DefaultFilter(DefaultFilterBean.class, FilterEditor.getId()),
 	TimebasedFilter(TimebasedFilterBean.class, TimebasedFilterEditor.getId()),
+	WatchDogFilter(WatchDogFilterBean.class, WatchDogFilterEditor.getId()),
 	Filterbedingung(FilterbedingungBean.class, FilterbedingungEditor.getId());
 
 	public static BeanToEditorId getEnumForClass(

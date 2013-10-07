@@ -57,6 +57,7 @@ import org.csstudio.ams.dbAccess.configdb.TopicDAO;
 import org.csstudio.ams.dbAccess.configdb.UserDAO;
 import org.csstudio.ams.dbAccess.configdb.UserGroupDAO;
 import org.csstudio.ams.dbAccess.configdb.UserGroupUserDAO;
+import org.csstudio.ams.dbAccess.configdb.WatchDogFilterDAO;
 import org.hsqldb.cmdline.SqlFile;
 import org.hsqldb.cmdline.SqlToolError;
 
@@ -96,6 +97,7 @@ public class ConfigReplicator implements AmsConstants {
 			FilterConditionTimeBasedDAO.removeAll(localDB);
 			FilterDAO.removeAll(localDB);
 			TimebasedFilterDAO.removeAll(localDB);
+			WatchDogFilterDAO.removeAll(localDB);
 			FilterFilterConditionDAO.removeAll(localDB);
 			TopicDAO.removeAll(localDB);
 			FilterActionTypeDAO.removeAll(localDB);
@@ -123,6 +125,7 @@ public class ConfigReplicator implements AmsConstants {
 			FilterConditionTimeBasedDAO.copyFilterConditionTimeBased(masterDB, localDB);
 			FilterDAO.copyFilter(masterDB, localDB);
 			TimebasedFilterDAO.copyFilter(masterDB, localDB);
+			WatchDogFilterDAO.copyFilter(masterDB, localDB);
 			FilterFilterConditionDAO.copyFilterFilterCondition(masterDB, localDB);
 			TopicDAO.copyTopic(masterDB, localDB);
 			FilterActionTypeDAO.copyFilterActionType(masterDB, localDB);
@@ -227,6 +230,7 @@ public class ConfigReplicator implements AmsConstants {
             FilterConditionTimeBasedDAO.removeAll(hsqlDB);
             FilterDAO.removeAll(hsqlDB);
             TimebasedFilterDAO.removeAll(hsqlDB);
+            WatchDogFilterDAO.removeAll(hsqlDB);
             FilterFilterConditionDAO.removeAll(hsqlDB);
             TopicDAO.removeAll(hsqlDB);
             FilterActionTypeDAO.removeAll(hsqlDB);
@@ -259,6 +263,7 @@ public class ConfigReplicator implements AmsConstants {
 					hsqlDB, "");
 			FilterDAO.copyFilter(masterDB, hsqlDB, "");
 			TimebasedFilterDAO.copyFilter(masterDB, hsqlDB, "");
+			WatchDogFilterDAO.copyFilter(masterDB, hsqlDB, "");
 			FilterFilterConditionDAO.copyFilterFilterCondition(masterDB,
 					hsqlDB, "");
 			TopicDAO.copyTopic(masterDB, hsqlDB, "");

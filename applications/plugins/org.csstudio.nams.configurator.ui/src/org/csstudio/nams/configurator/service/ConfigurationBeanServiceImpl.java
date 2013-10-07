@@ -29,6 +29,7 @@ import org.csstudio.nams.configurator.beans.IReceiverBean;
 import org.csstudio.nams.configurator.beans.MessageTemplateBean;
 import org.csstudio.nams.configurator.beans.TimebasedFilterBean;
 import org.csstudio.nams.configurator.beans.User2GroupBean;
+import org.csstudio.nams.configurator.beans.WatchDogFilterBean;
 import org.csstudio.nams.configurator.beans.filters.FilterConditionAddOnBean;
 import org.csstudio.nams.configurator.beans.filters.JunctorConditionBean;
 import org.csstudio.nams.configurator.beans.filters.JunctorConditionForFilterTreeBean;
@@ -48,6 +49,7 @@ import org.csstudio.nams.service.configurationaccess.localstore.declaration.Loca
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.NewAMSConfigurationElementDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.TimeBasedFilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.TopicDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.WatchDogFilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.exceptions.InconsistentConfigurationException;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.exceptions.StorageError;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.exceptions.StorageException;
@@ -357,16 +359,24 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 				conditions.add(filterbedingungBean);
 			}
 			((DefaultFilterBean) bean).setConditions(conditions);
-		} else {
+		} else if (filterDTO instanceof TimeBasedFilterDTO) {
 			// TODO
 			TimeBasedFilterDTO timeBasedFilterDTO = (TimeBasedFilterDTO)filterDTO;
 			
 			bean = new TimebasedFilterBean();
-			((TimebasedFilterBean)bean).setTimeOut(timeBasedFilterDTO.getTimeout());
+			((TimebasedFilterBean)bean).setTimeout(timeBasedFilterDTO.getTimeout());
+			((TimebasedFilterBean)bean).setSendOnTimeout(timeBasedFilterDTO.isSendOnTimeout());
 			FilterbedingungBean startFilterbedingungBean = DTO2Bean(timeBasedFilterDTO.getStartFilterCondition());
 			((TimebasedFilterBean)bean).setStartRootCondition((JunctorConditionForFilterTreeBean) startFilterbedingungBean);
 			FilterbedingungBean stopFilterbedingungBean = DTO2Bean(timeBasedFilterDTO.getStopFilterCondition());
 			((TimebasedFilterBean)bean).setStopRootCondition((JunctorConditionForFilterTreeBean) stopFilterbedingungBean);
+		} else {
+			WatchDogFilterDTO watchDogFilterDTO = (WatchDogFilterDTO) filterDTO;
+			
+			bean = new WatchDogFilterBean();
+			((WatchDogFilterBean)bean).setTimeOut(watchDogFilterDTO.getTimeout());
+			((WatchDogFilterBean)bean).setRootCondition((JunctorConditionForFilterTreeBean) DTO2Bean(watchDogFilterDTO.getFilterCondition()));
+			//TODO implement !!!
 		}
 		
 		bean.setDefaultMessage(filterDTO.getDefaultMessage());
@@ -1140,7 +1150,7 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 			// FIXME: DIESMAL ABER WIRKLICH! GS & FZ 16.07.2013 (falls vergessen: nächste Zeile wieder einkommentieren)
 			final List<FilterConditionDTO> list = this.createFilterConditionDTOListForFilter(((DefaultFilterBean) bean).getConditions());
 			((DefaultFilterDTO) dto).setFilterConditions(list);
-		} else {
+		} else if (bean instanceof TimebasedFilterBean) {
 			if(dto == null) {
 				dto = new TimeBasedFilterDTO();
 				inserted = true;
@@ -1154,6 +1164,9 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 			}
 			TimebasedFilterBean timeBasedBean = (TimebasedFilterBean) bean;
 			TimeBasedFilterDTO timeBasedFilterDTO = (TimeBasedFilterDTO)dto;
+			
+			timeBasedFilterDTO.setTimeout(timeBasedBean.getTimeout());
+			timeBasedFilterDTO.setSendOnTimeout(timeBasedBean.isSendOnTimeout());
 
 			final List<FilterConditionDTO> startOperandsList = this.createFilterConditionDTOListForFilter(timeBasedBean.getStartRootCondition().getOperands());
 			timeBasedFilterDTO.getStartFilterCondition().setOperands(new HashSet<FilterConditionDTO>(startOperandsList));
@@ -1162,6 +1175,20 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 			final List<FilterConditionDTO> stopOperandsList = this.createFilterConditionDTOListForFilter(timeBasedBean.getStopRootCondition().getOperands());
 			timeBasedFilterDTO.getStopFilterCondition().setOperands(new HashSet<FilterConditionDTO>(stopOperandsList));
 			configurationService.saveDTO(timeBasedFilterDTO.getStopFilterCondition());
+		} else {
+			if(dto == null) {
+				dto = new WatchDogFilterDTO();
+				inserted = true;
+			} else {
+				JunctorCondForFilterTreeDTO filterCondition = ((WatchDogFilterDTO) dto).getFilterCondition();
+				this.removeJunctorConditionForFilterTreeBeans(filterCondition.getOperands());
+			}
+			WatchDogFilterBean watchDogFilterBean = (WatchDogFilterBean) bean;
+			WatchDogFilterDTO watchDogFilterDTO = (WatchDogFilterDTO) dto;
+
+			final List<FilterConditionDTO> startOperandsList = this.createFilterConditionDTOListForFilter(watchDogFilterBean.getRootCondition().getOperands());
+			watchDogFilterDTO.getFilterCondition().setOperands(new HashSet<FilterConditionDTO>(startOperandsList));
+			configurationService.saveDTO(watchDogFilterDTO.getFilterCondition());
 		}
 		
 		dto.setDefaultMessage(bean.getDefaultMessage());
@@ -1521,17 +1548,19 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 
 			Collection<FilterBean> filters = this.filterBeans.values();
 			for (FilterBean filterBean : filters) {
-				List<FilterbedingungBean> conditions;
+				List<FilterbedingungBean> conditions = Collections.emptyList();
 				if (filterBean instanceof DefaultFilterBean) {
 					conditions = ((DefaultFilterBean) filterBean)
 							.getConditions();
 
-				} else {
+				} else if (filterBean instanceof TimebasedFilterBean) {
 					conditions = new ArrayList<FilterbedingungBean>();
 					conditions.add(((TimebasedFilterBean) filterBean)
 							.getStartRootCondition());
 					conditions.add(((TimebasedFilterBean) filterBean)
 							.getStopRootCondition());
+				} else if (filterBean instanceof WatchDogFilterBean) {
+					conditions = Collections.singletonList((FilterbedingungBean)((WatchDogFilterBean) filterBean).getRootCondition());
 				}
 				if (isReferencedBySubCondition(bean, conditions)) {
 					return false;

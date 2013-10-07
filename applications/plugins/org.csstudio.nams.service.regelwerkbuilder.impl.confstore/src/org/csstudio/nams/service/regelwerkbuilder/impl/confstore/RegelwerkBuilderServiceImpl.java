@@ -21,11 +21,13 @@ import org.csstudio.nams.common.material.regelwerk.yaams.StringRegel;
 import org.csstudio.nams.common.material.regelwerk.yaams.TimebasedRegelwerk;
 import org.csstudio.nams.common.material.regelwerk.yaams.TimebasedRegelwerk.TimeoutType;
 import org.csstudio.nams.common.material.regelwerk.yaams.UndRegel;
+import org.csstudio.nams.common.material.regelwerk.yaams.WatchDogRegelwerk;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.DefaultFilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.JunctorConditionType;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.LocalStoreConfigurationService;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.TimeBasedFilterDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.WatchDogFilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.FilterConditionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.JunctorCondForFilterTreeDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.JunctorConditionDTO;
@@ -94,8 +96,13 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 					TimeBasedFilterDTO timeBasedFilterDTO = (TimeBasedFilterDTO) filterDTO;
 					Regel startRegel = createRegel(timeBasedFilterDTO.getStartFilterCondition());
 					Regel stopRegel = createRegel(timeBasedFilterDTO.getStopFilterCondition());
+					TimeoutType timeoutType = (timeBasedFilterDTO.isSendOnTimeout()) ? TimeoutType.SENDE_BEI_TIMEOUT : TimeoutType.SENDE_BEI_STOP_REGEL;
 					regelwerk = new TimebasedRegelwerk(regelwerkskennung, startRegel, stopRegel, Millisekunden.valueOf(timeBasedFilterDTO
-							.getTimeout()), TimeoutType.SENDE_BEI_TIMEOUT); // FIXME: Lese Timeout-Typ aus
+							.getTimeout() * 1000), timeoutType); 
+				} else if (filterDTO instanceof WatchDogFilterDTO) {
+					WatchDogFilterDTO watchDogFilterDTO = (WatchDogFilterDTO) filterDTO;
+					Regel rootRegel = createRegel(watchDogFilterDTO.getFilterCondition());
+					regelwerk = new WatchDogRegelwerk(regelwerkskennung, rootRegel, watchDogFilterDTO.getTimeout());
 				}
 				results.add(regelwerk);
 			}

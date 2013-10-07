@@ -201,7 +201,7 @@ public class FilterEditor extends AbstractEditor<DefaultFilterBean> {
 		return FilterEditor.EDITOR_ID;
 	}
 
-	private final FilterTreeContentProvider filterTreeContentProvider = new FilterTreeContentProvider();
+	private final DefaultFilterTreeContentProvider filterTreeContentProvider = new DefaultFilterTreeContentProvider();
 	private Text _idTextEntry;
 	private Text _nameTextEntry;
 	private Combo _rubrikComboEntry;

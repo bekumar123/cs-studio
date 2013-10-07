@@ -9,9 +9,9 @@ import org.csstudio.ams.AmsConstants;
 import org.csstudio.ams.Log;
 import org.csstudio.ams.dbAccess.DAO;
 
-public class TimebasedFilterDAO extends DAO {
+public class WatchDogFilterDAO extends DAO {
 
-	private static final String TABLE_NAME = "AMS_Filter_Timebased";
+	private static final String TABLE_NAME = "AMS_Filter_WatchDog";
 
 
 	public static void removeAll(Connection con) throws SQLException {
@@ -59,10 +59,10 @@ public class TimebasedFilterDAO extends DAO {
 	
 	private static void copyFilter(Connection masterDB, Connection targetDB,
 			String masterSuffix, String targetSuffix) throws SQLException {
-		final String readQuery = "SELECT IFILTERREF,ITIMEOUT,ISTARTFILTERCONDITIONREF,ISTOPFILTERCONDITIONREF,ISENDONTIMEOUT FROM " 
+		final String readQuery = "SELECT IFILTERREF,ITIMEOUT,IFILTERCONDITIONREF FROM " 
 				+ TABLE_NAME + masterSuffix;
 		final String writeQuery = "INSERT INTO " + TABLE_NAME + targetSuffix
-				+ " (IFILTERREF,ITIMEOUT,ISTARTFILTERCONDITIONREF,ISTOPFILTERCONDITIONREF,ISENDONTIMEOUT) VALUES(?,?,?,?,?)";
+				+ " (IFILTERREF,ITIMEOUT,IFILTERCONDITIONREF) VALUES(?,?,?)";
 		
 		ResultSet resultSet = null;
 		PreparedStatement readStatement = null;
@@ -78,8 +78,6 @@ public class TimebasedFilterDAO extends DAO {
 				writeStatement.setInt(1, resultSet.getInt(1));
 				writeStatement.setInt(2, resultSet.getInt(2));
 				writeStatement.setInt(3, resultSet.getInt(3));
-				writeStatement.setInt(4, resultSet.getInt(4));
-				writeStatement.setInt(5, resultSet.getInt(5));
 				
 				writeStatement.executeUpdate();
 			}

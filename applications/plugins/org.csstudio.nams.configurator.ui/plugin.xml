@@ -94,6 +94,12 @@
             id="org.csstudio.nams.configurator.editor.TimebasedFilterEditor"
             name="Timebased Filter Editor">
       </editor>
+      <editor
+            class="org.csstudio.nams.configurator.editor.WatchDogFilterEditor"
+            icon="icons/ams.gif"
+            id="org.csstudio.nams.configurator.editor.WatchDogFilterEditor"
+            name="WatchDog Filter Editor">
+      </editor>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">

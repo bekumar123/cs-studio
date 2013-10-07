@@ -45,6 +45,7 @@ import org.csstudio.nams.common.decision.Vorgangsmappe;
 import org.csstudio.nams.common.material.regelwerk.yaams.DefaultRegelwerk;
 import org.csstudio.nams.common.material.regelwerk.yaams.NewRegelwerk;
 import org.csstudio.nams.common.material.regelwerk.yaams.TimebasedRegelwerk;
+import org.csstudio.nams.common.material.regelwerk.yaams.WatchDogRegelwerk;
 import org.csstudio.nams.common.service.ExecutionService;
 import org.csstudio.nams.common.wam.Arbeitsumgebung;
 
@@ -77,6 +78,7 @@ public class AlarmEntscheidungsBuero {
 	 *            TODO
 	 * @param historyService
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public AlarmEntscheidungsBuero(final ExecutionService executionService, final NewRegelwerk[] regelwerke,
 			final Eingangskorb<Vorgangsmappe> alarmVorgangEingangskorb, final Ausgangskorb<Vorgangsmappe> alarmVorgangAusgangskorb,
 			int filterThreadCount) {
@@ -91,7 +93,8 @@ public class AlarmEntscheidungsBuero {
 		final Map<String, Eingangskorb<Ablagefaehig>> terminEingangskoerbeDerSachbearbeiter = new HashMap<String, Eingangskorb<Ablagefaehig>>();
 
 		final Executor threadPool = Executors.newFixedThreadPool(filterThreadCount);
-
+		final Timer watchDogTimer = new Timer("watchDogTimer");
+		
 		for (int zaehler = 0; zaehler < regelwerke.length; zaehler++) {
 			Arbeitsfaehig sachbearbeiter = null;
 			NewRegelwerk regelwerk = regelwerke[zaehler];
@@ -105,6 +108,10 @@ public class AlarmEntscheidungsBuero {
 						terminAssistenzAblagekorb, this.ausgangskorb, (TimebasedRegelwerk) regelwerk);
 				eingangskoerbeSachbearbeiter.add(zaehler, eingangskorb);
 				terminEingangskoerbeDerSachbearbeiter.put(((TimebasedSachbearbeiter) sachbearbeiter).gibName(), eingangskorb);
+			} else if (regelwerk instanceof WatchDogRegelwerk) {
+				final BeobachtbarerEingangskorb<Vorgangsmappe> eingangskorb = new ExecutorBeobachtbarerEingangskorb<Vorgangsmappe>(threadPool);
+				sachbearbeiter = new WatchDogSachbearbeiter("" + zaehler, eingangskorb, this.ausgangskorb, (WatchDogRegelwerk) regelwerk, watchDogTimer);
+				eingangskoerbeSachbearbeiter.add(zaehler, eingangskorb);
 			}
 
 			this._sachbearbeiterList.add(sachbearbeiter);
@@ -175,10 +182,5 @@ public class AlarmEntscheidungsBuero {
 	 */
 	List<Arbeitsfaehig> gibListeDerSachbearbeiterFuerTest() {
 		return this._sachbearbeiterList;
-	}
-
-	@SuppressWarnings("unchecked")
-	private Eingangskorb<Ablagefaehig>[] erzeugeEingangskoerbeArray(final int length) {
-		return new Eingangskorb[length];
 	}
 }

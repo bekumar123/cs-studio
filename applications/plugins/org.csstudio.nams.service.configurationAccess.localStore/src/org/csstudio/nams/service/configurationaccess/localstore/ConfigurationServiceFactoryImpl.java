@@ -21,6 +21,7 @@ import org.csstudio.nams.service.configurationaccess.localstore.declaration.Loca
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.ReplicationStateDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.TimeBasedFilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.TopicDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.WatchDogFilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmbEmailFilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmbGruppenEmailBestFilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmbGruppenEmailFilterActionDTO;
@@ -287,6 +288,7 @@ public class ConfigurationServiceFactoryImpl implements
 				.addAnnotatedClass(FilterDTO.class)
 				.addAnnotatedClass(DefaultFilterDTO.class)
 				.addAnnotatedClass(TimeBasedFilterDTO.class)
+				.addAnnotatedClass(WatchDogFilterDTO.class)
 				.addAnnotatedClass(HistoryDTO.class)
 				.addAnnotatedClass(RubrikDTO.class)
 				.addAnnotatedClass(NegationCondForFilterTreeDTO.class)

@@ -251,7 +251,7 @@ class LocalStoreConfigurationServiceImpl implements
 			newTransaction.begin();
 
 			SQLQuery query = null;
-			String[] tabellen = new String[] { "AMS_FILTER", "AMS_FILTER_TIMEBASED",
+			String[] tabellen = new String[] { "AMS_FILTER", "AMS_FILTER_TIMEBASED", "AMS_FILTER_WATCHDOG",
 					"AMS_FILTERACTION", "AMS_FILTERACTIONTYPE",
 					"AMS_FILTERCONDITION", "AMS_FILTERCONDITIONTYPE",
 					"AMS_FILTERCONDITION_PV", "AMS_FILTERCONDITION_STRING",

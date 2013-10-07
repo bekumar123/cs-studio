@@ -9,14 +9,12 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 
-import org.csstudio.nams.common.material.regelwerk.StringRegelOperator;
 import org.csstudio.nams.service.configurationaccess.localstore.Mapper;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.FilterConditionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.FilterConditionsToFilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.HasManuallyJoinedElements;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.JunctorCondForFilterTreeDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.NegationCondForFilterTreeDTO;
-import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.StringFilterConditionDTO;
 
 @Entity
 @DiscriminatorValue("default")
@@ -40,21 +38,6 @@ public class DefaultFilterDTO extends FilterDTO implements NewAMSConfigurationEl
 	public void setFilterConditions(
 			final List<FilterConditionDTO> filterConditonDTOs) {
 		this.filterConditons = filterConditonDTOs;
-	}
-
-	public boolean isSimpleStringBasedFilter() {
-		boolean result = false;
-
-		final List<FilterConditionDTO> filterConditions = this.getFilterConditions();
-
-		if (filterConditions.size() == 1) {
-			FilterConditionDTO aFilterConditionDTO = filterConditions.get(0);
-			if(aFilterConditionDTO instanceof StringFilterConditionDTO) {
-				result = ((StringFilterConditionDTO) aFilterConditionDTO).getOperatorEnum() == StringRegelOperator.OPERATOR_TEXT_EQUAL;
-			}
-		}
-
-		return result;
 	}
 
 	public void loadJoinData(final Mapper mapper) throws Throwable {

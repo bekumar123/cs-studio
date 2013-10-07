@@ -53,7 +53,7 @@ public class DefaultFilterBean extends FilterBean<DefaultFilterBean> {
 	}
 
 	@Override
-	protected void doUpdateState(FilterBean bean) {
+	protected void doUpdateState(DefaultFilterBean bean) {
 		super.doUpdateState(bean);
 		
 		if(bean instanceof DefaultFilterBean) {

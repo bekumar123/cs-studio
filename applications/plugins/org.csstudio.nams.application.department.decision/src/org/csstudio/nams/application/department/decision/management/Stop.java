@@ -34,7 +34,6 @@ import org.csstudio.remote.management.IManagementCommand;
  * @author Markus Moeller
  *
  */
-@SuppressWarnings("hiding")
 public class Stop implements IManagementCommand {
 
     private static String ACTION_LOGIN_FAILED =

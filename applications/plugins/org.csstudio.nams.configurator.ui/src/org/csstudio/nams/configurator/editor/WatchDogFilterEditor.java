@@ -18,23 +18,16 @@ import org.csstudio.nams.configurator.beans.FilterbedingungBean;
 import org.csstudio.nams.configurator.beans.IConfigurationBean;
 import org.csstudio.nams.configurator.beans.IReceiverBean;
 import org.csstudio.nams.configurator.beans.MessageTemplateBean;
-import org.csstudio.nams.configurator.beans.TimebasedFilterBean;
+import org.csstudio.nams.configurator.beans.WatchDogFilterBean;
 import org.csstudio.nams.configurator.beans.filters.JunctorConditionForFilterTreeBean;
 import org.csstudio.nams.configurator.beans.filters.NotConditionForFilterTreeBean;
-import org.csstudio.nams.configurator.editor.TimebasedFilterTreeContentProvider.TimebasedFilterTreeContentType;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.JunctorConditionType;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.FilterActionType;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeansObservables;
-import org.eclipse.core.databinding.conversion.StringToNumberConverter;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.IValidator;
-import org.eclipse.core.databinding.validation.ValidationStatus;
-import org.eclipse.core.internal.databinding.validation.NumberFormatConverter;
-import org.eclipse.core.internal.databinding.validation.StringToIntegerValidator;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.databinding.swt.SWTObservables;
@@ -83,47 +76,38 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 
-public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
+public class WatchDogFilterEditor extends AbstractEditor<WatchDogFilterBean> {
 
-	private static final String EDITOR_ID = "org.csstudio.nams.configurator.editor.TimebasedFilterEditor"; //$NON-NLS-1$
+	private static final String EDITOR_ID = "org.csstudio.nams.configurator.editor.WatchDogFilterEditor"; //$NON-NLS-1$
 
 	public static String getId() {
-		return TimebasedFilterEditor.EDITOR_ID;
+		return WatchDogFilterEditor.EDITOR_ID;
 	}
 
-	private TimebasedFilterTreeContentProvider startFilterTreeContentProvider;
-	private TimebasedFilterTreeContentProvider stopFilterTreeContentProvider;
+	private WatchDogFilterTreeContentProvider filterTreeContentProvider;
 	private Text _idTextEntry;
 	private Text _nameTextEntry;
 	private Combo _rubrikComboEntry;
 	private Text _defaultMessageTextEntry;
 	private ComboViewer _rubrikComboEntryViewer;
 	
-	private TreeViewer startFilterConditionsTreeViewer;
-	private TreeViewer stopFilterConditionsTreeViewer;
+	private TreeViewer filterConditionsTreeViewer;
 
 	private FormToolkit formToolkit;
 
 	private ScrolledForm mainForm;
 
 	private TableViewer actionTableViewer;
-	private Button timeoutModeCheckBox;
-	private Text timeoutTextEntry;
 
-	public TimebasedFilterEditor() {
+	public WatchDogFilterEditor() {
 		super();
 
 	}
 
 	@Override
 	public void createPartControl(final Composite parent) {
-		this.startFilterTreeContentProvider = new TimebasedFilterTreeContentProvider(TimebasedFilterTreeContentType.START);
-		this.stopFilterTreeContentProvider = new TimebasedFilterTreeContentProvider(TimebasedFilterTreeContentType.STOP);
-		
-		System.out.println(getWorkingCopyOfEditorInput().getStartRootCondition().getOperands());
-		System.out.println(getWorkingCopyOfEditorInput().getStopRootCondition().getOperands());
-		System.out.println(getWorkingCopyOfEditorInput().getTimeout());
-		
+		this.filterTreeContentProvider = new WatchDogFilterTreeContentProvider();
+
 		this.formToolkit = new FormToolkit(parent.getDisplay());
 		this.mainForm = this.formToolkit.createScrolledForm(parent);
 		final Composite outerFormMain = this.mainForm.getBody();
@@ -167,7 +151,7 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 
 			@Override
             public void mouseUp(final MouseEvent e) {
-				TimebasedFilterEditor.this._defaultMessageTextEntry
+				WatchDogFilterEditor.this._defaultMessageTextEntry
 						.append(templateContent[templateComboViewer.getCombo()
 								.getSelectionIndex()]);
 			}
@@ -175,36 +159,20 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 		});
 		this._defaultMessageTextEntry = this.createDescriptionTextEntry(main,
 				Messages.FilterEditor_default_message);
-		
-		timeoutModeCheckBox = this.createCheckBoxEntry(main, "Alarm bei Timeout", true);
-		timeoutTextEntry = this.createTextEntry(main, "Timeout in Sekunden", true);
 
 		{
-			final Composite startTreeAndButtonsComposite = new Composite(outerFormMain,
+			final Composite treeAndButtonsComposite = new Composite(outerFormMain,
 					SWT.None);
-			startTreeAndButtonsComposite.setLayout(new GridLayout(1, false));
+			treeAndButtonsComposite.setLayout(new GridLayout(1, false));
 			GridDataFactory.fillDefaults().grab(true, true).applyTo(
-					startTreeAndButtonsComposite);
-			new Label(startTreeAndButtonsComposite, SWT.None).setText(Messages.TimebasedFilterEditor_start_filter_conditions);
+					treeAndButtonsComposite);
+			new Label(treeAndButtonsComposite, SWT.None).setText(Messages.FilterEditor_filterconditions);
 
-			this.startFilterConditionsTreeViewer = this.createTreeViewer(
-					startTreeAndButtonsComposite,
-					this.startFilterTreeContentProvider);
-			startFilterConditionsTreeViewer.setInput(this.getWorkingCopyOfEditorInput());
-			startFilterConditionsTreeViewer.expandAll();
-
-			final Composite stopTreeAndButtonsComposite = new Composite(outerFormMain,
-					SWT.None);
-			stopTreeAndButtonsComposite.setLayout(new GridLayout(1, false));
-			GridDataFactory.fillDefaults().grab(true, true).applyTo(
-					stopTreeAndButtonsComposite);
-			new Label(stopTreeAndButtonsComposite, SWT.None).setText(Messages.TimebasedFilterEditor_stop_filter_conditions);
-			
-			this.stopFilterConditionsTreeViewer = this.createTreeViewer(
-					stopTreeAndButtonsComposite,
-					this.stopFilterTreeContentProvider);
-			stopFilterConditionsTreeViewer.setInput(this.getWorkingCopyOfEditorInput());
-			stopFilterConditionsTreeViewer.expandAll();
+			this.filterConditionsTreeViewer = this.createTreeViewer(
+					treeAndButtonsComposite,
+					this.filterTreeContentProvider);
+			filterConditionsTreeViewer.setInput(this.getWorkingCopyOfEditorInput());
+			filterConditionsTreeViewer.expandAll();
 		}
 		
 		this.createFilterActionWidget(outerFormMain);
@@ -215,7 +183,7 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 		
 	}
 		
-	private TreeViewer createTreeViewer(Composite parent, final TimebasedFilterTreeContentProvider contentProvider) {
+	private TreeViewer createTreeViewer(Composite parent, final WatchDogFilterTreeContentProvider contentProvider) {
 		final TreeViewer result = new TreeViewer(parent, SWT.MULTI
 				| SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
 		final Tree filterTree = result.getTree();
@@ -320,7 +288,7 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 					if (junctorParent != null) {
 						junctorParent.removeOperand(bean2remove);
 						result.refresh();
-						TimebasedFilterEditor.this.updateBeanAndFireEvent();
+						WatchDogFilterEditor.this.updateBeanAndFireEvent();
 					}
 
 				}
@@ -340,8 +308,8 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 	@Override
 	public void onBeanInsert(final IConfigurationBean bean) {
 		// FIXME synchronize bean and beanClone
-		if (this.startFilterConditionsTreeViewer != null) {
-			this.startFilterConditionsTreeViewer.refresh();
+		if (this.filterConditionsTreeViewer != null) {
+			this.filterConditionsTreeViewer.refresh();
 		}
 		// if (!isDirty()) {
 		// afterSafe();
@@ -352,8 +320,8 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 	@Override
 	public void onBeanUpdate(final IConfigurationBean bean) {
 		// FIXME synchronize bean and beanClone
-		if (this.startFilterConditionsTreeViewer != null) {
-			this.startFilterConditionsTreeViewer.refresh();
+		if (this.filterConditionsTreeViewer != null) {
+			this.filterConditionsTreeViewer.refresh();
 		}
 		// if (!isDirty()) {
 		// afterSafe();
@@ -376,10 +344,8 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 		this.actionTableViewer.setInput(this.getWorkingCopyOfEditorInput()
 				.getActions().toArray());
 		
-		this.startFilterConditionsTreeViewer.setInput(this.getWorkingCopyOfEditorInput());
-		this.stopFilterConditionsTreeViewer.setInput(this.getWorkingCopyOfEditorInput());
-		this.startFilterConditionsTreeViewer.expandAll();
-		this.stopFilterConditionsTreeViewer.expandAll();
+		this.filterConditionsTreeViewer.setInput(this.getWorkingCopyOfEditorInput());
+		this.filterConditionsTreeViewer.expandAll();
 	}
 
 	@Override
@@ -443,13 +409,6 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 		context.bindValue(SWTObservables
 				.observeSelection(this._rubrikComboEntry),
 				rubrikTextObservable, null, null);
-		
-		IObservableValue sendOnTimeoutObservableValue = BeansObservables.observeValue(getWorkingCopyOfEditorInput(), TimebasedFilterBean.TimebasedPropertyNames.sendOnTimeout.name());
-		context.bindValue(SWTObservables.observeSelection(timeoutModeCheckBox), sendOnTimeoutObservableValue, null, null);
-		
-		IObservableValue timeoutObservableValue = BeansObservables.observeValue(getWorkingCopyOfEditorInput(), TimebasedFilterBean.TimebasedPropertyNames.timeout.name());
-		context.bindValue(SWTObservables.observeText(timeoutTextEntry, SWT.Modify), timeoutObservableValue, null, null);
-
 	}
 
 	protected void updateBeanAndFireEvent() {
@@ -527,7 +486,7 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 					strings[i] = types[i].getDescription();
 				}
 				return new ComboBoxCellEditor(
-						TimebasedFilterEditor.this.actionTableViewer.getTable(),
+						WatchDogFilterEditor.this.actionTableViewer.getTable(),
 						strings, SWT.READ_ONLY);
 			}
 
@@ -553,8 +512,8 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 						.getFilterActionTypeValues();
 				((FilterAction) element).setType(types[((Integer) value)
 						.intValue()]);
-				TimebasedFilterEditor.this.actionTableViewer.refresh();
-				TimebasedFilterEditor.this.firePropertyChange(IEditorPart.PROP_DIRTY);
+				WatchDogFilterEditor.this.actionTableViewer.refresh();
+				WatchDogFilterEditor.this.firePropertyChange(IEditorPart.PROP_DIRTY);
 			}
 
 		});
@@ -578,7 +537,7 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 			@Override
 			protected CellEditor getCellEditor(final Object element) {
 				this.textEditor = new TextCellEditor(
-						TimebasedFilterEditor.this.actionTableViewer.getTable());
+						WatchDogFilterEditor.this.actionTableViewer.getTable());
 				this.textEditor.setValidator(new ICellEditorValidator() {
 					public String isValid(final Object value) {
 						// TODO (gs)validator anpassen
@@ -603,8 +562,8 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 					((FilterAction) element).setMessage(this.textEditor
 							.getErrorMessage());
 				}
-				TimebasedFilterEditor.this.actionTableViewer.refresh();
-				TimebasedFilterEditor.this.firePropertyChange(IEditorPart.PROP_DIRTY);
+				WatchDogFilterEditor.this.actionTableViewer.refresh();
+				WatchDogFilterEditor.this.firePropertyChange(IEditorPart.PROP_DIRTY);
 			}
 
 		});
@@ -624,14 +583,14 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 
 			@Override
             public void mouseDown(MouseEvent e) {
-				FilterBean bean = TimebasedFilterEditor.this
+				FilterBean bean = WatchDogFilterEditor.this
 						.getWorkingCopyOfEditorInput();
-				FilterAction action = (FilterAction) ((StructuredSelection) TimebasedFilterEditor.this.actionTableViewer
+				FilterAction action = (FilterAction) ((StructuredSelection) WatchDogFilterEditor.this.actionTableViewer
 						.getSelection()).getFirstElement();
 				bean.removeAction(action);
-				TimebasedFilterEditor.this.actionTableViewer.setInput(TimebasedFilterEditor.this
+				WatchDogFilterEditor.this.actionTableViewer.setInput(WatchDogFilterEditor.this
 						.getWorkingCopyOfEditorInput().getActions().toArray());
-				TimebasedFilterEditor.this.firePropertyChange(IEditorPart.PROP_DIRTY);
+				WatchDogFilterEditor.this.firePropertyChange(IEditorPart.PROP_DIRTY);
 			}
 
 			@Override
@@ -651,14 +610,14 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 
 			@Override
             public void mouseDown(MouseEvent e) {
-				FilterBean bean = TimebasedFilterEditor.this
+				FilterBean bean = WatchDogFilterEditor.this
 						.getWorkingCopyOfEditorInput();
-				FilterAction action = (FilterAction) ((StructuredSelection) TimebasedFilterEditor.this.actionTableViewer
+				FilterAction action = (FilterAction) ((StructuredSelection) WatchDogFilterEditor.this.actionTableViewer
 						.getSelection()).getFirstElement();
 				bean.moveUpAction(action);
-				TimebasedFilterEditor.this.actionTableViewer.setInput(TimebasedFilterEditor.this
+				WatchDogFilterEditor.this.actionTableViewer.setInput(WatchDogFilterEditor.this
 						.getWorkingCopyOfEditorInput().getActions().toArray());
-				TimebasedFilterEditor.this.firePropertyChange(IEditorPart.PROP_DIRTY);
+				WatchDogFilterEditor.this.firePropertyChange(IEditorPart.PROP_DIRTY);
 			}
 
 			@Override
@@ -678,14 +637,14 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 
 			@Override
             public void mouseDown(MouseEvent e) {
-				FilterBean bean = TimebasedFilterEditor.this
+				FilterBean bean = WatchDogFilterEditor.this
 						.getWorkingCopyOfEditorInput();
-				FilterAction action = (FilterAction) ((StructuredSelection) TimebasedFilterEditor.this.actionTableViewer
+				FilterAction action = (FilterAction) ((StructuredSelection) WatchDogFilterEditor.this.actionTableViewer
 						.getSelection()).getFirstElement();
 				bean.moveDownAction(action);
-				TimebasedFilterEditor.this.actionTableViewer.setInput(TimebasedFilterEditor.this
+				WatchDogFilterEditor.this.actionTableViewer.setInput(WatchDogFilterEditor.this
 						.getWorkingCopyOfEditorInput().getActions().toArray());
-				TimebasedFilterEditor.this.firePropertyChange(IEditorPart.PROP_DIRTY);
+				WatchDogFilterEditor.this.firePropertyChange(IEditorPart.PROP_DIRTY);
 			}
 
 			@Override
@@ -701,16 +660,11 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 	}
 
 	private void initDND() {
-		ViewerDropAdapter startViewerDropAdapter = new TreeViewerDropAdapter(this.startFilterConditionsTreeViewer);
-		this.startFilterConditionsTreeViewer.addDropSupport(DND.DROP_LINK,
+		ViewerDropAdapter startViewerDropAdapter = new TreeViewerDropAdapter(this.filterConditionsTreeViewer);
+		this.filterConditionsTreeViewer.addDropSupport(DND.DROP_LINK,
 				new Transfer[] { LocalSelectionTransfer.getTransfer() },
 				startViewerDropAdapter);
 	
-		ViewerDropAdapter stopViewerDropAdapter = new TreeViewerDropAdapter(this.stopFilterConditionsTreeViewer);
-		this.stopFilterConditionsTreeViewer.addDropSupport(DND.DROP_LINK,
-				new Transfer[] { LocalSelectionTransfer.getTransfer() },
-				stopViewerDropAdapter);
-		
 		this.actionTableViewer.addDropSupport(DND.DROP_LINK,
 				new Transfer[] { LocalSelectionTransfer.getTransfer() },
 				new ViewerDropAdapter(this.actionTableViewer) {
@@ -738,14 +692,14 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 						}
 						if (action != null) {
 							action.setReceiver((IReceiverBean) selectedObject);
-							TimebasedFilterEditor.this.getWorkingCopyOfEditorInput()
+							WatchDogFilterEditor.this.getWorkingCopyOfEditorInput()
 									.addFilterAction(action);
-							TimebasedFilterEditor.this.actionTableViewer
-									.setInput(TimebasedFilterEditor.this
+							WatchDogFilterEditor.this.actionTableViewer
+									.setInput(WatchDogFilterEditor.this
 											.getWorkingCopyOfEditorInput()
 											.getActions().toArray());
 							result = true;
-							TimebasedFilterEditor.this
+							WatchDogFilterEditor.this
 									.firePropertyChange(IEditorPart.PROP_DIRTY);
 						}
 						return result;
@@ -812,7 +766,7 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 			if (result) {
 				treeViewer.expandToLevel(bean, 0);
 				treeViewer.setSelection(new StructuredSelection(bean));
-				TimebasedFilterEditor.this.updateBeanAndFireEvent();
+				WatchDogFilterEditor.this.updateBeanAndFireEvent();
 			}
 			return result;
 		}
@@ -854,11 +808,11 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 			final JunctorConditionForFilterTreeBean node = new JunctorConditionForFilterTreeBean();
 			node.setJunctorConditionType(this._type);
 			final boolean added = this._selectedBean.addOperand(node);
-			TimebasedFilterEditor.this.startFilterConditionsTreeViewer.refresh();
+			WatchDogFilterEditor.this.filterConditionsTreeViewer.refresh();
 			if (added) {
 				treeViewer.expandToLevel(node, 0);
 				treeViewer.setSelection(new StructuredSelection(node));
-				TimebasedFilterEditor.this.updateBeanAndFireEvent();
+				WatchDogFilterEditor.this.updateBeanAndFireEvent();
 			}
 		}
 	
@@ -924,7 +878,7 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 					newBean = filterbedingungBean;
 					junction.addOperand(filterbedingungBean);
 				}
-				TimebasedFilterEditor.this.updateBeanAndFireEvent();
+				WatchDogFilterEditor.this.updateBeanAndFireEvent();
 			}
 	
 			treeViewer.refresh();

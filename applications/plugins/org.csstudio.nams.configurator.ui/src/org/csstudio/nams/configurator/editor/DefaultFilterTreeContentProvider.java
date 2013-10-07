@@ -1,27 +1,27 @@
+
 package org.csstudio.nams.configurator.editor;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
-
 import org.csstudio.nams.configurator.beans.FilterbedingungBean;
 import org.csstudio.nams.configurator.beans.filters.JunctorConditionForFilterTreeBean;
 import org.csstudio.nams.configurator.beans.filters.NotConditionForFilterTreeBean;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.JunctorConditionType;
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.Viewer;
 
-public abstract class FilterTreeContentProvider implements ITreeContentProvider {
+public class DefaultFilterTreeContentProvider implements ITreeContentProvider {
 
-	private JunctorConditionForFilterTreeBean rootCondition;
-
-	public FilterTreeContentProvider() {
-		super();
-	}
+	private JunctorConditionForFilterTreeBean[] results;
 
 	@Override
-	public void dispose() {
+    public void dispose() {
 	    // Not used yet
 	}
 
 	@Override
-	public Object[] getChildren(final Object parentElement) {
+    public Object[] getChildren(final Object parentElement) {
 		FilterbedingungBean[] result = new FilterbedingungBean[0];
 		if (parentElement instanceof JunctorConditionForFilterTreeBean) {
 			final JunctorConditionForFilterTreeBean junctorEditionElement = (JunctorConditionForFilterTreeBean) parentElement;
@@ -41,19 +41,46 @@ public abstract class FilterTreeContentProvider implements ITreeContentProvider 
 		return result;
 	}
 
-	@Override
-	public Object[] getElements(final Object inputElement) {
-		Object[] result = null;
-		
-		if(rootCondition != null) {
-			result = new Object[] { rootCondition };
+	/**
+	 * Gives the content of the root-and condition.
+	 */
+	public List<FilterbedingungBean> getContentsOfRootANDCondition() {
+		final List<FilterbedingungBean> result = new LinkedList<FilterbedingungBean>();
+
+		if (this.results != null) {
+			result.addAll(this.results[0].getOperands());
 		}
-		
+
 		return result;
 	}
 
 	@Override
-	public boolean hasChildren(final Object element) {
+    @SuppressWarnings("unchecked") //$NON-NLS-1$
+	public Object[] getElements(final Object inputElement) {
+		if (this.results == null) {
+			final List<FilterbedingungBean> inputList = (List<FilterbedingungBean>) inputElement;
+			final JunctorConditionForFilterTreeBean root = new JunctorConditionForFilterTreeBean();
+			root.setJunctorConditionType(JunctorConditionType.AND);
+			for (final FilterbedingungBean configurationBean : inputList) {
+				root.addOperand(configurationBean);
+			}
+			this.results = new JunctorConditionForFilterTreeBean[1];
+			this.results[0] = root;
+		}
+		return this.results;
+	}
+
+	@Override
+    public Object getParent(final Object element) {
+		if (this.results != null) {
+			final JunctorConditionForFilterTreeBean root = this.results[0];
+			return this.rekursiv(root, element);
+		}
+		return null;
+	}
+
+	@Override
+    public boolean hasChildren(final Object element) {
 		if (element instanceof JunctorConditionForFilterTreeBean) {
 			return ((JunctorConditionForFilterTreeBean) element).hasOperands();
 		} else {
@@ -63,19 +90,20 @@ public abstract class FilterTreeContentProvider implements ITreeContentProvider 
 					return ((JunctorConditionForFilterTreeBean) not
 							.getFilterbedingungBean()).hasOperands();
 				}
-	
+
 			}
 		}
 		return false;
 	}
 
 	@Override
-	public Object getParent(Object element) {
-		return findParentRecursive(rootCondition, element);
+    public void inputChanged(final Viewer viewer, final Object oldInput,
+			final Object newInput) {
+	    // Not used yet
 	}
 
-	private Object findParentRecursive(final Object potentialParent, final Object element) {
-	
+	private Object rekursiv(final Object potentialParent, final Object element) {
+
 		if (this.hasChildren(potentialParent)) {
 			final FilterbedingungBean[] children = (FilterbedingungBean[]) this
 					.getChildren(potentialParent);
@@ -83,7 +111,7 @@ public abstract class FilterTreeContentProvider implements ITreeContentProvider 
 				if (child == element) {
 					return potentialParent;
 				}
-				final Object result = this.findParentRecursive(child, element);
+				final Object result = this.rekursiv(child, element);
 				if (result != null) {
 					return result;
 				}
@@ -92,12 +120,4 @@ public abstract class FilterTreeContentProvider implements ITreeContentProvider 
 		return null;
 	}
 
-	protected JunctorConditionForFilterTreeBean getRootCondition() {
-		return rootCondition;
-	}
-	
-	protected void setRootCondition(JunctorConditionForFilterTreeBean rootCondition) {
-		this.rootCondition = rootCondition;
-	}
-	
 }

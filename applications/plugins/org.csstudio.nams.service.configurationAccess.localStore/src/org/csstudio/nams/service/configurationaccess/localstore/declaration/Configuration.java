@@ -31,6 +31,7 @@ public class Configuration {
 
 	private final Collection<DefaultFilterDTO> allDefaultFilters;
 	private final Collection<TimeBasedFilterDTO> allTimebasedFilters;
+	private final Collection<WatchDogFilterDTO> allWatchDogFilters;
 	private final Collection<FilterConditionsToFilterDTO> allFilterConditionMappings;
 	private final Collection<FilterConditionDTO> allFilterConditions;
 	private final Collection<RubrikDTO> alleRubriken;
@@ -53,12 +54,16 @@ public class Configuration {
 		this.alleAlarmbearbeiterGruppen = alleAlarmbearbeiterGruppen;
 		this.allDefaultFilters = new ArrayList<DefaultFilterDTO>();
 		this.allTimebasedFilters = new ArrayList<TimeBasedFilterDTO>();
+		this.allWatchDogFilters = new ArrayList<WatchDogFilterDTO>();
 		for (FilterDTO filterDTO : allFilters) {
 			if(filterDTO instanceof DefaultFilterDTO) {
 				this.allDefaultFilters.add((DefaultFilterDTO) filterDTO);
 			}
 			else if(filterDTO instanceof TimeBasedFilterDTO) {
 				this.allTimebasedFilters.add((TimeBasedFilterDTO) filterDTO);
+			}
+			else if(filterDTO instanceof WatchDogFilterDTO) {
+				this.allWatchDogFilters.add((WatchDogFilterDTO) filterDTO);
 			}
 		}
 		this.allFilterConditionMappings = new LinkedList<FilterConditionsToFilterDTO>();
@@ -108,10 +113,11 @@ public class Configuration {
 	}
 	
 	public Collection<FilterDTO> gibAlleFilter() {
-		List<FilterDTO> result = new ArrayList<>(this.allDefaultFilters.size() + this.allTimebasedFilters.size());
+		List<FilterDTO> result = new ArrayList<>(this.allDefaultFilters.size() + this.allTimebasedFilters.size() + this.allWatchDogFilters.size());
 		
 		result.addAll(this.allDefaultFilters);
 		result.addAll(this.allTimebasedFilters);
+		result.addAll(this.allWatchDogFilters);
 		
 		return result;
 	}

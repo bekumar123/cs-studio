@@ -210,7 +210,7 @@ public class MasterEditor extends AbstractGsdNodeEditor<MasterDBO> {
             LOG.error("Can't create Master Editor! Database Error", e);
             DeviceDatabaseErrorDialog.open(null, "Can't create Master Editor! Database Error", e);
         }
-        selecttTabFolder(0);
+        selectTabFolder(0);
     }
 
     /**
@@ -535,7 +535,7 @@ public class MasterEditor extends AbstractGsdNodeEditor<MasterDBO> {
 
     private void makeInformationGroup(@Nonnull final Composite comp, final int column) {
         final Group gInformation = new Group(comp, SWT.NONE);
-        gInformation.setText("Information:");
+        gInformation.setText("Information");
         gInformation.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, column, 1));
         gInformation.setLayout(new GridLayout(4, false));
         gInformation.setTabList(new Control[0]);
@@ -572,6 +572,7 @@ public class MasterEditor extends AbstractGsdNodeEditor<MasterDBO> {
         masterUserData.setTabList(new Control[0]);
         _masterUserDataText = new Text(masterUserData, SWT.NONE);
         _masterUserDataText.setEditable(false);
+        _masterUserDataText.setEnabled(false);        
         _masterUserDataText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
 
         // is a Default Value. Is not a part of the Master GSD File.
@@ -598,7 +599,7 @@ public class MasterEditor extends AbstractGsdNodeEditor<MasterDBO> {
         };
 
         final Group gMemoryAddressing = new Group(comp, SWT.NONE);
-        gMemoryAddressing.setText("Memory Address Mode:");
+        gMemoryAddressing.setText("Memory Address Mode");
         GridData layoutData = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
         layoutData.minimumWidth = 240;
         gMemoryAddressing.setLayoutData(layoutData);
@@ -648,7 +649,7 @@ public class MasterEditor extends AbstractGsdNodeEditor<MasterDBO> {
 
     private void makeParametersGroup(@Nonnull final Composite comp) {
         final Group gParameters = new Group(comp, SWT.NONE);
-        gParameters.setText("Parameters:");
+        gParameters.setText("Parameters");
         gParameters.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 3));
         gParameters.setLayout(new GridLayout(3, false));
 
@@ -714,13 +715,13 @@ public class MasterEditor extends AbstractGsdNodeEditor<MasterDBO> {
 
     private void makeRedundencyMasterGroup(@Nonnull final Composite comp, final int column) {
         final Group gRedundencyMaster = new Group(comp, SWT.NONE);
-        gRedundencyMaster.setText("Redundency Master:");
+        gRedundencyMaster.setText("Redundancy Master");
         gRedundencyMaster.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, column, 1));
         gRedundencyMaster.setLayout(new GridLayout(3, false));
 
         _redundentButton = new Button(gRedundencyMaster, SWT.CHECK);
         _redundentButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-        _redundentButton.setText("Redunden IOC: ");
+        _redundentButton.setText("Redundant IOC");
 
         if( _master.getRedundant() < 0
                 && !_master.getFreeStationAddress().contains((short) (_master.getSortIndex() + 1))) {

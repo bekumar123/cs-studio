@@ -340,7 +340,7 @@ public final class GsdFileParser {
             } else if (isLineParameter(line, "X_Unit_Diag_Area")) {
                 buildUnitDiagArea(line, lineCounter, br);
             } else if (isLineParameter(line, "Slave_Family")) {
-                // TODO (hrickens) [28.03.2011]: Hier könnte man den Text noch als zweite variante setzen. (Das was nach dem @ kommt)
+                // TODO (hrickens) [28.03.2011]: Hier kï¿½nnte man den Text noch als zweite variante setzen. (Das was nach dem @ kommt)
                 setProperty(line.split("@")[0], lineCounter, parsedGsdFileModel, br);
             } else if (isLineParameter(line, "End_Physical_Interface")) {
                 continue; // unused property
@@ -414,8 +414,11 @@ public final class GsdFileParser {
             lineCounter.count();
             final String readLine = br.readLine();
             if(readLine != null) {
-                value = value.substring(0, value.length() - 1).trim()
-                .concat(readLine.split(";")[0].trim());
+                //@formatter:off
+                value = value.substring(0, value.length() - 1)
+                        .trim()                  
+                        .concat(readLine.split(";")[0].trim());
+                        //@formatter:on
             }
         }
         return value;

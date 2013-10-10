@@ -49,6 +49,7 @@ public class KeyValuePair {
     public KeyValuePair(@Nonnull final String key, @Nonnull final String value) {
         _key = key;
         _value = value;
+                
         final int indexStart = _key.indexOf("(")+1;
         if(indexStart>0) {
             final String index = _key.substring(indexStart, _key.indexOf(")"));

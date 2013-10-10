@@ -76,7 +76,7 @@ public class FacilityEditor extends AbstractNodeEditor<FacilityDBO> {
         super(facility == null);
         _facility = facility;
         buildGui();
-        selecttTabFolder(0);
+        selectTabFolder(0);
     }
 
     /**
@@ -126,7 +126,7 @@ public class FacilityEditor extends AbstractNodeEditor<FacilityDBO> {
         super.createPartControl(parent);
         _facility = getNode();
         buildGui();
-        selecttTabFolder(0);
+        selectTabFolder(0);
     }
 
     /**
@@ -162,7 +162,7 @@ public class FacilityEditor extends AbstractNodeEditor<FacilityDBO> {
     private void buildGui() {
         setSavebuttonEnabled(null, getNode().isPersistent());
         main("Facility");
-        getProfiBusTreeView().refresh(getNode()); // TODO: denke dieser refresh ist Überflüssig
+        getProfiBusTreeView().refresh(getNode()); // TODO: denke dieser refresh ist ï¿½berflï¿½ssig
         // _tabFolder.pack();
     }
 
@@ -195,7 +195,7 @@ public class FacilityEditor extends AbstractNodeEditor<FacilityDBO> {
         setIndexSpinner(ConfigHelper.getIndexSpinner(gName,
                                                      _facility,
                                                      getMLSB(),
-                                                     "Index",
+                                                     "Index:",
                                                      getProfiBusTreeView(), 9999));
 
         makeDescGroup(comp, 3);

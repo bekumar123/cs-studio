@@ -22,7 +22,6 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Table;
 
 /**
- *
  * @author hrickens
  * @author $Author: hrickens $
  * @version $Revision: 1.2 $
@@ -101,9 +100,12 @@ public class ModuleListLabelProvider extends LabelProvider implements IFontProvi
             final int selectedModuleNo = gmm.getModuleNumber();
             final GSDFileDBO gsdFileDBO = gmm.getParent().getGsdFileDBO();
             final GSDModuleDBO module = gsdFileDBO.getGSDModule(selectedModuleNo);
+            
+            
             if (module != null) {
                 return YELLOW;
             }
+            
         }
         return null;
     }

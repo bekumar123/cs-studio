@@ -97,7 +97,7 @@ public class IocEditor extends AbstractNodeEditor<IocDBO> {
         super.createPartControl(parent);
         _ioc = getNode();
         main("IOC");
-        selecttTabFolder(0);
+        selectTabFolder(0);
     }
     
     /**

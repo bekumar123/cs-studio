@@ -216,7 +216,7 @@ public class SubnetEditor extends AbstractNodeEditor<ProfibusSubnetDBO> {
         final String[] heads = {"General", "Net Settings" };
         netSetting(heads[1]);
         general(heads[0]);
-        selecttTabFolder(0);
+        selectTabFolder(0);
         getTabFolder().pack();
     }
 

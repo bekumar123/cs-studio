@@ -20,34 +20,34 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 
 /**
- *
- * If the selection changes the old Channels will be deleted and the new Channel created for the
- * new Module. Have the Module no Prototype the Dialog to generate Prototype is opened.
- *
+ * 
+ * If the selection changes the old Channels will be deleted and the new Channel
+ * created for the new Module. Have the Module no Prototype the Dialog to
+ * generate Prototype is opened.
+ * 
  * @author hrickens
  * @author $Author: hrickens $
  * @version $Revision: 1.2 $
  * @since 17.04.2009
  */
-final class ModuleEditorSelectionChangedListenerForModuleTypeList implements
-        ISelectionChangedListener {
+final class ModuleEditorSelectionChangedListenerForModuleTypeList implements ISelectionChangedListener {
     private final ModuleEditor _moduleEditor;
     private final Group _topGroup;
     private final TableViewer _mTypList;
 
-    ModuleEditorSelectionChangedListenerForModuleTypeList(@Nonnull final ModuleEditor moduleEditor, @Nonnull final Group topGroup,
-                                               @Nonnull final TableViewer moduleTypList) {
+    ModuleEditorSelectionChangedListenerForModuleTypeList(@Nonnull final ModuleEditor moduleEditor,
+            @Nonnull final Group topGroup, @Nonnull final TableViewer moduleTypList) {
         _moduleEditor = moduleEditor;
         _topGroup = topGroup;
         _mTypList = moduleTypList;
     }
-
+    
     @Override
     public void selectionChanged(@Nonnull final SelectionChangedEvent event) {
-        final GsdModuleModel2 selectedModule = (GsdModuleModel2) ((StructuredSelection) _mTypList
-                .getSelection()).getFirstElement();
+        final GsdModuleModel2 selectedModule = (GsdModuleModel2) ((StructuredSelection) _mTypList.getSelection())
+                .getFirstElement();
 
-        if(ifSameModule(selectedModule)) {
+        if (ifSameModule(selectedModule)) {
             return;
         }
 
@@ -55,23 +55,41 @@ final class ModuleEditorSelectionChangedListenerForModuleTypeList implements
         final int savedModuleNo = (Integer) _mTypList.getTable().getData();
         final boolean hasChanged = savedModuleNo != selectedModuleNo;
         final ModuleDBO module = _moduleEditor.getNode();
+        
         try {
+
             final String createdBy = AbstractNodeEditor.getUserName();
             GSDModuleDBO gsdModule;
+
             try {
+
                 module.setNewModel(selectedModuleNo, createdBy);
+                
                 gsdModule = module.getGSDModule();
+                module.setName(gsdModule.getName());
+                _moduleEditor.updateModulConfigData();
+                
             } catch (final IllegalArgumentException iea) {
+
                 // Unknown Module (--> Config the Epics Part)
                 gsdModule = createNewModulePrototype(selectedModule, selectedModuleNo, module);
-                if(gsdModule==null) {
+
+                if (gsdModule == null) {
                     return;
                 }
+
+                module.setNewModel(gsdModule.getModuleId(), createdBy);
+                module.setName(gsdModule.getName());
+                
+                _moduleEditor.updateModulConfigData();
+                
             }
+
             final Text nameWidget = _moduleEditor.getNameWidget();
-            if(nameWidget != null) {
+            if (nameWidget != null) {
                 nameWidget.setText(gsdModule.getName());
             }
+
         } catch (final PersistenceException e1) {
             _moduleEditor.openErrorDialog(e1, _moduleEditor.getProfiBusTreeView());
             ModuleEditor.LOG.error("Database error!", e1);
@@ -88,16 +106,15 @@ final class ModuleEditorSelectionChangedListenerForModuleTypeList implements
 
     @CheckForNull
     public GSDModuleDBO createNewModulePrototype(@Nonnull final GsdModuleModel2 selectedModule,
-                                                 final int selectedModuleNo,
-                                                 @Nonnull final ModuleDBO module) throws PersistenceException {
+            final int selectedModuleNo, @Nonnull final ModuleDBO module) throws PersistenceException {
         GSDModuleDBO gsdModule;
         gsdModule = _moduleEditor.openChannelConfigDialog(selectedModule, null);
-        if(gsdModule == null) {
+        if (gsdModule == null) {
             return null;
         }
         gsdModule.setModuleId(selectedModuleNo);
         final GSDFileDBO gsdFile = module.getGSDFile();
-        if(gsdFile != null) {
+        if (gsdFile != null) {
             gsdFile.addGSDModule(gsdModule);
         }
         gsdModule.save();
@@ -106,8 +123,7 @@ final class ModuleEditorSelectionChangedListenerForModuleTypeList implements
 
     private boolean ifSameModule(@Nullable final GsdModuleModel2 selectedModule) {
         final ModuleDBO module = _moduleEditor.getNode();
-        return selectedModule == null || module == null || module
-                .getGSDModule() != null && module.getGSDModule().getModuleId() == selectedModule
-                .getModuleNumber();
+        return selectedModule == null || module == null || module.getGSDModule() != null
+                && module.getGSDModule().getModuleId() == selectedModule.getModuleNumber();
     }
 }

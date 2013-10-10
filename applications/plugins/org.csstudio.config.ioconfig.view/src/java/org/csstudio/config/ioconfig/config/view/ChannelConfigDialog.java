@@ -78,7 +78,7 @@ import org.slf4j.LoggerFactory;
  * @since 22.09.2008
  */
 public class ChannelConfigDialog extends Dialog implements IHasDocumentableObject {
-
+    
     /**
      * @author hrickens
      * @author $Author: hrickens $
@@ -117,6 +117,7 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
 
     protected static final Logger LOG = LoggerFactory.getLogger(ChannelConfigDialog.class);
     private static int _DIRTY;
+    
     /**
      * The configuration Tables for the input and outputChannels.
      */
@@ -320,6 +321,7 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
      */
     @Override
     protected final void createButtonsForButtonBar(@Nonnull final Composite parent) {
+                
         ((GridLayout) parent.getLayout()).numColumns = 2;
         ((GridData) parent.getLayoutData()).horizontalAlignment = SWT.FILL;
         GridData data;
@@ -334,10 +336,12 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
         gridLayout.marginWidth = 0;
         gridLayout.marginHeight = 0;
         left.setLayout(gridLayout);
+        
         final Button addButton = createButton(left, IDialogConstants.NEXT_ID, Messages.ChannelConfigDialog_Add, false);
         addButton.addSelectionListener(new AddChannelPrototypeModelSelectionListener(this, _gsdModule,
                 _outputChannelPrototypeModelList, _inputChannelPrototypeModelList, _outputTableViewer,
                 _inputTableViewer));
+        
         final Button removeButton = createButton(left, IDialogConstants.BACK_ID, Messages.ChannelConfigDialog_Remove,
                 false);
         final RemoveChannelPrototypeModelSelectionListener rsListener;
@@ -345,6 +349,9 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
                 _outputTableViewer, _inputChannelPrototypeModelList, _inputTableViewer, _ioTabFolder);
         removeButton.addSelectionListener(rsListener);
 
+        addButton.setEnabled(_haveInputFields || _haveOutputFields);
+        removeButton.setEnabled(addButton.isEnabled());
+        
         // Button Left side
         final Composite right = new Composite(parent, SWT.NONE);
         data = new GridData(GridData.HORIZONTAL_ALIGN_END | GridData.VERTICAL_ALIGN_CENTER);
@@ -511,15 +518,18 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
     @Nonnull
     private static TableViewer createChannelTable(@Nonnull final Composite tableParent,
             @Nullable final ArrayList<ModuleChannelPrototypeDBO> channelPrototypeModelList) {
+        
         final int style = SWT.SINGLE | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION
                 | SWT.HIDE_SELECTION;
 
         final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
         gd.minimumHeight = 100;
+        
         final Table table = new Table(tableParent, style);
         table.setLayoutData(gd);
         table.setHeaderVisible(true);
         table.setLinesVisible(true);
+        
         addTableColumn(table, SWT.RIGHT, 45, ChannelPrototypConfigColumn.OFFSET.getText());
         addTableColumn(table, SWT.LEFT, 120, ChannelPrototypConfigColumn.NAME.getText());
         addTableColumn(table, SWT.LEFT, 75, ChannelPrototypConfigColumn.TYPE.getText());
@@ -529,13 +539,17 @@ public class ChannelConfigDialog extends Dialog implements IHasDocumentableObjec
         addTableColumn(table, SWT.RIGHT, 55, ChannelPrototypConfigColumn.MIN.getText());
         addTableColumn(table, SWT.RIGHT, 55, ChannelPrototypConfigColumn.MAX.getText());
         addTableColumn(table, SWT.LEFT, 55, ChannelPrototypConfigColumn.ORDER.getText());
+        
         final TableViewer tableViewer = new TableViewer(table);
+        
         tableViewer.setLabelProvider(new ChannelPrototypeConfigTableLabelProvider());
         tableViewer.setContentProvider(new ChannelTableContentProvider());
         tableViewer.setColumnProperties(ChannelPrototypConfigColumn.getStringValues());
+        
         buildTableCellEditors(tableViewer);
         tableViewer.setCellModifier(new ChannelConfigCellModifier(tableViewer));
         tableViewer.setInput(channelPrototypeModelList);
+        
         return tableViewer;
     }
 

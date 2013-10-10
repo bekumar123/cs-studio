@@ -25,6 +25,8 @@ public enum GSDTestFiles {
     BIMF5861("BIMF5861.GSD"),
     DESY_MSyS_V10("DESY_MSyS_V10.gsd"),
     DESY_MSyS_V11("DESY_MSyS_V11.gsd"),
+    DESY_Kryo_IO_System("DESY_Kryo-IO-SystemDPV0_V2.gsd"),
+    MINI("mini.gsd"),
     gm_04b5("gm_04b5.gsd"),
     PF009A8("PF009A8.gsd"),
     siem8045("siem8045.gsd"),
@@ -34,6 +36,7 @@ public enum GSDTestFiles {
     YP003051("YP003051.gsd"),
     YP0206CA("YP0206CA.gsd"),
     SiPart("SiPart.gsd"),
+    YP013051("YP013051.gsd"),
     SAMS071D("SAMS071D.gsd");
 
     private final String _fileName;

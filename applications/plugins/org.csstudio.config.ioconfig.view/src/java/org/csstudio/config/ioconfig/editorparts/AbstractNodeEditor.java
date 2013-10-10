@@ -89,16 +89,17 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The skeletal structure for an Editor to editing a Node.
- *
+ * 
  * @author hrickens
  * @author $Author: hrickens $
  * @param <T>
  * @since 31.03.2010
  */
-public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> extends EditorPart implements INodeConfig {
+public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?, ?>> extends EditorPart implements
+        INodeConfig {
 
     /**
-     *
+     * 
      * @author hrickens
      * @author $Author: hrickens $
      * @since 03.06.2009
@@ -111,23 +112,22 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
 
         @Override
         public void widgetDefaultSelected(@Nonnull final SelectionEvent e) {
-            getEditorSite().getActionBars().getGlobalActionHandler("org.eclipse.ui.file.save")
-            .run();
+            getEditorSite().getActionBars().getGlobalActionHandler("org.eclipse.ui.file.save").run();
             // TODO:need a IProgressMonitor? Yes!
             doSave(null);
         }
 
         @Override
         public void widgetSelected(@Nonnull final SelectionEvent e) {
-            perfromSave();
+            performSave();
         }
     }
 
     /**
      * The warn background color (SWT.COLOR_RED) of the index Spinner.
      */
-    protected static final Color WARN_BACKGROUND_COLOR = CustomMediaFactory.getInstance()
-    .getColor(CustomMediaFactory.COLOR_RED);
+    protected static final Color WARN_BACKGROUND_COLOR = CustomMediaFactory.getInstance().getColor(
+            CustomMediaFactory.COLOR_RED);
 
     private static Font _FONT;
     private static GridDataFactory _LABEL_GRID_DATA = GridDataFactory.fillDefaults();
@@ -191,7 +191,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
             setDesc((String) descText.getData());
         }
         final Text headerField = getHeaderField(HeaderFields.KRYK_NO);
-        if(headerField!=null) {
+        if (headerField != null) {
             final Object data = headerField.getData();
             String krykNo = "";
             if (data instanceof String) {
@@ -291,7 +291,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
     /**
      * A ModifyListener that set the save button enable to store the changes.
      * Works wiht {@link Text}, {@link Combo} and {@link Spinner}.
-     *
+     * 
      * @return the ModifyListener.
      */
     @Nonnull
@@ -313,12 +313,11 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
      */
     @SuppressWarnings("unchecked")
     @Override
-    public void init(@Nonnull final IEditorSite site,
-                     @Nonnull final IEditorInput input) throws PartInitException {
+    public void init(@Nonnull final IEditorSite site, @Nonnull final IEditorInput input) throws PartInitException {
         setSite(site);
         setInput(input);
         _node = (T) ((NodeEditorInput) input).getNode();
-        setNew( ((NodeEditorInput) input).isNew());
+        setNew(((NodeEditorInput) input).isNew());
         setPartName(_node.getName());
         getProfiBusTreeView().setOpenEditor(this);
     }
@@ -370,7 +369,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
      * Give a change event and his save status.<br>
      * Have one or more events the status unsaved then the Save Button was set
      * to enable otherwise to disable.
-     *
+     * 
      * @param event
      *            the Save Event Id.
      * @param enabled
@@ -381,8 +380,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
         if (event != null) {
             _saveButtonEvents.put(event, enabled);
         }
-        final boolean enab = !getNode().isPersistent()
-                || _saveButtonEvents.containsValue(Boolean.valueOf(true));
+        final boolean enab = !getNode().isPersistent() || _saveButtonEvents.containsValue(Boolean.valueOf(true));
         final Button saveButton = getSaveButton();
         if (saveButton != null) {
             final boolean changed = enab != saveButton.isEnabled();
@@ -402,7 +400,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
     public final void setSaveButtonSaved() {
         _saveButtonEvents.clear();
         final Button saveButton = getSaveButton();
-        if(saveButton!=null) {
+        if (saveButton != null) {
             saveButton.setEnabled(false);
         }
         if (getNode() != null) {
@@ -413,7 +411,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
 
     public final void setSaveButtonSelectionListener(@Nonnull final SelectionListener selectionListener) {
         final Button saveButton = getSaveButton();
-        if(saveButton!=null) {
+        if (saveButton != null) {
             saveButton.addSelectionListener(selectionListener);
         }
     }
@@ -475,12 +473,12 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
     }
 
     /**
-     *
+     * 
      * @return The Documentation Manage View.
      */
     @Nonnull
     protected final DocumentationManageView getDocumentationManageView() {
-        if(_documentationManageView == null) {
+        if (_documentationManageView == null) {
             documents();
         }
         return _documentationManageView;
@@ -488,8 +486,8 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
 
     @Nonnull
     protected List<GSDFileDBO> getGsdFiles() {
-        if(_gsdFiles==null) {
-            _gsdFiles=new ArrayList<GSDFileDBO>();
+        if (_gsdFiles == null) {
+            _gsdFiles = new ArrayList<GSDFileDBO>();
         }
         return _gsdFiles;
     }
@@ -503,7 +501,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
     }
 
     /**
-     *
+     * 
      * @return the Node Name description field.
      */
     @CheckForNull
@@ -525,7 +523,6 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
         final Composite comp = new Composite(getTabFolder(), SWT.NONE);
         comp.setLayout(new GridLayout(rows, false));
         item.setControl(comp);
-
         comp.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
         return comp;
     }
@@ -574,9 +571,8 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
 
     protected void makeDescGroup(@Nonnull final Composite comp, final int hSize) {
         final Group gDesc = new Group(comp, SWT.NONE);
-        gDesc.setText("Description: ");
-        final GridDataFactory gdf = GridDataFactory.fillDefaults().grab(true, true).span(hSize, 1)
-        .minSize(200, 200);
+        gDesc.setText("Description");
+        final GridDataFactory gdf = GridDataFactory.fillDefaults().grab(true, true).span(hSize, 1).minSize(200, 200);
         gDesc.setLayoutData(gdf.create());
         gDesc.setLayout(new GridLayout(2, false));
 
@@ -584,9 +580,11 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
         shortDescLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
         shortDescLabel.setText("Short Desc:");
 
-        final Text shortDescText = new Text(gDesc, SWT.BORDER | SWT.SINGLE | SWT.READ_ONLY);
+        final Text shortDescText = new Text(gDesc, SWT.SINGLE | SWT.READ_ONLY);
         shortDescText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
         shortDescText.setEditable(false);
+        shortDescText.setEnabled(false);
+
         final Text descText = new Text(gDesc, SWT.BORDER | SWT.MULTI);
         descText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
         descText.setEditable(true);
@@ -600,7 +598,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
         });
         setText(descText, getNode().getDescription(), 255);
         setDescWidget(descText);
-        gDesc.setTabList(new Control[] {descText});
+        gDesc.setTabList(new Control[] { descText });
     }
 
     /**
@@ -614,7 +612,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
     protected boolean newNode(@Nullable final String nameOffer) {
         final String nodeType = getNode().getClass().getSimpleName();
         final String dialogTitle = "Create new " + nodeType;
-        final String dialogMessage = "Enter the name of the "+ nodeType;
+        final String dialogMessage = "Enter the name of the " + nodeType;
         final InputDialog id = new InputDialog(getShell(), dialogTitle, dialogMessage, nameOffer, null);
         id.setBlockOnOpen(true);
         if (id.open() == Window.OK) {
@@ -624,8 +622,8 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
             getNode().setVersion(-2);
             id.close();
 
-            final Object obj = ((StructuredSelection) getProfiBusTreeView().getTreeViewer()
-                    .getSelection()).getFirstElement();
+            final Object obj = ((StructuredSelection) getProfiBusTreeView().getTreeViewer().getSelection())
+                    .getFirstElement();
 
             if (getNode() instanceof FacilityDBO || obj == null) {
                 getProfiBusTreeView().getTreeViewer().setInput(getNode());
@@ -668,10 +666,9 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
         DeviceDatabaseErrorDialog.open(getShell(), message, exception, busTreeView);
     }
 
-    protected void perfromSave() {
+    protected void performSave() {
         final IViewSite site = getProfiBusTreeView().getSite();
-        final IHandlerService handlerService = (IHandlerService) site
-                .getService(IHandlerService.class);
+        final IHandlerService handlerService = (IHandlerService) site.getService(IHandlerService.class);
         try {
             handlerService.executeCommand("org.eclipse.ui.file.save", null);
         } catch (final Exception ex) {
@@ -679,14 +676,16 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
         }
     }
 
-    protected final void selecttTabFolder(final int index) {
+    protected final void selectTabFolder(final int index) {
         if (_tabFolder != null) {
             _tabFolder.setSelection(index);
         }
     }
 
+    SelectionListener tabFolderSelectionListener;
+
     /**
-     *
+     * 
      * This method generate the Background of an NodeConfig this a 3 Parts.<br>
      * 1. The Header with description line the 3 information field for:<br>
      * 1.1. Modified by <br>
@@ -694,7 +693,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
      * 1.3. GSD-Version <br>
      * 2. The Body as an empty TabFolder. <br>
      * 3. The Footer with the Save and Cancel Buttons. <br>
-     *
+     * 
      * @param headline
      *            The description line of the Header
      * @param node
@@ -702,7 +701,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
      */
     protected void setBackgroundComposite() {
         final Composite parent = getParent();
-        if(parent == null) {
+        if (parent == null) {
             return;
         }
         final int columnNum = 5;
@@ -717,7 +716,26 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
 
         buildBackgroundFooter(parent, labelGridData);
 
+        tabFolderSelectionListener = new SelectionListener() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                tabSelectionChanged(getTabFolder().getSelectionIndex());
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+
+        };
+
+        getTabFolder().addSelectionListener(tabFolderSelectionListener);
+
         header.setTabList(new Control[0]);
+    }
+
+    protected void tabSelectionChanged(int index) {
+
     }
 
     @Nonnull
@@ -773,8 +791,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
 
             @Override
             public void mouseUp(@Nullable final MouseEvent e) {
-                final IconChooserDialog chooseIconDialog = new IconChooserDialog(AbstractNodeEditor.this
-                                                                                 .getShell());
+                final IconChooserDialog chooseIconDialog = new IconChooserDialog(AbstractNodeEditor.this.getShell());
 
                 chooseIconDialog.setBlockOnOpen(true);
                 if (chooseIconDialog.open() == 0) {
@@ -787,13 +804,13 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
 
         getNewLabel(header, "Modified by:");
         /** The description field with the name of the User that make changes. */
-        temp = node.getUpdatedBy() != null?node.getUpdatedBy():"";
+        temp = node.getUpdatedBy() != null ? node.getUpdatedBy() : "";
         final Text modifiedBy = getNewText(header, temp);
         setHeaderField(HeaderFields.MODIFIED_BY, modifiedBy);
         // -- Modifierd on
         getNewLabel(header, "Modified on:");
         /** The description field with the name of the Date of the last change. */
-        temp = node.getUpdatedOn() != null?node.getUpdatedOn().toString():"";
+        temp = node.getUpdatedOn() != null ? node.getUpdatedOn().toString() : "";
         final Text modifiedOn = getNewText(header, temp);
         setHeaderField(HeaderFields.MODIFIED_ON, modifiedOn);
 
@@ -817,7 +834,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
 
         if (node instanceof MasterDBO || node instanceof SlaveDBO) {
             getNewLabel(header, "Version from GSD:");
-            temp = node.getUpdatedOn() != null?node.getVersion() + "":"";
+            temp = node.getUpdatedOn() != null ? node.getVersion() + "" : "";
             final Text version = getNewText(header, temp);
             parent.setData("gsdVersion", version);
         }
@@ -825,8 +842,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
     }
 
     @SuppressWarnings({ "unused", "rawtypes", "unchecked" })
-    private void buildBackgroundFooter(@Nonnull final Composite parent,
-                                       @Nonnull final GridDataFactory labelGridData) {
+    private void buildBackgroundFooter(@Nonnull final Composite parent, @Nonnull final GridDataFactory labelGridData) {
         new Label(parent, SWT.NONE);
         setSaveButton(new Button(parent, SWT.PUSH));
         final Button saveButton = getSaveButton();
@@ -865,7 +881,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
     }
 
     /**
-     *
+     * 
      * @param descText
      *            set the Node Name description field.
      */
@@ -877,7 +893,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
                     if (e.stateMask != SWT.MOD1) {
                         e.doit = false;
                         final Button saveButton = getSaveButton();
-                        if(saveButton!=null) {
+                        if (saveButton != null) {
                             saveButton.setFocus();
                         }
                     }
@@ -901,7 +917,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
     }
 
     /**
-     *
+     * 
      * @param nameText
      *            set the Node Name description field.
      */
@@ -911,7 +927,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
             @Override
             public void keyReleased(@Nonnull final KeyEvent e) {
                 final Text descText = getDescText();
-                if ( (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) && descText != null) {
+                if ((e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) && descText != null) {
                     descText.setFocus();
                 }
             }
@@ -948,7 +964,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
         try {
             final T node = getNode();
             progressMonitor.beginTask("Save " + node, 3);
-            final AbstractNodeSharedImpl<?,?> parent = (AbstractNodeSharedImpl<?, ?>) node.getParent();
+            final AbstractNodeSharedImpl<?, ?> parent = (AbstractNodeSharedImpl<?, ?>) node.getParent();
             progressMonitor.worked(1);
             try {
                 if (parent == null) {
@@ -971,8 +987,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
 
             if (isNew() && !node.isRootNode()) {
                 getProfiBusTreeView().refresh(parent);
-                getProfiBusTreeView().getTreeViewer().expandToLevel(node,
-                                                                    AbstractTreeViewer.ALL_LEVELS);
+                getProfiBusTreeView().getTreeViewer().expandToLevel(node, AbstractTreeViewer.ALL_LEVELS);
             } else if (isNew() && node.isRootNode()) {
                 getProfiBusTreeView().addFacility((FacilityDBO) node);
                 getProfiBusTreeView().refresh(node);
@@ -991,14 +1006,14 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
     /**
      * Select a text to a {@link Combo} and store the index into Data as origin
      * value.
-     *
+     * 
      * @param comboField
      *            The Combo field to set the index
      * @param value
      *            The value was select.
      */
     final void setCombo(@Nonnull final Combo comboField, @CheckForNull final String value) {
-        final String tmp = value == null?"":value;
+        final String tmp = value == null ? "" : value;
         final int index = comboField.indexOf(tmp);
         comboField.select(index);
         comboField.setData(index);
@@ -1008,7 +1023,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
     /**
      * Set a int as text to a {@link Text} and store the text into Data as
      * origin value.
-     *
+     * 
      * @param textField
      *            The Text field to set the text
      * @param textValue
@@ -1021,7 +1036,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
     /**
      * Set a text to a {@link Text} and store the text into Data as origin
      * value.
-     *
+     * 
      * @param textField
      *            The Text-field to set the text
      * @param text
@@ -1031,7 +1046,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
      *            maximum)
      */
     final void setText(@Nonnull final Text textField, @Nullable final String text, final int limit) {
-        final String tmp = text==null?"":text;
+        final String tmp = text == null ? "" : text;
         textField.setText(tmp);
         textField.setData(tmp);
         textField.setTextLimit(limit);
@@ -1057,6 +1072,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
         final Text newText = new Text(header, SWT.NONE);
         newText.setLayoutData(_TEXT_GRID_DATA.create());
         newText.setEditable(false);
+        newText.setEnabled(false);
         newText.setText(text);
         return newText;
     }
@@ -1077,28 +1093,28 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
     }
 
     @Nonnull
-	protected String getShortDesc(@Nonnull final String descText) {
-		// guard: do not process null or empty
-		if ((descText == null) || (descText.isEmpty())) {
-			return "";
-		}
-		
-		final String[] split = descText.split("[\r\n]");
-		// take care if splitting fails
-		if ((split == null) || (split.length == 0)) {
-			return "";
-		}
-		
-		String shortDesc = split[0];
-		if (split.length > 0) {
-			if (shortDesc.length() > 40) {
-				shortDesc = shortDesc.substring(0, 40);
-			} else {
-				shortDesc = split[0];
-			}
-		}
-		return shortDesc;
-	}
+    protected String getShortDesc(@Nonnull final String descText) {
+        // guard: do not process null or empty
+        if ((descText == null) || (descText.isEmpty())) {
+            return "";
+        }
+
+        final String[] split = descText.split("[\r\n]");
+        // take care if splitting fails
+        if ((split == null) || (split.length == 0)) {
+            return "";
+        }
+
+        String shortDesc = split[0];
+        if (split.length > 0) {
+            if (shortDesc.length() > 40) {
+                shortDesc = shortDesc.substring(0, 40);
+            } else {
+                shortDesc = split[0];
+            }
+        }
+        return shortDesc;
+    }
 
     /**
      * {@inheritDoc}
@@ -1108,12 +1124,12 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?,?>> 
         final StringBuilder sb = new StringBuilder();
         final T node = getNode();
         sb.append(getNameWidget()).append(" \r\n");
-        if(node !=null) {
+        if (node != null) {
             sb.append(node).append(" \r\n");
             sb.append("ID: ").append(node.getId()).append(" \r\n");
         }
 
-        if(isDirty()) {
+        if (isDirty()) {
             sb.append("(*)");
         }
         return sb.toString();

@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.TreeItem;
 
 /**
  * Rename the selected Node on the tree.
- *
+ * 
  * @author hrickens
  * @since 05.10.2011
  */
@@ -46,18 +46,19 @@ public class RenameNodeAction extends Action {
     private final TreeEditor _editor;
     private final ProfiBusTreeView _profiBusTreeView;
 
-    public RenameNodeAction(@Nonnull final ProfiBusTreeView profiBusTreeView,
-                     @Nonnull final TreeEditor editor) {
+    public RenameNodeAction(@Nonnull final ProfiBusTreeView profiBusTreeView, @Nonnull final TreeEditor editor) {
         _profiBusTreeView = profiBusTreeView;
         _editor = editor;
     }
 
     @Override
     public void run() {
+        
         final Tree tree = _profiBusTreeView.getViewer().getTree();
-        final NamedDBClass node = (NamedDBClass) ((StructuredSelection) _profiBusTreeView
-                .getViewer().getSelection()).getFirstElement();
+        final NamedDBClass node = (NamedDBClass) ((StructuredSelection) _profiBusTreeView.getViewer().getSelection())
+                .getFirstElement();
         final TreeItem item = tree.getSelection()[0];
+        
         // Create a text field to do the editing
         String editText = "";
         if (node instanceof ChannelDBO) {
@@ -68,12 +69,14 @@ public class RenameNodeAction extends Action {
         if (editText == null) {
             editText = "";
         }
+        
         final Text text = new Text(tree, SWT.BORDER);
         text.setText(editText);
         text.selectAll();
         text.setFocus();
 
-        // If the text field loses focus, set its text into the tree and end the editing session
+        // If the text field loses focus, set its text into the tree and end the
+        // editing session
         text.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(@Nonnull final FocusEvent event) {
@@ -82,7 +85,9 @@ public class RenameNodeAction extends Action {
         });
 
         // Set the text field into the editor
-        _editor.setEditor(text, item);
+        if (!text.isDisposed()) {
+            _editor.setEditor(text, item);
+        }
     }
 
 }

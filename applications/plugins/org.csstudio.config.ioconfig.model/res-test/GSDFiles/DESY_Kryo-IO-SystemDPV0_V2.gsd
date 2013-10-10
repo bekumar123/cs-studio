@@ -1,0 +1,276 @@
+;===============================================================================
+; Profibus Device Database of MKS-2 Measurement System
+;
+; Model:       PROFIBUS DP-V0 with Anybus-CC
+; Description: PROFIBUS DP-V0 slave Anybus-CC
+; Language:    German
+; Author:      Deutsches Elektronen Synchrotron
+;              Bernd Schoeneburg (MKS-2)
+;              13. August 2012
+; WWW:         www.desy.de
+;
+;
+; Revision log:
+;
+;===============================================================================
+#Profibus_DP
+
+GSD_Revision        = 3
+
+; Device identification
+Vendor_Name         = "Deutsches Elektronen Synchrotron"
+Model_Name          = "DESY / DS-Automation / AnyBus-CC"
+Revision            = "1.10"
+Ident_Number        = 0x1814
+Protocol_Ident      = 0                ; DP protocol
+Station_Type        = 0                ; Slave device
+FMS_supp            = 0                ; FMS not supported
+Slave_Family        = 3                ; I/O device
+Hardware_Release    = "Version 1.00"
+Software_Release    = "Version 1.00"
+
+; Supported hardware features
+Redundancy          = 0                ; not supported
+Repeater_Ctrl_Sig   = 2                ; TTL
+24V_Pins            = 0                ; not connected
+Implementation_Type = "NP30"
+
+; Supported DP features
+Freeze_Mode_supp    = 1                ; supported
+Sync_Mode_supp      = 1                ; supported
+Auto_Baud_supp      = 1                ; supported
+Set_Slave_Add_supp  = 1                ; supported
+Fail_Safe           = 1                ; supported
+
+; Supported baudrates
+9.6_supp            = 1
+19.2_supp           = 1
+45.45_supp          = 1
+93.75_supp          = 1
+187.5_supp          = 1
+500_supp            = 1
+1.5M_supp           = 1
+3M_supp             = 1
+6M_supp             = 1
+12M_supp            = 1
+
+; Maximum responder time for supported baudrates
+MaxTsdr_9.6         = 15
+MaxTsdr_19.2        = 15
+MaxTsdr_45.45       = 15
+MaxTsdr_93.75       = 15
+MaxTsdr_187.5       = 15
+MaxTsdr_500         = 15
+MaxTsdr_1.5M        = 25
+MaxTsdr_3M          = 50
+MaxTsdr_6M          = 100
+MaxTsdr_12M         = 200
+
+; Maximum polling frequency
+Min_Slave_Intervall = 1                ; 100 us
+
+; I/O related keywords (Process data mode)
+Modular_Station     = 1                ; modular
+Max_Module          = 18
+Max_Input_Len       = 244
+Max_Output_Len      = 244
+Max_Data_Len        = 300
+Modul_Offset        = 1
+
+
+; Parametrization related keywords
+
+Max_User_Prm_Data_Len = 73                  
+Ext_User_Prm_Data_Const(0) = 0xC0,0x00,0x00
+
+; Diagnostic related keywords
+Max_Diag_Data_len    = 80
+
+
+;********** OFFSET 3 **********
+
+;----------- Temperatur ------------------------------------------------------------
+PrmText             = 3                          ; Kanal Eingangstyp
+Text(0)             = "Automatisch"              ; Automatische Eingangserkennung
+Text(1)             = "Widerstandssensor"        ; Eingangstyp Widerstandssensor
+Text(2)             = "Spannungseingang"         ; Eingangstyp Spannungseingang
+Text(3)             = "Diode (reserviert)"       ; 
+EndPrmText
+
+PrmText             = 4                          ; Kanal Eingangsbewertung
+Text(0)             = "Wert in Ohm"              ; Wert in Ohm
+Text(1)             = "Wert in mS"               ; Wert in mS 1000/Ohm
+Text(2)             = "Wert in C bei PT1000"     ; W
+Text(3)             = "Wert in C bei PT100"      ; 
+Text(4)             = "Wert in K bei PT1000"     ; 
+Text(5)             = "Wert in K Bei PT100"      ; 
+EndPrmText
+
+;-------- Level --------------------------------------------------------------
+PrmText             = 5                          ; Drahtwiderstand
+Text(0)             = "AMI 11,4 Ohm/inch (20 K)"
+Text(1)             = "AMI 11,6 Ohm/inch (20 K)"
+Text(2)							= "Lakeshore 12,2 Ohm/inch"
+EndPrmText
+
+PrmText             = 6                          ; Masseinheiten
+Text(0)             = "cm"
+Text(1)             = "inch"
+EndPrmText
+
+PrmText             = 7                          ; Sondenstrom
+Text(0)             = "50 mA"
+Text(1)             = "53,1 mA"
+Text(2)             = "75 mA"
+EndPrmText
+
+PrmText             = 8                          ; Heizer Konfiguration
+Text(0)             = "ohne Heizer"
+Text(1)             = "2 V"
+Text(2)             = "2,5 V"
+Text(3)             = "4 V"
+EndPrmText
+
+;---------- Temperatur ---------------------------------------------------
+ExtUserPrmData      = 3 "Kanal 1 Eingangstyp"   ; Auswahl des Eingangstyps
+BitArea(0-1) 1 0-3                               ; (Default = 1).
+Prm_Text_Ref        = 3                          ;
+EndExtUserPrmData                                ;
+
+ExtUserPrmData      = 4 "Kanal 2 Eingangstyp"   ; Auswahl des Eingangstyps
+BitArea(0-1) 1 0-3                               ; (Default = 1).
+Prm_Text_Ref        = 3                          ;
+EndExtUserPrmData                                ;
+
+ExtUserPrmData      = 5 "Kanal 3 Eingangstyp"   ; Auswahl des Eingangstyps
+BitArea(0-1) 1 0-3                               ; (Default = 1).
+Prm_Text_Ref        = 3                          ;
+EndExtUserPrmData                                ;
+
+ExtUserPrmData      = 6 "Kanal 4 Eingangstyp"   ; Auswahl des Eingangstyps
+BitArea(0-1) 1 0-3                               ; (Default = 1).
+Prm_Text_Ref        = 3                          ;
+EndExtUserPrmData                                ;
+
+ExtUserPrmData      = 7 "Kanal 1 Konversion"    ; Widerstands- Konversion
+BitArea(2-4) 0 0-5                               ; (Default = 0).
+Prm_Text_Ref        = 4                          ;
+EndExtUserPrmData                                ;
+
+ExtUserPrmData      = 8 "Kanal 2 Konversion"    ; Widerstands- Konversion
+BitArea(2-4) 0 0-5                               ; (Default = 0).
+Prm_Text_Ref        = 4                          ;
+EndExtUserPrmData                                ;
+
+ExtUserPrmData      = 9 "Kanal 3 Konversion"    ; Widerstands- Konversion
+BitArea(2-4) 0 0-5                               ; (Default = 0).
+Prm_Text_Ref        = 4                          ;
+EndExtUserPrmData                                ;
+
+ExtUserPrmData      = 10 "Kanal 4 Konversion"   ; Widerstands- Konversion
+BitArea(2-4) 0 0-5                               ; (Default = 0).
+Prm_Text_Ref        = 4                          ;
+EndExtUserPrmData                                ;
+
+;-------- Level --------------------------------------------------------------
+ExtUserPrmData      = 11 "Drahtwiderstand"       ; Widerstand pro Drahtlngeneinheit
+BitArea(1-2) 0 0-2                               ; (Default = 0).
+Prm_Text_Ref        = 5                          ;
+EndExtUserPrmData                                ;
+
+ExtUserPrmData      = 12 "Masseinheiten"     	   ; Lngeneinheiten 0 = cm, 1 = inch
+Bit(3) 1 0-1                                     ; (Default = inch).
+Prm_Text_Ref        = 6                          ;
+EndExtUserPrmData                                ;
+
+ExtUserPrmData      = 13 "Sondenstrom"           ; Sondenstrom
+BitArea(4-5) 1 0-2                               ; (Default = 53,1 mA).
+Prm_Text_Ref        = 7                          ;
+EndExtUserPrmData                                ;
+
+ExtUserPrmData      = 14 "Heizer-Konfiguration"  ; Spannung am Analog-Ausgang Heizer / disable
+BitArea(6-7) 2 0-3                               ; (Default = 2,5V).
+Prm_Text_Ref        = 8                          ;
+EndExtUserPrmData                                ;
+
+ExtUserPrmData      = 20 "Korrektur Widerstand [m/oo]"  ; Korrektur relativ -12,8% ... +12,7%
+Signed8 0 -128-127
+EndExtUserPrmData                                ;
+
+ExtUserPrmData      = 30 "Sondenlaenge" 			     ; 
+Unsigned16 24 0-511                              ; (Default = 24" bzw. 24cm).
+EndExtUserPrmData                                ;
+
+
+
+;Status diagnostic messages -------------------------------------------------------
+Unit_Diag_Area=16-17
+Value(0)  = "Status not changed"
+Value(1)  = "Status appears"
+Value(2)  = "Status disappears"
+Unit_Diag_Area_End
+
+Unit_Diag_Area=24-31
+Value(0)   = "Minor, recoverable"
+Value(16)  = "Minor, unrecoverable"
+Value(32)  = "Major, recoverable"
+Unit_Diag_Area_End
+
+Unit_Diag_Area=32-39
+Value(16)  = "Generic Error"
+Value(32)  = "Current"
+Value(33)  = "Current, device input side"
+Value(34)  = "Current, inside the device"
+Value(35)  = "Current, device output side"
+Value(48)  = "Voltage"
+Value(49)  = "Mains Voltage"
+Value(50)  = "Voltage inside the device"
+Value(51)  = "Output Voltage"
+Value(64)  = "Temperature"
+Value(65)  = "Ambient Temperature"
+Value(66)  = "Device Temperature"
+Value(80)  = "Device Hardware"
+Value(96)  = "Device Software"
+Value(97)  = "Internal Software"
+Value(98)  = "User Software"
+Value(99)  = "Data Set"
+Value(112) = "Additional Modules"
+Value(128) = "Monitoring"
+Value(129) = "Communication"
+Value(130) = "Protocol Error"
+Value(144) = "External Error"
+Value(240) = "Additional Functions"
+Value(255) = "Device specific"
+Unit_Diag_Area_End
+
+
+; DPV1 related keywords
+DPV1_Slave 	            = 0
+
+
+; Definition of modules ############################################
+
+Module = "Temperatur" 0xD9 ;20 Bytes, Consistency over whole module
+1
+Ext_Module_Prm_Data_Len = 4
+Ext_User_Prm_Data_Ref(0) = 3
+Ext_User_Prm_Data_Ref(0) = 7
+Ext_User_Prm_Data_Ref(1) = 4
+Ext_User_Prm_Data_Ref(1) = 8
+Ext_User_Prm_Data_Ref(2) = 5
+Ext_User_Prm_Data_Ref(2) = 9
+Ext_User_Prm_Data_Ref(3) = 6
+Ext_User_Prm_Data_Ref(3) = 10
+EndModule
+
+Module = "Level" 0xC0,0xC2,0xC4 ;5 Worte IN, 3 Worte OUT, Consistency over whole module
+2
+Ext_Module_Prm_Data_Len = 3		; 3 Byte
+Ext_User_Prm_Data_Ref(0) = 20	; Widerst. rel. korr. Byte 0
+Ext_User_Prm_Data_Ref(1) = 30	; Laenge (U16) belegt	Byte 1.0 und Byte 2
+Ext_User_Prm_Data_Ref(1) = 11	;	Drahtwiderstand			Byte 1.1-2
+Ext_User_Prm_Data_Ref(1) = 12	; Masseinheiten				Byte 1.3		cm=0 inch=1 
+Ext_User_Prm_Data_Ref(1) = 13	; Sondenstrom Menue		Byte 1.4-5
+Ext_User_Prm_Data_Ref(1) = 14	; Heizer-Konfig Menu	Byte 1.6-7
+EndModule
+;

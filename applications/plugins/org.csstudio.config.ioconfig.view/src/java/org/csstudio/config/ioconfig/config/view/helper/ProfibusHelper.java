@@ -172,7 +172,15 @@ public final class ProfibusHelper {
                                     final boolean edit, @Nullable final String value,
                                     @CheckForNull final Value ranges, final int verifyListenerTyp) {
 
-        final Text textField = new Text(parent, SWT.SINGLE | SWT.TRAIL | SWT.BORDER);
+        final Text textField; 
+        
+        if (edit) {
+            textField = new Text(parent, SWT.SINGLE | SWT.TRAIL | SWT.BORDER);
+        } else {
+            textField = new Text(parent,  SWT.TRAIL | SWT.BORDER);
+            textField.setEnabled(false);
+        }
+        
         int size = 20;
         if (ranges != null) {
             size = CHARSIZE * Long.toString(ranges.getMax()).length();

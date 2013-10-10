@@ -1,0 +1,184 @@
+; PROFIBUS PA GSD Converter
+;*****************************************************************************
+; YPO GSD-File for use with transparent segmentcouplers up to 12 MBaud
+; 
+; File D:\GSD_Dateien\GSD_Konverter\YP013051.gsd 
+; created on 06.11.2012 17:40:23 from 
+; D:\GSD_Dateien\Rosemount_Pressure_Transmitter 3051\GSDneu0x4444\Nrmt3051.gsd
+;
+; GSD-Converter Revision 1.3 using Rulebase 1.3   
+;*****************************************************************************
+; YP0 GSD-Datei für den Betrieb mit transparenten
+; Segmentkopplern bis 12 MBaud
+;
+; Die Datei D:\GSD_Dateien\GSD_Konverter\YP013051.gsd 
+; wurde am 06.11.2012 17:40:23
+; aus Datei D:\GSD_Dateien\Rosemount_Pressure_Transmitter 3051\GSDneu0x4444\Nrmt3051.gsd erzeugt
+;
+; GSD-Konverter Version 1.3 mit Regelbasis 1.3   
+;*****************************************************************************
+; YP0 GSD, fichier de description pour le fonctionnement avec des couplers de
+; segment PROFIBUS jusqu'a 12 MBaud
+;
+; Le fichier D:\GSD_Dateien\GSD_Konverter\YP013051.gsd 
+; a été creer le 06.11.2012 17:40:23
+; à base du fichier D:\GSD_Dateien\Rosemount_Pressure_Transmitter 3051\GSDneu0x4444\Nrmt3051.gsd
+;
+; GSD programme de conversion 1.3 avec base de donnée 1.3   
+;*****************************************************************************
+;
+;********************************************************************* 
+;********************************************************************* 
+;**                                                                 **       
+;**          GSD File for Rosemount 3051 Pressure Transmitter       **
+;**          Date: 09/24/2009                                       **
+;**          RMT_3051.GSD                                           **
+;*********************************************************************
+;
+#Profibus_DP
+GSD_Revision = 5
+Station_Type = 0
+Protocol_Ident = 0
+Vendor_Name = "Rosemount Inc." 					
+; Model_Name = "3051 Pressure Transmitter" ; Deactivated for YP0
+Model_Name = "YP0 3051 Pressure Transmitter"
+; Revision = "3.0"          ; Deactivated for YP0
+Revision = "YP0 3.0"
+Ident_Number = 0x4444
+Hardware_Release = "2"					
+Software_Release = "V1"		
+; 31.25_supp = 1 ; Deactivated for YP0
+45.45_supp = 1  ; Added for YP0
+93.75_supp = 1  ; Added for YP0
+187.5_supp = 1  ; Added for YP0
+500_supp   = 1  ; Added for YP0
+1.5M_supp  = 1  ; Added for YP0
+3M_supp    = 1  ; Added for YP0
+6M_supp    = 1  ; Added for YP0
+12M_supp   = 1  ; Added for YP0
+; 45.45_supp = 1	 ; Deactivated for YP0
+; 93.75_supp = 1	 ; Deactivated for YP0
+; 1.5M_supp  = 1			 ; Deactivated for YP0
+; MaxTsdr_31.25 = 100 ; Deactivated for YP0
+MaxTsdr_45.45 = 250  ; Added for YP0
+MaxTsdr_93.75 = 60   ; Added for YP0
+MaxTsdr_187.5 = 60   ; Added for YP0
+MaxTsdr_500   = 100  ; Added for YP0
+MaxTsdr_1.5M  = 150  ; Added for YP0
+MaxTsdr_3M    = 250  ; Added for YP0
+MaxTsdr_6M    = 450  ; Added for YP0
+MaxTsdr_12M   = 800  ; Added for YP0
+; MaxTsdr_45.45 = 250 ; Deactivated for YP0
+; MaxTsdr_93.75 = 1000  ; Deactivated for YP0
+; MaxTsdr_1.5M  = 150 ; Deactivated for YP0
+Implementation_Type = "RMT ASIC/TMG-ITEC"  
+Bitmap_Device       = "3055555N"
+				
+;********************************************************************
+;**               Slave specific Data                              **
+;********************************************************************
+Freeze_Mode_supp = 0 
+Sync_Mode_supp = 0 
+Auto_Baud_supp = 0
+Set_Slave_Add_supp = 1
+; Min_Slave_Intervall = 200 ; Deactivated for YP0
+Min_Slave_Intervall = 6 ; Added for YP0
+;********************************************************************
+;**          User Specific Parameterization -Data                  **
+;********************************************************************
+;User_Prm_Data_Len = 3
+Max_User_Prm_Data_Len = 8
+
+PrmText=1
+Text(0)="Disabled"
+Text(1)="Enabled"
+EndPrmText
+
+ExtUserPrmData=1 "Condensed Status"
+Bit(0) 1 0-1 				  ;PRM_COND
+Prm_Text_Ref=1 				;reference to PrmText
+EndExtUserPrmData
+					;The Prm_Structure begins at an offset of three bytes in the User_Prm_Data
+					;because DPV1_Status1...3 are transmitted in the first three bytes
+Ext_User_Prm_Data_Const(0) = 0x00, 0x00, 0x08
+Ext_User_Prm_Data_Const(3)=0x05,0x41,0x00,0x00,0x01 	;default values
+						;Structure_Length = 5
+						;Structure_Type = 65 (profile specific)
+						;Slot_Number = 0
+						;reserved = 0
+						;PRM_COND = 1 (enabled)
+Ext_User_Prm_Data_Ref(7)=1;			;reference to condensed status bit PRM_COND
+Prm_Block_Structure_supp=1				;enables the block structure of extended parameterization
+
+;********************************************************************
+;**               extended DP features
+;********************************************************************
+DPV1_Slave = 1
+C2_Read_Write_supp      = 1
+C2_Max_Data_Len         = 128
+C2_Read_Write_required  = 1
+C2_Max_Count_Channels   = 2
+Max_Initiate_PDU_Length = 52
+C2_Response_Timeout     = 1000
+DPV1_Data_Types         = 1
+Ident_Maintenance_supp  = 1
+;----------- Description of device related diagnosis: -------------------------
+;
+Unit_Diag_Bit(16)   = "Error Appears"
+Unit_Diag_Bit(17)   = "Error Disappears"
+
+Unit_Diag_Bit(35)   = "Warmstart"
+Unit_Diag_Bit(36)   = "Coldstart"
+Unit_Diag_Bit(37)   = "Maintenance"
+Unit_Diag_Bit(39)   = "Ident_Number Violation"
+Unit_Diag_Bit(40)   = "Maintenance Alarm"
+Unit_Diag_Bit(41)   = "Maintenance Demanded"
+Unit_Diag_Bit(42)   = "Function Check"
+Unit_Diag_Bit(43)   = "Invalid Process Conditions"
+Unit_Diag_Bit(55)   = "Extension Available"
+
+;----------- Vendor specific diagnosis: -------------------------
+Unit_Diag_Bit(60)   = "Simulate Active"
+Unit_Diag_Bit(63)   = "Other"
+
+Unit_Diag_Bit(64)   = "Out of Service"
+Unit_Diag_Bit(65)   = "Power-Up"
+Unit_Diag_Bit(66)   = "Device Needs Maintenance Now"
+Unit_Diag_Bit(68)   = "Lost NV Data"
+Unit_Diag_Bit(69)   = "Lost Static Data"
+Unit_Diag_Bit(70)   = "Memory Failure"
+
+Unit_Diag_Bit(71)   = "ROM Integrity Error"
+Unit_Diag_Bit(73)   = "NV Memory Integrity Error"
+Unit_Diag_Bit(74)   = "Hardware-Software Incompatible"
+Unit_Diag_Bit(75)   = "Man. Block Integrity Error"
+Unit_Diag_Bit(76)   = "Sensor Transducer Block Error"
+
+;********************************************************************
+;**               Compact Station                                  **
+;********************************************************************
+Modular_Station = 1
+Max_Module = 1
+Max_Input_Len = 5
+Max_Output_Len = 0
+Max_Data_Len = 5
+Max_Diag_Data_Len = 32
+Slave_Family = 12
+;----------- Module definitions: ----------------------------------------------
+;
+;Modules for Analog Input
+Module    = "Analog Input (AI)short"     0x94
+1
+EndModule
+;Modules for Analog Input
+Module    = "Analog Input (AI)long"      0x42,0x84,0x08,0x05
+2
+EndModule
+;
+;----------- Description of the module assignment: ----------------------------
+;
+SlotDefinition
+Slot(1) = "Analog Input" 1 1,2
+EndSlotDefinition
+
+

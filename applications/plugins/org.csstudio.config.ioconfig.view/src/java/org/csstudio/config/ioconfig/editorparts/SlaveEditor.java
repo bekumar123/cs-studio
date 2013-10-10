@@ -416,7 +416,7 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         super.createPartControl(parent);
         try {
             makeSlaveKonfiguration();
-            selecttTabFolder(0);
+            selectTabFolder(0);
         } catch (final PersistenceException e) {
             LOG.error("Can't open Slave Edior! Database error", e);
             DeviceDatabaseErrorDialog.open(null, "Can't open Slave Edior! Database error", e);
@@ -641,6 +641,7 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         inputLabel.setText("Inputs: ");
         _inputsText = new Text(ioGroup, SWT.SINGLE);
         _inputsText.setEditable(false);
+        _inputsText.setEnabled(false);        
         _inputsText.setText(Integer.toString(input));
 
         final Label outputsLabel = new Label(ioGroup, SWT.RIGHT);
@@ -648,6 +649,7 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         outputsLabel.setText("Outputs: ");
         _outputsText = new Text(ioGroup, SWT.SINGLE);
         _outputsText.setEditable(false);
+        _outputsText.setEnabled(false);
         _outputsText.setText(Integer.toString(output));
     }
 
@@ -718,12 +720,14 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         slaveInfoGroup.setLayout(new GridLayout(4, false));
         slaveInfoGroup.setTabList(new Control[0]);
 
-        _vendorText = new Text(slaveInfoGroup, SWT.SINGLE | SWT.BORDER);
+        _vendorText = new Text(slaveInfoGroup, SWT.SINGLE);
         _vendorText.setEditable(false);
+        _vendorText.setEnabled(false);
         _vendorText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 4, 1));
 
         _iDNo = new Text(slaveInfoGroup, SWT.SINGLE);
         _iDNo.setEditable(false);
+        _iDNo.setEnabled(false);
         _iDNo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
 
         final Label revisionsLable = new Label(slaveInfoGroup, SWT.NONE);
@@ -731,11 +735,14 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
 
         _revisionsText = new Text(slaveInfoGroup, SWT.SINGLE);
         _revisionsText.setEditable(false);
+        _revisionsText.setEnabled(false);
         _revisionsText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 
         new Label(slaveInfoGroup, SWT.None).setText("Max. available slots:");
-        _maxSlots = new Text(slaveInfoGroup, SWT.BORDER);
+        _maxSlots = new Text(slaveInfoGroup, SWT.SINGLE);
         _maxSlots.setEditable(false);
+        _maxSlots.setEnabled(false);
+
     }
 
     private int getElementCount() {
@@ -772,7 +779,7 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         gd.minimumWidth = 100;
         _currentUserParamDataGroup.setLayoutData(gd);
         _currentUserParamDataGroup.setLayout(new FillLayout());        
-         _currentUserParamDataGroup.setText("Current User Param Data:");
+        _currentUserParamDataGroup.setText("Current User Param Data");
         
         final ScrolledComposite scrollComposite = new ScrolledComposite(_currentUserParamDataGroup,
                                                                         SWT.V_SCROLL);
@@ -817,7 +824,7 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         operationModeGroup.setText("Operation Mode");
         operationModeGroup.setLayout(new GridLayout(3, false));
         final Label delayLabel = new Label(operationModeGroup, SWT.NONE);
-        delayLabel.setText("Min. Station Delay");
+        delayLabel.setText("Min. Station Delay:");
         _minStationDelayText = ProfibusHelper.getTextField(operationModeGroup,
                                                            true,
                                                            _slave.getMinTsdr() + "",
@@ -869,7 +876,7 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         timeLabel.setText("");
         final Label watchdogLabel2 = new Label(operationModeGroup, SWT.NONE);
         watchdogLabel2.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-        watchdogLabel2.setText("Watchdog Time 2");
+        watchdogLabel2.setText("Watchdog Time 2:");
         _watchDogText2 = ProfibusHelper.getTextField(operationModeGroup,
                                                      _watchDogButton.getSelection(),
                                                      Integer.toString(wdFact2),
@@ -879,7 +886,7 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         new Label(operationModeGroup, SWT.NONE).setText("");
         final Label watchdogTotal = new Label(operationModeGroup, SWT.NONE);
         watchdogTotal.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-        watchdogTotal.setText("Watchdog Total");
+        watchdogTotal.setText("Watchdog Total:");
         final String total = Integer.toString(wdFact1 * wdFact2 * 10);
         _watchDogTotal = ProfibusHelper.getTextField(operationModeGroup, total);
 
@@ -894,7 +901,7 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
                                                            _slave.getSlaveFlag() + "",
                                                            Ranges.SLAVE_FLAG,
                                                            ProfibusHelper.VL_TYP_U16);
-
+        
         final WatchdogTimeCalculaterOnModify listener = new WatchdogTimeCalculaterOnModify(_watchDogText1,
                                                                                            _watchDogText2,
                                                                                            _watchDogTotal);
@@ -997,22 +1004,28 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         final Group slaveDataGroup = new Group(comp, SWT.NONE);
         slaveDataGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
         slaveDataGroup.setLayout(new GridLayout(4, false));
-        slaveDataGroup.setText("Salve Data");
+        slaveDataGroup.setText("Slave Data");
+        
         final Label slavePrmDataLabel = new Label(slaveDataGroup, SWT.NONE);
         slavePrmDataLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-        slavePrmDataLabel.setText("Slave Prm Data");
+        slavePrmDataLabel.setText("Slave Prm Data:");
         // TODO (hrickens) [02.05.2011]: Hier sollte bei jeder �nderung der Werte Aktualisiert werden. (Momentan garnicht aber auch nciht nur beim Speichern)
-        _slavePrmDataText = new Text(slaveDataGroup, SWT.SINGLE | SWT.LEAD | SWT.READ_ONLY | SWT.BORDER);
+        _slavePrmDataText = new Text(slaveDataGroup, SWT.LEAD | SWT.READ_ONLY | SWT.BORDER);
+        _slavePrmDataText.setEditable(false);
+        _slavePrmDataText.setEnabled(false);
         _slavePrmDataText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
         _slavePrmDataText.setText(_slave.getPrmUserData());
 
         final Label slaveCfgDataLabel = new Label(slaveDataGroup, SWT.NONE);
         slaveCfgDataLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-        slaveCfgDataLabel.setText("Slave Config Data");
+        slaveCfgDataLabel.setText("Slave Config Data:");
 
         _slaveCfgDataText = new Text(slaveDataGroup, SWT.SINGLE | SWT.LEAD | SWT.READ_ONLY | SWT.BORDER);
         _slaveCfgDataText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
         _slaveCfgDataText.setText(_slave.getSlaveCfgDataString());
+        _slaveCfgDataText.setEditable(false);
+        _slaveCfgDataText.setEnabled(false);
+
     }
     
     /**
@@ -1086,7 +1099,7 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
 
         getTabFolder().pack();
         if (nevv) {
-            selecttTabFolder(4);
+            selectTabFolder(4);
         }
     }
 

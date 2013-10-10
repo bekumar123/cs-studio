@@ -69,12 +69,12 @@ public class HibernateRepository implements IRepository {
             if(true) {
                 channel = useTreeWalkWay(session);
             } else {
-                /* TODO (hrickens)[25.01.2012]: Das ist der gewünschte Weg. Funktioniert leider
+                /* TODO (hrickens)[25.01.2012]: Das ist der gewuenschte Weg. Funktioniert leider
                  * nicht da Hibernate mit der Momentanen konfiguration mit den Genarics nicht
-                 * zurecht kommt. Es gibt vieleicht eine Möglichkeit die Funktioniert die aber eine
-                 * Konfiguration über XML und Subclasses ntig macht.
+                 * zurecht kommt. Es gibt vieleicht eine Moeglichkeit die Funktioniert die aber eine
+                 * Konfiguration ueber XML und Subclasses noetig macht.
                  * (siehe z.b.
-                 *      Buch: Hibernate Das Praxisbuch für Entwickler /s.260 Mappping-Beispiele)
+                 *      Buch: Hibernate Das Praxisbuch fuer Entwickler /s.260 Mappping-Beispiele)
                  */
                 channel = useRegularWay(session);
             }

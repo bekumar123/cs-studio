@@ -19,7 +19,7 @@ import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.fil
 public class WatchDogFilterDTO extends FilterDTO implements NewAMSConfigurationElementDTO {
 
 	@Column(name = "iTimeout", nullable = false, table="AMS_FILTER_WATCHDOG")
-	private int timeout = 10000; // INT default -1 NOT NULL,
+	private int timeout = 10; // INT default -1 NOT NULL,
 	
 	@JoinColumn(name = "IFILTERCONDITIONREF", referencedColumnName="IFILTERCONDITIONREF", nullable = false, table="AMS_FILTER_WATCHDOG")
 	@OneToOne(cascade= CascadeType.ALL)

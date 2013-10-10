@@ -102,7 +102,7 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 				} else if (filterDTO instanceof WatchDogFilterDTO) {
 					WatchDogFilterDTO watchDogFilterDTO = (WatchDogFilterDTO) filterDTO;
 					Regel rootRegel = createRegel(watchDogFilterDTO.getFilterCondition());
-					regelwerk = new WatchDogRegelwerk(regelwerkskennung, rootRegel, watchDogFilterDTO.getTimeout());
+					regelwerk = new WatchDogRegelwerk(regelwerkskennung, rootRegel, Millisekunden.valueOf(watchDogFilterDTO.getTimeout() * 1000));
 				}
 				results.add(regelwerk);
 			}

@@ -58,7 +58,7 @@ public class WatchDogSachbearbeiter implements Arbeitsfaehig {
 		});
 		
 		timerTask = createTimerTask();
-		timer.schedule(timerTask, regelwerk.getDelay());
+		timer.schedule(timerTask, regelwerk.getDelay().alsLongVonMillisekunden());
 	}
 
 	@Override
@@ -79,7 +79,7 @@ public class WatchDogSachbearbeiter implements Arbeitsfaehig {
 			if (trifftRegelZu) {
 				timerTask.cancel();
 				timerTask = createTimerTask();
-				timer.schedule(timerTask, regelwerk.getDelay());
+				timer.schedule(timerTask, regelwerk.getDelay().alsLongVonMillisekunden());
 			}
 			
 			vorgangsMappe.setWeiteresVersandVorgehen(WeiteresVersandVorgehen.NICHT_VERSENDEN);

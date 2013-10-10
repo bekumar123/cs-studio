@@ -374,7 +374,7 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 			WatchDogFilterDTO watchDogFilterDTO = (WatchDogFilterDTO) filterDTO;
 			
 			bean = new WatchDogFilterBean();
-			((WatchDogFilterBean)bean).setTimeOut(watchDogFilterDTO.getTimeout());
+			((WatchDogFilterBean)bean).setTimeout(watchDogFilterDTO.getTimeout());
 			((WatchDogFilterBean)bean).setRootCondition((JunctorConditionForFilterTreeBean) DTO2Bean(watchDogFilterDTO.getFilterCondition()));
 			//TODO implement !!!
 		}
@@ -1185,6 +1185,8 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 			}
 			WatchDogFilterBean watchDogFilterBean = (WatchDogFilterBean) bean;
 			WatchDogFilterDTO watchDogFilterDTO = (WatchDogFilterDTO) dto;
+			
+			watchDogFilterDTO.setTimeout(watchDogFilterBean.getTimeout());
 
 			final List<FilterConditionDTO> startOperandsList = this.createFilterConditionDTOListForFilter(watchDogFilterBean.getRootCondition().getOperands());
 			watchDogFilterDTO.getFilterCondition().setOperands(new HashSet<FilterConditionDTO>(startOperandsList));

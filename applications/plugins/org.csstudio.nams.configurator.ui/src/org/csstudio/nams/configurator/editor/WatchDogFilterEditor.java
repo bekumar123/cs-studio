@@ -18,6 +18,7 @@ import org.csstudio.nams.configurator.beans.FilterbedingungBean;
 import org.csstudio.nams.configurator.beans.IConfigurationBean;
 import org.csstudio.nams.configurator.beans.IReceiverBean;
 import org.csstudio.nams.configurator.beans.MessageTemplateBean;
+import org.csstudio.nams.configurator.beans.TimebasedFilterBean;
 import org.csstudio.nams.configurator.beans.WatchDogFilterBean;
 import org.csstudio.nams.configurator.beans.filters.JunctorConditionForFilterTreeBean;
 import org.csstudio.nams.configurator.beans.filters.NotConditionForFilterTreeBean;
@@ -98,6 +99,7 @@ public class WatchDogFilterEditor extends AbstractEditor<WatchDogFilterBean> {
 	private ScrolledForm mainForm;
 
 	private TableViewer actionTableViewer;
+	private Text timeoutTextEntry;
 
 	public WatchDogFilterEditor() {
 		super();
@@ -159,6 +161,8 @@ public class WatchDogFilterEditor extends AbstractEditor<WatchDogFilterBean> {
 		});
 		this._defaultMessageTextEntry = this.createDescriptionTextEntry(main,
 				Messages.FilterEditor_default_message);
+		
+		timeoutTextEntry = this.createTextEntry(main, "Timeout in Sekunden", true);
 
 		{
 			final Composite treeAndButtonsComposite = new Composite(outerFormMain,
@@ -409,6 +413,9 @@ public class WatchDogFilterEditor extends AbstractEditor<WatchDogFilterBean> {
 		context.bindValue(SWTObservables
 				.observeSelection(this._rubrikComboEntry),
 				rubrikTextObservable, null, null);
+		
+		IObservableValue timeoutObservableValue = BeansObservables.observeValue(getWorkingCopyOfEditorInput(), WatchDogFilterBean.WatchDogPropertyNames.timeout.name());
+		context.bindValue(SWTObservables.observeText(timeoutTextEntry, SWT.Modify), timeoutObservableValue, null, null);
 	}
 
 	protected void updateBeanAndFireEvent() {

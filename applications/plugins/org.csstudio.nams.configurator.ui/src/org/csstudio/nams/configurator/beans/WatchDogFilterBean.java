@@ -6,7 +6,8 @@ import org.csstudio.nams.service.configurationaccess.localstore.declaration.Junc
 
 public class WatchDogFilterBean extends FilterBean<WatchDogFilterBean> {
 
-	private int timeOut;
+	public static enum WatchDogPropertyNames {timeout}
+	private int timeout = 10;
 	private JunctorConditionForFilterTreeBean rootCondition;
 	
 	public WatchDogFilterBean() {
@@ -14,12 +15,14 @@ public class WatchDogFilterBean extends FilterBean<WatchDogFilterBean> {
 		rootCondition.setJunctorConditionType(JunctorConditionType.AND);
 	}
 	
-	public void setTimeOut(int timeOut) {
-		this.timeOut = timeOut;
+	public void setTimeout(int timeout) {
+		int oldValue = this.timeout;
+		this.timeout = timeout;
+		pcs.firePropertyChange(WatchDogPropertyNames.timeout.name(), oldValue, timeout);
 	}
 	
-	public int getTimeOut() {
-		return timeOut;
+	public int getTimeout() {
+		return timeout;
 	}
 
 	public JunctorConditionForFilterTreeBean getRootCondition() {
@@ -37,7 +40,7 @@ public class WatchDogFilterBean extends FilterBean<WatchDogFilterBean> {
 		super.doUpdateState(bean);
 			
 		this.rootCondition = (JunctorConditionForFilterTreeBean) bean.rootCondition.getClone();
-		this.timeOut = bean.timeOut;
+		this.timeout = bean.timeout;
 	}
 
 	@Override
@@ -48,7 +51,7 @@ public class WatchDogFilterBean extends FilterBean<WatchDogFilterBean> {
 				* result
 				+ ((rootCondition == null) ? 0 : rootCondition
 						.hashCode());
-		result = prime * result + timeOut;
+		result = prime * result + timeout;
 		return result;
 	}
 
@@ -66,7 +69,7 @@ public class WatchDogFilterBean extends FilterBean<WatchDogFilterBean> {
 				return false;
 		} else if (!rootCondition.equals(other.rootCondition))
 			return false;
-		if (timeOut != other.timeOut)
+		if (timeout != other.timeout)
 			return false;
 		return true;
 	}

@@ -110,7 +110,7 @@ public class AlarmEntscheidungsBuero {
 				terminEingangskoerbeDerSachbearbeiter.put(((TimebasedSachbearbeiter) sachbearbeiter).gibName(), eingangskorb);
 			} else if (regelwerk instanceof WatchDogRegelwerk) {
 				final BeobachtbarerEingangskorb<Vorgangsmappe> eingangskorb = new ExecutorBeobachtbarerEingangskorb<Vorgangsmappe>(threadPool);
-				sachbearbeiter = new WatchDogSachbearbeiter("" + zaehler, eingangskorb, this.ausgangskorb, (WatchDogRegelwerk) regelwerk, watchDogTimer);
+				sachbearbeiter = new WatchDogSachbearbeiter(eingangskorb, this.ausgangskorb, (WatchDogRegelwerk) regelwerk, watchDogTimer);
 				eingangskoerbeSachbearbeiter.add(zaehler, eingangskorb);
 			}
 

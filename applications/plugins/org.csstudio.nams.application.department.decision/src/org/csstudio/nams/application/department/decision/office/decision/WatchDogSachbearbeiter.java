@@ -21,7 +21,6 @@ import org.csstudio.nams.common.material.regelwerk.yaams.WatchDogRegelwerk;
 
 public class WatchDogSachbearbeiter implements Arbeitsfaehig {
 
-	private final String name;
 	private BeobachtbarerEingangskorb<Vorgangsmappe> eingangskorb;
 	private Ausgangskorb<Vorgangsmappe> ausgangskorb;
 	private WatchDogRegelwerk regelwerk;
@@ -29,8 +28,7 @@ public class WatchDogSachbearbeiter implements Arbeitsfaehig {
 	private Timer timer;
 	private TimerTask timerTask;
 
-	public WatchDogSachbearbeiter(String name, BeobachtbarerEingangskorb<Vorgangsmappe> eingangskorb, Ausgangskorb<Vorgangsmappe> ausgangskorb, WatchDogRegelwerk regelwerk, Timer timer) {
-		this.name = name;
+	public WatchDogSachbearbeiter(BeobachtbarerEingangskorb<Vorgangsmappe> eingangskorb, Ausgangskorb<Vorgangsmappe> ausgangskorb, WatchDogRegelwerk regelwerk, Timer timer) {
 		this.eingangskorb = eingangskorb;
 		this.ausgangskorb = ausgangskorb;
 		this.regelwerk = regelwerk;
@@ -66,10 +64,6 @@ public class WatchDogSachbearbeiter implements Arbeitsfaehig {
 		return istAmArbeiten;
 	}
 	
-	public String getName() {
-		return name;
-	}
-
 	private void handleNeuerEingang() {
 		try {
 			Vorgangsmappe vorgangsMappe = eingangskorb.entnehmeAeltestenEingang();

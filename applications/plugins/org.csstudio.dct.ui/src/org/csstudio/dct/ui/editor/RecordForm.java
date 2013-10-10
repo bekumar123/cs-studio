@@ -112,7 +112,9 @@ public final class RecordForm extends AbstractForm<IRecord> {
         hideDefaultsButton.setSelection(false);
 
         // .. table with record fields
-        recordFieldTable = WidgetUtil.create3ColumnTable(composite, commandStack);
+        recordFieldTable = WidgetUtil.create4ColumnTable(composite, commandStack);
+        recordFieldTable.getViewer().getTable().setHeaderVisible(true);
+        
         GridDataFactory.fillDefaults().grab(true, true).applyTo(recordFieldTable.getViewer().getControl());
 
         // .. the expand item
@@ -184,6 +186,7 @@ public final class RecordForm extends AbstractForm<IRecord> {
         rows.add(new BeanPropertyTableRowAdapter("Type", record, "type", true));
         rows.add(new HierarchicalBeanPropertyTableRowAdapter("Epics Name", record, "epicsName", false));
         rows.add(new HierarchicalBeanPropertyTableRowAdapter("Disabled", record, "disabled", false));
+        rows.add(new HierarchicalBeanPropertyTableRowAdapter("Archived", record, "recordArchived", false));
     }
 
     /**

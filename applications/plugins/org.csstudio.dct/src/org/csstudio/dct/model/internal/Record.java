@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,6 +40,9 @@ public final class Record extends AbstractPropertyContainer implements IRecord {
     @NotNull
     private Map<String, String> fields = new HashMap<String, String>();
 
+    @NotNull
+    private Map<String, Boolean> archived = new HashMap<String, Boolean>();
+
     @Nullable
     private IRecord parentRecord;
 
@@ -52,6 +54,9 @@ public final class Record extends AbstractPropertyContainer implements IRecord {
 
     @Nullable
     private Boolean disabled;
+
+    @Nullable
+    private Boolean recordArchived;
 
     public Record() {
     }
@@ -155,7 +160,7 @@ public final class Record extends AbstractPropertyContainer implements IRecord {
             result.putAll(top.getFields());
         }
 
-        //result.put("HOPR", "12");
+        // result.put("HOPR", "12");
 
         return result;
     }
@@ -167,7 +172,7 @@ public final class Record extends AbstractPropertyContainer implements IRecord {
         Map<String, String> result = new HashMap<String, String>();
 
         Stack<IRecord> stack = getRecordStack();
-        
+
         // add the field values of the parent hierarchy, values can be overriden
         // by children
         if (!stack.isEmpty()) {
@@ -177,7 +182,7 @@ public final class Record extends AbstractPropertyContainer implements IRecord {
                 result.putAll(top.getFields());
             }
         }
-        
+
         return result;
     }
 
@@ -258,6 +263,38 @@ public final class Record extends AbstractPropertyContainer implements IRecord {
      */
     public Boolean getDisabled() {
         return disabled;
+    }
+
+    @Override
+    public Boolean getArchived(String name) {
+        checkNotNull(name);
+        Boolean value = archived.get(name);
+        if (value == null) {
+            Boolean parentValue = parentRecord.getArchived(name);
+            if (parentValue == null) {
+                return false;
+            }
+            return parentValue;
+        } else {
+           return value; 
+        }
+    }
+
+    @Override
+    public void setArchived(String name, Boolean value) {
+        checkNotNull(name);
+        checkNotNull(value);
+        archived.put(name, value);
+    }
+
+    @Override
+    public Boolean getRecordArchived() {
+        return this.recordArchived;
+    }
+
+    @Override
+    public void setRecordArchived(Boolean value) {
+        this.recordArchived = value;
     }
 
     public IContainer getRootContainer() {

@@ -1,5 +1,7 @@
 package org.csstudio.dct.model.persistence.internal;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.csstudio.dct.model.IElement;
@@ -15,6 +17,7 @@ import org.csstudio.domain.common.strings.StringUtil;
 import org.jdom.Document;
 import org.jdom.Element;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 
 /**
@@ -214,7 +217,8 @@ public final class ProjectToXml {
         instanceXmlElement.setAttribute("index", "" + index);
 
         if ((instance.getPrototype().getRootFolder() != null)) {
-            instanceXmlElement.setAttribute(XmlAttributes.PROTOTYPE_FOLDER, instance.getPrototype().getRootFolder().getName());
+            instanceXmlElement.setAttribute(XmlAttributes.PROTOTYPE_FOLDER, instance.getPrototype().getRootFolder()
+                    .getName());
         }
 
         // PARAMETER VALUES
@@ -262,7 +266,21 @@ public final class ProjectToXml {
      * @return the xml element representing the record
      */
     private Element createElement(IRecord record) {
+        
         Element element = createBaseElement(record, "record");
+
+        List<String> archivedFields = new ArrayList<String>();
+        
+        // Retrieve values for Archive Flags
+        for (String fieldName : record.getFinalFields().keySet()) {
+            if (record.getArchived(fieldName)) {
+                archivedFields.add(fieldName);
+            }
+        }
+
+        if (archivedFields.size() > 0) {
+            element.setAttribute("archived", Joiner.on(",").join(archivedFields));
+        }
 
         // RECORD NAME
         String n = record.getName();
@@ -276,6 +294,10 @@ public final class ProjectToXml {
         Boolean disabled = record.getDisabled();
         element.setAttribute("disabled", (disabled != null) ? disabled.toString() : "{inherited}");
 
+        // ARCHIVED
+        Boolean archived = record.getRecordArchived();
+        element.setAttribute("recordArchived", archived != null ? archived.toString() : "{inherited}");
+      
         // TYPE
         element.setAttribute("type", record.getType());
 

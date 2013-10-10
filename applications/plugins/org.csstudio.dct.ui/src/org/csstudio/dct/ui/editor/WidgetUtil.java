@@ -46,4 +46,12 @@ public final class WidgetUtil {
         return new ConvenienceTableWrapper(parent, SWT.NONE, commandStack, cc);
     }
 
+    public static ConvenienceTableWrapper create4ColumnTable(Composite parent, CommandStack commandStack) {
+        ColumnConfig[] cc = new ColumnConfig[4];
+        cc[0] = new ColumnConfig("KEY", "Description", 200);
+        cc[1] = new ColumnConfig("VALUE", "Value", 250);
+        cc[2] = new ColumnConfig("CHECK", "Archived", 70, true);
+        cc[3] = new ColumnConfig("ERROR", "Error", 250);
+        return new ConvenienceTableWrapper(parent, SWT.NONE, commandStack, cc);
+    }
 }

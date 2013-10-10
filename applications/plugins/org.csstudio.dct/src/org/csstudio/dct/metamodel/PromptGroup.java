@@ -55,7 +55,9 @@ public enum PromptGroup {
 
 	WAVE(DBDConstants.GUI_WAVE, "GUI_WAVE", "Wave"),
 
-	SCAN(DBDConstants.GUI_SCAN, "GUI_SCAN", "Scan");
+	SCAN(DBDConstants.GUI_SCAN, "GUI_SCAN", "Scan"),
+
+	ARCHIVE(DBDConstants.DCT_ARCHIVE, "DCT_ARCHIVE", "Archive");
 
 	private int vdctType;
 	private String dbdString;

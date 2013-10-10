@@ -34,285 +34,310 @@ import com.google.common.collect.ImmutableMap;
  */
 public final class BaseRecord implements IRecord {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Nullable
-	private IRecordDefinition recordDefinition;
+    @Nullable
+    private IRecordDefinition recordDefinition;
 
-	@NotNull
-	private List<IRecord> inheritingRecords = new ArrayList<IRecord>();
+    @NotNull
+    private List<IRecord> inheritingRecords = new ArrayList<IRecord>();
 
-	@NotNull
-	private Map<String, String> fields;
+    @NotNull
+    private Map<String, String> fields;
 
-	public BaseRecord(@Nullable IRecordDefinition recordDefinition) {
-		setRecordDefinition(recordDefinition);
-	}
+    @NotNull
+    private Map<String, Boolean> archived = new HashMap<String, Boolean>();
 
-	/**
-	 * Sets the record definition.
-	 * 
-	 * @param recordDefinition
-	 *            the record definition
-	 */
-	public void setRecordDefinition(@Nullable IRecordDefinition recordDefinition) {
-		this.recordDefinition = recordDefinition;
+    public BaseRecord(@Nullable IRecordDefinition recordDefinition) {
+        setRecordDefinition(recordDefinition);
+    }
 
-		fields = new LinkedHashMap<String, String>();
+    /**
+     * Sets the record definition.
+     * 
+     * @param recordDefinition
+     *            the record definition
+     */
+    public void setRecordDefinition(@Nullable IRecordDefinition recordDefinition) {
+        this.recordDefinition = recordDefinition;
 
-		if (recordDefinition != null) {
-			for (IFieldDefinition fd : recordDefinition.getFieldDefinitions()) {
+        fields = new LinkedHashMap<String, String>();
 
-				if (fd.getPromptGroup() != null
-						&& PromptGroup.UNDEFINED != fd.getPromptGroup()) {
-					// determine default value
-					String defaultValue = "";
+        if (recordDefinition != null) {
+            for (IFieldDefinition fd : recordDefinition.getFieldDefinitions()) {
 
-					if (fd.getInitial() != null && fd.getInitial().length() > 0) {
-						defaultValue = fd.getInitial();
-					} else {
-						if (fd.getMenu() != null
-								&& fd.getMenu().getChoices() != null
-								&& fd.getMenu().getChoices().size() > 0) {
-							defaultValue = fd.getMenu().getChoices().get(0)
-									.getDescription();
-						}
-					}
+                if (fd.getPromptGroup() != null && PromptGroup.UNDEFINED != fd.getPromptGroup()) {
+                    // determine default value
+                    String defaultValue = "";
 
-					fields.put(fd.getName(), defaultValue);
-				}
-			}
-		}
-	}
+                    if (fd.getInitial() != null && fd.getInitial().length() > 0) {
+                        defaultValue = fd.getInitial();
+                    } else {
+                        if (fd.getMenu() != null && fd.getMenu().getChoices() != null
+                                && fd.getMenu().getChoices().size() > 0) {
+                            defaultValue = fd.getMenu().getChoices().get(0).getDescription();
+                        }
+                    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void addField(String name, String value) {
-	}
+                    fields.put(fd.getName(), defaultValue);
+                }
+            }
+        }
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void addProperty(String name, String value) {
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void addField(String name, String value) {
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public IContainer getContainer() {
-		return null;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void addProperty(String name, String value) {
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getField(@NotNull String name) {
-		checkNotNull(name);
-		return fields.get(name);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public IContainer getContainer() {
+        return null;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Map<String, String> getFields() {
-		return fields;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public String getField(@NotNull String name) {
+        checkNotNull(name);
+        return fields.get(name);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Map<String, String> getDefaultFields() {
-		return getFields();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public Map<String, String> getFields() {
+        return fields;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Map<String, String> getFinalFields() {
-		return getFields();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public Map<String, String> getDefaultFields() {
+        return getFields();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings("unchecked")
-	public Map<String, String> getFinalProperties() {
-		return Collections.EMPTY_MAP;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public Map<String, String> getFinalFields() {
+        return getFields();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getNameFromHierarchy() {
-		return null;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    public Map<String, String> getFinalProperties() {
+        return Collections.EMPTY_MAP;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getEpicsName() {
-		return null;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public String getNameFromHierarchy() {
+        return null;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getEpicsNameFromHierarchy() {
-		return null;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public String getEpicsName() {
+        return null;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void setEpicsName(String epicsName) {
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public String getEpicsNameFromHierarchy() {
+        return null;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public IRecord getParentRecord() {
-		return null;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void setEpicsName(String epicsName) {
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Immutable
-	public Map<String, String> getProperties() {
-		return ImmutableMap.copyOf(new HashMap<String, String>());
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public IRecord getParentRecord() {
+        return null;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getProperty(String name) {
-		throw null;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Immutable
+    public Map<String, String> getProperties() {
+        return ImmutableMap.copyOf(new HashMap<String, String>());
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getType() {
-		return recordDefinition.getType();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public String getProperty(String name) {
+        throw null;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean isInherited() {
-		return false;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public String getType() {
+        return recordDefinition.getType();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void removeField(String name) {
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isInherited() {
+        return false;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void removeProperty(String name) {
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void removeField(String name) {
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void setContainer(IContainer container) {
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void removeProperty(String name) {
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public UUID getId() {
-		return null;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void setContainer(IContainer container) {
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getName() {
-		return recordDefinition != null ? recordDefinition.getType() : "??";
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public UUID getId() {
+        return null;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void setName(String name) {
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public String getName() {
+        return recordDefinition != null ? recordDefinition.getType() : "??";
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void addDependentRecord(IRecord record) {
-		checkNotNull(record);
-		checkArgument(record.getParentRecord() == this,
-				"Record must inherit from here.");
-		inheritingRecords.add(record);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void setName(String name) {
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Immutable
-	public List<IRecord> getDependentRecords() {
-		return ImmutableList.copyOf(inheritingRecords);
-	}
+    @Override
+    public Boolean getArchived(String name) {
+        checkNotNull(name);
+        if (archived.containsKey(name)) {
+            return archived.get(name);
+        } else {
+            return false;
+        }
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void removeDependentRecord(IRecord record) {
-		checkNotNull(record);
-		checkArgument(record.getParentRecord() == this,
-				"Record must inherit from here.");
-		inheritingRecords.remove(record);
-	}
+    @Override
+    public void setArchived(String name, Boolean value) {
+        checkNotNull(name);
+        checkNotNull(value);
+        archived.put(name, value);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Nullable
-	public IRecordDefinition getRecordDefinition() {
-		return recordDefinition;
-	}
+    @Override
+    public Boolean getRecordArchived() {
+        return false;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean hasProperty(String name) {
-		return false;
-	}
+    @Override
+    public void setRecordArchived(Boolean value) {
+        // do nothing
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void accept(IVisitor visitor) {
+    /**
+     * {@inheritDoc}
+     */
+    public void addDependentRecord(IRecord record) {
+        checkNotNull(record);
+        checkArgument(record.getParentRecord() == this, "Record must inherit from here.");
+        inheritingRecords.add(record);
+    }
 
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Immutable
+    public List<IRecord> getDependentRecords() {
+        return ImmutableList.copyOf(inheritingRecords);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Immutable
-	public Map<String, String> getFinalParameterValues() {
-		return ImmutableMap.copyOf(new HashMap<String, String>());
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void removeDependentRecord(IRecord record) {
+        checkNotNull(record);
+        checkArgument(record.getParentRecord() == this, "Record must inherit from here.");
+        inheritingRecords.remove(record);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean isAbstract() {
-		return true;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Nullable
+    public IRecordDefinition getRecordDefinition() {
+        return recordDefinition;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Boolean getDisabled() {
-		return false;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasProperty(String name) {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void accept(IVisitor visitor) {
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Immutable
+    public Map<String, String> getFinalParameterValues() {
+        return ImmutableMap.copyOf(new HashMap<String, String>());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isAbstract() {
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Boolean getDisabled() {
+        return false;
+    }
 
     @Override
     public IContainer getRootContainer() {

@@ -1004,12 +1004,11 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         final Group slaveDataGroup = new Group(comp, SWT.NONE);
         slaveDataGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
         slaveDataGroup.setLayout(new GridLayout(4, false));
-        slaveDataGroup.setText("Slave Data");
         
         final Label slavePrmDataLabel = new Label(slaveDataGroup, SWT.NONE);
         slavePrmDataLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
         slavePrmDataLabel.setText("Slave Prm Data:");
-        // TODO (hrickens) [02.05.2011]: Hier sollte bei jeder �nderung der Werte Aktualisiert werden. (Momentan garnicht aber auch nciht nur beim Speichern)
+        // TODO (hrickens) [02.05.2011]: Hier sollte bei jeder Aenderung der Werte Aktualisiert werden. (Momentan gar nicht aber auch nicht nur beim Speichern)
         _slavePrmDataText = new Text(slaveDataGroup, SWT.LEAD | SWT.READ_ONLY | SWT.BORDER);
         _slavePrmDataText.setEditable(false);
         _slavePrmDataText.setEnabled(false);

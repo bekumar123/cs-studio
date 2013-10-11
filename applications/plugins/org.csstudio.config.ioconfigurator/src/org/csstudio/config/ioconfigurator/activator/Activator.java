@@ -87,15 +87,9 @@ public class Activator extends AbstractUIPlugin {
          * Remove when this plug-in works as expected.
          */
         Map<String, String> map = new HashMap<String, String>(5);
-//        map.put(Context.PROVIDER_URL, "ldap://krynfs.desy.de:389/o=DESY,c=DE");
-//        map.put(Context.SECURITY_PRINCIPAL, "uid=css_user,ou=people,o=DESY,c=DE");
-//        map.put(Context.SECURITY_CREDENTIALS, "cssPass");
-//        map.put(Context.SECURITY_PROTOCOL, "");
-//        map.put(Context.SECURITY_AUTHENTICATION, "simple");
-
-        map.put(Context.PROVIDER_URL, "ldap://212.1.56.244:389/o=DESY,c=DE");
-        map.put(Context.SECURITY_PRINCIPAL, "cn=manager,o=DESY,c=DE");
-        map.put(Context.SECURITY_CREDENTIALS, "hal9000");
+        map.put(Context.PROVIDER_URL, "ldap://krynfs.desy.de:389/o=DESY,c=DE");
+        map.put(Context.SECURITY_PRINCIPAL, "uid=css_user,ou=people,o=DESY,c=DE");
+        map.put(Context.SECURITY_CREDENTIALS, "cssPass");
         map.put(Context.SECURITY_PROTOCOL, "");
         map.put(Context.SECURITY_AUTHENTICATION, "simple");
 

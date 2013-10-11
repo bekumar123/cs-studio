@@ -108,7 +108,7 @@ IWorkbenchPreferencePage {
         final TabFolder tabs = new TabFolder(getFieldEditorParent(), SWT.NONE);
         tabs.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
         
-        makeFcilityTab(tabs);
+        makeFacilityTab(tabs);
         makeLogbookTab(tabs);
         makeHibernateDBTab(tabs);
     }
@@ -118,8 +118,7 @@ IWorkbenchPreferencePage {
         // nothing to init
     }
     
-    @SuppressWarnings("unused")
-    private void makeFcilityTab(@Nonnull final TabFolder tabs) {
+    private void makeFacilityTab(@Nonnull final TabFolder tabs) {
         final TabItem tabDb = new TabItem(tabs, SWT.NONE);
         tabDb.setText("Facilty Settings");
         final Composite facComposite = new Composite(tabs, SWT.NONE);
@@ -137,9 +136,7 @@ IWorkbenchPreferencePage {
         
         
     }
-    
-    
-    @SuppressWarnings("unused")
+        
     private void makeHibernateDBTab(@Nonnull final TabFolder tabs) {
         // database settings
         final TabItem tabDb = new TabItem(tabs, SWT.NONE);
@@ -170,7 +167,6 @@ IWorkbenchPreferencePage {
         addField(new BooleanFieldEditor(SHOW_SQL, "&Show SQL", dbComposite));
     }
     
-    @SuppressWarnings("unused")
     private void makeLogbookTab(@Nonnull final TabFolder tabs) {
         // database settings
         final TabItem tabFileAdd = new TabItem(tabs, SWT.NONE);

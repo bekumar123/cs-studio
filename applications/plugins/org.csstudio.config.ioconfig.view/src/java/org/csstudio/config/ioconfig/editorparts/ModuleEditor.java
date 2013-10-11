@@ -339,6 +339,8 @@ public class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
      * @param string
      */
     private void ioNames(@Nonnull final String head) {
+        Display display = Display.getCurrent();
+        
         final Composite comp = getNewTabItem(head, 2);
         comp.setLayout(new GridLayout(3, false));
         buildLabel(comp, "Name");
@@ -350,9 +352,9 @@ public class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
         layoutData.widthHint = 150;
         _channelNameText = new Text(comp, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.READ_ONLY);
         _channelNameText.setEditable(false);
-        _channelNameText.setEnabled(false);        
+        _channelNameText.setBackground(display.getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND));        
         _channelNameText.setLayoutData(layoutData);
-
+        
         layoutData = new GridData(SWT.BEGINNING, SWT.FILL, false, true);
         layoutData.minimumWidth = 350;
         layoutData.widthHint = 350;
@@ -437,7 +439,8 @@ public class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
         buildNameGroup(comp);
 
         final Group topGroup = new Group(comp, SWT.NONE);
-        topGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
+        GridData layoutData = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1);
+       topGroup.setLayoutData(layoutData);
         topGroup.setLayout(new GridLayout(3, false));
         topGroup.setText("Module selection");
 
@@ -466,7 +469,8 @@ public class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
     private void buildModuleTypList(@Nonnull final Composite comp, @Nonnull final Group topGroup,
             @Nonnull final Text filter, @Nonnull final Button filterButton) {
         _moduleTypList = new TableViewer(topGroup, SWT.SINGLE | SWT.V_SCROLL | SWT.BORDER);
-        _moduleTypList.getTable().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 3));
+        GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 3);
+        _moduleTypList.getTable().setLayoutData(layoutData);
         _moduleTypList.setContentProvider(new ComboContentProvider());
         _moduleTypList.setLabelProvider(new ModuleListLabelProvider(_moduleTypList.getTable()));
         setTypListFilter(filter, filterButton);
@@ -628,8 +632,9 @@ public class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
 
         // Current User Param Data Group
         _currentUserParamDataGroup = new Group(topGroup, SWT.NONE);
-        final GridData gd = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 3);
-        _currentUserParamDataGroup.setLayoutData(gd);
+        final GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 3);
+        layoutData.minimumWidth = 280;
+        _currentUserParamDataGroup.setLayoutData(layoutData);
         _currentUserParamDataGroup.setLayout(new FillLayout());
         _currentUserParamDataGroup.setText("Current User Param Data");
         final ScrolledComposite scrollComposite = new ScrolledComposite(_currentUserParamDataGroup, SWT.V_SCROLL);
@@ -942,7 +947,6 @@ public class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
      */
     @Override
     void setPrmUserData(@Nonnull final Integer index, @Nonnull final Integer value) {
-        System.out.println(value);
         _module.setConfigurationDataByte(index, value);
     }
 

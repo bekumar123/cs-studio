@@ -306,8 +306,11 @@ public final class ConfigHelper {
 
         // Label
         final Label slotIndexLabel = new Label(parent, SWT.NONE);
-        slotIndexLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.RIGHT, false, false, 1, 1));
+        GridData layoutData = new GridData(SWT.RIGHT, SWT.RIGHT, false, false, 1, 1);
+        layoutData.verticalIndent = 4;
+        slotIndexLabel.setLayoutData(layoutData);
         slotIndexLabel.setText(label);
+        
         // Spinner
         final Spinner indexSpinner = new Spinner(parent, SWT.WRAP | SWT.BORDER);
         indexSpinner.setLayoutData(new GridData(SWT.RIGHT, SWT.RIGHT, false, false, 1, 1));

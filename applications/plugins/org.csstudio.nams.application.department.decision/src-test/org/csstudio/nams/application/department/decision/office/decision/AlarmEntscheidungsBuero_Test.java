@@ -14,74 +14,23 @@ import org.csstudio.nams.common.decision.Eingangskorb;
 import org.csstudio.nams.common.decision.StandardAblagekorb;
 import org.csstudio.nams.common.decision.Vorgangsmappe;
 import org.csstudio.nams.common.decision.Vorgangsmappenkennung;
-import org.csstudio.nams.common.fachwert.MessageKeyEnum;
 import org.csstudio.nams.common.fachwert.Millisekunden;
 import org.csstudio.nams.common.material.AlarmNachricht;
 import org.csstudio.nams.common.material.Regelwerkskennung;
-import org.csstudio.nams.common.material.regelwerk.OderVersandRegel;
-import org.csstudio.nams.common.material.regelwerk.Pruefliste;
-import org.csstudio.nams.common.material.regelwerk.RegelErgebnis;
+import org.csstudio.nams.common.material.regelwerk.DefaultRegelwerk;
+import org.csstudio.nams.common.material.regelwerk.Regel;
 import org.csstudio.nams.common.material.regelwerk.Regelwerk;
-import org.csstudio.nams.common.material.regelwerk.StandardRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.TimeBasedRegel;
-import org.csstudio.nams.common.material.regelwerk.VersandRegel;
+import org.csstudio.nams.common.material.regelwerk.TimebasedRegelwerk;
 import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
-import org.csstudio.nams.common.material.regelwerk.yaams.DefaultRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.yaams.NewRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.yaams.Regel;
-import org.csstudio.nams.common.material.regelwerk.yaams.TimebasedRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.yaams.TimebasedRegelwerk.TimeoutType;
-import org.csstudio.nams.service.history.declaration.HistoryService;
+import org.csstudio.nams.common.material.regelwerk.TimebasedRegelwerk.TimeoutType;
 import org.junit.Test;
 
 public class AlarmEntscheidungsBuero_Test extends TestCase {
 
-	static class SehrSimpleTextRegel implements VersandRegel {
-
-		private final String muster;
-
-		public SehrSimpleTextRegel(final String muster) {
-			this.muster = muster;
-		}
-
-		public void pruefeNachrichtAufBestaetigungsUndAufhebungsNachricht(
-				final AlarmNachricht nachricht,
-				final Pruefliste bisherigesErgebnis) {
-			if (!bisherigesErgebnis.gibErgebnisFuerRegel(this).istEntschieden()) {
-				this.pruefeNachrichtErstmalig(nachricht, bisherigesErgebnis);
-			}
-		}
-
-		public Millisekunden pruefeNachrichtAufTimeOuts(
-				final Pruefliste bisherigesErgebnis,
-				final Millisekunden verstricheneZeitSeitErsterPruefung) {
-			return null;
-		}
-
-		public Millisekunden pruefeNachrichtErstmalig(
-				final AlarmNachricht nachricht,
-				final Pruefliste bisherigesErgebnis) {
-			if (this.muster.equals(nachricht.gibNachrichtenText())) {
-				bisherigesErgebnis.setzeErgebnisFuerRegelFallsVeraendert(this,
-						RegelErgebnis.ZUTREFFEND);
-			} else {
-				bisherigesErgebnis.setzeErgebnisFuerRegelFallsVeraendert(this,
-						RegelErgebnis.NICHT_ZUTREFFEND);
-			}
-			return null;
-		}
-
-		public void setHistoryService(final HistoryService historyService) {
-			// TODO Auto-generated method stub
-
-		}
-
-	}
-
 	public void testConstructor() {
 		final int ANZAHL_REGELWERKE = 3;
 
-		final NewRegelwerk[] regelwerke = new NewRegelwerk[ANZAHL_REGELWERKE];
+		final Regelwerk[] regelwerke = new Regelwerk[ANZAHL_REGELWERKE];
 		for (int i = 0; i < ANZAHL_REGELWERKE; i++) {
 			regelwerke[i] = new DefaultRegelwerk(Regelwerkskennung.valueOf(),
 					new Regel() {
@@ -155,16 +104,16 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 		};
 		
 		final Regelwerkskennung regelwerkskennung = Regelwerkskennung.valueOf();
-		final NewRegelwerk regelwerk = new DefaultRegelwerk(regelwerkskennung,
+		final Regelwerk regelwerk = new DefaultRegelwerk(regelwerkskennung,
 				regel);
 
 		final Regelwerkskennung regelwerkskennung2 = Regelwerkskennung
 				.valueOf();
-		final NewRegelwerk regelwerk2 = new DefaultRegelwerk(regelwerkskennung2,
+		final Regelwerk regelwerk2 = new DefaultRegelwerk(regelwerkskennung2,
 				regel2);
 
 		final AlarmEntscheidungsBuero buero = new AlarmEntscheidungsBuero(
-				new DefaultExecutionService(), new NewRegelwerk[] { regelwerk,
+				new DefaultExecutionService(), new Regelwerk[] { regelwerk,
 						regelwerk2 },
 				new StandardAblagekorb<Vorgangsmappe>(),
 				new StandardAblagekorb<Vorgangsmappe>(), 1);
@@ -224,7 +173,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 		TimebasedRegelwerk timebasedRegelwerk = new TimebasedRegelwerk(Regelwerkskennung.valueOf(), startRegel, stopRegel, Millisekunden.valueOf(100), TimeoutType.SENDE_BEI_STOP_REGEL);
 
 		final AlarmEntscheidungsBuero buero = new AlarmEntscheidungsBuero(
-				new DefaultExecutionService(), new NewRegelwerk[] { timebasedRegelwerk },
+				new DefaultExecutionService(), new Regelwerk[] { timebasedRegelwerk },
 				new StandardAblagekorb<Vorgangsmappe>(),
 				new StandardAblagekorb<Vorgangsmappe>(), 1);
 		final Eingangskorb<Vorgangsmappe> alarmVorgangEingangskorb = buero
@@ -410,7 +359,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 		TimebasedRegelwerk timebasedRegelwerk = new TimebasedRegelwerk(Regelwerkskennung.valueOf(), startRegel, stopRegel, Millisekunden.valueOf(100), TimeoutType.SENDE_BEI_TIMEOUT);
 
 		final AlarmEntscheidungsBuero buero = new AlarmEntscheidungsBuero(
-				new DefaultExecutionService(), new NewRegelwerk[] { timebasedRegelwerk },
+				new DefaultExecutionService(), new Regelwerk[] { timebasedRegelwerk },
 				new StandardAblagekorb<Vorgangsmappe>(),
 				new StandardAblagekorb<Vorgangsmappe>(), 1);
 		final Eingangskorb<Vorgangsmappe> alarmVorgangEingangskorb = buero

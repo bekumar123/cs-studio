@@ -1,9 +1,9 @@
-package org.csstudio.nams.common.material.regelwerk.yaams;
+package org.csstudio.nams.common.material.regelwerk;
 
 import org.csstudio.nams.common.fachwert.Millisekunden;
 import org.csstudio.nams.common.material.Regelwerkskennung;
 
-public class WatchDogRegelwerk implements NewRegelwerk {
+public class WatchDogRegelwerk implements Regelwerk {
 
 	private Regel regel;
 	private Regelwerkskennung regelwerkskennung;

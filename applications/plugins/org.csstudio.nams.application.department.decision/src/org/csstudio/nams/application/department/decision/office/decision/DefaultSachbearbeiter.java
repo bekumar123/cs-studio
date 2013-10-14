@@ -5,8 +5,8 @@ import org.csstudio.nams.common.decision.Ausgangskorb;
 import org.csstudio.nams.common.decision.BeobachtbarerEingangskorb;
 import org.csstudio.nams.common.decision.EingangskorbBeobachter;
 import org.csstudio.nams.common.decision.Vorgangsmappe;
+import org.csstudio.nams.common.material.regelwerk.DefaultRegelwerk;
 import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
-import org.csstudio.nams.common.material.regelwerk.yaams.DefaultRegelwerk;
 
 public class DefaultSachbearbeiter implements Arbeitsfaehig {
 

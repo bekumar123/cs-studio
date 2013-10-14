@@ -9,19 +9,19 @@ import java.util.Set;
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
 import org.csstudio.nams.common.fachwert.Millisekunden;
 import org.csstudio.nams.common.material.Regelwerkskennung;
+import org.csstudio.nams.common.material.regelwerk.DefaultRegelwerk;
+import org.csstudio.nams.common.material.regelwerk.NichtRegel;
+import org.csstudio.nams.common.material.regelwerk.OderRegel;
+import org.csstudio.nams.common.material.regelwerk.ProcessVariableRegel;
+import org.csstudio.nams.common.material.regelwerk.PropertyVergleichsRegel;
+import org.csstudio.nams.common.material.regelwerk.Regel;
+import org.csstudio.nams.common.material.regelwerk.Regelwerk;
+import org.csstudio.nams.common.material.regelwerk.StringRegel;
 import org.csstudio.nams.common.material.regelwerk.StringRegelOperator;
-import org.csstudio.nams.common.material.regelwerk.yaams.DefaultRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.yaams.NewRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.yaams.NichtRegel;
-import org.csstudio.nams.common.material.regelwerk.yaams.OderRegel;
-import org.csstudio.nams.common.material.regelwerk.yaams.ProcessVariableRegel;
-import org.csstudio.nams.common.material.regelwerk.yaams.PropertyVergleichsRegel;
-import org.csstudio.nams.common.material.regelwerk.yaams.Regel;
-import org.csstudio.nams.common.material.regelwerk.yaams.StringRegel;
-import org.csstudio.nams.common.material.regelwerk.yaams.TimebasedRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.yaams.TimebasedRegelwerk.TimeoutType;
-import org.csstudio.nams.common.material.regelwerk.yaams.UndRegel;
-import org.csstudio.nams.common.material.regelwerk.yaams.WatchDogRegelwerk;
+import org.csstudio.nams.common.material.regelwerk.TimebasedRegelwerk;
+import org.csstudio.nams.common.material.regelwerk.UndRegel;
+import org.csstudio.nams.common.material.regelwerk.WatchDogRegelwerk;
+import org.csstudio.nams.common.material.regelwerk.TimebasedRegelwerk.TimeoutType;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.DefaultFilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.JunctorConditionType;
@@ -60,8 +60,8 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 	}
 
 	@Override
-	public List<NewRegelwerk> gibAlleRegelwerke() throws RegelwerksBuilderException {
-		final List<NewRegelwerk> results = new LinkedList<NewRegelwerk>();
+	public List<Regelwerk> gibAlleRegelwerke() throws RegelwerksBuilderException {
+		final List<Regelwerk> results = new LinkedList<Regelwerk>();
 
 		try {
 
@@ -72,7 +72,7 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 
 			// we do assume, that the first level filtercondition are conjugated
 			for (final FilterDTO filterDTO : listOfFilters) {
-				NewRegelwerk regelwerk = null;
+				Regelwerk regelwerk = null;
 				Regelwerkskennung regelwerkskennung = Regelwerkskennung.valueOf(filterDTO.getIFilterID(), filterDTO.getName());
 
 				if (filterDTO instanceof DefaultFilterDTO) {

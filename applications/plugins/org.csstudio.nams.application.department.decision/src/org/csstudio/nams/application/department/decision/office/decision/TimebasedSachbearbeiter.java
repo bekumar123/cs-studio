@@ -9,9 +9,9 @@ import org.csstudio.nams.common.decision.BeobachtbarerEingangskorb;
 import org.csstudio.nams.common.decision.EingangskorbBeobachter;
 import org.csstudio.nams.common.decision.StandardAblagekorb;
 import org.csstudio.nams.common.decision.Vorgangsmappe;
+import org.csstudio.nams.common.material.regelwerk.TimebasedRegelwerk;
 import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
-import org.csstudio.nams.common.material.regelwerk.yaams.TimebasedRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.yaams.TimebasedRegelwerk.TimeoutType;
+import org.csstudio.nams.common.material.regelwerk.TimebasedRegelwerk.TimeoutType;
 
 public class TimebasedSachbearbeiter implements Arbeitsfaehig {
 

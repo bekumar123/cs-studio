@@ -1,4 +1,4 @@
-package org.csstudio.nams.common.material.regelwerk.yaams;
+package org.csstudio.nams.common.material.regelwerk;
 
 import org.csstudio.nams.common.material.AlarmNachricht;
 

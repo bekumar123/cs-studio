@@ -51,8 +51,8 @@ import org.csstudio.nams.common.decision.StandardAblagekorb;
 import org.csstudio.nams.common.decision.Vorgangsmappe;
 import org.csstudio.nams.common.decision.Vorgangsmappenkennung;
 import org.csstudio.nams.common.material.SyncronisationsBestaetigungSystemNachricht;
+import org.csstudio.nams.common.material.regelwerk.Regelwerk;
 import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
-import org.csstudio.nams.common.material.regelwerk.yaams.NewRegelwerk;
 import org.csstudio.nams.common.service.ExecutionService;
 import org.csstudio.nams.common.service.StepByStepProcessor;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.ConfigurationServiceFactory;
@@ -570,12 +570,12 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                     .logInfoMessage(this,
                             "Decision department application is creating decision office...");
 
-            final List<NewRegelwerk> alleRegelwerke = DecisionDepartmentActivator.regelwerkBuilderService
+            final List<Regelwerk> alleRegelwerke = DecisionDepartmentActivator.regelwerkBuilderService
                     .gibAlleRegelwerke();
 
             DecisionDepartmentActivator.logger.logDebugMessage(this,
                     "alleRegelwerke size: " + alleRegelwerke.size());
-            for (final NewRegelwerk regelwerk : alleRegelwerke) {
+            for (final Regelwerk regelwerk : alleRegelwerke) {
                 DecisionDepartmentActivator.logger.logDebugMessage(this,
                         regelwerk.toString());
             }
@@ -589,7 +589,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
             this._alarmEntscheidungsBuero = new AlarmEntscheidungsBuero(
                     DecisionDepartmentActivator.executionService,
                     alleRegelwerke
-                            .toArray(new NewRegelwerk[alleRegelwerke.size()]),
+                            .toArray(new Regelwerk[alleRegelwerke.size()]),
                     this.eingangskorbDesDecisionOffice,
                     this.ausgangskorbDesDecisionOfficeUndEingangskorbDesPostOffice,
                     threadCount);

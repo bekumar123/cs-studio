@@ -1,4 +1,4 @@
-package org.csstudio.nams.common.material.regelwerk.yaams;
+package org.csstudio.nams.common.material.regelwerk;
 
 import java.util.List;
 
@@ -44,4 +44,31 @@ public class UndRegel implements Regel {
 	public String toString() {
 		return "Und( " + regeln + ")";
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((regeln == null) ? 0 : regeln.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		UndRegel other = (UndRegel) obj;
+		if (regeln == null) {
+			if (other.regeln != null)
+				return false;
+		} else if (!regeln.equals(other.regeln))
+			return false;
+		return true;
+	}
+	
+	
 }

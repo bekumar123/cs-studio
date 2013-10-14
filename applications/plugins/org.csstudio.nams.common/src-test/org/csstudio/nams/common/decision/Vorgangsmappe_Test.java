@@ -7,9 +7,6 @@ import java.util.Date;
 import junit.framework.Assert;
 
 import org.csstudio.nams.common.material.AlarmNachricht;
-import org.csstudio.nams.common.material.Regelwerkskennung;
-import org.csstudio.nams.common.material.regelwerk.Pruefliste;
-import org.csstudio.nams.common.material.regelwerk.StandardRegelwerk;
 import org.csstudio.nams.common.testutils.AbstractTestObject;
 import org.junit.Test;
 
@@ -61,12 +58,9 @@ public class Vorgangsmappe_Test extends AbstractTestObject<Vorgangsmappe> {
 				new Date(123456));
 		final AlarmNachricht alarmNachricht = new AlarmNachricht(
 				"Test-Nachricht");
-		final Pruefliste pruefliste = new StandardRegelwerk(Regelwerkskennung
-				.valueOf()).gibNeueLeerePruefliste();
 
 		final Vorgangsmappe vorgangsmappe = new Vorgangsmappe(kennung,
 				alarmNachricht);
-		vorgangsmappe.setzePruefliste(pruefliste);
 
 		final Vorgangsmappe neueVorgangsmappe = vorgangsmappe
 				.erstelleKopieFuer("Horst Senkel");
@@ -90,10 +84,6 @@ public class Vorgangsmappe_Test extends AbstractTestObject<Vorgangsmappe> {
 		Assert.assertTrue(neueVorgangsmappe.gibMappenkennung().hatErgaenzung());
 		Assert.assertEquals(Vorgangsmappenkennung.valueOf(kennung,
 				"Horst Senkel"), neueVorgangsmappe.gibMappenkennung());
-		Assert.assertFalse(neueVorgangsmappe.gibPruefliste() == vorgangsmappe
-				.gibPruefliste());
-		Assert.assertEquals(vorgangsmappe.gibPruefliste(), neueVorgangsmappe
-				.gibPruefliste());
 	}
 
 	public void testLocalToString() {

@@ -1,9 +1,9 @@
-package org.csstudio.nams.common.material.regelwerk.yaams;
+package org.csstudio.nams.common.material.regelwerk;
 
 import org.csstudio.nams.common.fachwert.Millisekunden;
 import org.csstudio.nams.common.material.Regelwerkskennung;
 
-public class TimebasedRegelwerk implements NewRegelwerk {
+public class TimebasedRegelwerk implements Regelwerk {
 
 	private final Regel startRegel;
 	private final Regel stopRegel;

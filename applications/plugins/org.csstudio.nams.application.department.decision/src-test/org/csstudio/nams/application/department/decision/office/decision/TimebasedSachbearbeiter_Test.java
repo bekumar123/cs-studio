@@ -1,6 +1,8 @@
 package org.csstudio.nams.application.department.decision.office.decision;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -16,11 +18,10 @@ import org.csstudio.nams.common.decision.Vorgangsmappenkennung;
 import org.csstudio.nams.common.fachwert.Millisekunden;
 import org.csstudio.nams.common.material.AlarmNachricht;
 import org.csstudio.nams.common.material.Regelwerkskennung;
+import org.csstudio.nams.common.material.regelwerk.Regel;
+import org.csstudio.nams.common.material.regelwerk.TimebasedRegelwerk;
 import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
-import org.csstudio.nams.common.material.regelwerk.yaams.DefaultRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.yaams.Regel;
-import org.csstudio.nams.common.material.regelwerk.yaams.TimebasedRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.yaams.TimebasedRegelwerk.TimeoutType;
+import org.csstudio.nams.common.material.regelwerk.TimebasedRegelwerk.TimeoutType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -95,12 +96,13 @@ public class TimebasedSachbearbeiter_Test {
 	}
 
 	@SuppressWarnings("deprecation")
-	@Test(timeout=1000)
-	public void testHandleNachricht() throws UnknownHostException, InterruptedException {
+	@Test
+	public void testHandleNachrichtSendeBeiTimeout() throws UnknownHostException, InterruptedException {
 		TimebasedSachbearbeiter sachbearbeiter = erzeugeSachbearbeiter(TimeoutType.SENDE_BEI_TIMEOUT);
 		sachbearbeiter.beginneArbeit();
 		
-		Vorgangsmappe vorgangsmappe = new Vorgangsmappe(Vorgangsmappenkennung.createNew(InetAddress.getLocalHost(), new Date()), new AlarmNachricht("XXX"));
+		// Test Startregel trifft nicht zu
+		Vorgangsmappe vorgangsmappe = new Vorgangsmappe(Vorgangsmappenkennung.createNew(InetAddress.getLocalHost(), new Date()), new AlarmNachricht("start message"));
 		
 		startRegel.setResult(false);
 		
@@ -113,18 +115,181 @@ public class TimebasedSachbearbeiter_Test {
 		assertTrue(aeltesterEingang.istAbgeschlossen());
 		assertFalse(aeltesterEingang.istAbgeschlossenDurchTimeOut());
 		
-		vorgangsmappe = new Vorgangsmappe(Vorgangsmappenkennung.createNew(InetAddress.getLocalHost(), new Date()), new AlarmNachricht("XXX"));
+		
+		// Test SENDE_BEI_TIMEOUT
+		vorgangsmappe = new Vorgangsmappe(Vorgangsmappenkennung.createNew(InetAddress.getLocalHost(), new Date()), new AlarmNachricht("start message"));
 		
 		startRegel.setResult(true);
 		
 		eingangskorb.ablegen(vorgangsmappe);
+		eingangskorb.ablegen(terminKorb.entnehmeAeltestenEingang());
 		aeltesterEingang = ausgangskorb.entnehmeAeltestenEingang();
 		
 		assertEquals(vorgangsmappe, aeltesterEingang);
 		assertEquals(WeiteresVersandVorgehen.VERSENDEN, aeltesterEingang.getWeiteresVersandVorgehen());
 		assertEquals(regelwerksKennung, aeltesterEingang.getBearbeitetMitRegelWerk());
 		assertTrue(aeltesterEingang.istAbgeschlossen());
+		assertTrue(aeltesterEingang.istAbgeschlossenDurchTimeOut());
+		
+		// Test cancel bei Stopnachricht
+		vorgangsmappe = new Vorgangsmappe(Vorgangsmappenkennung.createNew(
+				InetAddress.getLocalHost(), new Date()), new AlarmNachricht(
+				"start message"));
+		startRegel.setResult(true);
+		stopRegel.setResult(false);
+		eingangskorb.ablegen(vorgangsmappe);
+		
+		Vorgangsmappe stopVorgangsmappe = new Vorgangsmappe(Vorgangsmappenkennung.createNew(
+				InetAddress.getLocalHost(), new Date()), new AlarmNachricht(
+						"stop message"));
+		startRegel.setResult(false);
+		stopRegel.setResult(true);
+		eingangskorb.ablegen(stopVorgangsmappe);
+		
+		eingangskorb.ablegen(terminKorb.entnehmeAeltestenEingang());
+		
+		aeltesterEingang = ausgangskorb.entnehmeAeltestenEingang();
+
+		assertEquals(vorgangsmappe, aeltesterEingang);
+		assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN,
+				aeltesterEingang.getWeiteresVersandVorgehen());
+		assertEquals(regelwerksKennung,
+				aeltesterEingang.getBearbeitetMitRegelWerk());
+		assertTrue(aeltesterEingang.istAbgeschlossen());
+		assertFalse(aeltesterEingang.istAbgeschlossenDurchTimeOut());
+
+		aeltesterEingang = ausgangskorb.entnehmeAeltestenEingang();
+
+		assertEquals(stopVorgangsmappe, aeltesterEingang);
+		assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN,
+				aeltesterEingang.getWeiteresVersandVorgehen());
+		assertEquals(regelwerksKennung,
+				aeltesterEingang.getBearbeitetMitRegelWerk());
+		assertTrue(aeltesterEingang.istAbgeschlossen());
+		assertFalse(aeltesterEingang.istAbgeschlossenDurchTimeOut());
+
+		// Test andere Nachricht zwischendurch
+		vorgangsmappe = new Vorgangsmappe(Vorgangsmappenkennung.createNew(
+				InetAddress.getLocalHost(), new Date()), new AlarmNachricht(
+						"start message"));
+		startRegel.setResult(true);
+		stopRegel.setResult(false);
+		eingangskorb.ablegen(vorgangsmappe);
+		
+		stopVorgangsmappe = new Vorgangsmappe(Vorgangsmappenkennung.createNew(
+				InetAddress.getLocalHost(), new Date()), new AlarmNachricht(
+						"stop message"));
+		startRegel.setResult(false);
+		stopRegel.setResult(false);
+		eingangskorb.ablegen(stopVorgangsmappe);
+		
+		aeltesterEingang = ausgangskorb.entnehmeAeltestenEingang();
+		
+		assertEquals(stopVorgangsmappe, aeltesterEingang);
+		assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN,
+				aeltesterEingang.getWeiteresVersandVorgehen());
+		assertEquals(regelwerksKennung,
+				aeltesterEingang.getBearbeitetMitRegelWerk());
+		assertTrue(aeltesterEingang.istAbgeschlossen());
+		assertFalse(aeltesterEingang.istAbgeschlossenDurchTimeOut());
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Test
+	public void testHandleNachrichtSendeBeiStopRegel() throws UnknownHostException, InterruptedException {
+		TimebasedSachbearbeiter sachbearbeiter = erzeugeSachbearbeiter(TimeoutType.SENDE_BEI_STOP_REGEL);
+		sachbearbeiter.beginneArbeit();
+		
+		// Test Startregel trifft nicht zu
+		Vorgangsmappe vorgangsmappe = new Vorgangsmappe(Vorgangsmappenkennung.createNew(InetAddress.getLocalHost(), new Date()), new AlarmNachricht("start message"));
+		
+		startRegel.setResult(false);
+		
+		eingangskorb.ablegen(vorgangsmappe);
+		Vorgangsmappe aeltesterEingang = ausgangskorb.entnehmeAeltestenEingang();
+		
+		assertEquals(vorgangsmappe, aeltesterEingang);
+		assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aeltesterEingang.getWeiteresVersandVorgehen());
+		assertEquals(regelwerksKennung, aeltesterEingang.getBearbeitetMitRegelWerk());
+		assertTrue(aeltesterEingang.istAbgeschlossen());
 		assertFalse(aeltesterEingang.istAbgeschlossenDurchTimeOut());
 		
+		
+		// Test cancel bei Timeout
+		vorgangsmappe = new Vorgangsmappe(Vorgangsmappenkennung.createNew(InetAddress.getLocalHost(), new Date()), new AlarmNachricht("start message"));
+		
+		startRegel.setResult(true);
+		
+		eingangskorb.ablegen(vorgangsmappe);
+		eingangskorb.ablegen(terminKorb.entnehmeAeltestenEingang());
+		aeltesterEingang = ausgangskorb.entnehmeAeltestenEingang();
+		
+		assertEquals(vorgangsmappe, aeltesterEingang);
+		assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aeltesterEingang.getWeiteresVersandVorgehen());
+		assertEquals(regelwerksKennung, aeltesterEingang.getBearbeitetMitRegelWerk());
+		assertTrue(aeltesterEingang.istAbgeschlossen());
+		assertTrue(aeltesterEingang.istAbgeschlossenDurchTimeOut());
+		
+		// Test sende bei Stopnachricht
+		vorgangsmappe = new Vorgangsmappe(Vorgangsmappenkennung.createNew(
+				InetAddress.getLocalHost(), new Date()), new AlarmNachricht(
+						"start message"));
+		startRegel.setResult(true);
+		stopRegel.setResult(false);
+		eingangskorb.ablegen(vorgangsmappe);
+		
+		Vorgangsmappe stopVorgangsmappe = new Vorgangsmappe(Vorgangsmappenkennung.createNew(
+				InetAddress.getLocalHost(), new Date()), new AlarmNachricht(
+						"stop message"));
+		startRegel.setResult(false);
+		stopRegel.setResult(true);
+		eingangskorb.ablegen(stopVorgangsmappe);
+		
+		eingangskorb.ablegen(terminKorb.entnehmeAeltestenEingang());
+		
+		aeltesterEingang = ausgangskorb.entnehmeAeltestenEingang();
+		
+		assertEquals(vorgangsmappe, aeltesterEingang);
+		assertEquals(WeiteresVersandVorgehen.VERSENDEN,
+				aeltesterEingang.getWeiteresVersandVorgehen());
+		assertEquals(regelwerksKennung,
+				aeltesterEingang.getBearbeitetMitRegelWerk());
+		assertTrue(aeltesterEingang.istAbgeschlossen());
+		assertFalse(aeltesterEingang.istAbgeschlossenDurchTimeOut());
+		
+		aeltesterEingang = ausgangskorb.entnehmeAeltestenEingang();
+		
+		assertEquals(stopVorgangsmappe, aeltesterEingang);
+		assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN,
+				aeltesterEingang.getWeiteresVersandVorgehen());
+		assertEquals(regelwerksKennung,
+				aeltesterEingang.getBearbeitetMitRegelWerk());
+		assertTrue(aeltesterEingang.istAbgeschlossen());
+		assertFalse(aeltesterEingang.istAbgeschlossenDurchTimeOut());
+		
+		// Test andere Nachricht zwischendurch
+		vorgangsmappe = new Vorgangsmappe(Vorgangsmappenkennung.createNew(
+				InetAddress.getLocalHost(), new Date()), new AlarmNachricht(
+						"start message"));
+		startRegel.setResult(true);
+		stopRegel.setResult(false);
+		eingangskorb.ablegen(vorgangsmappe);
+		
+		stopVorgangsmappe = new Vorgangsmappe(Vorgangsmappenkennung.createNew(
+				InetAddress.getLocalHost(), new Date()), new AlarmNachricht(
+						"stop message"));
+		startRegel.setResult(false);
+		stopRegel.setResult(false);
+		eingangskorb.ablegen(stopVorgangsmappe);
+		
+		aeltesterEingang = ausgangskorb.entnehmeAeltestenEingang();
+		
+		assertEquals(stopVorgangsmappe, aeltesterEingang);
+		assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN,
+				aeltesterEingang.getWeiteresVersandVorgehen());
+		assertEquals(regelwerksKennung,
+				aeltesterEingang.getBearbeitetMitRegelWerk());
+		assertTrue(aeltesterEingang.istAbgeschlossen());
+		assertFalse(aeltesterEingang.istAbgeschlossenDurchTimeOut());
 	}
 }

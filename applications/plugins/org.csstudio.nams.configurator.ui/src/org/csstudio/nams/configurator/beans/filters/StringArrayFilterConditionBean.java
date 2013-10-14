@@ -3,6 +3,7 @@ package org.csstudio.nams.configurator.beans.filters;
 
 import java.util.LinkedList;
 import java.util.List;
+
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
 import org.csstudio.nams.common.material.regelwerk.StringRegelOperator;
 import org.csstudio.nams.configurator.beans.AbstractConfigurationBean;

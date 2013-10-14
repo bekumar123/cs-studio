@@ -42,10 +42,10 @@ import org.csstudio.nams.common.decision.Eingangskorb;
 import org.csstudio.nams.common.decision.ExecutorBeobachtbarerEingangskorb;
 import org.csstudio.nams.common.decision.StandardAblagekorb;
 import org.csstudio.nams.common.decision.Vorgangsmappe;
-import org.csstudio.nams.common.material.regelwerk.yaams.DefaultRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.yaams.NewRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.yaams.TimebasedRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.yaams.WatchDogRegelwerk;
+import org.csstudio.nams.common.material.regelwerk.DefaultRegelwerk;
+import org.csstudio.nams.common.material.regelwerk.Regelwerk;
+import org.csstudio.nams.common.material.regelwerk.TimebasedRegelwerk;
+import org.csstudio.nams.common.material.regelwerk.WatchDogRegelwerk;
 import org.csstudio.nams.common.service.ExecutionService;
 import org.csstudio.nams.common.wam.Arbeitsumgebung;
 
@@ -79,7 +79,7 @@ public class AlarmEntscheidungsBuero {
 	 * @param historyService
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public AlarmEntscheidungsBuero(final ExecutionService executionService, final NewRegelwerk[] regelwerke,
+	public AlarmEntscheidungsBuero(final ExecutionService executionService, final Regelwerk[] regelwerke,
 			final Eingangskorb<Vorgangsmappe> alarmVorgangEingangskorb, final Ausgangskorb<Vorgangsmappe> alarmVorgangAusgangskorb,
 			int filterThreadCount) {
 
@@ -97,7 +97,7 @@ public class AlarmEntscheidungsBuero {
 		
 		for (int zaehler = 0; zaehler < regelwerke.length; zaehler++) {
 			Arbeitsfaehig sachbearbeiter = null;
-			NewRegelwerk regelwerk = regelwerke[zaehler];
+			Regelwerk regelwerk = regelwerke[zaehler];
 			if (regelwerk instanceof DefaultRegelwerk) {
 				final BeobachtbarerEingangskorb<Vorgangsmappe> eingangskorb = new ExecutorBeobachtbarerEingangskorb<Vorgangsmappe>(threadPool);
 				sachbearbeiter = new DefaultSachbearbeiter(eingangskorb, this.ausgangskorb, (DefaultRegelwerk) regelwerk);

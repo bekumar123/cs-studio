@@ -16,8 +16,8 @@ import org.csstudio.nams.common.decision.Vorgangsmappe;
 import org.csstudio.nams.common.decision.Vorgangsmappenkennung;
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
 import org.csstudio.nams.common.material.AlarmNachricht;
+import org.csstudio.nams.common.material.regelwerk.WatchDogRegelwerk;
 import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
-import org.csstudio.nams.common.material.regelwerk.yaams.WatchDogRegelwerk;
 
 public class WatchDogSachbearbeiter implements Arbeitsfaehig {
 
@@ -91,12 +91,9 @@ public class WatchDogSachbearbeiter implements Arbeitsfaehig {
 			@Override
 			public void run() {
 				try {
-					System.out.println("WatchDog Timer Task");
-
 					Map<MessageKeyEnum, String> map = new HashMap<MessageKeyEnum, String>();
 					Map<String, String> unknownMap = new HashMap<String, String>();
 					
-					// TODO maps befüllen
 					map.put(MessageKeyEnum.NAME, "WATCHDOG");
 
 					AlarmNachricht nachricht = new AlarmNachricht(map, unknownMap);
@@ -106,10 +103,6 @@ public class WatchDogSachbearbeiter implements Arbeitsfaehig {
 					vorgangsMappe.setWeiteresVersandVorgehen(WeiteresVersandVorgehen.VERSENDEN);
 					vorgangsMappe.pruefungAbgeschlossenDurch(vorgangsMappe.gibMappenkennung());
 					ausgangskorb.ablegen(vorgangsMappe);
-					
-					// TODO neuen Timer starten??
-					// (gs) mir ist nicht ganz klar wie sich der watch dog 
-					// verhalten soll nachdem er einen alarm verschickt hat
 					
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block

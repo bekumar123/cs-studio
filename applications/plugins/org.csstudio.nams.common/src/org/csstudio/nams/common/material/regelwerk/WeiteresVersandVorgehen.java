@@ -53,26 +53,7 @@ public enum WeiteresVersandVorgehen {
 	NICHT_VERSENDEN,
 
 	/**
-	 * Gibt an, dass die Alarmnacht erneut geprüft werden muss um eine
-	 * Entscheidung bzgl. des Versandes treffen zu können.
-	 */
-	ERNEUT_PRUEFEN,
-
-	/**
 	 * Gibt an, dass die Alarmnacht noch NICHT geprüft wurde.
 	 */
 	NOCH_NICHT_GEPRUEFT;
-
-	public static WeiteresVersandVorgehen fromRegelErgebnis(
-			final RegelErgebnis regelErgebnis) {
-		switch (regelErgebnis) {
-		case NICHT_ZUTREFFEND:
-			return WeiteresVersandVorgehen.NICHT_VERSENDEN;
-		case NOCH_NICHT_GEPRUEFT:
-			return WeiteresVersandVorgehen.NOCH_NICHT_GEPRUEFT;
-		default:// case ZUTREFFEND: sollte ein fünfter fall existieren trozdem
-				// versenden(stichwort BUGfix)
-			return WeiteresVersandVorgehen.VERSENDEN;
-		}
-	}
 }

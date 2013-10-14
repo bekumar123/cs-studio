@@ -25,7 +25,11 @@
 package org.csstudio.nams.application.department.decision.office.decision;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import junit.framework.Assert;
 
@@ -113,8 +117,9 @@ public class Abteilungsleiter_Test extends
 		EasyMock.replay(eingangskorb);
 		this.testFailed = null;
 
-		final Eingangskorb<Ablagefaehig>[] sachbearbeiterkoerbe = new Eingangskorb[] {
-				sachbearbeiter1, sachbearbeiter2 };
+		final List sachbearbeiterkoerbe = new ArrayList<Eingangskorb<Ablagefaehig>>();
+		sachbearbeiterkoerbe.add(sachbearbeiter1);
+		sachbearbeiterkoerbe.add(sachbearbeiter2);
 		final Abteilungsleiter abteilungsleiter = new Abteilungsleiter(
 				new DefaultExecutionService(), eingangskorb,
 				sachbearbeiterkoerbe);
@@ -160,7 +165,7 @@ public class Abteilungsleiter_Test extends
 	protected Abteilungsleiter getNewInstanceOfClassUnderTest() {
 		return new Abteilungsleiter(new DefaultExecutionService(),
 				new StandardAblagekorb<Vorgangsmappe>(),
-				new StandardAblagekorb[] {});
+				Collections.EMPTY_LIST);
 	}
 
 	@Override
@@ -174,13 +179,13 @@ public class Abteilungsleiter_Test extends
 		return new Abteilungsleiter[] {
 				new Abteilungsleiter(new DefaultExecutionService(),
 						new StandardAblagekorb<Vorgangsmappe>(),
-						new StandardAblagekorb[] {}),
+						Collections.EMPTY_LIST),
 				new Abteilungsleiter(new DefaultExecutionService(),
 						new StandardAblagekorb<Vorgangsmappe>(),
-						new StandardAblagekorb[] {}),
+						Collections.EMPTY_LIST),
 				new Abteilungsleiter(new DefaultExecutionService(),
 						new StandardAblagekorb<Vorgangsmappe>(),
-						new StandardAblagekorb[] {}) };
+						Collections.EMPTY_LIST) };
 	}
 
 }

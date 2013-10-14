@@ -70,7 +70,7 @@ class Abteilungsleiter implements DokumentenBearbeiter<Vorgangsmappe>,
 		// Nachricht kopieren.
 		for (final Eingangskorb<Ablagefaehig> sachbearbeiterEingangskorb : this.sachbearbeiterEingangkoerbe) {
 			final Vorgangsmappe erstelleKopieFuer = mappe
-					.erstelleNeueMappeFuer(sachbearbeiterEingangskorb.toString());
+					.erstelleKopieFuer(sachbearbeiterEingangskorb.toString());
 			try {
 				sachbearbeiterEingangskorb.ablegen(erstelleKopieFuer);
 			} catch (final InterruptedException e) {

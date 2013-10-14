@@ -92,7 +92,7 @@ public class Vorgangsmappe implements Ablagefaehig {
 		return result;
 	}
 
-	public Vorgangsmappe erstelleNeueMappeFuer(final String bearbeiter) {
+	public Vorgangsmappe erstelleKopieFuer(final String bearbeiter) {
 		return new Vorgangsmappe(Vorgangsmappenkennung.valueOf(this.kennung, bearbeiter), this.alarmNachricht.clone());
 	}
 	

@@ -15,13 +15,13 @@ import org.csstudio.nams.common.decision.Vorgangsmappenkennung;
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
 import org.csstudio.nams.common.material.AlarmNachricht;
 import org.csstudio.nams.common.material.Regelwerkskennung;
+import org.csstudio.nams.common.material.regelwerk.DefaultRegelwerk;
+import org.csstudio.nams.common.material.regelwerk.Regel;
+import org.csstudio.nams.common.material.regelwerk.Regelwerk;
+import org.csstudio.nams.common.material.regelwerk.StringRegel;
 import org.csstudio.nams.common.material.regelwerk.StringRegelOperator;
+import org.csstudio.nams.common.material.regelwerk.UndRegel;
 import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
-import org.csstudio.nams.common.material.regelwerk.yaams.DefaultRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.yaams.NewRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.yaams.Regel;
-import org.csstudio.nams.common.material.regelwerk.yaams.StringRegel;
-import org.csstudio.nams.common.material.regelwerk.yaams.UndRegel;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -103,9 +103,9 @@ public class SelfContainedPerformanceTest {
 		return result;
 	}
 	
-	private NewRegelwerk[] erzeugeRegelwerke(int anzahlAnRegelwerken) {
+	private Regelwerk[] erzeugeRegelwerke(int anzahlAnRegelwerken) {
 		assert anzahlAnRegelwerken >= 1;
-		NewRegelwerk[] result = new NewRegelwerk[anzahlAnRegelwerken];
+		Regelwerk[] result = new Regelwerk[anzahlAnRegelwerken];
 		for(int index = 0; index < anzahlAnRegelwerken; index++) {
 			Regel stringRegel1 = new StringRegel(StringRegelOperator.OPERATOR_TEXT_EQUAL, MessageKeyEnum.SEVERITY, "Sehr hoch", null);
 			Regel stringRegel2 = new StringRegel(StringRegelOperator.OPERATOR_NUMERIC_GT, MessageKeyEnum.EVENTTIME, "" + System.currentTimeMillis(), null);

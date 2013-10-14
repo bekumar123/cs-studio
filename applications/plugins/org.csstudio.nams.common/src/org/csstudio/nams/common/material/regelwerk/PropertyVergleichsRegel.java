@@ -4,28 +4,36 @@ import org.csstudio.nams.common.fachwert.MessageKeyEnum;
 import org.csstudio.nams.common.material.AlarmNachricht;
 import org.csstudio.nams.service.logging.declaration.ILogger;
 
-public class StringRegel implements Regel {
+public class PropertyVergleichsRegel implements Regel {
 
-	private final String compareString;
 	private final MessageKeyEnum messageKey;
+	private final StringRegelComparator regelComparator; 
 
-	private StringRegelComparator regelComparator; 
 	private final ILogger errorLogger;
 	
-	public StringRegel(final StringRegelOperator operator,
-			final MessageKeyEnum messageKey, final String compareString, ILogger errorLogger) {
+	public PropertyVergleichsRegel(final StringRegelOperator operator,
+			final MessageKeyEnum messageKey, ILogger errorLogger) {
 		this.messageKey = messageKey;
-		this.compareString = compareString;
 		this.errorLogger = errorLogger;
-		this.regelComparator = new StringRegelComparator(operator, true);
+		regelComparator = new StringRegelComparator(operator, false);
 	}
+
 
 	@Override
 	public boolean pruefeNachricht(AlarmNachricht nachricht) {
+		// TODO fz: Exception?
+		return false;
+	}
+
+	@Override
+	public boolean pruefeNachricht(AlarmNachricht nachricht, AlarmNachricht vergleichsNachricht) {
 		boolean result = false;
 		
+		final String value = nachricht.getValueFor(this.messageKey);
+		final String vergleichsNachrichtValue = vergleichsNachricht.getValueFor(this.messageKey);
+
 		try {
-			result = regelComparator.compare(nachricht.getValueFor(messageKey), compareString);
+			result = regelComparator.compare(value, vergleichsNachrichtValue);
 		} catch (final Exception e) {
             if(this.errorLogger != null) {
                 this.errorLogger.logErrorMessage(this,
@@ -36,24 +44,18 @@ public class StringRegel implements Regel {
 
 		return result;
 	}
-	
-	@Override
-	public boolean pruefeNachricht(AlarmNachricht nachricht, AlarmNachricht vergleichsNachricht) {
-		return this.pruefeNachricht(nachricht);
-	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
-				+ ((compareString == null) ? 0 : compareString.hashCode());
-		result = prime * result
 				+ ((messageKey == null) ? 0 : messageKey.hashCode());
 		result = prime * result
 				+ ((regelComparator == null) ? 0 : regelComparator.hashCode());
 		return result;
 	}
+
 
 	@Override
 	public boolean equals(Object obj) {
@@ -63,12 +65,7 @@ public class StringRegel implements Regel {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		StringRegel other = (StringRegel) obj;
-		if (compareString == null) {
-			if (other.compareString != null)
-				return false;
-		} else if (!compareString.equals(other.compareString))
-			return false;
+		PropertyVergleichsRegel other = (PropertyVergleichsRegel) obj;
 		if (messageKey != other.messageKey)
 			return false;
 		if (regelComparator == null) {
@@ -78,7 +75,4 @@ public class StringRegel implements Regel {
 			return false;
 		return true;
 	}
-
-
-	
 }

@@ -1,8 +1,8 @@
-package org.csstudio.nams.common.material.regelwerk.yaams;
+package org.csstudio.nams.common.material.regelwerk;
 
 import org.csstudio.nams.common.material.Regelwerkskennung;
 
-public class DefaultRegelwerk implements NewRegelwerk {
+public class DefaultRegelwerk implements Regelwerk {
 
 	private final Regel regel;
 	private final Regelwerkskennung regelwerkskennung;

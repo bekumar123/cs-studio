@@ -6,6 +6,7 @@ import java.util.Iterator;
 import org.csstudio.nams.common.fachwert.RubrikTypeEnum;
 import org.csstudio.nams.configurator.Messages;
 import org.csstudio.nams.configurator.actions.BeanToEditorId;
+import org.csstudio.nams.configurator.beans.AbstractConfigurationBean;
 import org.csstudio.nams.configurator.beans.AlarmTopicFilterAction;
 import org.csstudio.nams.configurator.beans.AlarmbearbeiterBean;
 import org.csstudio.nams.configurator.beans.AlarmbearbeiterFilterAction;
@@ -21,6 +22,7 @@ import org.csstudio.nams.configurator.beans.IReceiverBean;
 import org.csstudio.nams.configurator.beans.MessageTemplateBean;
 import org.csstudio.nams.configurator.beans.filters.JunctorConditionForFilterTreeBean;
 import org.csstudio.nams.configurator.beans.filters.NotConditionForFilterTreeBean;
+import org.csstudio.nams.configurator.beans.filters.PropertyCompareConditionBean;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.JunctorConditionType;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.FilterActionType;
 import org.eclipse.core.databinding.DataBindingContext;
@@ -826,7 +828,10 @@ public class FilterEditor extends AbstractEditor<DefaultFilterBean> {
 							final IStructuredSelection selection = (IStructuredSelection) LocalSelectionTransfer
 									.getTransfer().getSelection();
 							if (selection.getFirstElement() instanceof FilterbedingungBean) {
-								result = true;
+								AbstractConfigurationBean<?> filterSpecificBean = ((FilterbedingungBean) selection.getFirstElement()).getFilterSpecificBean();
+								if (!(filterSpecificBean instanceof PropertyCompareConditionBean)) {
+									result = true;
+								}
 							}
 						}
 						return result;

@@ -6,6 +6,7 @@ import java.util.Iterator;
 import org.csstudio.nams.common.fachwert.RubrikTypeEnum;
 import org.csstudio.nams.configurator.Messages;
 import org.csstudio.nams.configurator.actions.BeanToEditorId;
+import org.csstudio.nams.configurator.beans.AbstractConfigurationBean;
 import org.csstudio.nams.configurator.beans.AlarmTopicFilterAction;
 import org.csstudio.nams.configurator.beans.AlarmbearbeiterBean;
 import org.csstudio.nams.configurator.beans.AlarmbearbeiterFilterAction;
@@ -21,6 +22,7 @@ import org.csstudio.nams.configurator.beans.MessageTemplateBean;
 import org.csstudio.nams.configurator.beans.TimebasedFilterBean;
 import org.csstudio.nams.configurator.beans.filters.JunctorConditionForFilterTreeBean;
 import org.csstudio.nams.configurator.beans.filters.NotConditionForFilterTreeBean;
+import org.csstudio.nams.configurator.beans.filters.PropertyCompareConditionBean;
 import org.csstudio.nams.configurator.editor.TimebasedFilterTreeContentProvider.TimebasedFilterTreeContentType;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.JunctorConditionType;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.FilterActionType;
@@ -47,6 +49,7 @@ import org.eclipse.jface.viewers.ComboBoxCellEditor;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.ICellEditorValidator;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -701,7 +704,21 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 	}
 
 	private void initDND() {
-		ViewerDropAdapter startViewerDropAdapter = new TreeViewerDropAdapter(this.startFilterConditionsTreeViewer);
+		ViewerDropAdapter startViewerDropAdapter = new TreeViewerDropAdapter(this.startFilterConditionsTreeViewer) {
+			@Override
+			public boolean validateDrop(Object target, int operation,
+					TransferData transferType) {
+				boolean result = super.validateDrop(target, operation, transferType);
+				final IStructuredSelection selection = (IStructuredSelection) LocalSelectionTransfer.getTransfer().getSelection();
+				if (selection.getFirstElement() instanceof FilterbedingungBean) {
+					AbstractConfigurationBean<?> filterSpecificBean = ((FilterbedingungBean) selection.getFirstElement()).getFilterSpecificBean();
+					if (filterSpecificBean instanceof PropertyCompareConditionBean) {
+						result = false;
+					}
+				}
+				return result;
+			}
+		};
 		this.startFilterConditionsTreeViewer.addDropSupport(DND.DROP_LINK,
 				new Transfer[] { LocalSelectionTransfer.getTransfer() },
 				startViewerDropAdapter);

@@ -157,6 +157,7 @@ public class GenericEditorInput<T extends BindingEntity> implements IEditorInput
                   beforeSave.apply(data.get());
                }
                Object mergedObject = em.merge(data.get());
+               System.out.println(mergedObject);
                // try to copy ID
                // This is neccessary since we only use merge and the id
                // is only
@@ -179,6 +180,7 @@ public class GenericEditorInput<T extends BindingEntity> implements IEditorInput
                }
             }
          });
+         // data is commited at this point if not in test mode
          em.clear();
          data.get().setNewRecord(false);
          saveSuccessful = true;

@@ -27,7 +27,7 @@ public final class GenericTableViewProvider<E> {
 
 		@Override
 		public void dispose() {
-			// TODO Auto-generated method stub
+		    // 
 		}
 
 		@Override
@@ -40,6 +40,9 @@ public final class GenericTableViewProvider<E> {
 	private static final class GenericLabelProvider extends StyledCellLabelProvider {
 
 		private List<Property> properties;
+		
+		// Allows to handle the setText method. Used for example
+		// in StoreArticleGuiForm.
 		private Func2<Boolean, ViewerCell, String> cellUpdateCallback;
 
 		private GenericLabelProvider(List<Property> properties, Func2<Boolean, ViewerCell, String> cellUpdateCallback) {
@@ -49,26 +52,19 @@ public final class GenericTableViewProvider<E> {
 
 		@Override
 		public void addListener(ILabelProviderListener listener) {
-			// TODO Auto-generated method stub
-
 		}
 
 		@Override
 		public void dispose() {
-			// TODO Auto-generated method stub
-
 		}
 
 		@Override
 		public boolean isLabelProperty(Object element, String property) {
-			// TODO Auto-generated method stub
 			return true;
 		}
 
 		@Override
 		public void removeListener(ILabelProviderListener listener) {
-			// TODO Auto-generated method stub
-
 		}
 
 		@Override
@@ -92,7 +88,7 @@ public final class GenericTableViewProvider<E> {
 		return new StructuredContentProvider<E>(data);
 	}
 
-	public StyledCellLabelProvider createTableLableProvider(List<Property> properties,
+	public StyledCellLabelProvider createTableLabelProvider(List<Property> properties,
 				Func2<Boolean, ViewerCell, String> cellUpdateCallback) {
 		return new GenericLabelProvider(properties, cellUpdateCallback);
 	}

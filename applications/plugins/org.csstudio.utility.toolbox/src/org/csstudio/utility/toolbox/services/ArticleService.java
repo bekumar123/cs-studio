@@ -69,7 +69,7 @@ public class ArticleService {
 								searchTermType));
 				} else if (searchTerm.getProperty().getName().equalsIgnoreCase("baNr")) {
 					filter = new Some<FilterClause>(new FilterClause(
-								"article.gruppeArtikel in (select ap.article.id from OrderPos ap where ap.order.nummer like '_"
+								"article.gruppeArtikel in (select ap.article.id from OrderPos ap where ap.order.nummer = '"
 											+ searchTerm.getValue() + "')"));
 				}
 			} else {

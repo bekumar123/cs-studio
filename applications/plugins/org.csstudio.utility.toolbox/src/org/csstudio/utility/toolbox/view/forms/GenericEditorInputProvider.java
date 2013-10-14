@@ -22,6 +22,8 @@ public class GenericEditorInputProvider<T extends BindingEntity> implements Edit
 
 	@Override
 	public GenericEditorInput<T> get() {
+	    // Article view is complicated since an articel group is handled inside a 
+	    // single editor.
 		if (typeLiteral.getRawType() == Article.class) {
 			ArticleEditorInput<T> editorInput = new ArticleEditorInput<T>();
 			miArticle.injectMembers(editorInput);

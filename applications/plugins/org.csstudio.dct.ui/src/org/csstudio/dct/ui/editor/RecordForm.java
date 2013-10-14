@@ -50,7 +50,7 @@ public final class RecordForm extends AbstractForm<IRecord> {
     private PromptGroup promptGroup = PromptGroup.ALL;
 
     /**
-     * Constructor.
+     * Constructor
      * 
      * @param editor
      *            the editor instance

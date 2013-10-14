@@ -22,17 +22,18 @@ import javax.persistence.Table;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.csstudio.utility.toolbox.framework.annotations.ReadOnly;
 import org.csstudio.utility.toolbox.framework.binding.BindingEntity;
+import org.csstudio.utility.toolbox.types.OrderId;
 
 @Table(name = "BA_POSITION")
 @NamedQueries({
 	@NamedQuery(name = OrderPos.FIND_IN_ARTIKEL_DATEN_ID, query = "from OrderPos o where o.artikelDatenId = :artikelDatenId"),
-	@NamedQuery(name = OrderPos.FIND_BY_BA_NR, query = "from OrderPos o where o.baNr = :baNr") })
+	@NamedQuery(name = OrderPos.FIND_BY_PARENT_ID, query = "from OrderPos o where o.baId = :baId") })
 @Entity
 public class OrderPos extends BindingEntity implements Cloneable<OrderPos> {
 
 	public static final String FIND_IN_ARTIKEL_DATEN_ID = "OrderPos.findArtikelDatenId";
 	
-	public static final String FIND_BY_BA_NR = "OrderPos.findByBaNr";
+	public static final String FIND_BY_PARENT_ID = "OrderPos.findByParentId";
 	
 	private static final long serialVersionUID = -1L;
 
@@ -62,11 +63,12 @@ public class OrderPos extends BindingEntity implements Cloneable<OrderPos> {
 	private BigDecimal einzelPreis;
 
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "BA_NR", referencedColumnName = "NUMMER", insertable = false, updatable = false)
+	@JoinColumn(name = "BA_ID", referencedColumnName = "ID", insertable = false, updatable = false)
 	private Order order;
 
-	@Column(name = "ba_nr")
-	private BigDecimal baNr;
+	@SuppressWarnings("unused")
+   @Column(name = "ba_id")
+	private BigDecimal baId;
 
 	@Column(name = "artikel_daten_id", insertable = false, updatable = false)
 	private BigDecimal artikelDatenId;
@@ -180,12 +182,8 @@ public class OrderPos extends BindingEntity implements Cloneable<OrderPos> {
 		}
 	}
 
-	public BigDecimal getBaNr() {
-		return baNr;
-	}
-
-	public void setBaNr(BigDecimal baNr) {
-		this.baNr = baNr;
+	public void setBaId(OrderId orderId) {
+		this.baId = orderId.getValue();
 	}
 
 	public void setOrder(Order order) {
@@ -207,6 +205,7 @@ public class OrderPos extends BindingEntity implements Cloneable<OrderPos> {
 			clone.lieferDatum = lieferDatum;
 			clone.einzelPreis = einzelPreis;
 			clone.id = null;
+			clone.baId = null;
 			clone.article = this.article.deepClone();
 			return clone;
 		} catch (Exception e) {

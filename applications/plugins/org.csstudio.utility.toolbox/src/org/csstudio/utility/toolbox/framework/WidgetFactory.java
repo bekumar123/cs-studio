@@ -36,7 +36,6 @@ import org.csstudio.utility.toolbox.func.Func1;
 import org.csstudio.utility.toolbox.func.Func1Void;
 import org.csstudio.utility.toolbox.func.Option;
 import org.csstudio.utility.toolbox.guice.provider.SimpleDateFormatProvider;
-import org.eclipse.core.databinding.Binding;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.viewers.AbstractListViewer;
 import org.eclipse.jface.viewers.ComboViewer;
@@ -208,6 +207,7 @@ public class WidgetFactory<T extends BindingEntity> implements Iterable<SearchTe
       }
    }
 
+   
    public void setEnabled(Property property, boolean enabled) {
       Widget widget = getWidget(property);
       if (widget instanceof Text) {
@@ -221,6 +221,11 @@ public class WidgetFactory<T extends BindingEntity> implements Iterable<SearchTe
       }
    }
 
+   public boolean isWidgetPresent(Property property) {
+       Widget widget = properties.get(property);
+       return widget != null;
+   }
+   
    private Widget getWidget(Property property) {
       Widget widget = properties.get(property);
       if (widget == null) {

@@ -2,7 +2,6 @@ package org.csstudio.utility.toolbox.view.forms;
 
 import static org.csstudio.utility.toolbox.framework.property.Property.P;
 
-import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,6 +34,7 @@ import org.csstudio.utility.toolbox.services.LogUserService;
 import org.csstudio.utility.toolbox.services.OrderPosService;
 import org.csstudio.utility.toolbox.services.OrderService;
 import org.csstudio.utility.toolbox.services.OrderTypeService;
+import org.csstudio.utility.toolbox.types.OrderNummer;
 import org.csstudio.utility.toolbox.view.support.ArticleDescriptionEditingSupport;
 import org.csstudio.utility.toolbox.view.support.OrderPosBestellmengeEditingSupport;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -323,7 +323,7 @@ public class OrderGuiForm extends AbstractGuiFormTemplate<Order> {
       if (getEditorInput().isNewData()) {
          String nummer = wf.getText(P("nummer"));
          if (StringUtils.isNotEmpty(nummer)) {
-            Option<Order> order = orderService.findByNummer(new BigDecimal(nummer));
+            Option<Order> order = orderService.findByNummer(new OrderNummer(nummer));
             if (order.hasValue()) {
                Dialogs.message("Error", "Order " + nummer + " already exists.");
                return CanSaveAction.ABORT_SAVE;

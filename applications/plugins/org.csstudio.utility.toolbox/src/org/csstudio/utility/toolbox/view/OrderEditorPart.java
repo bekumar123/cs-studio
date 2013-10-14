@@ -15,6 +15,7 @@ import org.csstudio.utility.toolbox.func.Func1Void;
 import org.csstudio.utility.toolbox.services.ArticleService;
 import org.csstudio.utility.toolbox.services.OrderPosService;
 import org.csstudio.utility.toolbox.services.OrderTypeService;
+import org.csstudio.utility.toolbox.types.OrderId;
 import org.csstudio.utility.toolbox.view.forms.OrderGuiForm;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
@@ -79,7 +80,7 @@ public class OrderEditorPart extends AbstractCrudEditorPartTemplate<Order> imple
                   orderPos.getArticle().setGruppeArtikel(articleId);
                }
             }
-            orderPos.setBaNr(order.getNummer());
+            orderPos.setBaId(new OrderId(order.getId()));
             OrderPos op = em.merge(orderPos);
             orderPos.setId(op.getId());
          }

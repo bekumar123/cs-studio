@@ -180,8 +180,10 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
                     LOG.debug("{}", myStmt.executeBatch().length);
                     //  stmt.execute();
                     // stmt.executeUpdate();
-                    LOG.debug("{}ms for {}x {}", new Object[] { _watch.getElapsedTimeInMillis(), size,
-                                                              handler.getHandlerType().getSimpleName() });
+                    if(!(handler instanceof ArchiveSampleBatchQueueHandler)) {
+                        LOG.info("{}ms for {}x {}", new Object[] { _watch.getElapsedTimeInMillis(), size,
+                                                                  handler.getHandlerType().getSimpleName() });
+                    }
                 } catch (final Throwable t) {
                     handler.getQueue().addAll(elements);
                     elements.clear();

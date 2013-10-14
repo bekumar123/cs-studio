@@ -26,6 +26,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -147,23 +148,27 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
     public <V extends Serializable, T extends ISystemVariable<V>>
     int createSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveDaoException {
         int size=0;
-        final Collection<IArchiveSample<V, T>> s=Collections.EMPTY_LIST;
+        final Collection<IArchiveSample<V, T>> s= new ArrayList<IArchiveSample<V,T>>();
         for(final IArchiveSample<V, T> ss:samples ){
             final ArchiveSample<V, T> mySample=(ArchiveSample<V, T>)ss;
             if(ss instanceof ArchiveSample){
                 mySample.setStatusIndex(((EpicsAlarm) ((ArchiveSample) ss).getAlarm()).getStatus().ordinal()*100+getStatusId(((EpicsAlarm) ((ArchiveSample) ss).getAlarm()).getStatus().toString()));
                 mySample.setServertyIndex(((EpicsAlarm) ((ArchiveSample) ss).getAlarm()).getSeverity().ordinal()*100+getServertyId(((EpicsAlarm) ((ArchiveSample) ss).getAlarm()).getSeverity().toString()));
-                }
+                s.add(mySample);
+            }
         }
         try {
             size = getEngineMgr().submitToBatch(samples);
             final List<? extends AbstractReducedDataSample> minuteSamples =
                 generatePerMinuteSamples(samples, _reducedDataMapForMinutes);
+            if(minuteSamples.size()>0) {
                 getEngineMgr().submitToBatch(minuteSamples);
-
+            }
             final List<? extends AbstractReducedDataSample> hourSamples =
                 generatePerHourSamples(minuteSamples, _reducedDataMapForHours);
+               if(hourSamples.size()>0) {
                 getEngineMgr().submitToBatch(hourSamples);
+            }
                  } catch (final TypeSupportException e) {
             throw new ArchiveDaoException("Type support for sample type could not be found.", e);
         }

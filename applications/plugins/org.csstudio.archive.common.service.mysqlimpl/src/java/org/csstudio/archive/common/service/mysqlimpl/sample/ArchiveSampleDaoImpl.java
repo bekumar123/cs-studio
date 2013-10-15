@@ -66,6 +66,8 @@ import org.csstudio.domain.desy.typesupport.TypeSupportException;
 import org.joda.time.Duration;
 import org.joda.time.Hours;
 import org.joda.time.Minutes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -80,6 +82,8 @@ import com.google.inject.Inject;
  * @since 11.11.2010
  */
 public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchiveSampleDao {
+    private static final Logger LOG =
+            LoggerFactory.getLogger(ArchiveSampleDaoImpl.class);
 
     public static final String TAB_SAMPLE = "sample";
     public static final String TAB_SAMPLE_M = "sample_m";
@@ -239,10 +243,12 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             if (ArchiveTypeConversionSupport.isDataTypeOptimizable(data.getClass())) {
                 final Double newValue =
                     BaseTypeConversionSupport.createDoubleFromValueOrNull(sysVar);
-                if (newValue == null) {
+                if (newValue == null||newValue.isInfinite()||newValue.isNaN()) {
+                    LOG.warn("Channel {} have a error value {} ", sysVar.getName(), sysVar.getData().toString());
                     continue;
                 }
                 final EpicsAlarm alarm=(EpicsAlarm)((ArchiveSample)sample).getAlarm();
+
                 int severty=0;;
                 int status=0;;
                 if(alarm!=null){

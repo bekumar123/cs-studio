@@ -126,12 +126,12 @@ public class ProfiBusTreeView extends Composite {
      * @author $Author: $
      * @since 12.01.2011
      */
-    private final class DBLoderJob extends Job {
+    private final class DBLoaderJob extends Job {
         /**
          * Constructor.
          * @param name The Taskname
          */
-        protected DBLoderJob(@Nonnull final String name) {
+        protected DBLoaderJob(@Nonnull final String name) {
             super(name);
         }
 
@@ -496,7 +496,7 @@ public class ProfiBusTreeView extends Composite {
     public final void expandAll() {
         /*
          * TODO: Wird nicht mehr gemacht da es von der Performenc her unklug ist. Es werden einfach
-         * zuviele Nodes auf einmal geladen, was zu Laden zeiten in Minutenbreiche führt
+         * zuviele Nodes auf einmal geladen, was zu Laden zeiten in Minutenbreiche fï¿½hrt
          */
     }
 
@@ -1041,7 +1041,7 @@ public class ProfiBusTreeView extends Composite {
         }
         try {
             getViewer().getTree().setEnabled(false);
-            final Job loadJob = new DBLoderJob("DBLoader");
+            final Job loadJob = new DBLoaderJob("DBLoader");
             loadJob.setUser(true);
             loadJob.schedule();
         } catch (final RuntimeException e) {

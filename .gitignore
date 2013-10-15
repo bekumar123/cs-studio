@@ -30,6 +30,9 @@ core/plugins/org.csstudio.platform.libs.jms/.settings/
 core/plugins/org.csstudio.remote/.settings/com.chronon.sb.browser.launcher.prefs
 core/plugins/org.csstudio.workspace/.settings/
 
+applications/**/*/com.chronon.sb.browser.launcher.prefs
+products/**/*/com.chronon.sb.browser.launcher.prefs
+core/**/*/com.chronon.sb.browser.launcher.prefs
 
 applications/plugins/org.csstudio.config.ioconfig.model/.settings/com.chronon.sb.browser.launcher.prefs
 

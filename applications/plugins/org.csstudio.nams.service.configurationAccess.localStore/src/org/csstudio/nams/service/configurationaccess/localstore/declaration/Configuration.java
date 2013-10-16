@@ -49,9 +49,9 @@ public class Configuration {
 			final Collection<RubrikDTO> alleRubriken,
 			final Collection<DefaultFilterTextDTO> allDefaultFilterTextDTO) {
 		super();
-		this.alleAlarmbarbeiter = alleAlarmbarbeiter;
-		this.alleAlarmtopics = alleAlarmtopics;
-		this.alleAlarmbearbeiterGruppen = alleAlarmbearbeiterGruppen;
+		this.alleAlarmbarbeiter = (alleAlarmbarbeiter == null) ? new ArrayList<AlarmbearbeiterDTO>() : alleAlarmbarbeiter;
+		this.alleAlarmtopics = (alleAlarmtopics == null) ? new ArrayList<TopicDTO>() : alleAlarmtopics;
+		this.alleAlarmbearbeiterGruppen = (alleAlarmbearbeiterGruppen == null) ? new ArrayList<AlarmbearbeiterGruppenDTO>() : alleAlarmbearbeiterGruppen;
 		this.allDefaultFilters = new ArrayList<DefaultFilterDTO>();
 		this.allTimebasedFilters = new ArrayList<TimeBasedFilterDTO>();
 		this.allWatchDogFilters = new ArrayList<WatchDogFilterDTO>();
@@ -67,11 +67,11 @@ public class Configuration {
 			}
 		}
 		this.allFilterConditionMappings = new LinkedList<FilterConditionsToFilterDTO>();
-		this.allFilterConditions = allFilterConditions;
-		this.alleRubriken = alleRubriken;
+		this.allFilterConditions = (allFilterConditions == null) ? new ArrayList<FilterConditionDTO>() : allFilterConditions;
+		this.alleRubriken = (alleRubriken == null) ? new ArrayList<RubrikDTO>() : alleRubriken;
 		this.alleUser2UserGroupMappings = new LinkedList<User2UserGroupDTO>();
 		this.allCompareValues = new LinkedList<StrgArFiltCondCompValDTO>();
-		this.allDefaultFilterTextDTO = allDefaultFilterTextDTO;
+		this.allDefaultFilterTextDTO = (allDefaultFilterTextDTO == null) ? new ArrayList<DefaultFilterTextDTO>() : allDefaultFilterTextDTO;
 	}
 
 	public Collection<DefaultFilterTextDTO> getAllDefaultFilterTexts() {

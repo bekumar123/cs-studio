@@ -419,8 +419,6 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
                 
                 SuggestedProcessVariableType t = pvConfigurationBean.getSuggestedType();
                 
-                System.out.println(string);
-                
                 char[] chars = new char[string.length()];
                 string.getChars(0, chars.length, chars, 0);
                 for (int i = 0; i < chars.length; i++) {

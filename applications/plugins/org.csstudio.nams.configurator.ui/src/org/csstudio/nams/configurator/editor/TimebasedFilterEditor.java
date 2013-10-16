@@ -123,10 +123,6 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 		this.startFilterTreeContentProvider = new TimebasedFilterTreeContentProvider(TimebasedFilterTreeContentType.START);
 		this.stopFilterTreeContentProvider = new TimebasedFilterTreeContentProvider(TimebasedFilterTreeContentType.STOP);
 		
-		System.out.println(getWorkingCopyOfEditorInput().getStartRootCondition().getOperands());
-		System.out.println(getWorkingCopyOfEditorInput().getStopRootCondition().getOperands());
-		System.out.println(getWorkingCopyOfEditorInput().getTimeout());
-		
 		this.formToolkit = new FormToolkit(parent.getDisplay());
 		this.mainForm = this.formToolkit.createScrolledForm(parent);
 		final Composite outerFormMain = this.mainForm.getBody();

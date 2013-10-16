@@ -871,7 +871,7 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 			final JunctorConditionForFilterTreeBean node = new JunctorConditionForFilterTreeBean();
 			node.setJunctorConditionType(this._type);
 			final boolean added = this._selectedBean.addOperand(node);
-			TimebasedFilterEditor.this.startFilterConditionsTreeViewer.refresh();
+			treeViewer.refresh();
 			if (added) {
 				treeViewer.expandToLevel(node, 0);
 				treeViewer.setSelection(new StructuredSelection(node));

@@ -1,5 +1,9 @@
 package org.csstudio.cagateway;
 
+import com.cosylab.epics.caj.cas.handlers.AbstractCASResponseHandler;
+import com.cosylab.epics.caj.cas.util.NumericProcessVariable;
+import com.cosylab.epics.caj.cas.util.StringProcessVariable;
+import com.cosylab.epics.caj.cas.util.examples.CounterProcessVariable;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.JCALibrary;
@@ -15,18 +19,11 @@ import gov.aps.jca.dbr.DBR_String;
 import gov.aps.jca.dbr.DBR_TIME_String;
 import gov.aps.jca.dbr.TIME;
 import gov.aps.jca.dbr.TimeStamp;
-
 import java.net.InetSocketAddress;
 import java.util.HashMap;
-
 import org.csstudio.domain.common.statistic.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.cosylab.epics.caj.cas.handlers.AbstractCASResponseHandler;
-import com.cosylab.epics.caj.cas.util.NumericProcessVariable;
-import com.cosylab.epics.caj.cas.util.StringProcessVariable;
-import com.cosylab.epics.caj.cas.util.examples.CounterProcessVariable;
 
 
 public class CaServer {
@@ -118,7 +115,7 @@ public class CaServer {
 		}
 
 	    public final synchronized void stop() {
-	        LOG.warn("caServer: stop() was called, stopping server");
+	        LOG.warn("Method stop() was called, stopping server");
 	        try {
                 context.shutdown();
             } catch (final IllegalStateException e) {
@@ -334,7 +331,7 @@ public class CaServer {
 			public CAStatus writeValue(final DBR_String value,
 					final ProcessVariableWriteCallback asyncWriteCallback) throws CAException {
 				// TODO Auto-generated method stub
-				final String newValue = (value).getStringValue()[0];
+				final String newValue = value.getStringValue()[0];
 				String translatedName = "translated name";
 
 				if ( ! _newName.equals(newValue)) {

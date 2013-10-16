@@ -64,9 +64,12 @@ import org.csstudio.ams.dbAccess.configdb.TopicDAO;
 import org.csstudio.ams.dbAccess.configdb.TopicTObject;
 import org.csstudio.ams.dbAccess.configdb.UserDAO;
 import org.csstudio.ams.dbAccess.configdb.UserGroupDAO;
+import org.csstudio.ams.dbAccess.configdb.UserGroupSynDAO;
 import org.csstudio.ams.dbAccess.configdb.UserGroupTObject;
 import org.csstudio.ams.dbAccess.configdb.UserGroupUserDAO;
+import org.csstudio.ams.dbAccess.configdb.UserGroupUserSynDAO;
 import org.csstudio.ams.dbAccess.configdb.UserGroupUserTObject;
+import org.csstudio.ams.dbAccess.configdb.UserSynDAO;
 import org.csstudio.ams.dbAccess.configdb.UserTObject;
 import org.csstudio.ams.internal.AmsPreferenceKey;
 import org.csstudio.utility.jms.consumer.JmsRedundantConsumer;
@@ -625,8 +628,7 @@ public class DistributorWork extends Thread implements AmsConstants,
 		try {
 			final int iFilterId = Integer.parseInt(msg
 					.getString(MSGPROP_FILTERID));
-			final FilterTObject filter = FilterDAO.select(memoryCacheDb,
-					iFilterId);
+			final FilterTObject filter = FilterDAO.select(memoryCacheDb, iFilterId);
 
 			HistoryWriter.logMessage(localAppDb, msg, filter, iFilterId);
 
@@ -1280,9 +1282,11 @@ public class DistributorWork extends Thread implements AmsConstants,
 					groupOra = null;
 				}
 
-			} else // the user want to change the user state
-			{
-				java.sql.Connection oraDb = null;
+			} else {
+
+			    // the user want to change the user state
+
+			    java.sql.Connection oraDb = null;
 				UserTObject userOra = null;
 				try // try finally
 				{
@@ -1308,9 +1312,26 @@ public class DistributorWork extends Thread implements AmsConstants,
 						}
 
 						try {
-							userOra = changeStatus(oraDb, Arrays.asList(oraDb),
-									groupNum, userNum, status, statusCode,
-									reason, txt, replyType, replyAdress);
+							userOra =
+							  changeUserStatusInGroup(oraDb,
+							                          Arrays.asList(oraDb),
+							                          groupNum,
+							                          userNum,
+							                          status,
+							                          statusCode,
+							                          reason,
+							                          txt,
+							                          replyType,
+							                          replyAdress);
+							if (userOra != null) {
+    							try {
+    							    changeUserStatusInGroupInSyncTable(oraDb, oraDb,
+    							                                       groupNum, userNum,
+    							                                       status, reason);
+    							} catch (Exception sqle) {
+    							    Log.log(Log.WARN, "Cannot update SYN-Table.");
+    							}
+							}
 						} catch (final Exception e) {
 							sleep(10000);
 							AmsConnectionFactory.closeConnection(oraDb); // don't
@@ -1327,11 +1348,19 @@ public class DistributorWork extends Thread implements AmsConstants,
 						// follows
 						{
 							try {
-								final UserTObject user2 = changeStatus(
-										memoryCacheDb, Arrays.asList(
-												memoryCacheDb, localAppDb),
-										groupNum, userNum, status, statusCode,
-										reason, txt, replyType, replyAdress);
+								final UserTObject user2
+								           = changeUserStatusInGroup(localAppDb,
+								                                     Arrays.asList(memoryCacheDb,
+								                                                   localAppDb),
+								                                     groupNum,
+								                                     userNum,
+								                                     status,
+								                                     statusCode,
+								                                     reason,
+								                                     txt,
+								                                     replyType,
+								                                     replyAdress);
+
 								if (user2 != null) // OK - all well done
 								{
 									final UserGroupTObject ug = UserGroupDAO
@@ -1399,7 +1428,54 @@ public class DistributorWork extends Thread implements AmsConstants,
 		return ErrorState.STAT_FALSE.getStateNumber();
 	}
 
-	private UserTObject changeStatus(java.sql.Connection readConnection,
+	/**
+	 * Changes the status of the user in the SYNC table. It is required to avoid
+	 * problems after a restart of the processes.
+	 *
+	 * @param readConnection
+	 * @param writeConnection
+	 * @param groupNum
+	 * @param userNum
+	 * @param status
+	 * @param reason
+	 * @return
+	 * @throws Exception
+	 */
+	private boolean changeUserStatusInGroupInSyncTable(java.sql.Connection readConnection,
+	                                                   java.sql.Connection writeConnection,
+	                                                   int groupNum,
+	                                                   int userNum,
+	                                                   short status,
+	                                                   String reason) throws Exception {
+
+	    boolean success = false;
+
+	    UserTObject user = UserSynDAO.select(readConnection, userNum);
+	    UserGroupTObject ug = UserGroupSynDAO.select(readConnection, groupNum);
+
+	    // Read from the configuration database
+        UserGroupUserTObject ugu = UserGroupUserSynDAO.select(readConnection, groupNum, userNum);
+        if (ugu != null) {
+            if (reason.length() > 0) {
+                ugu.setActiveReason(reason);
+            }
+
+            // set status in UserGroupUserTObject
+            ugu.setActive(status);
+            success = UserGroupUserSynDAO.update(writeConnection, ugu);
+        }
+
+        if (!success)  {
+            HistoryWriter.logHistoryChangeStatus(localAppDb, user,
+                                                 "Failed to update status in SYNC-Table.",
+                                                 ug, "", status, reason, null, null);
+            Log.log(Log.WARN, "Failed to update status in SYNC-Table!");
+        }
+
+        return success;
+	}
+
+	private UserTObject changeUserStatusInGroup(java.sql.Connection readConnection,
 			                         List<java.sql.Connection> writeConnections,
 			                         int groupNum,
 			                         int userNum,
@@ -1426,7 +1502,7 @@ public class DistributorWork extends Thread implements AmsConstants,
 			HistoryWriter.logHistoryChangeStatus(localAppDb, user,
 					"Status code does not match.", null, txt, status, reason,
 					replyType, replyAdress);
-			Log.log(Log.FATAL, "status code does not match for msg " + txt);
+			Log.log(Log.FATAL, "Status code does not match for msg " + txt);
 			return null;
 		}
 
@@ -1452,7 +1528,7 @@ public class DistributorWork extends Thread implements AmsConstants,
 				HistoryWriter.logHistoryChangeStatus(localAppDb, user,
 						"User not in group.", ug, txt, status, reason,
 						replyType, replyAdress);
-				Log.log(Log.WARN, "user not in group for msg " + txt);
+				Log.log(Log.WARN, "User not in group for msg " + txt);
 				// never coming twice here, nok not in group
 				sendChangeStatusConfirmation(user, txt + MSGCODE_NOT_IN_GROUP,
 						replyType, replyAdress,
@@ -1460,7 +1536,7 @@ public class DistributorWork extends Thread implements AmsConstants,
 				return null;
 			}
 			if (ugu.getActive() == status) {
-				Log.log(Log.WARN, "status already set for msg, handle as ok "
+				Log.log(Log.WARN, "Status already set for msg, handle as ok "
 						+ txt);
 				return user;
 			}
@@ -1488,7 +1564,7 @@ public class DistributorWork extends Thread implements AmsConstants,
 									+ ug.getMinGroupMember() + ".", ug, txt,
 							status, reason, replyType, replyAdress);
 					Log.log(Log.WARN,
-							"min user count reached min="
+							"Min user count reached min="
 									+ ug.getMinGroupMember() + " for msg "
 									+ txt);
 
@@ -1522,9 +1598,9 @@ public class DistributorWork extends Thread implements AmsConstants,
 				.logHistoryChangeStatus(
 						localAppDb,
 						user,
-						"failed to update status (tried 3 times, Data changed or deleted!).",
+						"Failed to update status (tried 3 times, Data changed or deleted!).",
 						ug, txt, status, reason, replyType, replyAdress);
-		Log.log(Log.WARN, "failed to update status (tried 3 times) for msg "
+		Log.log(Log.WARN, "Failed to update status (tried 3 times) for msg "
 				+ txt + " (Data changed or deleted!)");
 		return null;
 	}
@@ -1613,23 +1689,23 @@ public class DistributorWork extends Thread implements AmsConstants,
 				return ug;
 			}
 
-			if (status == 0) // only check if want to set 0 - Inactive
-			{
-				int iActiveCount = 0;
-				final Iterator<?> iter = UserGroupUserDAO.selectList(
-						readConnection, groupNum).iterator();
-				while (iter.hasNext()) {
-					if (((AggrUserGroupUserTObject) iter.next())
-							.getUserGroupUser().getActive() == 1) {
-						// Inactive,
-						// 1 -
-						// Active
-						// (group
-						// ownership)
-						iActiveCount++; // count active user in group
-					}
-				}
-			}
+//			if (status == 0) // only check if want to set 0 - Inactive
+//			{
+//				int iActiveCount = 0;
+//				final Iterator<?> iter = UserGroupUserDAO.selectList(
+//						readConnection, groupNum).iterator();
+//				while (iter.hasNext()) {
+//					if (((AggrUserGroupUserTObject) iter.next())
+//							.getUserGroupUser().getActive() == 1) {
+//						// Inactive,
+//						// 1 -
+//						// Active
+//						// (group
+//						// ownership)
+//						iActiveCount++; // count active user in group
+//					}
+//				}
+//			}
 
 			ug.setIsActive(status); // set status in UserGroupUserTObject
 			boolean updateSuccessful = true;

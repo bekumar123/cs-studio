@@ -34,6 +34,7 @@ import org.csstudio.domain.common.statistic.Collector;
 import org.csstudio.headless.common.util.ApplicationInfo;
 import org.csstudio.headless.common.util.StandardStreams;
 import org.csstudio.headless.common.xmpp.XmppCredentials;
+import org.csstudio.headless.common.xmpp.XmppSessionException;
 import org.csstudio.headless.common.xmpp.XmppSessionHandler;
 import org.csstudio.nams.application.department.decision.management.InfoCmd;
 import org.csstudio.nams.application.department.decision.management.Restart;
@@ -386,13 +387,13 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
         appInfo = new ApplicationInfo("AmsDepartmentDecision", desc);
 
         XmppCredentials credentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
-        xmppService = new XmppSessionHandler(bundleContext, credentials);
+        xmppService = new XmppSessionHandler(bundleContext, credentials, true);
         InfoCmd.staticInject(this);
-//        try {
-//            xmppService.connect();
-//        } catch (XmppSessionException e) {
-//            DecisionDepartmentActivator.logger.logWarningMessage(this, e.getMessage());
-//        }
+        try {
+            xmppService.connect();
+        } catch (XmppSessionException e) {
+            DecisionDepartmentActivator.logger.logWarningMessage(this, e.getMessage());
+        }
 
         configureExecutionService();
         createMessagingConsumer();
@@ -459,9 +460,6 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
             if (this._continueWorking) {
                 createDecisionOffice();
             }
-//            if (this._continueWorking) {
-//            	createSimpleFilterWorker();
-//            }
 
             if (this._continueWorking) {
                 performNormalWork();
@@ -602,21 +600,6 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
             this._continueWorking = false;
         }
     }
-
-//	private void createSimpleFilterWorker() {
-//		try {
-//			simpleFilterWorker = new SimpleFilterWorker(localStoreConfigurationService
-//					.getEntireFilterConfiguration().gibAlleFilter(),
-//					ausgangskorbDesDecisionOfficeUndEingangskorbDesPostOffice, DecisionDepartmentActivator.logger);
-//		} catch (final Throwable e) {
-//			DecisionDepartmentActivator.logger
-//					.logFatalMessage(
-//							this,
-//							"Exception while initializing the alarm decision department.",
-//							e);
-//			this._continueWorking = false;
-//		}
-//	}
 
 	private void createMessagingProducer() {
         try {
@@ -978,24 +961,6 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                 DecisionDepartmentActivator.logger.logInfoMessage(this,
                         "Recieving of message has been interrupted", ie);
             }
-
-            // Check XMPP connection
-//            if (xmppService.isConnected()) {
-//                DecisionDepartmentActivator
-//                .logger
-//                       .logDebugMessage(this, "XMPP connection is working.");
-//            } else {
-//                DecisionDepartmentActivator
-//                           .logger
-//                                  .logWarningMessage(this, "XMPP connection is broken! Try to re-connect.");
-//                try {
-//                    xmppService.reconnect();
-//                } catch (XmppSessionException e) {
-//                    DecisionDepartmentActivator
-//                           .logger
-//                                  .logWarningMessage(this, "Cannot re-connect to the XMPP server.");
-//                }
-//            }
         }
 
         consumersConsumer.close();

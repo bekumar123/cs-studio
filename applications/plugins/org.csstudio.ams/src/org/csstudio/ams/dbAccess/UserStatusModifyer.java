@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2010 Stiftung Deutsches Elektronen-Synchroton,
+ * Copyright (c) 2013 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -21,47 +21,37 @@
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
  */
 
-package org.csstudio.archive.sdds.server;
+package org.csstudio.ams.dbAccess;
 
-import javax.annotation.Nonnull;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+import java.sql.Connection;
+import java.util.List;
 
 /**
- * The activator class controls the plug-in life cycle
+ * @author mmoeller
+ * @since 04.07.2013
  */
-public class SddsServerActivator implements BundleActivator {
+public class UserStatusModifyer {
 
-    /** The plug-in ID */
-    public static final String PLUGIN_ID = "org.csstudio.archive.sdds.server";
+    public static boolean changeGroupStatus(Connection readCon,
+                                            List<Connection> writeCons,
+                                            int groupNum,
+                                            int userNum,
+                                            short status,
+                                            String statusCode,
+                                            String reason,
+                                            String txt,
+                                            String replyType,
+                                            String replyAdress) {
 
-    /** The shared instance */
-    private static SddsServerActivator bundle;
+        boolean success = false;
 
-    private static BundleContext bundleContext;
-
-    public static SddsServerActivator getBundle() {
-        return bundle;
+        return success;
     }
 
-    public static BundleContext getBundleContext() {
-        return bundleContext;
-    }
+    public static boolean changeGroupUserStatus(Connection readCon) {
 
-    @Nonnull
-    public static String getPluginId() {
-        return PLUGIN_ID;
-    }
+        boolean success = false;
 
-    @Override
-    public void start(@Nonnull final BundleContext context) throws Exception {
-        SddsServerActivator.bundle = this;
-        SddsServerActivator.bundleContext = context;
-    }
-
-    @Override
-    public void stop(@Nonnull final BundleContext context) throws Exception {
-        SddsServerActivator.bundle = null;
-        SddsServerActivator.bundleContext = null;
+        return success;
     }
 }

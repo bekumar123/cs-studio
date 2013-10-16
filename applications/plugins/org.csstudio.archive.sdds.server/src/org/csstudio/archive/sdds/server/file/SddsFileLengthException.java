@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2011 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
@@ -19,15 +20,16 @@
  * PROJECT IN THE FILE LICENSE.HTML. IF THE LICENSE IS NOT INCLUDED YOU MAY FIND A COPY
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
  */
+
 package org.csstudio.archive.sdds.server.file;
 
 /**
- * TODO (mmoeller) :
- *
  * @author mmoeller
  * @since 14.11.2011
  */
 public class SddsFileLengthException extends Exception {
+
+    private static final long serialVersionUID = 4546313913948774706L;
 
     /**
      * Constructor.
@@ -42,7 +44,6 @@ public class SddsFileLengthException extends Exception {
      */
     public SddsFileLengthException(final String message) {
         super(message);
-        // TODO Auto-generated constructor stub
     }
 
     /**
@@ -51,7 +52,6 @@ public class SddsFileLengthException extends Exception {
      */
     public SddsFileLengthException(final Throwable cause) {
         super(cause);
-        // TODO Auto-generated constructor stub
     }
 
     /**

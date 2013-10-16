@@ -8,7 +8,7 @@
 
    <launcherArgs>
       <programArgs>-plugincustomization plugin_customization.ini</programArgs>
-      <vmArgs>-Xms128m -Xmx512m -Djava.awt.headless=true -Dcom.sun.management.jmxremote.port=2222 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false</vmArgs>
+      <vmArgs>-Xms128m -Xmx512m -Djava.awt.headless=true</vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 

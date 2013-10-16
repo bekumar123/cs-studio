@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2010 Stiftung Deutsches Elektronen-Synchroton,
+ * Copyright (c) 2013 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -21,47 +21,45 @@
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
  */
 
-package org.csstudio.archive.sdds.server;
+package org.csstudio.ams.dbAccess.configdb;
 
-import javax.annotation.Nonnull;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import org.csstudio.ams.Log;
+import org.csstudio.ams.dbAccess.DAO;
 
 /**
- * The activator class controls the plug-in life cycle
+ * @author mmoeller
+ * @since 03.07.2013
  */
-public class SddsServerActivator implements BundleActivator {
+public class UserGroupSynDAO extends DAO {
 
-    /** The plug-in ID */
-    public static final String PLUGIN_ID = "org.csstudio.archive.sdds.server";
+    public static UserGroupTObject select(Connection con, int userGroupID) throws SQLException {
 
-    /** The shared instance */
-    private static SddsServerActivator bundle;
+        final String query = "SELECT iUserGroupId,iGroupRef,cUserGroupName,"
+        		           + "sMinGroupMember,iTimeOutSec,sActive"
+                           + " FROM AMS_UserGroup_Syn WHERE iUserGroupId = ?";
 
-    private static BundleContext bundleContext;
+        ResultSet rs = null;
+        PreparedStatement st = null;
 
-    public static SddsServerActivator getBundle() {
-        return bundle;
-    }
+        try {
+            st = con.prepareStatement(query);
+            st.setInt(1, userGroupID);
+            rs = st.executeQuery();
 
-    public static BundleContext getBundleContext() {
-        return bundleContext;
-    }
+            if(rs.next()) {
+                return new UserGroupTObject(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getShort(4), rs.getInt(5), rs.getInt(6));
+            }
 
-    @Nonnull
-    public static String getPluginId() {
-        return PLUGIN_ID;
-    }
-
-    @Override
-    public void start(@Nonnull final BundleContext context) throws Exception {
-        SddsServerActivator.bundle = this;
-        SddsServerActivator.bundleContext = context;
-    }
-
-    @Override
-    public void stop(@Nonnull final BundleContext context) throws Exception {
-        SddsServerActivator.bundle = null;
-        SddsServerActivator.bundleContext = null;
+            return null;
+        } catch(SQLException ex) {
+            Log.log(Log.FATAL, "Sql-Query failed: " + query, ex);
+            throw ex;
+        } finally {
+            close(st,rs);
+        }
     }
 }

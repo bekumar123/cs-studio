@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2011 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
@@ -18,23 +19,42 @@
  * USAGE AND OTHER RIGHTS AND OBLIGATIONS IS INCLUDED WITH THE DISTRIBUTION OF THIS
  * PROJECT IN THE FILE LICENSE.HTML. IF THE LICENSE IS NOT INCLUDED YOU MAY FIND A COPY
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
- *
  */
-package org.csstudio.archive.sdds.server;
+
+package org.csstudio.archive.sdds.server.management;
 
 import javax.annotation.Nonnull;
+import org.csstudio.headless.common.management.IInfoProvider;
+import org.csstudio.remote.management.CommandParameters;
+import org.csstudio.remote.management.CommandResult;
+import org.csstudio.remote.management.IManagementCommand;
 
 /**
- * Bean interface for the application
- *
- * @author Markus Moeller
- * @author bknerr
- * @since 20.09.2011
+ * @author mmoeller
+ * @since 15.11.2011
  */
-public interface ISddsServerApplicationMBean {
+public class InfoCmd implements IManagementCommand {
 
-    void stopApplication();
+    /** The path to the file that contains the product version */
+    private static IInfoProvider remoteObject;
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     @Nonnull
-    String readVersion();
+    public CommandResult execute(final CommandParameters parameters) {
+        CommandResult result = null;
+        if (remoteObject != null) {
+            final String desc = remoteObject.getInfo();
+            result = CommandResult.createMessageResult(desc);
+        } else {
+            result = CommandResult.createFailureResult("No description available. The application reference is null!");
+        }
+        return result;
+    }
+
+    public static void injectStaticObject(final IInfoProvider object) {
+        remoteObject = object;
+    }
 }

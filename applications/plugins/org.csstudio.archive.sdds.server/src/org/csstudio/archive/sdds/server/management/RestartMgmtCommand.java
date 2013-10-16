@@ -25,9 +25,9 @@
 package org.csstudio.archive.sdds.server.management;
 
 import javax.annotation.Nonnull;
-
 import org.csstudio.archive.sdds.server.IRemotelyStoppable;
 import org.csstudio.archive.sdds.server.SddsServerActivator;
+import org.csstudio.headless.common.management.CommandResultPrefix;
 import org.csstudio.remote.management.CommandParameters;
 import org.csstudio.remote.management.CommandResult;
 import org.csstudio.remote.management.IManagementCommand;
@@ -53,7 +53,9 @@ public class RestartMgmtCommand implements IManagementCommand {
 
         if(RESTART_ME != null) {
             RESTART_ME.stopApplication(true);
-            result = CommandResult.createMessageResult(SddsServerActivator.PLUGIN_ID + " is restarting now.");
+            result = CommandResult.createMessageResult(CommandResultPrefix.getOkPrefix()
+                                                       + " " +SddsServerActivator.PLUGIN_ID
+                                                       + " is restarting now.");
         } else {
             result = CommandResult.createFailureResult("Do not have a valid reference to the Application object!");
         }

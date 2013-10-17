@@ -22,7 +22,7 @@
 /*
  * $Id: ChannelPrototypeConfigTableLabelProvider.java,v 1.1 2009/08/26 07:09:23 hrickens Exp $
  */
-package org.csstudio.config.ioconfig.config.view;
+package org.csstudio.config.ioconfig.config.view.dialog.prototype.components.table;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -39,7 +39,7 @@ import org.eclipse.swt.graphics.Image;
  * @version $Revision: 1.1 $
  * @since 18.12.2008
  */
-public class ChannelPrototypeConfigTableLabelProvider implements ITableLabelProvider {
+final class ChannelPrototypeConfigTableLabelProvider implements ITableLabelProvider {
     
     /**
      * {@inheritDoc}

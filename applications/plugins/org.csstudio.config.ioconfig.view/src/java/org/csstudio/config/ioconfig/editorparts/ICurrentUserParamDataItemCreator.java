@@ -10,6 +10,8 @@ public interface ICurrentUserParamDataItemCreator {
 
     void buildCurrentUserPrmData(@Nonnull final Composite currentUserParamDataComposite) throws IOException;
     
+    boolean hasCurrentUserPrmData() throws IOException;
+    
     void undoSelectionCurrentUserPrmData();
     
 }

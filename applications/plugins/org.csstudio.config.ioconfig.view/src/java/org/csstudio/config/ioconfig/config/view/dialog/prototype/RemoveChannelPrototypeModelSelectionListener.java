@@ -1,10 +1,12 @@
-package org.csstudio.config.ioconfig.config.view;
+package org.csstudio.config.ioconfig.config.view.dialog.prototype;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import org.csstudio.config.ioconfig.config.component.IRefreshable;
+import org.csstudio.config.ioconfig.config.component.ISelectableAndRefreshable;
 import org.csstudio.config.ioconfig.model.DBClass;
 import org.csstudio.config.ioconfig.model.PersistenceException;
 import org.csstudio.config.ioconfig.model.hibernate.Repository;
@@ -18,31 +20,30 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.TabFolder;
 
-/**
- * @author hrickens
- * @author $Author: hrickens $
- * @version $Revision: 1.2 $
- * @since 03.06.2009
- */
 final class RemoveChannelPrototypeModelSelectionListener implements SelectionListener {
-    private final ArrayList<ModuleChannelPrototypeDBO> _outChannelPrototypeModelList;
-    private final ArrayList<ModuleChannelPrototypeDBO> _inChannelPrototypeModelList;
-    private final GSDModuleDBO _gsdModule2Remove;
-    private final TableViewer _iTableViewer;
-    private final TableViewer _oTableViewer;
-    private final TabFolder _rslIoTabFolder;
 
-    /**
-     * Constructor.
-     */
-    public RemoveChannelPrototypeModelSelectionListener(@Nonnull final GSDModuleDBO gsdModule, @Nonnull final ArrayList<ModuleChannelPrototypeDBO> outputList, @Nonnull final TableViewer outputTableViewer,
-                                   @Nonnull final ArrayList<ModuleChannelPrototypeDBO> inputList, @Nonnull final TableViewer inputTableViewer, @Nonnull final TabFolder ioTabFolder) {
-        _gsdModule2Remove = gsdModule;
-        _outChannelPrototypeModelList = outputList;
-        _inChannelPrototypeModelList = inputList;
-        _iTableViewer = inputTableViewer;
-        _oTableViewer = outputTableViewer;
-        _rslIoTabFolder = ioTabFolder;
+    private final ArrayList<ModuleChannelPrototypeDBO> outChannelPrototypeModelList;
+    private final ArrayList<ModuleChannelPrototypeDBO> inChannelPrototypeModelList;
+    private final GSDModuleDBO gsdModule2Remove;
+    private final ISelectableAndRefreshable inputTable;
+    private final ISelectableAndRefreshable outputTable;
+    private final TabFolder rslIoTabFolder;
+
+    //@formatter:off
+    public RemoveChannelPrototypeModelSelectionListener(
+            @Nonnull final GSDModuleDBO gsdModule,
+            @Nonnull final ArrayList<ModuleChannelPrototypeDBO> outputList,
+            @Nonnull final ISelectableAndRefreshable outputTable,
+            @Nonnull final ArrayList<ModuleChannelPrototypeDBO> inputList, 
+            @Nonnull final ISelectableAndRefreshable inputTable,
+            @Nonnull final TabFolder ioTabFolder) {
+            //@formatter:on
+        this.gsdModule2Remove = gsdModule;
+        this.outChannelPrototypeModelList = outputList;
+        this.inChannelPrototypeModelList = inputList;
+        this.inputTable = inputTable;
+        this.outputTable = outputTable;
+        this.rslIoTabFolder = ioTabFolder;
     }
 
     @Override
@@ -55,24 +56,25 @@ final class RemoveChannelPrototypeModelSelectionListener implements SelectionLis
         removeItem();
     }
 
-    private void remove(@Nonnull final TableViewer tableViewer, @Nonnull final ArrayList<ModuleChannelPrototypeDBO> channelPrototypeModelList, @Nonnull final GSDModuleDBO gsdModule2Remove) {
+    private void remove(@Nonnull final ISelectableAndRefreshable tableViewer,
+            @Nonnull final ArrayList<ModuleChannelPrototypeDBO> channelPrototypeModelList,
+            @Nonnull final GSDModuleDBO gsdModule2Remove) {
         IStructuredSelection selection;
         selection = (IStructuredSelection) tableViewer.getSelection();
-        if(selection.size() > 0) {
+        if (selection.size() > 0) {
             @SuppressWarnings("unchecked")
-            final
-            List<ModuleChannelPrototypeDBO> list = selection.toList();
+            final List<ModuleChannelPrototypeDBO> list = selection.toList();
             channelPrototypeModelList.removeAll(list);
             gsdModule2Remove.removeModuleChannelPrototype(list);
             for (final Object object : list) {
-                if(object instanceof DBClass) {
+                if (object instanceof DBClass) {
                     final DBClass dbClass = (DBClass) object;
                     removeNode(dbClass);
                 }
             }
         } else {
             final ModuleChannelPrototypeDBO remove = channelPrototypeModelList
-            .remove(channelPrototypeModelList.size() - 1);
+                    .remove(channelPrototypeModelList.size() - 1);
             removeNode(remove);
         }
         tableViewer.refresh();
@@ -80,10 +82,10 @@ final class RemoveChannelPrototypeModelSelectionListener implements SelectionLis
     }
 
     private void removeItem() {
-        if(_rslIoTabFolder.getSelection()[0].getText().equals(Messages.ChannelConfigDialog_Input)) {
-            remove(_iTableViewer, _inChannelPrototypeModelList, _gsdModule2Remove);
+        if (rslIoTabFolder.getSelection()[0].getText().equals(Messages.ChannelConfigDialog_Input)) {
+            remove(inputTable, inChannelPrototypeModelList, gsdModule2Remove);
         } else {
-            remove(_oTableViewer, _outChannelPrototypeModelList, _gsdModule2Remove);
+            remove(outputTable, outChannelPrototypeModelList, gsdModule2Remove);
         }
     }
 

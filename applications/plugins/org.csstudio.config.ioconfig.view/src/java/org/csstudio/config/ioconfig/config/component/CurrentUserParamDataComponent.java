@@ -29,11 +29,12 @@ public class CurrentUserParamDataComponent implements IComponent {
     private final ICurrentUserParamDataItemCreator currentUserParamDataItemCreator;
 
     private Group currentUserParamDataGroup;
-    private Composite currentUserParamDataComposite;
 
-    // @Formatter:off
-    public CurrentUserParamDataComponent(@Nonnull final Composite topGroup,
+    //@formatter:off
+    public CurrentUserParamDataComponent(
+            @Nonnull final Composite topGroup,
             @Nonnull final ICurrentUserParamDataItemCreator currentUserParamDataItemCreator) {
+        //@formatter:on
         Preconditions.checkNotNull(topGroup, "topGroup must not be null");
         Preconditions.checkNotNull(currentUserParamDataItemCreator, "currentUserParamDataItemCreator must not be null");
 
@@ -44,17 +45,30 @@ public class CurrentUserParamDataComponent implements IComponent {
     @Override
     public void buildComponent() {
 
+        // Don't know why this works (FillLayout with GridData) - but it does
+        // and other combinations do not work
         currentUserParamDataGroup = new Group(topGroup, SWT.NONE);
-        final GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 2);
-        layoutData.minimumWidth = 150;
-        
+        final GridData layoutData;
+
+        try {
+            if (currentUserParamDataItemCreator.hasCurrentUserPrmData()) {
+                layoutData = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 2);
+            } else {
+                layoutData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 2);
+                layoutData.minimumWidth = 140;
+            }
+        } catch (IOException e) {
+            LOG.error("Error", e);
+            return;
+        }
+
         currentUserParamDataGroup.setLayoutData(layoutData);
         currentUserParamDataGroup.setLayout(new FillLayout());
+
         currentUserParamDataGroup.setText("Current User Param Data");
 
         final ScrolledComposite scrollComposite = new ScrolledComposite(currentUserParamDataGroup, SWT.V_SCROLL);
-
-        currentUserParamDataComposite = new Composite(scrollComposite, SWT.NONE);
+        final Composite currentUserParamDataComposite = new Composite(scrollComposite, SWT.NONE);
         final RowLayout rowLayout = new RowLayout(SWT.VERTICAL);
         rowLayout.wrap = false;
         rowLayout.fill = true;
@@ -64,18 +78,16 @@ public class CurrentUserParamDataComponent implements IComponent {
         scrollComposite.setExpandHorizontal(true);
         scrollComposite.setExpandVertical(true);
 
-        currentUserParamDataGroup.addControlListener(new ControlAdapter() {
+        ControlAdapter controlAdapter = new ControlAdapter() {
             @Override
             public void controlResized(@Nullable final ControlEvent e) {
-                updateScrolledComposite(scrollComposite);
+                final Rectangle r = scrollComposite.getClientArea();
+                scrollComposite.setMinSize(currentUserParamDataComposite.computeSize(r.width, SWT.DEFAULT));
             }
-        });
-        scrollComposite.addControlListener(new ControlAdapter() {
-            @Override
-            public void controlResized(@Nullable final ControlEvent e) {
-                updateScrolledComposite(scrollComposite);
-            }
-        });
+        };
+
+        currentUserParamDataGroup.addControlListener(controlAdapter);
+        scrollComposite.addControlListener(controlAdapter);
 
         try {
             currentUserParamDataItemCreator.buildCurrentUserPrmData(currentUserParamDataComposite);
@@ -88,11 +100,6 @@ public class CurrentUserParamDataComponent implements IComponent {
 
     public void undo() {
         currentUserParamDataItemCreator.undoSelectionCurrentUserPrmData();
-    }
-    
-    private void updateScrolledComposite(ScrolledComposite scrollComposite) {
-        final Rectangle r = scrollComposite.getClientArea();
-        scrollComposite.setMinSize(currentUserParamDataComposite.computeSize(r.width, SWT.DEFAULT));
     }
 
     public void dispose() {

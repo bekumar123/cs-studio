@@ -397,8 +397,7 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
         final AbstractGsdPropertyModel parsedGsdFileModel = getGsdPropertyModel();
         if (parsedGsdFileModel != null) {
             _prmTextCV.clear();
-            final Collection<KeyValuePair> extUserPrmDataRefMap;
-            extUserPrmDataRefMap = parsedGsdFileModel.getExtUserPrmDataRefMap().values();
+            final Collection<KeyValuePair> extUserPrmDataRefMap = parsedGsdFileModel.getExtUserPrmDataRefMap().values();
             for (final KeyValuePair extUserPrmDataRef : extUserPrmDataRefMap) {
                 final ExtUserPrmData extUserPrmData = parsedGsdFileModel.getExtUserPrmData(extUserPrmDataRef
                         .getIntValue());
@@ -410,6 +409,15 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
         }
     }
 
+    public boolean hasCurrentUserPrmData() throws IOException {
+        final AbstractGsdPropertyModel parsedGsdFileModel = getGsdPropertyModel();
+        if (parsedGsdFileModel == null) {
+            return false;
+        }
+        final Collection<KeyValuePair> extUserPrmDataRefMap = parsedGsdFileModel.getExtUserPrmDataRefMap().values();
+        return extUserPrmDataRefMap.size() > 0;
+    }
+    
     public void undoSelectionCurrentUserPrmData() {
         for (final Object prmTextObject : _prmTextCV) {
             if (prmTextObject instanceof ComboViewer) {

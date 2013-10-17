@@ -20,7 +20,11 @@ public class ModuleNumber {
             return Optional.of(new ModuleNumber(value));
         }
     }
-    
+
+    public static Optional<ModuleNumber> moduleNumberAbsent() {
+        return Optional.absent(); 
+    }
+
     public Integer getValue() {
         return value;
     }

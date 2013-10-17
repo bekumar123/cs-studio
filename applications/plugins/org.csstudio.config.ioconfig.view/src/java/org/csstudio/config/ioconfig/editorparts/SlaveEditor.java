@@ -748,19 +748,6 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         _maxSlots.setEnabled(false);
 
     }
-
-    private int getElementCount() {
-        AbstractGsdPropertyModel parsedGsdFileModel;
-        try {
-            parsedGsdFileModel = getGsdPropertyModel();
-            if (parsedGsdFileModel == null) {
-                return 0;
-            }
-            return parsedGsdFileModel.getExtUserPrmDataRefMap().values().size();
-        } catch (IOException e) {
-            return 0;
-        }
-    }
     
     protected void makeCurrentUserParamData(@Nonnull final Composite topGroup) throws IOException {
 
@@ -770,7 +757,7 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
 
         currentUserParamDataComponent = new CurrentUserParamDataComponent(topGroup, this);
         currentUserParamDataComponent.buildComponent();
-        topGroup.layout();
+        topGroup.getParent().getParent().layout();
     }
     
     /**

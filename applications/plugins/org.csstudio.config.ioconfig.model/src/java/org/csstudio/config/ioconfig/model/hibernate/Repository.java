@@ -215,6 +215,10 @@ public final class Repository {
         return _REPOSITORY.saveOrUpdate(dbClass);
     }
 
+    public static <T> void refresh (@Nonnull final T dbClass) throws PersistenceException {
+        _REPOSITORY.refresh(dbClass);
+    }
+
     /**
      * @param <T>
      *            ClassTyp of the DBClass

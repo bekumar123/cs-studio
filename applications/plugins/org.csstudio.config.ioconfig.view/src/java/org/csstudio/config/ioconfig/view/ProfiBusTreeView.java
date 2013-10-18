@@ -635,10 +635,9 @@ public class ProfiBusTreeView extends Composite implements ILoader {
             @Override
             public void run() {
                 if (getSelectedNodes().getFirstElement() instanceof SlaveDBO) {
-                    final SlaveDBO selectedSlave = (SlaveDBO) getSelectedNodes().getFirstElement();
-                    ParsedGsdFileModel parsedGsdFileModel = selectedSlave.getGSDFile().getParsedGsdFileModel();                    
+                    final SlaveDBO selectedSlave = (SlaveDBO) getSelectedNodes().getFirstElement();                                   
                     ChannelConfigDialog channelConfigDialog = new ChannelConfigDialog(Display.getCurrent()
-                            .getActiveShell(), parsedGsdFileModel);                    
+                            .getActiveShell(), selectedSlave);                    
                     channelConfigDialog.open();
                 }
             }

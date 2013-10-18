@@ -22,45 +22,48 @@ import org.eclipse.swt.widgets.TabItem;
 public class InfoAreaComponent implements IComponent {
 
     private final Composite infoDialogArea;
-    private final List<SlaveCfgData> slaveCfgDataList;
 
-    private boolean hasInputFields;
-    private boolean hasOutputFields;
-    private boolean isWordSize = true;
+    private List<SlaveCfgData> slaveCfgDataList;
 
+    private Composite info;   
+    private TabFolder tabFolder;
+    
     public InfoAreaComponent(Composite infoDialogArea, List<SlaveCfgData> slaveCfgDataList) {
         super();
         this.infoDialogArea = infoDialogArea;
         this.slaveCfgDataList = slaveCfgDataList;
     }
 
-    public boolean isHasInputFields() {
-        return hasInputFields;
+    public Composite getInfoDialogArea() {
+        return infoDialogArea;
     }
-
-    public boolean isHasOutputFields() {
-        return hasOutputFields;
-    }
-
-    public boolean isWordSize() {
-        return isWordSize;
-    }
-
+    
     @Override
     public void buildComponent() {
-        final int size = 12;
-        final int leftUperCorner = 0;
 
-        final Composite info = new Composite(infoDialogArea, SWT.NONE);
+        info = new Composite(infoDialogArea, SWT.NONE);
         info.setLayout(new GridLayout(4, true));
         info.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
-        final TabFolder tabFolder = new TabFolder(info, SWT.TOP);
+
+        refresh(slaveCfgDataList);
+    }
+    
+    public void refresh(List<SlaveCfgData> slaveCfgDataList) {
+
+        this.slaveCfgDataList = slaveCfgDataList;
+        
+        final int size = 12;
+        final int leftUperCorner = 0;
+        
+        if (tabFolder != null) {
+            tabFolder.dispose();
+        }
+
+        tabFolder = new TabFolder(info, SWT.TOP);
         tabFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 4, 1));
-
-        hasInputFields = false;
-        hasOutputFields = false;
-
+        
         for (final SlaveCfgData slaveCfgData : slaveCfgDataList) {
+            
             final TabItem tabItem = new TabItem(tabFolder, SWT.NONE);
             tabItem.setText("Module " + slaveCfgData.getParameterAsHexString());
             final Composite box = new Composite(tabFolder, SWT.NONE);
@@ -69,19 +72,15 @@ public class InfoAreaComponent implements IComponent {
 
             String dataFormat;
             if (slaveCfgData.isWordSize()) {
-                isWordSize &= true;
                 dataFormat = "Word's: "; //$NON-NLS-1$
             } else {
-                isWordSize &= false;
                 dataFormat = "Byte's: "; //$NON-NLS-1$
             }
 
             new Label(box, SWT.NONE)
                     .setText(Messages.ChannelConfigDialog_Count + dataFormat + slaveCfgData.getNumber());
-            hasInputFields = hasInputFields || slaveCfgData.isInput();
 
             new Label(box, SWT.NONE).setText(Messages.ChannelConfigDialog_Input_ + slaveCfgData.isInput());
-            hasOutputFields = hasOutputFields || slaveCfgData.isOutput();
 
             new Label(box, SWT.NONE).setText(Messages.ChannelConfigDialog_Output_ + slaveCfgData.isOutput());
             new Label(box, SWT.NONE).setText(Messages.ChannelConfigDialog_Parameter_
@@ -90,8 +89,11 @@ public class InfoAreaComponent implements IComponent {
             createGraphicalDataStructurePresentation(size, leftUperCorner, slaveCfgData, box);
             tabItem.setControl(box);
         }
-
+        
+        info.layout();
+        infoDialogArea.layout();
     }
+    
     
     private static final class PaintListenerImplementation implements PaintListener {
         private final int _leftUperCorner;

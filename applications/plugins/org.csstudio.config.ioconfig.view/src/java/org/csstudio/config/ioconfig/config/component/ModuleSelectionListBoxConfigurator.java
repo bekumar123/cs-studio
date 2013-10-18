@@ -4,6 +4,7 @@ public class ModuleSelectionListBoxConfigurator implements IModuleSelectionListB
 
     private boolean ignoreModulesWithoutPrototype = false;
     private boolean readOnly = false;
+    private boolean autoFilter = false;
 
     ModuleSelectionListBoxConfigurator() {
     }
@@ -26,6 +27,17 @@ public class ModuleSelectionListBoxConfigurator implements IModuleSelectionListB
     @Override
     public boolean isReadOnly() {
         return readOnly;
+    }
+
+    @Override
+    public IModuleSelectionListBoxConfigurator autoFilter() {
+        autoFilter = true;
+        return this;
+    }
+
+    @Override
+    public boolean isAutoFilter() {
+        return autoFilter;
     }
     
 }

@@ -89,7 +89,9 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
             final GsdModuleModel2 selectModuleModel = gsdModuleList.get(selectedModuleNumber.get().getValue());
             if (selectModuleModel != null) {
                 moduleTypList.setSelection(new StructuredSelection(selectModuleModel));
-                filter.setText(selectModuleModel.getName());
+                if (moduleSelectionListBoxConfigurator.isAutoFilter()) {
+                    filter.setText(selectModuleModel.getName());
+                }
             }
         }
 

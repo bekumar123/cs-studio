@@ -170,11 +170,10 @@ public final class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
         moduleSelectionListBox.config().ignoreModulesWithoutPrototype();
 
         Optional<ModuleNumber> moduleNumber = ModuleNumber.moduleNumber(module.getModuleNumber());
-
+        
         if (moduleNumber.isPresent()) {
-            moduleSelectionListBox.config().readOnly();
-            ioNamesComponent.updateIONamesText(module);
-            
+            moduleSelectionListBox.config().readOnly().autoFilter();            
+            ioNamesComponent.updateIONamesText(module);            
         } else {
 
             // user wants to add new nodule

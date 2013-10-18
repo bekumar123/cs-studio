@@ -178,5 +178,10 @@ public class DummyRepository implements IRepository {
         return null;
     }
 
+    @Override
+    public <T> void refresh(T dbClass) throws PersistenceException {
+        // TODO Auto-generated method stub
+    }
+
 
 }

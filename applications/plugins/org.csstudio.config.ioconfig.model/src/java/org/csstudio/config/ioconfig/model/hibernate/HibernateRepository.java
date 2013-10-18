@@ -366,6 +366,20 @@ public class HibernateRepository implements IRepository {
         return _instance.isConnected();
     }
 
+    @Override
+    public <T> void refresh(final T object) throws PersistenceException {
+        _instance.doInDevDBHibernateLazy(new IHibernateCallback() {
+            @SuppressWarnings("unchecked")
+            @Override
+            @Nonnull
+            public T execute(@Nonnull final Session session) {
+                session.refresh(object);
+                return object;
+            }
+
+        });       
+    }
+
     /**
      * {@inheritDoc}
      */

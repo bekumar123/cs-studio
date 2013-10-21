@@ -1,10 +1,28 @@
-connect 'jdbc:derby://localhost/amsdb;create=true';
-/*
-for virtualbox vm
-connect 'jdbc:derby://192.168.56.101/amsdb;create=true';
-*/
+-- Das alte SQL-Skript
+-- NICHT MEHR BENUTZEN!!!!
 
-drop table AMS_User;
+-- NAMS --
+
+create table AMS_FilterCond_Junction
+(
+   iFilterConditionRef INT NOT NULL,
+   operator varchar(3) NOT NULL
+);
+
+create table AMS_FilterCond_FilterCond
+(
+   iFilterConditionId INT NOT NULL,
+   iFilterConditionRef INT NOT NULL
+);
+
+create table AMS_FilterCond_Negation
+(
+   iFilterConditionRef INT NOT NULL,
+   iNegatedFCRef INT NOT NULL
+);
+
+-- AMS --
+
 create table AMS_User
 (
 	iUserId			INT NOT NULL,
@@ -20,7 +38,6 @@ create table AMS_User
 	PRIMARY KEY (iUserId)
 );
 
-drop table AMS_UserGroup;
 create table AMS_UserGroup
 (
 	iUserGroupId	INT NOT NULL,
@@ -32,7 +49,6 @@ create table AMS_UserGroup
 	PRIMARY KEY (iUserGroupId)
 );
 
-drop table AMS_UserGroup_User;
 create table AMS_UserGroup_User
 (
 	iUserGroupRef	INT NOT NULL,
@@ -45,7 +61,6 @@ create table AMS_UserGroup_User
 );
 
 
-drop table AMS_FilterConditionType;
 create table AMS_FilterConditionType
 (
 	iFilterConditionTypeID	INT,
@@ -55,7 +70,6 @@ create table AMS_FilterConditionType
 	PRIMARY KEY(iFilterConditionTypeID)
 );
 
-drop table AMS_FilterCondition;
 create table AMS_FilterCondition
 (
 	iFilterConditionID	INT NOT NULL,
@@ -66,7 +80,6 @@ create table AMS_FilterCondition
 	PRIMARY KEY(iFilterConditionID)
 );
 
-drop table AMS_FilterCondition_String;
 create table AMS_FilterCondition_String
 (
 	iFilterConditionRef	INT NOT NULL,
@@ -75,7 +88,6 @@ create table AMS_FilterCondition_String
 	cCompValue		VARCHAR(128)
 );
 
-drop table AMS_FilterCond_PropCompare;
 create table AMS_FilterCond_PropCompare
 (
 	iFilterConditionRef	INT NOT NULL,
@@ -83,7 +95,6 @@ create table AMS_FilterCond_PropCompare
 	sOperator			SMALLINT
 );
 
-drop table AMS_FilterCond_ArrStr;
 create table AMS_FilterCond_ArrStr
 (
 	iFilterConditionRef	INT NOT NULL,
@@ -91,14 +102,12 @@ create table AMS_FilterCond_ArrStr
 	sOperator		SMALLINT
 );
 
-drop table AMS_FilterCond_ArrStrVal;
 create table AMS_FilterCond_ArrStrVal
 (
 	iFilterConditionRef	INT NOT NULL,
 	cCompValue		VARCHAR(128)
 );
 
-drop table AMS_FilterCond_TimeBased;
 create table AMS_FilterCond_TimeBased
 (
 	iFilterConditionRef	INT NOT NULL,
@@ -112,7 +121,6 @@ create table AMS_FilterCond_TimeBased
 	sTimeBehavior		SMALLINT
 );
 
-drop table AMS_FilterCond_TimeBasedItems;
 create table AMS_FilterCond_TimeBasedItems
 (
 	iItemID			INT,
@@ -127,7 +135,6 @@ create table AMS_FilterCond_TimeBasedItems
 	PRIMARY KEY(iItemID)
 );
 
-drop table AMS_FilterCondition_PV;
 create table AMS_FilterCondition_PV
 (
 	iFilterConditionRef	INT NOT NULL,
@@ -137,44 +144,40 @@ create table AMS_FilterCondition_PV
 	cCompValue			VARCHAR(128)
 );
 
-drop table AMS_FilterCond_Conj_Common;
 create table AMS_FilterCond_Conj_Common
 (
 	iFilterConditionRef			INT NOT NULL,
 	iFirstFilterConditionRef	INT NOT NULL,
-	iSecondFilterConditionRef   INT NOT NULL
+	iSecondFilterConditionRef   INT NOT NULL,
+	iOperand                    SMALLINT
 );
 
-drop table AMS_Filter;
 create table AMS_Filter
 (
 	iFilterID		INT,
 	iGroupRef		INT default -1 NOT NULL,
 	cName			VARCHAR(128),
-	cDefaultMessage	VARCHAR(1024),
-	cFilterType		VARCHAR(128) default 'default' NOT NULL,
+	cDefaultMessage		VARCHAR(1024),
+	cFilterType		VARCHAR(200) default 'default' NOT NULL,	
 	PRIMARY KEY (iFilterID)
 );
 
-drop table AMS_Filter_Timebased;
 CREATE TABLE AMS_FILTER_TIMEBASED
 (	
 	IFILTERREF 					INT 			NOT NULL, 
 	ITIMEOUT 					INT 			NOT NULL, 
 	ISTARTFILTERCONDITIONREF 	INT DEFAULT -1 	NOT NULL, 
 	ISTOPFILTERCONDITIONREF 	INT DEFAULT -1 	NOT NULL,
-	ISENDONTIMEOUT				INT	DEFAULT 1	NOT NULL 
+	ISENDONTIMEOUT				INT DEFAULT 1	NOT NULL
 );
 
-drop table AMS_Filter_WatchDog;
 CREATE TABLE AMS_FILTER_WATCHDOG
 (	
 	IFILTERREF 					INT 			NOT NULL, 
 	ITIMEOUT 					INT 			NOT NULL, 
-	IFILTERCONDITIONREF 		INT DEFAULT -1 	NOT NULL 
+	IFILTERCONDITIONREF		 	INT DEFAULT -1 	NOT NULL
 );
 
-drop table AMS_Filter_FilterCondition;
 create table AMS_Filter_FilterCondition
 (
 	iFilterRef		INT,
@@ -183,7 +186,6 @@ create table AMS_Filter_FilterCondition
 	PRIMARY KEY (iFilterRef,iFilterConditionRef)
 );
 
-drop table AMS_Topic;
 create table AMS_Topic
 (
 	iTopicId 		INT NOT NULL,
@@ -194,7 +196,6 @@ create table AMS_Topic
 	PRIMARY KEY (iTopicId)						
 );
 
-drop table AMS_FilterActionType;
 create table AMS_FilterActionType
 (
 	iFilterActionTypeID	INT NOT NULL,
@@ -203,7 +204,6 @@ create table AMS_FilterActionType
 	PRIMARY KEY(iFilterActionTypeID)
 );
 
-drop table AMS_FilterAction;
 create table AMS_FilterAction
 (
 	iFilterActionID			INT NOT NULL,
@@ -213,7 +213,6 @@ create table AMS_FilterAction
 	PRIMARY KEY(iFilterActionID)
 );
 
-drop table AMS_Filter_FilterAction;
 create table AMS_Filter_FilterAction
 (
 	iFilterRef			INT NOT NULL,
@@ -221,15 +220,13 @@ create table AMS_Filter_FilterAction
 	iPos				INT NOT NULL
 );
 
-drop table AMS_Message;
 create table AMS_Message
 (
-	iMessageID		INT NOT NULL GENERATED BY DEFAULT AS IDENTITY,
+	iMessageID		INTEGER GENERATED BY DEFAULT AS IDENTITY,
 	cProperty		VARCHAR(16),
 	cValue			VARCHAR(256)
 );
 
-drop table AMS_MessageChain;
 create table AMS_MessageChain
 (
 	iMessageChainID		INT NOT NULL,
@@ -244,10 +241,9 @@ create table AMS_MessageChain
 	PRIMARY KEY(iMessageChainID)
 );
 
-drop table AMS_History;
 create table AMS_History
 (
-	iHistoryID		INT NOT NULL GENERATED ALWAYS AS IDENTITY,
+	iHistoryID		Integer GENERATED BY DEFAULT AS IDENTITY,
 	tTimeNew		BIGINT,
 	cType			VARCHAR(16),
 	cMsgHost		VARCHAR(64),
@@ -266,7 +262,6 @@ create table AMS_History
 	PRIMARY KEY(iHistoryID)
 );
 
-drop table AMS_Flag;
 create table AMS_Flag
 (
 	cFlagName		VARCHAR(32)	NOT NULL,
@@ -275,5 +270,3 @@ create table AMS_Flag
 );
 
 insert into AMS_Flag (cFlagName, sFlagValue) values ('ReplicationState', 0);
-
-disconnect;

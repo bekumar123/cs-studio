@@ -42,6 +42,18 @@ public interface IRepository {
      * @param <T>
      *            ClassTyp of the DBClass
      * @param dbClass
+     *            the Data class to detach.
+     * @return the Saved Data class.
+     * @throws PersistenceException
+     * @throws PersistenceException
+     */
+    @Nonnull
+    <T> void detach(@Nonnull final T object) throws PersistenceException;
+        
+    /**
+     * @param <T>
+     *            ClassTyp of the DBClass
+     * @param dbClass
      *            the Data class that save or update.
      * @return the Saved Data class.
      * @throws PersistenceException

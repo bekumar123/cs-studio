@@ -260,6 +260,11 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
                 if (isDirty) {
                     askForSave();
                 }
+                try {
+                    channelConfigDialogDataModel.undo();
+                } catch (PersistenceException e1) {
+                    throw new IllegalStateException("Unexpected exption: " + e);
+                }
                 ChannelConfigDialog.this.close();
             }
 
@@ -375,8 +380,11 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
                 });
 
             }
-
+                        
         });
+        
+        moduleSelectionListBox.selectFirstRow();
+
     }
 
     @Nonnull

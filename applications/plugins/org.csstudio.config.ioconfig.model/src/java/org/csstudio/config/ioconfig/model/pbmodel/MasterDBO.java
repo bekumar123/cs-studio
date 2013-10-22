@@ -234,7 +234,7 @@ public class MasterDBO extends AbstractNodeSharedImpl<ProfibusSubnetDBO, SlaveDB
 
     @Override
     @Transient
-    public int getfirstFreeStationAddress() throws PersistenceException {
+    public int getFirstFreeStationAddress() throws PersistenceException {
         return getFreeStationAddress().first();
     }
 

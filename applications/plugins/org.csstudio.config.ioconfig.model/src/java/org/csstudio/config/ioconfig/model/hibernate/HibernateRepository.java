@@ -380,6 +380,20 @@ public class HibernateRepository implements IRepository {
         });       
     }
 
+    @Override
+    public <T> void detach(final T object) throws PersistenceException {
+        _instance.doInDevDBHibernateLazy(new IHibernateCallback() {
+            @SuppressWarnings("unchecked")
+            @Override
+            @Nonnull
+            public T execute(@Nonnull final Session session) {
+                session.evict(object);
+                return object;
+            }
+
+        });       
+    }
+
     /**
      * {@inheritDoc}
      */

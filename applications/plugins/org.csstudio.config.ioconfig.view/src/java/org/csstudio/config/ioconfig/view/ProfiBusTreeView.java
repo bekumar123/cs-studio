@@ -22,7 +22,6 @@
 package org.csstudio.config.ioconfig.view;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -42,13 +41,10 @@ import org.csstudio.config.ioconfig.model.IocDBO;
 import org.csstudio.config.ioconfig.model.NamedDBClass;
 import org.csstudio.config.ioconfig.model.PersistenceException;
 import org.csstudio.config.ioconfig.model.hibernate.Repository;
-import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.MasterDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ProfibusSubnetDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.SlaveDBO;
-import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdModuleModel2;
-import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.ParsedGsdFileModel;
 import org.csstudio.config.ioconfig.view.actions.CreateStatisticAction;
 import org.csstudio.config.ioconfig.view.actions.CreateWinModAction;
 import org.csstudio.config.ioconfig.view.actions.CreateXMLConfigAction;

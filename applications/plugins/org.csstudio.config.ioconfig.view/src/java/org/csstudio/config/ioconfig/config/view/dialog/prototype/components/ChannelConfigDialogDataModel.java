@@ -56,6 +56,10 @@ public class ChannelConfigDialogDataModel {
        Repository.refresh(selectedSlave.getGSDFile());
     }
     
+    public void undo() throws PersistenceException {
+        Repository.refresh(selectedSlave.getGSDFile());        
+    }
+    
     public GSDModuleDBO getPrototypeModule() {
         return prototype;
     }

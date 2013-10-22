@@ -1,4 +1,5 @@
 /*
+                System.out.println("111111111111");
  * Copyright (c) 2010 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
@@ -22,7 +23,6 @@
 package org.csstudio.config.ioconfig.editorparts;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
@@ -35,7 +35,9 @@ import org.csstudio.config.ioconfig.config.component.ModifiedCallback;
 import org.csstudio.config.ioconfig.config.component.ModuleSelectionListBox;
 import org.csstudio.config.ioconfig.config.view.helper.ConfigHelper;
 import org.csstudio.config.ioconfig.model.PersistenceException;
+import org.csstudio.config.ioconfig.model.hibernate.Repository;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDFileDBO;
+import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.SlaveDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdModuleModel2;
@@ -43,6 +45,8 @@ import org.csstudio.config.ioconfig.model.types.ModuleNumber;
 import org.csstudio.config.ioconfig.view.DeviceDatabaseErrorDialog;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -67,15 +71,19 @@ public final class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
 
     private ModuleSelectionListBox moduleSelectionListBox;
 
+    private Optional<ModuleNumber> selectedModuleNumber;
+
+    private Composite gridComposite;
+
     private CurrentUserParamDataComponent currentUserParamDataComponent;
 
     private IONamesComponent ioNamesComponent;
-    
+
     private final class TextChangedCallback implements ModifiedCallback {
         @Override
         public void modified(final String event, boolean modified) {
             Preconditions.checkNotNull(event, "event must not be null");
-            setSavebuttonEnabled(event, modified);            
+            setSavebuttonEnabled(event, modified);
         }
     }
 
@@ -84,22 +92,24 @@ public final class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
      */
     @Override
     public void createPartControl(@Nonnull final Composite parent) {
+
+        selectedModuleNumber = Optional.absent();
+        
         module = getNode();
-                
+
         super.createPartControl(parent);
 
-        if (module == null) {
-            newNode();
-            module.setModuleNumber(-1);
+        setSavebuttonEnabled(null, getNode().isPersistent());
+        buildIoNames("IO-Names");
+        buildModule("Module");
+
+        selectTabFolder(0);
+        
+        if (module.getModuleNumber() == -1) {
+            getSaveButton().setEnabled(false);
+            getNameWidget().setEnabled(false);
         }
         
-        setSavebuttonEnabled(null, getNode().isPersistent());
-
-        buildIoNames("IO-Names");
-
-        buildModule("Module");
-        
-        selectTabFolder(0);
     }
 
     private Text moduleConfigData;
@@ -132,7 +142,7 @@ public final class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
         buildModuleTypList(comp, topGroup);
     }
 
-    private void buildIoNames(@Nonnull final String head) {        
+    private void buildIoNames(@Nonnull final String head) {
         ioNamesComponent = new IONamesComponent(getNewTabItem(head, 2));
         ioNamesComponent.buildComponent();
         ioNamesComponent.addModifyCallbackIONames(new TextChangedCallback());
@@ -161,7 +171,7 @@ public final class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
             @Nonnull final Group topGroup) {
             //@formatter:on
 
-        final Composite gridComposite = new Composite(topGroup, SWT.NONE);
+        gridComposite = new Composite(topGroup, SWT.NONE);
         gridComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
         gridComposite.setLayout(new GridLayout(2, false));
 
@@ -170,30 +180,38 @@ public final class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
         moduleSelectionListBox.config().ignoreModulesWithoutPrototype();
 
         Optional<ModuleNumber> moduleNumber = ModuleNumber.moduleNumber(module.getModuleNumber());
-        
+
         if (moduleNumber.isPresent()) {
-            moduleSelectionListBox.config().readOnly().autoFilter();            
-            ioNamesComponent.updateIONamesText(module);            
+            
+            moduleSelectionListBox.config().readOnly().autoFilter();
+            ioNamesComponent.updateIONamesText(module);
+            
         } else {
 
-            // user wants to add new nodule
-            
-            ModifiedCallback moduleSelectedCallback = new ModifiedCallback() {
-                public void modified(String event, boolean modified) {
-                    ioNamesComponent.updateIONamesText(module);
-                }
-            };
-            
             //@formatter:off
-            ISelectionChangedListener selectionChangedListener = new ModuleEditorSelectionChangedListenerForModuleTypeList(
-                    this,
-                    topGroup, 
-                    moduleSelectionListBox,
-                    Optional.of(moduleSelectedCallback));
-                    //@formatter:on
-            moduleSelectionListBox.addSelectionChangedListener(selectionChangedListener);
+            moduleSelectionListBox.addSelectionChangedListener(new ISelectionChangedListener() {
+                
+                @Override
+                public void selectionChanged(SelectionChangedEvent event) {
+                    
+                    if (!(event.getSelection() instanceof IStructuredSelection)) {
+                        throw new IllegalStateException("selection must be IStrucutredSeleciton");
+                    }
+                    
+                    IStructuredSelection structuredSelection = (IStructuredSelection)event.getSelection();
+                    final GsdModuleModel2 selectedModule = (GsdModuleModel2)(structuredSelection.getFirstElement());
+                                        
+                    selectedModuleNumber = ModuleNumber.moduleNumber(selectedModule.getModuleNumber());
+                    
+                    getSaveButton().setEnabled(true);
+                                        
+                }
+                
+            });
+            //@formatter:on
+            
         }
-        
+
         moduleSelectionListBox.buildComponent();
 
         try {
@@ -217,13 +235,18 @@ public final class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
 
         currentUserParamDataComponent = new CurrentUserParamDataComponent(topGroup, this);
         currentUserParamDataComponent.buildComponent();
-        
+
         topGroup.getParent().layout();
-        
+
     }
 
     public void updateModulConfigData() {
         moduleConfigData.setText(module.getConfigurationData());
+    }
+
+    @Override
+    protected void currentUserPrmDataChanged() {
+        super.currentUserPrmDataChanged();
     }
 
     /**
@@ -233,6 +256,23 @@ public final class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
     public void doSave(@Nullable final IProgressMonitor monitor) {
         super.doSave(monitor);
         
+        try {
+            //
+            // create new module
+            //
+            if (module.getModuleNumber() == -1) {
+                module.setNewModel(selectedModuleNumber.get().getValue(), AbstractNodeEditor.getUserName());
+                GSDModuleDBO gsdModule = module.getGSDModule();
+                module.setName(gsdModule.getName());
+                setPartName(gsdModule.getName());
+                getNameWidget().setText(gsdModule.getName());            
+            }
+        } catch (PersistenceException e1) {
+            LOG.error("Can't create new module.", e1);
+            DeviceDatabaseErrorDialog.open(null, "Can't create new module.", e1);
+            return;
+        }
+
         // Module
         final Text nameWidget = getNameWidget();
         if (nameWidget != null) {
@@ -258,8 +298,14 @@ public final class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
             save();
 
             updateModulConfigData();
-            moduleSelectionListBox.setEditable(false);
+            makeCurrentUserParamData(gridComposite);
+            ioNamesComponent.updateIONamesText(module);
             
+            moduleSelectionListBox.setEditable(false);
+            getNameWidget().setEnabled(true);
+            
+            Repository.refresh(getNode().getParent());
+
         } catch (final PersistenceException e) {
             LOG.error("Can't save Module! Database error.", e);
             DeviceDatabaseErrorDialog.open(null, "Can't save Module! Database error.", e);
@@ -268,41 +314,31 @@ public final class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
             LOG.error("Can't save Slave.GSD File read error", e2);
         }
     }
-    
+
     /**
      * Cancel all change value.
      */
     @Override
     public final void cancel() {
+
         super.cancel();
         cancelNameWidget();
         cancelIndexSpinner();
         cancelGsdModuleModel();
         ioNamesComponent.undo();
         currentUserParamDataComponent.undo();
+
         save();
+
     }
 
-    public void cancelGsdModuleModel() {
-        try {
-            final GSDFileDBO gsdFile = module.getGSDFile();
-            if (gsdFile != null) {
-                Optional<ModuleNumber> moduleNumber = moduleSelectionListBox.getModuleNumber();
-                if (moduleNumber.isPresent()) {
-                    final GsdModuleModel2 gsdModuleModel = gsdFile.getParsedGsdFileModel().getModule(moduleNumber.get().getValue());
-                    if (gsdModuleModel != null) {
-                        moduleSelectionListBox.select(gsdModuleModel);
-                    }
-                }
-            }
-        } catch (final NullPointerException e) {
-            moduleSelectionListBox.selectFirstRow();
+    public void cancelNameWidget() {
+        final Text nameWidget = getNameWidget();
+        if (nameWidget != null) {
+            nameWidget.setText((String) nameWidget.getData());
         }
     }
 
-    /**
-     *
-     */
     public void cancelIndexSpinner() {
         final Spinner indexSpinner = getIndexSpinner();
         if (indexSpinner != null) {
@@ -314,15 +350,24 @@ public final class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
         }
     }
 
-    /**
-     *
-     */
-    public void cancelNameWidget() {
-        final Text nameWidget = getNameWidget();
-        if (nameWidget != null) {
-            nameWidget.setText((String) nameWidget.getData());
+    public void cancelGsdModuleModel() {
+        try {
+            final GSDFileDBO gsdFile = module.getGSDFile();
+            if (gsdFile != null) {
+                Optional<ModuleNumber> moduleNumber = moduleSelectionListBox.getModuleNumber();
+                if (moduleNumber.isPresent()) {
+                    final GsdModuleModel2 gsdModuleModel = gsdFile.getParsedGsdFileModel().getModule(
+                            moduleNumber.get().getValue());
+                    if (gsdModuleModel != null) {
+                        moduleSelectionListBox.select(gsdModuleModel);
+                    }
+                }
+            }
+        } catch (final NullPointerException e) {
+            moduleSelectionListBox.selectFirstRow();
         }
     }
+
 
     /** {@inheritDoc} */
     @Override
@@ -343,33 +388,6 @@ public final class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
     @Override
     public void setGsdFile(@CheckForNull final GSDFileDBO gsdFile) {
         module.getSlave().setGSDFile(gsdFile);
-    }
-   
-    /**
-     * Have no Name Dialog. {@inheritDoc}
-     */
-    @Override
-    protected boolean newNode() {
-        
-        getNode().setCreationData(getUserName(), new Date());
-        getNode().setVersion(-2);
-
-        final Object obj = ((StructuredSelection) getProfiBusTreeView().getTreeViewer().getSelection())
-                .getFirstElement();
-
-        try {
-            if (obj == null) {
-                getProfiBusTreeView().getTreeViewer().setInput(getNode());
-            } else if (obj instanceof SlaveDBO) {
-                final SlaveDBO nodeParent = (SlaveDBO) obj;
-                getNode().moveSortIndex(nodeParent.getfirstFreeStationAddress());
-                nodeParent.addChild(getNode());
-            }
-        } catch (final PersistenceException e) {
-            LOG.error("Can't create new Module! Database error.", e);
-            DeviceDatabaseErrorDialog.open(null, "Can't create new Module! Database error.", e);
-        }
-        return true;
     }
 
     /**

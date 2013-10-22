@@ -183,5 +183,11 @@ public class DummyRepository implements IRepository {
         // TODO Auto-generated method stub
     }
 
+    @Override
+    public <T> void detach(T object) throws PersistenceException {
+        // TODO Auto-generated method stub
+        
+    }
+
 
 }

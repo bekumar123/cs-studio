@@ -96,7 +96,7 @@ public class ChannelStructureDBO extends AbstractNodeSharedImpl<ModuleDBO, Chann
         return super.getParent();
     }
 
-    // TODO (hrickens) [27.07.2011]: kann weg. Nur die Tests müssen noch umgestellt werden!
+    // TODO (hrickens) [27.07.2011]: kann weg. Nur die Tests mï¿½ssen noch umgestellt werden!
     @Nonnull
     public static ChannelStructureDBO makeChannelStructure(@Nonnull final ModuleDBO module, final boolean isInput,
                                                            @Nonnull final DataType type, @Nonnull final String name) throws PersistenceException {
@@ -245,8 +245,8 @@ public class ChannelStructureDBO extends AbstractNodeSharedImpl<ModuleDBO, Chann
 
     @Transient
     @Override
-    public int getfirstFreeStationAddress() throws PersistenceException {
-        return isSimple()?getSortIndex():super.getfirstFreeStationAddress();
+    public int getFirstFreeStationAddress() throws PersistenceException {
+        return isSimple()?getSortIndex():super.getFirstFreeStationAddress();
     }
 
     @Transient

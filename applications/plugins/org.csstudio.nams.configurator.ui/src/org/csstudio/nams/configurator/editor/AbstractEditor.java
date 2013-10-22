@@ -279,6 +279,21 @@ public abstract class AbstractEditor<ConfigurationType extends AbstractConfigura
 		buttonWidget.setLayoutData(gridData);
 		return buttonWidget;
 	}
+	
+	protected Button createRadioButtonEntry(final Composite parent,
+			final String labeltext) {
+		final Label label = new Label(parent, SWT.RIGHT);
+		label.setText(labeltext);
+		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		final Button buttonWidget = new Button(parent, SWT.RADIO);
+		final GridData gridData = new GridData(SWT.FILL, SWT.CENTER, false,
+				false, this.NUM_COLUMNS - 1, 1);
+		gridData.minimumWidth = this.MIN_WIDTH;
+		gridData.widthHint = this.MIN_WIDTH;
+		buttonWidget.setLayoutData(gridData);
+		return buttonWidget;
+	}
+	
 
 	protected ComboViewer createComboEntry(final Composite parent,
 			final String labeltext, boolean editable, final String[] contents) {

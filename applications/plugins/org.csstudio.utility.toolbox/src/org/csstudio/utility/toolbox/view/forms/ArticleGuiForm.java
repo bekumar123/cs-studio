@@ -6,7 +6,10 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -17,6 +20,7 @@ import net.miginfocom.swt.MigLayout;
 
 import org.csstudio.utility.toolbox.AppLogger;
 import org.csstudio.utility.toolbox.common.Dialogs;
+import org.csstudio.utility.toolbox.common.Environment;
 import org.csstudio.utility.toolbox.entities.Article;
 import org.csstudio.utility.toolbox.entities.ArticleDelivered;
 import org.csstudio.utility.toolbox.entities.ArticleInStore;
@@ -34,6 +38,7 @@ import org.csstudio.utility.toolbox.framework.property.Property;
 import org.csstudio.utility.toolbox.framework.property.SearchTermType;
 import org.csstudio.utility.toolbox.framework.template.AbstractGuiFormTemplate;
 import org.csstudio.utility.toolbox.framework.template.CanSaveAction;
+import org.csstudio.utility.toolbox.func.ClearedPersistenceContextResponse;
 import org.csstudio.utility.toolbox.func.Func0Void;
 import org.csstudio.utility.toolbox.func.Func1Void;
 import org.csstudio.utility.toolbox.func.None;
@@ -81,6 +86,9 @@ public class ArticleGuiForm extends AbstractGuiFormTemplate<Article> implements 
     private WritableList articlesInGroup;
 
     private BigDecimal articleDescriptionId;
+
+    @Inject
+    private Environment env;
 
     @Inject
     private AppLogger logger;
@@ -180,9 +188,11 @@ public class ArticleGuiForm extends AbstractGuiFormTemplate<Article> implements 
 
     @Override
     protected boolean canCreateButton(Property property) {
-        return !((property.getName().equalsIgnoreCase(AbstractGuiFormTemplate.CREATE_NEW_FROM_SEARCH_BUTTON) || (property
-                .getName().equalsIgnoreCase(AbstractGuiFormTemplate.CREATE_NEW_BUTTON))) || (property.getName()
-                .equalsIgnoreCase(AbstractGuiFormTemplate.CREATE_COPY_BUTTON)));
+        //@formatter:off
+        return !((property.getName().equalsIgnoreCase(AbstractGuiFormTemplate.CREATE_NEW_FROM_SEARCH_BUTTON) 
+                || (property.getName().equalsIgnoreCase(AbstractGuiFormTemplate.CREATE_NEW_BUTTON))) 
+                || (property.getName().equalsIgnoreCase(AbstractGuiFormTemplate.CREATE_COPY_BUTTON)));
+        //@formatter:on
     }
 
     private void markError(Set<ConstraintViolation<Article>> validationErrors) {
@@ -214,15 +224,24 @@ public class ArticleGuiForm extends AbstractGuiFormTemplate<Article> implements 
             transactionContext.doRun(new Func0Void() {
                 @Override
                 public void apply() {
-                    List<LagerArtikel> lagerArtikelList = subViewDataProvider.calculateStoreMovements();
+                    Map<BigDecimal, Option<ArticleInStore>> articlesInStore = retrieveArticelInStore(articlesInGroup);
+                    ClearedPersistenceContextResponse<List<LagerArtikel>> lagerArtikelList = subViewDataProvider
+                            .calculateStoreMovements();
                     for (Object article : articlesInGroup) {
                         Article articleEntity = (Article) article;
                         subViewDataProvider.autoCreateLookupData(articleEntity);
-                        subViewDataProvider.assignId(articleEntity);
                         em.merge(article);
+                        if (!articleEntity.isInStore()) {
+                            Option<ArticleInStore> lastArticleInStore = articlesInStore.get(articleEntity.getId());
+                            if (lastArticleInStore.hasValue()) {
+                                ArticleInStore articleInStore = lastArticleInStore.get();
+                                articleInStore.setFlagExist("N");
+                                em.merge(articleInStore);
+                            }
+                        }
                     }
                     // record movements in and out of the inventory
-                    for (LagerArtikel lagerArtikel : lagerArtikelList) {
+                    for (LagerArtikel lagerArtikel : lagerArtikelList.getResponse()) {
                         em.merge(lagerArtikel);
                     }
                     subViewDataProvider.mergeEntities();
@@ -240,6 +259,18 @@ public class ArticleGuiForm extends AbstractGuiFormTemplate<Article> implements 
             Dialogs.exception("Error while saving...", e);
             return CanSaveAction.ABORT_SAVE;
         }
+    }
+
+    private Map<BigDecimal, Option<ArticleInStore>> retrieveArticelInStore(WritableList articlesInGroup) {
+        Map<BigDecimal, Option<ArticleInStore>> result = new HashMap<BigDecimal, Option<ArticleInStore>>();
+        for (Object article : articlesInGroup) {
+            Article articleEntity = (Article) article;
+            BigDecimal artikelDatenId = articleEntity.getId();
+            ClearedPersistenceContextResponse<Option<ArticleInStore>> newestEntryInStore = articleService
+                    .findNewestEntryInStore(artikelDatenId);
+            result.put(artikelDatenId, newestEntryInStore.getResponse());
+        }
+        return result;
     }
 
     private boolean validateArticleGroup() {
@@ -584,6 +615,9 @@ public class ArticleGuiForm extends AbstractGuiFormTemplate<Article> implements 
         if (newStatus.equalsIgnoreCase("ausgeliehen")) {
             ArticleRented articleRented = subViewDataProvider.getOrCreateArticleRented(currentlySelectedArticle,
                     newStatus, oldStatus);
+            if (articleRented.isNew()) {
+                articleRented.setRentDate(new Date());
+            }
             return rentedView.build(getCrudController().get(), articleRented, tabFolder);
             // --- Angeliefert ---
         } else if (newStatus.equalsIgnoreCase("angeliefert")) {
@@ -600,21 +634,34 @@ public class ArticleGuiForm extends AbstractGuiFormTemplate<Article> implements 
                     articleGuiFormActionHandler.lookupArticle(installedView);
                 }
             };
+            if (articleInstalled.isNew()) {
+                articleInstalled.setEingebautAm(new Date());
+            }
             return installedView.build(getCrudController().get(), articleInstalled, tabFolder, selectArticle);
             // --- Im Lager ---
         } else if (newStatus.equals("in Lager")) {
             ArticleInStore articleInStore = subViewDataProvider.getOrCreateArticleInStore(currentlySelectedArticle,
                     newStatus, oldStatus);
+            if (articleInStore.isNew()) {
+                articleInStore.setInLagerAm(new Date());
+                articleInStore.setFlagExist("YES");
+            }
             return storeView.build(getCrudController().get(), articleInStore, articleDescriptionId, tabFolder);
             // --- in Reparatur ---
         } else if (newStatus.equals("ausgemustert")) {
             ArticleRetired articleRetired = subViewDataProvider.getOrCreateArticleRetired(currentlySelectedArticle,
                     newStatus, oldStatus);
+            if (articleRetired.isNew()) {
+                articleRetired.setAusgemustertAm(new Date());
+            }
             return retiredView.build(getCrudController().get(), articleRetired, tabFolder);
             // --- in Reparatur ---
         } else if (newStatus.equals("in Reparatur")) {
             ArticleMaintenance articleMaintenance = subViewDataProvider.getOrCreateArticleMaintenance(
                     currentlySelectedArticle, newStatus, oldStatus);
+            if (articleMaintenance.isNew()) {
+                articleMaintenance.initId(env.getActiveLogGroup());
+            }
             return maintenanceView.build(getCrudController().get(), articleMaintenance, tabFolder);
         } else {
             subViewDataProvider.removeObject(currentlySelectedArticle);

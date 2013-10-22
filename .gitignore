@@ -15,14 +15,9 @@ build/ext/
 logs/*.log
 log/*.log
 
-applications/plugins/org.csstudio.domain.common/.settings/com.chronon.sb.browser.launcher.prefs
-applications/plugins/org.csstudio.dct.nameresolution.file/.settings/com.chronon.sb.browser.launcher.prefs
-applications/plugins/org.csstudio.dct/.settings/com.chronon.sb.browser.launcher.prefs
-applications/plugins/org.csstudio.servicelocator/.settings/com.chronon.sb.browser.launcher.prefs
-applications/plugins/org.csstudio.utility.jms/.settings/com.chronon.sb.browser.launcher.prefs
-core/plugins/org.csstudio.auth/.settings/com.chronon.sb.browser.launcher.prefs
-core/plugins/org.csstudio.dal/.settings/com.chronon.sb.browser.launcher.prefs
-core/plugins/org.csstudio.platform.libs.hibernate/.settings/com.chronon.sb.browser.launcher.prefs
+applications/**/*/com.chronon.sb.browser.launcher.prefs
+products/**/*/com.chronon.sb.browser.launcher.prefs
+core/**/*/com.chronon.sb.browser.launcher.prefs
 
 core/plugins/org.csstudio.platform.libs.jdbc/.settings/
 core/plugins/org.csstudio.platform.libs.jmock/.settings/

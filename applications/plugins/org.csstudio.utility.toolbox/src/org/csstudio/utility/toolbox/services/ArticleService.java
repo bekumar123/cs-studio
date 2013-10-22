@@ -27,6 +27,7 @@ import org.csstudio.utility.toolbox.framework.jpa.OrderBy;
 import org.csstudio.utility.toolbox.framework.property.Property;
 import org.csstudio.utility.toolbox.framework.property.SearchTermType;
 import org.csstudio.utility.toolbox.framework.searchterm.SearchTerm;
+import org.csstudio.utility.toolbox.func.ClearedPersistenceContextResponse;
 import org.csstudio.utility.toolbox.func.None;
 import org.csstudio.utility.toolbox.func.Option;
 import org.csstudio.utility.toolbox.func.Some;
@@ -129,7 +130,7 @@ public class ArticleService {
 		articleHistory.addAll(findArticleInstalled(articleDatenId));
 		articleHistory.addAll(findArticleRetired(articleDatenId));
 		articleHistory.addAll(findArticleMaintenance(articleDatenId));
-		articleHistory.addAll(findArticleInStore(articleDatenId));
+		articleHistory.addAll(findArticleInStore(articleDatenId).getResponse());
 		articleHistory.addAll(findArticleRented(articleDatenId));
 		articleHistory.addAll(findArticleDelivered(articleDatenId));
 		Collections.sort(articleHistory, new DateComparator());
@@ -183,21 +184,21 @@ public class ArticleService {
 	}
 
 	@ClearPersistenceContextOnReturn
-	public List<ArticleInStore> findArticleInStore(BigDecimal articleDatenId) {
+	public ClearedPersistenceContextResponse<List<ArticleInStore>> findArticleInStore(BigDecimal articleDatenId) {
 		TypedQuery<ArticleInStore> query = em.createNamedQuery(ArticleInStore.FIND_RECORD, ArticleInStore.class);
 		query.setParameter("artikelDatenId", articleDatenId);
-		return query.getResultList();
+		return new ClearedPersistenceContextResponse<List<ArticleInStore>>(query.getResultList());
 	}
 
 	@ClearPersistenceContextOnReturn
-	public Option<ArticleInStore> findNewestEntryInStore(BigDecimal articleDatenId) {
+	public ClearedPersistenceContextResponse<Option<ArticleInStore>> findNewestEntryInStore(BigDecimal articleDatenId) {
 		TypedQuery<ArticleInStore> query = em.createNamedQuery(ArticleInStore.FIND_RECORD, ArticleInStore.class);
 		query.setParameter("artikelDatenId", articleDatenId);
 		List<ArticleInStore> articlesInStrore = query.getResultList();
 		if (articlesInStrore.isEmpty()) {
-			return new None<ArticleInStore>();
+	        return new ClearedPersistenceContextResponse<Option<ArticleInStore>>(new None<ArticleInStore>());
 		}
-		return new Some<ArticleInStore>(articlesInStrore.get(0));
+		return new ClearedPersistenceContextResponse<Option<ArticleInStore>>(new Some<ArticleInStore>(articlesInStrore.get(0)));
 	}
 
 	@ClearPersistenceContextOnReturn

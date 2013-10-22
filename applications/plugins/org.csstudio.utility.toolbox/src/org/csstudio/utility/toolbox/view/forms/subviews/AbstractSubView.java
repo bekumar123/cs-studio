@@ -91,4 +91,7 @@ public class AbstractSubView<T extends BindingEntity>  implements PropertyChange
 		crudController.setDirty(true);		
 	}
 
+	public void clearDirty() {
+        crudController.setDirty(false);      	    
+	}
 }

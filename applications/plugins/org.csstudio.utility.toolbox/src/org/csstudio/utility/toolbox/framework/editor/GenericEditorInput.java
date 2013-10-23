@@ -157,7 +157,6 @@ public class GenericEditorInput<T extends BindingEntity> implements IEditorInput
                   beforeSave.apply(data.get());
                }
                Object mergedObject = em.merge(data.get());
-               System.out.println(mergedObject);
                // try to copy ID
                // This is neccessary since we only use merge and the id
                // is only

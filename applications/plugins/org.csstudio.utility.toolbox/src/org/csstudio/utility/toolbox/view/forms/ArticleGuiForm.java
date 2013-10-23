@@ -211,7 +211,8 @@ public class ArticleGuiForm extends AbstractGuiFormTemplate<Article> implements 
         Dialogs.message("Error in State-View", sb.toString());
     }
 
-    // We handle the save manually. This is necessary since we handle a list
+    // We handle the save manually here. This is necessary since we handle a
+    // list
     // of entities here. All other forms work on a single entity.
     // Therefore we always return CanSaveAction.SAVE_HANDLED here.
     @Override
@@ -235,7 +236,7 @@ public class ArticleGuiForm extends AbstractGuiFormTemplate<Article> implements 
                             Option<ArticleInStore> lastArticleInStore = articlesInStore.get(articleEntity.getId());
                             if (lastArticleInStore.hasValue()) {
                                 ArticleInStore articleInStore = lastArticleInStore.get();
-                                articleInStore.setFlagExist("N");
+                                articleInStore.setFlagExist("NO");
                                 em.merge(articleInStore);
                             }
                         }
@@ -475,7 +476,7 @@ public class ArticleGuiForm extends AbstractGuiFormTemplate<Article> implements 
                 articlesInGroup = new WritableList(articles, articles.getClass());
 
                 // @formatter:off
-            Combo itemSelectionCombo = wf.combo(composite, ITEM_COMBO.getName())
+                Combo itemSelectionCombo = wf.combo(composite, ITEM_COMBO.getName())
                   .label("Item Position:")
                   .noBinding()
                   .data(articlesInGroup, new Property("index"))
@@ -661,6 +662,8 @@ public class ArticleGuiForm extends AbstractGuiFormTemplate<Article> implements 
                     currentlySelectedArticle, newStatus, oldStatus);
             if (articleMaintenance.isNew()) {
                 articleMaintenance.initId(env.getActiveLogGroup());
+                articleMaintenance.setStatus("definiert");
+                articleMaintenance.setStatusVom(new Date());
             }
             return maintenanceView.build(getCrudController().get(), articleMaintenance, tabFolder);
         } else {
@@ -669,6 +672,8 @@ public class ArticleGuiForm extends AbstractGuiFormTemplate<Article> implements 
         }
     }
 
+    // update the models of the subviews.
+    // Called in canSave.
     private void updateModelsInSubViews() {
         rentedView.updateModels();
         deliveredView.updateModels();

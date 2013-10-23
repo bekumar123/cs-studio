@@ -6,6 +6,7 @@ import org.apache.commons.lang.Validate;
 import org.csstudio.utility.toolbox.actions.OpenArticleEditorAction;
 import org.csstudio.utility.toolbox.common.Dialogs;
 import org.csstudio.utility.toolbox.entities.Article;
+import org.csstudio.utility.toolbox.framework.SearchExecutorRunningOperation;
 import org.csstudio.utility.toolbox.framework.controller.SearchController;
 import org.csstudio.utility.toolbox.framework.jpa.OrderBy;
 import org.csstudio.utility.toolbox.framework.property.Property;
@@ -18,6 +19,7 @@ import org.csstudio.utility.toolbox.services.ArticleService;
 import org.csstudio.utility.toolbox.view.forms.ArticleGuiForm;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
@@ -51,12 +53,29 @@ public class ArticleSearchEditorPart extends AbstractSearchEditorPartTemplate<Ar
         setFocusWidget(articleGuiForm.getFocusWidget());
     }
 
+    private List<Article> articles;
+
     @Override
-    public void executeSearch(List<SearchTerm> searchTerms) {
-        List<Article> articles = articleService.find(searchTerms, new OrderBy("id"));
-        setSearchPartName(articles.size());
-        articleGuiForm.createSearchResultTableView(getTableViewProvider(), articles,
-                Property.createList("beschreibung", "status", "internId"));
+    public void executeSearch(final List<SearchTerm> searchTerms) {
+        
+        Runnable runInThread = new Runnable() {
+            @Override
+            public void run() {
+                articles = articleService.find(searchTerms, new OrderBy("id"));
+            }
+        };
+        
+        Runnable runInUiThread = new Runnable() {
+            @Override
+            public void run() {
+                setSearchPartName(articles.size());
+                articleGuiForm.createSearchResultTableView(getTableViewProvider(), articles,
+                        Property.createList("beschreibung", "status", "internId"));
+            }
+        };
+
+        SearchExecutorRunningOperation.run(runInThread, runInUiThread);
+        
     }
 
     private class ArticleSearchEventListener implements SearchEventListener {
@@ -68,7 +87,7 @@ public class ArticleSearchEditorPart extends AbstractSearchEditorPartTemplate<Ar
                 Article article = (Article) providedSelection.get().getFirstElement();
                 /**
                  * if called from status "eingebaut in" filter own article,
-                 * since an article can not be installed into itself. 
+                 * since an article can not be installed into itself.
                  */
                 SearchTerm searchTerm = new SearchTerm(new Property("id"), article.getId().toString(),
                         SearchTermType.NUMERIC, "<>");

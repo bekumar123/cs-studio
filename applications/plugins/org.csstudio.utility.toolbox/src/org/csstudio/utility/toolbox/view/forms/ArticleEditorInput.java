@@ -2,18 +2,11 @@ package org.csstudio.utility.toolbox.view.forms;
 
 import org.csstudio.utility.toolbox.framework.binding.BindingEntity;
 import org.csstudio.utility.toolbox.framework.editor.GenericEditorInput;
-import org.csstudio.utility.toolbox.func.Func1Void;
 
 public class ArticleEditorInput<T extends BindingEntity> extends GenericEditorInput<T> {
 	
 	public ArticleEditorInput() {
 		super();
-		this.setBeforeSave(new Func1Void<T>() {
-            @Override
-            public void apply(T arg0) {
-                System.out.println(arg0);                
-            }
-        });
 	}
 	
 	@Override

@@ -52,9 +52,6 @@ public class ArticleSubViewDataProvider {
     @Inject
     private LookupDataAutoCreator lookupDataAutoCreator;
 
-    @Inject
-    private Environment env;
-
     private Map<Article, BindingEntity> assignments = new HashMap<Article, BindingEntity>();
 
     private interface FindEntity<T> {

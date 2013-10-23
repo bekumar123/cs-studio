@@ -200,6 +200,12 @@ public class StringArFilterConditionDTO extends FilterConditionDTO implements
 
 		for (StrgArFiltCondCompValDTO element : this.compareValues) {
 			if (!compList.contains(element)) {
+				
+				StrgArFiltCondCompValDTOPK pk = new StrgArFiltCondCompValDTOPK();
+				pk.setFilterConditionRef(getIFilterConditionID());
+				pk.setCompValue(element.getCompValue());
+				element.setPk(pk);
+				
 				mapper.save(element);
 			}
 		}

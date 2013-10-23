@@ -67,12 +67,15 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
@@ -175,15 +178,18 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 		this._defaultMessageTextEntry = this.createDescriptionTextEntry(main,
 				Messages.FilterEditor_default_message);
 		
-		timeoutModeCheckBox = this.createCheckBoxEntry(main, "Alarm bei Timeout", true);
+		timeoutModeCheckBox = this.createRadioButtonEntry(main, "Alarm bei Timeout");
+		this.createRadioButtonEntry(main, "Alarm bei Stopbedingung");
+		this.addSeparator(main);
 		timeoutTextEntry = this.createTextEntry(main, "Timeout in Sekunden", true);
 
 		{
-			final Composite startTreeAndButtonsComposite = new Composite(outerFormMain,
+			final Composite startTreeAndButtonsComposite = new Composite(main,
 					SWT.None);
 			startTreeAndButtonsComposite.setLayout(new GridLayout(1, false));
-			GridDataFactory.fillDefaults().grab(true, true).applyTo(
-					startTreeAndButtonsComposite);
+			GridData gridData = new GridData();
+			gridData.horizontalSpan = 2;
+			startTreeAndButtonsComposite.setLayoutData(gridData);
 			new Label(startTreeAndButtonsComposite, SWT.None).setText(Messages.TimebasedFilterEditor_start_filter_conditions);
 
 			this.startFilterConditionsTreeViewer = this.createTreeViewer(
@@ -192,11 +198,10 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 			startFilterConditionsTreeViewer.setInput(this.getWorkingCopyOfEditorInput());
 			startFilterConditionsTreeViewer.expandAll();
 
-			final Composite stopTreeAndButtonsComposite = new Composite(outerFormMain,
+			final Composite stopTreeAndButtonsComposite = new Composite(main,
 					SWT.None);
 			stopTreeAndButtonsComposite.setLayout(new GridLayout(1, false));
-			GridDataFactory.fillDefaults().grab(true, true).applyTo(
-					stopTreeAndButtonsComposite);
+			stopTreeAndButtonsComposite.setLayoutData(gridData);
 			new Label(stopTreeAndButtonsComposite, SWT.None).setText(Messages.TimebasedFilterEditor_stop_filter_conditions);
 			
 			this.stopFilterConditionsTreeViewer = this.createTreeViewer(
@@ -206,7 +211,7 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 			stopFilterConditionsTreeViewer.expandAll();
 		}
 		
-		this.createFilterActionWidget(outerFormMain);
+		this.createFilterActionWidget(main);
 
 		this.initDND();
 		
@@ -224,6 +229,7 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 		final GridData treeLayout = (GridData) filterTree.getLayoutData();
 		treeLayout.minimumHeight = 100;
 		treeLayout.minimumWidth = 300;
+		treeLayout.widthHint = 500;
 
 		result.setContentProvider(contentProvider);
 		result.setLabelProvider(new FilterTreeLabelProvider());
@@ -459,13 +465,13 @@ public class TimebasedFilterEditor extends AbstractEditor<TimebasedFilterBean> {
 		this.actionTableViewer = new TableViewer(outerFormMain,
 				SWT.FULL_SELECTION);
 
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(
+		GridDataFactory.fillDefaults().grab(false, true).applyTo(
 				this.actionTableViewer.getControl());
 
-		final GridData treeLayout = (GridData) this.actionTableViewer
-				.getTable().getLayoutData();
+		final GridData treeLayout = (GridData) this.actionTableViewer.getControl().getLayoutData();
 		treeLayout.minimumHeight = 100;
 		treeLayout.minimumWidth = 300;
+		treeLayout.horizontalSpan = 2;
 
 		this.actionTableViewer.getTable().setHeaderVisible(true);
 		this.actionTableViewer.getTable().setLinesVisible(true);

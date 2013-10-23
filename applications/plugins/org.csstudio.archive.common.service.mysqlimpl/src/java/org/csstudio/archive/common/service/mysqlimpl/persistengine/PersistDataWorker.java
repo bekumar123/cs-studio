@@ -111,7 +111,7 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
         final Collection<T> elements = Lists.newLinkedList();
 
         for (final BatchQueueHandlerSupport<T> handler : handlerProvider.getHandlers()) {
-            if(handler instanceof ArchiveSampleBatchQueueHandler) {
+            if (handler instanceof ArchiveSampleBatchQueueHandler) {
                 return;
             }
             final BlockingQueue<T> queue = handler.getQueue();
@@ -119,7 +119,7 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
             if (!elements.isEmpty()) {
                 PreparedStatement stmt = null;
                 try {//bei jedes Mal SQL Statement erzeugen, connection neue prüfen, ob die Connection closed ist
-                    while (connection== null || connection.isClosed()) {
+                    while (connection == null || connection.isClosed()) {
                         connection = _connectionHandler.getThreadLocalConnection();
                     }
                     stmt = handler.createNewStatement(connection);
@@ -159,9 +159,9 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
                     try {
                         _watch.restart();
                         final int iii[] = stmt.executeBatch();
-                        LOG.debug("{}",iii.length);
+                        LOG.debug("{}", iii.length);
                         LOG.debug("{}ms for {}x {}", new Object[] { _watch.getElapsedTimeInMillis(), size,
-                                                                  handler.getHandlerType().getSimpleName() });
+                                                                   handler.getHandlerType().getSimpleName() });
                     } catch (final Throwable t) {
                         handler.getQueue().addAll(elements);
                         elements.clear();
@@ -179,10 +179,10 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
                     _watch.restart();
                     //   int iii[] = stmt.executeBatch();
                     final int iii[] = stmt.executeBatch();
-                    LOG.debug("{}",iii.length);
+                    LOG.debug("{}", iii.length);
                     //  stmt.execute();
                     // stmt.executeUpdate();
-                    if(!(handler instanceof ArchiveSampleBatchQueueHandler)) {
+                    if (!(handler instanceof ArchiveSampleBatchQueueHandler)) {
                         LOG.info("{}ms for {}x {}", new Object[] { _watch.getElapsedTimeInMillis(), iii.length,
                                                                   handler.getHandlerType().getSimpleName() });
                     }
@@ -224,13 +224,13 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
         if (size >= minBatchSize) {
             try {
                 _watch.restart();
-                //   int iii[] = stmt.executeBatch();
-                LOG.debug("{}", stmt.executeBatch().length);
+                final int iii[] = stmt.executeBatch();
+                LOG.debug("{}", iii.length);
 
                 //  stmt.execute();
                 // stmt.executeUpdate();
                 LOG.debug("{}ms for {}x {}", new Object[] { _watch.getElapsedTimeInMillis(), size,
-                                                          handler.getHandlerType().getSimpleName() });
+                                                           handler.getHandlerType().getSimpleName() });
             } finally {
                 rescueDataList.clear();
             }
@@ -308,9 +308,11 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
     public long getPeriodInMS() {
         return _periodInMS;
     }
+
     private String getDatabaseName() {
         return _connectionHandler.getDatabaseName();
     }
+
     void rescueDataToFileSystem(@Nonnull final Iterable<String> statements) {
         final int noOfRescuedStmts = Iterables.size(statements);
         LOG.warn("Rescue statements: " + noOfRescuedStmts);

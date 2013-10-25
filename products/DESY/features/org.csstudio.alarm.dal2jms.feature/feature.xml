@@ -28,13 +28,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.csstudio.platform"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.csstudio.platform.libs.jms"
          download-size="0"
          install-size="0"
@@ -55,21 +48,7 @@
          unpack="false"/>
 
    <plugin
-         id="org.remotercp.ecf"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.core.runtime"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.csstudio.platform.libs.dal"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -315,20 +294,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.remotercp.preferences"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.remotercp.provisioning"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.ui"
          download-size="0"
          install-size="0"
@@ -441,13 +406,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.equinox.p2.metadata.generator"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.equinox.p2.metadata.repository"
          download-size="0"
          install-size="0"
@@ -518,21 +476,7 @@
          unpack="false"/>
 
    <plugin
-         id="org.csstudio.platform.libs.dal.epics"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.csstudio.platform.libs.epics"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.csstudio.platform.libs.dal.tine"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -644,13 +588,6 @@
 
    <plugin
          id="org.eclipse.equinox.simpleconfigurator"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.csstudio.platform.ui"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -861,13 +798,6 @@
 
    <plugin
          id="org.csstudio.utility.treemodel"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.remotercp.libs.xstream"
          download-size="0"
          install-size="0"
          version="0.0.0"

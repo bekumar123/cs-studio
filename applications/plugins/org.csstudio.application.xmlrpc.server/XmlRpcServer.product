@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="XmlRpcServer" id="org.csstudio.application.xmlrpc.server.XmlRpcServerProduct" application="org.csstudio.application.xmlrpc.server.ServerApplication" useFeatures="false" includeLaunchers="true">
+<product name="XmlRpcServer" id="org.csstudio.application.xmlrpc.server.XmlRpcServerProduct" application="org.csstudio.application.xmlrpc.server.ServerApplication" useFeatures="true" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>

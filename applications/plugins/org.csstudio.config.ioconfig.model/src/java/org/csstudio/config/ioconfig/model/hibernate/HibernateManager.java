@@ -87,6 +87,7 @@ public final class HibernateManager extends AbstractHibernateManager {
         LOG.debug("Use User: " + userName);
         LOG.debug("Use Password: " + password);
 
+        //@formatter:off
         _cfg.setProperty("org.hibernate.cfg.Environment.MAX_FETCH_DEPTH", "0")
                 .setProperty("hibernate.connection.driver_class", classDriver)
                 .setProperty("hibernate.dialect", prefs.getString(pluginId, DIALECT, "", null))
@@ -100,15 +101,17 @@ public final class HibernateManager extends AbstractHibernateManager {
                 .setProperty("hibernate.cache.use_query_cache", "true")
                 // connection Pool
                 .setProperty("hibernate.connection.provider_class", "org.hibernate.connection.C3P0ConnectionProvider")
-                .setProperty("c3p0.min_size", "1").setProperty("c3p0.max_size", "3")
+                .setProperty("c3p0.min_size", "1")
+                .setProperty("c3p0.max_size", "3")
                 .setProperty("c3p0.timeout", "1800")
                 .setProperty("c3p0.acquire_increment", "1")
                 .setProperty("c3p0.idle_test_period", "100")
-                .setProperty("c3p0.max_statements", "1")
-                 .setProperty("hibernate.hbm2ddl.auto", "update")
-                 .setProperty("hibernate.show_sql", "true")
-                 .setProperty("hibernate.format_sql", "true").setProperty("hibernate.use_sql_comments", "true")
-                .setProperty("hibernate.cache.use_second_level_cache", "true");
+                .setProperty("c3p0.max_statements", "1");
+                // .setProperty("hibernate.hbm2ddl.auto", "update")
+                // .setProperty("hibernate.show_sql", "true")
+                // .setProperty("hibernate.format_sql", "true").setProperty("hibernate.use_sql_comments", "true")
+                // .setProperty("hibernate.cache.use_second_level_cache", "true");
+                //@formatter:on
 
         setTimeout(prefs.getInt(pluginId, DDB_TIMEOUT, 90, null));
     }
@@ -133,7 +136,9 @@ public final class HibernateManager extends AbstractHibernateManager {
         }
     }
 
-    /**Slave
+    /**
+     * Slave
+     * 
      * @param property
      * @param value
      */

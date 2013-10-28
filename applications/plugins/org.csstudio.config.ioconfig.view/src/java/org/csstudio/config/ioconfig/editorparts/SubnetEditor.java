@@ -208,7 +208,7 @@ public class SubnetEditor extends AbstractNodeEditor<ProfibusSubnetDBO> {
         _subnet = getNode();
         // No Subnet, create a new one.
         if (_subnet == null) {
-            newNode();
+            addToParrentNode();
             _subnet.setTtr(750000);
             _subnet.setWatchdog(1000);
         }

@@ -59,7 +59,7 @@ public class CallNewChildrenNodeEditor extends AbstractCallNodeEditor {
             final String nodeType = ((AbstractNodeSharedImpl<?, ?>) createChild).getNodeType().getName();
             if (id.equals(ModuleEditor.ID)) {
                 ((AbstractNodeSharedImpl<?, ?>) createChild).setName(" "); //$NON-NLS-1$
-                ((AbstractNodeSharedImpl<?, ?>) createChild).setSortIndexNonHibernate(parentNode.getfirstFreeStationAddress());
+                ((AbstractNodeSharedImpl<?, ?>) createChild).setSortIndexNonHibernate(parentNode.getFirstFreeStationAddress());
                 final NodeEditorInput input = new NodeEditorInput(createChild,true);
                 page.openEditor(input, id);
             } else {
@@ -69,7 +69,7 @@ public class CallNewChildrenNodeEditor extends AbstractCallNodeEditor {
                 idialog.setBlockOnOpen(true);
                 if (idialog.open() == Window.OK) {
                     // TODO: (hrickens) set the right max station Address
-                    ((AbstractNodeSharedImpl<?, ?>) createChild).setSortIndexNonHibernate(parentNode.getfirstFreeStationAddress());
+                    ((AbstractNodeSharedImpl<?, ?>) createChild).setSortIndexNonHibernate(parentNode.getFirstFreeStationAddress());
                     if(idialog.getValue()!=null&&!idialog.getValue().isEmpty()) {
                         ((AbstractNodeSharedImpl<?, ?>) createChild).setName(idialog.getValue());
                     } else {

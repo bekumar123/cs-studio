@@ -5,6 +5,7 @@ import javax.annotation.Nonnull;
 import org.csstudio.config.ioconfig.config.view.helper.DocumentationManageView;
 import org.csstudio.config.ioconfig.model.AbstractNodeSharedImpl;
 import org.csstudio.config.ioconfig.model.NodeDBO;
+import org.csstudio.config.ioconfig.model.hibernate.Repository;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -29,19 +30,19 @@ final class CancelSelectionListener<T extends AbstractNodeSharedImpl<?,?>> imple
 
     @Override
     public void widgetDefaultSelected(@Nonnull final SelectionEvent e) {
-        doCancle();
+        doCancel();
     }
 
     @Override
     public void widgetSelected(@Nonnull final SelectionEvent e) {
-        doCancle();
+        doCancel();
     }
 
     /**
      *
      */
     @SuppressWarnings("unchecked")
-    private void doCancle() {
+    private void doCancel() {
         // if (getNode().isPersistent()) {
         if (!_abstractNodeEditor.isNew()) {
             _abstractNodeEditor.cancel();

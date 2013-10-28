@@ -99,6 +99,7 @@ public class NodeDBO<P extends NodeDBO, C extends NodeDBO> extends NamedDBClass 
         if (oldNode != null && oldNode.equals(child)) {
             return null;
         }
+                
         child.setParent(this);
         child.setSortIndexNonHibernate(sortIndex);
         _children.add(child);
@@ -255,7 +256,6 @@ public class NodeDBO<P extends NodeDBO, C extends NodeDBO> extends NamedDBClass 
      * make the data update for his self.
      * @throws PersistenceException
      */
-    @SuppressWarnings("unused")
     protected void localUpdate() throws PersistenceException {
         // nothing to update
     }

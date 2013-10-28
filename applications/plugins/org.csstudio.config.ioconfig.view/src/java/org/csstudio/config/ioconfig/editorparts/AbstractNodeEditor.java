@@ -365,6 +365,10 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?, ?>>
         _nameText.setText(name);
     }
 
+    protected void currentUserPrmDataChanged() {
+        // hook for configuration purposes
+    }
+    
     /**
      * Give a change event and his save status.<br>
      * Have one or more events the status unsaved then the Save Button was set
@@ -390,6 +394,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?, ?>>
                 firePropertyChange(PROP_DIRTY);
             }
         }
+        currentUserPrmDataChanged();
     }
 
     /**
@@ -604,7 +609,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?, ?>>
     /**
      * Generate a new Node on his parent with a Name, creator and creation date.
      */
-    protected boolean newNode() {
+    protected boolean addToParrentNode() {
         return newNode("");
     }
 
@@ -632,7 +637,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?, ?>>
                     try {
                         @SuppressWarnings("rawtypes")
                         final AbstractNodeSharedImpl nodeParent = (AbstractNodeSharedImpl) obj;
-                        getNode().moveSortIndex(nodeParent.getfirstFreeStationAddress());
+                        getNode().moveSortIndex(nodeParent.getFirstFreeStationAddress());
                         nodeParent.addChild(getNode());
                     } catch (final PersistenceException e) {
                         final String msg = "Can't create node! Database error.";
@@ -841,7 +846,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?, ?>>
         return header;
     }
 
-    @SuppressWarnings({ "unused", "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked" })
     private void buildBackgroundFooter(@Nonnull final Composite parent, @Nonnull final GridDataFactory labelGridData) {
         new Label(parent, SWT.NONE);
         setSaveButton(new Button(parent, SWT.PUSH));

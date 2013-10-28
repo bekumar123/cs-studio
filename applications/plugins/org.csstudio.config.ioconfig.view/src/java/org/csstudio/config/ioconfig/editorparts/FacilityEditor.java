@@ -85,7 +85,7 @@ public class FacilityEditor extends AbstractNodeEditor<FacilityDBO> {
     public FacilityEditor(final short sortIndex) {
         super(true);
         getProfiBusTreeView().getTreeViewer().setSelection(null);
-        newNode();
+        addToParrentNode();
         try {
             getNode().moveSortIndex(sortIndex);
         } catch (final PersistenceException e) {

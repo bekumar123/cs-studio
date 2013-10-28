@@ -17,7 +17,9 @@ Require-Bundle: org.eclipse.ui,
  org.csstudio.auth.ui;bundle-version="1.0.0",
  org.slf4j;bundle-version="1.6.1",
  org.junit;bundle-version="4.8.1",
- org.csstudio.ui.util;bundle-version="3.1.0"
+ org.csstudio.ui.util;bundle-version="3.1.0",
+ com.google.common;bundle-version="10.0.1",
+ net.miginfocom.layout;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Export-Package: org.csstudio.config.ioconfig.config.view.helper

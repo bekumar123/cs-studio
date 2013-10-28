@@ -33,6 +33,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.csstudio.config.ioconfig.config.component.CurrentUserParamDataComponent;
 import org.csstudio.config.ioconfig.config.view.OverviewLabelProvider;
 import org.csstudio.config.ioconfig.config.view.helper.ProfibusHelper;
 import org.csstudio.config.ioconfig.model.AbstractNodeSharedImpl;
@@ -270,7 +271,10 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
     }
     public static final String ID = "org.csstudio.config.ioconfig.view.editor.slave";
     private static final Logger LOG = LoggerFactory.getLogger(SlaveEditor.class);
-    private Group _currentUserParamDataGroup;
+    //private Group _currentUserParamDataGroup;
+    
+    private CurrentUserParamDataComponent currentUserParamDataComponent;
+    
     /**
      * Marker of Background Color for normal use. Get from widget by first use.
      */
@@ -744,73 +748,18 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         _maxSlots.setEnabled(false);
 
     }
+    
+    protected void makeCurrentUserParamData(@Nonnull final Composite topGroup) throws IOException {
 
-    private int getElementCount() {
-        AbstractGsdPropertyModel parsedGsdFileModel;
-        try {
-            parsedGsdFileModel = getGsdPropertyModel();
-            if (parsedGsdFileModel == null) {
-                return 0;
-            }
-            return parsedGsdFileModel.getExtUserPrmDataRefMap().values().size();
-        } catch (IOException e) {
-            return 0;
+        if (currentUserParamDataComponent != null) {
+            currentUserParamDataComponent.dispose();
         }
+
+        currentUserParamDataComponent = new CurrentUserParamDataComponent(topGroup, this);
+        currentUserParamDataComponent.buildComponent();
+        topGroup.getParent().getParent().layout();
     }
     
-    /**
-     *
-     * @param topGroup
-     *            The parent Group for the CurrentUserParamData content.
-     * @throws IOException
-     */
-    private void makeCurrentUserParamData(@Nonnull final Composite topGroup) throws IOException {
-        if (_currentUserParamDataGroup != null) {
-            _currentUserParamDataGroup.dispose();
-        }
-
-        if (getElementCount() == 0) {
-            return;
-        }
-
-        // Current User Param Data Group
-        _currentUserParamDataGroup = new Group(topGroup, SWT.NONE);
-        final GridData gd = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 3);
-        gd.minimumWidth = 100;
-        _currentUserParamDataGroup.setLayoutData(gd);
-        _currentUserParamDataGroup.setLayout(new FillLayout());        
-        _currentUserParamDataGroup.setText("Current User Param Data");
-        
-        final ScrolledComposite scrollComposite = new ScrolledComposite(_currentUserParamDataGroup,
-                                                                        SWT.V_SCROLL);
-        final Composite currentUserParamDataComposite = new Composite(scrollComposite, SWT.NONE);
-        final RowLayout rowLayout = new RowLayout(SWT.VERTICAL);
-        rowLayout.wrap = false;
-        rowLayout.fill = true;
-        currentUserParamDataComposite.setLayout(rowLayout);
-        scrollComposite.setContent(currentUserParamDataComposite);
-        scrollComposite.setExpandHorizontal(true);
-        scrollComposite.setExpandVertical(true);
-        _currentUserParamDataGroup.addControlListener(new ControlAdapter() {
-            @Override
-            public void controlResized(@Nonnull final ControlEvent e) {
-                final Rectangle r = scrollComposite.getClientArea();
-                scrollComposite.setMinSize(scrollComposite.computeSize(r.width, SWT.DEFAULT));
-            }
-        });
-        scrollComposite.addControlListener(new ControlAdapter() {
-            @Override
-            public void controlResized(@Nonnull final ControlEvent e) {
-                final Rectangle r = scrollComposite.getClientArea();
-                scrollComposite.setMinSize(currentUserParamDataComposite.computeSize(r.width,
-                                                                                     SWT.DEFAULT));
-            }
-        });
-
-        buildCurrentUserPrmData(currentUserParamDataComposite);
-        topGroup.layout();
-    }
- 
     /**
      * @param comp
      */

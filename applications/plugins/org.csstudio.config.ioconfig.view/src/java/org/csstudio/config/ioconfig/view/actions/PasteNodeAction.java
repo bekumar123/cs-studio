@@ -94,7 +94,7 @@ public class PasteNodeAction extends Action {
                     .getChildrenAsMap();
             final AbstractNodeSharedImpl<?, ?> node = childrenAsMap.get(node2Copy.getSortIndex());
             if (node != null) {
-                final int freeStationAddress = selectedNode.getfirstFreeStationAddress();
+                final int freeStationAddress = selectedNode.getFirstFreeStationAddress();
                 node2Copy.setSortIndex(freeStationAddress);
             }
             selectedNode.addChild(node2Copy);
@@ -104,7 +104,7 @@ public class PasteNodeAction extends Action {
             // paste to a Parent
             copy = node2Copy.copyThisTo(selectedNode, "Copy of ");
             copy.setDirty(true);
-            copy.setSortIndexNonHibernate(selectedNode.getfirstFreeStationAddress());
+            copy.setSortIndexNonHibernate(selectedNode.getFirstFreeStationAddress());
         }
         _profiBusTreeView.getViewer().refresh();
         _profiBusTreeView.getViewer().setSelection(new StructuredSelection(copy));

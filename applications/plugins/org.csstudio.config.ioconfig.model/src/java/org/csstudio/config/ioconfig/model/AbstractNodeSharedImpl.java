@@ -60,7 +60,7 @@ public abstract class AbstractNodeSharedImpl<P extends NodeDBO, C extends NodeDB
 
     @SuppressWarnings("unused")
     @Transient
-    public int getfirstFreeStationAddress() throws PersistenceException {
+    public int getFirstFreeStationAddress() throws PersistenceException {
         final Map<Short, C> children = getChildrenAsMap();
         Short nextKey = 0;
         if (!children.containsKey(nextKey)) {

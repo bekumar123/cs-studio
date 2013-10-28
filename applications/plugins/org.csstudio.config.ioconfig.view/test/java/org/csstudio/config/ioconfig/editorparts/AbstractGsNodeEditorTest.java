@@ -12,6 +12,7 @@ import org.csstudio.config.ioconfig.model.pbmodel.GSDFileDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.AbstractGsdPropertyModel;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.ExtUserPrmData;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.KeyValuePair;
+import org.eclipse.swt.widgets.Group;
 import org.hamcrest.core.Is;
 import org.junit.Test;
 

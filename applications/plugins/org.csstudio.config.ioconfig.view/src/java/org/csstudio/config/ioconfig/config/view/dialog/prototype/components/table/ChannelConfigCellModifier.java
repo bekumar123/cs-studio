@@ -1,4 +1,4 @@
-package org.csstudio.config.ioconfig.config.view;
+package org.csstudio.config.ioconfig.config.view.dialog.prototype.components.table;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;

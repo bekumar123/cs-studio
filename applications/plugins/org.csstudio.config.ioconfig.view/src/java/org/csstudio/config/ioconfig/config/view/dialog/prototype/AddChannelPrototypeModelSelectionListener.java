@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 import org.csstudio.config.ioconfig.config.component.IRefreshable;
 import org.csstudio.config.ioconfig.config.view.dialog.prototype.components.ChannelConfigDialogDataModel;
 import org.csstudio.config.ioconfig.editorparts.AbstractNodeEditor;
+import org.csstudio.config.ioconfig.model.hibernate.Repository;
 import org.csstudio.config.ioconfig.model.pbmodel.DataType;
 import org.csstudio.config.ioconfig.model.pbmodel.ModuleChannelPrototypeDBO;
 import org.eclipse.swt.events.SelectionEvent;
@@ -17,22 +18,22 @@ final class AddChannelPrototypeModelSelectionListener implements SelectionListen
     
     private final static boolean IS_INPUT = true;
     
-    private final ChannelConfigDialog channelConfigDialog;
+    private final ISelectedTab parentDialog;
     private final ChannelConfigDialogDataModel channelConfigDialogDataModel;
     private final IRefreshable outputTable;
     private final IRefreshable inputTable;
 
     //@formatter:off
     public AddChannelPrototypeModelSelectionListener(
-            @Nonnull final ChannelConfigDialog channelConfigDialog,
+            @Nonnull final ISelectedTab parentDialog,
             @Nonnull ChannelConfigDialogDataModel channelConfigDialogDataModel,
             @Nonnull final IRefreshable outputTable, 
             @Nonnull final IRefreshable inputTable) {
             //@formatter:on
-        this.channelConfigDialog = channelConfigDialog;
+        this.parentDialog = parentDialog;
         this.channelConfigDialogDataModel = channelConfigDialogDataModel;
-        this.outputTable = outputTable;
         this.inputTable = inputTable;
+        this.outputTable = outputTable;
     }
 
     @Override
@@ -46,6 +47,15 @@ final class AddChannelPrototypeModelSelectionListener implements SelectionListen
     }
 
     private void addItem() {
+        if (parentDialog.isInputTabSelected()) {
+            if (!channelConfigDialogDataModel.isHasInputFields()) {
+                return;
+            }
+        } else {
+            if (!channelConfigDialogDataModel.isHasOutputFields()) {
+                return;
+            }            
+        }
         DataType type;
         if (channelConfigDialogDataModel.isWordSize()) {
             type = DataType.UINT16;
@@ -58,7 +68,7 @@ final class AddChannelPrototypeModelSelectionListener implements SelectionListen
         moduleChannelPrototype.setCreationData(user, date);
         moduleChannelPrototype.setName(""); //$NON-NLS-1$
         moduleChannelPrototype.setGSDModule(channelConfigDialogDataModel.getPrototypeModule());
-        if (channelConfigDialog.isInputSelected()) {
+        if (parentDialog.isInputTabSelected()) {
             //@formatter:off
             addRow(
                     type, 
@@ -101,7 +111,7 @@ final class AddChannelPrototypeModelSelectionListener implements SelectionListen
         moduleChannelPrototype.setGSDModule( channelConfigDialogDataModel.getPrototypeModule());
         channelConfigDialogDataModel.getPrototypeModule().addModuleChannelPrototype(moduleChannelPrototype);
         data.add(moduleChannelPrototype);
-        inputTable.refresh();
+        uiComponent.refresh();
     }
     
 }

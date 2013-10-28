@@ -2,6 +2,7 @@ package org.csstudio.config.ioconfig.config.view.dialog.prototype.components;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.ParsedGsdFileModel;
 import org.csstudio.config.ioconfig.model.types.ModuleNumber;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 
 public class ChannelConfigDialogDataModel {
     
@@ -57,6 +59,8 @@ public class ChannelConfigDialogDataModel {
     }
     
     public void undo() throws PersistenceException {
+        removeEmptyEntries(inputChannelPrototypeModelList);
+        removeEmptyEntries(outputChannelPrototypeModelList);
         Repository.refresh(selectedSlave.getGSDFile());        
     }
     
@@ -100,6 +104,17 @@ public class ChannelConfigDialogDataModel {
         return isNew;
     }
 
+    private void removeEmptyEntries(ArrayList<ModuleChannelPrototypeDBO> list) {
+        Iterator<ModuleChannelPrototypeDBO> inputIterator = new ArrayList<ModuleChannelPrototypeDBO>(list).iterator();
+        while (inputIterator.hasNext()) {
+            ModuleChannelPrototypeDBO entry = inputIterator.next();
+            if (Strings.isNullOrEmpty(entry.getName()) || (entry.getId() == 0)) {
+                list.remove(entry);
+                getPrototypeModule().removeModuleChannelPrototype(entry);
+            }
+        }
+    }
+    
     private void updateDataModel(ModuleNumber moduleNumber) {
 
         inputChannelPrototypeModelList = new ArrayList<ModuleChannelPrototypeDBO>();
@@ -109,7 +124,6 @@ public class ChannelConfigDialogDataModel {
         prototype = selectedSlave.getGSDFile().getParsedGsdFileModel().getGsdFileDBO().getGSDModule(moduleNumber.getValue());
 
         if (prototype == null) {
-            System.out.println("Is New");
             isNew = true;
             prototype = new GSDModuleDBO(moduleModel.getName());
             prototype.setGSDFile(getGsdFileDBO());

@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
-import org.csstudio.config.ioconfig.config.component.IRefreshable;
 import org.csstudio.config.ioconfig.config.component.ISelectableAndRefreshable;
 import org.csstudio.config.ioconfig.config.view.dialog.prototype.components.ChannelConfigDialogDataModel;
 import org.csstudio.config.ioconfig.model.DBClass;
@@ -16,26 +15,25 @@ import org.csstudio.config.ioconfig.model.pbmodel.ModuleChannelPrototypeDBO;
 import org.csstudio.config.ioconfig.view.DeviceDatabaseErrorDialog;
 import org.csstudio.config.ioconfig.view.internal.localization.Messages;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.TabFolder;
 
 final class RemoveChannelPrototypeModelSelectionListener implements SelectionListener {
 
-    private final TabFolder rslIoTabFolder;
-    final ChannelConfigDialogDataModel channelConfigDialogDataModel;
+    private final ISelectedTab parentDialog;
+    private final ChannelConfigDialogDataModel channelConfigDialogDataModel;
     private final ISelectableAndRefreshable inputTable;
     private final ISelectableAndRefreshable outputTable;
+    private final List<DBClass> removedNodes = new ArrayList<DBClass>();
 
     //@formatter:off
     public RemoveChannelPrototypeModelSelectionListener(
-            @Nonnull final TabFolder ioTabFolder,
+            @Nonnull final ISelectedTab parentDialog,
             @Nonnull final ChannelConfigDialogDataModel channelConfigDialogDataModel,
             @Nonnull final ISelectableAndRefreshable outputTable, 
             @Nonnull final ISelectableAndRefreshable inputTable) {
             //@formatter:on
-        this.rslIoTabFolder = ioTabFolder;
+        this.parentDialog = parentDialog;
         this.channelConfigDialogDataModel = channelConfigDialogDataModel;
         this.inputTable = inputTable;
         this.outputTable = outputTable;
@@ -51,21 +49,50 @@ final class RemoveChannelPrototypeModelSelectionListener implements SelectionLis
         removeItem(channelConfigDialogDataModel.getPrototypeModule());
     }
 
+    public void executeRemove() {
+        for (DBClass node : removedNodes) {
+            try {
+                channelConfigDialogDataModel.getPrototypeModule().removeModuleChannelPrototype((ModuleChannelPrototypeDBO)node);
+                Repository.removeNode(node);
+            } catch (final PersistenceException e) {
+                DeviceDatabaseErrorDialog.open(null, Messages.ChannelConfigDialog_CantRemove, e);
+                ChannelConfigDialog.LOG.error(Messages.ChannelConfigDialog_CantRemove, e);
+            }
+        }
+        removedNodes.clear();
+    }
+
+    public void cancelRemove() {
+        removedNodes.clear();
+    }
+
     //@formatter:off
     private void remove(
-            @Nonnull final ISelectableAndRefreshable tableViewer,
+            @Nonnull final ISelectableAndRefreshable uiComponent,
             @Nonnull final ArrayList<ModuleChannelPrototypeDBO> channelPrototypeModelList,
-            @Nonnull final GSDModuleDBO protypeModule) {
+            @Nonnull final GSDModuleDBO prototypeModule) {
             //@formatter:on
-        IStructuredSelection selection = (IStructuredSelection) tableViewer.getSelection();
+        if (channelPrototypeModelList.size() == 0) {
+            return;
+        }
+        if (parentDialog.isInputTabSelected()) {
+            if (!channelConfigDialogDataModel.isHasInputFields()) {
+                return;
+            }
+        } else {
+            if (!channelConfigDialogDataModel.isHasOutputFields()) {
+                return;
+            }
+        }
+        IStructuredSelection selection = (IStructuredSelection) uiComponent.getSelection();
         if (selection.isEmpty()) {
-            final ModuleChannelPrototypeDBO remove = channelPrototypeModelList.remove(channelPrototypeModelList.size() - 1);
-            removeNode(remove);            
+            final ModuleChannelPrototypeDBO remove = channelPrototypeModelList
+                    .remove(channelPrototypeModelList.size() - 1);
+            removeNode(remove);
         } else {
             @SuppressWarnings("unchecked")
             final List<ModuleChannelPrototypeDBO> list = selection.toList();
             channelPrototypeModelList.removeAll(list);
-            protypeModule.removeModuleChannelPrototype(list);
             for (final Object object : list) {
                 if (object instanceof DBClass) {
                     final DBClass dbClass = (DBClass) object;
@@ -73,26 +100,19 @@ final class RemoveChannelPrototypeModelSelectionListener implements SelectionLis
                 }
             }
         }
-        tableViewer.refresh();
+        uiComponent.refresh();
     }
 
-    private void removeItem(GSDModuleDBO protypeModule) {
-        if (rslIoTabFolder.getSelection()[0].getText().equals(Messages.ChannelConfigDialog_Input)) {
-            remove(inputTable, channelConfigDialogDataModel.getInputChannelPrototypeModelList(), protypeModule);
+    private void removeItem(GSDModuleDBO prototypeModule) {
+        if (parentDialog.isInputTabSelected()) {
+            remove(inputTable, channelConfigDialogDataModel.getInputChannelPrototypeModelList(), prototypeModule);
         } else {
-            remove(outputTable, channelConfigDialogDataModel.getOutputChannelPrototypeModelList(), protypeModule);
+            remove(outputTable, channelConfigDialogDataModel.getOutputChannelPrototypeModelList(), prototypeModule);
         }
     }
 
-    /**
-     * @param node
-     */
     private void removeNode(@Nonnull final DBClass node) {
-        try {
-            Repository.removeNode(node);
-        } catch (final PersistenceException e) {
-            DeviceDatabaseErrorDialog.open(null, Messages.ChannelConfigDialog_CantRemove, e);
-            ChannelConfigDialog.LOG.error(Messages.ChannelConfigDialog_CantRemove, e);
-        }
+        removedNodes.add(node);
     }
+
 }

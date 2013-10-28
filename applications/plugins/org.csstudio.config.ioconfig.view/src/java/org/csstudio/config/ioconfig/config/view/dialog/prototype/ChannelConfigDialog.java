@@ -21,14 +21,15 @@
  */
 package org.csstudio.config.ioconfig.config.view.dialog.prototype;
 
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Set;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.csstudio.config.ioconfig.config.component.ModuleSelectionListBox;
+import org.csstudio.config.ioconfig.config.component.WatchableValue;
 import org.csstudio.config.ioconfig.config.view.IHasDocumentableObject;
 import org.csstudio.config.ioconfig.config.view.dialog.prototype.components.ChannelConfigDialogDataModel;
 import org.csstudio.config.ioconfig.config.view.dialog.prototype.components.InfoAreaComponent;
@@ -40,7 +41,6 @@ import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ModuleChannelPrototypeDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.SlaveDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdModuleModel2;
-import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.ParsedGsdFileModel;
 import org.csstudio.config.ioconfig.model.types.ModuleNumber;
 import org.csstudio.config.ioconfig.view.DeviceDatabaseErrorDialog;
 import org.csstudio.config.ioconfig.view.internal.localization.Messages;
@@ -60,27 +60,29 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class ChannelConfigDialog extends Dialog implements IHasDocumentableObject {
+public final class ChannelConfigDialog extends Dialog implements IHasDocumentableObject, ISelectedTab {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ChannelConfigDialog.class);
 
     private final static int SAVE_BUTON_ID = 29123812;
 
-    private boolean isDirty;
+    private WatchableValue<Boolean> dirty;
 
     private ChannelTableComponent inputTable;
     private ChannelTableComponent outputTable;
     private TabFolder ioTabFolder;
     private InfoAreaComponent infoAreaComponent;
-    private DocumentationManageView _documentationManageView;
+    private DocumentationManageView documentationManageView;
 
     private ChannelConfigDialogDataModel channelConfigDialogDataModel;
+    private RemoveChannelPrototypeModelSelectionListener removeChannelPrototypeModelSelectionListener;
 
     private Button addButton;
     private Button removeButton;
@@ -95,7 +97,16 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
         //@formatter:off                
         super(parentShell);        
         channelConfigDialogDataModel = new ChannelConfigDialogDataModel(selectedSlave);        
-        setShellStyle(SWT.APPLICATION_MODAL | SWT.CLOSE | SWT.MAX | SWT.TITLE | SWT.BORDER | SWT.RESIZE);     
+        setShellStyle(SWT.APPLICATION_MODAL | SWT.TITLE | SWT.BORDER);      
+        dirty = new WatchableValue<Boolean>();
+        dirty.addListener(new PropertyChangeListener() {            
+            @Override
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                Boolean dirty = (Boolean)evt.getNewValue();
+                 updateShellTitle(dirty);
+                 getSaveButton().setEnabled(dirty);
+            }
+        });
     }
 
     /**
@@ -134,7 +145,8 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
      */
     @Override
     public void setSavebuttonEnabled(@Nullable final String event, final boolean enabled) {
-        // nothing to do
+        System.out.println(";;");
+        dirty.setValue(true);
     }
 
     /**
@@ -142,14 +154,14 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
      */
     @Override
     public void setSaveButtonSaved() {
-        // nothing to do
+        dirty.setValue(true);
     }
 
     private void buildDocumetView(@Nonnull final TabItem item) {
         final String head = Messages.ChannelConfigDialog_Documents;
         item.setText(head);
-        _documentationManageView = new DocumentationManageView(ioTabFolder, SWT.NONE, this);
-        item.setControl(_documentationManageView);
+        documentationManageView = new DocumentationManageView(ioTabFolder, SWT.NONE, this);
+        item.setControl(documentationManageView);
         ioTabFolder.addSelectionListener(new SelectionListener() {
             @Override
             public void widgetDefaultSelected(@Nonnull final SelectionEvent e) {
@@ -163,7 +175,7 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
 
             private void docTabSelectionAction(@Nonnull final SelectionEvent e) {
                 if (e.item.equals(item)) {
-                    _documentationManageView.onActivate();
+                    documentationManageView.onActivate();
                 }
             }
         });
@@ -206,19 +218,21 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
                 //@formatter:on
 
         removeButton = createButton(left, IDialogConstants.BACK_ID, Messages.ChannelConfigDialog_Remove, false);
-        //@formatter:off
-        removeButton.addSelectionListener(new RemoveChannelPrototypeModelSelectionListener(
-                ioTabFolder,
+
+        //@formatter:off        
+        removeChannelPrototypeModelSelectionListener = new RemoveChannelPrototypeModelSelectionListener(
+                this,
                 channelConfigDialogDataModel,
                 outputTable, 
-                inputTable));
-                //@formatter:on);
+                inputTable);
+                //@formatter:on
+
+        removeButton.addSelectionListener(removeChannelPrototypeModelSelectionListener);
 
         SelectionListener setDirtySelectionListenr = new SelectionListener() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                isDirty = true;
-                getSaveButton().setEnabled(true);
+                dirty.setValue(true);
             }
 
             @Override
@@ -257,13 +271,8 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
         closeButton.addSelectionListener(new SelectionListener() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if (isDirty) {
+                if (dirty.getValue()) {
                     askForSave();
-                }
-                try {
-                    channelConfigDialogDataModel.undo();
-                } catch (PersistenceException e1) {
-                    throw new IllegalStateException("Unexpected exption: " + e);
                 }
                 ChannelConfigDialog.this.close();
             }
@@ -273,7 +282,7 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
             }
         });
 
-        getSaveButton().setEnabled(false);
+        dirty.setValue(false);
 
     }
 
@@ -349,6 +358,10 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
             @Override
             public void selectionChanged(SelectionChangedEvent event) {
 
+                if (dirty.getValue()) {
+                    askForSave();
+                }
+
                 if (!(event.getSelection() instanceof IStructuredSelection)) {
                     throw new IllegalStateException("selection must be IStrucutredSeleciton");
                 }
@@ -380,9 +393,9 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
                 });
 
             }
-                        
+
         });
-        
+
         moduleSelectionListBox.selectFirstRow();
 
     }
@@ -400,8 +413,7 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
         channelTableComponent.assignPropertChangeListener(new IPropertyChangeListener() {
             @Override
             public void propertyChange(@Nonnull final PropertyChangeEvent event) {
-                isDirty = true;
-                getSaveButton().setEnabled(true);
+                dirty.setValue(true);
             }
         });
 
@@ -420,38 +432,69 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
         }
 
         if (inputTabItem != null) {
-            inputTabItem.getControl().setEnabled(
-                    channelConfigDialogDataModel.isHasInputFields());
+            inputTabItem.getControl().setEnabled(channelConfigDialogDataModel.isHasInputFields());
         }
 
         if (outputTabItem != null) {
-            outputTabItem.getControl().setEnabled(
-                    channelConfigDialogDataModel.isHasOutputFields());
+            outputTabItem.getControl().setEnabled(channelConfigDialogDataModel.isHasOutputFields());
         }
 
-        if (getShell() != null) {
-            getShell().setText(Messages.ChannelConfigDialog_Module + channelConfigDialogDataModel.getModuleName());
-        }
+        updateShellTitle(dirty.getValue());
 
     }
 
     private void executeSave() {
         inputTable.closeAllCellEditors();
         outputTable.closeAllCellEditors();
+        removeChannelPrototypeModelSelectionListener.executeRemove();
         setEmptyChannelPrototypeName2Unused();
-        channelConfigDialogDataModel.getPrototypeModule().setDocuments(_documentationManageView.getDocuments());
+        channelConfigDialogDataModel.getPrototypeModule().setDocuments(documentationManageView.getDocuments());
         try {
             channelConfigDialogDataModel.save();
-            isDirty = false;
-            getSaveButton().setEnabled(false);
+            dirty.setValue(false);
         } catch (final PersistenceException e) {
             e.printStackTrace();
-            DeviceDatabaseErrorDialog.open(null, "The Settings not saved!\n\nDataBase Failure:", e);
+            DeviceDatabaseErrorDialog.open(null, "The Settings were not saved!\n\nDataBase Failure:", e);
         }
     }
 
     private void askForSave() {
+        MessageBox messageBox = new MessageBox(Display.getCurrent().getActiveShell(), SWT.ICON_QUESTION | SWT.YES
+                | SWT.NO);
+        messageBox.setMessage("There are unsaved changes. Save Prototype?");
+        messageBox.setText("Save Protype");
+        int response = messageBox.open();
+        if (response == SWT.YES) {
+            executeSave();
+        } else {
+            inputTable.closeAllCellEditors();
+            outputTable.closeAllCellEditors();
+            try {
+                removeChannelPrototypeModelSelectionListener.cancelRemove();
+                channelConfigDialogDataModel.undo();
+            } catch (PersistenceException e) {
+                DeviceDatabaseErrorDialog.open(null, "Undo not possible!\n\nDataBase Failure:", e);
+            }
+        }
+        dirty.setValue(false);
+    }
 
+    private void updateShellTitle(final Boolean isDirty) {
+        Display.getCurrent().asyncExec(new Runnable() {
+            @Override
+            public void run() {
+                if (getShell() != null) {
+                    if ((isDirty != null) && isDirty) {
+                        getShell().setText(
+                                Messages.ChannelConfigDialog_Module + channelConfigDialogDataModel.getModuleName()
+                                        + "*");
+                    } else {
+                        getShell().setText(
+                                Messages.ChannelConfigDialog_Module + channelConfigDialogDataModel.getModuleName());
+                    }
+                }
+            }
+        });
     }
 
     @Nonnull
@@ -459,7 +502,7 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
         return getButton(SAVE_BUTON_ID);
     }
 
-    public boolean isInputSelected() {
+    public boolean isInputTabSelected() {
         return ioTabFolder.getSelection()[0].getText().equals(Messages.ChannelConfigDialog_Input);
     }
 }

@@ -638,8 +638,8 @@ public class ProfiBusTreeView extends Composite implements ILoader {
                 }
             }
         };
-        _openManageProtypeEditorAction.setText("Open 'Manage Protypes' view");
-        _openManageProtypeEditorAction.setToolTipText("Open 'Manage Protypes' view");
+        _openManageProtypeEditorAction.setText("Open Prototypes view");
+        _openManageProtypeEditorAction.setToolTipText("Open Prototypes manager");
         _openManageProtypeEditorAction.setAccelerator('o');
         _openManageProtypeEditorAction.setImageDescriptor(getSharedImageDescriptor(ISharedImages.IMG_TOOL_NEW_WIZARD));
     }

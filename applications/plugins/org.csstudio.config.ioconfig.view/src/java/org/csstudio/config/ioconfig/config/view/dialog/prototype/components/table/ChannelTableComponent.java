@@ -12,10 +12,10 @@ import org.csstudio.config.ioconfig.model.pbmodel.DataType;
 import org.csstudio.config.ioconfig.model.pbmodel.ModuleChannelPrototypeDBO;
 import org.csstudio.config.ioconfig.view.internal.localization.Messages;
 import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
 import org.eclipse.jface.viewers.ComboBoxCellEditor;
+import org.eclipse.jface.viewers.ICellEditorListener;
 import org.eclipse.jface.viewers.ICellEditorValidator;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
@@ -36,6 +36,8 @@ public class ChannelTableComponent implements IComponent, ISelectableAndRefresha
     private TableViewer tableViewer;
     private Optional<IPropertyChangeListener> propertyChangeListener = Optional.absent();
 
+    private ICellEditorListener cellEditorListener;
+        
     //@formatter:off
     public ChannelTableComponent(
             @Nonnull final Composite tableParent,
@@ -43,6 +45,23 @@ public class ChannelTableComponent implements IComponent, ISelectableAndRefresha
             //@formatter:on
         this.tableParent = tableParent;
         this.channelPrototypeModelList = channelPrototypeModelList;
+        
+        cellEditorListener = new ICellEditorListener() {            
+            @Override
+            public void editorValueChanged(boolean oldValidState, boolean newValidState) {
+                if (propertyChangeListener.isPresent()) {
+                    propertyChangeListener.get().propertyChange(null);
+                }
+            }            
+            @Override
+            public void cancelEditor() {
+                // ignore
+            }            
+            @Override
+            public void applyEditorValue() {
+                // ignore                
+            }            
+        };
     }
 
     @Override
@@ -158,23 +177,56 @@ public class ChannelTableComponent implements IComponent, ISelectableAndRefresha
 
         final Table table = tableViewer.getTable();
         final CellEditor[] editors = new CellEditor[9];
+        
         // Offset
         editors[0] = buildIntegerEdior(table, cellEditorValidator);
         editors[1] = buildNameEditor(table);
-        // Type
-        editors[2] = new ComboBoxCellEditor(table, DataType.getNames(), SWT.DROP_DOWN | SWT.READ_ONLY);
+        
+        class MyComboBoxCellEditor extends ComboBoxCellEditor {
+            private MyComboBoxCellEditor(Composite parent, String[] items, int style) {
+                super(parent, items, style);
+            }
+            protected void doSetValue(Object value) {
+                super.doSetValue(value);
+                if (cellEditorListener != null) {
+                    cellEditorListener.editorValueChanged(true, true);
+                }
+            }
+        }
+
+        // Type               
+        editors[2] = new MyComboBoxCellEditor(table, DataType.getNames(), SWT.DROP_DOWN | SWT.READ_ONLY);
         editors[2].activate();
+        
         // Size isn't to edit
         editors[3] = null;
+        
         // Structure
-        editors[4] = new CheckboxCellEditor(table, SWT.CHECK);
+                
+        class MyCheckBoxCellEditor extends CheckboxCellEditor {
+            private MyCheckBoxCellEditor(Composite parent,  int style) {
+                super(parent, style);
+            }
+            protected void doSetValue(Object value) {
+                super.doSetValue(value);
+                if (cellEditorListener != null) {
+                    cellEditorListener.editorValueChanged(true, true);
+                }
+            }
+        }
+        
+        editors[4] = new MyCheckBoxCellEditor(table, SWT.CHECK);
         editors[4].activate();
+        
         // Status //ehemals Shift
         editors[5] = buildIntegerEdior(table, cellEditorValidator);
+        
         // MIN
         editors[6] = buildIntegerEdior(table, cellEditorValidator);
+        
         // MAX
         editors[7] = buildIntegerEdior(table, cellEditorValidator);
+        
         // Byte Order
         editors[8] = buildIntegerEdior(table, cellEditorValidator);
 
@@ -190,6 +242,7 @@ public class ChannelTableComponent implements IComponent, ISelectableAndRefresha
         final TextCellEditor editor = new TextCellEditor(table);
         editor.setValidator(cellEditorValidator);
         editor.activate();
+        editor.addListener(cellEditorListener);
         return editor;
     }
 
@@ -197,14 +250,7 @@ public class ChannelTableComponent implements IComponent, ISelectableAndRefresha
     private CellEditor buildNameEditor(@Nonnull final Table table) {
         final TextCellEditor editor = new TextCellEditor(table);
         editor.activate();
-        editor.addPropertyChangeListener(new IPropertyChangeListener() {
-            @Override
-            public void propertyChange(@Nonnull final PropertyChangeEvent event) {
-                if (propertyChangeListener.isPresent()) {
-                    propertyChangeListener.get().propertyChange(event);
-                }
-            }
-        });
+        editor.addListener(cellEditorListener);
         return editor;
     }
 

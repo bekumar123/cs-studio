@@ -410,7 +410,7 @@ public final class GsdFileParser {
                                    @Nonnull final BufferedReader br) throws IOException {
         String value = startValue.trim();
         value = removeComment(value);
-        while (value.endsWith("\\")) {
+        while (value.endsWith("\\")) {    // mark for line continuation
             lineCounter.count();
             final String readLine = br.readLine();
             if(readLine != null) {

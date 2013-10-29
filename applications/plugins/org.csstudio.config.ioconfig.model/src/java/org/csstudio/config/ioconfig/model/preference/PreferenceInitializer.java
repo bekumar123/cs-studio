@@ -24,8 +24,8 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
                   + "MKS-2,MKS,KRYO,CTA,CMTB,MKK");
         prefs.put(PreferenceConstants.DDB_LOGBOOK_MEANING,
         "DOCU,NONE,FATAL,ERROR,WARN,INFO,IDEA,TODO,DONE,FIXED");
-        prefs.put(PreferenceConstants.DDB_USER_NAME, "KRYKMAN");
-        prefs.put(PreferenceConstants.DDB_PASSWORD, "KRYKMAN");
+        prefs.put(PreferenceConstants.DDB_USER_NAME, "dbUsername");
+        prefs.put(PreferenceConstants.DDB_PASSWORD, "dbPassword");
         prefs.put(PreferenceConstants.HIBERNATE_CONNECTION_DRIVER_CLASS,
         "oracle.jdbc.driver.OracleDriver");
         prefs.put(PreferenceConstants.HIBERNATE_CONNECTION_URL, "jdbc:oracle:thin:@(DESCRIPTION ="

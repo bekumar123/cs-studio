@@ -35,8 +35,8 @@ public final class PreferenceConstants {
     public static final String DDB_FACILITIES = "ddbFacilities";
     public static final String DDB_LOGBOOK = "ddbLogbook";
     public static final String DDB_LOGBOOK_MEANING = "ddbLogbookMeaning";
-    public static final String DDB_USER_NAME = "ddbUserName";
-    public static final String DDB_PASSWORD = "ddbPassword";
+    public static final String DDB_USER_NAME = "ddbUserName2";
+    public static final String DDB_PASSWORD = "ddbPassword2";
     public static final String HIBERNATE_CONNECTION_DRIVER_CLASS = "hibernateConnectionDriverClass";
     public static final String HIBERNATE_CONNECTION_URL = "hibernateConnectionUrl";
     public static final String DIALECT = "dialect";

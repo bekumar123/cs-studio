@@ -101,8 +101,8 @@ public final class DDBSchemaExport {
         .setProperty("hibernate.dialect", "org.hibernate.dialect.Oracle10gDialect")
         .setProperty("hibernate.order_updates", "false")
         .setProperty("hibernate.connection.url","jdbc:oracle:thin:@localhost:1521:XE")
-        .setProperty("hibernate.connection.username","KRYKMAN")
-        .setProperty("hibernate.connection.password","KRYKMAN")
+        .setProperty("hibernate.connection.username","dbUsername")
+        .setProperty("hibernate.connection.password","dbPassword")
         .setProperty("hibernate.show_sql", "false")
         .setProperty("transaction.factory_class",
         "org.hibernate.transaction.JDBCTransactionFactory")

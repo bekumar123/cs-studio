@@ -81,6 +81,8 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
 /**
  * @author hrickens
  * @author $Author: hrickens $
@@ -90,7 +92,7 @@ import org.slf4j.LoggerFactory;
  *            {@link AbstractNodeSharedImpl} to edited.
  */
 public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, ?>> extends AbstractNodeEditor<T>
-    implements ICurrentUserParamDataItemCreator {
+        implements ICurrentUserParamDataItemCreator {
 
     /**
      * @author hrickens
@@ -398,9 +400,13 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
         if (parsedGsdFileModel != null) {
             _prmTextCV.clear();
             final Collection<KeyValuePair> extUserPrmDataRefMap = parsedGsdFileModel.getExtUserPrmDataRefMap().values();
+            // extUserPrmDataRef is e.g. Ext_User_Prm_Data_Ref(1) = 30
             for (final KeyValuePair extUserPrmDataRef : extUserPrmDataRefMap) {
+                System.out.println(extUserPrmDataRef);
+                // extUserPrmData is e.g. 30 : Sondenlaenge(Unsigned16)
                 final ExtUserPrmData extUserPrmData = parsedGsdFileModel.getExtUserPrmData(extUserPrmDataRef
                         .getIntValue());
+                System.out.println(extUserPrmData);               
                 if (extUserPrmData != null) {
                     final Integer value = getUserPrmDataValue(extUserPrmDataRef, extUserPrmData, new BitMaskImpl());
                     makeCurrentUserParamDataItem(currentUserParamDataComposite, extUserPrmData, value);
@@ -417,7 +423,7 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
         final Collection<KeyValuePair> extUserPrmDataRefMap = parsedGsdFileModel.getExtUserPrmDataRefMap().values();
         return extUserPrmDataRefMap.size() > 0;
     }
-    
+
     public void undoSelectionCurrentUserPrmData() {
         for (final Object prmTextObject : _prmTextCV) {
             if (prmTextObject instanceof ComboViewer) {
@@ -427,7 +433,7 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
             }
         }
     }
-    
+
     private void createButtonArea(@Nonnull final TabFolder tabFolder, @Nonnull final Composite comp,
             @Nonnull final Text selectedText, @Nonnull final TableViewer gsdFileTableViewer) {
         new Label(comp, SWT.NONE);
@@ -577,25 +583,25 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
         if (values.isEmpty()) {
             return 0;
         }
-        
+
         final int val = bitMask.getValueFromBitMask(extUserPrmData.getMinBit(), extUserPrmData.getMaxBit(), values);
         return val;
-        
+
     }
 
-    private void handleComboViewer(@Nonnull final ComboViewer prmTextCV, @Nonnull final Integer byteIndex) {
+    private void handleComboViewer(@Nonnull final ComboViewer prmTextCV, @Nonnull final Integer byteIndex, boolean firstAccess) {
         if (!prmTextCV.getCombo().isDisposed()) {
             final ExtUserPrmData extUserPrmData = (ExtUserPrmData) prmTextCV.getInput();
             final StructuredSelection selection = (StructuredSelection) prmTextCV.getSelection();
             final Integer bitValue = ((PrmTextItem) selection.getFirstElement()).getIndex();
-            setValue2BitMask(extUserPrmData, byteIndex, bitValue);
+            setValue2BitMask(extUserPrmData, byteIndex, bitValue, firstAccess);
             final Integer indexOf = prmTextCV.getCombo().indexOf(selection.getFirstElement().toString());
             prmTextCV.getCombo().setData(indexOf);
         }
     }
 
     @Nonnull
-    private void handleText(@Nonnull final Text prmText, @Nonnull final Integer byteIndex) {
+    private void handleText(@Nonnull final Text prmText, @Nonnull final Integer byteIndex, boolean firstAccess) {
         if (!prmText.isDisposed()) {
             final Object data = prmText.getData("ExtUserPrmData");
             if (data instanceof ExtUserPrmData) {
@@ -608,12 +614,12 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
                 } else {
                     bitValue = Integer.parseInt(value);
                 }
-                setValue2BitMask(extUserPrmData, byteIndex, bitValue);
+                setValue2BitMask(extUserPrmData, byteIndex, bitValue, firstAccess);
                 prmText.setData(bitValue);
             }
         }
     }
-
+    
     /**
      * 
      * @param parent
@@ -632,12 +638,18 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
         final ComboViewer prmTextCV = new ComboViewer(parent);
         final RowData data = new RowData();
         data.exclude = false;
-        
+
         final Formatter f = new Formatter();
-        f.format("Byte: %d, min Byte: %d, may Byte: %d", extUserPrmData.getIndex(), extUserPrmData.getMinBit(),
-                extUserPrmData.getMaxBit());
         
+        //@formatter:off
+        f.format("Ref-Index: %d, min Bit: %d, max Bit: %d", 
+                extUserPrmData.getIndex(), 
+                extUserPrmData.getMinBit(),
+                extUserPrmData.getMaxBit());
+                //@formatter:on
         prmTextCV.getCombo().setToolTipText(f.toString());
+        f.close();
+
         prmTextCV.getCombo().setLayoutData(data);
         prmTextCV.setLabelProvider(new PrmTextComboLabelProvider(extUserPrmData));
         prmTextCV.setContentProvider(new ExtUserPrmDataContentProvider());
@@ -661,13 +673,17 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
         }
         prmTextCV.getCombo().setData(prmTextCV.getCombo().getSelectionIndex());
 
-        f.close();
 
         return prmTextCV;
     }
 
-    private void makeCurrentUserParamDataItem(@Nonnull final Composite currentUserParamDataGroup,
-            @Nullable final ExtUserPrmData extUserPrmData, @Nullable final Integer value) {
+    //@formatter:off
+    private void makeCurrentUserParamDataItem(
+            @Nonnull final Composite currentUserParamDataGroup,
+            @Nullable final ExtUserPrmData extUserPrmData, 
+            @Nullable final Integer value) {
+            //@formatter:on
+
         PrmText prmText = null;
 
         final Text text = new Text(currentUserParamDataGroup, SWT.SINGLE | SWT.READ_ONLY);
@@ -685,7 +701,6 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
         new Label(currentUserParamDataGroup, SWT.SEPARATOR | SWT.HORIZONTAL);// .setLayoutData(new
     }
 
-    
     /**
      * 
      * @param tabFolder
@@ -718,17 +733,35 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
      * @param extUserPrmData
      * @return
      */
+    //@formatter:off
     @Nonnull
-    Text makeTextField(@Nonnull final Composite currentUserParamDataGroup, @CheckForNull final Integer value,
+    Text makeTextField(
+            @Nonnull final Composite currentUserParamDataGroup, 
+            @CheckForNull final Integer value,
             @Nonnull final ExtUserPrmData extUserPrmData) {
+            //@formatter:on
         Integer localValue = value;
         final Text prmText = new Text(currentUserParamDataGroup, SWT.BORDER | SWT.SINGLE | SWT.RIGHT);
         final Formatter f = new Formatter();
-        f.format("Byte: %d, min Byte: %d, may Byte: %d \r\nMin: %d, Min: %d Default: %d", extUserPrmData.getIndex(),
-                extUserPrmData.getMinBit(), extUserPrmData.getMaxBit(), extUserPrmData.getMinValue(),
-                extUserPrmData.getMaxValue(), extUserPrmData.getDefault());
+        //@formatter:off
+        f.format("Ref-Index: %d, min Bit: %d, max Bit: %d \r\nMin: %d, Max: %d Default: %d",
+                extUserPrmData.getIndex(),
+                extUserPrmData.getMinBit(), 
+                extUserPrmData.getMaxBit(), 
+                extUserPrmData.getMinValue(),
+                extUserPrmData.getMaxValue(), 
+                extUserPrmData.getDefault());
+        //@formatter:on
         prmText.setToolTipText(f.toString());
-        prmText.setTextLimit(Integer.toString(extUserPrmData.getMaxValue()).length());
+
+        int maxinputLength = Integer.toString(extUserPrmData.getMaxValue()).length();
+
+        // if neagtive values are allowed add 1 to allow input for sign
+        if ((extUserPrmData.getMinValue() < 0) || (extUserPrmData.getMaxValue() < 0)) {
+            maxinputLength++;
+        }
+
+        prmText.setTextLimit(maxinputLength);
 
         if (localValue == null) {
             localValue = extUserPrmData.getDefault();
@@ -738,16 +771,19 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
         prmText.setData("ExtUserPrmData", extUserPrmData);
 
         prmText.addModifyListener(getMLSB());
+
         prmText.addVerifyListener(new VerifyListener() {
 
             @Override
             public void verifyText(@Nonnull final VerifyEvent e) {
-                if (e.text.matches("^\\D+$")) {
-                    e.doit = false;
+                String currentInput = e.text;
+                if (!Strings.isNullOrEmpty(currentInput)) {
+                    e.doit = currentInput.equals("-") || Character.isDigit(currentInput.charAt(0));
                 }
             }
 
         });
+
         return prmText;
     }
 
@@ -762,24 +798,38 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
         if (gsdPropertyModel != null) {
             final Collection<KeyValuePair> extUserPrmDataRefMap = gsdPropertyModel.getExtUserPrmDataRefMap().values();
 
+            List<Integer> indexVisited = new ArrayList<Integer>();
+            
             if (extUserPrmDataRefMap.size() == _prmTextCV.size()) {
-                int i = 0;
+
+                int i = 0;               
                 for (final KeyValuePair ref : extUserPrmDataRefMap) {
                     final Object prmTextObject = _prmTextCV.get(i);
                     final Integer index = ref.getIndex();
+                    
                     if (index != null) {
+
+                        boolean firstAccess;
+                        
+                        if (indexVisited.contains(index)) {
+                            firstAccess = false;
+                        } else {
+                            indexVisited.add(index);
+                            firstAccess = true;
+                        }
+
                         if (prmTextObject instanceof ComboViewer) {
                             final ComboViewer prmTextCV = (ComboViewer) prmTextObject;
-                            handleComboViewer(prmTextCV, index);
+                            handleComboViewer(prmTextCV, index, firstAccess);
                         } else if (prmTextObject instanceof Text) {
                             final Text prmText = (Text) prmTextObject;
-                            handleText(prmText, index);
+                            handleText(prmText, index, firstAccess);
                         }
                     }
+                    
                     i++;
+                    
                 }
-
-                afterSaveUserPrmData();
 
             }
         }
@@ -811,14 +861,10 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
             }
         }
     }
-    
-    protected void afterSaveUserPrmData() {
-        // for configuration purposes
-    }
 
     abstract void setGsdFile(@Nullable GSDFileDBO gsdFile);
 
-    abstract void setPrmUserData(@Nonnull Integer index, @Nonnull Integer value);
+    abstract void setPrmUserData(@Nonnull Integer index, @Nonnull Integer value, boolean firstAccess);
 
     /**
      * Change the a value on the Bit places, that is given from the input, to
@@ -828,23 +874,25 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
      *            give the start and end Bit position.
      * @param bitValue
      *            the new Value for the given Bit position.
+     * @param firstAccess 
      * @param value
      *            the value was changed.
      * @return the changed value.
      */
     @Nonnull
     private void setValue2BitMask(@Nonnull final ExtUserPrmData extUserPrmData, @Nonnull final Integer byteIndex,
-            @Nonnull final Integer bitValue) {
-        // TODO (hrickens) [21.04.2011]: Muss refactort werde da der gleiche
-        // code auch in AbstractGsdPropertyModel#setExtUserPrmDataValue
-        // verwendent wird.
+            @Nonnull final Integer bitValue, boolean firstAccess) {
         int val = bitValue;
+        
         int minBit = extUserPrmData.getMinBit();
         int maxBit = extUserPrmData.getMaxBit();
+        
         if (maxBit < minBit) {
-            minBit = extUserPrmData.getMaxBit();
-            maxBit = extUserPrmData.getMinBit();
+            throw new IllegalStateException("minBit must not be greater than maxBit");
         }
+
+        System.out.println("BitValue: " + val);
+
         final int mask = ~((int) (Math.pow(2, maxBit + 1) - Math.pow(2, minBit)));
         if (maxBit > 7 && maxBit < 16) {
             int modifyByteHigh = 0;
@@ -857,16 +905,18 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
             final int result = parseInt & mask | val;
             modifyByteLow = result % 256;
             modifyByteHigh = (result - modifyByteLow) / 256;
-            setPrmUserData(byteIndex + 1, modifyByteHigh);
-            setPrmUserData(byteIndex, modifyByteLow);
+         //   setPrmUserData(byteIndex + 1, modifyByteHigh, firstAccess);
+          //  setPrmUserData(byteIndex, modifyByteLow, firstAccess);
         } else {
-            final int modifyByte = getPrmUserData(byteIndex);
+            //final int modifyByte = getPrmUserData(byteIndex);
             val = val << minBit;
-            final int result = modifyByte & mask | val;
-            setPrmUserData(byteIndex, result);
+            //System.out.println("Value after Shift: " + val);
+            //final int result =  (modifyByte & mask) | val;
+            setPrmUserData(byteIndex, val, firstAccess);
         }
+        
     }
-  
+
     private static void createGSDFileActions(@Nonnull final TableViewer viewer) {
         final Menu menu = new Menu(viewer.getControl());
         final MenuItem showItem = new MenuItem(menu, SWT.PUSH);
@@ -875,5 +925,5 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
         showItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER));
         viewer.getTable().setMenu(menu);
     }
-    
+
 }

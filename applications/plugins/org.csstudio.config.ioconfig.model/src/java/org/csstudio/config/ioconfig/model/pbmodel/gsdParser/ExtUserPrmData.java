@@ -34,6 +34,8 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Optional;
+
 /**
  * @author hrickens
  * @author $Author: hrickens $
@@ -90,9 +92,8 @@ public class ExtUserPrmData {
      * @param text
      *            The Name/Desc of this ext user prm data.
      */
-    public ExtUserPrmData(@Nonnull final ParsedGsdFileModel gsdFileModel,
-                          @Nonnull final Integer index,
-                          @Nonnull final String text) {
+    public ExtUserPrmData(@Nonnull final ParsedGsdFileModel gsdFileModel, @Nonnull final Integer index,
+            @Nonnull final String text) {
         _gsdFileModel = gsdFileModel;
         _index = index;
         setText(text);
@@ -106,10 +107,45 @@ public class ExtUserPrmData {
         if (dataTypeParameterParts.length == 3) {
             setDataType(dataTypeParameterParts[0]);
             setDefault(dataTypeParameterParts[1]);
+            String valuePart = dataTypeParameterParts[2];
+            Optional<Integer> hyphenPos = getHyphenPos(valuePart);
+            if (hyphenPos.isPresent()) {
+                String min = valuePart.substring(0, hyphenPos.get()).trim();
+                String max = valuePart.substring(hyphenPos.get() + 1).trim();
+                setValueRange(min, max);
+            } else if (valuePart.contains(",")) {
+                setValues(valuePart.split(","));
+            } else {
+                LOG.error("Unkown DataType Values: {}", dataTypeParameter);
+            }
+        } else {
+            LOG.error("Unkown DataType!");
+        }
+    }
+
+    private Optional<Integer> getHyphenPos(String dataTypeParameter) {
+        for (int i = 1; i < dataTypeParameter.length() - 1; i++) {
+            char charBefore = dataTypeParameter.charAt(i - 1);
+            char currentChar = dataTypeParameter.charAt(i);
+            if ((currentChar == '-') && (Character.isDigit(charBefore))) {
+                return Optional.of(i);
+            }
+        }
+        return Optional.absent();
+    }
+
+    /**
+     * @param dataTypeParameter
+     */
+    public void buildDataTypeParameterOld(@Nonnull final String dataTypeParameter) {
+        final String[] dataTypeParameterParts = dataTypeParameter.split(";")[0].split("\\s+");
+        if (dataTypeParameterParts.length == 3) {
+            setDataType(dataTypeParameterParts[0]);
+            setDefault(dataTypeParameterParts[1]);
             if (dataTypeParameterParts[2].contains("-")) {
                 final String[] minMax = dataTypeParameterParts[2].split("-");
                 setValueRange(minMax[0].trim(), minMax[1].trim());
-            } else if(dataTypeParameterParts[2].contains(",")){
+            } else if (dataTypeParameterParts[2].contains(",")) {
                 setValues(dataTypeParameterParts[2].split(","));
             } else {
                 LOG.error("Unkown DataType Values: {}", dataTypeParameter);
@@ -122,7 +158,7 @@ public class ExtUserPrmData {
     /**
      * The dataType of this ext user prm data as plain text.<br>
      * (e.G. Bit(1), BitArea(4-7), UnsignedX)
-     *
+     * 
      * @return the plain text dataType.
      */
     @Nonnull
@@ -134,7 +170,7 @@ public class ExtUserPrmData {
     }
 
     /**
-     *
+     * 
      * @return the default value.
      */
     public final int getDefault() {
@@ -142,7 +178,7 @@ public class ExtUserPrmData {
     }
 
     /**
-     *
+     * 
      * @return The ref index of this ext user prm data.
      */
     @Nonnull
@@ -151,7 +187,7 @@ public class ExtUserPrmData {
     }
 
     /**
-     *
+     * 
      * @return The highest bit to manipulate.
      */
     public final int getMaxBit() {
@@ -163,7 +199,7 @@ public class ExtUserPrmData {
      */
     public final int getMaxValue() {
         Integer max = 0;
-        if(_values != null) {
+        if (_values != null) {
             max = _values.last();
         }
         return max;
@@ -171,7 +207,7 @@ public class ExtUserPrmData {
     }
 
     /**
-     *
+     * 
      * @return The lowest bit to manipulate.
      */
     public final int getMinBit() {
@@ -183,21 +219,21 @@ public class ExtUserPrmData {
      */
     public final int getMinValue() {
         Integer min = 0;
-        if(_values != null) {
+        if (_values != null) {
             min = _values.first();
         }
         return min;
     }
 
     /**
-     *
+     * 
      * @return The Parameter Text Map.
      */
     @CheckForNull
     public final PrmText getPrmText() {
         PrmText prmText = null;
         final Integer prmTextRef = getPrmTextRef();
-        if(prmTextRef!=null) {
+        if (prmTextRef != null) {
             prmText = _gsdFileModel.getPrmTextMap().get(prmTextRef);
         }
         return prmText;
@@ -212,7 +248,7 @@ public class ExtUserPrmData {
     }
 
     /**
-     *
+     * 
      * @return The Name/Desc of this ext user prm data.
      */
     @Nonnull
@@ -223,7 +259,7 @@ public class ExtUserPrmData {
     @Nonnull
     public SortedSet<Integer> getValues() {
         TreeSet<Integer> values;
-        if(_range) {
+        if (_range) {
             values = new TreeSet<Integer>();
             for (int i = _values.first(); i < _values.last(); i++) {
                 values.add(i);
@@ -239,7 +275,7 @@ public class ExtUserPrmData {
     }
 
     /**
-     *
+     * 
      * @param dataType
      *            set the plain text DataType.
      */
@@ -272,7 +308,7 @@ public class ExtUserPrmData {
 
     /**
      * Set a numeric int value, given as string.
-     *
+     * 
      * @param def
      *            set the default value.
      */
@@ -285,7 +321,7 @@ public class ExtUserPrmData {
     }
 
     /**
-     *
+     * 
      * @param maxBit
      *            Set the highest bit to manipulate.
      */
@@ -298,7 +334,7 @@ public class ExtUserPrmData {
     }
 
     /**
-     *
+     * 
      * @param minBit
      *            Set the lowest bit to manipulate.
      */
@@ -311,7 +347,7 @@ public class ExtUserPrmData {
     }
 
     /**
-     *
+     * 
      * @param integer
      *            Set the Parameter Text Reference.
      */
@@ -320,7 +356,7 @@ public class ExtUserPrmData {
     }
 
     /**
-     *
+     * 
      * @param text
      *            Set the Name/Desc of this ext user prm data.
      */
@@ -357,7 +393,7 @@ public class ExtUserPrmData {
         if (values != null) {
             _range = false;
             _values = new TreeSet<Integer>();
-            for (final String value: values) {
+            for (final String value : values) {
                 _values.add(GsdFileParser.gsdValue2Int(value));
             }
         }

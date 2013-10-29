@@ -813,7 +813,7 @@ public class MasterEditor extends AbstractGsdNodeEditor<MasterDBO> {
      * {@inheritDoc}
      */
     @Override
-    void setPrmUserData(@Nullable final Integer index, @Nullable final Integer value) {
+    void setPrmUserData(@Nullable final Integer index, @Nullable final Integer value, boolean firstAccess) {
         // TODO Auto-generated method stub
 
     }

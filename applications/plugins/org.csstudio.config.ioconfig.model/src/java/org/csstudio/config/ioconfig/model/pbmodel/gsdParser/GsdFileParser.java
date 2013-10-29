@@ -432,11 +432,23 @@ public final class GsdFileParser {
         }
         Integer val;
         int radix = 10;
+        boolean isNegativ = false;
         if (tmpValue.startsWith("0x")) {
-            tmpValue = tmpValue.substring(2);
+            if (tmpValue.length() > 4) {
+                tmpValue = tmpValue.substring(tmpValue.length() - 4);
+                isNegativ = true;
+            } else {
+                tmpValue = tmpValue.substring(2);
+            }
             radix = 16;
         }
         val = Integer.parseInt(tmpValue, radix);
+        // negative numbers are two complement encoded 
+        if (isNegativ) {
+            val = val ^ Integer.parseInt("FFFF", 16); // reverse all bits
+            val = val + 1;
+            val = val * -1;
+        }
         return val;
     }
 
@@ -444,7 +456,8 @@ public final class GsdFileParser {
     public static String intList2HexString(@Nonnull final List<Integer> intList) {
         final StringBuilder sb = new StringBuilder();
         for (final Integer value : intList) {
-            sb.append(String.format("0x%02X,", value));
+            String hexValue = String.format("0x%02X,", value);
+            sb.append(hexValue);
         }
         if (sb.length() > 0) {
             sb.deleteCharAt(sb.length() - 1);

@@ -145,7 +145,6 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
      */
     @Override
     public void setSavebuttonEnabled(@Nullable final String event, final boolean enabled) {
-        System.out.println(";;");
         dirty.setValue(true);
     }
 

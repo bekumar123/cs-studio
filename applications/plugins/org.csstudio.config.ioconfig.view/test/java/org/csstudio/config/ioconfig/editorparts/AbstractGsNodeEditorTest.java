@@ -91,7 +91,7 @@ public class AbstractGsNodeEditorTest {
         }
 
         @Override
-        void setPrmUserData(Integer index, Integer value) {
+        void setPrmUserData(Integer index, Integer value, boolean firstAccess) {
         }
         
         //@formatter:off

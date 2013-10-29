@@ -1179,7 +1179,7 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
      * {@inheritDoc}
      */
     @Override
-    void setPrmUserData(@Nonnull final Integer index, @Nonnull final Integer value) {
+    void setPrmUserData(@Nonnull final Integer index, @Nonnull final Integer value, boolean firstAccess) {
         _slave.setPrmUserDataByte(index, value);
     }
 }

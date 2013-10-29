@@ -1,5 +1,5 @@
 /*
-                System.out.println("111111111111");
+               
  * Copyright (c) 2010 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
@@ -412,8 +412,8 @@ public final class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
      * {@inheritDoc}
      */
     @Override
-    void setPrmUserData(@Nonnull final Integer index, @Nonnull final Integer value) {
-        module.setConfigurationDataByte(index, value);
+    void setPrmUserData(@Nonnull final Integer index, @Nonnull final Integer value, boolean firstAccess) {
+        module.setConfigurationDataByte(index, value, firstAccess);
     }
 
     /**

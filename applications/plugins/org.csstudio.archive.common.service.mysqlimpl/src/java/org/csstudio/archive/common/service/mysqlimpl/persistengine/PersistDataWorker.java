@@ -34,6 +34,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 import org.csstudio.archive.common.service.ArchiveConnectionException;
+import org.csstudio.archive.common.service.mysqlimpl.MySQLArchivePreferenceService;
 import org.csstudio.archive.common.service.mysqlimpl.batch.BatchQueueHandlerSupport;
 import org.csstudio.archive.common.service.mysqlimpl.batch.IBatchQueueHandlerProvider;
 import org.csstudio.archive.common.service.mysqlimpl.dao.ArchiveConnectionHandler;
@@ -43,6 +44,7 @@ import org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleBatchQu
 import org.csstudio.domain.desy.task.AbstractTimeMeasuredRunnable;
 import org.csstudio.domain.desy.time.StopWatch;
 import org.csstudio.domain.desy.time.StopWatch.RunningStopWatch;
+import org.epics.pvmanager.TypeSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,9 +72,12 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
     private final String _name;
     private final long _periodInMS;
 
+    @SuppressWarnings("unused")
     private final IBatchQueueHandlerProvider _handlerProvider;
     private final List<Object> _rescueDataList = Lists.newLinkedList();
     private final RunningStopWatch _watch;
+    @SuppressWarnings("rawtypes")
+    private final TypeSupport _handler;
 
     /**
      * Constructor.
@@ -86,16 +91,38 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
         _periodInMS = periodInMS;
         _handlerProvider = provider;
         _watch = StopWatch.start();
+        _handler = null;
+    }
+
+    /**
+     * Constructor.
+     * @param connectionHandler
+     * @param name
+     * @param prefPeriodInMS
+     * @param handler
+     */
+    @SuppressWarnings("rawtypes")
+    public PersistDataWorker(final ArchiveConnectionHandler connectionHandler,
+                             final String name,
+                             final Integer prefPeriodInMS,
+                             final TypeSupport handler) {
+        _connectionHandler = connectionHandler;
+        _name = name;
+        _periodInMS = prefPeriodInMS;
+        _handlerProvider = null;
+        _watch = StopWatch.start();
+        _handler = handler;
     }
 
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void measuredRun() {
-
         try {
-            processBatchHandlers(_connectionHandler.getThreadLocalConnection(), _handlerProvider, _rescueDataList);
+          //  LOG.info( " {}", Thread.currentThread().getId());
+            processBatchHandler(_connectionHandler.getThreadLocalConnection(),(BatchQueueHandlerSupport) _handler, _rescueDataList);
 
         } catch (final Throwable t) {
             LOG.error("Unknown throwable in thread {}.", _name);
@@ -105,39 +132,16 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
     }
 
     @SuppressWarnings("unchecked")
-    protected <T> void processBatchHandlers(@Nonnull Connection connection,
+    protected <T> void processBatchHandlers(@Nonnull final Connection connection,
                                             @Nonnull final IBatchQueueHandlerProvider handlerProvider,
-                                            @Nonnull final List<T> rescueDataList) {
+                                            @Nonnull final List<Object> rescueDataList) {
         final Collection<T> elements = Lists.newLinkedList();
 
         for (final BatchQueueHandlerSupport<T> handler : handlerProvider.getHandlers()) {
-            if (handler instanceof ArchiveSampleBatchQueueHandler) {
-                return;
-            }
             final BlockingQueue<T> queue = handler.getQueue();
             queue.drainTo(elements);
-            if (!elements.isEmpty()) {
-                PreparedStatement stmt = null;
-                try {//bei jedes Mal SQL Statement erzeugen, connection neue prüfen, ob die Connection closed ist
-                    while (connection == null || connection.isClosed()) {
-                        connection = _connectionHandler.getThreadLocalConnection();
-                    }
-                    stmt = handler.createNewStatement(connection);
-                    processBatchForStatement(handler, elements, stmt, rescueDataList);
-                } catch (final ArchiveConnectionException e) {
-                    handler.getQueue().addAll(elements);
-                    elements.clear();
-                    LOG.error("Connection to archive failed", e);
-                    // FIXME (bknerr) : strategy for queues getting full, when to rescue data? How to check for failover?
-                } catch (final SQLException e) {
-                    handler.getQueue().addAll(elements);
-                    elements.clear();
-                    LOG.error("Creation of batch statement failed for strategy " + handler.getClass().getSimpleName(), e);
-                    // FIXME (bknerr) : strategy for queues getting full, when to rescue data?
-                }
-                elements.clear();
-            }
-        }
+            handlerProcessBatchForStatement(connection, handler, rescueDataList, elements);
+          }
     }
 
     protected <T> void processBatchForStatement(@Nonnull final BatchQueueHandlerSupport<T> handler,
@@ -174,7 +178,7 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
             }
             //  executeBatchAndClearListOnCondition(handler, myStmt, rescueDataList, 1);
             size = rescueDataList.size();
-            if (size >= 1) {
+            if (size > 0) {
                 try {
                     _watch.restart();
                     //   int iii[] = stmt.executeBatch();
@@ -182,10 +186,10 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
                     LOG.debug("{}", iii.length);
                     //  stmt.execute();
                     // stmt.executeUpdate();
-                    if (!(handler instanceof ArchiveSampleBatchQueueHandler)) {
-                        LOG.info("{}ms for {}x {}", new Object[] { _watch.getElapsedTimeInMillis(), iii.length,
-                                                                  handler.getHandlerType().getSimpleName() });
-                    }
+                           if (!(handler instanceof ArchiveSampleBatchQueueHandler)) {
+                    LOG.info("{}ms for {}x {}", new Object[] { _watch.getElapsedTimeInMillis(), iii.length,
+                                                              handler.getHandlerType().getSimpleName() });
+                         }
                 } catch (final Throwable t) {
                     handler.getQueue().addAll(elements);
                     elements.clear();
@@ -309,11 +313,7 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
         return _periodInMS;
     }
 
-    private String getDatabaseName() {
-        return _connectionHandler.getDatabaseName();
-    }
-
-    void rescueDataToFileSystem(@Nonnull final Iterable<String> statements) {
+   void rescueDataToFileSystem(@Nonnull final Iterable<String> statements) {
         final int noOfRescuedStmts = Iterables.size(statements);
         LOG.warn("Rescue statements: " + noOfRescuedStmts);
         int no = 0;
@@ -324,5 +324,83 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
         if (no != 0) {
             ArchiveNotifications.notify(NotificationType.PERSIST_DATA_FAILED, "#Rescued: " + no);
         }
+    }
+
+    @SuppressWarnings("rawtypes")
+    public TypeSupport getHandler() {
+        return _handler;
+    }
+
+
+    /**
+     * @param connection
+     * @param handlerProvider
+     * @param rescueDataList
+     */
+    protected <T> void processBatchHandler(final Connection connection,
+                                           final BatchQueueHandlerSupport<T>  handler,
+                                           final List<Object> rescueDataList) {
+        try {
+            final Collection<T> elements = Lists.newLinkedList();
+            final BlockingQueue<T> queue = handler.getQueue();
+            if (queue.size() > new MySQLArchivePreferenceService().getQueueMaxiSize()) {
+                for (; queue.size() > 0;) {
+                    synchronized (queue) {
+                        queue.drainTo(elements, 1000);
+                        final Collection<String> statements = handler.convertToStatementString(elements);
+                        elements.clear();
+                        rescueDataToFileSystem(statements);
+                    }
+
+                }
+            }
+            queue.drainTo(elements);
+            handlerProcessBatchForStatement(connection, handler, rescueDataList, elements);
+           } catch (final Throwable t) {
+            LOG.error("Unknown throwable in thread {}.", _name);
+            t.printStackTrace();
+            EMAIL_LOG.info("Unknown throwable in thread {}. See event.log for more info.", _name);
+            }
+
+    }
+    /**
+     * @param connection
+     * @param handlerProvider
+     * @param rescueDataList
+     */
+    @SuppressWarnings("unchecked")
+    protected <T> void handlerProcessBatchForStatement(Connection connection,
+                                           final BatchQueueHandlerSupport<T>  handler,
+                                           final List<Object> rescueDataList,
+                                           final Collection<T> elements) {
+        try {
+                if (!elements.isEmpty()) {
+                PreparedStatement stmt = null;
+                try {//bei jedes Mal SQL Statement erzeugen, connection neue prüfen, ob die Connection closed ist
+                    while (connection == null || connection.isClosed()) {
+                        connection = _connectionHandler.getThreadLocalConnection();
+                    }
+                    stmt = handler.createNewStatement(connection);
+                    processBatchForStatement(handler, elements, stmt, (List<T>) _rescueDataList);
+                } catch (final ArchiveConnectionException e) {
+                    handler.getQueue().addAll(elements);
+                    elements.clear();
+                    LOG.error("Connection to archive failed", e);
+                    // FIXME (bknerr) : strategy for queues getting full, when to rescue data? How to check for failover?
+                } catch (final SQLException e) {
+                    handler.getQueue().addAll(elements);
+                    elements.clear();
+                    LOG.error("Creation of batch statement failed for strategy " + handler.getClass().getSimpleName(), e);
+                    // FIXME (bknerr) : strategy for queues getting full, when to rescue data?
+                }
+                elements.clear();
+            }
+
+        } catch (final Throwable t) {
+            LOG.error("Unknown throwable in thread {}.", _name);
+            t.printStackTrace();
+            EMAIL_LOG.info("Unknown throwable in thread {}. See event.log for more info.", _name);
+        }
+
     }
 }

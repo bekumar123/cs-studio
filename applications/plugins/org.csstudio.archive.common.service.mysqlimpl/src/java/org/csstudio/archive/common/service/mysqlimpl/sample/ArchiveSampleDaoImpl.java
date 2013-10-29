@@ -82,8 +82,7 @@ import com.google.inject.Inject;
  * @since 11.11.2010
  */
 public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchiveSampleDao {
-    private static final Logger LOG =
-            LoggerFactory.getLogger(ArchiveSampleDaoImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ArchiveSampleDaoImpl.class);
 
     public static final String TAB_SAMPLE = "sample";
     public static final String TAB_SAMPLE_M = "sample_m";
@@ -102,32 +101,33 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
     private static final String ARCH_TABLE_PLACEHOLDER = "<arch.table>";
     private static final String RETRIEVAL_FAILED = "Sample retrieval from archive failed.";
 
-    private static final String SELECT_RAW_PREFIX =
-        "SELECT * ";
-    private final String _selectRawSamplesStmt =
-        SELECT_RAW_PREFIX +
-        "FROM " + getDatabaseName() + "." + ARCH_TABLE_PLACEHOLDER + " WHERE " + COLUMN_CHANNEL_ID + "=? " +
-        "AND " + COLUMN_TIME + " BETWEEN ? AND ?";
-    private final String _selectOptSamplesStmt =
-        "SELECT " + Joiner.on(",").join(COLUMN_CHANNEL_ID, COLUMN_TIME, COLUMN_AVG, COLUMN_MIN, COLUMN_MAX) + " " +
-        "FROM " + getDatabaseName() + "."+ ARCH_TABLE_PLACEHOLDER + " WHERE " + COLUMN_CHANNEL_ID + "=? " +
-        "AND " + COLUMN_TIME + " BETWEEN ? AND ?";
-    private final String _selectLatestSampleBeforeTimeStmt =
-        SELECT_RAW_PREFIX +
-        "FROM " + getDatabaseName() + "." + TAB_SAMPLE + " WHERE " + COLUMN_CHANNEL_ID + "=? " +
-        "AND " + COLUMN_TIME + "<? ORDER BY " + COLUMN_TIME + " DESC LIMIT 1";
-    private final String _selectSampleExistsForChannel =
-        "SELECT * FROM " + getDatabaseName() + "." + ARCH_TABLE_PLACEHOLDER +
-        " WHERE " + COLUMN_CHANNEL_ID + "=? LIMIT 1";
+    private static final String SELECT_RAW_PREFIX = "SELECT * ";
+    private final String _selectRawSamplesStmt = SELECT_RAW_PREFIX + "FROM " + getDatabaseName() + "."
+                                                 + ARCH_TABLE_PLACEHOLDER + " WHERE " + COLUMN_CHANNEL_ID + "=? " + "AND "
+                                                 + COLUMN_TIME + " BETWEEN ? AND ?";
+    private final String _selectOptSamplesStmt = "SELECT "
+                                                 + Joiner.on(",").join(COLUMN_CHANNEL_ID,
+                                                                       COLUMN_TIME,
+                                                                       COLUMN_AVG,
+                                                                       COLUMN_MIN,
+                                                                       COLUMN_MAX) + " " + "FROM " + getDatabaseName() + "."
+                                                 + ARCH_TABLE_PLACEHOLDER + " WHERE " + COLUMN_CHANNEL_ID + "=? " + "AND "
+                                                 + COLUMN_TIME + " BETWEEN ? AND ?";
+    private final String _selectLatestSampleBeforeTimeStmt = SELECT_RAW_PREFIX + "FROM " + getDatabaseName() + "."
+                                                             + TAB_SAMPLE + " WHERE " + COLUMN_CHANNEL_ID + "=? " + "AND "
+                                                             + COLUMN_TIME + "<? ORDER BY " + COLUMN_TIME + " DESC LIMIT 1";
+    private final String _selectSampleExistsForChannel = "SELECT * FROM " + getDatabaseName() + "." + ARCH_TABLE_PLACEHOLDER
+                                                         + " WHERE " + COLUMN_CHANNEL_ID + "=? LIMIT 1";
 
-    private final ConcurrentMap<ArchiveChannelId, SampleMinMaxAggregator> _reducedDataMapForMinutes =
-        new MapMaker().concurrencyLevel(2).weakKeys().makeMap();
-    private final ConcurrentMap<ArchiveChannelId, SampleMinMaxAggregator> _reducedDataMapForHours =
-        new MapMaker().concurrencyLevel(2).weakKeys().makeMap();
+    private final ConcurrentMap<ArchiveChannelId, SampleMinMaxAggregator> _reducedDataMapForMinutes = new MapMaker()
+            .concurrencyLevel(2).weakKeys().makeMap();
+    private final ConcurrentMap<ArchiveChannelId, SampleMinMaxAggregator> _reducedDataMapForHours = new MapMaker()
+            .concurrencyLevel(2).weakKeys().makeMap();
 
     private final IArchiveChannelDao _channelDao;
-    private static Map<Integer,String> _statusmap   =  new MapMaker().makeMap();
-    private static Map<Integer,String> _servertymap =  new MapMaker().makeMap();
+    private static Map<Integer, String> _statusmap = new MapMaker().makeMap();
+    private static Map<Integer, String> _servertymap = new MapMaker().makeMap();
+
     /**
      * Constructor.
      */
@@ -149,40 +149,53 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
      * {@inheritDoc}
      */
     @Override
-    public <V extends Serializable, T extends ISystemVariable<V>>
-    int createSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveDaoException {
-        int size=0;
-        final Collection<IArchiveSample<V, T>> s= new ArrayList<IArchiveSample<V,T>>();
-        for(final IArchiveSample<V, T> ss:samples ){
-            final ArchiveSample<V, T> mySample=(ArchiveSample<V, T>)ss;
-            if(ss instanceof ArchiveSample){
-                mySample.setStatusIndex(((EpicsAlarm) ((ArchiveSample) ss).getAlarm()).getStatus().ordinal()*100+getStatusId(((EpicsAlarm) ((ArchiveSample) ss).getAlarm()).getStatus().toString()));
-                mySample.setServertyIndex(((EpicsAlarm) ((ArchiveSample) ss).getAlarm()).getSeverity().ordinal()*100+getServertyId(((EpicsAlarm) ((ArchiveSample) ss).getAlarm()).getSeverity().toString()));
+    public <V extends Serializable, T extends ISystemVariable<V>> int createSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveDaoException {
+        int size = 0;
+        final Collection<IArchiveSample<V, T>> s = new ArrayList<IArchiveSample<V, T>>();
+        for (final IArchiveSample<V, T> ss : samples) {
+            final ArchiveSample<V, T> mySample = (ArchiveSample<V, T>) ss;
+            if (ss instanceof ArchiveSample) {
+                mySample.setStatusIndex(((EpicsAlarm) ((ArchiveSample) ss).getAlarm()).getStatus().ordinal() * 100
+                                        + getStatusId(((EpicsAlarm) ((ArchiveSample) ss).getAlarm()).getStatus().toString()));
+                mySample.setServertyIndex(((EpicsAlarm) ((ArchiveSample) ss).getAlarm()).getSeverity().ordinal()
+                                          * 100
+                                          + getServertyId(((EpicsAlarm) ((ArchiveSample) ss).getAlarm()).getSeverity()
+                                                  .toString()));
                 s.add(mySample);
             }
         }
+        //   try {
         try {
-            size = getEngineMgr().submitToBatch(samples);
-            final List<? extends AbstractReducedDataSample> minuteSamples =
-                generatePerMinuteSamples(samples, _reducedDataMapForMinutes);
-            if(minuteSamples.size()>0) {
+            size = getEngineMgr().submitToBatch(s);
+        } catch (final TypeSupportException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        List<MinuteReducedDataSample> minuteSamples = Lists.newLinkedList();
+        try {
+            minuteSamples = generatePerMinuteSamples(s, _reducedDataMapForMinutes);
+            if (minuteSamples.size() > 0) {
                 getEngineMgr().submitToBatch(minuteSamples);
             }
-            final List<? extends AbstractReducedDataSample> hourSamples =
-                generatePerHourSamples(minuteSamples, _reducedDataMapForHours);
-               if(hourSamples.size()>0) {
+        } catch (final TypeSupportException e1) {
+            e1.printStackTrace();
+        }
+
+        try {
+            final List<HourReducedDataSample> hourSamples = generatePerHourSamples(minuteSamples, _reducedDataMapForHours);
+            if (hourSamples.size() > 0) {
                 getEngineMgr().submitToBatch(hourSamples);
             }
-                 } catch (final TypeSupportException e) {
-            throw new ArchiveDaoException("Type support for sample type could not be found.", e);
+        } catch (final TypeSupportException e) {
+             e.printStackTrace();
         }
+
         return size;
     }
 
     @Nonnull
-    private List<? extends AbstractReducedDataSample>
-    generatePerHourSamples(@Nonnull final Collection<? extends AbstractReducedDataSample> samples,
-                           @Nonnull final ConcurrentMap<ArchiveChannelId, SampleMinMaxAggregator> aggregatorMap) throws ArchiveDaoException {
+    private List<HourReducedDataSample> generatePerHourSamples(@Nonnull final Collection<? extends AbstractReducedDataSample> samples,
+                                                               @Nonnull final ConcurrentMap<ArchiveChannelId, SampleMinMaxAggregator> aggregatorMap) throws ArchiveDaoException {
 
         if (samples.isEmpty()) {
             return Collections.emptyList();
@@ -196,15 +209,16 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             final Double minValue = sample.getMin();
             final Double maxValue = sample.getMax();
             final TimeInstant time = sample.getTimestamp();
-            final int severty=sample.getSeverty();
-            final int status=sample.getStatus();
-            final SampleMinMaxAggregator agg = retrieveAndInitializeAggregator(channelId,
+            final int severty = sample.getSeverty();
+            final int status = sample.getStatus();
+            final SampleMinMaxAggregator agg =
+                                               retrieveAndInitializeAggregator(channelId,
                                                                                aggregatorMap,
                                                                                newValue,
                                                                                minValue,
                                                                                maxValue,
                                                                                time);
-            processHourSampleOnTimeCondition(hourSamples, channelId, newValue, time, agg,status,severty);
+            processHourSampleOnTimeCondition(hourSamples, channelId, newValue, time, agg, status, severty);
         }
         return hourSamples;
     }
@@ -213,24 +227,24 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                                                   @Nonnull final ArchiveChannelId channelId,
                                                   @Nonnull final Double newValue,
                                                   @Nonnull final TimeInstant time,
-                                                  @Nonnull final SampleMinMaxAggregator agg,  @Nonnull final int status,
+                                                  @Nonnull final SampleMinMaxAggregator agg,
+                                                  @Nonnull final int status,
                                                   @Nonnull final int severty) {
         if (isReducedDataWriteDueAndHasChanged(newValue, agg, time, Hours.ONE.toStandardDuration())) {
             final Double avg = agg.getAvg();
             final Double min = agg.getMin();
             final Double max = agg.getMax();
             if (avg != null && min != null && max != null) {
-                hourSamples.add(new HourReducedDataSample(channelId, time, avg, min, max,status,severty));
+                hourSamples.add(new HourReducedDataSample(channelId, time, avg, min, max, status, severty));
             }
             agg.reset();
         }
     }
 
     @Nonnull
-    private <V extends Serializable, T extends ISystemVariable<V>>
-    List<? extends AbstractReducedDataSample> generatePerMinuteSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples,
-                                                                       @Nonnull final ConcurrentMap<ArchiveChannelId, SampleMinMaxAggregator> aggregatorMap)
-                                                                       throws TypeSupportException, ArchiveDaoException {
+    private <V extends Serializable, T extends ISystemVariable<V>> List<MinuteReducedDataSample> generatePerMinuteSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples,
+                                                                                                                          @Nonnull final ConcurrentMap<ArchiveChannelId, SampleMinMaxAggregator> aggregatorMap) throws TypeSupportException,
+                                                                                                                                                                                                               ArchiveDaoException {
         if (samples.isEmpty()) {
             return Collections.emptyList();
         }
@@ -241,19 +255,20 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             final V data = sysVar.getData();
 
             if (ArchiveTypeConversionSupport.isDataTypeOptimizable(data.getClass())) {
-                final Double newValue =
-                    BaseTypeConversionSupport.createDoubleFromValueOrNull(sysVar);
-                if (newValue == null||newValue.isInfinite()||newValue.isNaN()) {
+                final Double newValue = BaseTypeConversionSupport.createDoubleFromValueOrNull(sysVar);
+                if (newValue == null || newValue.isInfinite() || newValue.isNaN()) {
                     LOG.warn("Channel {} have a error value {} ", sysVar.getName(), sysVar.getData().toString());
                     continue;
                 }
-                final EpicsAlarm alarm=(EpicsAlarm)((ArchiveSample)sample).getAlarm();
+                final EpicsAlarm alarm = (EpicsAlarm) ((ArchiveSample) sample).getAlarm();
 
-                int severty=0;;
-                int status=0;;
-                if(alarm!=null){
-                    severty=((ArchiveSample<V,T>)sample).getServertyIndex();
-                    status=((ArchiveSample<V,T>)sample).getStatusIndex();
+                int severty = 0;
+                ;
+                int status = 0;
+                ;
+                if (alarm != null) {
+                    severty = ((ArchiveSample<V, T>) sample).getServertyIndex();
+                    status = ((ArchiveSample<V, T>) sample).getStatusIndex();
                 }
 
                 final ArchiveChannelId channelId = sample.getChannelId();
@@ -261,13 +276,14 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                 final Double maxValue = newValue;
                 final TimeInstant time = sample.getSystemVariable().getTimestamp();
 
-                final SampleMinMaxAggregator agg = retrieveAndInitializeAggregator(channelId,
+                final SampleMinMaxAggregator agg =
+                                                   retrieveAndInitializeAggregator(channelId,
                                                                                    aggregatorMap,
                                                                                    newValue,
                                                                                    minValue,
                                                                                    maxValue,
                                                                                    time);
-                processMinuteSampleOnTimeCondition(minuteSamples, newValue, channelId, time, agg,status,severty);
+                processMinuteSampleOnTimeCondition(minuteSamples, newValue, channelId, time, agg, status, severty);
 
             }
         }
@@ -287,7 +303,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             final Double min = agg.getMin();
             final Double max = agg.getMax();
             if (avg != null && min != null && max != null) {
-                minuteSamples.add(new MinuteReducedDataSample(channelId, time, avg, min, max,status,severty));
+                minuteSamples.add(new MinuteReducedDataSample(channelId, time, avg, min, max, status, severty));
             }
             agg.reset();
         }
@@ -300,7 +316,6 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                                                                    @Nonnull final Double min,
                                                                    @Nonnull final Double max,
                                                                    @Nonnull final TimeInstant time) throws ArchiveDaoException {
-
 
         SampleMinMaxAggregator aggregator = aggMap.get(channelId);
         if (aggregator == null) {
@@ -316,14 +331,16 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                                                  @Nonnull final SampleMinMaxAggregator aggregator) throws ArchiveDaoException {
         final Collection<IArchiveChannel> channels = _channelDao.retrieveChannelsByIds(Sets.newHashSet(channelId));
         if (channels.isEmpty()) {
-            throw new ArchiveDaoException("Init sample aggregator failed. Channel with id " + channelId.intValue() +
-                                          " does not exist.", null);
+            throw new ArchiveDaoException("Init sample aggregator failed. Channel with id " + channelId.intValue()
+                                          + " does not exist.", null);
         }
         final IArchiveSample<Serializable, ISystemVariable<Serializable>> sample =
-            retrieveLatestSample(channels.iterator().next());
+                                                                                   retrieveLatestSample(channels.iterator()
+                                                                                           .next());
         if (sample != null) {
             final Double lastWrittenValue =
-                BaseTypeConversionSupport.createDoubleFromValueOrNull(sample.getSystemVariable());
+                                            BaseTypeConversionSupport
+                                                    .createDoubleFromValueOrNull(sample.getSystemVariable());
             if (lastWrittenValue != null) {
                 final TimeInstant lastWriteTime = sample.getSystemVariable().getTimestamp();
                 aggregator.aggregate(lastWrittenValue, lastWriteTime);
@@ -356,11 +373,10 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
      */
     @Override
     @Nonnull
-    public <V extends Serializable, T extends ISystemVariable<V>>
-    Collection<IArchiveSample<V, T>> retrieveSamples(@Nullable final DesyArchiveRequestType type,
-                                                     @Nonnull final ArchiveChannelId channelId,
-                                                     @Nonnull final TimeInstant start,
-                                                     @Nonnull final TimeInstant end) throws ArchiveDaoException {
+    public <V extends Serializable, T extends ISystemVariable<V>> Collection<IArchiveSample<V, T>> retrieveSamples(@Nullable final DesyArchiveRequestType type,
+                                                                                                                   @Nonnull final ArchiveChannelId channelId,
+                                                                                                                   @Nonnull final TimeInstant start,
+                                                                                                                   @Nonnull final TimeInstant end) throws ArchiveDaoException {
         final Collection<IArchiveChannel> channels = _channelDao.retrieveChannelsByIds(Sets.newHashSet(channelId));
         if (!channels.isEmpty()) {
             return retrieveSamples(type, channels.iterator().next(), start, end);
@@ -373,53 +389,52 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
      */
     @Override
     @Nonnull
-    public <V extends Serializable, T extends ISystemVariable<V>>
-    Collection<IArchiveSample<V, T>> retrieveSamples(@Nullable final DesyArchiveRequestType type,
-                                                     @Nonnull final IArchiveChannel channel,
-                                                     @Nonnull final TimeInstant start,
-                                                     @Nonnull final TimeInstant end) throws ArchiveDaoException {
+    public <V extends Serializable, T extends ISystemVariable<V>> Collection<IArchiveSample<V, T>> retrieveSamples(@Nullable final DesyArchiveRequestType type,
+                                                                                                                   @Nonnull final IArchiveChannel channel,
+                                                                                                                   @Nonnull final TimeInstant start,
+                                                                                                                   @Nonnull final TimeInstant end) throws ArchiveDaoException {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet result = null;
+        Collection<IArchiveSample<V, T>> samples = Collections.emptyList();
         try {
-            DesyArchiveRequestType reqType = type != null ? // if null = determine automatically
-                                             type :
-                                             SampleRequestTypeUtil.determineRequestType(channel.getDataType(), start, end);
+            DesyArchiveRequestType reqType =
+                                             type != null ? // if null = determine automatically
+                                                         type : SampleRequestTypeUtil.determineRequestType(channel
+                                                                 .getDataType(), start, end);
             conn = createConnection();
-            do {
+        //    do {
                 stmt = createReadSamplesStatement(conn, channel, start, end, reqType);
                 result = stmt.executeQuery();
                 if (result.next()) {
-                    final Collection<IArchiveSample<V, T>> samples =
-                        createRetrievedSamplesContainer(channel, reqType, result);
-                    return samples;
+                   samples = createRetrievedSamplesContainer(channel,reqType,result);
+
                 } else if (type == null) { // type == null means use automatic lookup
                     reqType = reqType.getNextLowerOrderRequestType();
                 }
-            } while (type == null && reqType != null); // no other request type of lower order
+       //     } while (type == null && reqType != null); // no other request type of lower order
 
         } catch (final Exception ex) {
-            handleExceptions(RETRIEVAL_FAILED+"\n"+ "ArchiveSampleDaoImpl.retrieveSamples() " +channel.getName(), ex);
+            handleExceptions(RETRIEVAL_FAILED + "\n" + "ArchiveSampleDaoImpl.retrieveSamples() " + channel.getName(), ex);
         } finally {
             closeSqlResources(result, stmt, conn, "Samples retrieval for " + channel.getName());
         }
-        return Collections.emptyList();
+        return samples;
     }
 
     @Nonnull
-    private <V extends Serializable, T extends ISystemVariable<V>>
-    Collection<IArchiveSample<V, T>> createRetrievedSamplesContainer(@Nonnull final IArchiveChannel channel,
-                                                                     @Nonnull final DesyArchiveRequestType reqType,
-                                                                     @CheckForNull final ResultSet result)
-                                                                     throws SQLException,
-                                                                            ArchiveDaoException,
-                                                                            TypeSupportException {
+    private <V extends Serializable, T extends ISystemVariable<V>> Collection<IArchiveSample<V, T>> createRetrievedSamplesContainer(@Nonnull final IArchiveChannel channel,
+                                                                                                                                    @Nonnull final DesyArchiveRequestType reqType,
+                                                                                                                                    @CheckForNull final ResultSet result) throws SQLException,
+                                                                                                                                                                         ArchiveDaoException,
+                                                                                                                                                                         TypeSupportException {
         final List<IArchiveSample<V, T>> samples = Lists.newArrayList();
-        while (result != null && !result.isAfterLast()) {
-            final IArchiveSample<V, T> sample =
-                createSampleFromQueryResult(reqType, channel, result);
+        while (!result.isClosed()&& result != null && !result.isAfterLast()) {
+            final IArchiveSample<V, T> sample = createSampleFromQueryResult(reqType, channel, result);
             samples.add(sample);
-            result.next();
+            if(!result.isClosed()) {
+                result.next();
+            }
         }
         return samples;
     }
@@ -429,11 +444,12 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                                                          @Nonnull final IArchiveChannel channel,
                                                          @Nonnull final TimeInstant s,
                                                          @Nonnull final TimeInstant e,
-                                                         @Nonnull final DesyArchiveRequestType reqType)
-                                                         throws SQLException, ArchiveDaoException, TypeSupportException {
+                                                         @Nonnull final DesyArchiveRequestType reqType) throws SQLException,
+                                                                                                       ArchiveDaoException,
+                                                                                                       TypeSupportException {
         final String dataType = channel.getDataType();
         if (dataType == null) {
-            throw new ArchiveDaoException("Data type of channel " + channel.getName() + " is unknown." , null);
+            throw new ArchiveDaoException("Data type of channel " + channel.getName() + " is unknown.", null);
         }
         final PreparedStatement stmt = dispatchRequestTypeToStatement(conn, reqType, dataType);
         stmt.setInt(1, channel.getId().intValue());
@@ -445,53 +461,53 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
     @Nonnull
     private PreparedStatement dispatchRequestTypeToStatement(@Nonnull final Connection conn,
                                                              @Nonnull final DesyArchiveRequestType type,
-                                                             @Nonnull final String dataType)
-                                                             throws SQLException, TypeSupportException {
+                                                             @Nonnull final String dataType) throws SQLException,
+                                                                                            TypeSupportException {
 
         PreparedStatement stmt = null;
         switch (type) {
-            case RAW :
+            case RAW:
                 if (ArchiveTypeConversionSupport.isDataTypeSerializableCollection(dataType)) {
-                    stmt = conn.prepareStatement(_selectRawSamplesStmt.replaceFirst(ARCH_TABLE_PLACEHOLDER, TAB_SAMPLE_BLOB));
+                    stmt =
+                           conn.prepareStatement(_selectRawSamplesStmt.replaceFirst(ARCH_TABLE_PLACEHOLDER, TAB_SAMPLE_BLOB));
                 } else {
                     stmt = conn.prepareStatement(_selectRawSamplesStmt.replaceFirst(ARCH_TABLE_PLACEHOLDER, TAB_SAMPLE));
                 }
                 break;
-            case AVG_PER_MINUTE :
+            case AVG_PER_MINUTE:
                 stmt = conn.prepareStatement(_selectOptSamplesStmt.replaceFirst(ARCH_TABLE_PLACEHOLDER, TAB_SAMPLE_M));
                 break;
-            case AVG_PER_HOUR :
+            case AVG_PER_HOUR:
                 stmt = conn.prepareStatement(_selectOptSamplesStmt.replaceFirst(ARCH_TABLE_PLACEHOLDER, TAB_SAMPLE_H));
                 break;
-            default :
+            default:
         }
         return stmt;
     }
 
     @SuppressWarnings("unchecked")
     @Nonnull
-    private <V extends Serializable, T extends ISystemVariable<V>>
-    IArchiveSample<V, T> createSampleFromQueryResult(@Nonnull final DesyArchiveRequestType type,
-                                                     @Nonnull final IArchiveChannel channel,
-                                                     @Nonnull final ResultSet result) throws SQLException,
-                                                                                             ArchiveDaoException,
-                                                                                             TypeSupportException {
+    private <V extends Serializable, T extends ISystemVariable<V>> IArchiveSample<V, T> createSampleFromQueryResult(@Nonnull final DesyArchiveRequestType type,
+                                                                                                                    @Nonnull final IArchiveChannel channel,
+                                                                                                                    @Nonnull final ResultSet result) throws SQLException,
+                                                                                                                                                    ArchiveDaoException,
+                                                                                                                                                    TypeSupportException {
         final Class<V> typeClass = createDataTypeClass(channel);
 
         V value = null;
         V min = null;
         V max = null;
         switch (type) {
-            case RAW : { // (..., value)
+            case RAW: { // (..., value)
                 if (ArchiveTypeConversionSupport.isDataTypeSerializableCollection(typeClass)) {
-                        value = ArchiveTypeConversionSupport.fromByteArray(result.getBytes(COLUMN_VALUE));
+                    value = ArchiveTypeConversionSupport.fromByteArray(result.getBytes(COLUMN_VALUE));
                 } else {
-                       value = ArchiveTypeConversionSupport.fromArchiveString(typeClass, result.getString(COLUMN_VALUE));
+                    value = ArchiveTypeConversionSupport.fromArchiveString(typeClass, result.getString(COLUMN_VALUE));
                 }
                 break;
             }
-            case AVG_PER_MINUTE :
-            case AVG_PER_HOUR : { // (..., avg_val, min_val, max_val)
+            case AVG_PER_MINUTE:
+            case AVG_PER_HOUR: { // (..., avg_val, min_val, max_val)
                 value = ArchiveTypeConversionSupport.fromDouble(typeClass, result.getDouble(COLUMN_AVG));
                 min = ArchiveTypeConversionSupport.fromDouble(typeClass, result.getDouble(COLUMN_MIN));
                 max = ArchiveTypeConversionSupport.fromDouble(typeClass, result.getDouble(COLUMN_MAX));
@@ -503,10 +519,11 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         final long time = result.getLong(COLUMN_TIME);
         final TimeInstant timeInstant = TimeInstantBuilder.fromNanos(time);
         final IArchiveControlSystem cs = channel.getControlSystem();
-        if(value==null) {
+        if (value == null) {
             return null;
         }
-        final ISystemVariable<V> sysVar = SystemVariableSupport.create(channel.getName(),
+        final ISystemVariable<V> sysVar =
+                                          SystemVariableSupport.create(channel.getName(),
                                                                        value,
                                                                        ControlSystem.valueOf(cs.getName(), cs.getType()),
                                                                        timeInstant);
@@ -518,8 +535,8 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
 
     @SuppressWarnings("unchecked")
     @CheckForNull
-    private <V> Class<V> createDataTypeClass(@Nonnull final IArchiveChannel channel)
-                                             throws ArchiveDaoException, TypeSupportException {
+    private <V> Class<V> createDataTypeClass(@Nonnull final IArchiveChannel channel) throws ArchiveDaoException,
+                                                                                    TypeSupportException {
         final String datatype = channel.getDataType();
         if (datatype == null) {
             throw new ArchiveDaoException("The datatype of channel " + channel.getName() + " is unknown!", null);
@@ -532,17 +549,16 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
      */
     @Override
     @CheckForNull
-    public <V extends Serializable, T extends ISystemVariable<V>>
-    IArchiveSample<V, T> retrieveLatestSample(@Nonnull final IArchiveChannel channel)
-                                              throws ArchiveDaoException {
+    public <V extends Serializable, T extends ISystemVariable<V>> IArchiveSample<V, T> retrieveLatestSample(@Nonnull final IArchiveChannel channel) throws ArchiveDaoException {
         final TimeInstant latestTimestamp = channel.getLatestTimestamp();
         if (latestTimestamp == null) {
             return null;
         }
         final Collection<IArchiveSample<V, T>> samples =
-                retrieveSamples(DesyArchiveRequestType.RAW, channel.getId(),
-                                latestTimestamp,
-                                latestTimestamp.plusNanosPerSecond(1L));
+                                                         retrieveSamples(DesyArchiveRequestType.RAW,
+                                                                         channel.getId(),
+                                                                         latestTimestamp,
+                                                                         latestTimestamp.plusNanosPerSecond(1L));
         return samples.isEmpty() ? null : samples.iterator().next();
     }
 
@@ -551,9 +567,8 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
      */
     @Override
     @CheckForNull
-    public <V extends Serializable, T extends ISystemVariable<V>>
-    IArchiveSample<V, T> retrieveLatestSampleBeforeTime(@Nonnull final IArchiveChannel channel,
-                                                        @Nonnull final TimeInstant time) throws ArchiveDaoException {
+    public <V extends Serializable, T extends ISystemVariable<V>> IArchiveSample<V, T> retrieveLatestSampleBeforeTime(@Nonnull final IArchiveChannel channel,
+                                                                                                                      @Nonnull final TimeInstant time) throws ArchiveDaoException {
         final TimeInstant latestTimestamp = channel.getLatestTimestamp();
         if (latestTimestamp == null) {
             return null;
@@ -564,7 +579,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
 
         Connection conn = null;
         PreparedStatement stmt = null;
-        ResultSet result  = null;
+        ResultSet result = null;
         try {
             conn = createConnection();
             stmt = conn.prepareStatement(_selectLatestSampleBeforeTimeStmt);
@@ -574,7 +589,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             if (result.next()) {
                 return createSampleFromQueryResult(DesyArchiveRequestType.RAW, channel, result);
             }
-        } catch(final Exception e) {
+        } catch (final Exception e) {
             handleExceptions(RETRIEVAL_FAILED, e);
         } finally {
             closeSqlResources(result, stmt, conn, _selectLatestSampleBeforeTimeStmt);
@@ -593,8 +608,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         return checkForSamplesInTable(id, TAB_SAMPLE_BLOB);
     }
 
-    private boolean checkForSamplesInTable(@Nonnull final ArchiveChannelId id,
-                                           @Nonnull final String table) throws ArchiveDaoException {
+    private boolean checkForSamplesInTable(@Nonnull final ArchiveChannelId id, @Nonnull final String table) throws ArchiveDaoException {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -607,7 +621,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             if (rs.next()) {
                 return true;
             }
-        } catch(final Exception e) {
+        } catch (final Exception e) {
             handleExceptions(RETRIEVAL_FAILED, e);
         } finally {
             closeSqlResources(rs, stmt, conn, stmtStr);
@@ -615,89 +629,91 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         return false;
     }
 
-
     private int getStatusId(@Nonnull final String name) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet result = null;
-        final String _selectRawStatusStmt =
-                "Select * FROM " + getDatabaseName() + ".epics_status";
-        Integer id=null;
-        if(!_statusmap.isEmpty() || _statusmap.containsValue(name)){
-           for(final Entry<Integer, String> entry: _statusmap.entrySet()){
-               if( name.equals(entry.getValue()) ) {
-                id =entry.getKey() ;
-            }
-           }
-
-        }else{
-        try {
-            conn =createConnection();
-            stmt =conn.prepareStatement(_selectRawStatusStmt);
-            result = stmt.executeQuery();
-            while (result != null && !result.isAfterLast()) {
-                if(result.next()){
-                final Integer i=result.getInt("id");
-                final String s= result.getString("name");
-                _statusmap.put(i,s);
-                }
-
-            }
-            for(final Entry<Integer, String> entry: _statusmap.entrySet()){
-                if( name.equals(entry.getValue()) ) {
-                    id =entry.getKey() ;
+        final String _selectRawStatusStmt = "Select * FROM " + getDatabaseName() + ".epics_status";
+        Integer id = null;
+        if (!_statusmap.isEmpty() || _statusmap.containsValue(name)) {
+            for (final Entry<Integer, String> entry : _statusmap.entrySet()) {
+                if (name.equals(entry.getValue())) {
+                    id = entry.getKey();
                 }
             }
-        } catch (final ArchiveConnectionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }catch (final SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+
+        } else {
+            try {
+                conn = createConnection();
+                stmt = conn.prepareStatement(_selectRawStatusStmt);
+                result = stmt.executeQuery();
+                while (result != null && !result.isAfterLast()) {
+                    if (result.next()) {
+                        final Integer i = result.getInt("id");
+                        final String s = result.getString("name");
+                        _statusmap.put(i, s);
+                    }
+
+                }
+                for (final Entry<Integer, String> entry : _statusmap.entrySet()) {
+                    if (name.equals(entry.getValue())) {
+                        id = entry.getKey();
+                    }
+                }
+            } catch (final ArchiveConnectionException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (final SQLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } finally{
+                closeSqlResources(result, stmt, conn, _selectRawStatusStmt);
+            }
         }
         return id;
 
     }
+
     private int getServertyId(@Nonnull final String name) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet result = null;
-        final String _selectRawServertyStmt =
-                "Select * FROM " + getDatabaseName() + ".epics_serverty";
-        Integer id=null;
-        if(!_servertymap.isEmpty() || _servertymap.containsValue(name)){
-           for(final Entry<Integer, String> entry: _servertymap.entrySet()){
-               if( name.equals(entry.getValue()) ) {
-                id =entry.getKey() ;
-            }
-           }
-
-        }else{
-        try {
-            conn = createConnection();
-            stmt =conn.prepareStatement(_selectRawServertyStmt);
-            result = stmt.executeQuery();
-            while (result != null && !result.isAfterLast()) {
-                if(result.next()){
-                    final Integer i=result.getInt("id");
-                    final String s= result.getString("name");
-                    _servertymap.put(i,s);
-                    }
-
-            }
-            for(final Entry<Integer, String> entry: _servertymap.entrySet()){
-                if( name.equals(entry.getValue()) ) {
-                    id =entry.getKey() ;
+        final String _selectRawServertyStmt = "Select * FROM " + getDatabaseName() + ".epics_serverty";
+        Integer id = null;
+        if (!_servertymap.isEmpty() || _servertymap.containsValue(name)) {
+            for (final Entry<Integer, String> entry : _servertymap.entrySet()) {
+                if (name.equals(entry.getValue())) {
+                    id = entry.getKey();
                 }
             }
-        } catch (final ArchiveConnectionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }catch (final SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+
+        } else {
+            try {
+                conn = createConnection();
+                stmt = conn.prepareStatement(_selectRawServertyStmt);
+                result = stmt.executeQuery();
+                while (result != null && !result.isAfterLast()) {
+                    if (result.next()) {
+                        final Integer i = result.getInt("id");
+                        final String s = result.getString("name");
+                        _servertymap.put(i, s);
+                    }
+
+                }
+                for (final Entry<Integer, String> entry : _servertymap.entrySet()) {
+                    if (name.equals(entry.getValue())) {
+                        id = entry.getKey();
+                    }
+                }
+            } catch (final ArchiveConnectionException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (final SQLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }finally{
+                closeSqlResources(result, stmt, conn, _selectRawServertyStmt);
+            }
         }
         return id;
 

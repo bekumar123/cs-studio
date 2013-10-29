@@ -22,20 +22,16 @@
 package org.csstudio.archive.common.service.mysqlimpl.persistengine;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-
-import javax.annotation.Nonnull;
 
 import org.csstudio.archive.common.service.ArchiveConnectionException;
 import org.csstudio.archive.common.service.mysqlimpl.MySQLArchivePreferenceService;
 import org.csstudio.archive.common.service.mysqlimpl.batch.BatchQueueHandlerSupport;
 import org.csstudio.archive.common.service.mysqlimpl.batch.IBatchQueueHandlerProvider;
 import org.csstudio.archive.common.service.mysqlimpl.dao.ArchiveConnectionHandler;
-import org.csstudio.archive.common.service.sample.ArchiveSample;
+import org.epics.pvmanager.TypeSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,17 +44,12 @@ import com.google.common.collect.Lists;
  * @since 18.07.2013
  */
 public class SamplsPersistDataWorker extends PersistDataWorker {
-        private static final Logger RESCUE_LOG =
-            LoggerFactory.getLogger("StatementRescueLogger");
-        private static final Logger LOG =
-                LoggerFactory.getLogger(SamplsPersistDataWorker.class);
-        private static final Logger EMAIL_LOG =
-            LoggerFactory.getLogger("ErrorPerEmailLogger");
-        private final String _name;
-        private final long _periodInMS;
-        private final List<Object> _rescueDataList = Lists.newLinkedList();
-        private final IBatchQueueHandlerProvider _handlerProvider;
-        private final ArchiveConnectionHandler _connectionHandler;
+    private static final Logger LOG = LoggerFactory.getLogger(SamplsPersistDataWorker.class);
+    private static final Logger EMAIL_LOG = LoggerFactory.getLogger("ErrorPerEmailLogger");
+    private final String _name;
+    private final List<Object> _rescueDataList = Lists.newLinkedList();
+    private final ArchiveConnectionHandler _connectionHandler;
+
     /**
      * Constructor.
      * @param connectionHandler
@@ -71,24 +62,73 @@ public class SamplsPersistDataWorker extends PersistDataWorker {
                                    final long periodInMS,
                                    final IBatchQueueHandlerProvider provider) {
         super(connectionHandler, name, periodInMS, provider);
-        _connectionHandler=connectionHandler;
+        _connectionHandler = connectionHandler;
         _name = name;
-        _periodInMS = periodInMS;
-        _handlerProvider = provider;
-        // TODO Auto-generated constructor stub
     }
 
+    /**
+     * Constructor.
+     * @param connectionHandler
+     * @param name
+     * @param prefPeriodInMS
+     * @param handler
+     */
+    public SamplsPersistDataWorker(final ArchiveConnectionHandler connectionHandler,
+                                   final String name,
+                                   final Integer prefPeriodInMS,
+                                   @SuppressWarnings("rawtypes") final TypeSupport handler) {
+        super(connectionHandler, name, prefPeriodInMS, handler);
+        _connectionHandler = connectionHandler;
+        _name = name;
+
+    }
 
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public void measuredRun() {
-
-        LOG.debug("Sample RUN");
+        //   LOG.info( " {}",Thread.);
         try {
-          processBatchHandlers(_connectionHandler.getThreadLocalConnection(), _handlerProvider, _rescueDataList);
+            processBatchHandler(_connectionHandler.getThreadLocalConnection(),
+                                (BatchQueueHandlerSupport) getHandler(),
+                                _rescueDataList);
+        } catch (final ArchiveConnectionException e) {
+            e.printStackTrace();
+        }
+        //   processBatchHandlers(_connectionHandler.getThreadLocalConnection(), _handlerProvider, _rescueDataList);
 
+    }
+
+    @Override
+    /**
+     * @param connection
+     * @param handlerProvider
+     * @param rescueDataList
+     */
+    protected <T> void processBatchHandler(final Connection connection,
+                                           final BatchQueueHandlerSupport<T> handler,
+                                           final List<Object> rescueDataList) {
+        try {
+            final Collection<T> elements = Lists.newLinkedList();
+            final BlockingQueue<T> queue = handler.getQueue();
+            if (queue.size() < 200) {
+                return;
+            }
+            if (queue.size() > new MySQLArchivePreferenceService().getQueueMaxiSize()) {
+                for (; queue.size() > 0;) {
+                    synchronized (queue) {
+                        queue.drainTo(elements, 1000);
+                        final Collection<String> statements = handler.convertToStatementString(elements);
+                        elements.clear();
+                        rescueDataToFileSystem(statements);
+                    }
+
+                }
+            }
+            queue.drainTo(elements);
+            handlerProcessBatchForStatement(connection, handler, rescueDataList, elements);
         } catch (final Throwable t) {
             LOG.error("Unknown throwable in thread {}.", _name);
             t.printStackTrace();
@@ -96,55 +136,5 @@ public class SamplsPersistDataWorker extends PersistDataWorker {
         }
 
     }
-    @Override
-    @SuppressWarnings("unchecked")
-    protected <T> void processBatchHandlers(@Nonnull Connection connection,
-                                          @Nonnull final IBatchQueueHandlerProvider handlerProvider,
-                                          @Nonnull final List<T> rescueDataList) {
-        final Collection<T> elements = Lists.newLinkedList();
-
-        for (final BatchQueueHandlerSupport<T> handler : handlerProvider.getHandlers()) {
-            if(ArchiveSample.class.getSimpleName().equals( handler.getHandlerType().getSimpleName())) {
-            final BlockingQueue<T> queue= handler.getQueue();
-            if(queue.size()<200) {
-                return;
-            }
-        if(queue.size()>new MySQLArchivePreferenceService().getQueueMaxiSize()){
-            for(;queue.size()>0;){
-               synchronized (queue) {
-                   queue.drainTo(elements, 1000);
-                   final Collection<String> statements = handler.convertToStatementString(elements);
-                   elements.clear();
-                   rescueDataToFileSystem(statements);
-
-            }
-
-           }
-        }
-            queue.drainTo(elements);
-            if (!elements.isEmpty()) {
-                PreparedStatement stmt = null;
-                try {//bei jedes Mal SQL Statement erzeugen, connection neue prüfen, ob die Connection closed ist
-                    while(connection==null || connection.isClosed() ) {
-                        connection = _connectionHandler.getThreadLocalConnection();
-                    }
-                    stmt = handler.createNewStatement(connection);
-                    processBatchForStatement(handler, elements, stmt, rescueDataList);
-                } catch (final ArchiveConnectionException e) {
-                    handler.getQueue().addAll(elements);
-                    elements.clear();
-                    LOG.error("Connection to archive failed", e);
-                    // FIXME (bknerr) : strategy for queues getting full, when to rescue data? How to check for failover?
-                } catch (final SQLException e) {
-                    handler.getQueue().addAll(elements);
-                    elements.clear();
-                     LOG.error("Creation of batch statement failed for strategy " + handler.getClass().getSimpleName(), e);
-                    // FIXME (bknerr) : strategy for queues getting full, when to rescue data?
-                }
-                elements.clear();
-            }
-        }}
-    }
-
 
 }

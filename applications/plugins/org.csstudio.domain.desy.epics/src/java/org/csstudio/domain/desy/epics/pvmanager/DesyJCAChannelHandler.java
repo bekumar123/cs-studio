@@ -252,7 +252,7 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
             public void connectionChanged(final ConnectionEvent ev) {
                 synchronized(DesyJCAChannelHandler.this) {
                     try {
-                    	 isConnected=ev.isConnected();
+
                     	// needsMonitor =ev.isConnected();
                         // Take the channel from the event so that there is no
                         // synchronization problem
@@ -265,9 +265,11 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
                         if(channel!=null) {
                         	   //testen um deadlock
                          //   connectionState=channel.getConnectionState();
+
                    		 if(isFirst) {
                    			 isFirst=false;
-							} else {
+							} else if( isConnected!=ev.isConnected()) {
+								 isConnected=ev.isConnected();
 								LOG.info("Channel {} with " + channel.getHostName() +" is {},",channel.getName(), isConnected? " Connected ": "disconnected");
 							//	LOG.info("Host    {} is {},",channel.getHostName(), isConnected? " Connected ": "disconnected");
 

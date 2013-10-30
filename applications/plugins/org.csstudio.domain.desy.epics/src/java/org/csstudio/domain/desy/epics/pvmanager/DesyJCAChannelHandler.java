@@ -263,11 +263,13 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
 
 
                         if(channel!=null) {
+
                         	   //testen um deadlock
                          //   connectionState=channel.getConnectionState();
 
                    		 if(isFirst) {
                    			 isFirst=false;
+                   			 isConnected=ev.isConnected();
 							} else if( isConnected!=ev.isConnected()) {
 								 isConnected=ev.isConnected();
 								LOG.info("Channel {} with " + channel.getHostName() +" is {},",channel.getName(), isConnected? " Connected ": "disconnected");

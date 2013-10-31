@@ -42,6 +42,8 @@ import org.csstudio.ams.configReplicator.ReplicationException;
 import org.csstudio.ams.dbAccess.AmsConnectionFactory;
 import org.csstudio.ams.dbAccess.ConfigDbProperties;
 import org.csstudio.ams.distributor.preferences.DistributorPreferenceKey;
+import org.csstudio.ams.distributor.service.MessageExtensionDbService;
+import org.csstudio.ams.distributor.service.MessageExtensionService;
 import org.csstudio.ams.internal.AmsPreferenceKey;
 import org.csstudio.headless.common.util.ApplicationInfo;
 import org.csstudio.headless.common.util.StandardStreams;
@@ -135,7 +137,6 @@ public class DistributorStart implements IApplication,
     /**
      *
      */
-    @SuppressWarnings("null")
     @Override
     public Object start(final IApplicationContext context) throws Exception {
 
@@ -237,20 +238,24 @@ public class DistributorStart implements IApplication,
             final Topic commandTopic = commandSenderSession.createTopic(commandTopicName);
             final MessageProducer commandMessageProducer = commandSenderSession.createProducer(commandTopic);
 
+            // Create MessageExtensionService
+            MessageExtensionService messageExtensionService = new MessageExtensionDbService(cacheDatabaseConnection);
+
             // Create the synchronizer object for the database synchronization
             final ConfigurationSynchronizer synchronizer =
                 new ConfigurationSynchronizer(localDatabaseConnection,
                                               cacheDatabaseConnection,
                                               dbProp,
                                               commandSenderSession,
-                                              commandMessageProducer);
+                                              commandMessageProducer,
+                                              messageExtensionService);
             final Thread synchronizerThread = new Thread(synchronizer);
             synchronizerThread.start();
-
+            
             // Create the receiver connections
             final DistributorWork worker = new DistributorWork(localDatabaseConnection,
                                                                cacheDatabaseConnection,
-                                                               synchronizer);
+                                                               synchronizer, new MessageExtender(messageExtensionService));
 
             final String distributorTopic = ps.getString(AmsActivator.PLUGIN_ID,
                                                          AmsPreferenceKey.P_JMS_AMS_TOPIC_DISTRIBUTOR,

@@ -55,6 +55,7 @@ import org.csstudio.nams.service.configurationaccess.localstore.declaration.exce
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.exceptions.StorageException;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AbstAlarmbFilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AbstAlarmbGruppenFilterActionDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AbstTopicFilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmTopicFilterActionType;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmbEmailFilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmbFilterActionType;
@@ -67,6 +68,7 @@ import org.csstudio.nams.service.configurationaccess.localstore.declaration.filt
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmbGruppenVMailFilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmbSMSFilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmbVoiceMailFilterActionDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.ExtendedTopicFilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.FilterActionType;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.TopicFilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.DefaultFilterTextDTO;
@@ -402,10 +404,10 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 								.get(((AbstAlarmbGruppenFilterActionDTO) filterActionDTO)
 										.getReceiver().getUserGroupId()));
 				filterAction = alarmbearbeitergruppenFilterAction;
-			} else if (filterActionDTO instanceof TopicFilterActionDTO) {
+			} else if (filterActionDTO instanceof AbstTopicFilterActionDTO) {
 				final AlarmTopicFilterAction alarmTopicFilterAction = new AlarmTopicFilterAction();
 				alarmTopicFilterAction.setReceiver(this.alarmtopicBeans
-						.get(((TopicFilterActionDTO) filterActionDTO)
+						.get(((AbstTopicFilterActionDTO) filterActionDTO)
 								.getReceiver().getId()));
 				filterAction = alarmTopicFilterAction;
 			} else {
@@ -1267,7 +1269,15 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 				actionDto.setMessage(filterAction.getMessage());
 				newActionDTOs.add(actionDto);
 			} else if (filterActionType instanceof AlarmTopicFilterActionType) {
-				TopicFilterActionDTO actiondto = new TopicFilterActionDTO();
+				AbstTopicFilterActionDTO actiondto = null;
+				switch ((AlarmTopicFilterActionType) filterActionType) {
+				case TOPIC:
+					actiondto = new TopicFilterActionDTO();
+					break;
+				case TOPIC_EXTENDED:
+					actiondto = new ExtendedTopicFilterActionDTO();
+					break;
+				}
 				actiondto
 						.setReceiver(findDTO4Bean((AlarmtopicBean) filterAction
 								.getReceiver()));

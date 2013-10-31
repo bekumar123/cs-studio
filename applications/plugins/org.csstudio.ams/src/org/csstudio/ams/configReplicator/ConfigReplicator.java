@@ -53,6 +53,7 @@ import org.csstudio.ams.dbAccess.configdb.FlagDAO;
 import org.csstudio.ams.dbAccess.configdb.HistoryDAO;
 import org.csstudio.ams.dbAccess.configdb.MessageChainDAO;
 import org.csstudio.ams.dbAccess.configdb.MessageDAO;
+import org.csstudio.ams.dbAccess.configdb.MessageExtensionsDAO;
 import org.csstudio.ams.dbAccess.configdb.TimebasedFilterDAO;
 import org.csstudio.ams.dbAccess.configdb.TopicDAO;
 import org.csstudio.ams.dbAccess.configdb.UserDAO;
@@ -109,6 +110,7 @@ public class ConfigReplicator implements AmsConstants {
 			UserDAO.removeAll(localDB);
 			UserGroupDAO.removeAll(localDB);
 			UserGroupUserDAO.removeAll(localDB);
+			MessageExtensionsDAO.removeAll(localDB);
 
 			Log.log(Log.INFO, "Start copying master configuration.");
 			FilterConditionTypeDAO.copyFilterConditionType(masterDB, localDB);
@@ -137,6 +139,8 @@ public class ConfigReplicator implements AmsConstants {
 			UserDAO.copyUser(masterDB, localDB);
 			UserGroupDAO.copyUserGroup(masterDB, localDB);
 			UserGroupUserDAO.copyUserGroupUser(masterDB, localDB);
+			
+			MessageExtensionsDAO.copyMessageExtensions(masterDB, localDB);
 
 			Log.log(Log.INFO, "Replicating configuration finished.");
 
@@ -243,6 +247,8 @@ public class ConfigReplicator implements AmsConstants {
             UserDAO.removeAll(hsqlDB);
             UserGroupDAO.removeAll(hsqlDB);
             UserGroupUserDAO.removeAll(hsqlDB);
+            
+            MessageExtensionsDAO.removeAll(hsqlDB);
 
 			Log.log(Log.INFO, "Start copying master configuration to memory cache database.");
 			FilterConditionTypeDAO.copyFilterConditionType(masterDB, hsqlDB, "");
@@ -278,6 +284,8 @@ public class ConfigReplicator implements AmsConstants {
 			UserGroupDAO.copyUserGroup(masterDB, hsqlDB, "");
 			UserGroupUserDAO.copyUserGroupUser(masterDB, hsqlDB, "");
 
+			MessageExtensionsDAO.copyMessageExtensions(masterDB, hsqlDB, "");
+			
 			// ADDED: gs, fz 2012-09-12
 			MessageDAO.removeAll(hsqlDB);
 			MessageChainDAO.removeAll(hsqlDB);

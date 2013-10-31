@@ -266,6 +266,14 @@ create table AMS_History
 	PRIMARY KEY(iHistoryID)
 );
 
+drop table AMS_MSG_EXTENSIONS;
+create table AMS_MSG_EXTENSIONS
+(
+    CPVNAME			VARCHAR(4000) NOT NULL,
+    CMESSAGEKEY   VARCHAR(4000) NOT NULL,
+    CMESSAGEVALUE VARCHAR(4000) NOT NULL
+);
+
 drop table AMS_Flag;
 create table AMS_Flag
 (

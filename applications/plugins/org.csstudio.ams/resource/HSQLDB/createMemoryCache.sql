@@ -259,6 +259,13 @@ create table AMS_History
 	PRIMARY KEY(iHistoryID)
 );
 
+create table AMS_MSG_EXTENSIONS
+(
+    CPVNAME			VARCHAR(4000) NOT NULL,
+    CMESSAGEKEY   VARCHAR(4000) NOT NULL,
+    CMESSAGEVALUE VARCHAR(4000) NOT NULL
+);
+
 create table AMS_Flag
 (
 	cFlagName		VARCHAR(32)	NOT NULL,

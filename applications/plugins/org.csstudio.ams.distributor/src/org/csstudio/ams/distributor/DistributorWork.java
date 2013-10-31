@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -115,12 +116,15 @@ public class DistributorWork extends Thread implements AmsConstants, MessageList
 
 	private final ConfigurationSynchronizer synchronizer;
 
+	private final MessageExtender messageExtender;
+
 	public DistributorWork(final java.sql.Connection localDatabaseConnection, final java.sql.Connection cacheDatabaseConnection,
-			final ConfigurationSynchronizer synch) {
+			final ConfigurationSynchronizer synch, final MessageExtender messageExtender) {
 
 		localAppDb = localDatabaseConnection;
 		memoryCacheDb = cacheDatabaseConnection;
 		this.synchronizer = synch;
+		this.messageExtender = messageExtender;
 
 		// Create the container that holds the information about the connector
 		// topics.
@@ -778,7 +782,7 @@ public class DistributorWork extends Thread implements AmsConstants, MessageList
 			return ErrorState.STAT_OK.getStateNumber(); // All O.K.
 			// return sendMessageToTopic(mapMsg, faTypeRef); // to free topic
 		} else if (faTypeRef == FILTERACTIONTYPE_SMS || faTypeRef == FILTERACTIONTYPE_VM || faTypeRef == FILTERACTIONTYPE_MAIL
-				|| faTypeRef == FILTERACTIONTYPE_TO_JMS) {
+				|| faTypeRef == FILTERACTIONTYPE_TO_JMS || faTypeRef == FILTERACTIONTYPE_TO_JMS_EXTENDED) {
 			final String text = prepareMessageText(mapMsg, filter, fa, null);
 			return sendMessageToConnector(mapMsg, text, fa); // to user
 		} else if (faTypeRef == FILTERACTIONTYPE_SMS_G || faTypeRef == FILTERACTIONTYPE_VM_G || faTypeRef == FILTERACTIONTYPE_MAIL_G) {
@@ -815,35 +819,34 @@ public class DistributorWork extends Thread implements AmsConstants, MessageList
 		HashMap<String, String> map = null;
 
 		final UserTObject user = UserDAO.select(memoryCacheDb, fa.getReceiverRef());
-		if (fa.getFilterActionTypeRef() != FILTERACTIONTYPE_TO_JMS && user.getActive() == 0) {
+		if (fa.getFilterActionTypeRef() != FILTERACTIONTYPE_TO_JMS && fa.getFilterActionTypeRef() != FILTERACTIONTYPE_TO_JMS_EXTENDED && user.getActive() == 0) {
 			Log.log(Log.WARN, "User not active: " + user.getUserID() + " in FilterAction: " + fa.getFilterActionID());
 			return ErrorState.STAT_FALSE.getStateNumber();
 		}
 		TopicTObject topic = null;
-		switch (fa.getFilterActionTypeRef()) {
-		case FILTERACTIONTYPE_TO_JMS:
+		if (fa.getFilterActionTypeRef() == FILTERACTIONTYPE_TO_JMS || fa.getFilterActionTypeRef() == FILTERACTIONTYPE_TO_JMS_EXTENDED) {
 			topic = TopicDAO.select(memoryCacheDb, fa.getReceiverRef());
 			ct = topicContainer.getConnectorTopicByConnectorName("JmsConnector");
 			if (ct.isFullMessageReceiver()) {
 				map = this.getMessageContent(mapMsg);
 			}
-
+			
+			if(fa.getFilterActionTypeRef() == FILTERACTIONTYPE_TO_JMS_EXTENDED) {
+				messageExtender.extendMessageMap(map);
+			}
+			
 			publishToConnectorJms(text, topic.getTopicName(), map);
-			break;
-
-		case FILTERACTIONTYPE_SMS:
+		}
+		else if (fa.getFilterActionTypeRef() == FILTERACTIONTYPE_SMS) {
 			publishToConnectorSms(text, user.getMobilePhone()); // SMS
-			break;
-
-		case FILTERACTIONTYPE_VM:
+		}
+		else if (fa.getFilterActionTypeRef() == FILTERACTIONTYPE_VM) {
 			publishToConnectorVoiceMail(text, user.getPhone(), TextType.ALARM_WOCONFIRM.getTextTypeNumber()); // VoiceMail
-			break;
-
-		case FILTERACTIONTYPE_MAIL:
+		}
+		else if (fa.getFilterActionTypeRef() == FILTERACTIONTYPE_MAIL) {
 			publishToConnectorMail(text, user.getEmail(), user.getName()); // E-Mail
-			break;
-
-		default:
+		}
+		else {
 			throw new AMSException("Configuration is invalid. FilterActionType=" + fa.getFilterActionTypeRef());
 		}
 

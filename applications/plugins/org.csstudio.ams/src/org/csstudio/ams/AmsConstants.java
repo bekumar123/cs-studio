@@ -116,6 +116,7 @@ public interface AmsConstants
 	public final static int FILTERACTIONTYPE_MAIL_G = 8; 
 	public final static int FILTERACTIONTYPE_MAIL_GR = 9;
 	public final static int FILTERACTIONTYPE_TO_JMS = 10;
+	public final static int FILTERACTIONTYPE_TO_JMS_EXTENDED = 11;
 	
 	/**
 	 * Fallback???

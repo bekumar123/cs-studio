@@ -23,8 +23,9 @@
  */
 package org.csstudio.alarm.service.internal;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
@@ -102,18 +103,23 @@ public class AlarmConfigurationServiceImpl implements IAlarmConfigurationService
     /**
      * {@inheritDoc}
      * @throws CreateContentModelException occurs on file not found, io error, or parsing error.
-     * @throws FileNotFoundException
+     * @throws IOException 
+     * @throws MalformedURLException 
      * @throws InvalidNameException
      */
     @Override
     @CheckForNull
     public ContentModel<LdapEpicsAlarmcfgConfiguration> retrieveInitialContentModelFromFile(@Nonnull final String filePath)
-        throws CreateContentModelException, FileNotFoundException {
+        throws CreateContentModelException {
 
+    	try {
         final XmlFileContentModelBuilder<LdapEpicsAlarmcfgConfiguration> builder =
-            new XmlFileContentModelBuilder<LdapEpicsAlarmcfgConfiguration>(VIRTUAL_ROOT, new FileInputStream(filePath));
+            new XmlFileContentModelBuilder<LdapEpicsAlarmcfgConfiguration>(VIRTUAL_ROOT, new URL(filePath).openStream());
         builder.build();
         return builder.getModel();
+    	} catch (IOException e) {
+    		throw new RuntimeException(e);
+    	}
     }
 
 

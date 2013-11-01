@@ -9,10 +9,10 @@ public class DBGenerator {
 	public static String createRecord(int id, int value, int max) {
 		return "record(calc, \"Test:Ramp_calc_" + id + "\") {\n" //
 				+ "   field(DESC,\"Ramp 0 .. " + max + "\")\n" //
-				+ "   field(SCAN, \"1 second\")\n"//
+				+ "   field(SCAN, \".5 second\")\n"//
 				+ "   field(VAL, \"" + value + "\")\n"//
 				+ "   field(PINI, \"YES\")\n" //
-				+ "   field(LOLO,\"10\")\n" //
+				+ "   field(LOLO,\"0\")\n" //
 				+ "   field(LLSV,\"MAJOR\")\n" //
 				+ "   field(HIHI,\"" + (int) (max * 0.9) + "\")\n" //
 				+ "   field(HHSV,\"MAJOR\")\n" //
@@ -29,11 +29,12 @@ public class DBGenerator {
 		int numberOfPVs = 5000;
 
 		{
-			File file = new File("PVs_" + numberOfPVs + ".db");
+			File file = new File("PVs_" + numberOfPVs + "_re.db");
 			PrintWriter writer = new PrintWriter(new FileOutputStream(file));
 			for (int i = 0; i < numberOfPVs; i++) {
 
-				int max = (int) (Math.random() * 1000);
+				//int max = (int) (Math.random() * 1000);
+				int max = 10;
 				int value = (int) (max * Math.random());
 
 				String record = createRecord(i, value, max);

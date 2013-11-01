@@ -1,7 +1,6 @@
-package org.csstudio.dal2.acceptance;
+package org.csstudio.dal2.epics.acceptance;
 
 import gov.aps.jca.Context;
-import gov.aps.jca.JCALibrary;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -12,9 +11,11 @@ import org.csstudio.dal2.dv.ListenerType;
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
 import org.csstudio.dal2.epics.service.test.EpicsServiceTestUtil;
+import org.csstudio.dal2.service.IDalService;
 import org.csstudio.dal2.service.IPvAccess;
 import org.csstudio.dal2.service.IPvListener;
-import org.csstudio.dal2.service.impl.DalService;
+import org.csstudio.dal2.service.cs.ICsPvAccessFactory;
+import org.csstudio.dal2.service.test.DalServiceTestUtil;
 import org.csstudio.domain.desy.epics.alarm.EpicsAlarmStatus;
 
 public class Scenario_DAL2JMS {
@@ -25,10 +26,9 @@ public class Scenario_DAL2JMS {
 
 		Context jcaContext = null;
 		try {
-			jcaContext = JCALibrary.getInstance().createContext(
-					JCALibrary.CHANNEL_ACCESS_JAVA);
-			DalService dalService = new DalService(
-					EpicsServiceTestUtil.createEpicsPvAccessFactory(jcaContext));
+			jcaContext = EpicsServiceTestUtil.createJCAContext();
+			ICsPvAccessFactory epicsPvAccessFactory = EpicsServiceTestUtil.createEpicsPvAccessFactory(jcaContext);
+			IDalService dalService = DalServiceTestUtil.createService(epicsPvAccessFactory);
 
 			for (int i = 0; i < numberOfPVs; i++) {
 

@@ -39,9 +39,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Local service directly used by the alarm handler.
- *
- * Used for mapping from alarm message to jms message and for sending jms messages.
- *
+ * 
+ * Used for mapping from alarm message to jms message and for sending jms
+ * messages.
+ * 
  * @author jpenning
  * @author $Author$
  * @version $Revision$
@@ -49,83 +50,106 @@ import org.slf4j.LoggerFactory;
  */
 class JmsMessageService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JmsMessageService.class);
+	private static final Logger LOG = LoggerFactory
+			.getLogger(JmsMessageService.class);
 
-    // Given as preference
-    private final String _alarmTopicName;
+	// Given as preference
+	private final String _alarmTopicName;
 
-    // Given as preference
-    private final int _timeToLiveForAlarms;
+	private final String _beaconTopicName;
 
-    public JmsMessageService() {
-        _timeToLiveForAlarms = Dal2JmsPreferences.JMS_TIME_TO_LIVE_ALARMS.getValue();
-        _alarmTopicName = Dal2JmsPreferences.JMS_ALARM_DESTINATION_TOPIC_NAME.getValue();
-    }
+	// Given as preference
+	private final int _timeToLiveForAlarms;
 
-    public void sendAlarmMessage(@Nonnull final IAlarmMessage alarmMessage) {
-        Session session = null;
-        try {
-            session = newSession();
-            MapMessage message = session.createMapMessage();
-            copyAlarmMsgToJmsMsg(alarmMessage, message);
-            sendViaMessageProducer(session, message);
-        } catch (final JMSException jmse) {
-            LOG.warn("dal2jms could not send alarm message.", jmse);
-        } finally {
-            tryToCloseSession(session);
-        }
-    }
+	private final String _serverId;
 
-    private void sendViaMessageProducer(@Nonnull final Session session,
-                                        @Nonnull final MapMessage message) throws JMSException {
-        MessageProducer producer = null;
-        try {
-            producer = newMessageProducer(session);
-            producer.send(message);
-        } finally {
-            tryToCloseMessageProducer(producer);
-        }
-    }
+	public JmsMessageService() {
+		_timeToLiveForAlarms = Dal2JmsPreferences.JMS_TIME_TO_LIVE_ALARMS
+				.getValue();
+		_alarmTopicName = Dal2JmsPreferences.JMS_ALARM_DESTINATION_TOPIC_NAME
+				.getValue();
+		_beaconTopicName = Dal2JmsPreferences.JMS_BEACON_DESTINATION_TOPIC_NAME
+				.getValue();
+		_serverId = Dal2JmsPreferences.JMS_BEACON_MESSAGE_SERVER_ID.getValue();
+	}
 
-    @Nonnull
-    private MessageProducer newMessageProducer(@Nonnull final Session session) throws JMSException {
-        Destination destination = session.createTopic(_alarmTopicName);
-        MessageProducer result = session.createProducer(destination);
-        result.setDeliveryMode(DeliveryMode.PERSISTENT);
-        result.setTimeToLive(_timeToLiveForAlarms);
-        return result;
-    }
+	public void sendAlarmMessage(@Nonnull final IAlarmMessage alarmMessage) {
+		Session session = null;
+		try {
+			session = newSession();
+			MapMessage message = session.createMapMessage();
+			copyAlarmMsgToJmsMsg(alarmMessage, message);
+			String topic;
+			if (alarmMessage.isBeaconMessage()) {
+				topic = _beaconTopicName;
+				message.setString("ServerId", _serverId);
+			}
+			else {
+				topic = _alarmTopicName;
+			}
+			sendViaMessageProducer(session, message, topic);
+		} catch (final JMSException jmse) {
+			LOG.warn("dal2jms could not send alarm message.", jmse);
+		} finally {
+			tryToCloseSession(session);
+		}
+	}
 
-    private void tryToCloseMessageProducer(@CheckForNull final MessageProducer messageProducer) {
-        if (messageProducer != null) {
-            try {
-                messageProducer.close();
-            } catch (final JMSException e) {
-                LOG.debug("Failed to close message producer", e);
-            }
-        }
-    }
+	private void sendViaMessageProducer(@Nonnull final Session session,
+			@Nonnull final MapMessage message, String topic)
+			throws JMSException {
+		MessageProducer producer = null;
+		try {
+			producer = newMessageProducer(session, topic);
+			producer.send(message);
+		} finally {
+			tryToCloseMessageProducer(producer);
+		}
+	}
 
-    @Nonnull
-    private Session newSession() throws JMSException {
-        return SharedJmsConnections.sharedSenderConnection()
-                .createSession(false, Session.AUTO_ACKNOWLEDGE);
-    }
+	@Nonnull
+	private MessageProducer newMessageProducer(@Nonnull final Session session,
+			String topic) throws JMSException {
+		Destination destination = session.createTopic(topic);
+		MessageProducer result = session.createProducer(destination);
+		result.setDeliveryMode(DeliveryMode.PERSISTENT);
+		result.setTimeToLive(_timeToLiveForAlarms);
+		return result;
+	}
 
-    private void tryToCloseSession(@CheckForNull final Session session) {
-        if (session != null) {
-            try {
-                session.close();
-            } catch (final JMSException e) {
-                LOG.debug("Failed to close JMS session", e);
-            }
-        }
-    }
+	private void tryToCloseMessageProducer(
+			@CheckForNull final MessageProducer messageProducer) {
+		if (messageProducer != null) {
+			try {
+				messageProducer.close();
+			} catch (final JMSException e) {
+				LOG.debug("Failed to close message producer", e);
+			}
+		}
+	}
 
-    private void copyAlarmMsgToJmsMsg(@Nonnull final IAlarmMessage alarmMessage,
-                                      @Nonnull final MapMessage message) throws JMSException {
-        for (final AlarmMessageKey key : AlarmMessageKey.values()) {
-            message.setString(key.getDefiningName(), alarmMessage.getString(key));
-        }
-    }
+	@Nonnull
+	private Session newSession() throws JMSException {
+		return SharedJmsConnections.sharedSenderConnection().createSession(
+				false, Session.AUTO_ACKNOWLEDGE);
+	}
+
+	private void tryToCloseSession(@CheckForNull final Session session) {
+		if (session != null) {
+			try {
+				session.close();
+			} catch (final JMSException e) {
+				LOG.debug("Failed to close JMS session", e);
+			}
+		}
+	}
+
+	private void copyAlarmMsgToJmsMsg(
+			@Nonnull final IAlarmMessage alarmMessage,
+			@Nonnull final MapMessage message) throws JMSException {
+		for (final AlarmMessageKey key : AlarmMessageKey.values()) {
+			message.setString(key.getDefiningName(),
+					alarmMessage.getString(key));
+		}
+	}
 }

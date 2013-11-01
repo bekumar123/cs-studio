@@ -29,6 +29,7 @@ class GetValueRequester<T> extends AbstractChannelOperator implements
 			ICsResponseListener<CsPvData<T>> callback)
 			throws DalException {
 		super(context, pv);
+
 		_callback = callback;
 		_type = type;
 	}

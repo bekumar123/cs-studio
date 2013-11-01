@@ -62,9 +62,10 @@ class PvListenerMock2<T> implements ICsPvListener<T> {
 		} else {
 			_hasStarted.compareAndSet(false, isFirstExpected(data.getValue()));
 		}
+		
 	}
 
-	private boolean isFirstExpected(final T value) {
+	protected boolean isFirstExpected(final T value) {
 		return _expectedValues.get(0).equals(value);
 	}
 

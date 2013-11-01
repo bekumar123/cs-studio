@@ -26,15 +26,24 @@ class FieldTypeRequester extends AbstractChannelOperator {
 
 	@Override
 	protected void onFirstConnect(ConnectionEvent ev) {
-		try {
-			DBRType dbrType = getChannel().getFieldType();
-			Type<?> type = TypeMapper.getType(dbrType);
-			_callback.onSuccess(type);
-		} catch (Exception e) {
-			LOGGER.debug("Failed to request field type for {}", getAddress().getAddress(), e);
-			_callback.onFailure(e);
-		} finally {
-			dispose();
-		}
+		
+		DBRType dbrType = getChannel().getFieldType();
+		Type<?> type = TypeMapper.getType(dbrType);
+
+//		// Execute in separate thread to avoid delay on cja thread
+//		EXECUTOR.execute(new Runnable() {
+//			@Override
+//			public void run() {
+				try {
+					_callback.onSuccess(type);
+				} catch (Exception e) {
+					LOGGER.debug("Failed to request field type for {}", getAddress().getAddress(), e);
+					_callback.onFailure(e);
+				} finally {
+					dispose();
+				}
+//			}
+//		});
+		
 	}
 }

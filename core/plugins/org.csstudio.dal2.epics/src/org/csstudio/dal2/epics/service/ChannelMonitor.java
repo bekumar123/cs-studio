@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CASeverity;
 import gov.aps.jca.CAStatus;
+import gov.aps.jca.Channel.ConnectionState;
 import gov.aps.jca.Context;
 import gov.aps.jca.Monitor;
 import gov.aps.jca.dbr.DBRType;
@@ -50,16 +51,16 @@ public class ChannelMonitor<T> extends AbstractChannelOperator implements
 	protected void onConnectionChanged(ConnectionEvent ev) {
 		String name = getChannel().getName();
 
+		assert name.equals(getAddress().getAddress());
+		
 		boolean connected = ev.isConnected();
 
 		if (connected) {
 			_connected.set(true);
-			LOGGER.debug("Connection changed ({}): connected", getAddress()
-					.getAddress());
+			LOGGER.debug("Connection changed ({}): connected", name);
 			_listener.connectionChanged(name, true);
 		} else if (_connected.getAndSet(connected)) {
-			LOGGER.debug("Connection changed ({}): disconnected", getAddress()
-					.getAddress());
+			LOGGER.debug("Connection changed ({}): disconnected", name);
 			_listener.connectionChanged(name, false);
 		}
 
@@ -67,61 +68,80 @@ public class ChannelMonitor<T> extends AbstractChannelOperator implements
 
 	@Override
 	protected void onFirstConnect(ConnectionEvent ev) {
+		String name = getAddress().getAddress();
 		try {
+			LOGGER.debug("First connect({}): adding monitor {}", name, _listener);
+			
 			DBRType ctrlType = TypeMapper.getMapper(_type).getDBRCtrlType();
-			int mask = getMask(_listener.getType());
+			ListenerType type = _listener.getType();
+			int mask = getMask(type);
 			_subscription = getChannel().addMonitor(ctrlType, 0, mask, this);
 			getContext().flushIO();
 		} catch (IllegalStateException e) {
-			LOGGER.error("Error creating channel monitor for {}", getAddress()
-					.getAddress(), e);
+			LOGGER.error("Error creating channel monitor for {}", name, e);
 			dispose();
 		} catch (CAException e) {
-			LOGGER.error("Error creating channel monitor for {}", getAddress()
-					.getAddress(), e);
+			LOGGER.error("Error creating channel monitor for {}", name, e);
 			dispose();
 		}
 	}
 
 	@Override
-	public void monitorChanged(MonitorEvent ev) {
+	public void monitorChanged(final MonitorEvent ev) {
+		// Execute in separate thread to avoid delay on cja thread
+//		EXECUTOR.execute(new Runnable() {
+//			@Override
+//			public void run() {
 
-		try {
+				CAStatus status = ev.getStatus();
 
-			CAStatus status = ev.getStatus();
+				if (status.isSuccessful()) {
+					try {
+						final T value = TypeMapper.getMapper(_type).mapValue(
+								ev.getDBR());
+						
+						String hostName = null;
+						
+						if (getChannel().getConnectionState() == ConnectionState.CONNECTED) {
+							hostName = getChannel().getHostName();
+						}
 
-			if (status.isSuccessful()) {
-				T value = TypeMapper.getMapper(_type).mapValue(ev.getDBR());
-				Characteristics characteristics = new CharacteristicsService()
-						.newCharacteristics(ev.getDBR(), getChannel()
-								.getHostName());
-				LOGGER.debug("Monitor changed ({}): {}", getAddress()
-						.getAddress(), value);
-				_listener.valueChanged(new CsPvData<T>(value, characteristics));
+						
+						final Characteristics characteristics = new CharacteristicsService()
+								.newCharacteristics(ev.getDBR(), hostName);
 
-			} else {
+						LOGGER.debug("Monitor changed ({}): {}", getAddress()
+								.getAddress(), value);
 
-				CASeverity severity = status.getSeverity();
-				if (severity.equals(CASeverity.FATAL)
-						|| severity.equals(CASeverity.ERROR)
-						|| severity.equals(CASeverity.SEVERE)) {
-					LOGGER.error(
-							"Monitor was not successful for channel ({}):",
-							getChannel().getName(), status.getMessage());
-				} else if (severity.equals(CASeverity.WARNING)) {
-					LOGGER.warn("Monitor was not successful for channel ({}):",
-							getChannel().getName(), status.getMessage());
-				} else if (severity.equals(CASeverity.INFO)) {
-					LOGGER.info("Monitor was not successful for channel ({}):",
-							getChannel().getName(), status.getMessage());
+						_listener.valueChanged(new CsPvData<T>(value,
+								characteristics));
+
+					} catch (Throwable t) {
+						LOGGER.error(
+								"Error handling monitor changed event for pv {}",
+								getAddress().getAddress(), t);
+					}
+				} else {
+
+					CASeverity severity = status.getSeverity();
+					if (severity.equals(CASeverity.FATAL)
+							|| severity.equals(CASeverity.ERROR)
+							|| severity.equals(CASeverity.SEVERE)) {
+						LOGGER.error(
+								"Monitor was not successful for channel ({}):",
+								getChannel().getName(), status.getMessage());
+					} else if (severity.equals(CASeverity.WARNING)) {
+						LOGGER.warn(
+								"Monitor was not successful for channel ({}):",
+								getChannel().getName(), status.getMessage());
+					} else if (severity.equals(CASeverity.INFO)) {
+						LOGGER.info(
+								"Monitor was not successful for channel ({}):",
+								getChannel().getName(), status.getMessage());
+					}
 				}
-
-			}
-
-		} catch (Throwable t) {
-			LOGGER.error("Error handling monitor changed event for pv {}",
-					getAddress().getAddress(), t);
-		}
+//			}
+//		});
 	}
 
 	@Override
@@ -131,8 +151,6 @@ public class ChannelMonitor<T> extends AbstractChannelOperator implements
 		// when a listener is deregistered
 		// but the CAJ implementation does so. So here we may adapt to this
 		// behavior.
-		_listener.connectionChanged(getAddress().getAddress(), false);
-
 		if (_connected.getAndSet(false)) {
 			String pv = getAddress().getAddress();
 			LOGGER.debug("Connection changed ({}): disconnected", pv);

@@ -6,7 +6,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Channel.ConnectionState;
@@ -74,7 +74,7 @@ public class GetValueRequesterTest {
 		connListener.connectionChanged(new ConnectionEvent(channel, true));
 
 		ArgumentCaptor<GetListener> getListenerCaptor = ArgumentCaptor.forClass(GetListener.class);
-		verify(channel).get(eq(DBRType.CTRL_STRING), anyInt(), getListenerCaptor.capture());
+		verify(channel, timeout(1000)).get(eq(DBRType.CTRL_STRING), anyInt(), getListenerCaptor.capture());
 		verify(context).flushIO();
 
 		// simulate value change

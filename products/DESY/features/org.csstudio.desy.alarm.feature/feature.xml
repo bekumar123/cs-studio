@@ -146,4 +146,18 @@
          version="0.0.0"
          unpack="false"/>
 
+   <plugin
+         id="org.csstudio.dal2"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.csstudio.dal2.epics"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>

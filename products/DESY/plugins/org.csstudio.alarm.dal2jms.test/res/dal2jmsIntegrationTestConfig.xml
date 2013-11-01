@@ -19,10 +19,21 @@
 <ou name="EpicsAlarmcfg">
   <efan name="Test">
     <ecom name="Test-IOC">
-      <eren name="Test:Ramp_calc" />
-      <eren name="Test:Ramp_calc_0" />
-      <eren name="Test:Ramp_calc_1" />
-      <eren name="NotExistent" />
+
+        <eren name="Test:Ramp_calc_0"/>
+		<eren name="Test:Ramp_calc_1"/>
+		<eren name="Test:Ramp_calc_2"/>
+		<eren name="Test:Ramp_calc_3"/>
+		<eren name="Test:Ramp_calc_4"/>
+		<eren name="Test:Ramp_calc_5"/>
+		<eren name="Test:Ramp_calc_6"/>
+		<eren name="Test:Invalid_0"/>
+		<eren name="Test:Invalid_1"/>
+		<eren name="Test:Invalid_2"/>
+		<eren name="Test:Invalid_3"/>
+		<eren name="Test:Invalid_4"/>
+		<eren name="Test:Invalid_5"/>
+        
     </ecom>
   </efan>
 </ou>

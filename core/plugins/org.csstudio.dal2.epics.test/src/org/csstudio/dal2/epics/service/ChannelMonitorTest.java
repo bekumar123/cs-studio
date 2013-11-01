@@ -5,6 +5,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import gov.aps.jca.CAStatus;
@@ -31,7 +32,6 @@ import org.csstudio.dal2.dv.ListenerType;
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Timestamp;
 import org.csstudio.dal2.dv.Type;
-import org.csstudio.dal2.epics.service.ChannelMonitor;
 import org.csstudio.dal2.service.cs.CsPvData;
 import org.csstudio.dal2.service.cs.ICsPvListener;
 import org.csstudio.domain.desy.epics.alarm.EpicsAlarmSeverity;
@@ -78,7 +78,7 @@ public class ChannelMonitorTest {
 		connectionListener
 				.connectionChanged(new ConnectionEvent(channel, true));
 
-		verify(pvListener).connectionChanged(pv.getAddress(), true);
+		verify(pvListener, timeout(1000)).connectionChanged(pv.getAddress(), true);
 
 		ArgumentCaptor<MonitorListener> monitorListenerCaptor = ArgumentCaptor
 				.forClass(MonitorListener.class);

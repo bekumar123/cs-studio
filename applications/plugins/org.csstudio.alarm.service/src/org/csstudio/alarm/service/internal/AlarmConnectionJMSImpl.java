@@ -120,7 +120,12 @@ public final class AlarmConnectionJMSImpl implements IAlarmConnection {
         _listener.getAlarmListener().stop();
     }
     
-    /**
+    @Override
+	public String getStatusAsString() {
+		return "n.a.";
+	}
+
+	/**
      * Object based adapter. Adapts the IAlarmListener to the MessageListener expected by JMS.
      */
     private static final class AlarmListenerAdapter implements MessageListener {

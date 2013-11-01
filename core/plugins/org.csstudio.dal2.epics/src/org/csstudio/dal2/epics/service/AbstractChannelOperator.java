@@ -23,8 +23,11 @@ public abstract class AbstractChannelOperator implements ConnectionListener,
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(AbstractChannelOperator.class);
 
-	private static final Executor EXECUTOR = Executors
-			.newSingleThreadExecutor();
+	/**
+	 * Single Thread executor. This is used to handle CJA-Callbacks in a different thread. 
+	 */
+//	protected static final Executor EXECUTOR = Executors
+//			.newSingleThreadExecutor();
 
 	/**
 	 * JCA Context
@@ -55,41 +58,22 @@ public abstract class AbstractChannelOperator implements ConnectionListener,
 	}
 
 	@Override
-	public synchronized final void connectionChanged(final ConnectionEvent ev) {
+	public final void connectionChanged(final ConnectionEvent ev) {
+		try {
+			synchronized (AbstractChannelOperator.this) {
+				
+				onConnectionChanged(ev);
 
-		Runnable handler = new Runnable() {
-			@Override
-			public void run() {
-
-				try {
-
-					synchronized (AbstractChannelOperator.this) {
-						onConnectionChanged(ev);
-
-						if (_channel.getConnectionState() == ConnectionState.CONNECTED
-								&& !_onceConnected.getAndSet(true)) {
-							onFirstConnect(ev);
-							AbstractChannelOperator.this.notifyAll();
-						}
-					}
-
-				} catch (Throwable t) {
-					LOGGER.error(
-							"Error handling connection changed event for pv {}",
-							_address.getAddress(), t);
+				if (_channel.getConnectionState() == ConnectionState.CONNECTED
+						&& !_onceConnected.getAndSet(true)) {
+					onFirstConnect(ev);
 				}
 			}
-		};
-
-		if (_channel == null) {
-			// Event ocured synchronously while running constructor.
-			// Perform event handing in separate task to ensure constructors
-			// been completed.
-			EXECUTOR.execute(handler);
-		} else {
-			handler.run();
+		} catch (Throwable t) {
+			LOGGER.error(
+					"Error handling connection changed event for pv {}",
+					_address.getAddress(), t);
 		}
-
 	}
 
 	/**

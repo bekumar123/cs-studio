@@ -73,6 +73,11 @@ public interface IAlarmMessage {
     boolean isAcknowledgement();
 
     /**
+     * @return true, if this message is a beacon message
+     */
+    boolean isBeaconMessage();
+    
+    /**
      * The message essentially is a map from String to String. Here you get the whole map with
      * the following content:
      * map: Key.getDefiningName() -> Value

@@ -82,5 +82,10 @@ public interface IAlarmConnection {
      */
     void disconnect();
 
+    /**
+     * Provides a description of the current connection status
+     */
+	String getStatusAsString();
+
 
 }

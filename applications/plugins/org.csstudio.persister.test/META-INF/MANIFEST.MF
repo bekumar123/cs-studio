@@ -7,4 +7,6 @@ Fragment-Host: org.csstudio.persister;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Desy <css-developer@desy.de>, Joerg Penning
 Require-Bundle: org.junit4;bundle-version="4.8.1",
- org.mockito;bundle-version="1.8.5"
+ org.mockito;bundle-version="1.8.5",
+ org.slf4j-log4j12;bundle-version="1.7.2"
+Export-Package: org.csstudio.persister.test

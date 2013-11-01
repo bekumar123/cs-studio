@@ -1,4 +1,4 @@
-package org.csstudio.dal2.acceptance;
+package org.csstudio.dal2.epics.acceptance;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -9,6 +9,7 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import gov.aps.jca.CAException;
@@ -18,6 +19,8 @@ import gov.aps.jca.JCALibrary;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -28,44 +31,59 @@ import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
 import org.csstudio.dal2.epics.service.test.EpicsServiceTestUtil;
 import org.csstudio.dal2.service.DalException;
+import org.csstudio.dal2.service.IDalService;
 import org.csstudio.dal2.service.IPvAccess;
 import org.csstudio.dal2.service.IPvListener;
 import org.csstudio.dal2.service.IResponseListener;
 import org.csstudio.dal2.service.cs.ICsPvAccessFactory;
-import org.csstudio.dal2.service.impl.DalService;
+import org.csstudio.dal2.service.test.DalServiceTestUtil;
 import org.csstudio.dal2.test.AssertWithTimeout;
 import org.csstudio.domain.desy.softioc.AbstractSoftIocConfigurator;
 import org.csstudio.domain.desy.softioc.ISoftIocConfigurator;
 import org.csstudio.domain.desy.softioc.SoftIoc;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+@RunWith(Parameterized.class)
 public class Dal2WithEpicsTest {
+
+	@Parameters
+	public static Collection<Object[]> data() {
+		List<Object[]> result = new ArrayList<Object[]>();
+		result.add(new Object[] { JCALibrary.JNI_THREAD_SAFE });
+		result.add(new Object[] { JCALibrary.CHANNEL_ACCESS_JAVA });
+		return result;
+	}
+
+	private String _jcaLibrary;
+
+	public Dal2WithEpicsTest(String jcaLibrary) {
+		this._jcaLibrary = jcaLibrary;
+	}
+	
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(Dal2WithEpicsTest.class);
 
 	private static SoftIoc _softIoc;
 	private Context _jcaContext;
-	private DalService _dalService;
+	private IDalService _dalService;
 	private ICsPvAccessFactory _csPvAccessFactory;
-
-	@BeforeClass
-	public static void beforeClass() {
-		setSystemProperties();
-		setupLibs();
-	}
 
 	@Before
 	public void before() throws CAException {
-		JCALibrary jca = JCALibrary.getInstance();
-		// _jcaContext = jca.createContext(JCALibrary.JNI_THREAD_SAFE);
-		_jcaContext = jca.createContext(JCALibrary.CHANNEL_ACCESS_JAVA);
-		_csPvAccessFactory = EpicsServiceTestUtil
-				.createEpicsPvAccessFactory(_jcaContext);
-		_dalService = new DalService(_csPvAccessFactory);
+		
+		_jcaContext = EpicsServiceTestUtil.createJCAContext(_jcaLibrary);
+		_csPvAccessFactory = EpicsServiceTestUtil.createEpicsPvAccessFactory(_jcaContext);
+		_dalService = DalServiceTestUtil.createService(_csPvAccessFactory);
 	}
 
 	@After
@@ -73,9 +91,11 @@ public class Dal2WithEpicsTest {
 		if (_jcaContext != null) {
 			_jcaContext.dispose();
 		}
+
+		stopSoftIoc();
 	}
 
-	@Test(expected = DalException.class, timeout = 800)
+	@Test(expected = DalException.class, timeout = 900)
 	public void testSyncGetValueWithTimeout() throws DalException {
 
 		PvAddress address = PvAddress.getValue("TestDal:ConstantPV");
@@ -177,13 +197,9 @@ public class Dal2WithEpicsTest {
 
 		startUpSoftIoc();
 
-		new AssertWithTimeout(1000) {
-			@Override
-			protected void performCheck() throws Exception {
-				verify(listener, times(1)).connectionChanged(pvAccess, true);
-				verify(listener, atLeast(1)).valueChanged(pvAccess, 5L);
-			}
-		};
+		verify(listener, timeout(1000).times(1)).connectionChanged(pvAccess,
+				true);
+		verify(listener, timeout(1000).atLeast(1)).valueChanged(pvAccess, 5L);
 
 		assertEquals(5L, pvAccess.getLastKnownValue().longValue());
 
@@ -199,12 +215,8 @@ public class Dal2WithEpicsTest {
 
 		stopSoftIoc();
 
-		new AssertWithTimeout(1000) {
-			@Override
-			protected void performCheck() throws Exception {
-				verify(listener, times(1)).connectionChanged(pvAccess, false);
-			}
-		};
+		verify(listener, timeout(10000).times(1)).connectionChanged(pvAccess,
+				false);
 
 		assertFalse(pvAccess.isConnected());
 		assertEquals(5L, pvAccess.getLastKnownValue().longValue());
@@ -213,13 +225,9 @@ public class Dal2WithEpicsTest {
 
 		startUpSoftIoc(); // restart IOC
 
-		new AssertWithTimeout(1000) {
-			@Override
-			protected void performCheck() throws Exception {
-				verify(listener, times(1)).connectionChanged(pvAccess, true);
-				verify(listener, atLeast(1)).valueChanged(pvAccess, 5L);
-			}
-		};
+		verify(listener, timeout(10000).times(1)).connectionChanged(pvAccess,
+				true);
+		verify(listener, timeout(10000).atLeast(1)).valueChanged(pvAccess, 5L);
 
 		stopSoftIoc();
 	}
@@ -287,24 +295,15 @@ public class Dal2WithEpicsTest {
 		pvAccess.registerListener(listener);
 
 		// expect connect
-		new AssertWithTimeout(200) {
-			@Override
-			protected void performCheck() throws Exception {
-				verify(listener).connectionChanged(pvAccess, true);
-				verify(listener, atLeast(1)).valueChanged(eq(pvAccess), anyLong());
-			}
-		};
+		verify(listener, timeout(1000)).connectionChanged(pvAccess, true);
+		verify(listener, timeout(1000).atLeast(1)).valueChanged(eq(pvAccess),
+				anyLong());
 		assertTrue(pvAccess.isConnected());
 
 		stopSoftIoc();
 
 		// expect disconnect
-		new AssertWithTimeout(200) {
-			@Override
-			protected void performCheck() throws Exception {
-				verify(listener).connectionChanged(pvAccess, false);
-			}
-		};
+		verify(listener, timeout(1000)).connectionChanged(pvAccess, false);
 		assertFalse(pvAccess.isConnected());
 
 		Mockito.reset(listener);
@@ -312,99 +311,63 @@ public class Dal2WithEpicsTest {
 		startUpSoftIoc(); // reconnect
 
 		// expect connect
-		new AssertWithTimeout(200) {
-			@Override
-			protected void performCheck() throws Exception {
-				verify(listener).connectionChanged(pvAccess, true);
-				verify(listener, atLeast(1)).valueChanged(eq(pvAccess), anyLong());
-			}
-		};
+		verify(listener, timeout(10000)).connectionChanged(pvAccess, true);
+		verify(listener, timeout(10000).atLeast(1)).valueChanged(eq(pvAccess),
+				anyLong());
 		assertTrue(pvAccess.isConnected());
 
 		// repeat check to ensure new (!) value changed events to occur
 		Mockito.reset(listener);
-		new AssertWithTimeout(200) {
-			@Override
-			protected void performCheck() throws Exception {
-				verify(listener, atLeast(1)).valueChanged(eq(pvAccess), anyLong());
-			}
-		};
+		verify(listener, timeout(10000).atLeast(1)).valueChanged(eq(pvAccess),
+				anyLong());
 
 		stopSoftIoc();
 	}
 
-	@Test @Ignore
+	@Test
+	@Ignore
 	public void testSecondMonitor() throws Exception {
 		fail("Test second monitor after connect");
 	}
 
-	@Test @Ignore
+	@Test
+	@Ignore
 	public void testDisposing() throws Exception {
 		fail("Test second monitor after connect");
 	}
 
-	private static void setupLibs() {
-		// path to jca.dll is found using java.library.path
-		// System.setProperty("java.library.path", "libs/win32/x86"); // ahem,
-		// no, I put jca.dll in the root of the project.
-
-		// path to Com.dll and ca.dll is hardcoded to windows
-		System.setProperty("gov.aps.jca.jni.epics.win32-x86.library.path",
-				"libs/win32/x86");
-	}
-
-	private static void setSystemProperties() {
-		System.setProperty("dal.plugs", "EPICS");
-		System.setProperty("dal.plugs.default", "EPICS");
-		System.setProperty("dal.propertyfactory.EPICS",
-				"org.csstudio.dal.epics.PropertyFactoryImpl");
-		System.setProperty("com.cosylab.epics.caj.CAJContext.addr_list",
-				"127.0.0.1");
-		System.setProperty("com.cosylab.epics.caj.CAJContext.auto_addr_list",
-				"NO");
-		System.setProperty(
-				"com.cosylab.epics.caj.CAJContext.connection_timeout", "30.0");
-		System.setProperty("com.cosylab.epics.caj.CAJContext.beacon_period",
-				"15.0");
-		System.setProperty("com.cosylab.epics.caj.CAJContext.repeater_port",
-				"5065");
-		System.setProperty("com.cosylab.epics.caj.CAJContext.server_port",
-				"5064");
-		System.setProperty("com.cosylab.epics.caj.CAJContext.max_array_bytes",
-				"16384");
-	}
-
 	private static void startUpSoftIoc() throws Exception {
 
-		System.out.print("Starting Soft Ioc .");
+		LOGGER.info("Soft IOC - Starting ...");
 
 		File file = new File(Dal2WithEpicsTest.class.getClassLoader()
 				.getResource("db/EpicsTest.db").toURI());
 		final ISoftIocConfigurator cfg = new JUnitSoftIocConfigurator()
 				.with(file);
 
-		System.out.print(".");
-
 		_softIoc = new SoftIoc(cfg);
 		_softIoc.start();
 
-		System.out.print(".");
-
 		while (!_softIoc.isStartUpDone()) {
-			System.out.print(".");
 			// wait IOC startup finished
 		}
 
-		System.out.print(".");
 		Thread.sleep(400);
-		System.out.println(" done");
+
+		LOGGER.info("Soft IOC - Running");
 	}
 
 	private static void stopSoftIoc() throws Exception {
+
+		LOGGER.info("Soft IOC - Stopping ...");
+
 		if (_softIoc != null) {
 			_softIoc.stop();
 		}
+
 		Thread.sleep(1000); // wait until soft ioc comes down
+
+		LOGGER.info("Soft IOC - Stopped");
 	}
 
 	public static class JUnitSoftIocConfigurator extends

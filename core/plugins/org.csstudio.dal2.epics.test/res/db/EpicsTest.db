@@ -25,8 +25,21 @@ record(calc, "TestDal:Counter") {
     field(VAL,  "0")
     field(CALC, "A>8?0:A+1")
     field(INPA, "TestDal:Counter.VAL")
-    field(HIHI, "6")
-    field(HIGH, "7")
+    field(HIHI, "7")
+    field(HIGH, "6")
+    field(HHSV, "MAJOR")
+    field(HSV,  "MINOR")
+}
+
+record(calc, "TestDal:AlarmCounter") {
+    field(DESC, "TestDal:Counter")
+    field(SCAN, ".1 second")
+    field(PINI, "YES")
+    field(VAL,  "0")
+    field(CALC, "A>8?0:A+1")
+    field(INPA, "TestDal:Counter.VAL")
+    field(HIHI, "7")
+    field(HIGH, "6")
     field(HHSV, "MAJOR")
     field(HSV,  "MINOR")
 }

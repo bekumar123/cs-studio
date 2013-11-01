@@ -23,11 +23,14 @@
  */
 package org.csstudio.persister.internal;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -41,108 +44,145 @@ import org.slf4j.LoggerFactory;
 /**
  * Service to persist the memento of the persistable service
  * 
- * This is a stateful service maintaining the memento of the given service.
- * The current implementation supports only one instance, therefore init may only be called once.
+ * This is a stateful service maintaining the memento of the given service. The
+ * current implementation supports only one instance, therefore init may only be
+ * called once.
  * 
  * @author jpenning
  * @since 30.03.2012
  */
 public class PersistenceService implements IPersistenceService {
-    private static final Logger LOG = LoggerFactory.getLogger(PersistenceService.class);
-    private static final long MAX_DURATION_MSECS = 3000;
-    private IPersistableService _persistableService;
-    private String _filename;
-    private ScheduledThreadPoolExecutor _executor;
-    
-    @Override
-    @Nonnull
-    public IPersistenceService init(@Nonnull final IPersistableService persistableService, @Nonnull final String filename) {
-        _filename = filename;
-        // guard: persistableService cannot be null
-        if (persistableService == null) {
-            throw new IllegalArgumentException("persistableService must be given");
-        }
-        // guard: init may only be called once
-        if (_persistableService != null) {
-            throw new IllegalStateException("Cannot call init more than once");
-        }
+	private static final Logger LOG = LoggerFactory
+			.getLogger(PersistenceService.class);
+	private static final long MAX_DURATION_MSECS = 3000;
+	private IPersistableService _persistableService;
+	private String _filename;
+	private ScheduledThreadPoolExecutor _executor;
 
-        LOG.debug("persistence service init for service {}, storing in file {}", persistableService.getClass().getName(), filename);
-        _persistableService = persistableService;
-        return this;
-    }
+	@Override
+	@Nonnull
+	public IPersistenceService init(
+			@Nonnull final IPersistableService persistableService,
+			@Nonnull final String filename) {
+		_filename = filename;
+		// guard: persistableService cannot be null
+		if (persistableService == null) {
+			throw new IllegalArgumentException(
+					"persistableService must be given");
+		}
+		// guard: init may only be called once
+		if (_persistableService != null) {
+			throw new IllegalStateException("Cannot call init more than once");
+		}
 
-    @Override
-    public void runPersister(final int delayInSeconds) {
-        LOG.debug("runPersister with {} seconds delay", delayInSeconds);
-        _executor = new ScheduledThreadPoolExecutor(1);
-        Runnable runnable = newPersister();
-        _executor.scheduleWithFixedDelay(runnable, delayInSeconds, delayInSeconds, TimeUnit.SECONDS);
-    }
-    
-    @Override
-    public void stopPersister() {
-        LOG.debug("stopPersister");
-        _executor.shutdown();
-        try {
-            saveMemento();
-        } catch (IOException e) {
-            LOG.error("saveMemento failed after shutdown of persistence service");
-        }
-    }
+		LOG.debug(
+				"persistence service init for service {}, storing in file {}",
+				persistableService.getClass().getName(), filename);
+		_persistableService = persistableService;
+		return this;
+	}
 
-    // package-scoped for tests
-    void saveMemento() throws IOException {
-        LOG.debug("saveMemento");
-        ObjectOutputStream outputStream = null;
-        try {
-            outputStream = new ObjectOutputStream(new FileOutputStream(_filename));
-            Object memento = _persistableService.getMemento();
-            //        o.writeObject(new Date());
-            outputStream.writeObject(memento);
-        } finally {
-            if (outputStream != null) {
-                outputStream.close();
-            }
-        }
-    }
+	@Override
+	public void runPersister(final int delayInSeconds) {
+		LOG.debug("runPersister with {} seconds delay", delayInSeconds);
+		_executor = new ScheduledThreadPoolExecutor(1);
+		Runnable runnable = newPersister();
+		_executor.scheduleWithFixedDelay(runnable, delayInSeconds,
+				delayInSeconds, TimeUnit.SECONDS);
+	}
 
-    @Override
-    public void restoreMemento() throws IOException, ClassNotFoundException {
-        LOG.debug("restoreMemento");
-        ObjectInputStream inputStream = null;
-        try {
-            inputStream = new ObjectInputStream(new FileInputStream(_filename));
-            //        Date date = (Date) o.readObject();
-            Object memento = inputStream.readObject();
-            inputStream.close();
-            _persistableService.restoreMemento(memento);
-        } finally {
-            if (inputStream != null) {
-                inputStream.close();
-            }
-        }
-    }
+	@Override
+	public void stopPersister() {
+		LOG.debug("stopPersister");
+		_executor.shutdown();
+		try {
+			saveMemento();
+		} catch (IOException e) {
+			LOG.error("saveMemento failed after shutdown of persistence service");
+		}
+	}
 
-    @Nonnull
-    private Runnable newPersister() {
-        return new Runnable() {
-            
-            @SuppressWarnings("synthetic-access")
-            @Override
-            public void run() {
-                try {
-                    long start = System.currentTimeMillis();
-                    saveMemento();
-                    long duration = System.currentTimeMillis() - start;
-                    LOG.info("Memento was saved in {} msec", duration);
-                    if (duration > MAX_DURATION_MSECS) {
-                        LOG.warn("Saving of memento needed too long: {} msec", duration);
-                    }
-                } catch (IOException e) {
-                    LOG.error("Cannot save memento", e);
-                }
-            }
-        };
-    }
+	// package-scoped for tests
+	void saveMemento() throws IOException {
+		LOG.debug("saveMemento");
+
+		File file = new File(_filename);
+		File fileOld = new File(_filename + ".old");
+
+		if (file.exists()) {
+			Files.move(file.toPath(), fileOld.toPath(),
+					StandardCopyOption.ATOMIC_MOVE,
+					StandardCopyOption.REPLACE_EXISTING);
+		}
+
+		ObjectOutputStream outputStream = null;
+		try {
+			outputStream = new ObjectOutputStream(new FileOutputStream(file));
+			Object memento = _persistableService.getMemento();
+			// o.writeObject(new Date());
+			outputStream.writeObject(memento);
+		} finally {
+			if (outputStream != null) {
+				outputStream.close();
+			}
+		}
+	}
+
+	@Override
+	public void restoreMemento() throws IOException, ClassNotFoundException {
+		LOG.debug("restoreMemento");
+
+		File file = new File(_filename);
+		ObjectInputStream inputStream = null;
+		try {
+			inputStream = new ObjectInputStream(new FileInputStream(file));
+			Object memento = inputStream.readObject();
+			inputStream.close();
+			_persistableService.restoreMemento(memento);
+			
+			LOG.info("Restored from file: {}", _filename);
+		} catch (Exception e) {
+			if (inputStream != null) {
+				inputStream.close();
+			}
+
+			LOG.warn("Restoring from reqular file failed. (Previous version will be used.", e);
+			
+			// restoring failed. retry with previous state
+			File fileOld = new File(_filename + ".old");
+			inputStream = new ObjectInputStream(new FileInputStream(fileOld));
+			Object memento = inputStream.readObject();
+			inputStream.close();
+			_persistableService.restoreMemento(memento);
+			
+			LOG.info("Restored from file ({}) using previous version.", _filename + ".old");
+		} finally {
+			if (inputStream != null) {
+				inputStream.close();
+			}
+		}
+	}
+
+	@Nonnull
+	private Runnable newPersister() {
+		return new Runnable() {
+
+			@SuppressWarnings("synthetic-access")
+			@Override
+			public void run() {
+				try {
+					long start = System.currentTimeMillis();
+					saveMemento();
+					long duration = System.currentTimeMillis() - start;
+					LOG.info("Memento was saved in {} msec", duration);
+					if (duration > MAX_DURATION_MSECS) {
+						LOG.warn("Saving of memento needed too long: {} msec",
+								duration);
+					}
+				} catch (IOException e) {
+					LOG.error("Cannot save memento", e);
+				}
+			}
+		};
+	}
 }

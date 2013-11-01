@@ -162,12 +162,33 @@ public class AlarmConnectionDAL2Impl implements IAlarmConnection {
 			try {
 				item.deregister();
 			} catch (DalException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOG.error("Error disconnecting pv {}",
+						item._pvAccess.getPVAddress(), e);
 			}
 		}
 		_pv2listenerItem.clear();
 		_dalService.disposeAll();
+		_listener = null;
+	}
+
+	@Override
+	public String getStatusAsString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Status of the alarm connection\n");
+
+		builder.append("Connected:\t" + Boolean.toString(_listener != null)
+				+ "\n");
+
+		int connectedPvs = 0;
+		for (final ListenerItem item : _pv2listenerItem.values()) {
+			IPvAccess<String> pvAccess = item._pvAccess;
+			if (pvAccess.isConnected()) {
+				connectedPvs++;
+			}
+		}
+		builder.append("Number of PVs:\t" + _pv2listenerItem.size() + " (" + connectedPvs + " connected)\n");
+
+		return builder.toString();
 	}
 
 	/**

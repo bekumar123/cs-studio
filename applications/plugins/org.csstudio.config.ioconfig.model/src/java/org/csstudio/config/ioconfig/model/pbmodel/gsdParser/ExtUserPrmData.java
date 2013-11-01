@@ -1,4 +1,5 @@
 /*
+            String valuePart = dataTypeParameterParts[2];
  * Copyright (c) 2007 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
@@ -31,8 +32,11 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.csstudio.config.ioconfig.model.types.BitRange;
+import org.csstudio.config.ioconfig.model.types.ValueRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.traversal.NodeIterator;
 
 import com.google.common.base.Optional;
 
@@ -105,13 +109,13 @@ public class ExtUserPrmData {
     public void buildDataTypeParameter(@Nonnull final String dataTypeParameter) {
         final String[] dataTypeParameterParts = dataTypeParameter.split(";")[0].split("\\s+");
         if (dataTypeParameterParts.length == 3) {
-            setDataType(dataTypeParameterParts[0]);
-            setDefault(dataTypeParameterParts[1]);
             String valuePart = dataTypeParameterParts[2];
-            Optional<Integer> hyphenPos = getHyphenPos(valuePart);
-            if (hyphenPos.isPresent()) {
-                String min = valuePart.substring(0, hyphenPos.get()).trim();
-                String max = valuePart.substring(hyphenPos.get() + 1).trim();
+            Optional<ValueRange> valueRange = ValueRange.createFromTextDescription(valuePart);
+            setDataType(dataTypeParameterParts[0], valueRange);
+            setDefault(dataTypeParameterParts[1]);
+            if (valueRange.isPresent()) {
+                String min = valueRange.get().getMinValue().toString();
+                String max = valueRange.get().getMaxValue().toString();
                 setValueRange(min, max);
             } else if (valuePart.contains(",")) {
                 setValues(valuePart.split(","));
@@ -123,41 +127,9 @@ public class ExtUserPrmData {
         }
     }
 
-    private Optional<Integer> getHyphenPos(String dataTypeParameter) {
-        for (int i = 1; i < dataTypeParameter.length() - 1; i++) {
-            char charBefore = dataTypeParameter.charAt(i - 1);
-            char currentChar = dataTypeParameter.charAt(i);
-            if ((currentChar == '-') && (Character.isDigit(charBefore))) {
-                return Optional.of(i);
-            }
-        }
-        return Optional.absent();
-    }
-
-    /**
-     * @param dataTypeParameter
-     */
-    public void buildDataTypeParameterOld(@Nonnull final String dataTypeParameter) {
-        final String[] dataTypeParameterParts = dataTypeParameter.split(";")[0].split("\\s+");
-        if (dataTypeParameterParts.length == 3) {
-            setDataType(dataTypeParameterParts[0]);
-            setDefault(dataTypeParameterParts[1]);
-            if (dataTypeParameterParts[2].contains("-")) {
-                final String[] minMax = dataTypeParameterParts[2].split("-");
-                setValueRange(minMax[0].trim(), minMax[1].trim());
-            } else if (dataTypeParameterParts[2].contains(",")) {
-                setValues(dataTypeParameterParts[2].split(","));
-            } else {
-                LOG.error("Unkown DataType Values: {}", dataTypeParameter);
-            }
-        } else {
-            LOG.error("Unkown DataType!");
-        }
-    }
-
     /**
      * The dataType of this ext user prm data as plain text.<br>
-     * (e.G. Bit(1), BitArea(4-7), UnsignedX)
+     * (e.G. Bit(1), BitArea(4-7), Unsigned)
      * 
      * @return the plain text dataType.
      */
@@ -169,6 +141,10 @@ public class ExtUserPrmData {
         return _dataType;
     }
 
+    public boolean isUnsigned() {
+        return _dataType.toUpperCase().startsWith("UNSIGNED");
+    }
+    
     /**
      * 
      * @return the default value.
@@ -256,20 +232,6 @@ public class ExtUserPrmData {
         return _text;
     }
 
-    @Nonnull
-    public SortedSet<Integer> getValues() {
-        TreeSet<Integer> values;
-        if (_range) {
-            values = new TreeSet<Integer>();
-            for (int i = _values.first(); i < _values.last(); i++) {
-                values.add(i);
-            }
-        } else {
-            values = new TreeSet<Integer>(_values);
-        }
-        return values;
-    }
-
     public boolean isValuesRanged() {
         return _range;
     }
@@ -278,8 +240,9 @@ public class ExtUserPrmData {
      * 
      * @param dataType
      *            set the plain text DataType.
+     * @param valueRange 
      */
-    public final void setDataType(@Nonnull final String dataType) {
+    public final void setDataType(@Nonnull final String dataType, Optional<ValueRange> valueRange) {
         String[] split = dataType.split("[\\(\\)]");
         if (split.length > 1) {
             if (split[1].contains("-")) {
@@ -294,11 +257,23 @@ public class ExtUserPrmData {
             }
 
         } else if (split[0].endsWith("8")) {
-            setMinBit("0");
-            setMaxBit("7");
+            if (valueRange.isPresent()) {
+                BitRange bitRange = BitRange.createFromMaxValue(valueRange.get().getMaxValue());
+                setMinBit(bitRange.getMinBit().toString());
+                setMaxBit(bitRange.getMaxBit().toString());                
+            } else {
+                setMinBit("0");
+                setMaxBit("7");
+            }
         } else if (split[0].endsWith("16")) {
-            setMinBit("0");
-            setMaxBit("15");
+            if (valueRange.isPresent()) {
+                BitRange bitRange = BitRange.createFromMaxValue(valueRange.get().getMaxValue());
+                setMinBit(bitRange.getMinBit().toString());
+                setMaxBit(bitRange.getMaxBit().toString());                
+            } else {
+                setMinBit("0");
+                setMaxBit("15");                
+            }
         } else {
             LOG.error("Unkown DataType: {}", dataType);
         }

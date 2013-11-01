@@ -117,7 +117,6 @@ public class ModuleDBO extends AbstractNodeSharedImpl<SlaveDBO, ChannelStructure
         if (slave.getChildrenAsMap().get(getSortIndex()) == null) {
             copy.setSortIndex((int) getSortIndex());
         }
-        // copy.setDocuments(getDocuments());
         copy.setConfigurationData(getConfigurationData());
         String extModulePrmDataLen = getExtModulePrmDataLen();
         extModulePrmDataLen = extModulePrmDataLen == null ? "" : extModulePrmDataLen;
@@ -431,16 +430,8 @@ public class ModuleDBO extends AbstractNodeSharedImpl<SlaveDBO, ChannelStructure
     public void setConfigurationDataByte(@Nonnull final Integer index, @Nonnull final Integer value, boolean firstAccess) {
         if (firstAccess) {
             _configurationData.set(index, value);
-            System.out.println("setting index: " + index);
-            System.out.println("setting value: " + value);            
         } else {
             Integer oldValue = _configurationData.get(index) ;
-
-            System.out.println("setting index: " + index);
-            System.out.println("replacing value: " + oldValue);            
-            System.out.println("receiving value: " + value);            
-            System.out.println("setting value: " + (value | oldValue));            
-
             _configurationData.set(index, value | oldValue);                                            
         }
     }

@@ -442,7 +442,12 @@ public final class GsdFileParser {
             }
             radix = 16;
         }
-        val = Integer.parseInt(tmpValue, radix);
+        try {
+            val = Integer.parseInt(tmpValue, radix);            
+        } catch (Exception e) {
+            val = 0;
+            e.printStackTrace();
+        }
         // negative numbers are two complement encoded 
         if (isNegativ) {
             val = val ^ Integer.parseInt("FFFF", 16); // reverse all bits
@@ -457,6 +462,10 @@ public final class GsdFileParser {
         final StringBuilder sb = new StringBuilder();
         for (final Integer value : intList) {
             String hexValue = String.format("0x%02X,", value);
+            System.out.println(hexValue);
+            //if (hexValue.length() > 4) {
+            //    hexValue = "0x" + hexValue.substring(hexValue.length() - 3);
+           // }
             sb.append(hexValue);
         }
         if (sb.length() > 0) {

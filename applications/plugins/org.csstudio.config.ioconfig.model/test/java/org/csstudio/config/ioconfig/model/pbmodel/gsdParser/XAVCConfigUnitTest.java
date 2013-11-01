@@ -143,7 +143,7 @@ public class XAVCConfigUnitTest {
         for (int i = 0; i < 7; i++) {
             addNewModule(pk2, 4360, i+1);
         }
-        // (hrickens) [30.03.2011]: Die sind später hinzu gekommen!
+        // (hrickens) [30.03.2011]: Die sind spï¿½ter hinzu gekommen!
         //        for (int i = 0; i < 2; i++) {
         //        addNewModule(pk2, 5132);
         //        }

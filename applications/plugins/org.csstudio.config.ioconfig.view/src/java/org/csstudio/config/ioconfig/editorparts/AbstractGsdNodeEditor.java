@@ -46,6 +46,11 @@ import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.ExtUserPrmData;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.KeyValuePair;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.PrmText;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.PrmTextItem;
+import org.csstudio.config.ioconfig.model.types.BitData;
+import org.csstudio.config.ioconfig.model.types.BitRange;
+import org.csstudio.config.ioconfig.model.types.ByteEncoding;
+import org.csstudio.config.ioconfig.model.types.HighByte;
+import org.csstudio.config.ioconfig.model.types.LowByte;
 import org.csstudio.config.ioconfig.view.DeviceDatabaseErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -81,6 +86,7 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
 /**
@@ -402,11 +408,9 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
             final Collection<KeyValuePair> extUserPrmDataRefMap = parsedGsdFileModel.getExtUserPrmDataRefMap().values();
             // extUserPrmDataRef is e.g. Ext_User_Prm_Data_Ref(1) = 30
             for (final KeyValuePair extUserPrmDataRef : extUserPrmDataRefMap) {
-                System.out.println(extUserPrmDataRef);
                 // extUserPrmData is e.g. 30 : Sondenlaenge(Unsigned16)
                 final ExtUserPrmData extUserPrmData = parsedGsdFileModel.getExtUserPrmData(extUserPrmDataRef
                         .getIntValue());
-                System.out.println(extUserPrmData);               
                 if (extUserPrmData != null) {
                     final Integer value = getUserPrmDataValue(extUserPrmDataRef, extUserPrmData, new BitMaskImpl());
                     makeCurrentUserParamDataItem(currentUserParamDataComposite, extUserPrmData, value);
@@ -559,49 +563,66 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
             //@formatter:on
 
         final List<Integer> prmUserDataList = getPrmUserDataList();
-        final List<Integer> values = new ArrayList<Integer>();
         final Integer index = extUserPrmDataRef.getIndex();
 
+        // Frage: HighByte LowByte ?
         if (index != null && index < prmUserDataList.size()) {
 
-            final Integer integer = prmUserDataList.get(index);
-            values.add(integer);
+            Optional<HighByte> highByte;
+            LowByte lowByte;
 
-            final int maxBit = extUserPrmData.getMaxBit();
+            BitRange bitRange = new BitRange(extUserPrmData.getMinBit(), extUserPrmData.getMaxBit());
 
-            if (maxBit > 7 && maxBit < 16) {
+            if (bitRange.needsTwoBytes()) {
                 if ((index + 1) < prmUserDataList.size()) {
-                    values.add(prmUserDataList.get(index + 1));
+                    highByte = Optional.of(new HighByte(prmUserDataList.get(index + 0), ByteEncoding.DEFAULT));
+                    lowByte = new LowByte(prmUserDataList.get(index + 1), ByteEncoding.DEFAULT);
                 } else {
-                    throw new IllegalStateException(
-                            "Trying to build 2 Byte value but not enough data available at index: " + index);
+                    throw new IllegalStateException("Not enough data for two byte value");
+                }
+            } else {
+                highByte = Optional.absent();
+                boolean unsignedDataType = extUserPrmData.isUnsigned();
+                if (unsignedDataType) {
+                    lowByte = new LowByte(prmUserDataList.get(index), ByteEncoding.DEFAULT);                    
+                } else {
+                    Integer value =  prmUserDataList.get(index);
+                    if (value < 0) {
+                        lowByte = new LowByte(prmUserDataList.get(index), ByteEncoding.TWO_COMPLEMENT);                                            
+                    } else {
+                        lowByte = new LowByte(prmUserDataList.get(index), ByteEncoding.DEFAULT);                                                                    
+                    }
                 }
             }
 
+            //@formatter:off
+            final int val = bitMask.getValueFromBitMask(
+                    bitRange,
+                    highByte, 
+                    lowByte);
+                    //@formatter:on
+            
+            return val;
+
         }
 
-        if (values.isEmpty()) {
-            return 0;
-        }
-
-        final int val = bitMask.getValueFromBitMask(extUserPrmData.getMinBit(), extUserPrmData.getMaxBit(), values);
-        return val;
+        return 0;
 
     }
 
-    private void handleComboViewer(@Nonnull final ComboViewer prmTextCV, @Nonnull final Integer byteIndex, boolean firstAccess) {
+    private void handleComboViewer(@Nonnull final ComboViewer prmTextCV, @Nonnull final Integer byteIndex) {
         if (!prmTextCV.getCombo().isDisposed()) {
             final ExtUserPrmData extUserPrmData = (ExtUserPrmData) prmTextCV.getInput();
             final StructuredSelection selection = (StructuredSelection) prmTextCV.getSelection();
             final Integer bitValue = ((PrmTextItem) selection.getFirstElement()).getIndex();
-            setValue2BitMask(extUserPrmData, byteIndex, bitValue, firstAccess);
+            setValue2BitMask(extUserPrmData, byteIndex, bitValue);
             final Integer indexOf = prmTextCV.getCombo().indexOf(selection.getFirstElement().toString());
             prmTextCV.getCombo().setData(indexOf);
         }
     }
 
     @Nonnull
-    private void handleText(@Nonnull final Text prmText, @Nonnull final Integer byteIndex, boolean firstAccess) {
+    private void handleText(@Nonnull final Text prmText, @Nonnull final Integer byteIndex) {
         if (!prmText.isDisposed()) {
             final Object data = prmText.getData("ExtUserPrmData");
             if (data instanceof ExtUserPrmData) {
@@ -614,12 +635,12 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
                 } else {
                     bitValue = Integer.parseInt(value);
                 }
-                setValue2BitMask(extUserPrmData, byteIndex, bitValue, firstAccess);
+                setValue2BitMask(extUserPrmData, byteIndex, bitValue);
                 prmText.setData(bitValue);
             }
         }
     }
-    
+
     /**
      * 
      * @param parent
@@ -640,7 +661,7 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
         data.exclude = false;
 
         final Formatter f = new Formatter();
-        
+
         //@formatter:off
         f.format("Ref-Index: %d, min Bit: %d, max Bit: %d", 
                 extUserPrmData.getIndex(), 
@@ -672,7 +693,6 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
             prmTextCV.getCombo().select(localValue);
         }
         prmTextCV.getCombo().setData(prmTextCV.getCombo().getSelectionIndex());
-
 
         return prmTextCV;
     }
@@ -787,6 +807,8 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
         return prmText;
     }
 
+    private List<Integer> visitedIndices;
+
     /**
      * @throws IOException
      * 
@@ -798,37 +820,29 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
         if (gsdPropertyModel != null) {
             final Collection<KeyValuePair> extUserPrmDataRefMap = gsdPropertyModel.getExtUserPrmDataRefMap().values();
 
-            List<Integer> indexVisited = new ArrayList<Integer>();
-            
             if (extUserPrmDataRefMap.size() == _prmTextCV.size()) {
 
-                int i = 0;               
+                int i = 0;
+
+                visitedIndices = new ArrayList<Integer>();
+
                 for (final KeyValuePair ref : extUserPrmDataRefMap) {
                     final Object prmTextObject = _prmTextCV.get(i);
                     final Integer index = ref.getIndex();
-                    
-                    if (index != null) {
 
-                        boolean firstAccess;
-                        
-                        if (indexVisited.contains(index)) {
-                            firstAccess = false;
-                        } else {
-                            indexVisited.add(index);
-                            firstAccess = true;
-                        }
+                    if (index != null) {
 
                         if (prmTextObject instanceof ComboViewer) {
                             final ComboViewer prmTextCV = (ComboViewer) prmTextObject;
-                            handleComboViewer(prmTextCV, index, firstAccess);
+                            handleComboViewer(prmTextCV, index);
                         } else if (prmTextObject instanceof Text) {
                             final Text prmText = (Text) prmTextObject;
-                            handleText(prmText, index, firstAccess);
+                            handleText(prmText, index);
                         }
                     }
-                    
+
                     i++;
-                    
+
                 }
 
             }
@@ -874,47 +888,47 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
      *            give the start and end Bit position.
      * @param bitValue
      *            the new Value for the given Bit position.
-     * @param firstAccess 
+     * @param firstAccess
      * @param value
      *            the value was changed.
      * @return the changed value.
      */
     @Nonnull
-    private void setValue2BitMask(@Nonnull final ExtUserPrmData extUserPrmData, @Nonnull final Integer byteIndex,
-            @Nonnull final Integer bitValue, boolean firstAccess) {
-        int val = bitValue;
-        
+    //@formatter:off
+    private void setValue2BitMask(
+            @Nonnull final ExtUserPrmData extUserPrmData, 
+            @Nonnull final Integer byteIndex,
+            @Nonnull final Integer bitValue) {
+            //@formatter:on
+
         int minBit = extUserPrmData.getMinBit();
         int maxBit = extUserPrmData.getMaxBit();
-        
+
         if (maxBit < minBit) {
             throw new IllegalStateException("minBit must not be greater than maxBit");
         }
 
-        System.out.println("BitValue: " + val);
+        BitData bitData = new BitData(bitValue);
+        bitData = bitData.shiftLeftToBit(minBit);
 
-        final int mask = ~((int) (Math.pow(2, maxBit + 1) - Math.pow(2, minBit)));
         if (maxBit > 7 && maxBit < 16) {
-            int modifyByteHigh = 0;
-            int modifyByteLow = 0;
-            modifyByteHigh = getPrmUserData(byteIndex);
-            modifyByteLow = getPrmUserData(byteIndex + 1);
+            // BigEndian Order => first HighByte then LowByte
+            setPrmUserData(byteIndex, bitData.getHighByte(), !indexVisited(byteIndex));
+            setPrmUserData(byteIndex + 1, bitData.getLowByte(), !indexVisited(byteIndex + 1));
 
-            final int parseInt = modifyByteHigh * 256 + modifyByteLow;
-            val = val << minBit;
-            final int result = parseInt & mask | val;
-            modifyByteLow = result % 256;
-            modifyByteHigh = (result - modifyByteLow) / 256;
-         //   setPrmUserData(byteIndex + 1, modifyByteHigh, firstAccess);
-          //  setPrmUserData(byteIndex, modifyByteLow, firstAccess);
         } else {
-            //final int modifyByte = getPrmUserData(byteIndex);
-            val = val << minBit;
-            //System.out.println("Value after Shift: " + val);
-            //final int result =  (modifyByte & mask) | val;
-            setPrmUserData(byteIndex, val, firstAccess);
+            setPrmUserData(byteIndex, bitData.getLowByte(), !indexVisited(byteIndex));
         }
-        
+
+    }
+
+    private boolean indexVisited(Integer index) {
+        if (visitedIndices.contains(index)) {
+            return true;
+        } else {
+            visitedIndices.add(index);
+            return false;
+        }
     }
 
     private static void createGSDFileActions(@Nonnull final TableViewer viewer) {

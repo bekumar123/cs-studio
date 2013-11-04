@@ -50,4 +50,5 @@ public class PreferenceConstants
     final public static String REPEATER_PORT = "repeater_port";
     final public static String SERVER_PORT = "server_port";
     final public static String MAX_ARRAY_BYTES = "max_array_bytes";
-}
+    final public static String JCA_LIBRARY_PROPERTIES_PATH = "jca_library_properties_path";
+ }

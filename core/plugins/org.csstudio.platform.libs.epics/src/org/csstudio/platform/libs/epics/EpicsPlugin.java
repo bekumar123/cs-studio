@@ -23,6 +23,7 @@ package org.csstudio.platform.libs.epics;
 
 import gov.aps.jca.jni.JNITargetArch;
 
+import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -288,8 +289,13 @@ public class EpicsPlugin extends Plugin
             // Select the DirectEventDispatcher:
             // As long as the PV library that uses JCA avoids deadlocks,
             // this is faster than the QueuedEventDispatcher
-            setSystemProperty("gov.aps.jca.jni.ThreadSafeContext.event_dispatcher",
-                    "gov.aps.jca.event.DirectEventDispatcher");
+          //  setSystemProperty("gov.aps.jca.jni.ThreadSafeContext.event_dispatcher",  "gov.aps.jca.event.DirectEventDispatcher");
+          //  setSystemProperty("com.cosylab.epics.caj.CAJContext.event_dispatcher",  "gov.aps.jca.event.DirectEventDispatcher");
+            final String jca_properties_path =
+                    prefs.getString(ID, PreferenceConstants.JCA_LIBRARY_PROPERTIES_PATH, "JCALibrary.properties", null);
+            setSystemProperty("gov.aps.jca.JCALibrary.properties",
+            		jca_properties_path);
+     
         }
         catch (Exception ex)
         {

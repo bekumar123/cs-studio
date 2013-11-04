@@ -257,7 +257,7 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
                         // Take the channel from the event so that there is no
                         // synchronization problem
                         final Channel channel = (Channel) ev.getSource();
-                    	isConnected=ev.isConnected();
+
                         //(wenhua) fix for Single Thread Context
                         channel.getContext().attachCurrentThread();
 
@@ -266,11 +266,12 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
 
                         	   //testen um deadlock
                          //   connectionState=channel.getConnectionState();
-                         if(isFirst) {
+
+                   		 if(isFirst) {
                    			 isFirst=false;
-
-							} else {
-
+                   			 isConnected=ev.isConnected();
+							} else if( isConnected!=ev.isConnected()) {
+								 isConnected=ev.isConnected();
 								LOG.info("Channel {} with " + channel.getHostName() +" is {},",channel.getName(), isConnected? " Connected ": "disconnected");
 							//	LOG.info("Host    {} is {},",channel.getHostName(), isConnected? " Connected ": "disconnected");
 

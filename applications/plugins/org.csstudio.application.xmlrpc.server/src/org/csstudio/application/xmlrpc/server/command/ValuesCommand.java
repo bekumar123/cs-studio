@@ -32,6 +32,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.csstudio.application.xmlrpc.server.ServerCommandException;
+import org.csstudio.application.xmlrpc.server.epics.MetaData;
+import org.csstudio.application.xmlrpc.server.epics.MetaDataCollection;
 import org.csstudio.application.xmlrpc.server.epics.ValueReader;
 import org.csstudio.application.xmlrpc.server.epics.ValueType;
 import org.csstudio.archive.common.requesttype.IArchiveRequestType;
@@ -108,11 +110,11 @@ public class ValuesCommand extends AbstractServerCommand {
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("-------------- Value request --------------");
-            LOG.debug("Request method: {}", requestType.toString());
-            LOG.debug("Channel name:   {}", name);
-            LOG.debug("Start:          {} ({})", start.toString(), start.getSeconds());
-            LOG.debug("End:            {} ({})", end.toString(), end.getSeconds());
-            LOG.debug("Count:          {}", requestedCount);
+            LOG.debug("Request method:  {}", requestType.toString());
+            LOG.debug("Channel name:    {}", name);
+            LOG.debug("Start:           {} ({})", start.toString(), start.getSeconds());
+            LOG.debug("End:             {} ({})", end.toString(), end.getSeconds());
+            LOG.debug("Requested Count: {}", requestedCount);
             LOG.debug("----------- End of value request ----------");
         }
 
@@ -142,12 +144,15 @@ public class ValuesCommand extends AbstractServerCommand {
                            (Collection) archiveReader.readSamples(name, start, end, archiveRequest);
 
             List<Map<String, Object>> values = null;
-            if (requestType == ServerRequestType.AVERAGE) {
-                values = this.createAverageValues(samples, channel, start, end, requestedCount);
+            if (samples.size() > 0) {
+                if (requestType == ServerRequestType.AVERAGE) {
+                    values = this.createAverageValues(samples, channel, start, end, requestedCount);
+                } else {
+                    values = this.createRawValues(samples);
+                }
             } else {
-                values = this.createRawValues(samples);
+                values = new ArrayList<Map<String, Object>>();
             }
-
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Number of samples: {}", values.size());
             }
@@ -165,6 +170,8 @@ public class ValuesCommand extends AbstractServerCommand {
     private Map<String, Object> createMetaData(ArchiveChannel channel) {
         Map<String, Object> meta = new HashMap<String, Object>();
         if (!askCntrlSystem) {
+            MetaDataCollection mdc = MetaDataCollection.getInstance();
+            MetaData metaData = mdc.get(channel.getName());
             meta.put("type", new Integer(1));
             meta.put("disp_high", channel.getDisplayLimits().getHigh());
             meta.put("disp_low", channel.getDisplayLimits().getLow());
@@ -172,8 +179,13 @@ public class ValuesCommand extends AbstractServerCommand {
             meta.put("alarm_low", new Double(0.0));
             meta.put("warn_high", new Double(0.0));
             meta.put("warn_low", new Double(0.0));
-            meta.put("prec", new Integer(0));
-            meta.put("units", "n/a");
+            if (metaData != null) {
+                meta.put("prec", new Integer(metaData.getPrec()));
+                meta.put("units", metaData.getEgu());
+            } else {
+                meta.put("prec", new Integer(0));
+                meta.put("units", "N/A");
+            }
         } else {
             ValueReader valueReader = new ValueReader();
             meta.put("type", new Integer(1));
@@ -183,7 +195,8 @@ public class ValuesCommand extends AbstractServerCommand {
             meta.put("alarm_low", new Double(0.0));
             meta.put("warn_high", new Double(0.0));
             meta.put("warn_low", new Double(0.0));
-            meta.put("prec", valueReader.getPrecision(channel.getName()));
+            String tmp = valueReader.getPrecision(channel.getName());
+            meta.put("prec", convertStringToInteger(tmp));
             meta.put("units", valueReader.getEgu(channel.getName()));
         }
         return meta;
@@ -224,44 +237,40 @@ public class ValuesCommand extends AbstractServerCommand {
                    int requestedCount) {
 
         List<Map<String, Object>> values = new ArrayList<Map<String, Object>>();
-        if (samples.size() <= requestedCount) {
-            values = createRawValues(samples);
-        } else {
-            try {
-                EquidistantTimeSampleIterator iter =
-                        new EquidistantTimeSampleIterator(archiveReader,
-                                                          samples,
-                                                          channel.getName(),
-                                                          start,
-                                                          end,
-                                                          requestedCount);
-                while (iter.hasNext()) {
-                    VType vType = iter.next();
-                    if (vType instanceof VStatistics) {
-                        VStatistics vs = (VStatistics) vType;
+        try {
+            EquidistantTimeSampleIterator iter =
+                    new EquidistantTimeSampleIterator(archiveReader,
+                                                      samples,
+                                                      channel.getName(),
+                                                      start,
+                                                      end,
+                                                      requestedCount);
+            while (iter.hasNext()) {
+                VType vType = iter.next();
+                if (vType instanceof VStatistics) {
+                    VStatistics vs = (VStatistics) vType;
 
-                        Map<String, Object> sampleValue = new HashMap<String, Object>();
+                    Map<String, Object> sampleValue = new HashMap<String, Object>();
 
-                        // TODO: Where is the value of the status???
-                        sampleValue.put("stat", Integer.valueOf(0));
-                        sampleValue.put("sevr", Integer.valueOf(vs.getAlarmSeverity().ordinal()));
+                    // TODO: Where is the value of the status???
+                    sampleValue.put("stat", Integer.valueOf(0));
+                    sampleValue.put("sevr", Integer.valueOf(vs.getAlarmSeverity().ordinal()));
 
-                        // Datatype Long is not allowed for XMLRPC
-                        String longStr = String.valueOf(vs.getTimestamp().getSec());
-                        sampleValue.put("secs", longStr);
-                        sampleValue.put("nano", Integer.valueOf(vs.getTimestamp().getNanoSec()));
-                        sampleValue.put("min", vs.getMin());
-                        sampleValue.put("max", vs.getMax());
-                        List<Object> value = new ArrayList<Object>();
-                        value.add(vs.getAverage());
-                        sampleValue.put("value", value);
-                        values.add(sampleValue);
-                    }
+                    // Datatype Long is not allowed for XMLRPC
+                    String longStr = String.valueOf(vs.getTimestamp().getSec());
+                    sampleValue.put("secs", longStr);
+                    sampleValue.put("nano", Integer.valueOf(vs.getTimestamp().getNanoSec()));
+                    sampleValue.put("min", vs.getMin());
+                    sampleValue.put("max", vs.getMax());
+                    List<Object> value = new ArrayList<Object>();
+                    value.add(vs.getAverage());
+                    sampleValue.put("value", value);
+                    values.add(sampleValue);
                 }
-            } catch (Exception e) {
-                LOG.error("[*** Exception ***]: " + e.getMessage());
-                values.clear();
             }
+        } catch (Exception e) {
+            LOG.error("[*** Exception ***]: " + e.getMessage());
+            values.clear();
         }
         return values;
     }
@@ -274,6 +283,20 @@ public class ValuesCommand extends AbstractServerCommand {
             if (type.getTypeIdentifier().compareToIgnoreCase(serverType.toString()) == 0) {
                 result = type;
             }
+        }
+        if (result == null) {
+            // Default = RAW
+            result = howArchive.get(0);
+        }
+        return result;
+    }
+
+    private Integer convertStringToInteger(String value) {
+        Integer result = null;
+        try {
+            result = new Integer(value);
+        } catch (NumberFormatException e) {
+            result = new Integer(0);
         }
         return result;
     }

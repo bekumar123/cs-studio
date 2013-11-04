@@ -29,6 +29,7 @@ import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.WebServer;
+import org.csstudio.application.xmlrpc.server.epics.MetaDataCollection;
 import org.csstudio.application.xmlrpc.server.internal.PreferenceConstants;
 import org.csstudio.archive.common.service.IArchiveReaderFacade;
 import org.eclipse.core.runtime.Platform;
@@ -65,6 +66,11 @@ public class MySqlXmlRpcServer extends Thread {
         LOG.info("{} is running.", this.getName());
 
         IPreferencesService prefs = Platform.getPreferencesService();
+        String metaDataPath = prefs.getString(ServerActivator.PLUGIN_ID,
+                                              PreferenceConstants.CHANNEL_META_DATA_PATH,
+                                              "./channels.xml",
+                                              null);
+        MetaDataCollection.createInstance(metaDataPath);
         int key = prefs.getInt(ServerActivator.PLUGIN_ID,
                                PreferenceConstants.ARCHIVE_KEY,
                                0,
@@ -75,7 +81,12 @@ public class MySqlXmlRpcServer extends Thread {
         String path = prefs.getString(ServerActivator.PLUGIN_ID,
                                       PreferenceConstants.ARCHIVE_PATH,
                                       "NONE", null);
-        ServerInfo info = new ServerInfo(key, name, path);
+        boolean askCtrlSystem = prefs.getBoolean(ServerActivator.PLUGIN_ID,
+                                                 PreferenceConstants.ASK_CONTROLSYSTEM_FOR_META,
+                                                 false,
+                                                 null);
+        ServerInfo info = new ServerInfo(key, name, path, askCtrlSystem);
+
         ArchiverRequestProcessorFactoryFactory arpff =
                 new ArchiverRequestProcessorFactoryFactory(archiveReader, info);
         WebServer webServer = new WebServer(serverPort);

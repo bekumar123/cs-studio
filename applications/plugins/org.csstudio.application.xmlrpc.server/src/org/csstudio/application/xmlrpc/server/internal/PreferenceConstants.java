@@ -35,6 +35,7 @@ public class PreferenceConstants {
     public static final String XMPP_SHUTDOWN_PASSWORD = "xmppShutdownPassword";
     public static final String XML_RPC_SERVER_PORT = "xmlRpcServerPort";
     public static final String ASK_CONTROLSYSTEM_FOR_META = "askCntrlSysForMeta";
+    public static final String CHANNEL_META_DATA_PATH = "channelMetaDataPath";
     public static final String INFO_TEXT = "info";
     public static final String ARCHIVE_KEY = "archive.key";
     public static final String ARCHIVE_NAME = "archive.name";

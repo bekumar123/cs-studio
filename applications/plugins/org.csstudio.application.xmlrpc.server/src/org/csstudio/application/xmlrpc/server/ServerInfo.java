@@ -32,11 +32,13 @@ public class ServerInfo {
     private Integer archiveKey;
     private String archiveName;
     private String archivePath;
+    private boolean askCtrlSystemForMeta;
 
-    public ServerInfo(int archKey, String archName, String archPath) {
+    public ServerInfo(int archKey, String archName, String archPath, boolean askCtrlSys) {
         archiveKey = Integer.valueOf(archKey);
         archiveName = archName;
         archivePath = archPath;
+        askCtrlSystemForMeta = askCtrlSys;
     }
 
     public Integer getArchiveKey() {
@@ -49,5 +51,9 @@ public class ServerInfo {
 
     public String getArchivePath() {
         return archivePath;
+    }
+
+    public boolean askCtrlSystemForMeta() {
+        return askCtrlSystemForMeta;
     }
 }

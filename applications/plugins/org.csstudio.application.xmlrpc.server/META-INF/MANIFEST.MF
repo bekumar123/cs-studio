@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: XMLRPC Server
 Bundle-SymbolicName: org.csstudio.application.xmlrpc.server; singleton:=true
-Bundle-Version: 1.1.2.qualifier
+Bundle-Version: 1.3.0.qualifier
 Bundle-Activator: org.csstudio.application.xmlrpc.server.ServerActivator
 Bundle-Vendor: Markus Moeller <markus.moeller@desy.de>
 Require-Bundle: org.eclipse.core.runtime,
@@ -29,4 +29,5 @@ Bundle-ClassPath: .,
  lib/commons-pool-1.6.jar,
  lib/commons-logging-1.1.1.jar,
  lib/ws-commons-util-1.0.2.jar,
- lib/xmlrpc-3.1.jar
+ lib/xmlrpc-3.1.jar,
+ lib/jdom-2.0.4.jar

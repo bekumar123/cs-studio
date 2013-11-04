@@ -46,6 +46,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
         prefs.put(PreferenceConstants.XMPP_SHUTDOWN_PASSWORD, "");
         prefs.putInt(PreferenceConstants.XML_RPC_SERVER_PORT, 8080);
         prefs.putBoolean(PreferenceConstants.ASK_CONTROLSYSTEM_FOR_META, false);
+        prefs.put(PreferenceConstants.CHANNEL_META_DATA_PATH, "./channels.xml");
         prefs.put(PreferenceConstants.INFO_TEXT, "I am a small but happy application.");
         prefs.putInt(PreferenceConstants.ARCHIVE_KEY, 0);
         prefs.put(PreferenceConstants.ARCHIVE_NAME, "");

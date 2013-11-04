@@ -51,10 +51,12 @@ public class ArchiveReaderService implements IArchiveService {
 
     private IArchiveReaderFacade archiveReader;
     private ServerInfo serverInfo;
+    private boolean askCtrlSystem;
 
     public ArchiveReaderService(IArchiveReaderFacade reader, ServerInfo info) {
         archiveReader = reader;
         serverInfo = info;
+        askCtrlSystem = info.askCtrlSystemForMeta();
     }
 
     /**
@@ -112,7 +114,7 @@ public class ArchiveReaderService implements IArchiveService {
                                             Integer endSec, Integer endNano,
                                             Integer count, Integer how) {
 
-        ValuesCommand command = new ValuesCommand("values", archiveReader, false);
+        ValuesCommand command = new ValuesCommand("values", archiveReader, askCtrlSystem);
         List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 
         try {

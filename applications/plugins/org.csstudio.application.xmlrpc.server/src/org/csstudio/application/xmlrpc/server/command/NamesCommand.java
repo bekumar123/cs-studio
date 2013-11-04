@@ -66,6 +66,10 @@ public class NamesCommand extends AbstractServerCommand {
             // Get all channel names
             pattern = ".";
         }
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("-------------- Names request --------------");
+            LOG.debug("Pattern: {}", pattern);
+        }
         Collection<String> channels = null;
         try {
             channels = archiveReader.getChannelsByNamePattern(Pattern.compile(pattern));
@@ -82,6 +86,10 @@ public class NamesCommand extends AbstractServerCommand {
             names.put("start_nano", new Integer(0));
             names.put("end_nano", new Integer(0));
             result.add(names);
+        }
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Number of matched channels: {}", result.size());
+            LOG.debug("----------- End of names request ----------");
         }
         return new MapListResult(result);
     }

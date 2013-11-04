@@ -36,7 +36,6 @@ import org.csstudio.config.ioconfig.model.types.BitRange;
 import org.csstudio.config.ioconfig.model.types.ValueRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.traversal.NodeIterator;
 
 import com.google.common.base.Optional;
 
@@ -141,10 +140,10 @@ public class ExtUserPrmData {
         return _dataType;
     }
 
-    public boolean isUnsigned() {
-        return _dataType.toUpperCase().startsWith("UNSIGNED");
+    public boolean isSigned() {
+        return getDataType().toUpperCase().startsWith("SIGNED");
     }
-    
+
     /**
      * 
      * @return the default value.
@@ -240,7 +239,7 @@ public class ExtUserPrmData {
      * 
      * @param dataType
      *            set the plain text DataType.
-     * @param valueRange 
+     * @param valueRange
      */
     public final void setDataType(@Nonnull final String dataType, Optional<ValueRange> valueRange) {
         String[] split = dataType.split("[\\(\\)]");
@@ -258,21 +257,31 @@ public class ExtUserPrmData {
 
         } else if (split[0].endsWith("8")) {
             if (valueRange.isPresent()) {
-                BitRange bitRange = BitRange.createFromMaxValue(valueRange.get().getMaxValue());
-                setMinBit(bitRange.getMinBit().toString());
-                setMaxBit(bitRange.getMaxBit().toString());                
+                BitRange bitRange;
+                if (valueRange.get().getMinValue() >= 0) {
+                    bitRange = BitRange.createFromMaxValue(valueRange.get().getMaxValue());
+                } else {
+                    bitRange = BitRange.createFromMaxValue(valueRange.get().getMinValue());
+                }
+                setMinBit(bitRange.getMinBitAsString());
+                setMaxBit(bitRange.getMaxBitAsString());
             } else {
                 setMinBit("0");
                 setMaxBit("7");
             }
         } else if (split[0].endsWith("16")) {
             if (valueRange.isPresent()) {
-                BitRange bitRange = BitRange.createFromMaxValue(valueRange.get().getMaxValue());
-                setMinBit(bitRange.getMinBit().toString());
-                setMaxBit(bitRange.getMaxBit().toString());                
+                BitRange bitRange;
+                if (valueRange.get().getMinValue() >= 0) {
+                    bitRange = BitRange.createFromMaxValue(valueRange.get().getMaxValue());
+                } else {
+                    bitRange = BitRange.createFromMaxValue(valueRange.get().getMinValue());
+                }
+                setMinBit(bitRange.getMinBitAsString());
+                setMaxBit(bitRange.getMaxBitAsString());
             } else {
                 setMinBit("0");
-                setMaxBit("15");                
+                setMaxBit("15");
             }
         } else {
             LOG.error("Unkown DataType: {}", dataType);

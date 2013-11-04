@@ -12,7 +12,7 @@ import com.google.common.base.Optional;
  */
 public class BitMaskImpl implements BitMask {
 
-    public int getValueFromBitMask(BitRange bitRange, Optional<HighByte> highByte, LowByte lowByte) {
+    public int getValueFromBitMask(final BitRange bitRange, final Optional<HighByte> highByte, final LowByte lowByte) {
         BitData bitData = new BitData(highByte, lowByte);
         bitData = bitData.normalize(bitRange);        
         return bitData.getIntValue();        

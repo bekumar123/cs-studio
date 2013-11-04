@@ -210,6 +210,10 @@ public enum DataType {
         return _size;
     }
     
+    public boolean isUnsigned() {
+        return (this == UINT8) || (this == UINT16) || (this == UINT32);
+    }
+    
     /**
      * The size is the full used Byte.
      * A DataType was only used one bit return 0 Byte. 

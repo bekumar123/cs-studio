@@ -72,7 +72,7 @@ public class ExtUserPrmDataConstUnitTest {
     
     @Before
     public void setUp() throws Exception {
-        _gsdFileDBO = new GSDFileDBO("JUnitTest", "#Profibus_DP\nVendor_Name            = JUnitTest");
+        _gsdFileDBO = new GSDFileDBO("JUnitTest", "#Profibus_DP\nVendor_Name = JUnitTest");
     }
     
     

@@ -4,5 +4,4 @@ public interface IByteType {
 
     Integer getValue();
 
-    boolean isTwoComplement();
 }

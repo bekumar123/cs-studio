@@ -284,6 +284,8 @@ public final class GsdFileParser {
             } else if (isLineParameter(tmpLine, "F_IO_StructureDescCRC")) {
                 extractKeyValue(tmpLine, lineCounter, br);
                 //set F_IO_StructureDescCRC. This information can be ignored.
+            } else if (isLineParameter(tmpLine, "PRESET=")) {
+               // ignore
             } else {
                 moduleNo = extractModuleNo(lineCounter, parsedGsdFileModel, tmpLine);
             }
@@ -340,9 +342,11 @@ public final class GsdFileParser {
             } else if (isLineParameter(line, "X_Unit_Diag_Area")) {
                 buildUnitDiagArea(line, lineCounter, br);
             } else if (isLineParameter(line, "Slave_Family")) {
-                // TODO (hrickens) [28.03.2011]: Hier k�nnte man den Text noch als zweite variante setzen. (Das was nach dem @ kommt)
+                // TODO (hrickens) [28.03.2011]: Hier koennte man den Text noch als zweite variante setzen. (Das was nach dem @ kommt)
                 setProperty(line.split("@")[0], lineCounter, parsedGsdFileModel, br);
             } else if (isLineParameter(line, "End_Physical_Interface")) {
+                continue; // unused property
+            } else if (isLineParameter(line, "Vendor_Name")) {
                 continue; // unused property
             } else {
                 setProperty(line, lineCounter, parsedGsdFileModel, br);
@@ -432,27 +436,14 @@ public final class GsdFileParser {
         }
         Integer val;
         int radix = 10;
-        boolean isNegativ = false;
         if (tmpValue.startsWith("0x")) {
-            if (tmpValue.length() > 4) {
-                tmpValue = tmpValue.substring(tmpValue.length() - 4);
-                isNegativ = true;
-            } else {
-                tmpValue = tmpValue.substring(2);
-            }
+            tmpValue = tmpValue.substring(2);
             radix = 16;
         }
         try {
             val = Integer.parseInt(tmpValue, radix);            
         } catch (Exception e) {
-            val = 0;
-            e.printStackTrace();
-        }
-        // negative numbers are two complement encoded 
-        if (isNegativ) {
-            val = val ^ Integer.parseInt("FFFF", 16); // reverse all bits
-            val = val + 1;
-            val = val * -1;
+            throw new IllegalStateException("Unexpected number: " + tmpValue);
         }
         return val;
     }
@@ -461,11 +452,12 @@ public final class GsdFileParser {
     public static String intList2HexString(@Nonnull final List<Integer> intList) {
         final StringBuilder sb = new StringBuilder();
         for (final Integer value : intList) {
-            String hexValue = String.format("0x%02X,", value);
-            System.out.println(hexValue);
-            //if (hexValue.length() > 4) {
-            //    hexValue = "0x" + hexValue.substring(hexValue.length() - 3);
-           // }
+            String hexValue;
+            if (value < 0) {
+                hexValue = String.format("0x%02X,", value  & 0xFF);                
+            } else {
+                hexValue = String.format("0x%02X,", value);
+            }
             sb.append(hexValue);
         }
         if (sb.length() > 0) {

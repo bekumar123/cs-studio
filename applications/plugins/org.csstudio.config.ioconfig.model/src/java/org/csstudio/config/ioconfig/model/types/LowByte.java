@@ -1,22 +1,10 @@
 package org.csstudio.config.ioconfig.model.types;
 
-public class LowByte implements IByteType {
 
-    private final Integer value;
-    private final ByteEncoding byteEncoding;
+public class LowByte extends UnsignedByteValue {
 
-    public LowByte(final Integer value, final ByteEncoding byteEncoding) {
-        this.value = value;
-        this.byteEncoding = byteEncoding;
+    public LowByte(final Integer value) {
+        super(value);
     }
 
-    @Override
-    public Integer getValue() {
-        return value;
-    }
-
-    @Override
-    public boolean isTwoComplement() {
-        return byteEncoding == ByteEncoding.TWO_COMPLEMENT;
-    }
 }

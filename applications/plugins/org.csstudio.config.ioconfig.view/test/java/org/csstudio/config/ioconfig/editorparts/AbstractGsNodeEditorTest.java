@@ -26,7 +26,6 @@ public class AbstractGsNodeEditorTest {
 
         private int dataMinBit;
         private int dataMaxBit;
-        private List<Integer> values;
         
         public int getDataMinBit() {
             return dataMinBit;
@@ -34,10 +33,6 @@ public class AbstractGsNodeEditorTest {
 
         public int getDataMaxBit() {
             return dataMaxBit;
-        }
-
-        public List<Integer> getValues() {
-            return values;
         }
 
         @Override
@@ -108,25 +103,6 @@ public class AbstractGsNodeEditorTest {
     }
         
     @Test
-    public void testGetUserPrmDataValueMocked() {
-        TestClass testClass = new TestClass();
-                
-        KeyValuePair key = new KeyValuePair("Ext_User_Prm_Data_Const(0)", null);
-      
-        ExtUserPrmData extUserPrmData = new ExtUserPrmDataMock(1,4);
-                
-        BitMaskInterceptor bmi = new BitMaskInterceptor();
-        
-        testClass.testGetUserPrmDataValue(getOneByteTestData(), key, extUserPrmData, bmi);
-        
-        assertThat(bmi.getValues().size(), Is.is(1));
-        assertThat(bmi.getDataMinBit(), Is.is(1));
-        assertThat(bmi.getDataMaxBit(), Is.is(4));
-        assertThat(bmi.getValues().get(0), Is.is(15));
-        
-    }
-
-    @Test
     public void testGetUserPrmDataValueReal() {
         TestClass testClass = new TestClass();
                 
@@ -180,8 +156,8 @@ public class AbstractGsNodeEditorTest {
     
     private List<Integer> getTwoByteTestData() {
         List<Integer> testData = new ArrayList<Integer>();
-        testData.add(0);
         testData.add(1);
+        testData.add(0);
         return testData;
     }
     

@@ -40,6 +40,7 @@ import org.csstudio.config.ioconfig.model.AbstractNodeSharedImpl;
 import org.csstudio.config.ioconfig.model.GSDFileTypes;
 import org.csstudio.config.ioconfig.model.PersistenceException;
 import org.csstudio.config.ioconfig.model.hibernate.Repository;
+import org.csstudio.config.ioconfig.model.pbmodel.DataType;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDFileDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.AbstractGsdPropertyModel;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.ExtUserPrmData;
@@ -47,8 +48,8 @@ import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.KeyValuePair;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.PrmText;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.PrmTextItem;
 import org.csstudio.config.ioconfig.model.types.BitData;
+import org.csstudio.config.ioconfig.model.types.BitPos;
 import org.csstudio.config.ioconfig.model.types.BitRange;
-import org.csstudio.config.ioconfig.model.types.ByteEncoding;
 import org.csstudio.config.ioconfig.model.types.HighByte;
 import org.csstudio.config.ioconfig.model.types.LowByte;
 import org.csstudio.config.ioconfig.view.DeviceDatabaseErrorDialog;
@@ -87,6 +88,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
 /**
@@ -559,50 +561,58 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
     int getUserPrmDataValue(
             @Nonnull final KeyValuePair extUserPrmDataRef,
             @Nonnull final ExtUserPrmData extUserPrmData, 
-            final BitMask bitMask) {
+            @Nonnull final BitMask bitMask) {
             //@formatter:on
 
         final List<Integer> prmUserDataList = getPrmUserDataList();
         final Integer index = extUserPrmDataRef.getIndex();
 
-        // Frage: HighByte LowByte ?
         if (index != null && index < prmUserDataList.size()) {
 
             Optional<HighByte> highByte;
             LowByte lowByte;
-
-            BitRange bitRange = new BitRange(extUserPrmData.getMinBit(), extUserPrmData.getMaxBit());
-
+            
+            BitRange bitRange = new BitRange(new BitPos(extUserPrmData.getMinBit()), new BitPos(extUserPrmData.getMaxBit()));
+            DataType dataType;
+            
             if (bitRange.needsTwoBytes()) {
                 if ((index + 1) < prmUserDataList.size()) {
-                    highByte = Optional.of(new HighByte(prmUserDataList.get(index + 0), ByteEncoding.DEFAULT));
-                    lowByte = new LowByte(prmUserDataList.get(index + 1), ByteEncoding.DEFAULT);
+                    highByte = Optional.of(new HighByte(prmUserDataList.get(index + 0)));
+                    lowByte = new LowByte(prmUserDataList.get(index + 1));
+                    dataType = DataType.UINT16;
                 } else {
                     throw new IllegalStateException("Not enough data for two byte value");
                 }
             } else {
                 highByte = Optional.absent();
-                boolean unsignedDataType = extUserPrmData.isUnsigned();
-                if (unsignedDataType) {
-                    lowByte = new LowByte(prmUserDataList.get(index), ByteEncoding.DEFAULT);                    
+                boolean signedDataType = extUserPrmData.isSigned();
+                Integer value =  prmUserDataList.get(index);        
+                
+                lowByte = new LowByte(value);                    
+                if (signedDataType) {
+                    dataType = DataType.INT8;
                 } else {
-                    Integer value =  prmUserDataList.get(index);
-                    if (value < 0) {
-                        lowByte = new LowByte(prmUserDataList.get(index), ByteEncoding.TWO_COMPLEMENT);                                            
-                    } else {
-                        lowByte = new LowByte(prmUserDataList.get(index), ByteEncoding.DEFAULT);                                                                    
-                    }
-                }
+                    dataType = DataType.UINT8;                    
+                }                
             }
-
+            
             //@formatter:off
             final int val = bitMask.getValueFromBitMask(
                     bitRange,
                     highByte, 
                     lowByte);
                     //@formatter:on
-            
-            return val;
+                        
+            if (dataType.isUnsigned()) {
+                return val;                
+            } else {
+                BitData bitData = new BitData(val);
+                if (bitData.isHighestBitSet(dataType)) {
+                    return bitData.asTwoComplement();
+                } else {
+                    return val;
+                }
+            }
 
         }
 
@@ -630,13 +640,16 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
 
                 final String value = prmText.getText();
                 Integer bitValue;
+                
                 if (value == null || value.isEmpty()) {
                     bitValue = extUserPrmData.getDefault();
                 } else {
                     bitValue = Integer.parseInt(value);
-                }
+                }                
+                
                 setValue2BitMask(extUserPrmData, byteIndex, bitValue);
                 prmText.setData(bitValue);
+                
             }
         }
     }
@@ -773,6 +786,7 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
                 extUserPrmData.getDefault());
         //@formatter:on
         prmText.setToolTipText(f.toString());
+        f.close();
 
         int maxinputLength = Integer.toString(extUserPrmData.getMaxValue()).length();
 
@@ -823,7 +837,6 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
             if (extUserPrmDataRefMap.size() == _prmTextCV.size()) {
 
                 int i = 0;
-
                 visitedIndices = new ArrayList<Integer>();
 
                 for (final KeyValuePair ref : extUserPrmDataRefMap) {
@@ -831,7 +844,6 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
                     final Integer index = ref.getIndex();
 
                     if (index != null) {
-
                         if (prmTextObject instanceof ComboViewer) {
                             final ComboViewer prmTextCV = (ComboViewer) prmTextObject;
                             handleComboViewer(prmTextCV, index);
@@ -904,25 +916,31 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
         int minBit = extUserPrmData.getMinBit();
         int maxBit = extUserPrmData.getMaxBit();
 
-        if (maxBit < minBit) {
-            throw new IllegalStateException("minBit must not be greater than maxBit");
+        if ((minBit != 0) && (bitValue < 0)) {
+            throw new IllegalStateException("Negative values must start on bit 0.");
         }
-
-        BitData bitData = new BitData(bitValue);
-        bitData = bitData.shiftLeftToBit(minBit);
-
-        if (maxBit > 7 && maxBit < 16) {
+        
+        BitRange bitRange = new BitRange(new BitPos(minBit), new BitPos(maxBit));                    
+        BitData bitData = new BitData(Math.abs(bitValue));
+        bitData = bitData.shiftLeftToBit(new BitPos(minBit));
+        
+        if (bitRange.needsTwoBytes()) {
             // BigEndian Order => first HighByte then LowByte
-            setPrmUserData(byteIndex, bitData.getHighByte(), !indexVisited(byteIndex));
-            setPrmUserData(byteIndex + 1, bitData.getLowByte(), !indexVisited(byteIndex + 1));
-
+            setPrmUserData(byteIndex, bitData.getHighByte().getValue(), !indexVisited(byteIndex));
+            setPrmUserData(byteIndex + 1, bitData.getLowByte().getValue(), !indexVisited(byteIndex + 1));
         } else {
-            setPrmUserData(byteIndex, bitData.getLowByte(), !indexVisited(byteIndex));
+            if (bitValue < 0) {
+                setPrmUserData(byteIndex, bitData.getLowByte().getValue() * -1, !indexVisited(byteIndex));                
+            } else {
+                setPrmUserData(byteIndex, bitData.getLowByte().getValue(), !indexVisited(byteIndex));
+            }
         }
 
     }
 
     private boolean indexVisited(Integer index) {
+        Preconditions.checkNotNull(index, "Index must not be null.");
+        Preconditions.checkArgument(index.intValue() >= 0, "Index must not be negativ.");        
         if (visitedIndices.contains(index)) {
             return true;
         } else {

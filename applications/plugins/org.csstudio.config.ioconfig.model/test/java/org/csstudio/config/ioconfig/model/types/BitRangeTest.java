@@ -10,16 +10,16 @@ public class BitRangeTest {
     @Test
     public void testCreateBitRange() {
         BitRange bitRange = BitRange.createFromMaxValue(8);
-        assertThat(bitRange.getMinBit(), Is.is(0));
-        assertThat(bitRange.getMaxBit(), Is.is(3));
+        assertThat(bitRange.getMinBit().getBitPos(), Is.is(0));
+        assertThat(bitRange.getMaxBit().getBitPos(), Is.is(3));
         
         bitRange = BitRange.createFromMaxValue(15);
-        assertThat(bitRange.getMinBit(), Is.is(0));
-        assertThat(bitRange.getMaxBit(), Is.is(3));
+        assertThat(bitRange.getMinBit().getBitPos(), Is.is(0));
+        assertThat(bitRange.getMaxBit().getBitPos(), Is.is(3));
 
         bitRange = BitRange.createFromMaxValue(128);
-        assertThat(bitRange.getMinBit(), Is.is(0));
-        assertThat(bitRange.getMaxBit(), Is.is(7));
+        assertThat(bitRange.getMinBit().getBitPos(), Is.is(0));
+        assertThat(bitRange.getMaxBit().getBitPos(), Is.is(7));
     }
 
 }

@@ -1,23 +1,16 @@
 package org.csstudio.config.ioconfig.model.types;
 
+import com.google.common.base.Preconditions;
+
 public class BitRange {
 
-    private final int minBit;
+    private final BitPos minBit;
 
-    private final int maxBit;
+    private final BitPos maxBit;
 
-    public BitRange(int minBit, int maxBit) {
+    public BitRange(final BitPos minBit, final BitPos maxBit) {
 
-        if (minBit < 0) {
-            throw new IllegalArgumentException("minBit must not be negativ but was " + Integer.toString(minBit));
-        }
-
-        if (maxBit > 15) {
-            throw new IllegalArgumentException("maxBit must not be greater 15 but was "
-                    + Integer.toString(maxBit));
-        }
-
-        if (minBit > maxBit) {
+        if (minBit.getBitPos() > maxBit.getBitPos()) {
             throw new IllegalArgumentException("minBit must not be greater than maxBit.");
         }
 
@@ -26,23 +19,32 @@ public class BitRange {
     }
 
     public boolean needsTwoBytes() {
-        return maxBit > 7 && maxBit < 16;
+        return maxBit.getBitPos() > 7;
     }
 
-    public Integer getMinBit() {
+    public BitPos getMinBit() {
         return minBit;
     }
 
-    public Integer getMaxBit() {
+    public BitPos getMaxBit() {
         return maxBit;
     }
 
-    public static BitRange createFromMaxValue(Integer maxValue) {      
-        int highestOnBitValue =  Integer.highestOneBit(maxValue);
-        int counter = 0;
-        while ((highestOnBitValue & (1 << counter)) == 0 ) {
-            counter++;
-        }
-        return new BitRange(0, counter);
+    public String getMinBitAsString() {
+        return String.valueOf(minBit.getBitPos());
+    }
+
+    public String getMaxBitAsString() {
+        return String.valueOf(maxBit.getBitPos());
+    }
+
+    public String toString() {
+        return getMinBitAsString() + "-" + getMaxBitAsString();
+    }
+
+    public static BitRange createFromMaxValue(Integer maxValue) {
+        Preconditions.checkNotNull(maxValue, "maxValue must not be null");
+        BitData bitData = new BitData(Math.abs(maxValue));
+        return new BitRange(new BitPos(0), bitData.calculateHighestBit());
     }
 }

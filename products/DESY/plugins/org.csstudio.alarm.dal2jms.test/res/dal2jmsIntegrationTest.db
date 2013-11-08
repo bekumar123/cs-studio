@@ -1,6 +1,6 @@
 record(calc, "Test:Ramp_calc_0") {
    field(DESC,"Ramp 0 .. 10")
-   field(SCAN, "1 second")
+   field(SCAN, "0.25 second")
    field(VAL, "2")
    field(PINI, "YES")
    field(LOLO,"2")
@@ -16,7 +16,7 @@ record(calc, "Test:Ramp_calc_0") {
 
 record(calc, "Test:Ramp_calc_1") {
    field(DESC,"Ramp 0 .. 10")
-   field(SCAN, "1 second")
+   field(SCAN, "0.25 second")
    field(VAL, "4")
    field(PINI, "YES")
    field(LOLO,"2")
@@ -32,7 +32,7 @@ record(calc, "Test:Ramp_calc_1") {
 
 record(calc, "Test:Ramp_calc_2") {
    field(DESC,"Ramp 0 .. 10")
-   field(SCAN, "1 second")
+   field(SCAN, "0.25 second")
    field(VAL, "5")
    field(PINI, "YES")
    field(LOLO,"2")
@@ -48,7 +48,7 @@ record(calc, "Test:Ramp_calc_2") {
 
 record(calc, "Test:Ramp_calc_3") {
    field(DESC,"Ramp 0 .. 10")
-   field(SCAN, "1 second")
+   field(SCAN, "0.25 second")
    field(VAL, "3")
    field(PINI, "YES")
    field(LOLO,"2")
@@ -64,7 +64,7 @@ record(calc, "Test:Ramp_calc_3") {
 
 record(calc, "Test:Ramp_calc_4") {
    field(DESC,"Ramp 0 .. 10")
-   field(SCAN, "1 second")
+   field(SCAN, "0.25 second")
    field(VAL, "7")
    field(PINI, "YES")
    field(LOLO,"2")
@@ -80,7 +80,7 @@ record(calc, "Test:Ramp_calc_4") {
 
 record(calc, "Test:Ramp_calc_5") {
    field(DESC,"Ramp 0 .. 10")
-   field(SCAN, "1 second")
+   field(SCAN, "0.25 second")
    field(VAL, "1")
    field(PINI, "YES")
    field(LOLO,"2")
@@ -96,7 +96,7 @@ record(calc, "Test:Ramp_calc_5") {
 
 record(calc, "Test:Ramp_calc_6") {
    field(DESC,"Ramp 0 .. 10")
-   field(SCAN, "1 second")
+   field(SCAN, "0.25 second")
    field(VAL, "5")
    field(PINI, "YES")
    field(LOLO,"2")

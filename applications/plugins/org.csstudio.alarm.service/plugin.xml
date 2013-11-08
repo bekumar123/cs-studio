@@ -34,6 +34,14 @@
             id="operating">
       </id>
    </extension>
+   <extension
+         point="org.csstudio.remote.managementCommands">
+      <command
+            class="org.csstudio.alarm.service.GetStatusCommand"
+            id="org.csstudio.alarm.service.GetStatus"
+            label="Status">
+      </command>
+   </extension>
 
 
 </plugin>

@@ -150,4 +150,9 @@ public final class AlarmMessageJMSImpl implements IAlarmMessage {
         return ack != null && Boolean.valueOf(ack);
     }
 
+    @Override
+    public boolean isBeaconMessage() {
+    	return false;
+    }
+    
 }

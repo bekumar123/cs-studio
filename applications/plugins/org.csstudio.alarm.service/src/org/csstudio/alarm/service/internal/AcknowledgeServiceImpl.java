@@ -40,7 +40,6 @@ import org.csstudio.alarm.service.declaration.IAlarmListener;
 import org.csstudio.alarm.service.declaration.IAlarmMessage;
 import org.csstudio.alarm.service.declaration.IRemoteAcknowledgeService;
 import org.csstudio.alarm.service.declaration.ITimeService;
-import org.csstudio.persister.declaration.IPersistableService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

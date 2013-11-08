@@ -43,6 +43,10 @@ public final class Dal2JmsPreferences<T> extends AbstractPreference<T> {
         new Dal2JmsPreferences<Integer>("TimeToLiveAlarms", 3600000);
     public static final Dal2JmsPreferences<String> JMS_ALARM_DESTINATION_TOPIC_NAME =
         new Dal2JmsPreferences<String>("AlarmTopicName", "ALARM");
+    public static final Dal2JmsPreferences<String> JMS_BEACON_DESTINATION_TOPIC_NAME =
+            new Dal2JmsPreferences<String>("BeaconTopicName", "ALARM_BEACON");
+    public static final Dal2JmsPreferences<String> JMS_BEACON_MESSAGE_SERVER_ID =
+            new Dal2JmsPreferences<String>("BeaconMessageServerId", "DAL2JMS");
     public static final Dal2JmsPreferences<String> JMS_ACK_SOURCE_TOPIC_NAME =
         new Dal2JmsPreferences<String>("AckSourceTopicName", "ACK");
     public static final Dal2JmsPreferences<String> XMPP_DAL2JMS_SERVER_NAME =

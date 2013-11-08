@@ -224,14 +224,17 @@ public final class AlarmPreference<T> extends AbstractPreference<T> {
 	private static String getStringFromPath(@Nonnull final String pathAsString) {
 		String result = null;
 		Path path = new Path(pathAsString);
-		if (path.isAbsolute()) {
+		if ("platform:".equals(path.getDevice())) {
+			result = pathAsString;
+		} else if (path.isAbsolute()) {
 			result = path.toOSString();
 		} else {
 			try {
 				URL url = FileLocator.find(AlarmServiceActivator.getDefault()
 						.getBundle(), path, null);
 				if (url == null) {
-					url = AlarmServiceActivator.class.getResource("/" + pathAsString);
+					url = AlarmServiceActivator.class.getResource("/"
+							+ pathAsString);
 				}
 				result = FileLocator.toFileURL(url).getPath();
 			} catch (final IOException e) {

@@ -11,5 +11,6 @@ Require-Bundle: org.junit;bundle-version="4.8.2",
  org.mockito;bundle-version="1.9.5",
  org.slf4j-log4j12;bundle-version="1.7.2"
 Import-Package: gov.aps.jca,
- org.csstudio.dal2.epics.service.test,
  org.csstudio.dal2.service
+Export-Package: org.csstudio.dal2.service.test,
+ org.csstudio.dal2.test

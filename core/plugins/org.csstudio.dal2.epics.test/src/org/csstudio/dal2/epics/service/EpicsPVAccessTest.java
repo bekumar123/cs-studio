@@ -1,15 +1,16 @@
 package org.csstudio.dal2.epics.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Context;
-import gov.aps.jca.JCALibrary;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,8 +23,10 @@ import org.csstudio.dal2.dv.EnumType;
 import org.csstudio.dal2.dv.ListenerType;
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
+import org.csstudio.dal2.epics.service.test.EpicsServiceTestUtil;
 import org.csstudio.dal2.service.cs.CsPvData;
 import org.csstudio.dal2.service.cs.ICsOperationHandle;
+import org.csstudio.dal2.service.cs.ICsPvListener;
 import org.csstudio.dal2.service.cs.ICsResponseListener;
 import org.csstudio.domain.desy.epics.alarm.EpicsAlarmSeverity;
 import org.csstudio.domain.desy.softioc.AbstractSoftIocConfigurator;
@@ -32,7 +35,6 @@ import org.csstudio.domain.desy.softioc.SoftIoc;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -42,17 +44,9 @@ public class EpicsPVAccessTest {
 	private static SoftIoc _softIoc;
 	private Context _jcaContext;
 
-	@BeforeClass
-	public static void beforeClass() {
-		setSystemProperties();
-		setupLibs();
-	}
-
 	@Before
 	public void before() throws CAException {
-		JCALibrary jca = JCALibrary.getInstance();
-		// _jcaContext = jca.createContext(JCALibrary.JNI_THREAD_SAFE);
-		_jcaContext = jca.createContext(JCALibrary.CHANNEL_ACCESS_JAVA);
+		_jcaContext = EpicsServiceTestUtil.createJCAContext();
 	}
 
 	@After
@@ -62,40 +56,12 @@ public class EpicsPVAccessTest {
 		}
 	}
 
-	private static void setupLibs() {
-		// path to jca.dll is found using java.library.path
-		// System.setProperty("java.library.path", "libs/win32/x86"); // ahem,
-		// no, I put jca.dll in the root of the project.
-
-		// path to Com.dll and ca.dll is hardcoded to windows
-		System.setProperty("gov.aps.jca.jni.epics.win32-x86.library.path",
-				"libs/win32/x86");
-	}
-
-	private static void setSystemProperties() {
-		System.setProperty("dal.plugs", "EPICS");
-		System.setProperty("dal.plugs.default", "EPICS");
-		System.setProperty("dal.propertyfactory.EPICS",
-				"org.csstudio.dal.epics.PropertyFactoryImpl");
-		System.setProperty("com.cosylab.epics.caj.CAJContext.addr_list",
-				"127.0.0.1");
-		System.setProperty("com.cosylab.epics.caj.CAJContext.auto_addr_list",
-				"NO");
-		System.setProperty(
-				"com.cosylab.epics.caj.CAJContext.connection_timeout", "30.0");
-		System.setProperty("com.cosylab.epics.caj.CAJContext.beacon_period",
-				"15.0");
-		System.setProperty("com.cosylab.epics.caj.CAJContext.repeater_port",
-				"5065");
-		System.setProperty("com.cosylab.epics.caj.CAJContext.server_port",
-				"5064");
-		System.setProperty("com.cosylab.epics.caj.CAJContext.max_array_bytes",
-				"16384");
-	}
-
 	private static void startUpSoftIoc() throws Exception {
 		File file = new File(EpicsPvAccessFactoryTest.class.getClassLoader()
 				.getResource("db/EpicsTest.db").toURI());
+
+		System.out.println(file.getAbsolutePath());
+		assert file.exists();
 
 		final ISoftIocConfigurator cfg = new JUnitSoftIocConfigurator()
 				.with(file);
@@ -136,31 +102,27 @@ public class EpicsPVAccessTest {
 		Assert.assertFalse(listener.isConnected());
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void testConnectionChangesAfterPvRegisters() throws Exception {
 		startUpSoftIoc();
 
+		String PV = "TestDal:ConstantPV";
+
 		EpicsPvAccess<Long> pva = new EpicsPvAccess<Long>(_jcaContext,
-				PvAddress.getValue("TestDal:ConstantPV"), Type.LONG);
+				PvAddress.getValue(PV), Type.LONG);
 
-		PvListenerMock<Long> listener = new PvListenerMock<Long>(
-				ListenerType.VALUE);
+		ICsPvListener listenerMock = mock(ICsPvListener.class);
+		System.out.println(listenerMock);
 
-		pva.initMonitor(listener);
+		when(listenerMock.getType()).thenReturn(ListenerType.VALUE);
 
-		Thread.sleep(100); // allow soft ioc to answer
-		Assert.assertEquals(1, listener.getConnectionChangedCalled());
-		Assert.assertTrue(listener.isConnected());
+		pva.initMonitor(listenerMock);
 
-		// here is defined that the listener gets updates on deregister - is
-		// this useful?
-		// objectUnderTest.deregisterListener(listener);
+		verify(listenerMock, timeout(5000)).connectionChanged(PV, true);
 		stopSoftIoc();
 
-		Thread.sleep(100); // allow soft ioc to answer
-
-		Assert.assertEquals(2, listener.getConnectionChangedCalled());
-		Assert.assertFalse(listener.isConnected());
+		verify(listenerMock, timeout(5000)).connectionChanged(PV, false);
 	}
 
 	@Test(timeout = 7000)
@@ -185,22 +147,52 @@ public class EpicsPVAccessTest {
 		stopSoftIoc();
 	}
 
-	@Test(timeout = 10000)
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Test()
 	public void testMonitorAlarm() throws Exception {
 		startUpSoftIoc();
 
 		EpicsPvAccess<Long> pva = new EpicsPvAccess<Long>(_jcaContext,
-				PvAddress.getValue("TestDal:Counter"), Type.LONG);
+				PvAddress.getValue("TestDal:AlarmCounter"), Type.LONG);
 
-		PvListenerMock2<Long> listener = new PvListenerMock2<Long>(
-				ListenerType.ALARM, 0L, 6L, 0L, 6L, 0L, 6L, 0L, 6L);
+		ICsPvListener<Long> listener = mock(ICsPvListener.class);
+		when(listener.getType()).thenReturn(ListenerType.ALARM);
+
 		pva.initMonitor(listener);
 
-		while (!listener.isFinished()) {
-			Thread.yield();
-		}
+		verify(listener, timeout(5000)).connectionChanged(
+				"TestDal:AlarmCounter", true);
 
-		Assert.assertFalse(listener.hasError());
+		ArgumentCaptor<CsPvData> captor = ArgumentCaptor
+				.forClass(CsPvData.class);
+		verify(listener, timeout(10000).atLeast(20)).valueChanged(
+				captor.capture());
+
+		List<CsPvData> values = captor.getAllValues();
+		
+		assertTrue(values.size() >= 20);
+		
+		EpicsAlarmSeverity lastSeverity = null;
+		for (int i = 0; i < values.size(); i++) {
+			EpicsAlarmSeverity severity = values.get(i).getCharacteristics()
+					.getSeverity();
+			if (lastSeverity != null) {
+				switch (lastSeverity) {
+				case NO_ALARM:
+					assertEquals(EpicsAlarmSeverity.MINOR, severity);
+					break;
+				case MINOR:
+					assertEquals(EpicsAlarmSeverity.MAJOR, severity);
+					break;
+				case MAJOR:
+					assertEquals(EpicsAlarmSeverity.NO_ALARM, severity);
+					break;
+				default:
+					Assert.fail("Unexpected severity: " + severity);
+				}
+			}
+			lastSeverity = severity;
+		}
 
 		pva.stopMonitor();
 		stopSoftIoc();
@@ -249,7 +241,7 @@ public class EpicsPVAccessTest {
 
 			ArgumentCaptor<CsPvData> captor = ArgumentCaptor
 					.forClass(CsPvData.class);
-			verify(callback, timeout(100)).onSuccess(captor.capture());
+			verify(callback, timeout(500)).onSuccess(captor.capture());
 			CsPvData csPvData = captor.getValue();
 
 			assertEquals(4L, csPvData.getValue());
@@ -276,8 +268,10 @@ public class EpicsPVAccessTest {
 					"man drosseln", "man oeffnen", "soft Stop", "hard Stop",
 					"Hand", "Auto-Start", "Druck abbauen", "mit CV400 abbauen",
 					"mit CV408 abbauen");
-			assertEquals(expectedLabels, Arrays.asList(csPvData.getCharacteristics()
-					.get(Characteristic.LABELS)));
+			assertEquals(
+					expectedLabels,
+					Arrays.asList(csPvData.getCharacteristics().get(
+							Characteristic.LABELS)));
 		}
 
 		stopSoftIoc();

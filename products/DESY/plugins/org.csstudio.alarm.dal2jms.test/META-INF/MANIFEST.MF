@@ -6,4 +6,9 @@ Bundle-Version: 1.0.0
 Fragment-Host: org.csstudio.alarm.dal2jms;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.junit,
- org.mockito;bundle-version="1.9.5"
+ org.mockito;bundle-version="1.9.5",
+ org.eclipse.ecf.presence;bundle-version="2.0.0",
+ org.eclipse.ecf.remoteservice;bundle-version="6.0.200",
+ org.slf4j-log4j12;bundle-version="1.7.2",
+ org.csstudio.dal2;bundle-version="1.0.0",
+ org.csstudio.dal2.epics;bundle-version="1.0.0"

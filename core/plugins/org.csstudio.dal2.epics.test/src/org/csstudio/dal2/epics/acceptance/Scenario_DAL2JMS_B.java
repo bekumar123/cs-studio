@@ -1,7 +1,6 @@
-package org.csstudio.dal2.acceptance;
+package org.csstudio.dal2.epics.acceptance;
 
 import gov.aps.jca.Context;
-import gov.aps.jca.JCALibrary;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -13,9 +12,11 @@ import org.csstudio.dal2.dv.ListenerType;
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
 import org.csstudio.dal2.epics.service.test.EpicsServiceTestUtil;
+import org.csstudio.dal2.service.IDalService;
 import org.csstudio.dal2.service.IPvAccess;
 import org.csstudio.dal2.service.IPvListener;
-import org.csstudio.dal2.service.impl.DalService;
+import org.csstudio.dal2.service.cs.ICsPvAccessFactory;
+import org.csstudio.dal2.service.test.DalServiceTestUtil;
 import org.csstudio.domain.desy.epics.alarm.EpicsAlarmStatus;
 
 public class Scenario_DAL2JMS_B {
@@ -25,15 +26,12 @@ public class Scenario_DAL2JMS_B {
 		int numberOfPVs = 20000;
 
 		Context jcaContext = null;
+		
 		try {
-			setupLibs();
+			jcaContext = EpicsServiceTestUtil.createJCAContext();
 
-			JCALibrary jca = JCALibrary.getInstance();
-//			jcaContext = jca.createContext(JCALibrary.CHANNEL_ACCESS_JAVA);
-			jcaContext = jca.createContext(JCALibrary.JNI_THREAD_SAFE);
-
-			DalService dalService = new DalService(
-					EpicsServiceTestUtil.createEpicsPvAccessFactory(jcaContext));
+			ICsPvAccessFactory epicsPvAccessFactory = EpicsServiceTestUtil.createEpicsPvAccessFactory(jcaContext);
+			IDalService dalService = DalServiceTestUtil.createService(epicsPvAccessFactory);
 
 			List<IPvAccess<Long>> accessList = new ArrayList<IPvAccess<Long>>(
 					numberOfPVs);
@@ -88,16 +86,6 @@ public class Scenario_DAL2JMS_B {
 			}
 		}
 
-	}
-
-	private static void setupLibs() {
-		// path to jca.dll is found using java.library.path
-		// System.setProperty("java.library.path", "libs/win32/x86"); // ahem,
-		// no, I put jca.dll in the root of the project.
-
-		// path to Com.dll and ca.dll is hardcoded to windows
-		System.setProperty("gov.aps.jca.jni.epics.win32-x86.library.path",
-				"libs/win32/x86");
 	}
 
 }

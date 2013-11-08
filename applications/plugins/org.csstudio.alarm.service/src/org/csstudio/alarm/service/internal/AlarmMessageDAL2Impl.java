@@ -217,4 +217,9 @@ public final class AlarmMessageDAL2Impl implements IAlarmMessage {
 		// acknowledgment
 		return false;
 	}
+
+	@Override
+	public boolean isBeaconMessage() {
+		return address.getAddress().contains("beacon");
+	}
 }

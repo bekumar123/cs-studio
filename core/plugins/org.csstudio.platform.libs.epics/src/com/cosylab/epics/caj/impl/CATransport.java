@@ -667,8 +667,12 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 		}
 		catch (IOException ioex) 
 		{
+			ioex.printStackTrace();
 			// close connection
-			close(true);
+		//	close(true);
+		//	Wenhua 
+			// flushInternal
+			close(false);
 			throw ioex;
 		}
 	}
@@ -925,7 +929,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	 * @param timeout	timeout in ms.
 	 */
 	private void rescheduleTimer(long timeout)
-	{
+	{	
 		Timer.cancel(taskID);
 		if (!closed)
 			taskID = context.getTimer().executeAfterDelay(timeout, this);

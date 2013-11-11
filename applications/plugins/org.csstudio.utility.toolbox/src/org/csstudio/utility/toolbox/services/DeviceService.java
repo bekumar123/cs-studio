@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
+import org.apache.commons.lang.Validate;
 import org.csstudio.utility.toolbox.entities.Device;
 import org.csstudio.utility.toolbox.func.None;
 import org.csstudio.utility.toolbox.func.Option;
@@ -26,6 +27,7 @@ public class DeviceService {
 
 	@ClearPersistenceContextOnReturn
 	public Option<Device> findByName(String name) {
+	    Validate.notNull(name, "name must not be null");
 		TypedQuery<Device> query = em.createNamedQuery(Device.FIND_BY_NAME, Device.class);
 		query.setParameter("keyword", name);
 		List<Device> resultList = query.getResultList();

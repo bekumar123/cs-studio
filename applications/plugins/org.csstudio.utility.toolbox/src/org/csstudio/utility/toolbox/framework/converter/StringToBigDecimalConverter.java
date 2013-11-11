@@ -18,6 +18,13 @@ public class StringToBigDecimalConverter implements IConverter {
 
 	@Override
 	public Object convert(Object fromObject) {
+	    String value = (String)fromObject;
+	    if (value == null) {
+	        return null;
+	    }
+	    if (value.isEmpty()) {
+            return null;	        
+	    }
 		return new BigDecimal((String)fromObject);
 	}
 

@@ -16,7 +16,7 @@ public abstract class CustomDialogCellEditor extends DialogCellEditor {
 		fireApplyEditorValue();
 	}
 	
-	protected void updateContents1(Object value) {
+	protected void updateContents(Object value) {
 		Label defaultLabel = getDefaultLabel();
 		if (defaultLabel == null) {
 			return;
@@ -31,4 +31,5 @@ public abstract class CustomDialogCellEditor extends DialogCellEditor {
 		defaultLabel.setText(text);
 		setValueValid(true);
 	}
+	
 }

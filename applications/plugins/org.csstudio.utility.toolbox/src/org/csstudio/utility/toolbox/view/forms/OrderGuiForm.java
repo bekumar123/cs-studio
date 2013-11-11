@@ -2,10 +2,10 @@ package org.csstudio.utility.toolbox.view.forms;
 
 import static org.csstudio.utility.toolbox.framework.property.Property.P;
 
-import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.validation.Path;
 
@@ -33,6 +33,8 @@ import org.csstudio.utility.toolbox.services.LogGroupService;
 import org.csstudio.utility.toolbox.services.LogUserService;
 import org.csstudio.utility.toolbox.services.OrderPosService;
 import org.csstudio.utility.toolbox.services.OrderService;
+import org.csstudio.utility.toolbox.services.OrderTypeService;
+import org.csstudio.utility.toolbox.types.OrderNummer;
 import org.csstudio.utility.toolbox.view.support.ArticleDescriptionEditingSupport;
 import org.csstudio.utility.toolbox.view.support.OrderPosBestellmengeEditingSupport;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -69,6 +71,9 @@ public class OrderGuiForm extends AbstractGuiFormTemplate<Order> {
    private OrderService orderService;
 
    @Inject
+   private OrderTypeService orderTypeService;
+
+   @Inject
    private OrderPosService orderPosService;
 
    @Inject
@@ -79,7 +84,7 @@ public class OrderGuiForm extends AbstractGuiFormTemplate<Order> {
 
    @Inject
    private OrderGuiFormActionHandler orderGuiFormActionHandler;
-   
+
    protected Option<Property> resolvePropertyPath(Path propertyPath) {
       return new Some<Property>(new Property(DETAIL_TABLE_VIEWER));
    }
@@ -132,11 +137,29 @@ public class OrderGuiForm extends AbstractGuiFormTemplate<Order> {
 
       // =====================
 
+      final List<OrderType> orderTypes = orderTypeService.findAll();
+
       if (isSearchMode()) {
-         wf.combo(composite, "baType").label("Order-Type:").data(OrderType.getTypeList()).hint("wrap").build();
+         wf.combo(composite, "baType").label("Order-Type:").data(orderTypes).hint("wrap").build();
       } else {
-         wf.combo(composite, "baType").label("Order-Type:").data(OrderType.getTypeList()).selectFirst().hint("wrap")
-               .build();
+         if (isCreateMode() && (getEditorInput().isNewData())) {
+            wf.combo(composite, "baType").label("Order-Type:").data(orderTypes).hint("wrap").select(orderTypes.get(0))
+                  .build();
+         } else {
+            getEditorInput().processData(new Func1Void<Order>() {
+               @Override
+               public void apply(Order order) {
+                  if (order.getBaTypeId() == null) {
+                     wf.combo(composite, "baType").label("Order-Type:").data(orderTypes).hint("wrap")
+                           .select(orderTypes.get(0)).build();
+                  } else {
+                     OrderType orderType = orderTypeService.findById(order.getBaTypeId());
+                     wf.combo(composite, "baType").label("Order-Type:").data(orderTypes).hint("wrap").select(orderType)
+                           .build();
+                  }
+               }
+            });
+         }
       }
 
       // =====================
@@ -144,14 +167,14 @@ public class OrderGuiForm extends AbstractGuiFormTemplate<Order> {
       Text nummer;
 
       if (isSearchMode() || getEditorInput().isNewData()) {
-         nummer = wf.text(composite, "nummer", SearchTermType.STRING_IGNORE_FIRST_CHAR).label("BA Number:")
+         nummer = wf.text(composite, "nummer", SearchTermType.STRING_SEARCH_EXACT).label("BA Number:")
                .limitInputToDigits().build();
       } else {
          nummer = wf.numericText(composite, "nummer").label("BA Number:").readOnly().noBinding().build();
          getEditorInput().processData(new Func1Void<Order>() {
             @Override
             public void apply(Order order) {
-               wf.setText(P("nummer"), order.getBaNummer());
+               wf.setText(P("nummer"), order.getNummer().toString());
             }
          });
       }
@@ -300,17 +323,11 @@ public class OrderGuiForm extends AbstractGuiFormTemplate<Order> {
       if (getEditorInput().isNewData()) {
          String nummer = wf.getText(P("nummer"));
          if (StringUtils.isNotEmpty(nummer)) {
-            Option<Order> order = orderService.findByNummer(new BigDecimal(nummer));
+            Option<Order> order = orderService.findByNummer(new OrderNummer(nummer));
             if (order.hasValue()) {
                Dialogs.message("Error", "Order " + nummer + " already exists.");
                return CanSaveAction.ABORT_SAVE;
             }
-            int selectionIndex = wf.getSelectionIndex(P("baType"));
-            if (selectionIndex == -1) {
-               Dialogs.message("Error", "You must select the order type.");
-               return CanSaveAction.ABORT_SAVE;
-            }
-            wf.setText(P("nummer"), String.valueOf(selectionIndex + 1) + nummer);
          }
       }
       return CanSaveAction.CONTINUE;
@@ -322,7 +339,7 @@ public class OrderGuiForm extends AbstractGuiFormTemplate<Order> {
       getEditorInput().processData(new Func1Void<Order>() {
          @Override
          public void apply(Order order) {
-            wf.setText(P("nummer"), order.getBaNummer());
+            wf.setText(P("nummer"), order.getNummer().toString());
             getCrudController().get().setDirty(false);
          }
       });

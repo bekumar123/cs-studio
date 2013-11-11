@@ -22,6 +22,7 @@ import org.csstudio.utility.toolbox.func.None;
 import org.csstudio.utility.toolbox.func.Option;
 import org.csstudio.utility.toolbox.func.Some;
 import org.csstudio.utility.toolbox.guice.ClearPersistenceContextOnReturn;
+import org.csstudio.utility.toolbox.types.OrderNummer;
 
 import com.google.inject.Inject;
 
@@ -41,9 +42,9 @@ public class OrderService {
 	}
 
 	@ClearPersistenceContextOnReturn
-	public Option<Order> findByNummer(BigDecimal nummer) {
+	public Option<Order> findByNummer(OrderNummer nummer) {
 		TypedQuery<Order> query = em.createNamedQuery(Order.FIND_BY_NUMMER, Order.class);
-		query.setParameter("nummer", nummer);
+		query.setParameter("nummer", nummer.getValue());
 		List<Order> resultList = query.getResultList();
 		if (resultList.isEmpty()) {
 			return new None<Order>();

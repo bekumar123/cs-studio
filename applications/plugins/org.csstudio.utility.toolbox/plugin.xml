@@ -105,5 +105,13 @@
             name="Store Article Search Editor">
       </editor>
    </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.csstudio.utility.toolbox.PerspectiveFactory"
+            id="org.csstudio.utility.toolbox.perspective"
+            name="Toolbox">
+      </perspective>
+   </extension>
 
 </plugin>

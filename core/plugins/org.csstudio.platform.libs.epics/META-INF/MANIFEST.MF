@@ -8,8 +8,7 @@ Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime,
  org.slf4j;bundle-version="1.6.1"
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: .,
- lib/jca-2.3.6.jar
+Bundle-ClassPath: .
 Export-Package: 
  com.cosylab.epics.caj,
  com.cosylab.epics.caj.cas,

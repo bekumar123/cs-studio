@@ -78,7 +78,10 @@ public class EventAddRequest extends AbstractCARequest implements NotifyResponse
 	 * Requested data count.
 	 */
 	protected int requestedDataCount;
-
+	/**
+	 * Requested data count.
+	 */
+	protected int requestedMask;
 	/**
 	 * @param channel 
 	 * @param monitor
@@ -116,7 +119,7 @@ public class EventAddRequest extends AbstractCARequest implements NotifyResponse
 					(short)1, 16, (short)dataType, dataCount,
 					sid, subsid);
 		}
-
+		requestedMask=mask;
 		// low, high, to - all 0.0
 		requestMessage.putFloat((float)0.0);
 		requestMessage.putFloat((float)0.0);
@@ -164,10 +167,40 @@ public class EventAddRequest extends AbstractCARequest implements NotifyResponse
 	{
 		this.transport = transport;
 		// update channel sid
+		// wenhua pruefung ob die requestMessage leer ist
+		updateRequestMessage(channel.getServerChannelID());
 		requestMessage.putInt(8, channel.getServerChannelID());
 		// immediate send (increase priority - all subsequent sends will be done immediately).
 		priority = Request.SEND_IMMEDIATELY_PRIORITY;
 		transport.submit(this);
+	}
+	
+	private void updateRequestMessage( int sid) throws IOException{
+
+		if (this.requestedDataCount < 0xFFFF)
+		{
+		    requestMessage = ByteBuffer.allocate(CAConstants.CA_MESSAGE_HEADER_SIZE +  16);
+			requestMessage = insertCAHeader(transport, requestMessage,
+					(short)1, 16, (short)this.requestedDataType, this.requestedDataCount ,
+					sid, subsid);
+		}
+		else 
+		{
+			requestMessage = ByteBuffer.allocate(CAConstants.CA_EXTENDED_MESSAGE_HEADER_SIZE + 16);
+			requestMessage = insertCAHeader(transport, requestMessage,
+					(short)1, 16, (short)this.requestedDataType, this.requestedDataCount,
+					sid, subsid);
+		}
+
+		// low, high, to - all 0.0
+		requestMessage.putFloat((float)0.0);
+		requestMessage.putFloat((float)0.0);
+		requestMessage.putFloat((float)0.0);
+		// mask and alignment
+		requestMessage.putShort((short)requestedMask);
+		requestMessage.putShort((short)0);
+		subscriptionUpdateNeeded = true;
+		updateSubscription();
 	}
 
 	/**

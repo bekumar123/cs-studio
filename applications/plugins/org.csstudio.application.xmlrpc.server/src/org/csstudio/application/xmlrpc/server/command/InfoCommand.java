@@ -23,14 +23,12 @@
 
 package org.csstudio.application.xmlrpc.server.command;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 import org.csstudio.application.xmlrpc.server.ServerActivator;
 import org.csstudio.application.xmlrpc.server.ServerCommandException;
-import org.csstudio.archive.common.requesttype.IArchiveRequestType;
 import org.csstudio.archive.common.service.IArchiveReaderFacade;
 import org.osgi.framework.Version;
 
@@ -42,6 +40,7 @@ public class InfoCommand extends AbstractServerCommand {
 
     // private static final Logger LOG = LoggerFactory.getLogger(InfoCommand.class);
 
+    @SuppressWarnings("unused")
     private IArchiveReaderFacade archiveReader;
 
     /**
@@ -72,18 +71,18 @@ public class InfoCommand extends AbstractServerCommand {
 
         List<String> how = null;
         int index = 0;
-        if (archiveReader != null) {
-            ImmutableSet<IArchiveRequestType> types = archiveReader.getRequestTypes();
-            how = new ArrayList<String>(types.size());
-            for (IArchiveRequestType o : types) {
-                how.add(index++, o.getTypeIdentifier());
-            }
-        } else {
-            how = new ArrayList<String>(ServerRequestType.values().length);
-            for (ServerRequestType o : ServerRequestType.values()) {
-                how.add(index++, o.toString());
-            }
+//        if (archiveReader != null) {
+//            ImmutableSet<IArchiveRequestType> types = archiveReader.getRequestTypes();
+//            how = new ArrayList<String>(types.size());
+//            for (IArchiveRequestType o : types) {
+//                how.add(index++, o.getTypeIdentifier());
+//            }
+//        } else {
+        how = new ArrayList<String>(ServerRequestType.values().length);
+        for (ServerRequestType o : ServerRequestType.values()) {
+            how.add(index++, o.toString());
         }
+//        }
 
         result.put("how", how);
 

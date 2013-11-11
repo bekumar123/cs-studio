@@ -248,13 +248,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.csstudio.desy.common.product.log4j"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"/>
-
-   <plugin
          id="org.csstudio.csdata"
          download-size="0"
          install-size="0"
@@ -1294,5 +1287,12 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="org.csstudio.headless.log4j"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
 
 </feature>

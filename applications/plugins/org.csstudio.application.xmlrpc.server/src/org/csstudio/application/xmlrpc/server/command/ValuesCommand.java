@@ -57,6 +57,12 @@ public class ValuesCommand extends AbstractServerCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(ValuesCommand.class);
 
+    private static final long TIME_DIFF_HALF_YEAR = 259200;
+
+    private static final long TIME_DIFF_MONTH = 43200;
+
+//    private static final long TIME_DIFF_WEEK = 10080;
+
     private IArchiveReaderFacade archiveReader;
 
     private Map<Integer, IArchiveRequestType> howArchive;
@@ -107,14 +113,18 @@ public class ValuesCommand extends AbstractServerCommand {
         TimeInstant start = (TimeInstant) params.getParameter("start");
         TimeInstant end = (TimeInstant) params.getParameter("end");
         int requestedCount = (Integer) params.getParameter("count");
+        long timeDiffMin = (end.getSeconds() - start.getSeconds()) / 60;
+        IArchiveRequestType archiveRequest = this.getCorrespondedRequestType(requestType, timeDiffMin);
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("-------------- Value request --------------");
-            LOG.debug("Request method:  {}", requestType.toString());
-            LOG.debug("Channel name:    {}", name);
-            LOG.debug("Start:           {} ({})", start.toString(), start.getSeconds());
-            LOG.debug("End:             {} ({})", end.toString(), end.getSeconds());
-            LOG.debug("Requested Count: {}", requestedCount);
+            LOG.debug("Server method:    {}", requestType.toString());
+            LOG.debug("Archive method:   {}", archiveRequest.toString());
+            LOG.debug("Channel name:     {}", name);
+            LOG.debug("Start:            {} ({})", start.toString(), start.getSeconds());
+            LOG.debug("End:              {} ({})", end.toString(), end.getSeconds());
+            LOG.debug("Time diff (min.): {}", timeDiffMin);
+            LOG.debug("Requested Count:  {}", requestedCount);
             LOG.debug("----------- End of value request ----------");
         }
 
@@ -139,20 +149,28 @@ public class ValuesCommand extends AbstractServerCommand {
                 result.put("type", Integer.valueOf(ValueType.STRING.getValueTypeNumber()));
             }
 
-            IArchiveRequestType archiveRequest = this.getCorrespondedRequestType(requestType);
             Collection<IArchiveSample> samples =
                            (Collection) archiveReader.readSamples(name, start, end, archiveRequest);
 
             List<Map<String, Object>> values = null;
             if (samples.size() > 0) {
-                if (requestType == ServerRequestType.AVERAGE) {
-                    values = this.createAverageValues(samples, channel, start, end, requestedCount);
-                } else {
-                    values = this.createRawValues(samples);
+                switch (requestType) {
+                    case AVERAGE:
+                        values = this.createAverageValues(samples, channel, start, end, requestedCount);
+                        break;
+                    case RAW:
+                        values = this.createRawValues(samples);
+                        break;
+                    case TAIL_RAW:
+                        values = this.createTailRawValues(samples, requestedCount);
+                        break;
+                    default:
+                        values = new ArrayList<Map<String, Object>>();
                 }
             } else {
                 values = new ArrayList<Map<String, Object>>();
             }
+
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Number of samples: {}", values.size());
             }
@@ -228,13 +246,40 @@ public class ValuesCommand extends AbstractServerCommand {
         return values;
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private List<Map<String, Object>> createTailRawValues(Collection<IArchiveSample> samples,
+                                                          int requestedCount) {
+        if (samples.size() <= requestedCount) {
+            return createRawValues(samples);
+        }
+        List<Map<String, Object>> values = new ArrayList<Map<String, Object>>(requestedCount);
+        IArchiveSample[] sampleArray = new IArchiveSample[samples.size()];
+        samples.toArray(sampleArray);
+        for (int i = samples.size() - requestedCount;i < sampleArray.length;i++) {
+            ArchiveSample o = (ArchiveSample) sampleArray[i];
+            Map<String, Object> sampleValue = new HashMap<String, Object>();
+            EpicsSystemVariable<Serializable> var = (EpicsSystemVariable<Serializable>) o.getSystemVariable();
+            sampleValue.put("stat", Integer.valueOf(var.getAlarm().getStatus().ordinal()));
+            sampleValue.put("sevr", Integer.valueOf(var.getAlarm().getSeverity().ordinal()));
+            // Datatype Long is not allowed for XMLRPC
+            String longStr = String.valueOf(var.getTimestamp().getSeconds());
+            sampleValue.put("secs", longStr);
+            longStr = String.valueOf(var.getTimestamp().getFractalMillisInNanos());
+            sampleValue.put("nano", longStr);
+            List<Object> value = new ArrayList<Object>();
+            value.add(var.getData());
+            sampleValue.put("value", value);
+            values.add(sampleValue);
+        }
+        return values;
+    }
+
     @SuppressWarnings("rawtypes")
-    private List<Map<String, Object>> createAverageValues(
-                   Collection<IArchiveSample> samples,
-                   ArchiveChannel channel,
-                   TimeInstant start,
-                   TimeInstant end,
-                   int requestedCount) {
+    private List<Map<String, Object>> createAverageValues(Collection<IArchiveSample> samples,
+                                                          ArchiveChannel channel,
+                                                          TimeInstant start,
+                                                          TimeInstant end,
+                                                          int requestedCount) {
 
         List<Map<String, Object>> values = new ArrayList<Map<String, Object>>();
         try {
@@ -275,18 +320,24 @@ public class ValuesCommand extends AbstractServerCommand {
         return values;
     }
 
-    private IArchiveRequestType getCorrespondedRequestType(ServerRequestType serverType) {
-        IArchiveRequestType result = null;
-        Iterator<IArchiveRequestType> iter = howArchive.values().iterator();
-        while (iter.hasNext()) {
-            IArchiveRequestType type = iter.next();
-            if (type.getTypeIdentifier().compareToIgnoreCase(serverType.toString()) == 0) {
-                result = type;
+    private IArchiveRequestType getCorrespondedRequestType(ServerRequestType serverType, long timeDiff) {
+        // Default: RAW
+        IArchiveRequestType result = howArchive.get(0);
+        if (serverType == ServerRequestType.AVERAGE) {
+            String method = "RAW";
+            if (timeDiff > TIME_DIFF_HALF_YEAR) {
+                method = "HOUR";
+            } else if (timeDiff > TIME_DIFF_MONTH) {
+                method = "MINUTE";
             }
-        }
-        if (result == null) {
-            // Default = RAW
-            result = howArchive.get(0);
+            Iterator<IArchiveRequestType> iter = howArchive.values().iterator();
+            while (iter.hasNext()) {
+                IArchiveRequestType type = iter.next();
+                if (type.getTypeIdentifier().contains(method)) {
+                    result = type;
+                    break;
+                }
+            }
         }
         return result;
     }

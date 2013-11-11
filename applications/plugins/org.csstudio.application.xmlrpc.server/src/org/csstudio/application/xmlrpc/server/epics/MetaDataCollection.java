@@ -24,6 +24,7 @@ public class MetaDataCollection {
 	private MetaDataCollection(String p) {
 		content = new HashMap<String, MetaData>();
 		readChannelFile(p);
+		LOG.info("Number of channel meta data: " + content.size());
 	}
 
     public static synchronized void createInstance(String path) {

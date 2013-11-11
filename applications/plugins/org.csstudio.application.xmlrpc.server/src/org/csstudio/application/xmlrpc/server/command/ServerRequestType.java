@@ -30,7 +30,8 @@ package org.csstudio.application.xmlrpc.server.command;
 public enum ServerRequestType {
 
     RAW(0),
-    AVERAGE(1, "OPTIMIZED");
+    AVERAGE(1, "OPTIMIZED"),
+    TAIL_RAW(2);
 
     private int requestTypeNumber;
 

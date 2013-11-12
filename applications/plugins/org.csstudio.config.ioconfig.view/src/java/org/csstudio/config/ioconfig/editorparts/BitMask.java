@@ -1,18 +1,14 @@
 package org.csstudio.config.ioconfig.editorparts;
 
-import java.util.List;
+import org.csstudio.config.ioconfig.model.types.BitRange;
+import org.csstudio.config.ioconfig.model.types.HighByte;
+import org.csstudio.config.ioconfig.model.types.LowByte;
 
-import javax.annotation.Nonnull;
+import com.google.common.base.Optional;
 
 /*
- * Takes bits datMinBit upto dataMaxBit, normalize them to bit pos 1 and return the value 
+ * Takes bits minBit upto maxBit, normalize them to bit pos 0 and return the value 
  */
 public interface BitMask {
-
-    int getValueFromBitMask(final int dataMinBit, int dataMaxBit, @Nonnull final Integer lowByte);
-
-    int getValueFromBitMask(final int dataMinBit, int dataMaxBit, @Nonnull final Integer highByte,
-            @Nonnull final Integer lowByte);
-
-    int getValueFromBitMask(final int dataMinBit, int dataMaxBit, @Nonnull final List<Integer> values);
+    int getValueFromBitMask(BitRange bitRange, Optional<HighByte> highByte, LowByte lowByte);
 }

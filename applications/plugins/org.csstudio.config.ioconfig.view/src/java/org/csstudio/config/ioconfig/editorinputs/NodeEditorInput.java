@@ -51,7 +51,6 @@ public class NodeEditorInput implements IEditorInput {
      * Constructor.
      */
     public NodeEditorInput(@Nonnull final AbstractNodeSharedImpl<?,?> node, final boolean nevv) {
-        System.out.println(node.hashCode());
         _node = node;
         _nevv = nevv;
     }

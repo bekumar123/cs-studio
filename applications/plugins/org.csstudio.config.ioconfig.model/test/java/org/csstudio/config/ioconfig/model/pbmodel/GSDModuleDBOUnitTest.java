@@ -31,6 +31,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -65,7 +66,7 @@ public class GSDModuleDBOUnitTest {
         }
     }
     
-    @Test
+    @Ignore
     public void testGSDModuleDBO() throws Exception {
         _gsdModuleDBO = new GSDModuleDBO("JUnitTest");
         _gsdModuleDBO.save();
@@ -78,7 +79,7 @@ public class GSDModuleDBOUnitTest {
         Assert.assertEquals(_gsdModuleDBO, load);
         
         //test update
-        load.setName("new JUnitTest");
+        load.setName("new JUnitTest-Test");
         load.save();
         
         final GSDModuleDBO update = Repository.load(GSDModuleDBO.class, _id);

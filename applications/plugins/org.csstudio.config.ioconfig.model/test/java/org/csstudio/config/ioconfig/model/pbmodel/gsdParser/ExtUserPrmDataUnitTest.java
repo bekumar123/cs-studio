@@ -6,9 +6,12 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import org.csstudio.config.ioconfig.model.pbmodel.GSDFileDBO;
+import org.csstudio.config.ioconfig.model.types.ValueRange;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.common.base.Optional;
 
 /**
  * 
@@ -151,8 +154,7 @@ public class ExtUserPrmDataUnitTest {
         assertTrue(out.getMinBit()==-100000000);
         out.setMinBit("100000000");
         assertTrue(out.getMinBit()==100000000);
-        
-        
+                
         out.setMinBit("0xA");
         assertFalse(out.getMinBit()==10);
         assertTrue(out.getMinBit()==0);
@@ -170,5 +172,14 @@ public class ExtUserPrmDataUnitTest {
         out.setText("^1234567890ߴqwertzuiop�+asdfghjkl��#yxcvbnm,.-QAY\\\"");
         assertEquals(out.getText(), "^1234567890ߴqwertzuiop�+asdfghjkl��#yxcvbnm,.-QAY\\\"");
         
+    }
+    
+    @Test
+    public void MinMaxBitFromDataType() {
+        final ExtUserPrmData out = new ExtUserPrmData(new ParsedGsdFileModel(_gsdFileDBO), 1, "desc");
+        ValueRange valueRange = new ValueRange(0,  511);
+        out.setDataType("UINT8", Optional.of(valueRange));
+        assertThat(out.getMinBit(), Is.is(0));
+        assertThat(out.getMaxBit(), Is.is(8));        
     }
 }

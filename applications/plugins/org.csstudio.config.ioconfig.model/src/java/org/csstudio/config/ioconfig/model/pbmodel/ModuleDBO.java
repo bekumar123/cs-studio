@@ -55,8 +55,7 @@ import org.hibernate.annotations.BatchSize;
 @Entity
 @BatchSize(size = 32)
 @Table(name = "ddb_Profibus_Module")
-public class ModuleDBO extends AbstractNodeSharedImpl<SlaveDBO, ChannelStructureDBO> implements
-INodeWithPrototype {
+public class ModuleDBO extends AbstractNodeSharedImpl<SlaveDBO, ChannelStructureDBO> implements INodeWithPrototype {
 
     private static final long serialVersionUID = 1L;
 
@@ -70,8 +69,8 @@ INodeWithPrototype {
     private String _extModulePrmDataLen;
 
     /**
-     * This Constructor is only used by Hibernate. To create an new {@link ModuleDBO}
-     * {@link #Module(SlaveDBO)}
+     * This Constructor is only used by Hibernate. To create an new
+     * {@link ModuleDBO} {@link #Module(SlaveDBO)}
      */
     public ModuleDBO() {
         // Constructor for Hiberrnate
@@ -79,7 +78,9 @@ INodeWithPrototype {
 
     /**
      * The default Constructor.
-     * @param slave the parent Slave.
+     * 
+     * @param slave
+     *            the parent Slave.
      * @throws PersistenceException
      */
     public ModuleDBO(@Nonnull final SlaveDBO slave) throws PersistenceException {
@@ -104,6 +105,7 @@ INodeWithPrototype {
 
     /**
      * {@inheritDoc}
+     * 
      * @throws PersistenceException
      */
     @Override
@@ -112,13 +114,12 @@ INodeWithPrototype {
         final SlaveDBO slave = parentNode;
         final ModuleDBO copy = new ModuleDBO(slave);
         copy.setModuleNumber(getModuleNumber());
-        if(slave.getChildrenAsMap().get(getSortIndex()) == null) {
+        if (slave.getChildrenAsMap().get(getSortIndex()) == null) {
             copy.setSortIndex((int) getSortIndex());
         }
-        //            copy.setDocuments(getDocuments());
         copy.setConfigurationData(getConfigurationData());
         String extModulePrmDataLen = getExtModulePrmDataLen();
-        extModulePrmDataLen = extModulePrmDataLen == null?"":extModulePrmDataLen;
+        extModulePrmDataLen = extModulePrmDataLen == null ? "" : extModulePrmDataLen;
         copy.setExtModulePrmDataLen(extModulePrmDataLen);
         for (final ChannelStructureDBO node : getChildrenAsMap().values()) {
             final ChannelStructureDBO childrenCopy = node.copyThisTo(copy, null);
@@ -129,27 +130,27 @@ INodeWithPrototype {
 
     @Override
     @Nonnull
-    public ModuleDBO copyThisTo(@Nonnull final SlaveDBO parentNode, @CheckForNull final String namePrefix) throws PersistenceException {
+    public ModuleDBO copyThisTo(@Nonnull final SlaveDBO parentNode, @CheckForNull final String namePrefix)
+            throws PersistenceException {
         final ModuleDBO copy = (ModuleDBO) super.copyThisTo(parentNode, namePrefix);
         return copy;
     }
 
-    private void createChannels(final int selectedModuleNo,
-                                @Nonnull final ModuleDBO module,
-                                @Nonnull final GSDModuleDBO gsdModule, @Nonnull final String createdBy) throws PersistenceException {
-        // TODO (hrickens) [05.05.2011]:Kann die Abfrage nicht vereinfacht werden.
+    private void createChannels(final int selectedModuleNo, @Nonnull final ModuleDBO module,
+            @Nonnull final GSDModuleDBO gsdModule, @Nonnull final String createdBy) throws PersistenceException {
+        // TODO (hrickens) [05.05.2011]:Kann die Abfrage nicht vereinfacht
+        // werden.
         final GSDFileDBO gsdFile = gsdModule.getGSDFile();
-        if(gsdFile!=null) {
+        if (gsdFile != null) {
             final GsdModuleModel2 module2 = gsdFile.getParsedGsdFileModel().getModule(selectedModuleNo);
-            if(module2!=null) {
+            if (module2 != null) {
                 module.setConfigurationData(module2.getExtUserPrmDataConst());
             }
         }
         // Generate Input Channel
         final TreeSet<ModuleChannelPrototypeDBO> moduleChannelPrototypes = gsdModule.getModuleChannelPrototypeNH();
-        if(moduleChannelPrototypes != null) {
-            final ModuleChannelPrototypeDBO[] array = moduleChannelPrototypes
-            .toArray(new ModuleChannelPrototypeDBO[0]);
+        if (moduleChannelPrototypes != null) {
+            final ModuleChannelPrototypeDBO[] array = moduleChannelPrototypes.toArray(new ModuleChannelPrototypeDBO[0]);
             for (int sortIndex = 0; sortIndex < array.length; sortIndex++) {
                 final ModuleChannelPrototypeDBO prototype = array[sortIndex];
                 makeNewChannel(prototype, sortIndex, createdBy);
@@ -165,8 +166,7 @@ INodeWithPrototype {
     @Override
     @Nonnull
     public ChannelStructureDBO createChild() throws PersistenceException {
-        throw new UnsupportedOperationException("No simple child can be created for node type "
-                                                + getClass().getName());
+        throw new UnsupportedOperationException("No simple child can be created for node type " + getClass().getName());
     }
 
     @Override
@@ -175,10 +175,10 @@ INodeWithPrototype {
     }
 
     /*
-     * Die length ergibt sich daraus das die ConfigurationData maxmal 20 byte enthalten darf. Da
-     * jedes Byte als Hex String (z.B. 0x01) gespeichert wird muss dieser Wert mal 4 genommen
-     * werden. Weiter sind die Werte per Komma getrennt was bis zu weitern 19 Stellen erfordern
-     * kann. length = 204+19
+     * Die length ergibt sich daraus das die ConfigurationData maxmal 20 byte
+     * enthalten darf. Da jedes Byte als Hex String (z.B. 0x01) gespeichert wird
+     * muss dieser Wert mal 4 genommen werden. Weiter sind die Werte per Komma
+     * getrennt was bis zu weitern 19 Stellen erfordern kann. length = 204+19
      */
     @Column(name = "cfg_data", length = 99)
     @Nonnull
@@ -208,7 +208,7 @@ INodeWithPrototype {
     @Transient
     @Nonnull
     public String getExtUserPrmDataConst() {
-        if(getConfigurationData() == null) {
+        if (getConfigurationData() == null) {
             List<Integer> extUserPrmDataConst;
             extUserPrmDataConst = getGsdModuleModel2().getExtUserPrmDataConst();
             return GsdFileParser.intList2HexString(extUserPrmDataConst);
@@ -226,14 +226,14 @@ INodeWithPrototype {
     @CheckForNull
     public GSDModuleDBO getGSDModule() {
         final GSDFileDBO gsdFile = getGSDFile();
-        return gsdFile == null?null:gsdFile.getGSDModule(getModuleNumber());
+        return gsdFile == null ? null : gsdFile.getGSDModule(getModuleNumber());
     }
 
     @Transient
     @CheckForNull
     public GsdModuleModel2 getGsdModuleModel2() {
         final GSDFileDBO gsdFile = getParent().getGSDFile();
-        return gsdFile == null?null:gsdFile.getParsedGsdFileModel().getModule(getModuleNumber());
+        return gsdFile == null ? null : gsdFile.getParsedGsdFileModel().getModule(getModuleNumber());
     }
 
     public int getInputOffset() {
@@ -243,7 +243,7 @@ INodeWithPrototype {
     @Transient
     public int getInputOffsetNH() throws PersistenceException {
         final ModuleDBO module = getModuleBefore();
-        return module == null?0:module.getInputOffsetNH() + module.getInputSize();
+        return module == null ? 0 : module.getInputOffsetNH() + module.getInputSize();
     }
 
     public int getInputSize() {
@@ -253,13 +253,13 @@ INodeWithPrototype {
     @Transient
     public short getMaxOffset() {
         final GsdModuleModel2 gsdModuleModel2 = getGsdModuleModel2();
-        if(gsdModuleModel2 != null) {
+        if (gsdModuleModel2 != null) {
             short offset = getSortIndex();
             final List<Integer> values = gsdModuleModel2.getValue();
             for (final Integer value : values) {
                 final SlaveCfgData slaveCfgData = new SlaveCfgData(value);
                 int byteMulti = 1;
-                if(slaveCfgData.isWordSize()) {
+                if (slaveCfgData.isWordSize()) {
                     byteMulti = 2;
                 }
                 offset += slaveCfgData.getNumber() * byteMulti;
@@ -290,7 +290,7 @@ INodeWithPrototype {
     @Transient
     public int getOutputOffsetNH() throws PersistenceException {
         final ModuleDBO module = getModuleBefore();
-        return module == null?0:module.getOutputOffsetNH() + module.getOutputSize();
+        return module == null ? 0 : module.getOutputOffsetNH() + module.getOutputSize();
     }
 
     @Transient
@@ -327,7 +327,7 @@ INodeWithPrototype {
     public Set<ChannelDBO> getPureChannels() {
         final Set<ChannelDBO> result = new HashSet<ChannelDBO>();
         for (final ChannelStructureDBO s : getChildren()) {
-            if(s.isSimple()) {
+            if (s.isSimple()) {
                 result.addAll(s.getChildren());
             }
         }
@@ -360,37 +360,36 @@ INodeWithPrototype {
                 } catch (final IllegalArgumentException e) {
                     bitSize = 0;
                 }
-                if(channel.isInput()) {
+                if (channel.isInput()) {
                     input += bitSize;
                 } else {
                     output += bitSize;
                 }
             }
         }
-        if(input / 8 != getInputSize()) {
+        if (input / 8 != getInputSize()) {
             setInputSize(input / 8);
         }
-        if(output / 8 != getOutputSize()) {
+        if (output / 8 != getOutputSize()) {
             setOutputSize(output / 8);
         }
     }
 
-    private void makeNewChannel(@Nonnull final ModuleChannelPrototypeDBO channelPrototype,
-                                final int sortIndex, @Nonnull final String createdBy) throws PersistenceException {
-        if(channelPrototype.isStructure()) {
+    private void makeNewChannel(@Nonnull final ModuleChannelPrototypeDBO channelPrototype, final int sortIndex,
+            @Nonnull final String createdBy) throws PersistenceException {
+        if (channelPrototype.isStructure()) {
             makeStructChannel(channelPrototype, sortIndex, createdBy);
         } else {
             makeNewPureChannel(channelPrototype, sortIndex, createdBy);
         }
     }
 
-    private void makeNewPureChannel(@Nonnull final ModuleChannelPrototypeDBO channelPrototype, final int sortIndex, @Nonnull final String createdBy) throws PersistenceException {
+    private void makeNewPureChannel(@Nonnull final ModuleChannelPrototypeDBO channelPrototype, final int sortIndex,
+            @Nonnull final String createdBy) throws PersistenceException {
         final Date now = new Date();
         final boolean isDigi = channelPrototype.getType().getBitSize() == 1;
-        final ChannelStructureDBO cs = ChannelStructureDBO.makeSimpleChannel(this,
-                                                                             channelPrototype.getName(),
-                                                                             channelPrototype.isInput(),
-                                                                             isDigi);
+        final ChannelStructureDBO cs = ChannelStructureDBO.makeSimpleChannel(this, channelPrototype.getName(),
+                channelPrototype.isInput(), isDigi);
         cs.moveSortIndex(sortIndex);
         final ChannelDBO channel = cs.getFirstChannel();
         if (channel != null) {
@@ -402,10 +401,11 @@ INodeWithPrototype {
         }
     }
 
-    private void makeStructChannel(@Nonnull final ModuleChannelPrototypeDBO channelPrototype, final int sortIndex, @Nonnull final String createdBy) throws PersistenceException {
+    private void makeStructChannel(@Nonnull final ModuleChannelPrototypeDBO channelPrototype, final int sortIndex,
+            @Nonnull final String createdBy) throws PersistenceException {
         channelPrototype.getOffset();
         final Date now = new Date();
-        final ChannelStructureDBO channelStructure = ChannelStructureDBO.makeChannelStructure(this,channelPrototype);
+        final ChannelStructureDBO channelStructure = ChannelStructureDBO.makeChannelStructure(this, channelPrototype);
         channelStructure.setCreationData(createdBy, now);
         channelStructure.moveSortIndex(sortIndex);
         channelPrototype.save();
@@ -417,7 +417,7 @@ INodeWithPrototype {
     }
 
     public void setConfigurationData(@CheckForNull final String configurationData) {
-        if(configurationData != null && !configurationData.trim().isEmpty()) {
+        if (configurationData != null && !configurationData.trim().isEmpty()) {
             final String[] split = configurationData.split(",");
             _configurationData = new ArrayList<Integer>();
             for (final String value : split) {
@@ -427,8 +427,13 @@ INodeWithPrototype {
     }
 
     @Transient
-    public void setConfigurationDataByte(@Nonnull final Integer index, @Nonnull final Integer value) {
-        _configurationData.set(index, value);
+    public void setConfigurationDataByte(@Nonnull final Integer index, @Nonnull final Integer value, boolean firstAccess) {
+        if (firstAccess) {
+            _configurationData.set(index, value);
+        } else {
+            Integer oldValue = _configurationData.get(index) ;
+            _configurationData.set(index, value | oldValue);                                            
+        }
     }
 
     /**
@@ -450,12 +455,13 @@ INodeWithPrototype {
         _moduleNumber = moduleNumber;
     }
 
-    public final void setNewModel(final int newModuleNumber, @Nonnull final String createdBy) throws PersistenceException {
+    public final void setNewModel(final int newModuleNumber, @Nonnull final String createdBy)
+            throws PersistenceException {
         removeAllChild();
         setModuleNumber(newModuleNumber);
         final GSDModuleDBO gsdModule = getGSDModule();
-        if(gsdModule == null) { // Unknown Module (--> Config the Epics Part)
-            throw new IllegalArgumentException("Module has no GSD Module (moduleNumber = "+newModuleNumber+")");
+        if (gsdModule == null) { // Unknown Module (--> Config the Epics Part)
+            throw new IllegalArgumentException("Module has no GSD Module (moduleNumber = " + newModuleNumber + ")");
         }
         createChannels(newModuleNumber, this, gsdModule, createdBy);
     }
@@ -476,11 +482,11 @@ INodeWithPrototype {
     @Nonnull
     public String toString() {
         final StringBuffer sb = new StringBuffer();
-        if(getSortIndex() != null) {
+        if (getSortIndex() != null) {
             sb.append(getSortIndex());
         }
         sb.append('[').append(getModuleNumber()).append(']');
-        if(getName() != null) {
+        if (getName() != null) {
             sb.append(':').append(getName());
         }
         return sb.toString();
@@ -498,9 +504,10 @@ INodeWithPrototype {
     public void assembleEpicsAddressString() throws PersistenceException {
         final List<Integer> configurationDataList = getConfigurationDataList();
         final GsdModuleModel2 module2 = getGsdModuleModel2();
-        if(module2!=null) {
+        if (module2 != null) {
             final List<Integer> extUserPrmDataConst = module2.getExtUserPrmDataConst();
-            if(!(configurationDataList!=null&&extUserPrmDataConst!=null&&configurationDataList.size()==extUserPrmDataConst.size())) {
+            if (!(configurationDataList != null && extUserPrmDataConst != null && configurationDataList.size() == extUserPrmDataConst
+                    .size())) {
                 setConfigurationData(extUserPrmDataConst);
             }
         }

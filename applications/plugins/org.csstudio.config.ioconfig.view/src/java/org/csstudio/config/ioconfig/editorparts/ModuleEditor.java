@@ -1,5 +1,5 @@
 /*
-                System.out.println("111111111111");
+               
  * Copyright (c) 2010 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
@@ -39,7 +39,6 @@ import org.csstudio.config.ioconfig.model.hibernate.Repository;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDFileDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ModuleDBO;
-import org.csstudio.config.ioconfig.model.pbmodel.SlaveDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdModuleModel2;
 import org.csstudio.config.ioconfig.model.types.ModuleNumber;
 import org.csstudio.config.ioconfig.view.DeviceDatabaseErrorDialog;
@@ -47,7 +46,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -412,8 +410,8 @@ public final class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
      * {@inheritDoc}
      */
     @Override
-    void setPrmUserData(@Nonnull final Integer index, @Nonnull final Integer value) {
-        module.setConfigurationDataByte(index, value);
+    void setPrmUserData(@Nonnull final Integer index, @Nonnull final Integer value, boolean firstAccess) {
+        module.setConfigurationDataByte(index, value, firstAccess);
     }
 
     /**

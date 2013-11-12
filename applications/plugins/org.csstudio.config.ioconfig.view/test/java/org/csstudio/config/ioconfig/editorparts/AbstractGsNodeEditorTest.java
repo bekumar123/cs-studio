@@ -12,9 +12,13 @@ import org.csstudio.config.ioconfig.model.pbmodel.GSDFileDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.AbstractGsdPropertyModel;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.ExtUserPrmData;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.KeyValuePair;
-import org.eclipse.swt.widgets.Group;
+import org.csstudio.config.ioconfig.model.types.BitRange;
+import org.csstudio.config.ioconfig.model.types.HighByte;
+import org.csstudio.config.ioconfig.model.types.LowByte;
 import org.hamcrest.core.Is;
 import org.junit.Test;
+
+import com.google.common.base.Optional;
 
 public class AbstractGsNodeEditorTest {
 
@@ -22,16 +26,7 @@ public class AbstractGsNodeEditorTest {
 
         private int dataMinBit;
         private int dataMaxBit;
-        private List<Integer> values;
         
-        @Override
-        public int getValueFromBitMask(int dataMinBit, int dataMaxBit, List<Integer> values) {
-            this.dataMinBit = dataMinBit;
-            this.dataMaxBit = dataMaxBit;
-            this.values = values;
-            return 0;
-        }
-
         public int getDataMinBit() {
             return dataMinBit;
         }
@@ -40,21 +35,11 @@ public class AbstractGsNodeEditorTest {
             return dataMaxBit;
         }
 
-        public List<Integer> getValues() {
-            return values;
-        }
-
         @Override
-        public int getValueFromBitMask(int dataMinBit, int dataMaxBit, Integer lowByte) {
-            // TODO Auto-generated method stub
+        public int getValueFromBitMask(BitRange bitRange, Optional<HighByte> highByte, LowByte lowByte) {
             return 0;
         }
 
-        @Override
-        public int getValueFromBitMask(int dataMinBit, int dataMaxBit, Integer highByte, Integer lowByte) {
-            // TODO Auto-generated method stub
-            return 0;
-        }
         
     }
     
@@ -91,7 +76,7 @@ public class AbstractGsNodeEditorTest {
         }
 
         @Override
-        void setPrmUserData(Integer index, Integer value) {
+        void setPrmUserData(Integer index, Integer value, boolean firstAccess) {
         }
         
         //@formatter:off
@@ -117,25 +102,6 @@ public class AbstractGsNodeEditorTest {
         
     }
         
-    @Test
-    public void testGetUserPrmDataValueMocked() {
-        TestClass testClass = new TestClass();
-                
-        KeyValuePair key = new KeyValuePair("Ext_User_Prm_Data_Const(0)", null);
-      
-        ExtUserPrmData extUserPrmData = new ExtUserPrmDataMock(1,4);
-                
-        BitMaskInterceptor bmi = new BitMaskInterceptor();
-        
-        testClass.testGetUserPrmDataValue(getOneByteTestData(), key, extUserPrmData, bmi);
-        
-        assertThat(bmi.getValues().size(), Is.is(1));
-        assertThat(bmi.getDataMinBit(), Is.is(1));
-        assertThat(bmi.getDataMaxBit(), Is.is(4));
-        assertThat(bmi.getValues().get(0), Is.is(15));
-        
-    }
-
     @Test
     public void testGetUserPrmDataValueReal() {
         TestClass testClass = new TestClass();
@@ -190,8 +156,8 @@ public class AbstractGsNodeEditorTest {
     
     private List<Integer> getTwoByteTestData() {
         List<Integer> testData = new ArrayList<Integer>();
-        testData.add(0);
         testData.add(1);
+        testData.add(0);
         return testData;
     }
     

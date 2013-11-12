@@ -23,6 +23,10 @@ import gov.aps.jca.event.ContextVirtualCircuitExceptionEvent;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousCloseException;
+import java.nio.channels.ClosedByInterruptException;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
@@ -634,13 +638,20 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 					final int TRIES = 10;
 					for (int tries = 0; /* tries <= TRIES */ ; tries++)
 					{
-						
+						try{
 						// send
 						/*int bytesSent =*/ channel.write(buffer);
 						// bytesSend == buffer.position(), so there is no need for flip()
+						}catch(NotYetConnectedException ne){
+							// TODO remove
+							logger.log(Level.SEVERE, buffer.toString(), ne);
+						}catch (ClosedChannelException e) {
+							logger.log(Level.SEVERE, buffer.toString(), e);
+						}catch(IOException e){
+							logger.log(Level.SEVERE, buffer.toString(), e);
+						}
 						if (buffer.position() != buffer.limit())
 						{
-							buffer.flip();
 							if (tries >= TRIES)
 							{
 								context.getLogger().warning("Failed to send message to " + socketAddress + " - buffer full, will retry.");

@@ -42,6 +42,8 @@
   <ioc>amtfKryoXASB</ioc>
   <ioc>amtfKryoXATC</ioc>
   <ioc>amtfKryoXAVB</ioc>
+  <ioc>amtfKryoXATB1</ioc>
+  <ioc>amtfKryoXATB2</ioc>
   <ioc>amtfKryoXATB3</ioc>
  </facility>
 

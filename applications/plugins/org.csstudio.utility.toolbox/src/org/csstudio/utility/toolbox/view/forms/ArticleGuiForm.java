@@ -605,6 +605,7 @@ public class ArticleGuiForm extends AbstractGuiFormTemplate<Article> implements 
                 tabFolder.setSelection(currentSelectionIndex);
             }
         } catch (Exception e) {
+            Dialogs.exception("Unexpected error", e);
             logger.logError(e);
         }
     }
@@ -624,6 +625,9 @@ public class ArticleGuiForm extends AbstractGuiFormTemplate<Article> implements 
         } else if (newStatus.equalsIgnoreCase("angeliefert")) {
             ArticleDelivered articleDelivered = subViewDataProvider.getOrCreateArticleDelivered(
                     currentlySelectedArticle, newStatus, oldStatus);
+            if (articleDelivered.isNew()) {
+                articleDelivered.setEingegangenAm(new Date());
+            }
             return deliveredView.build(getCrudController().get(), articleDelivered, tabFolder);
             // --- Eingebaut ---
         } else if (newStatus.equals("eingebaut")) {

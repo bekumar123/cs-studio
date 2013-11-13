@@ -33,13 +33,7 @@ public class DeliveredView extends AbstractSubView<ArticleDelivered>{
 
 		wf.combo(composite, "eingegangenDurch").label("Received by:").data(logUserService.findAll()).hint("wrap").build();
 	
-		Text text = wf.date(composite, "eingegangenAm").label("Return Date:").hint("gaptop 5, wrap").build();
-
-		if (articleDelivered.isNew()) {
-			if (articleDelivered.getEingegangenAm() == null) {
-				text.setText(sd.get().format(new Date()));
-			}
-		}
+		wf.date(composite, "eingegangenAm").label("Return Date:").hint("gaptop 5, wrap").build();
 		
 		return new Some<Composite>(composite);
 	}

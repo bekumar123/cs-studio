@@ -24,6 +24,7 @@
 package org.csstudio.application.xmlrpc.server.command;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -151,6 +152,15 @@ public class ValuesCommand extends AbstractServerCommand {
 
             Collection<IArchiveSample> samples =
                            (Collection) archiveReader.readSamples(name, start, end, archiveRequest);
+
+            if (samples.isEmpty() && requestType == ServerRequestType.AVERAGE) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("No samples found. Reading the last sample before the start time");
+                }
+                IArchiveSample beforeSample = archiveReader.readLastSampleBefore(name, start);
+                samples = Lists.newArrayList();
+                samples.add(beforeSample);
+            }
 
             List<Map<String, Object>> values = null;
             if (samples.size() > 0) {

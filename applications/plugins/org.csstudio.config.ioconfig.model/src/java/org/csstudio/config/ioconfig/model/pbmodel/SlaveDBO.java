@@ -40,9 +40,12 @@ import org.csstudio.config.ioconfig.model.GSDFileTypes;
 import org.csstudio.config.ioconfig.model.INodeVisitor;
 import org.csstudio.config.ioconfig.model.NodeType;
 import org.csstudio.config.ioconfig.model.PersistenceException;
+import org.csstudio.config.ioconfig.model.hibernate.Repository;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdFileParser;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdModuleModel2;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.ParsedGsdFileModel;
+import org.csstudio.config.ioconfig.model.types.GsdFileId;
+import org.csstudio.config.ioconfig.model.types.ModuleList;
 import org.hibernate.annotations.BatchSize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -166,6 +169,14 @@ public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> {
         return copy;
     }
 
+    public ModuleList retrieveModuleList() {
+        try {
+            return Repository.loadModules(new GsdFileId(_gsdFile.getId()));
+        } catch (PersistenceException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+    
     /**
      * {@inheritDoc}
      */

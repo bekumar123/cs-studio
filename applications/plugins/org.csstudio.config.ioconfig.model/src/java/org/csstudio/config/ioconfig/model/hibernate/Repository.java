@@ -41,6 +41,8 @@ import org.csstudio.config.ioconfig.model.SensorsDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ChannelDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDFileDBO;
 import org.csstudio.config.ioconfig.model.service.internal.Channel4ServicesDBO;
+import org.csstudio.config.ioconfig.model.types.GsdFileId;
+import org.csstudio.config.ioconfig.model.types.ModuleList;
 
 /**
  * @author gerke
@@ -147,6 +149,16 @@ public final class Repository {
     @CheckForNull
     public static SensorsDBO loadSensor(@Nonnull final String ioName, @Nonnull final String selection) throws PersistenceException {
         return _REPOSITORY.loadSensor(ioName, selection);
+    }
+
+    /**
+     * Retrieve module list.
+     * @param as gsdFileId
+     * @return a {@link ModuleList}
+     */
+    @CheckForNull
+    public static ModuleList loadModules(@Nonnull final GsdFileId gsdFileId) throws PersistenceException {
+        return _REPOSITORY.loadModules(gsdFileId);
     }
 
     /**

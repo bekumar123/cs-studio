@@ -51,7 +51,7 @@ import org.csstudio.config.ioconfig.view.actions.CreateXMLConfigAction;
 import org.csstudio.config.ioconfig.view.actions.DeleteNodeAction;
 import org.csstudio.config.ioconfig.view.actions.PasteNodeAction;
 import org.csstudio.config.ioconfig.view.actions.RenameNodeAction;
-import org.csstudio.config.ioconfig.view.serachview.SearchDialog;
+import org.csstudio.config.ioconfig.view.searchview.SearchDialog;
 import org.csstudio.config.ioconfig.view.treeview.DBLoaderJob;
 import org.csstudio.config.ioconfig.view.treeview.HibernateDBPreferenceChangeListener;
 import org.csstudio.config.ioconfig.view.treeview.ILoader;

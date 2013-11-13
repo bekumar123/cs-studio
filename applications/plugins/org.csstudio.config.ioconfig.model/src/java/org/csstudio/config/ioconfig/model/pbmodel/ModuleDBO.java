@@ -44,7 +44,10 @@ import org.csstudio.config.ioconfig.model.NodeType;
 import org.csstudio.config.ioconfig.model.PersistenceException;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdFileParser;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdModuleModel2;
+import org.csstudio.config.ioconfig.model.types.ModuleNumber;
 import org.hibernate.annotations.BatchSize;
+
+import com.google.common.base.Optional;
 
 /**
  * @author gerke
@@ -142,7 +145,7 @@ public class ModuleDBO extends AbstractNodeSharedImpl<SlaveDBO, ChannelStructure
         // werden.
         final GSDFileDBO gsdFile = gsdModule.getGSDFile();
         if (gsdFile != null) {
-            final GsdModuleModel2 module2 = gsdFile.getParsedGsdFileModel().getModule(selectedModuleNo);
+            final GsdModuleModel2 module2 = getGsdModuleModel2();
             if (module2 != null) {
                 module.setConfigurationData(module2.getExtUserPrmDataConst());
             }
@@ -233,7 +236,11 @@ public class ModuleDBO extends AbstractNodeSharedImpl<SlaveDBO, ChannelStructure
     @CheckForNull
     public GsdModuleModel2 getGsdModuleModel2() {
         final GSDFileDBO gsdFile = getParent().getGSDFile();
-        return gsdFile == null ? null : gsdFile.getParsedGsdFileModel().getModule(getModuleNumber());
+        Optional<ModuleNumber> moduleNumber = ModuleNumber.moduleNumber(getModuleNumber());
+        if (!moduleNumber.isPresent()) {
+            return null;
+        }
+        return gsdFile == null ? null : gsdFile.getParsedGsdFileModel().getModule(moduleNumber.get().getModuleNumberWithoutVersionInfo());
     }
 
     public int getInputOffset() {

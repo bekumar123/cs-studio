@@ -9,6 +9,8 @@ import org.csstudio.config.ioconfig.config.component.labelprovider.ModuleListLab
 import org.csstudio.config.ioconfig.model.pbmodel.GSDFileDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdModuleModel2;
+import org.csstudio.config.ioconfig.model.types.ModuleList;
+import org.csstudio.config.ioconfig.model.types.ModuleName;
 import org.csstudio.config.ioconfig.model.types.ModuleNumber;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -29,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 
 public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider, IRefreshable {
 
@@ -37,6 +40,7 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
     private Text filter;
     
     private final Composite composite;
+    private final ModuleList moduleList;
     private final GSDFileDBO gsdFile;
     private final Optional<ModuleNumber> selectedModuleNumber;
 
@@ -46,8 +50,9 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
     
     //@formatter:off
     public ModuleSelectionListBox(
-            @Nonnull final Composite composite,           
-            @Nonnull GSDFileDBO gsdFile,
+            @Nonnull final Composite composite,   
+            @Nonnull final ModuleList moduleList,
+            @Nonnull final GSDFileDBO gsdFile,
             Optional<ModuleNumber> selectedModuleNumber) {
             //@formatter:on
 
@@ -57,6 +62,8 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
         Preconditions.checkNotNull(gsdFile.getParsedGsdFileModel(), "getParsedGsdFileModel must not return null");
 
         this.composite = composite;
+        this.moduleList = moduleList;
+                
         this.gsdFile = gsdFile;
         this.selectedModuleNumber = selectedModuleNumber;
         this.moduleSelectionListBoxConfigurator = new ModuleSelectionListBoxConfigurator();
@@ -83,22 +90,19 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
         moduleTypList.setLabelProvider(new ModuleListLabelProvider(moduleTypList.getTable(),
                 moduleSelectionListBoxConfigurator));
 
-        final Map<Integer, GsdModuleModel2> gsdModuleList = gsdFile.getParsedGsdFileModel().getModuleMap();
-
         if (selectedModuleNumber.isPresent()) {
-            final GsdModuleModel2 selectModuleModel = gsdModuleList.get(selectedModuleNumber.get().getValue());
-            if (selectModuleModel != null) {
-                moduleTypList.setSelection(new StructuredSelection(selectModuleModel));
+            final Optional<ModuleName> selectModuleName = moduleList.getModuleName(selectedModuleNumber);
+            if (selectModuleName.isPresent()) {
+                Object[] elements = new Object[]{moduleList.getObject(selectedModuleNumber)};
+                moduleTypList.setSelection(new StructuredSelection(elements));
                 if (moduleSelectionListBoxConfigurator.isAutoFilter()) {
-                    filter.setText(selectModuleModel.getName());
+                    filter.setText(selectModuleName.get().getValue());
                 }
             }
         }
 
         setTypListFilter(filter);
-        setTypeListSorter();
-
-        moduleTypList.setInput(gsdModuleList);
+        moduleTypList.setInput(moduleList);
 
         moduleTypList.getTable().showSelection();
         filter.addModifyListener(new FilterModifyListener(this));
@@ -160,6 +164,10 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
             return;
         }
 
+        if (Strings.nullToEmpty(filter.getText()).isEmpty()) {
+            return;
+        }
+
         moduleTypList.addFilter(new ViewerFilter() {
 
             @Override
@@ -187,12 +195,7 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
                         @Nullable final Object element) {
                     if (element instanceof GsdModuleModel2) {
                         final GsdModuleModel2 gmm = (GsdModuleModel2) element;
-                        final int selectedModuleNo = gmm.getModuleNumber();
-                        GSDModuleDBO module = null;
-                        if (gsdFile != null) {
-                            module = gsdFile.getGSDModule(selectedModuleNo);
-                        }
-                        return module != null;
+                        return hasProtype(ModuleNumber.moduleNumber(gmm.getModuleNumber()));
                     }
                     return true;
                 }
@@ -201,33 +204,27 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
 
     }
 
-    private void setTypeListSorter() {
-
-        moduleTypList.setSorter(new ViewerSorter() {
-
-            @Override
-            public int compare(@Nullable final Viewer viewer, @Nullable final Object e1, @Nullable final Object e2) {
-                if (e1 instanceof GsdModuleModel2 && e2 instanceof GsdModuleModel2) {
-                    final GsdModuleModel2 eUPD1 = (GsdModuleModel2) e1;
-                    final GsdModuleModel2 eUPD2 = (GsdModuleModel2) e2;
-                    return eUPD1.getModuleNumber() - eUPD2.getModuleNumber();
-                }
-                return super.compare(viewer, e1, e2);
-            }
-
-        });
+    private boolean hasProtype(Optional<ModuleNumber> moduleNumber) {
+        if (!moduleNumber.isPresent()) {
+            return false;
+        }
+        GSDModuleDBO module = null;
+        if (gsdFile != null) {
+            module = gsdFile.getGSDModule(moduleNumber.get().getModuleNumberWithoutVersionInfo());
+        }
+        return module != null;
     }
-
+    
     /**
      * This class provides the content for the table.
      */
     private static class ModuleListContentProvider implements IStructuredContentProvider {
 
         public final Object[] getElements(@Nullable final Object arg0) {
-            if (arg0 instanceof Map) {
-                @SuppressWarnings("unchecked")
-                final Map<Integer, GsdModuleModel2> map = (Map<Integer, GsdModuleModel2>) arg0;
-                return map.values().toArray(new GsdModuleModel2[0]);
+            if (arg0 instanceof ModuleList) {
+                ModuleList moduleList = (ModuleList)arg0;
+                Object[] objects = moduleList.toArray();
+                return objects;
             }
             return null;
         }

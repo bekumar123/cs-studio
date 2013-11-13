@@ -15,38 +15,36 @@ import org.csstudio.config.ioconfig.model.pbmodel.SlaveCfgData;
 import org.csstudio.config.ioconfig.model.pbmodel.SlaveCfgDataBuilder;
 import org.csstudio.config.ioconfig.model.pbmodel.SlaveDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdModuleModel2;
-import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.ParsedGsdFileModel;
+import org.csstudio.config.ioconfig.model.types.ModuleList;
 import org.csstudio.config.ioconfig.model.types.ModuleNumber;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
 public class ChannelConfigDialogDataModel {
     
     private SlaveDBO selectedSlave;
+    private final ModuleList moduleList;
     private final Map<Integer, GsdModuleModel2> moduleMap;
-    private final List<Integer> moduleNumbers;
-        
-    private GsdModuleModel2 moduleModel;
+    
     private GSDModuleDBO prototype;
 
     private ArrayList<ModuleChannelPrototypeDBO> inputChannelPrototypeModelList;
     private ArrayList<ModuleChannelPrototypeDBO> outputChannelPrototypeModelList;
-    private Optional<ModuleNumber> currentModuleNumber;
+    private ModuleNumber currentModuleNumber;
 
     private boolean hasInputFields;
     private boolean hasOutputFields;
     private boolean isWordSize = true;
     private boolean isNew = false;
 
-    public ChannelConfigDialogDataModel(SlaveDBO selectedSlave) {
+    public ChannelConfigDialogDataModel(final SlaveDBO selectedSlave, final ModuleList moduleList) {
         super();
         this.selectedSlave = selectedSlave;
+        this.moduleList = moduleList;
         this.moduleMap = selectedSlave.getGSDFile().getParsedGsdFileModel().getModuleMap();
-        moduleNumbers = new ArrayList<Integer>();        
-        moduleNumbers.addAll(moduleMap.keySet());     
-        currentModuleNumber = ModuleNumber.moduleNumber(moduleNumbers.get(0));
-        updateDataModel(currentModuleNumber.get());
+        currentModuleNumber = moduleList.getFirstModuleNumber().get();
+        System.out.println(currentModuleNumber);
+        updateDataModel(currentModuleNumber);
     }
 
     public void refreshDataModel(ModuleNumber moduleNumber) {
@@ -69,19 +67,24 @@ public class ChannelConfigDialogDataModel {
     }
 
     public List<SlaveCfgData> getSlaveCfgDataList() {
-        return new SlaveCfgDataBuilder(moduleModel.getValue()).getSlaveCfgDataList();     
+        GsdModuleModel2 gsdModuleModel2 = moduleMap.get(currentModuleNumber.getModuleNumberWithoutVersionInfo());
+        return new SlaveCfgDataBuilder(gsdModuleModel2.getValue()).getSlaveCfgDataList();     
     }
     
     public GSDFileDBO getGsdFileDBO() {
         return selectedSlave.getGSDFile().getParsedGsdFileModel().getGsdFileDBO();        
     }
     
-    public Optional<ModuleNumber> getCurrentModuleNumber() {
+    public ModuleList getModulelist() throws PersistenceException {
+        return moduleList;
+    }
+    
+    public ModuleNumber getCurrentModuleNumber() {
         return currentModuleNumber;
     }
 
     public String getModuleName() {
-        return moduleModel.getName();
+        return moduleList.getModuleName(getCurrentModuleNumber()).getValue();
     }
     
     public boolean isHasInputFields() {
@@ -120,12 +123,11 @@ public class ChannelConfigDialogDataModel {
         inputChannelPrototypeModelList = new ArrayList<ModuleChannelPrototypeDBO>();
         outputChannelPrototypeModelList = new ArrayList<ModuleChannelPrototypeDBO>();
 
-        moduleModel = moduleMap.get(moduleNumber.getValue());
         prototype = selectedSlave.getGSDFile().getParsedGsdFileModel().getGsdFileDBO().getGSDModule(moduleNumber.getValue());
 
         if (prototype == null) {
             isNew = true;
-            prototype = new GSDModuleDBO(moduleModel.getName());
+            prototype = new GSDModuleDBO(moduleList.getModuleName(moduleNumber).getValue());
             prototype.setGSDFile(getGsdFileDBO());
             prototype.setModuleId(moduleNumber.getValue());
             prototype.setCreationData("Roger", new Date());

@@ -105,8 +105,8 @@ public class GSDFileDBO implements Serializable {
     }
     
     /** @return the Text of gsdFile */
-    // Es gibt Problme Text die mehr als 150KB größe in die DB zu schreiben.
-    // Das Problem liegt bei log4J. Bei so großen Files darf das Logging nicht
+    // Es gibt Problme Text die mehr als 150KB grï¿½ï¿½e in die DB zu schreiben.
+    // Das Problem liegt bei log4J. Bei so groï¿½en Files darf das Logging nicht
     // auf Debug stehen!
     @Lob
     @Basic(fetch = FetchType.EAGER)
@@ -197,7 +197,7 @@ public class GSDFileDBO implements Serializable {
     
     @Transient
     public boolean isSlaveNonHN() {
-        return getParsedGsdFileModel().isSalve();
+        return getParsedGsdFileModel().isSlave();
     }
     
     /** @return the Name of this gsdFile */

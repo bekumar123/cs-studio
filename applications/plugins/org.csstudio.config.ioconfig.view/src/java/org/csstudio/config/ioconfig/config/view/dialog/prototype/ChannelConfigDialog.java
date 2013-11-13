@@ -37,10 +37,13 @@ import org.csstudio.config.ioconfig.config.view.dialog.prototype.components.tabl
 import org.csstudio.config.ioconfig.config.view.helper.DocumentationManageView;
 import org.csstudio.config.ioconfig.model.IDocumentable;
 import org.csstudio.config.ioconfig.model.PersistenceException;
+import org.csstudio.config.ioconfig.model.hibernate.Repository;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ModuleChannelPrototypeDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.SlaveDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdModuleModel2;
+import org.csstudio.config.ioconfig.model.types.GsdFileId;
+import org.csstudio.config.ioconfig.model.types.ModuleList;
 import org.csstudio.config.ioconfig.model.types.ModuleNumber;
 import org.csstudio.config.ioconfig.view.DeviceDatabaseErrorDialog;
 import org.csstudio.config.ioconfig.view.internal.localization.Messages;
@@ -95,8 +98,8 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
     // @formatter:on
     public ChannelConfigDialog(@Nullable final Shell parentShell, SlaveDBO selectedSlave) {
         //@formatter:off                
-        super(parentShell);        
-        channelConfigDialogDataModel = new ChannelConfigDialogDataModel(selectedSlave);        
+        super(parentShell);      
+        channelConfigDialogDataModel = new ChannelConfigDialogDataModel(selectedSlave, selectedSlave.retrieveModuleList());        
         setShellStyle(SWT.APPLICATION_MODAL | SWT.TITLE | SWT.BORDER);      
         dirty = new WatchableValue<Boolean>();
         dirty.addListener(new PropertyChangeListener() {            
@@ -305,7 +308,13 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
         gridComposite.setLayout(new GridLayout(3, false));
         gridComposite.setLayoutData(gridData);
 
-        buildModuleTypList(parent, gridComposite);
+        try {
+            buildModuleTypList(parent, gridComposite);
+        } catch (PersistenceException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return null;
+        }
 
         final Composite dialogAreaComposite = (Composite) super.createDialogArea(gridComposite);
         buildInfo(dialogAreaComposite);
@@ -334,7 +343,7 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
     //@formatter:off
     private void buildModuleTypList(
             @Nonnull final Composite comp,
-            @Nonnull final Composite topGroup) {
+            @Nonnull final Composite topGroup) throws PersistenceException {
             //@formatter:on
 
         final Composite gridComposite = new Composite(topGroup, SWT.NONE);
@@ -346,10 +355,11 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
         //@formatter:off
         ModuleSelectionListBox moduleSelectionListBox = new ModuleSelectionListBox(
                 gridComposite, 
+                channelConfigDialogDataModel.getModulelist(),
                 channelConfigDialogDataModel.getGsdFileDBO(),
-                channelConfigDialogDataModel.getCurrentModuleNumber());
+                ModuleNumber.moduleNumber(channelConfigDialogDataModel.getCurrentModuleNumber().getValue()));
                 //@formatter:on
-
+        
         moduleSelectionListBox.buildComponent();
 
         moduleSelectionListBox.addSelectionChangedListener(new ISelectionChangedListener() {
@@ -374,10 +384,9 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
                 }
 
                 IStructuredSelection structuredSelection = (IStructuredSelection) event.getSelection();
-                final GsdModuleModel2 selectedModule = (GsdModuleModel2) (structuredSelection.getFirstElement());
+                final GSDModuleDBO selectedModule = (GSDModuleDBO) (structuredSelection.getFirstElement());
 
-                channelConfigDialogDataModel.refreshDataModel(ModuleNumber.moduleNumber(
-                        selectedModule.getModuleNumber()).get());
+                channelConfigDialogDataModel.refreshDataModel(ModuleNumber.moduleNumber(selectedModule.getModuleId()).get());
 
                 inputTable.setData(channelConfigDialogDataModel.getInputChannelPrototypeModelList());
                 outputTable.setData(channelConfigDialogDataModel.getOutputChannelPrototypeModelList());

@@ -14,6 +14,8 @@ import org.csstudio.config.ioconfig.model.pbmodel.ChannelDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDFileDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.service.internal.Channel4ServicesDBO;
+import org.csstudio.config.ioconfig.model.types.GsdFileId;
+import org.csstudio.config.ioconfig.model.types.ModuleList;
 
 /**
  * @author hrickens
@@ -187,6 +189,12 @@ public class DummyRepository implements IRepository {
     public <T> void detach(T object) throws PersistenceException {
         // TODO Auto-generated method stub
         
+    }
+
+    @Override
+    public ModuleList loadModules(GsdFileId gsdFileId) throws PersistenceException {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 

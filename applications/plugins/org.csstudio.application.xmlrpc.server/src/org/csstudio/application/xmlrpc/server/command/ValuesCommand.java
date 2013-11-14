@@ -157,9 +157,16 @@ public class ValuesCommand extends AbstractServerCommand {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("No samples found. Reading the last sample before the start time");
                 }
-                IArchiveSample beforeSample = archiveReader.readLastSampleBefore(name, start);
                 samples = Lists.newArrayList();
-                samples.add(beforeSample);
+                ArchiveSample beforeSample = (ArchiveSample) archiveReader.readLastSampleBefore(name, start);
+                EpicsSystemVariable<Serializable> var
+                             = (EpicsSystemVariable<Serializable>) beforeSample.getSystemVariable();
+                Serializable data = var.getData();
+                if (data instanceof Double) {
+                    if (((Double) data).doubleValue() != 0.0d) {
+                        samples.add(beforeSample);
+                    }
+                }
             }
 
             List<Map<String, Object>> values = null;
@@ -186,6 +193,9 @@ public class ValuesCommand extends AbstractServerCommand {
             }
 
             result.put("count", Integer.valueOf(values.size()));
+            if (requestType == ServerRequestType.TAIL_RAW) {
+                result.put("samplecount", Integer.valueOf(samples.size()));
+            }
             result.put("values", values);
 
         } catch (ArchiveServiceException e) {

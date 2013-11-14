@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2011 Stiftung Deutsches Elektronen-Synchrotron,
+ * Copyright (c) 2013 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -19,17 +19,40 @@
  * USAGE AND OTHER RIGHTS AND OBLIGATIONS IS INCLUDED WITH THE DISTRIBUTION OF THIS
  * PROJECT IN THE FILE LICENSE.HTML. IF THE LICENSE IS NOT INCLUDED YOU MAY FIND A COPY
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
- *
  */
 
-package org.csstudio.application.xmlrpc.server;
+package org.csstudio.application.xmlrpc.server.management;
+
+import org.csstudio.application.xmlrpc.server.RemotelyAccesible;
+import org.csstudio.remote.management.CommandParameters;
+import org.csstudio.remote.management.CommandResult;
+import org.csstudio.remote.management.IManagementCommand;
 
 /**
+ * TODO (mmoeller) :
+ *
  * @author mmoeller
- * @version 1.0
- * @since 19.08.2011
+ * @since 14.11.2013
  */
-public interface RemotelyAccesible {
-    String getInfo();
-    String getMethods();
+public class MethodsCmd implements IManagementCommand {
+
+    private static RemotelyAccesible object = null;
+
+    public static void staticInject(RemotelyAccesible o) {
+        object = o;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public CommandResult execute(CommandParameters parameters) {
+        CommandResult result = null;
+        if (object == null) {
+            result = CommandResult.createFailureResult("The reference to the application is null! Use static inject.");
+        } else {
+            result = CommandResult.createMessageResult(object.getMethods());
+        }
+        return result;
+    }
 }

@@ -23,8 +23,10 @@
 
 package org.csstudio.application.xmlrpc.server;
 
+import org.csstudio.application.xmlrpc.server.command.ServerRequestType;
 import org.csstudio.application.xmlrpc.server.internal.PreferenceConstants;
 import org.csstudio.application.xmlrpc.server.management.InfoCmd;
+import org.csstudio.application.xmlrpc.server.management.MethodsCmd;
 import org.csstudio.archive.common.service.IArchiveReaderFacade;
 import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
 import org.csstudio.headless.common.signal.HeadlessSignalHandler;
@@ -115,6 +117,7 @@ public class ServerApplication implements IApplication, RemotelyAccesible, ISign
 	    // -agentpath:"C:\Program Files (x86)\YourKit Java Profiler 11.0.9\bin\win32\yjpagent.dll"
 
         InfoCmd.staticInject(this);
+        MethodsCmd.staticInject(this);
         try {
             xmppHandler.connect();
         } catch (XmppSessionException e) {
@@ -165,6 +168,19 @@ public class ServerApplication implements IApplication, RemotelyAccesible, ISign
     @Override
     public String getInfo() {
         return appInfo.toString();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getMethods() {
+        StringBuffer methods = new StringBuffer("Request methods:\n\n");
+        ServerRequestType[] srt = ServerRequestType.values();
+        for (ServerRequestType o : srt) {
+            methods.append(o.toString() + "  (" + o.getRequestTypeNumber() + ")\n");
+        }
+        return methods.toString().trim();
     }
 
     /**

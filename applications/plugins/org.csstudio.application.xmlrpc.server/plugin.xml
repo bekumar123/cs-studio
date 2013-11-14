@@ -32,6 +32,11 @@
             id="org.csstudio.application.xmlrpc.server.GetInfo"
             label="Get Info">
       </command>
+      <command
+            class="org.csstudio.application.xmlrpc.server.management.MethodsCmd"
+            id="org.csstudio.application.xmlrpc.server.GetMethod"
+            label="Methods">
+      </command>
    </extension>
    <extension
          id="XmlRpcServerProduct"

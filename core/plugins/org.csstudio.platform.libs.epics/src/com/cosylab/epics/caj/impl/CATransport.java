@@ -615,8 +615,8 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 			{
 				// prepare buffer
 				buffer.flip();
-
-				final int SEND_BUFFER_LIMIT = 16000;
+				final int SEND_BUFFER_LIMIT = channel.socket().getSendBufferSize();
+				//final int SEND_BUFFER_LIMIT = 16000;
 				int bufferLimit = buffer.limit();
 
 				// TODO remove?!
@@ -629,26 +629,23 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 					if (parts > 1)
 					{
 						buffer.limit(Math.min(part * SEND_BUFFER_LIMIT, bufferLimit));
-						context.getLogger().finest("[Parted] Sending (part " + part + "/" + parts + ") " + (buffer.limit()-buffer.position()) + " bytes to " + socketAddress + ".");
+						context.getLogger().warning("[Parted] Sending (part " + part + "/" + parts + ") " + (buffer.limit()-buffer.position()) + " bytes to " + socketAddress + ".");
 					}
 					final int TRIES = 10;
 					for (int tries = 0; /* tries <= TRIES */ ; tries++)
-					{
+					{ 
+					// send
+						int bytesSent=0;
+				
+						/*int	bytesSent = */channel.write(buffer);
 						
-						// send
-						int bytesSent = channel.write(buffer);
-					
 						// bytesSend == buffer.position(), so there is no need for flip()
-						if(bytesSent != buffer.position())
-							{
-							logger.log(Level.SEVERE,buffer.limit()+ "     "+bytesSent+"  "+buffer.toString());
-							buffer.flip();
-							}
+				
 						if (buffer.position() != buffer.limit())
 						{
 							if (tries >= TRIES)
 							{
-								context.getLogger().warning("Failed to send message to " + socketAddress + " - buffer full, will retry.");
+								context.getLogger().warning("Failed to send message to " + socketAddress + " - buffer full, will retry." +" (buffer.position()  "+buffer.position()+" (buffer.limit()  "+buffer.limit());
 							
 							}
 							
@@ -913,8 +910,14 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	 */
 	public void beaconArrivalNotify()
 	{
-		if (!probeResponsePending)
-			rescheduleTimer(connectionTimeout);
+		        context.getLogger().warning(Thread.currentThread().toString()+ "  beaconArrivalNotify() 1  probeResponsePending=" +probeResponsePending);
+		if (!probeResponsePending){
+		    	context.getLogger().warning(Thread.currentThread().toString()+ "  beaconArrivalNotify()  probeResponsePending=" +probeResponsePending);
+		    	rescheduleTimer(connectionTimeout);
+			}else{
+				context.getLogger().warning(Thread.currentThread().toString()+ "  beaconArrivalNotify()  probeResponsePending=" +probeResponsePending);
+				
+			}
 	}
 
 	/*

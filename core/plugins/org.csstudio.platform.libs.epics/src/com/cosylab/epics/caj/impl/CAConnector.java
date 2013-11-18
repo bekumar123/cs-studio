@@ -114,7 +114,7 @@ public class CAConnector implements Connector {
 				
 				// register to reactor
 				context.getReactor().register(socket, SelectionKey.OP_READ, handler);
-				
+				context.getLogger().warning("socket.socket().getSendBufferSize()"+socket.socket().getSendBufferSize());
 				// issue version including priority, username and local hostname
 				new VersionRequest(transport, priority).submit();
 				new UserNameRequest(transport).submit();

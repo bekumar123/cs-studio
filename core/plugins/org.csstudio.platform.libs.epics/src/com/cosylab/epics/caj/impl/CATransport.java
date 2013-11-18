@@ -635,23 +635,35 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 					for (int tries = 0; /* tries <= TRIES */ ; tries++)
 					{ 
 					// send
-						int bytesSent=0;
+						//int bytesSent=0;
+						if(!channel.isConnected() || !channel.isOpen()){
+							context.getLogger().warning("Connection verloren , reconnect");
+							channel.connect(channel.socket().getRemoteSocketAddress());
+						}
 				
 						/*int	bytesSent = */channel.write(buffer);
-						
+														
 						// bytesSend == buffer.position(), so there is no need for flip()
 				
 						if (buffer.position() != buffer.limit())
 						{
+							context.getLogger().warning("Send buffer value to" + socketAddress +  channel.socket().getSendBufferSize()+  channel.socket().getOutputStream().toString());
 							if (tries >= TRIES)
 							{
+								String s="";
+								for(byte b:buffer.array()){
+									s+=(char) b;								}
 								context.getLogger().warning("Failed to send message to " + socketAddress + " - buffer full, will retry." +" (buffer.position()  "+buffer.position()+" (buffer.limit()  "+buffer.limit());
-							
+								context.getLogger().warning("Send buffer value to" + socketAddress + s);
 							}
 							
 							// flush & wait for a while...
-							context.getLogger().finest("Send buffer full for " + socketAddress + ", waiting...");
+							context.getLogger().warning("Send buffer full for " + socketAddress + ", waiting...");
+							try{
 							channel.socket().getOutputStream().flush();
+							}catch(IOException e){
+								e.printStackTrace();
+							}
 							try {
 								Thread.sleep(Math.min(15000,10+tries*100));
 							} catch (InterruptedException e) {
@@ -910,10 +922,8 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	 */
 	public void beaconArrivalNotify()
 	{
-		        context.getLogger().warning(Thread.currentThread().toString()+ "  beaconArrivalNotify() 1  probeResponsePending=" +probeResponsePending);
 		if (!probeResponsePending){
-		    	context.getLogger().warning(Thread.currentThread().toString()+ "  beaconArrivalNotify()  probeResponsePending=" +probeResponsePending);
-		    	rescheduleTimer(connectionTimeout);
+			    	rescheduleTimer(connectionTimeout);
 			}else{
 				context.getLogger().warning(Thread.currentThread().toString()+ "  beaconArrivalNotify()  probeResponsePending=" +probeResponsePending);
 				
@@ -1014,6 +1024,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	 */
 	private void responsiveTransport()
 	{
+		synchronized (this){
 		if (unresponsiveTransport)
 		{
 		    unresponsiveTransport = false;
@@ -1024,7 +1035,8 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 				clients = new TransportClient[owners.size()];
 				owners.keySet().toArray(clients);
 			}
-
+			context.getLogger().warning(Thread.currentThread().toString()+ "  responsiveTransport() wtih " + socketAddress.getHostName());
+			
 			// NOTE: not perfect, but holding a lock on owners
 			// and calling external method leads to deadlocks
 			for (int i = 0; i < clients.length; i++)
@@ -1039,7 +1051,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 					logger.log(Level.SEVERE, "", th);
 				}
 			}
-			
+		}
 		}
 	}
 
@@ -1048,6 +1060,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	 */
 	private void unresponsiveTransport()
 	{
+		synchronized (this){
 		if (!unresponsiveTransport)
 		{
 		    unresponsiveTransport = true;
@@ -1074,7 +1087,9 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 				clients = new TransportClient[owners.size()];
 				owners.keySet().toArray(clients);
 			}
-			
+		
+				context.getLogger().warning(Thread.currentThread().toString()+ "  unresponsiveTransport() wtih " + socketAddress.getHostName());
+						
 			// NOTE: not perfect, but holding a lock on owners
 			// and calling external method leads to deadlocks
 			for (int i = 0; i < clients.length; i++)
@@ -1089,6 +1104,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 					logger.log(Level.SEVERE, "", th);
 				}
 			}
+		}
 		}
 	}
 

@@ -910,10 +910,8 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	 */
 	public void beaconArrivalNotify()
 	{
-		        context.getLogger().warning(Thread.currentThread().toString()+ "  beaconArrivalNotify() 1  probeResponsePending=" +probeResponsePending);
 		if (!probeResponsePending){
-		    	context.getLogger().warning(Thread.currentThread().toString()+ "  beaconArrivalNotify()  probeResponsePending=" +probeResponsePending);
-		    	rescheduleTimer(connectionTimeout);
+			    	rescheduleTimer(connectionTimeout);
 			}else{
 				context.getLogger().warning(Thread.currentThread().toString()+ "  beaconArrivalNotify()  probeResponsePending=" +probeResponsePending);
 				
@@ -1014,6 +1012,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	 */
 	private void responsiveTransport()
 	{
+		synchronized (this){
 		if (unresponsiveTransport)
 		{
 		    unresponsiveTransport = false;
@@ -1039,7 +1038,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 					logger.log(Level.SEVERE, "", th);
 				}
 			}
-			
+		}
 		}
 	}
 
@@ -1048,6 +1047,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	 */
 	private void unresponsiveTransport()
 	{
+		synchronized (this){
 		if (!unresponsiveTransport)
 		{
 		    unresponsiveTransport = true;
@@ -1089,6 +1089,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 					logger.log(Level.SEVERE, "", th);
 				}
 			}
+		}
 		}
 	}
 

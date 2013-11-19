@@ -34,7 +34,7 @@ public class TestIoNameResolutionFromFile {
       IoNameResolutionFromFile ioNameResolutionFromFile = new IoNameResolutionFromFileImpl();
       ioNameResolutionFromFile.loadCatalog(getDesyCatalogFile());
       String address = ioNameResolutionFromFile.resolveName("SE_44SI1211_Value", "fieldName");
-      assertThat(address, is("@Siemens_S7: 0/0 'T=REAL'"));
+      assertThat(address, is("@Siemens_S7: 0/0 'T=FLOAT'"));
    }
 
    private String getSimpleCatalogFile() {

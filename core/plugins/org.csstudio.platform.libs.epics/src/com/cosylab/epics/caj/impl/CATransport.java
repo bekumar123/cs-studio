@@ -24,10 +24,12 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -634,25 +636,24 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 					final int TRIES = 10;
 					for (int tries = 0; /* tries <= TRIES */ ; tries++)
 					{ 
-					// send
-						//int bytesSent=0;
-						if(!channel.isConnected() || !channel.isOpen()){
-							context.getLogger().warning("Connection verloren , reconnect");
-							channel.connect(channel.socket().getRemoteSocketAddress());
-						}
-				
-						/*int	bytesSent = */channel.write(buffer);
-														
+					   
+					//	 Set<SelectionKey> selectedKeys = sel.selectedKeys();
+					  	// send
+					    /*int	bytesSent = */channel.write(buffer);
+					
 						// bytesSend == buffer.position(), so there is no need for flip()
 				
 						if (buffer.position() != buffer.limit())
 						{
-							context.getLogger().warning("Send buffer value to" + socketAddress +  channel.socket().getSendBufferSize()+  channel.socket().getOutputStream().toString());
+							context.getLogger().warning("Send buffer value to" + socketAddress +" "+  channel.socket().getSendBufferSize()+  channel.socket().getOutputStream().toString());
 							if (tries >= TRIES)
 							{
 								String s="";
 								for(byte b:buffer.array()){
-									s+=(char) b;								}
+									if(b>0x20)
+									s+=(char) b;	
+									else s+=b;
+									}
 								context.getLogger().warning("Failed to send message to " + socketAddress + " - buffer full, will retry." +" (buffer.position()  "+buffer.position()+" (buffer.limit()  "+buffer.limit());
 								context.getLogger().warning("Send buffer value to" + socketAddress + s);
 							}
@@ -675,6 +676,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 							break;
 					}
 				
+				
 				}
 				
 			}
@@ -683,10 +685,8 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 		{
 			ioex.printStackTrace();
 			// close connection
-		//	close(true);
-		//	Wenhua 
-			// flushInternal
-			close(false);
+		    close(true);
+	
 			throw ioex;
 		}
 	}
@@ -837,12 +837,21 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 		// empty message
 		if (message.capacity() == 0)
 			return;
-				
+		String s="";
+		for(byte b:message.array()){
+			if(b > 0X20)
+			s+=(char) b;	
+			else s+=b;
+		}	
 		// send or enqueue
-		if (requestMessage.getPriority() == Request.SEND_IMMEDIATELY_PRIORITY)
-			send(message);
+/*		if (requestMessage.getPriority() == Request.SEND_IMMEDIATELY_PRIORITY){
+	
+			    context.getLogger().warning("new EchoRequest(this) Send message value   "   + s);
+		    	send(message);
+		}
+			
 		else
-		{
+		{*/
 			message.flip();
 
 			synchronized (sendQueue) {
@@ -856,12 +865,13 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 				
 				// TODO !!! check message size, it can exceed sendBuffer capacity
                                 try {
-					sendBuffer.put(message);
+                                    context.getLogger().warning("new EchoRequest(this) enqueue message value   "   + s);
+			                		sendBuffer.put(message);
                                 } catch(BufferOverflowException ex) {
                                 	throw new RuntimeException("Message exceeds write buffer size (com.cosylab.epics.caj.impl.CachedByteBufferAllocator.buffer_size)", ex);
                                 }
 			}
-		}
+		//}
 	}
 
 	/**
@@ -963,11 +973,13 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 		{
 			if (probeResponsePending)
 			{
+			
 				probeTimeoutDetected = true;
 				unresponsiveTransport();
 			}
 			else
 			{
+				context.getLogger().warning("Response timeout   "+probeResponsePending+"    "+probeTimeoutDetected);
 				sendEcho();
 			}
 		}
@@ -978,6 +990,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	 */
 	public void echoNotify()
 	{
+		context.getLogger().warning("Response   "+probeResponsePending+"    "+probeTimeoutDetected);
 		synchronized(probeLock)
 		{
 			if (probeResponsePending)
@@ -985,6 +998,8 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 				if (probeTimeoutDetected)
 				{
 					// try again
+					context.getLogger().warning("Response  echoNotify "+probeResponsePending+"    "+probeTimeoutDetected);
+					
 					sendEcho();
 				}
 				else
@@ -1010,12 +1025,14 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 			try
 			{
 				new EchoRequest(this).submit();
+				context.getLogger().warning("new EchoRequest(this)   ");
 			}
 			catch (IOException ex)
 			{
 				probeResponsePending = false;
 			}
 			rescheduleTimer(CAConstants.CA_ECHO_TIMEOUT);
+			context.getLogger().warning("rescheduleTimer 5000");
 		}
 	}
 

@@ -56,10 +56,8 @@ public class BadResponse extends AbstractCAJResponseHandler {
 			ByteBuffer headerBuffer = response[0];
 			int startPos = headerBuffer.position();
 			int command = headerBuffer.getShort();
-			
-			context.getLogger().fine("Undecipherable message (bad response type " + command + ") from " + responseFrom + ".");
-
-			// TODO remove debug output
+			context.getLogger().warning("Undecipherable message (bad response type " + command + ") from " + responseFrom + ".");
+          	// TODO remove debug output
 			HexDump.hexDump(description, headerBuffer.array(), startPos, headerBuffer.limit() - startPos);
 			
 			// flush all header buffer (needed for UDP packed responses)

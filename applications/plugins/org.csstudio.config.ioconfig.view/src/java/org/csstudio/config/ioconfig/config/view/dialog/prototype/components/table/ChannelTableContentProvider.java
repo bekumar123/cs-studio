@@ -22,7 +22,7 @@
 /*
  * $Id: ChannelTableContentProvider.java,v 1.1 2009/08/26 07:09:22 hrickens Exp $
  */
-package org.csstudio.config.ioconfig.config.view;
+package org.csstudio.config.ioconfig.config.view.dialog.prototype.components.table;
 
 import java.util.List;
 import java.util.Set;
@@ -34,37 +34,32 @@ import org.csstudio.config.ioconfig.model.pbmodel.ModuleChannelPrototypeDBO;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
-/**
- * @author hrickens
- * @author $Author: hrickens $
- * @version $Revision: 1.1 $
- * @since 24.11.2008
- */
-public class ChannelTableContentProvider implements IStructuredContentProvider {
-    
+final class ChannelTableContentProvider implements IStructuredContentProvider {
+
     @Override
     public void dispose() {
         // nothing to dispose
     }
-    
+
     @Override
     @CheckForNull
     public Object[] getElements(@Nullable final Object inputElement) {
         if (inputElement instanceof List) {
-            final List<?> list =(List<?>) inputElement;
+            final List<?> list = (List<?>) inputElement;
             return list.toArray();
-        }else if (inputElement instanceof Set) {
-            final Set<?> set = (Set<?>)inputElement;
+        } else if (inputElement instanceof Set) {
+            final Set<?> set = (Set<?>) inputElement;
             return set.toArray();
-        }else if (inputElement instanceof ModuleChannelPrototypeDBO[]) {
-            return (ModuleChannelPrototypeDBO[])inputElement;
+        } else if (inputElement instanceof ModuleChannelPrototypeDBO[]) {
+            return (ModuleChannelPrototypeDBO[]) inputElement;
         }
         return null;
     }
-    
+
     @Override
-    public void inputChanged(@Nullable final Viewer viewer,@Nullable final  Object oldInput,@Nullable final Object newInput) {
+    public void inputChanged(@Nullable final Viewer viewer, @Nullable final Object oldInput,
+            @Nullable final Object newInput) {
         // Nothing to do.
     }
-    
+
 }

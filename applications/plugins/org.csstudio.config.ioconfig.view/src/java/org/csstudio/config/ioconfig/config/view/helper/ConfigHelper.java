@@ -53,6 +53,7 @@ import org.csstudio.config.ioconfig.view.ProfiBusTreeView;
 import org.csstudio.ui.util.CustomMediaFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
@@ -305,10 +306,13 @@ public final class ConfigHelper {
 
         // Label
         final Label slotIndexLabel = new Label(parent, SWT.NONE);
-        slotIndexLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.RIGHT, false, false, 1, 1));
+        GridData layoutData = new GridData(SWT.RIGHT, SWT.RIGHT, false, false, 1, 1);
+        layoutData.verticalIndent = 4;
+        slotIndexLabel.setLayoutData(layoutData);
         slotIndexLabel.setText(label);
+        
         // Spinner
-        final Spinner indexSpinner = new Spinner(parent, SWT.WRAP);
+        final Spinner indexSpinner = new Spinner(parent, SWT.WRAP | SWT.BORDER);
         indexSpinner.setLayoutData(new GridData(SWT.RIGHT, SWT.RIGHT, false, false, 1, 1));
         indexSpinner.setMinimum(min);
         indexSpinner.setMaximum(max);

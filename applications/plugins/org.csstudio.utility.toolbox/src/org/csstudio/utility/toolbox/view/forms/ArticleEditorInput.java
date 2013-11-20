@@ -37,5 +37,5 @@ public class ArticleEditorInput<T extends BindingEntity> extends GenericEditorIn
 		String objGruppeArtikel = editorInput.getDataPropertyValueByName("gruppeArtikel");
 		return thisGruppeArtikel.equals(objGruppeArtikel);
 	}
-	
+		
 }

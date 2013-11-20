@@ -4,6 +4,10 @@ import org.csstudio.utility.toolbox.func.Func0Void;
 
 import com.google.inject.persist.Transactional;
 
+/**
+ * Wrap call in transaction context
+ *
+ */
 public class TransactionContext {
 
 	@Transactional

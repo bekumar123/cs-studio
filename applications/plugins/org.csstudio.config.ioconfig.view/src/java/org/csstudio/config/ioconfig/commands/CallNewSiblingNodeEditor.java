@@ -73,6 +73,7 @@ public class CallNewSiblingNodeEditor extends AbstractCallNodeEditor {
     protected void openNodeEditor(@Nonnull final AbstractNodeSharedImpl<AbstractNodeSharedImpl<?, ?>, AbstractNodeSharedImpl<?, ?>> siblingNode,
                                   @Nonnull final IWorkbenchPage page) throws PartInitException,
                                   PersistenceException {
+
         final AbstractNodeSharedImpl<?,?> node = (AbstractNodeSharedImpl<?, ?>) siblingNode.getParent().createChild();
         final String id = NodeEditorHandler.getEditorIdFor(node);
 

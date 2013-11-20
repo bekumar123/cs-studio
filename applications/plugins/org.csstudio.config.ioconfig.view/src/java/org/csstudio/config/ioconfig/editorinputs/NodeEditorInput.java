@@ -119,8 +119,8 @@ public class NodeEditorInput implements IEditorInput {
 
     @Override
     public boolean equals(@CheckForNull final Object obj) {
-        // TODO: Prüfen ob der Vergeleich so ausreichend ist.
-        /* Idee es wäre schön wenn generell nur ein Editor pro Facility geöffnet sein könnte und der
+        // TODO: Prï¿½fen ob der Vergeleich so ausreichend ist.
+        /* Idee es wï¿½re schï¿½n wenn generell nur ein Editor pro Facility geï¿½ffnet sein kï¿½nnte und der
          * Editor gewechslet wird innerhalb einer Faclilty!
          */
         return obj!=null ? hashCode()==obj.hashCode() : false;

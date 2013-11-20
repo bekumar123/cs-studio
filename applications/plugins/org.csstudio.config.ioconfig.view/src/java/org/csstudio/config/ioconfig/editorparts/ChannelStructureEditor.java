@@ -158,7 +158,7 @@ public class ChannelStructureEditor extends AbstractNodeEditor<ChannelStructureD
         final Composite newTabItem = getNewTabItem("Main", 3);
         Label label = new Label(newTabItem, SWT.NONE);
         label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-        label.setText("Description:");
+        label.setText("Description");
 
 
         label = new Label(newTabItem, SWT.NONE);
@@ -183,7 +183,7 @@ public class ChannelStructureEditor extends AbstractNodeEditor<ChannelStructureD
         createChildren(text, styleRanges);
         _ioNameList.addModifyListener(getMLSB());
         _ioNameList.setFocus();
-        selecttTabFolder(0);
+        selectTabFolder(0);
     }
 
     /**

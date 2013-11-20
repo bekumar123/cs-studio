@@ -148,7 +148,7 @@ public class TextBuilder extends AbstractControlWithLabelBuilder<TextBuilder> {
 			}
 		}
 
-		// Indicate speical treatment of this property. Relevant for building the sql query.
+		// Indicate special treatment of this property. Relevant for building the sql query.
 		if (isJoinedForSeearch) {
 			getProperty().setHint(PropertyNameHint.SubQueryOnly);
 		}

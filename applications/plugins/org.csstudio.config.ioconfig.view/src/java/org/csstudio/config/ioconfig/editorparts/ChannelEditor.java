@@ -74,11 +74,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ChannelEditor extends AbstractNodeEditor<ChannelDBO> {
 
-    /**
-     * @author hrickens
-     * @author $Author: $
-     * @since 30.09.2010
-     */
     private final class AssembleEpicsAddSelectionListener implements
     SelectionListener {
 
@@ -191,10 +186,10 @@ public class ChannelEditor extends AbstractNodeEditor<ChannelDBO> {
         final String[] heads = {"Channel settings", "Documents", "GSD File List" };
         general(heads[0]);
         if (getNode().isDirty()) {
-            perfromSave();
+            performSave();
         }
         _ioNameText.setFocus();
-        selecttTabFolder(0);
+        selectTabFolder(0);
     }
 
     /**
@@ -240,9 +235,10 @@ public class ChannelEditor extends AbstractNodeEditor<ChannelDBO> {
         final GridLayoutFactory glf = GridLayoutFactory.fillDefaults().numColumns(2);
         epicsAddressGroup.setLayout(glf.create());
         epicsAddressGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
-        epicsAddressGroup.setText("EPICS address string: ");
+        epicsAddressGroup.setText("EPICS address string:");
 
         setAddressText(new Text(epicsAddressGroup, SWT.FLAT | SWT.SINGLE));
+        
         final Text addressText = getAddressText();
         if (addressText != null) {
             final ChannelDBO channel = getNode();
@@ -252,6 +248,7 @@ public class ChannelEditor extends AbstractNodeEditor<ChannelDBO> {
             addressText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
                                                    true, 1, 1));
             addressText.setEditable(false);
+            addressText.setEnabled(false);
             addressText.addModifyListener(new ModifyListener() {
 
                 @Override
@@ -277,19 +274,20 @@ public class ChannelEditor extends AbstractNodeEditor<ChannelDBO> {
         gName.setText("Name");
         gName.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 4, 1));
         gName.setLayout(new GridLayout(3, false));
-        setNameWidget(new Text(gName, SWT.BORDER | SWT.SINGLE));
+        setNameWidget(new Text(gName, SWT.SINGLE));
         final Text nameWidget = getNameWidget();
         final ChannelDBO channel = getNode();
         if (nameWidget != null) {
             nameWidget.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
             setText(nameWidget, channel.getName(), 255);
             nameWidget.setEditable(false);
+            nameWidget.setEnabled(false);
         }
         final Spinner indexSpinner =
             ConfigHelper.getIndexSpinner(gName,
                                          channel,
                                          getMLSB(),
-                                         "Index",
+                                         "Index:",
                                          getProfiBusTreeView(), 99);
         setIndexSpinner(indexSpinner);
         indexSpinner.setEnabled(false);
@@ -304,7 +302,7 @@ public class ChannelEditor extends AbstractNodeEditor<ChannelDBO> {
         final Group ioNameGroup = new Group(comp, SWT.NONE);
         ioNameGroup.setLayout(new GridLayout(1, false));
         ioNameGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
-        ioNameGroup.setText("IO Name: ");
+        ioNameGroup.setText("IO Name:");
         _ioNameText = new Text(ioNameGroup, SWT.BORDER | SWT.SINGLE);
         _ioNameText.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true, false, 1, 1));
         setText(_ioNameText, getNode().getIoName(), 255);
@@ -336,13 +334,17 @@ public class ChannelEditor extends AbstractNodeEditor<ChannelDBO> {
     private void createSize(@Nonnull final Composite comp) {
         final Group sizeGroup = new Group(comp, SWT.NONE);
         sizeGroup.setLayout(new GridLayout(1, false));
-        sizeGroup.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, false, 1, 1));
+        GridData layoutData = new GridData(SWT.RIGHT, SWT.FILL, false, false, 1, 1);
+        sizeGroup.setLayoutData(layoutData);
         sizeGroup.setText("Size: ");
         final Text sizeText = new Text(sizeGroup, SWT.SINGLE | SWT.RIGHT);
-        sizeText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+        layoutData = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
+        layoutData.minimumWidth = 60;
+        sizeText.setLayoutData(layoutData);
         final ChannelDBO channel = getNode();
         setText(sizeText, channel.getChSize(), 255);
         sizeText.setEditable(false);
+        sizeText.setEnabled(false);
     }
 
 

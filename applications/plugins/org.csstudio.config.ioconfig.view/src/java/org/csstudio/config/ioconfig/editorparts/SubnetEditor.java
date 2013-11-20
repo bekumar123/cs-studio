@@ -208,7 +208,7 @@ public class SubnetEditor extends AbstractNodeEditor<ProfibusSubnetDBO> {
         _subnet = getNode();
         // No Subnet, create a new one.
         if (_subnet == null) {
-            newNode();
+            addToParrentNode();
             _subnet.setTtr(750000);
             _subnet.setWatchdog(1000);
         }
@@ -216,7 +216,7 @@ public class SubnetEditor extends AbstractNodeEditor<ProfibusSubnetDBO> {
         final String[] heads = {"General", "Net Settings" };
         netSetting(heads[1]);
         general(heads[0]);
-        selecttTabFolder(0);
+        selectTabFolder(0);
         getTabFolder().pack();
     }
 

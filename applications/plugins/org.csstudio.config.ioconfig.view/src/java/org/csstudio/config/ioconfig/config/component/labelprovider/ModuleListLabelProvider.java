@@ -1,4 +1,4 @@
-package org.csstudio.config.ioconfig.config.view;
+package org.csstudio.config.ioconfig.config.component.labelprovider;
 
 import java.util.List;
 
@@ -6,6 +6,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.csstudio.config.ioconfig.config.component.IModuleSelectionListBoxConfig;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDFileDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.SlaveCfgData;
@@ -22,13 +23,15 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Table;
 
 /**
- *
  * @author hrickens
  * @author $Author: hrickens $
  * @version $Revision: 1.2 $
  * @since 07.01.2009
  */
 public class ModuleListLabelProvider extends LabelProvider implements IFontProvider, IColorProvider {
+
+    private final IModuleSelectionListBoxConfig moduleSelectionListBoxConfig;
+
     /**
      * Font for Module that have an Input or Output. (Style is Normal)
      */
@@ -65,14 +68,17 @@ public class ModuleListLabelProvider extends LabelProvider implements IFontProvi
 
     /**
      * Default Constructor.
-     *
+     * 
      * @param table
      *            the Table how use this LabelProvider.
      * @param file
      */
-    public ModuleListLabelProvider(@Nonnull final Table table) {
+    public ModuleListLabelProvider(@Nonnull final Table table, IModuleSelectionListBoxConfig moduleSelectionListBoxConfig) {
+
+        this.moduleSelectionListBoxConfig = moduleSelectionListBoxConfig;
+
         final FontData fontData = table.getFont().getFontData()[0];
-        if(_GRAY==null) {
+        if (_GRAY == null) {
             _HEIGHT = fontData.getHeight();
             _NAME = fontData.getName();
             _GRAY = CustomMediaFactory.getInstance().getColor(CustomMediaFactory.COLOR_BLACK);
@@ -101,9 +107,11 @@ public class ModuleListLabelProvider extends LabelProvider implements IFontProvi
             final int selectedModuleNo = gmm.getModuleNumber();
             final GSDFileDBO gsdFileDBO = gmm.getParent().getGsdFileDBO();
             final GSDModuleDBO module = gsdFileDBO.getGSDModule(selectedModuleNo);
-            if (module != null) {
+
+            if ((module != null) && !(moduleSelectionListBoxConfig.isIgnoreModulesWithoutPrototype())) {
                 return YELLOW;
             }
+
         }
         return null;
     }

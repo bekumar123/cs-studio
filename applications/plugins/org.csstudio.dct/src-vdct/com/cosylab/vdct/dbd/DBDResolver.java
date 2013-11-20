@@ -150,6 +150,7 @@ public static String getGUIString(int GUItype) {
 	else if (GUItype==DBDConstants.GUI_TIMER) return "GUI_TIMER";
 	else if (GUItype==DBDConstants.GUI_WAVE) return "GUI_WAVE";
 	else if (GUItype==DBDConstants.GUI_SCAN) return "GUI_SCAN";
+    else if (GUItype==DBDConstants.DCT_ARCHIVE) return "DCT_ARCHIVE";	
 	else return "Undefined";
 }
 /**
@@ -183,6 +184,7 @@ public static int getGUIType(String gui) {
 	else if (gui.equalsIgnoreCase("GUI_TIMER")) return DBDConstants.GUI_TIMER;
 	else if (gui.equalsIgnoreCase("GUI_WAVE")) return DBDConstants.GUI_WAVE;
 	else if (gui.equalsIgnoreCase("GUI_SCAN")) return DBDConstants.GUI_SCAN;
+    else if (gui.equalsIgnoreCase("DCT_ARCHIVE")) return DBDConstants.DCT_ARCHIVE;
 	else return DBDConstants.GUI_UNDEFINED;
 }
 /**

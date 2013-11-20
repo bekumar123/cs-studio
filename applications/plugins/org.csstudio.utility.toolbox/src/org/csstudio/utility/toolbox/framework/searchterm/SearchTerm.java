@@ -2,6 +2,7 @@ package org.csstudio.utility.toolbox.framework.searchterm;
 
 import java.util.Locale;
 
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.csstudio.utility.toolbox.framework.property.Property;
 import org.csstudio.utility.toolbox.framework.property.SearchTermType;
@@ -19,7 +20,10 @@ public class SearchTerm {
    private String prefix = "";
 
    public SearchTerm(Property property, String value, SearchTermType searchTermType) {
-      super();
+      
+      Validate.notNull(property, "property must not be null");
+      Validate.notNull(searchTermType, "searchTermType must not be null");
+      
       this.property = property;
       this.value = value;
       this.searchTermType = searchTermType;
@@ -27,7 +31,11 @@ public class SearchTerm {
    }
 
    public SearchTerm(Property property, String value, SearchTermType searchTermType, String operator) {
-      super();
+
+      Validate.notNull(property, "property must not be null");
+      Validate.notNull(searchTermType, "searchTermType must not be null");
+      Validate.notNull(operator, "operator must not be null");
+
       this.property = property;
       this.value = value;
       this.searchTermType = searchTermType;
@@ -65,6 +73,9 @@ public class SearchTerm {
    }
 
    public String asJpaTerm(String alias) {
+      
+      Validate.notNull(alias, "alias must not be null");
+      
       if (searchTermType == SearchTermType.STRING) {
          return "Upper(" + getPropertyPath(alias) + ") LIKE '%" + value.toUpperCase(Locale.getDefault()) + "%'";
       } else if (searchTermType == SearchTermType.STRING_SEARCH_EXACT) {

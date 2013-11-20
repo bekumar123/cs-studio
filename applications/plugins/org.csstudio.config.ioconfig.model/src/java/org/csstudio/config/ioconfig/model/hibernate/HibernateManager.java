@@ -43,7 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * 
  * @author hrickens
  * @author $Author: hrickens $
  * @version $Revision: 1.14 $
@@ -62,8 +62,7 @@ public final class HibernateManager extends AbstractHibernateManager {
      */
     private HibernateManager() {
         final String pluginId = IOConfigActivator.PLUGIN_ID;
-        new InstanceScope().getNode(pluginId)
-        .addPreferenceChangeListener(new IPreferenceChangeListener() {
+        new InstanceScope().getNode(pluginId).addPreferenceChangeListener(new IPreferenceChangeListener() {
 
             @Override
             public void preferenceChange(@Nonnull final PreferenceChangeEvent event) {
@@ -85,80 +84,79 @@ public final class HibernateManager extends AbstractHibernateManager {
         final String url = prefs.getString(pluginId, HIBERNATE_CONNECTION_URL, "", null);
         final String userName = prefs.getString(pluginId, DDB_USER_NAME, "", null);
         final String password = prefs.getString(pluginId, DDB_PASSWORD, "", null);
-        LOG.debug("Use User: "+userName);
-        LOG.debug("Use Password: "+password);
+        LOG.debug("Use User: " + userName);
+        LOG.debug("Use Password: " + password);
 
+        //@formatter:off
         _cfg.setProperty("org.hibernate.cfg.Environment.MAX_FETCH_DEPTH", "0")
-                .setProperty("hibernate.connection.driver_class",
-                             classDriver)
+                .setProperty("hibernate.connection.driver_class", classDriver)
                 .setProperty("hibernate.dialect", prefs.getString(pluginId, DIALECT, "", null))
                 .setProperty("hibernate.order_updates", "false")
-                .setProperty("hibernate.connection.url",url)
-                .setProperty("hibernate.connection.username",userName)
+                .setProperty("hibernate.connection.url", url)
+                .setProperty("hibernate.connection.username", userName)
                 .setProperty("hibernate.connection.password", password)
-                .setProperty("transaction.factory_class",
-                             "org.hibernate.transaction.JDBCTransactionFactory")
-                .setProperty("hibernate.cache.provider_class",
-                             "org.hibernate.cache.HashtableCacheProvider")
+                .setProperty("transaction.factory_class", "org.hibernate.transaction.JDBCTransactionFactory")
+                .setProperty("hibernate.cache.provider_class", "org.hibernate.cache.HashtableCacheProvider")
                 .setProperty("hibernate.cache.use_minimal_puts", "true")
                 .setProperty("hibernate.cache.use_query_cache", "true")
                 // connection Pool
-                .setProperty("hibernate.connection.provider_class",
-                             "org.hibernate.connection.C3P0ConnectionProvider")
-                .setProperty("c3p0.min_size", "1").setProperty("c3p0.max_size", "3")
+                .setProperty("hibernate.connection.provider_class", "org.hibernate.connection.C3P0ConnectionProvider")
+                .setProperty("c3p0.min_size", "1")
+                .setProperty("c3p0.max_size", "3")
                 .setProperty("c3p0.timeout", "1800")
                 .setProperty("c3p0.acquire_increment", "1")
                 .setProperty("c3p0.idle_test_period", "100")
-                // sec
-                .setProperty("c3p0.max_statements", "1")
-//                .setProperty("hibernate.hbm2ddl.auto", "update")
-                .setProperty("hibernate.show_sql", "false");
-//                .setProperty("hibernate.format_sql", "true")
-//                .setProperty("hibernate.use_sql_comments", "true")
-//                  .setProperty("hibernate.cache.use_second_level_cache", "true");
+                .setProperty("c3p0.max_statements", "1");
+                // .setProperty("hibernate.hbm2ddl.auto", "update")
+                // .setProperty("hibernate.show_sql", "true")
+                // .setProperty("hibernate.format_sql", "true").setProperty("hibernate.use_sql_comments", "true")
+                // .setProperty("hibernate.cache.use_second_level_cache", "true");
+                //@formatter:on
+
         setTimeout(prefs.getInt(pluginId, DDB_TIMEOUT, 90, null));
     }
 
-
     /**
      * Set a Hibernate Property.
-     *
+     * 
      * @param property
      *            the Property to set a new Value.
      * @param value
      *            the value for the Property.
      */
     protected void setProperty(@Nonnull final String property, @Nonnull final Object value) {
-        if(property.equals(PreferenceConstants.DDB_TIMEOUT)) {
-            if(value instanceof Integer) {
+        if (property.equals(PreferenceConstants.DDB_TIMEOUT)) {
+            if (value instanceof Integer) {
                 setTimeout((Integer) value);
-            } else if(value instanceof String) {
+            } else if (value instanceof String) {
                 setTimeout(Integer.parseInt((String) value));
             }
-        } else if(value instanceof String) {
+        } else if (value instanceof String) {
             setStringProperty(property, value);
         }
     }
 
     /**
+     * Slave
+     * 
      * @param property
      * @param value
      */
     private void setStringProperty(@Nonnull final String property, @Nonnull final Object value) {
         final String stringValue = ((String) value).trim();
 
-        if(property.equals(DDB_PASSWORD)) {
+        if (property.equals(DDB_PASSWORD)) {
             _cfg.setProperty("hibernate.connection.password", stringValue);
-        } else if(property.equals(DDB_USER_NAME)) {
+        } else if (property.equals(DDB_USER_NAME)) {
             _cfg.setProperty("hibernate.connection.username", stringValue);
-        } else if(property.equals(DIALECT)) {
+        } else if (property.equals(DIALECT)) {
             _cfg.setProperty("hibernate.dialect", stringValue);
-        } else if(property.equals(HIBERNATE_CONNECTION_DRIVER_CLASS)) {
+        } else if (property.equals(HIBERNATE_CONNECTION_DRIVER_CLASS)) {
             _cfg.setProperty("hibernate.connection.driver_class", stringValue);
-        } else if(property.equals(HIBERNATE_CONNECTION_URL)) {
+        } else if (property.equals(HIBERNATE_CONNECTION_URL)) {
             _cfg.setProperty("hibernate.connection.url", stringValue);
 
-        } else if(property.equals(SHOW_SQL)) {
+        } else if (property.equals(SHOW_SQL)) {
             _cfg.setProperty("hibernate.show_sql", stringValue);
             _cfg.setProperty("hibernate.format_sql", stringValue);
             _cfg.setProperty("hibernate.use_sql_comments", stringValue);
@@ -168,7 +166,7 @@ public final class HibernateManager extends AbstractHibernateManager {
 
     @Nonnull
     protected static synchronized HibernateManager getInstance() {
-        if(_INSTANCE == null) {
+        if (_INSTANCE == null) {
             _INSTANCE = new HibernateManager();
         }
         return _INSTANCE;

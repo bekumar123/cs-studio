@@ -1,34 +1,5 @@
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 *CVS/
 .git/*
 
@@ -44,6 +15,23 @@ build/ext/
 logs/*.log
 log/*.log
 
+applications/**/*/com.chronon.sb.browser.launcher.prefs
+products/**/*/com.chronon.sb.browser.launcher.prefs
+core/**/*/com.chronon.sb.browser.launcher.prefs
+
+core/plugins/org.csstudio.platform.libs.jdbc/.settings/
+core/plugins/org.csstudio.platform.libs.jmock/.settings/
+core/plugins/org.csstudio.platform.libs.jms/.settings/
+core/plugins/org.csstudio.remote/.settings/com.chronon.sb.browser.launcher.prefs
+core/plugins/org.csstudio.workspace/.settings/
+
+applications/**/*/com.chronon.sb.browser.launcher.prefs
+products/**/*/com.chronon.sb.browser.launcher.prefs
+core/**/*/com.chronon.sb.browser.launcher.prefs
+
+applications/plugins/org.csstudio.config.ioconfig.model/.settings/com.chronon.sb.browser.launcher.prefs
+
+applications/plugins/org.csstudio.config.ioconfig.model/.settings/org.eclipse.core.resources.prefs
 
 # SNS, KEK Products: Ignore output of headless build
 # syntax: glob

@@ -92,7 +92,7 @@ public class Activator extends AbstractUIPlugin {
         map.put(Context.SECURITY_CREDENTIALS, "cssPass");
         map.put(Context.SECURITY_PROTOCOL, "");
         map.put(Context.SECURITY_AUTHENTICATION, "simple");
-        
+
         boolean success = ldapService.reInitializeLdapConnection(map);
         if (!success) {
             throw new IllegalStateException();

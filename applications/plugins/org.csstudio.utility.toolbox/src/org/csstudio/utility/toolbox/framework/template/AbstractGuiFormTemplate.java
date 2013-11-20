@@ -56,6 +56,7 @@ public abstract class AbstractGuiFormTemplate<T extends BindingEntity> implement
    public static final String CREATE_NEW_BUTTON = "createNewButton";
    public static final String CREATE_COPY_BUTTON = "createCopyButton";
 
+   // needed for testing only
    public static final String OPEN_LISTENER = "OPEN_LISTENER";
 
    public static final Property SEARCH_RESULT_TABLE_VIEWER = new Property("searchResultTableViewer");
@@ -420,7 +421,7 @@ public abstract class AbstractGuiFormTemplate<T extends BindingEntity> implement
       }
 
       searchResultTableViewer.setContentProvider(tableViewProvider.createStructuredContentProvider(data));
-      searchResultTableViewer.setLabelProvider(tableViewProvider.createTableLableProvider(properties,
+      searchResultTableViewer.setLabelProvider(tableViewProvider.createTableLabelProvider(properties,
             new Func2<Boolean, ViewerCell, String>() {
                @Override
                public Boolean apply(ViewerCell viewerCell, String text) {
@@ -430,7 +431,7 @@ public abstract class AbstractGuiFormTemplate<T extends BindingEntity> implement
       searchResultTableViewer.setInput(data);
       searchResultTableViewer.refresh();
    }
-
+   
    protected TableViewer createTableViewer(Composite composite, Property property, String[] titles, int[] bounds) {
       return createTableViewer(composite, property, titles, bounds, new ColumnCreator() {
          @Override

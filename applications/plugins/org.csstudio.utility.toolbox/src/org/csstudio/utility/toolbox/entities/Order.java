@@ -7,12 +7,15 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.PostLoad;
 import javax.persistence.PostPersist;
 import javax.persistence.PostUpdate;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.Valid;
@@ -20,9 +23,11 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.csstudio.utility.toolbox.framework.annotations.ReadOnly;
 import org.csstudio.utility.toolbox.framework.binding.BindingEntity;
 import org.csstudio.utility.toolbox.framework.binding.TextValue;
 import org.csstudio.utility.toolbox.framework.validator.ValidDate;
+import org.csstudio.utility.toolbox.types.OrderId;
 
 @Table(name = "BA")
 @NamedQueries({ @NamedQuery(name = Order.FIND_ALL, query = "from Order l order by l.nummer desc"),
@@ -35,9 +40,15 @@ public class Order extends BindingEntity implements TextValue, Cloneable<Order> 
 
    private static final long serialVersionUID = -1L;
 
+   @GeneratedValue(strategy = GenerationType.AUTO, generator = "GBA")
+   @SequenceGenerator(name = "GBA", sequenceName = "SEQ_BA")
+   @Column(name = "ID", unique = true, nullable = false, precision = 22, scale = 0)
+   @ReadOnly
+   @Id
+   private BigDecimal id;
+
    @Column(name = "nummer")
    @NotNull
-   @Id
    private BigDecimal nummer;
 
    @Column(name = "firma_name")
@@ -117,14 +128,22 @@ public class Order extends BindingEntity implements TextValue, Cloneable<Order> 
    }
 
    public List<OrderPos> getOrderPositions(OrderPosFinder orderPosFinder) {
-      if ((orderPositions == null) && (nummer != null)) {
-         orderPositions = orderPosFinder.findByBaNr(nummer);
+      if ((orderPositions == null) && (id != null)) {
+         orderPositions = orderPosFinder.findPositions(new OrderId(id));
       }
       return orderPositions;
    }
 
    public void setOrderPositions(List<OrderPos> orderPositions) {
       this.orderPositions = orderPositions;
+   }
+
+   public BigDecimal getId() {
+      return id;
+   }
+      
+   public void setId(BigDecimal id) {
+      this.id = id;
    }
 
    public BigDecimal getNummer() {
@@ -354,6 +373,7 @@ public class Order extends BindingEntity implements TextValue, Cloneable<Order> 
    public Order deepClone() {
       try {
          Order clone = new Order();
+         clone.id= null;
          clone.nummer = null;
          clone.firmaName = firmaName;
          clone.aussteller = aussteller;

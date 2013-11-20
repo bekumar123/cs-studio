@@ -3,6 +3,7 @@ package org.csstudio.utility.toolbox.framework.property;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -23,13 +24,14 @@ public class Property {
 		return new Property(name);
 	}
 	
-	public String getName() {
-		return name;
+	public Property(String name) {
+      Validate.notNull(name, "name must not be null");
+	   this.name = name;
 	}
 
-	public Property(String name) {
-		this.name = name;
-	}
+	public String getName() {
+      return name;
+   }
 
 	public Boolean isSubQuery() {
 		if (hint == null) {

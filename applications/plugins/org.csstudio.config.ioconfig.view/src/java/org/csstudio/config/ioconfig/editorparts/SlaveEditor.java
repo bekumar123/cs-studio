@@ -33,6 +33,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.csstudio.config.ioconfig.config.component.CurrentUserParamDataComponent;
 import org.csstudio.config.ioconfig.config.view.OverviewLabelProvider;
 import org.csstudio.config.ioconfig.config.view.helper.ProfibusHelper;
 import org.csstudio.config.ioconfig.model.AbstractNodeSharedImpl;
@@ -58,20 +59,14 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -269,7 +264,10 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
     }
     public static final String ID = "org.csstudio.config.ioconfig.view.editor.slave";
     private static final Logger LOG = LoggerFactory.getLogger(SlaveEditor.class);
-    private Group _currentUserParamDataGroup;
+    //private Group _currentUserParamDataGroup;
+    
+    private CurrentUserParamDataComponent currentUserParamDataComponent;
+    
     /**
      * Marker of Background Color for normal use. Get from widget by first use.
      */
@@ -415,7 +413,7 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         super.createPartControl(parent);
         try {
             makeSlaveKonfiguration();
-            selecttTabFolder(0);
+            selectTabFolder(0);
         } catch (final PersistenceException e) {
             LOG.error("Can't open Slave Edior! Database error", e);
             DeviceDatabaseErrorDialog.open(null, "Can't open Slave Edior! Database error", e);
@@ -482,6 +480,26 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         }
     }
 
+    private void refreshUserPrmTable() {
+        // Settings - USER PRM MODE
+        final ArrayList<AbstractNodeSharedImpl<?,?>> nodes = new ArrayList<AbstractNodeSharedImpl<?,?>>();
+        nodes.add(_slave);
+        nodes.addAll(_slave.getChildrenAsMap().values());
+
+        _userPrmDataList.setInput(nodes);
+
+        final TableColumn[] columns = _userPrmDataList.getTable().getColumns();
+        for (final TableColumn tableColumn : columns) {
+            if(tableColumn != null) {
+                tableColumn.pack();
+            }
+        } 
+    }
+    
+    protected void afterSaveUserPrmData() {
+        refreshUserPrmTable();
+    }
+    
     /** {@inheritDoc}
      * @throws PersistenceException */
     @Override
@@ -513,17 +531,8 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         // Modules
         _maxSize = parsedGsdFileModel.getMaxModule();
         setSlots();
-        // Settings - USER PRM MODE
-        final ArrayList<AbstractNodeSharedImpl<?,?>> nodes = new ArrayList<AbstractNodeSharedImpl<?,?>>();
-        nodes.add(_slave);
-        nodes.addAll(_slave.getChildrenAsMap().values());
-        _userPrmDataList.setInput(nodes);
-        final TableColumn[] columns = _userPrmDataList.getTable().getColumns();
-        for (final TableColumn tableColumn : columns) {
-            if(tableColumn != null) {
-                tableColumn.pack();
-            }
-        }
+       
+        refreshUserPrmTable();
     }
 
     /** {@inheritDoc} */
@@ -629,6 +638,7 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         inputLabel.setText("Inputs: ");
         _inputsText = new Text(ioGroup, SWT.SINGLE);
         _inputsText.setEditable(false);
+        _inputsText.setEnabled(false);        
         _inputsText.setText(Integer.toString(input));
 
         final Label outputsLabel = new Label(ioGroup, SWT.RIGHT);
@@ -636,6 +646,7 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         outputsLabel.setText("Outputs: ");
         _outputsText = new Text(ioGroup, SWT.SINGLE);
         _outputsText.setEditable(false);
+        _outputsText.setEnabled(false);
         _outputsText.setText(Integer.toString(output));
     }
 
@@ -706,12 +717,14 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         slaveInfoGroup.setLayout(new GridLayout(4, false));
         slaveInfoGroup.setTabList(new Control[0]);
 
-        _vendorText = new Text(slaveInfoGroup, SWT.SINGLE | SWT.BORDER);
+        _vendorText = new Text(slaveInfoGroup, SWT.SINGLE);
         _vendorText.setEditable(false);
+        _vendorText.setEnabled(false);
         _vendorText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 4, 1));
 
         _iDNo = new Text(slaveInfoGroup, SWT.SINGLE);
         _iDNo.setEditable(false);
+        _iDNo.setEnabled(false);
         _iDNo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
 
         final Label revisionsLable = new Label(slaveInfoGroup, SWT.NONE);
@@ -719,72 +732,41 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
 
         _revisionsText = new Text(slaveInfoGroup, SWT.SINGLE);
         _revisionsText.setEditable(false);
+        _revisionsText.setEnabled(false);
         _revisionsText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 
         new Label(slaveInfoGroup, SWT.None).setText("Max. available slots:");
-        _maxSlots = new Text(slaveInfoGroup, SWT.BORDER);
+        _maxSlots = new Text(slaveInfoGroup, SWT.SINGLE);
         _maxSlots.setEditable(false);
-    }
+        _maxSlots.setEnabled(false);
 
-    /**
-     *
-     * @param topGroup
-     *            The parent Group for the CurrentUserParamData content.
-     * @throws IOException
-     */
-    private void makeCurrentUserParamData(@Nonnull final Composite topGroup) throws IOException {
-        if (_currentUserParamDataGroup != null) {
-            _currentUserParamDataGroup.dispose();
+    }
+    
+    protected void makeCurrentUserParamData(@Nonnull final Composite topGroup) throws IOException {
+
+        if (currentUserParamDataComponent != null) {
+            currentUserParamDataComponent.dispose();
         }
-        // Current User Param Data Group
-        _currentUserParamDataGroup = new Group(topGroup, SWT.NONE);
-        final GridData gd = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 3);
-        _currentUserParamDataGroup.setLayoutData(gd);
-        _currentUserParamDataGroup.setLayout(new FillLayout());
-        _currentUserParamDataGroup.setText("Current User Param Data:");
-        final ScrolledComposite scrollComposite = new ScrolledComposite(_currentUserParamDataGroup,
-                                                                        SWT.V_SCROLL);
-        final Composite currentUserParamDataComposite = new Composite(scrollComposite, SWT.NONE);
-        final RowLayout rowLayout = new RowLayout(SWT.VERTICAL);
-        rowLayout.wrap = false;
-        rowLayout.fill = true;
-        currentUserParamDataComposite.setLayout(rowLayout);
-        scrollComposite.setContent(currentUserParamDataComposite);
-        scrollComposite.setExpandHorizontal(true);
-        scrollComposite.setExpandVertical(true);
-        _currentUserParamDataGroup.addControlListener(new ControlAdapter() {
-            @Override
-            public void controlResized(@Nonnull final ControlEvent e) {
-                final Rectangle r = scrollComposite.getClientArea();
-                scrollComposite.setMinSize(scrollComposite.computeSize(r.width, SWT.DEFAULT));
-            }
-        });
-        scrollComposite.addControlListener(new ControlAdapter() {
-            @Override
-            public void controlResized(@Nonnull final ControlEvent e) {
-                final Rectangle r = scrollComposite.getClientArea();
-                scrollComposite.setMinSize(currentUserParamDataComposite.computeSize(r.width,
-                                                                                     SWT.DEFAULT));
-            }
-        });
 
-        buildCurrentUserPrmData(currentUserParamDataComposite);
-        topGroup.layout();
+        currentUserParamDataComponent = new CurrentUserParamDataComponent(topGroup, this);
+        currentUserParamDataComponent.buildComponent();
+        topGroup.getParent().getParent().layout();
     }
-
+    
     /**
      * @param comp
      */
     private void makeOperationMode(@Nonnull final Composite comp) {
         // Operation Mode
+        
         final Group operationModeGroup = new Group(comp, SWT.NONE);
         final GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-        layoutData.minimumWidth = 170;
+        layoutData.minimumWidth = 240;
         operationModeGroup.setLayoutData(layoutData);
         operationModeGroup.setText("Operation Mode");
         operationModeGroup.setLayout(new GridLayout(3, false));
         final Label delayLabel = new Label(operationModeGroup, SWT.NONE);
-        delayLabel.setText("Min. Station Delay");
+        delayLabel.setText("Min. Station Delay:");
         _minStationDelayText = ProfibusHelper.getTextField(operationModeGroup,
                                                            true,
                                                            _slave.getMinTsdr() + "",
@@ -836,7 +818,7 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         timeLabel.setText("");
         final Label watchdogLabel2 = new Label(operationModeGroup, SWT.NONE);
         watchdogLabel2.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-        watchdogLabel2.setText("Watchdog Time 2");
+        watchdogLabel2.setText("Watchdog Time 2:");
         _watchDogText2 = ProfibusHelper.getTextField(operationModeGroup,
                                                      _watchDogButton.getSelection(),
                                                      Integer.toString(wdFact2),
@@ -846,7 +828,7 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         new Label(operationModeGroup, SWT.NONE).setText("");
         final Label watchdogTotal = new Label(operationModeGroup, SWT.NONE);
         watchdogTotal.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-        watchdogTotal.setText("Watchdog Total");
+        watchdogTotal.setText("Watchdog Total:");
         final String total = Integer.toString(wdFact1 * wdFact2 * 10);
         _watchDogTotal = ProfibusHelper.getTextField(operationModeGroup, total);
 
@@ -861,7 +843,7 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
                                                            _slave.getSlaveFlag() + "",
                                                            Ranges.SLAVE_FLAG,
                                                            ProfibusHelper.VL_TYP_U16);
-
+        
         final WatchdogTimeCalculaterOnModify listener = new WatchdogTimeCalculaterOnModify(_watchDogText1,
                                                                                            _watchDogText2,
                                                                                            _watchDogTotal);
@@ -964,31 +946,39 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         final Group slaveDataGroup = new Group(comp, SWT.NONE);
         slaveDataGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
         slaveDataGroup.setLayout(new GridLayout(4, false));
-        slaveDataGroup.setText("Salve Data");
+        
         final Label slavePrmDataLabel = new Label(slaveDataGroup, SWT.NONE);
         slavePrmDataLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-        slavePrmDataLabel.setText("Slave Prm Data");
-        // TODO (hrickens) [02.05.2011]: Hier sollte bei jeder änderung der Werte Aktualisiert werden. (Momentan garnicht aber auch nciht nur beim Speichern)
-        _slavePrmDataText = new Text(slaveDataGroup, SWT.SINGLE | SWT.LEAD | SWT.READ_ONLY | SWT.BORDER);
+        slavePrmDataLabel.setText("Slave Prm Data:");
+        // TODO (hrickens) [02.05.2011]: Hier sollte bei jeder Aenderung der Werte Aktualisiert werden. (Momentan gar nicht aber auch nicht nur beim Speichern)
+        _slavePrmDataText = new Text(slaveDataGroup, SWT.LEAD | SWT.READ_ONLY | SWT.BORDER);
+        _slavePrmDataText.setEditable(false);
+        _slavePrmDataText.setEnabled(false);
         _slavePrmDataText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
         _slavePrmDataText.setText(_slave.getPrmUserData());
 
         final Label slaveCfgDataLabel = new Label(slaveDataGroup, SWT.NONE);
         slaveCfgDataLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-        slaveCfgDataLabel.setText("Slave Config Data");
+        slaveCfgDataLabel.setText("Slave Config Data:");
 
         _slaveCfgDataText = new Text(slaveDataGroup, SWT.SINGLE | SWT.LEAD | SWT.READ_ONLY | SWT.BORDER);
         _slaveCfgDataText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
         _slaveCfgDataText.setText(_slave.getSlaveCfgDataString());
-    }
+        _slaveCfgDataText.setEditable(false);
+        _slaveCfgDataText.setEnabled(false);
 
+    }
+    
     /**
      * @param comp
      */
     private void makeSettingsGroups(@Nonnull final Composite comp) {
         // Groups
         _groupsRadioButtons = new Group(comp, SWT.NONE);
-        _groupsRadioButtons.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+        final GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
+        layoutData.minimumWidth = 200;
+        _groupsRadioButtons.setLayoutData(layoutData);
+       
         _groupsRadioButtons.setLayout(new GridLayout(4, true));
         _groupsRadioButtons.setText("Groups");
         _groupIdentStored = _slave.getGroupIdent();
@@ -1050,7 +1040,7 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
 
         getTabFolder().pack();
         if (nevv) {
-            selecttTabFolder(4);
+            selectTabFolder(4);
         }
     }
 
@@ -1182,7 +1172,7 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
      * {@inheritDoc}
      */
     @Override
-    void setPrmUserData(@Nonnull final Integer index, @Nonnull final Integer value) {
+    void setPrmUserData(@Nonnull final Integer index, @Nonnull final Integer value, boolean firstAccess) {
         _slave.setPrmUserDataByte(index, value);
     }
 }

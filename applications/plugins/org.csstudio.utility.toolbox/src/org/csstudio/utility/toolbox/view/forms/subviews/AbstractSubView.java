@@ -24,6 +24,8 @@ import com.google.inject.Inject;
 
 public class AbstractSubView<T extends BindingEntity>  implements PropertyChangeListener{
 	
+    public static final boolean USE_SEARCH_MODE = true;
+    
 	@Inject
 	private EditorInputProvider<T> genericEditorInputProvider;
 	
@@ -52,8 +54,8 @@ public class AbstractSubView<T extends BindingEntity>  implements PropertyChange
 		lastEditorInput = new Some<GenericEditorInput<T>>(editorInput);
 		CrudControllerImpostor<Article, T> impostor = new CrudControllerImpostor<Article, T>(crudController);	
 		Some<CrudController<T>> crudImpostor = new Some<CrudController<T>>(impostor);
-		binder.init(editorInput.get(), crudImpostor, false);
-		wf.init(editorInput.get(), new Some<CrudController<T>>(impostor), false, binder);
+		binder.init(editorInput.get(), crudImpostor, !USE_SEARCH_MODE);
+		wf.init(editorInput.get(), new Some<CrudController<T>>(impostor), !USE_SEARCH_MODE, binder);
 		initialized = true;
 	}
 	
@@ -89,4 +91,7 @@ public class AbstractSubView<T extends BindingEntity>  implements PropertyChange
 		crudController.setDirty(true);		
 	}
 
+	public void clearDirty() {
+        crudController.setDirty(false);      	    
+	}
 }

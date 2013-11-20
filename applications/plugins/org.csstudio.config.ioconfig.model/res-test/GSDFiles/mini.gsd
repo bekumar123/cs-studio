@@ -1,0 +1,20 @@
+#Profibus_DP
+
+PrmText = 3
+Text(0) = "POWER ON RESET"
+Text(1) = "AUTORESET"
+EndPrmText
+PrmText = 4
+Text(0) = "disabled"
+Text(1) = "enabled"
+EndPrmText
+
+ExtUserPrmData = 3 "Substitude Value Channel 3"
+Unsigned16 0 0-65535
+EndExtUserPrmData
+
+Module = "Temperatur" 0xD9 ;20 Bytes, Consistency over whole module
+1
+Ext_Module_Prm_Data_Len = 4
+Ext_User_Prm_Data_Ref(0) = 3
+EndModule

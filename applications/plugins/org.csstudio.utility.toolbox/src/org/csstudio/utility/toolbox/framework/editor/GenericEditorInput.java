@@ -179,6 +179,7 @@ public class GenericEditorInput<T extends BindingEntity> implements IEditorInput
                }
             }
          });
+         // data is commited at this point if not in test mode
          em.clear();
          data.get().setNewRecord(false);
          saveSuccessful = true;

@@ -11,14 +11,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A ModifyListener that set the save button enable to store the changes.
- * Works with {@link Text}, {@link Combo} and {@link Spinner}.
- *
+ * A ModifyListener that set the save button enable to store the changes. Works
+ * with {@link Text}, {@link Combo} and {@link Spinner}.
+ * 
  * @author hrickens
  * @author $Author: hrickens $
  * @since 03.06.2009
- *
- * @param <T> TODO
+ * 
+ * @param <T>
+ *            TODO
  */
 final class NodeConfigModifyListener<T> implements ModifyListener {
 
@@ -26,7 +27,7 @@ final class NodeConfigModifyListener<T> implements ModifyListener {
     private final AbstractNodeEditor<?> _abstractNodeEditor;
 
     /**
-     *   Default Constructor.
+     * Default Constructor.
      */
     public NodeConfigModifyListener(@Nonnull final AbstractNodeEditor<?> abstractNodeEditor) {
         _abstractNodeEditor = abstractNodeEditor;
@@ -36,8 +37,8 @@ final class NodeConfigModifyListener<T> implements ModifyListener {
     public void modifyText(@Nonnull final ModifyEvent e) {
         if (e.widget instanceof Text) {
             final Text text = (Text) e.widget;
-            _abstractNodeEditor.setSavebuttonEnabled("ModifyListenerText:" + text.hashCode(), !text.getText()
-                                 .equals(text.getData()));
+            _abstractNodeEditor.setSavebuttonEnabled("ModifyListenerText:" + text.hashCode(),
+                    !text.getText().equals(text.getData()));
         } else if (e.widget instanceof Combo) {
             final Combo combo = (Combo) e.widget;
             if (combo.getData() instanceof Integer) {
@@ -46,14 +47,19 @@ final class NodeConfigModifyListener<T> implements ModifyListener {
                     _abstractNodeEditor.setSavebuttonEnabled("ModifyListenerCombo" + combo.hashCode(), false);
                 } else {
                     _abstractNodeEditor.setSavebuttonEnabled("ModifyListenerCombo" + combo.hashCode(),
-                                         value != combo.getSelectionIndex());
+                            value != combo.getSelectionIndex());
                 }
             }
         } else if (e.widget instanceof Spinner) {
             final Spinner spinner = (Spinner) e.widget;
             try {
-                _abstractNodeEditor.setSavebuttonEnabled("ModifyListenerCombo" + spinner.hashCode(),
-                                     (Short) spinner.getData() != spinner.getSelection());
+                if (spinner.getData() instanceof Integer) {
+                    _abstractNodeEditor.setSavebuttonEnabled("ModifyListenerCombo" + spinner.hashCode(),
+                            (Integer) spinner.getData() != spinner.getSelection());
+                } else {
+                    _abstractNodeEditor.setSavebuttonEnabled("ModifyListenerCombo" + spinner.hashCode(),
+                            (Short) spinner.getData() != spinner.getSelection());
+                }
             } catch (final ClassCastException cce) {
                 LOG.error(spinner.toString(), cce);
             }

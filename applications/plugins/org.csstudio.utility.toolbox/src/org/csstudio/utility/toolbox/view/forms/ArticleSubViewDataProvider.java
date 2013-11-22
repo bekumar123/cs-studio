@@ -2,9 +2,7 @@ package org.csstudio.utility.toolbox.view.forms;
 
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -16,8 +14,6 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.csstudio.utility.toolbox.common.Environment;
 import org.csstudio.utility.toolbox.entities.Article;
 import org.csstudio.utility.toolbox.entities.ArticleDelivered;
 import org.csstudio.utility.toolbox.entities.ArticleInStore;

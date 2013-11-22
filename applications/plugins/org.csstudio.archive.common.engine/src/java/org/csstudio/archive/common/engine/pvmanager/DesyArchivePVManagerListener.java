@@ -156,6 +156,11 @@ public abstract class DesyArchivePVManagerListener<V extends Serializable,
             handleMetaDataInfo(id, metaData);
             _buffer.setPrecision(metaData.getPrecision());
         }
+
+
+    // unit of channel value update
+        final IArchiveEngineFacade service = provider.getEngineFacade();
+        service.writeChannelUnitInfo(id, pv.getMetaData().getUnit());
     }
 
     private boolean validateAndPersistDatatype(@Nonnull final IServiceProvider provider,

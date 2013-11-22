@@ -340,7 +340,7 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
     protected <T> void processBatchHandler(final Connection connection,
                                            final BatchQueueHandlerSupport<T>  handler,
                                            final List<Object> rescueDataList) {
-        try {
+        try {if(handler!=null){
             final Collection<T> elements = Lists.newLinkedList();
             final BlockingQueue<T> queue = handler.getQueue();
             if (queue.size() > new MySQLArchivePreferenceService().getQueueMaxiSize()) {
@@ -356,7 +356,7 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
             }
             queue.drainTo(elements);
             handlerProcessBatchForStatement(connection, handler, rescueDataList, elements);
-           } catch (final Throwable t) {
+        } } catch (final Throwable t) {
             LOG.error("Unknown throwable in thread {}.", _name);
             t.printStackTrace();
             EMAIL_LOG.info("Unknown throwable in thread {}. See event.log for more info.", _name);

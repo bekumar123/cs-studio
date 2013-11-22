@@ -41,6 +41,7 @@ abstract class AbstractReducedDataSample {
     private final Double _max;
     private final int _status;
     private final int _severty;
+    private final int _count;
 
     /**
      * Constructor.
@@ -51,7 +52,9 @@ abstract class AbstractReducedDataSample {
                                         @Nonnull final Double min,
                                         @Nonnull final Double max,
                                         @Nonnull final int status,
-                                        @Nonnull final int severty) {
+                                        @Nonnull final int severty,
+                                        @Nonnull final int count
+                                        ) {
         _channelId = id;
         _timestamp = timestamp;
         _avg = avg;
@@ -59,6 +62,7 @@ abstract class AbstractReducedDataSample {
         _max = max;
         _status=status;
         _severty=severty;
+        _count=count;
     }
     @Nonnull
     protected ArchiveChannelId getChannelId() {
@@ -87,5 +91,8 @@ abstract class AbstractReducedDataSample {
     @Nonnull
     public int getSeverty() {
         return _severty;
+    }
+    public int getCount() {
+        return _count;
     }
 }

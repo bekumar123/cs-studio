@@ -54,6 +54,9 @@ public class FileArchiveConfigure {
             if (groupName == null) {
                 continue;
             }
+            if (line.startsWith("---")) {
+                continue;
+            }
             try {
                 final EpicsChannelName channelName = new EpicsChannelName(split[0]);
                 channelList.add(channelName);
@@ -84,6 +87,68 @@ public class FileArchiveConfigure {
         try {
             final URL installDir = Platform.getInstallLocation().getURL();
             final URL importPath = new URL(installDir + "//import//archive.config");
+            final File importFile = new File(importPath.toURI());
+            final FileReader reader = new FileReader(importFile);
+            final BufferedReader bufReader = new BufferedReader(reader);
+            String line;
+            String groupName = null;
+            while ((line = bufReader.readLine()) != null) {
+                if (line.startsWith("#")) {
+                    continue;
+                }
+                              final String[] split = line.split("\\s+");
+                if (split.length == 0) {
+                    continue;
+                }
+                if (split[0] == null) {
+                    continue;
+                }
+                if (split[0].equals("group") && split.length > 1) {
+                    groupName = split[1];
+                    continue;
+                }
+                if (groupName == null) {
+                    continue;
+                }
+                try {
+                    final EpicsChannelName channelName = new EpicsChannelName(split[0]);
+                    channelList.add(channelName);
+                    addChannel(channelName, groupName);
+                    startChannel(channelName);
+                } catch (final EngineModelException e) {
+                    System.out.println("add channel " + split[0] + " failed, " + e.toString());
+                } catch (final IllegalArgumentException e) {
+                    System.out.println("invalid name " + e.toString());
+                }
+            }
+            Thread.sleep(2000);
+        } catch (final URISyntaxException e1) {
+            e1.printStackTrace();
+            return channelList;
+        } catch (final MalformedURLException e) {
+            e.printStackTrace();
+            return channelList;
+        } catch (final FileNotFoundException e) {
+            e.printStackTrace();
+            return channelList;
+        } catch (final IOException e) {
+            e.printStackTrace();
+            return channelList;
+        } catch (final InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return channelList;
+        }
+        return channelList;
+    }
+    public List<EpicsChannelName> configureChannelsFromFile(final String fileName) {
+        if(fileName==null ||fileName.isEmpty() || fileName.length()<10) {
+            return configureChannelsFromFile();
+        }
+        final List<EpicsChannelName> channelList = new ArrayList<EpicsChannelName>();
+        try {
+            final URL installDir = Platform.getInstallLocation().getURL();
+            final URL importPath = new URL(fileName);
             final File importFile = new File(importPath.toURI());
             final FileReader reader = new FileReader(importFile);
             final BufferedReader bufReader = new BufferedReader(reader);

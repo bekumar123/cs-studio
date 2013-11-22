@@ -108,7 +108,7 @@ class ManageResponse extends AbstractResponse {
         };
         stopEngineForm(req, html);
         createAddChannelForm(req, html);
-    //    importChannelForm(req, html);
+        importChannelForm(req, html);
 
         html.close();
     }
@@ -176,13 +176,13 @@ class ManageResponse extends AbstractResponse {
     private void importChannelForm(@Nonnull final HttpServletRequest req, @Nonnull final HTMLWriter html) {
 
         String form =
-                      "<form action=\"" + ImportResponse.baseUrl()
+                      "<form action=\"" + ImportFileResponse.baseUrl()
                               + "\" method=\"POST\" name=\"name\" enctype=\"multipart/form-data\">";
         html.text(form);
         html.openTable(2, new String[] { "Channels Import" });
         final String passwordName = "<input type=\"password\" name=\"httpAdmin\" size=\"" + size*1.5 + "\">";
         html.tableLine(new String[] { Messages.PASSWORD, passwordName });
-        final String datei = "<input type=\"file\" name=\"datei\" size=\"50\" maxlength=\"100000\" accept=\"text/config\">";
+        final String datei = "<input type=\"file\" name=\"fileName\" size=\"50\" maxlength=\"100000\" accept=\"text/config\">";
         html.tableLine(new String[] { "W&auml;hlen Sie eine Importatei von Ihrem Rechner aus:"});
         html.tableLine(new String[] { "", datei });
 

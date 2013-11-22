@@ -4,6 +4,7 @@ import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.CTRL;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBRType;
+import gov.aps.jca.dbr.GR;
 import gov.aps.jca.dbr.PRECISION;
 import gov.aps.jca.dbr.STS;
 import gov.aps.jca.dbr.TIME;
@@ -177,12 +178,15 @@ abstract class DesyJCATypeAdapter implements DataSourceTypeAdapter<Channel, Desy
         }
         EpicsGraphicsData<W> gr = null;
         IControlLimits<W> cr = null;
+        String unit=GR.EMPTYUNIT;
         if (eMeta instanceof CTRL) {
             final CTRL ctrl = (CTRL) eMeta;
             gr = createGraphics(ctrl);
             cr = createControlLimits(ctrl);
+            unit=ctrl.getUnits();
         }
-        return EpicsMetaData.create(alarm, gr, cr, prec);
+
+        return EpicsMetaData.create(alarm, gr, cr, prec,unit);
     }
 
     @SuppressWarnings("unchecked")

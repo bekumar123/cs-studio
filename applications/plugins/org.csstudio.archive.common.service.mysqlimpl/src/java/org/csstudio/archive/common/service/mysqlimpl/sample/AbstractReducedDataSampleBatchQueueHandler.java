@@ -23,6 +23,7 @@ package org.csstudio.archive.common.service.mysqlimpl.sample;
 
 import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_AVG;
 import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_CHANNEL_ID;
+import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_COUNT;
 import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_MAX;
 import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_MIN;
 import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_SERVERTY;
@@ -52,7 +53,7 @@ import com.google.common.collect.Collections2;
  * @param <T> the type of the entity used to fill the statement's batch
  */
 public abstract class AbstractReducedDataSampleBatchQueueHandler<T extends AbstractReducedDataSample> extends BatchQueueHandlerSupport<T> {
-    protected static final String VALUES_WILDCARD = "(?, ?, ?, ?, ?,?,?)";
+    protected static final String VALUES_WILDCARD = "(?, ?, ?, ?, ?,?,?,?)";
 
     /**
      * Constructor.
@@ -67,10 +68,10 @@ public abstract class AbstractReducedDataSampleBatchQueueHandler<T extends Abstr
     protected static String createSqlStatementString(@Nonnull final String database,
                                                      @Nonnull final String table) {
         final String sql =
-            "INSERT IGNORE INTO " + database + "." + table +
-            " (" + Joiner.on(",").join(COLUMN_CHANNEL_ID, COLUMN_TIME, COLUMN_AVG, COLUMN_MIN, COLUMN_MAX, COLUMN_STATUS,COLUMN_SERVERTY) +
-            ") VALUES " + VALUES_WILDCARD;
-        return sql;
+                "INSERT IGNORE INTO " + database + "." + table +
+                " (" + Joiner.on(",").join(COLUMN_CHANNEL_ID, COLUMN_TIME, COLUMN_AVG, COLUMN_MIN, COLUMN_MAX, COLUMN_STATUS,COLUMN_SERVERTY,COLUMN_COUNT) +
+                ") VALUES " + VALUES_WILDCARD;
+            return sql;
     }
 
     /**
@@ -89,6 +90,7 @@ public abstract class AbstractReducedDataSampleBatchQueueHandler<T extends Abstr
         stmt.setDouble(5, element.getMax());
         stmt.setInt(6, element.getStatus());
         stmt.setInt(7, element.getSeverty());
+        stmt.setInt(8, element.getCount());
         }catch(final SQLException e){
             throw new ArchiveDaoException("Filling or adding of batch to prepared statement failed for " + element.getChannelId()+ element.getAvg() , e);
         }
@@ -118,7 +120,7 @@ public abstract class AbstractReducedDataSampleBatchQueueHandler<T extends Abstr
                                                                    input.getAvg(),
                                                                    input.getMin(),
                                                                    input.getMax(),
-                                                                   input.getStatus(),input.getSeverty()) +
+                                                                   input.getStatus(),input.getSeverty(),input.getCount()) +
                                                ")";
                                            return result;
                                        }

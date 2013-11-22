@@ -47,12 +47,13 @@ public final class EpicsMetaData {
      * enum types or display ranges, or alarms are not present.
      */
     public static final EpicsMetaData EMPTY_DATA =
-        new EpicsMetaData(EpicsAlarm.UNKNOWN, null, null, null);
+        new EpicsMetaData(EpicsAlarm.UNKNOWN, null, null, null,null);
 
     private final EpicsGraphicsData<? extends Comparable<?>> _graphicsData;
     private final IControlLimits<? extends Comparable<?>> _ctrlLimits;
     private final Short _precision;
     private final EpicsAlarm _alarm;
+    private final String _unit;
     private final ImmutableList<EpicsEnum> _states;
 
 
@@ -67,6 +68,7 @@ public final class EpicsMetaData {
         _graphicsData = null;
         _ctrlLimits = null;
         _precision = null;
+        _unit=null;
     }
 
     /**
@@ -75,7 +77,7 @@ public final class EpicsMetaData {
     private EpicsMetaData(@CheckForNull final EpicsAlarm alarm,
                           @Nullable final EpicsGraphicsData<? extends Comparable<?>> gr,
                           @Nullable final IControlLimits<? extends Comparable<?>> ctrl,
-                          @Nullable final Short precision) {
+                          @Nullable final Short precision, final String unit) {
         _alarm = alarm == null ? EpicsAlarm.UNKNOWN : alarm;
         _graphicsData = gr;
         _ctrlLimits = ctrl;
@@ -87,6 +89,7 @@ public final class EpicsMetaData {
         _precision = precision;
 
         _states  = ImmutableList.of();
+        _unit=unit;
     }
 
     @Nonnull
@@ -101,11 +104,12 @@ public final class EpicsMetaData {
     public static EpicsMetaData create(@Nullable final EpicsAlarm alarm,
                                        @Nullable final EpicsGraphicsData<? extends Comparable<?>> gr,
                                        @Nullable final IControlLimits<? extends Comparable<?>> ctrl,
-                                       @Nullable final Short precision) {
+                                       @Nullable final Short precision,
+                                       @Nullable final String unit) {
         if (alarm == null && gr == null && ctrl == null && precision == null) {
             return EMPTY_DATA;
         }
-        return new EpicsMetaData(alarm, gr, ctrl, precision);
+        return new EpicsMetaData(alarm, gr, ctrl, precision, unit);
     }
 
     @Nonnull
@@ -175,4 +179,8 @@ public final class EpicsMetaData {
         }
         return EpicsEnum.createFromRaw(index);
     }
+
+	public String getUnit() {
+		return _unit;
+	}
 }

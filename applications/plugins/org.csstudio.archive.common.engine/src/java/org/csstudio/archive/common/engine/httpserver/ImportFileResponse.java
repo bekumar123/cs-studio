@@ -37,16 +37,16 @@ import org.csstudio.domain.desy.epics.name.EpicsChannelName;
  * @author bknerr
  * @since 30.09.2011
  */
-public class ImportResponse extends AbstractResponse {
+public class ImportFileResponse extends AbstractResponse {
 
-    private static final String URL_IMPORT_ACTION = "/import";
+    private static final String URL_IMPORT_ACTION = "/importfile";
 
     private static final long serialVersionUID = 1L;
 
     /**
      * Constructor.
      */
-    public ImportResponse(@Nonnull final EngineModel model,
+    public ImportFileResponse(@Nonnull final EngineModel model,
                                  @Nonnull final String adminParamKey,
                                  @Nonnull final String admingParamValue) {
         super(model, adminParamKey, admingParamValue);
@@ -62,10 +62,8 @@ public class ImportResponse extends AbstractResponse {
 
              final String s ="";
             //Here request is the reference of HttpServletRequest.
-             final String fileName=req.getParameter("fileName");
-            final List<EpicsChannelName> channelList = config.configureChannelsFromFile(fileName);
-
-         //   channelList.addAll(config.configureChannelsFromFile(req.getInputStream()));
+            final List<EpicsChannelName> channelList =config.configureChannelsFromFile(req.getInputStream());
+           // channelList.addAll(config.configureChannelsFromFile(req.getInputStream()));
             ImportResultResponse.setResult(channelList,"");
             resp.sendRedirect(new Url(ImportResultResponse.baseUrl()).url());//ShowChannelResponse.urlTo(name.toString()));
     }

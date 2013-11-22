@@ -21,6 +21,9 @@
  */
 package org.csstudio.domain.desy.epics.typesupport;
 
+import gov.aps.jca.dbr.CTRL;
+import gov.aps.jca.dbr.GR;
+
 import javax.annotation.Nonnull;
 
 import org.csstudio.data.values.IMetaData;
@@ -62,9 +65,14 @@ public abstract class AbstractNumberIMetaDataTypeSupport<T extends Number & Comp
                                                 toNumber(numMeta.getWarnLow()));
         final Limits<T> oprLims = createLimits(toNumber(numMeta.getDisplayHigh()),
                                                toNumber(numMeta.getDisplayLow()));
+   	 String unit=GR.EMPTYUNIT;
+     if (data instanceof CTRL) {
+         final CTRL ctrl = (CTRL) data;
+        unit=ctrl.getUnits();
+     }
         final EpicsGraphicsData<T> gr =
             new EpicsGraphicsData<T>(alarmLims, warnLims, oprLims);
-        return EpicsMetaData.create(null, gr, null, null);
+        return EpicsMetaData.create(null, gr, null, null,unit);
 
     }
 

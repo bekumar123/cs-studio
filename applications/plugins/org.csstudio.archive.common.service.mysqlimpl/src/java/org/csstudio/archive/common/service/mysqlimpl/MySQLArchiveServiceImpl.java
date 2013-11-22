@@ -195,7 +195,14 @@ public class MySQLArchiveServiceImpl implements IArchiveEngineFacade, IArchiveRe
                                          @Nonnull final String datatype) throws ArchiveServiceException {
         _updateSupport.updateChannelDataType(id, datatype);
     }
-
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void writeChannelUnitInfo(@Nonnull final ArchiveChannelId id,
+                                        @Nonnull final String unit) throws ArchiveServiceException {
+        _updateSupport.updateChannelUnit(id, unit);
+    }
 
     /**
      * {@inheritDoc}

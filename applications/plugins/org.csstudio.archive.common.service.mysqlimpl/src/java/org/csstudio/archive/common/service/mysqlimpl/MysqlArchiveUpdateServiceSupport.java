@@ -93,4 +93,13 @@ public class MysqlArchiveUpdateServiceSupport {
                                       @Nonnull final String datatype) {
         return _channelDao.updateChannelDatatype(id, datatype);
     }
+    @Nonnull
+    /**
+     * @param id
+     * @param unit
+     */
+    public UpdateResult updateChannelUnit(final ArchiveChannelId id, final String unit) {
+        return _channelDao.updateChannelUnit(id,unit);
+
+    }
 }

@@ -21,13 +21,9 @@
  */
 package org.csstudio.archive.common.service.mysqlimpl.persistengine;
 
-import java.sql.Connection;
-import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
 
 import org.csstudio.archive.common.service.ArchiveConnectionException;
-import org.csstudio.archive.common.service.mysqlimpl.MySQLArchivePreferenceService;
 import org.csstudio.archive.common.service.mysqlimpl.batch.BatchQueueHandlerSupport;
 import org.csstudio.archive.common.service.mysqlimpl.batch.IBatchQueueHandlerProvider;
 import org.csstudio.archive.common.service.mysqlimpl.dao.ArchiveConnectionHandler;
@@ -101,40 +97,5 @@ public class SamplsPersistDataWorker extends PersistDataWorker {
 
     }
 
-    @Override
-    /**
-     * @param connection
-     * @param handlerProvider
-     * @param rescueDataList
-     */
-    protected <T> void processBatchHandler(final Connection connection,
-                                           final BatchQueueHandlerSupport<T> handler,
-                                           final List<Object> rescueDataList) {
-        try {
-            final Collection<T> elements = Lists.newLinkedList();
-            final BlockingQueue<T> queue = handler.getQueue();
-            if (queue.size() < 200) {
-                return;
-            }
-            if (queue.size() > new MySQLArchivePreferenceService().getQueueMaxiSize()) {
-                for (; queue.size() > 0;) {
-                    synchronized (queue) {
-                        queue.drainTo(elements, 1000);
-                        final Collection<String> statements = handler.convertToStatementString(elements);
-                        elements.clear();
-                        rescueDataToFileSystem(statements);
-                    }
-
-                }
-            }
-            queue.drainTo(elements);
-            handlerProcessBatchForStatement(connection, handler, rescueDataList, elements);
-        } catch (final Throwable t) {
-            LOG.error("Unknown throwable in thread {}.", _name);
-            t.printStackTrace();
-            EMAIL_LOG.info("Unknown throwable in thread {}. See event.log for more info.", _name);
-        }
-
-    }
 
 }

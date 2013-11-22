@@ -124,6 +124,8 @@ public class EngineHttpServer {
                                     null, httpContext);
         httpService.registerServlet(ImportResponse.baseUrl(), new ImportResponse(model, adminParamKey, adminParamValue),
                                     null, httpContext);
+        httpService.registerServlet(ImportFileResponse.baseUrl(), new ImportFileResponse(model, adminParamKey, adminParamValue),
+                                    null, httpContext);
 
 
     }

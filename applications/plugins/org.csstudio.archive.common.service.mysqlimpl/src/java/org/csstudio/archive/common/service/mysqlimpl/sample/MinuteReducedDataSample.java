@@ -36,13 +36,18 @@ class MinuteReducedDataSample extends AbstractReducedDataSample {
     /**
      * Constructor.
      */
+
     public MinuteReducedDataSample(@Nonnull final ArchiveChannelId id,
                                    @Nonnull final TimeInstant timestamp,
                                    @Nonnull final Double avg,
                                    @Nonnull final Double min,
                                    @Nonnull final Double max,
                                    @Nonnull final int status,
-                                   @Nonnull final int severty) {
-        super(id, timestamp, avg, min, max,status,severty);
+                                   @Nonnull final int severty,
+                                   @Nonnull final int count) {
+        super(id, timestamp, avg, min, max,status,severty, count);
+
     }
+
+
 }

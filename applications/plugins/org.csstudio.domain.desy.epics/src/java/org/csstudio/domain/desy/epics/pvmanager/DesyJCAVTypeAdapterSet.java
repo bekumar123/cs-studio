@@ -1,5 +1,6 @@
 package org.csstudio.domain.desy.epics.pvmanager;
 
+import gov.aps.jca.dbr.CTRL;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Byte;
 import gov.aps.jca.dbr.DBR_CTRL_Byte;
@@ -22,6 +23,7 @@ import gov.aps.jca.dbr.DBR_TIME_Float;
 import gov.aps.jca.dbr.DBR_TIME_Int;
 import gov.aps.jca.dbr.DBR_TIME_Short;
 import gov.aps.jca.dbr.DBR_TIME_String;
+import gov.aps.jca.dbr.GR;
 import gov.aps.jca.dbr.LABELS;
 import gov.aps.jca.dbr.STS;
 
@@ -171,9 +173,14 @@ public class DesyJCAVTypeAdapterSet  implements DesyJCATypeAdapterSet {
                     @Override
                     @CheckForNull
                     public EpicsMetaData createMetaData(@Nonnull final STS eMeta) {
+                    	 String unit=GR.EMPTYUNIT;
+                         if (eMeta instanceof CTRL) {
+                             final CTRL ctrl = (CTRL) eMeta;
+                            unit=ctrl.getUnits();
+                         }
                         return EpicsMetaData.create(new EpicsAlarm(EpicsAlarmSeverity.valueOf(eMeta.getSeverity()),
                                                                    EpicsAlarmStatus.valueOf(eMeta.getStatus())),
-                                                                   null, null, null);
+                                                                   null, null, null,unit);
                     }
                 });
 		        newFactories.add(  new DesyJCATypeAdapter(String.class,
@@ -189,9 +196,14 @@ public class DesyJCAVTypeAdapterSet  implements DesyJCATypeAdapterSet {
                     @Override
                     @CheckForNull
                     public EpicsMetaData createMetaData(@Nonnull final STS eMeta) {
+                   	 String unit=GR.EMPTYUNIT;
+                     if (eMeta instanceof CTRL) {
+                         final CTRL ctrl = (CTRL) eMeta;
+                        unit=ctrl.getUnits();
+                     }
                         return EpicsMetaData.create(new EpicsAlarm(EpicsAlarmSeverity.valueOf(eMeta.getSeverity()),
                                                                    EpicsAlarmStatus.valueOf(eMeta.getStatus())),
-                                                                   null, null, null);
+                                                                   null, null, null,unit);
                     }
                 });
 		        newFactories.add(  new DesyJCATypeAdapter(EpicsEnum.class,

@@ -42,7 +42,8 @@ class HourReducedDataSample extends AbstractReducedDataSample {
                                  @Nonnull final Double min,
                                  @Nonnull final Double max,
                                  @Nonnull final int status,
-                                 @Nonnull final int severty) {
-        super(id, timestamp, avg, min, max,status,severty);
+                                 @Nonnull final int severty,
+                                 @Nonnull final int count) {
+        super(id, timestamp, avg, min, max,status,severty,count);
     }
 }

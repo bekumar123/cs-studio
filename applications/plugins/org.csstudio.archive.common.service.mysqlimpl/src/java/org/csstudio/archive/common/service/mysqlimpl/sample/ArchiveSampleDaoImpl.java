@@ -54,6 +54,7 @@ import org.csstudio.archive.common.service.sample.ArchiveSample;
 import org.csstudio.archive.common.service.sample.IArchiveSample;
 import org.csstudio.archive.common.service.sample.SampleMinMaxAggregator;
 import org.csstudio.archive.common.service.util.ArchiveTypeConversionSupport;
+import org.csstudio.domain.common.statistic.ArchiveSampleBatchQueueCollector;
 import org.csstudio.domain.desy.epics.alarm.EpicsAlarm;
 import org.csstudio.domain.desy.epics.typesupport.EpicsSystemVariableSupport;
 import org.csstudio.domain.desy.system.ControlSystem;
@@ -97,6 +98,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
     public static final String COLUMN_AVG = "avg_val";
     public static final String COLUMN_MIN = "min_val";
     public static final String COLUMN_MAX = "max_val";
+    public static final String  COLUMN_COUNT="count";
 
     private static final String ARCH_TABLE_PLACEHOLDER = "<arch.table>";
     private static final String RETRIEVAL_FAILED = "Sample retrieval from archive failed.";
@@ -143,14 +145,14 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         BatchQueueHandlerSupport.installHandlerIfNotExists(new CollectionDataSampleBatchQueueHandler(getDatabaseName()));
         BatchQueueHandlerSupport.installHandlerIfNotExists(new MinuteReducedDataSampleBatchQueueHandler(getDatabaseName()));
         BatchQueueHandlerSupport.installHandlerIfNotExists(new HourReducedDataSampleBatchQueueHandler(getDatabaseName()));
-    }
+       }
 
     /**
      * {@inheritDoc}
      */
     @Override
     public <V extends Serializable, T extends ISystemVariable<V>> int createSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveDaoException {
-        int size = 0;
+        final int size = 0;
         final Collection<IArchiveSample<V, T>> s = new ArrayList<IArchiveSample<V, T>>();
         for (final IArchiveSample<V, T> ss : samples) {
             final ArchiveSample<V, T> mySample = (ArchiveSample<V, T>) ss;
@@ -166,7 +168,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         }
         //   try {
         try {
-            size = getEngineMgr().submitToBatch(s);
+            ArchiveSampleBatchQueueCollector.getInstance().getArchiveSampleBatchQueueApplication().setValue(getEngineMgr().submitToBatch(s));
         } catch (final TypeSupportException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -175,7 +177,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         try {
             minuteSamples = generatePerMinuteSamples(s, _reducedDataMapForMinutes);
             if (minuteSamples.size() > 0) {
-                getEngineMgr().submitToBatch(minuteSamples);
+                ArchiveSampleBatchQueueCollector.getInstance().getArchiveSample_mBatchQueueApplication().setValue(getEngineMgr().submitToBatch(minuteSamples));
             }
         } catch (final TypeSupportException e1) {
             e1.printStackTrace();
@@ -184,8 +186,8 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         try {
             final List<HourReducedDataSample> hourSamples = generatePerHourSamples(minuteSamples, _reducedDataMapForHours);
             if (hourSamples.size() > 0) {
-                getEngineMgr().submitToBatch(hourSamples);
-            }
+                ArchiveSampleBatchQueueCollector.getInstance().getArchiveSample_hBatchQueueApplication().setValue(getEngineMgr().submitToBatch(hourSamples));
+           }
         } catch (final TypeSupportException e) {
              e.printStackTrace();
         }
@@ -218,6 +220,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                                                                                minValue,
                                                                                maxValue,
                                                                                time);
+            agg.setCount(sample.getCount());
             processHourSampleOnTimeCondition(hourSamples, channelId, newValue, time, agg, status, severty);
         }
         return hourSamples;
@@ -235,7 +238,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             final Double min = agg.getMin();
             final Double max = agg.getMax();
             if (avg != null && min != null && max != null) {
-                hourSamples.add(new HourReducedDataSample(channelId, time, avg, min, max, status, severty));
+                hourSamples.add(new HourReducedDataSample(channelId, time, avg, min, max, status, severty, agg.getCount()));
             }
             agg.reset();
         }
@@ -283,6 +286,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                                                                                    minValue,
                                                                                    maxValue,
                                                                                    time);
+                agg.setCount(1);
                 processMinuteSampleOnTimeCondition(minuteSamples, newValue, channelId, time, agg, status, severty);
 
             }
@@ -303,7 +307,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             final Double min = agg.getMin();
             final Double max = agg.getMax();
             if (avg != null && min != null && max != null) {
-                minuteSamples.add(new MinuteReducedDataSample(channelId, time, avg, min, max, status, severty));
+               minuteSamples.add(new MinuteReducedDataSample(channelId, time, avg, min, max, status, severty,agg.getCount()));
             }
             agg.reset();
         }

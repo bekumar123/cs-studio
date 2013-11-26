@@ -92,7 +92,7 @@ public class TineToJmsApplication implements IApplication,
         String xmppUser = preference.getString(TineToJmsActivator.PLUGIN_ID, PreferenceKeys.XMPP_USER, "", null);
         String xmppPassword = preference.getString(TineToJmsActivator.PLUGIN_ID, PreferenceKeys.XMPP_PASSWORD, "", null);
         XmppCredentials xmppCredentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
-        xmppService = new XmppSessionHandler(TineToJmsActivator.getBundleContext(), xmppCredentials);
+        xmppService = new XmppSessionHandler(TineToJmsActivator.getBundleContext(), xmppCredentials, true);
 
         appInfo = new ApplicationInfo("Tine2Jms",
                                       "This application is reading messages from TINE and sends them to the JMS provider.");
@@ -136,7 +136,7 @@ public class TineToJmsApplication implements IApplication,
         try {
             xmppService.connect();
         } catch (XmppSessionException e) {
-            LOG.warn("Cannot connect to the XMPP server.");
+            LOG.warn("Cannot connect to the XMPP server: ", e.getMessage());
         }
 
         // Wait until some time for XMPP login

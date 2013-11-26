@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="XmlRpcServer" id="org.csstudio.application.xmlrpc.server.XmlRpcServerProduct" application="org.csstudio.application.xmlrpc.server.ServerApplication" useFeatures="true" includeLaunchers="true">
+<product name="Doocs2EpicsGateway" id="org.csstudio.cagateway.Doocs2EpicsGatewayProduct" application="org.csstudio.cagateway.CAGatewayApplication" useFeatures="true" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>
 
    <launcherArgs>
       <programArgs>-plugincustomization plugin_customization.ini</programArgs>
-      <vmArgs>-Xms128m
- -Xmx768m 
--Djava.awt.headless=true</vmArgs>
+      <vmArgs>-Djava.awt.headless=true</vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
-   <launcher name="xmlrpc-server">
+
+   <launcher name="cagateway">
       <solaris/>
       <win useIco="false">
          <bmp/>
@@ -26,69 +25,28 @@
 
    <plugins>
       <plugin id="com.google.common"/>
-      <plugin id="com.google.inject"/>
-      <plugin id="com.google.protobuf"/>
       <plugin id="com.ibm.icu"/>
-      <plugin id="com.mysql.jdbc"/>
       <plugin id="javax.annotation"/>
       <plugin id="javax.mail"/>
       <plugin id="javax.servlet"/>
-      <plugin id="javax.servlet.jsp"/>
       <plugin id="javax.xml"/>
       <plugin id="org.antlr.runtime"/>
-      <plugin id="org.apache.commons.el"/>
-      <plugin id="org.apache.commons.logging"/>
-      <plugin id="org.apache.jasper"/>
       <plugin id="org.apache.log4j"/>
-      <plugin id="org.apache.lucene"/>
-      <plugin id="org.apache.lucene.analysis"/>
-      <plugin id="org.apache.lucene.core"/>
-      <plugin id="org.apache.lucene.highlighter"/>
-      <plugin id="org.apache.lucene.memory"/>
-      <plugin id="org.apache.lucene.misc"/>
-      <plugin id="org.apache.lucene.queries"/>
-      <plugin id="org.apache.lucene.snowball"/>
-      <plugin id="org.apache.lucene.spellchecker"/>
       <plugin id="org.apache.xerces"/>
       <plugin id="org.apache.xml.resolver"/>
       <plugin id="org.apache.xml.serializer"/>
-      <plugin id="org.csstudio.application.xmlrpc.server"/>
-      <plugin id="org.csstudio.apputil"/>
-      <plugin id="org.csstudio.apputil.ui"/>
-      <plugin id="org.csstudio.archive.common.reader"/>
-      <plugin id="org.csstudio.archive.common.requesttype"/>
-      <plugin id="org.csstudio.archive.common.service"/>
-      <plugin id="org.csstudio.archive.common.service.mysqlimpl"/>
-      <plugin id="org.csstudio.archive.reader"/>
-      <plugin id="org.csstudio.archive.vtype"/>
-      <plugin id="org.csstudio.csdata"/>
-      <plugin id="org.csstudio.dal"/>
-      <plugin id="org.csstudio.dal.ui"/>
+      <plugin id="org.csstudio.cagateway"/>
+      <plugin id="org.csstudio.common.log4j" fragment="true"/>
       <plugin id="org.csstudio.data"/>
-      <plugin id="org.csstudio.desy.common.product.log4j" fragment="true"/>
       <plugin id="org.csstudio.domain.common"/>
       <plugin id="org.csstudio.domain.desy"/>
-      <plugin id="org.csstudio.domain.desy.epics"/>
-      <plugin id="org.csstudio.domain.desy.ui"/>
-      <plugin id="org.csstudio.email"/>
-      <plugin id="org.csstudio.email.ui"/>
       <plugin id="org.csstudio.headless.common"/>
-      <plugin id="org.csstudio.java"/>
-      <plugin id="org.csstudio.logbook"/>
-      <plugin id="org.csstudio.openfile"/>
       <plugin id="org.csstudio.platform.libs.epics"/>
-      <plugin id="org.csstudio.platform.libs.jmock"/>
       <plugin id="org.csstudio.platform.libs.jms"/>
-      <plugin id="org.csstudio.platform.simpledal"/>
+      <plugin id="org.csstudio.platform.utility.jms"/>
       <plugin id="org.csstudio.remote"/>
       <plugin id="org.csstudio.servicelocator"/>
-      <plugin id="org.csstudio.swt.xygraph"/>
-      <plugin id="org.csstudio.ui.util"/>
       <plugin id="org.csstudio.utility.jms"/>
-      <plugin id="org.csstudio.utility.pv"/>
-      <plugin id="org.csstudio.utility.pvmanager"/>
-      <plugin id="org.csstudio.utility.pvmanager.vtype"/>
-      <plugin id="org.csstudio.utility.test"/>
       <plugin id="org.eclipse.ant.core"/>
       <plugin id="org.eclipse.core.commands"/>
       <plugin id="org.eclipse.core.contenttype"/>
@@ -97,11 +55,7 @@
       <plugin id="org.eclipse.core.databinding.property"/>
       <plugin id="org.eclipse.core.expressions"/>
       <plugin id="org.eclipse.core.filesystem"/>
-      <plugin id="org.eclipse.core.filesystem.linux.x86" fragment="true"/>
-      <plugin id="org.eclipse.core.filesystem.linux.x86_64" fragment="true"/>
-      <plugin id="org.eclipse.core.filesystem.solaris.sparc" fragment="true"/>
       <plugin id="org.eclipse.core.filesystem.win32.x86" fragment="true"/>
-      <plugin id="org.eclipse.core.filesystem.win32.x86_64" fragment="true"/>
       <plugin id="org.eclipse.core.jobs"/>
       <plugin id="org.eclipse.core.resources"/>
       <plugin id="org.eclipse.core.resources.win32.x86" fragment="true"/>
@@ -109,7 +63,6 @@
       <plugin id="org.eclipse.core.runtime.compatibility.auth"/>
       <plugin id="org.eclipse.core.runtime.compatibility.registry" fragment="true"/>
       <plugin id="org.eclipse.core.variables"/>
-      <plugin id="org.eclipse.draw2d"/>
       <plugin id="org.eclipse.ecf"/>
       <plugin id="org.eclipse.ecf.datashare"/>
       <plugin id="org.eclipse.ecf.filetransfer"/>
@@ -128,8 +81,6 @@
       <plugin id="org.eclipse.equinox.common"/>
       <plugin id="org.eclipse.equinox.concurrent"/>
       <plugin id="org.eclipse.equinox.ds"/>
-      <plugin id="org.eclipse.equinox.http.jetty"/>
-      <plugin id="org.eclipse.equinox.http.servlet"/>
       <plugin id="org.eclipse.equinox.p2.artifact.repository"/>
       <plugin id="org.eclipse.equinox.p2.core"/>
       <plugin id="org.eclipse.equinox.p2.director"/>
@@ -143,44 +94,24 @@
       <plugin id="org.eclipse.equinox.registry"/>
       <plugin id="org.eclipse.equinox.security"/>
       <plugin id="org.eclipse.equinox.security.win32.x86" fragment="true"/>
-      <plugin id="org.eclipse.equinox.security.win32.x86_64" fragment="true"/>
       <plugin id="org.eclipse.equinox.simpleconfigurator"/>
       <plugin id="org.eclipse.equinox.util"/>
       <plugin id="org.eclipse.help"/>
-      <plugin id="org.eclipse.help.base"/>
-      <plugin id="org.eclipse.help.ui"/>
       <plugin id="org.eclipse.jface"/>
       <plugin id="org.eclipse.jface.databinding"/>
-      <plugin id="org.eclipse.jface.text"/>
       <plugin id="org.eclipse.osgi"/>
       <plugin id="org.eclipse.osgi.services"/>
       <plugin id="org.eclipse.swt"/>
-      <plugin id="org.eclipse.swt.gtk.linux.x86" fragment="true"/>
-      <plugin id="org.eclipse.swt.gtk.linux.x86_64" fragment="true"/>
-      <plugin id="org.eclipse.swt.gtk.solaris.sparc" fragment="true"/>
       <plugin id="org.eclipse.swt.win32.win32.x86" fragment="true"/>
-      <plugin id="org.eclipse.swt.win32.win32.x86_64" fragment="true"/>
-      <plugin id="org.eclipse.text"/>
       <plugin id="org.eclipse.ui"/>
-      <plugin id="org.eclipse.ui.cheatsheets"/>
-      <plugin id="org.eclipse.ui.forms"/>
-      <plugin id="org.eclipse.ui.ide"/>
-      <plugin id="org.eclipse.ui.intro"/>
-      <plugin id="org.eclipse.ui.views"/>
-      <plugin id="org.eclipse.ui.win32" fragment="true"/>
       <plugin id="org.eclipse.ui.workbench"/>
       <plugin id="org.epics.util"/>
-      <plugin id="org.epics.vtype"/>
-      <plugin id="org.hamcrest"/>
       <plugin id="org.hamcrest.core"/>
       <plugin id="org.jdom"/>
       <plugin id="org.jivesoftware.smack"/>
       <plugin id="org.joda.time"/>
       <plugin id="org.junit"/>
       <plugin id="org.junit4"/>
-      <plugin id="org.mockito"/>
-      <plugin id="org.mortbay.jetty.server"/>
-      <plugin id="org.mortbay.jetty.util"/>
       <plugin id="org.remotercp.common"/>
       <plugin id="org.remotercp.domain.authorization"/>
       <plugin id="org.remotercp.domain.preferences"/>
@@ -198,12 +129,10 @@
    </plugins>
 
    <features>
-      <feature id="org.csstudio.application.xmlrpc.server.feature" version="1.0.0.qualifier"/>
+      <feature id="org.csstudio.cagateway.feature" version="1.0.0.qualifier"/>
    </features>
 
    <configurations>
-      <plugin id="org.csstudio.archive.common.service" autoStart="true" startLevel="0" />
-      <plugin id="org.csstudio.archive.common.service.mysqlimpl" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="0" />

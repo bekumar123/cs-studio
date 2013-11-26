@@ -27,14 +27,14 @@
       </command>
    </extension>
    <extension
-         id="DoocsCaGatewayProduct"
+         id="Doocs2EpicsGatewayProduct"
          point="org.eclipse.core.runtime.products">
       <product
             application="org.csstudio.cagateway.CAGatewayApplication"
-            name="DoocsCaGateway">
+            name="Doocs2EpicsGateway">
          <property
                name="appName"
-               value="DoocsCaGateway">
+               value="Doocs2EpicsGateway">
          </property>
       </product>
    </extension>

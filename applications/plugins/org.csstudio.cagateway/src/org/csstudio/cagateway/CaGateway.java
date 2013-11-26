@@ -32,7 +32,7 @@ public class CaGateway implements IApplication, RemotelyAccessible, ISignalRecei
         String xmppPassword = CAGatewayPreference.XMPP_PASSWORD.getValue();
         XmppCredentials credentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
         xmppSessionHandler = new XmppSessionHandler(Activator.getBundleContext(), credentials, true);
-        appInfo = new ApplicationInfo("DoocsCAServer", "DOOCS TO EPICS CA-Gateway");
+        appInfo = new ApplicationInfo("Doocs2EpicsCAServer", "DOOCS TO EPICS CA-Gateway");
 	}
 
 	@Override
@@ -49,7 +49,7 @@ public class CaGateway implements IApplication, RemotelyAccessible, ISignalRecei
 	    try {
 	        xmppSessionHandler.connect();
 	    } catch (XmppSessionException e) {
-	        LOG.warn("Cannot connect to the XMPP server.");
+	        LOG.warn("Cannot connect to the XMPP server: {}", e.getMessage());
 	    }
 
         try {

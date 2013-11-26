@@ -632,9 +632,15 @@ public class ProfiBusTreeView extends Composite implements ILoader {
             public void run() {
                 if (getSelectedNodes().getFirstElement() instanceof SlaveDBO) {
                     final SlaveDBO selectedSlave = (SlaveDBO) getSelectedNodes().getFirstElement();                                   
-                    ChannelConfigDialog channelConfigDialog = new ChannelConfigDialog(Display.getCurrent()
-                            .getActiveShell(), selectedSlave);                    
-                    channelConfigDialog.open();
+                    ChannelConfigDialog channelConfigDialog;
+                    try {
+                        channelConfigDialog = new ChannelConfigDialog(Display.getCurrent()
+                                .getActiveShell(), selectedSlave);
+                        channelConfigDialog.open();
+                    } catch (PersistenceException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }                    
                 }
             }
         };

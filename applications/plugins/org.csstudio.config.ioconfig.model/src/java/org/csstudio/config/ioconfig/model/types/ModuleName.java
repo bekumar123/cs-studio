@@ -4,7 +4,7 @@ public class ModuleName {
 
     private final String value;
 
-    public ModuleName(String value) {
+    public ModuleName(final String value) {
         super();
         this.value = value;
     }

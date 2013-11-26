@@ -1,7 +1,5 @@
 package org.csstudio.config.ioconfig.config.component;
 
-import java.util.Map;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -18,7 +16,6 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
-import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -31,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 
 public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider, IRefreshable {
 
@@ -96,7 +92,12 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
                 Object[] elements = new Object[]{moduleList.getObject(selectedModuleNumber)};
                 moduleTypList.setSelection(new StructuredSelection(elements));
                 if (moduleSelectionListBoxConfigurator.isAutoFilter()) {
-                    filter.setText(selectModuleName.get().getValue());
+                    Optional<String> version = selectedModuleNumber.get().getVersionAsString();
+                    String versionInfo = "";
+                    if (version.isPresent()) {
+                        versionInfo = version.get();
+                    }
+                    filter.setText(selectModuleName.get().getValue() + versionInfo);
                 }
             }
         }
@@ -146,6 +147,10 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
         moduleTypList.getTable().select(0);
     }
 
+    public StructuredSelection getStructuredSelection() {
+        return (StructuredSelection)moduleTypList.getSelection();
+    }
+    
     public void refresh() {
         moduleTypList.refresh();
     }
@@ -164,22 +169,18 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
             return;
         }
 
-        if (Strings.nullToEmpty(filter.getText()).isEmpty()) {
-            return;
-        }
-
         moduleTypList.addFilter(new ViewerFilter() {
 
             @Override
             public boolean select(@Nullable final Viewer viewer, @Nullable final Object parentElement,
                     @Nullable final Object element) {
-                if (element instanceof GsdModuleModel2) {
-                    final GsdModuleModel2 gsdModuleModel = (GsdModuleModel2) element;
+                if (element instanceof GSDModuleDBO) {
+                    final GSDModuleDBO gsdModuleDbo = (GSDModuleDBO) element;
                     if (filter.getText() == null || filter.getText().length() < 1) {
                         return true;
                     }
                     final String filterString = ".*" + filter.getText().replaceAll("\\*", ".*") + ".*";
-                    return gsdModuleModel.toString().matches(filterString);
+                    return gsdModuleDbo.getName().toString().matches(filterString);
                 }
                 return false;
             }
@@ -193,26 +194,17 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
                 @Override
                 public boolean select(@Nullable final Viewer viewer, @Nullable final Object parentElement,
                         @Nullable final Object element) {
-                    if (element instanceof GsdModuleModel2) {
-                        final GsdModuleModel2 gmm = (GsdModuleModel2) element;
-                        return hasProtype(ModuleNumber.moduleNumber(gmm.getModuleNumber()));
+                    if (element instanceof GSDModuleDBO) {
+                        final GSDModuleDBO gsdModuleDbo = (GSDModuleDBO) element;  
+                        final Optional<ModuleNumber> moduleNumber = ModuleNumber.moduleNumber(gsdModuleDbo.getModuleId());
+                        final boolean display = moduleList.hasPrototype(moduleNumber);
+                        return display;
                     }
                     return true;
                 }
             });
         }
 
-    }
-
-    private boolean hasProtype(Optional<ModuleNumber> moduleNumber) {
-        if (!moduleNumber.isPresent()) {
-            return false;
-        }
-        GSDModuleDBO module = null;
-        if (gsdFile != null) {
-            module = gsdFile.getGSDModule(moduleNumber.get().getModuleNumberWithoutVersionInfo());
-        }
-        return module != null;
     }
     
     /**

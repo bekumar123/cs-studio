@@ -492,10 +492,25 @@ public class ModuleDBO extends AbstractNodeSharedImpl<SlaveDBO, ChannelStructure
         if (getSortIndex() != null) {
             sb.append(getSortIndex());
         }
-        sb.append('[').append(getModuleNumber()).append(']');
+        
+        Optional<ModuleNumber> moduleNumber = ModuleNumber.moduleNumber(getModuleNumber());
+        String moduleNumberAsString;
+        Optional <String> versionNumber = Optional.absent();
+        if (moduleNumber.isPresent()) {
+            moduleNumberAsString = moduleNumber.get().getModuleNumberWithoutVersionInfo().toString();
+            versionNumber = moduleNumber.get().getVersionAsString();
+        } else {
+            moduleNumberAsString = "?";
+        }
+        sb.append('[').append(moduleNumberAsString).append(']');
         if (getName() != null) {
             sb.append(':').append(getName());
+        }        
+        
+        if (versionNumber.isPresent()) {
+            sb.append(" " + versionNumber.get());
         }
+        
         return sb.toString();
     }
 

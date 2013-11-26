@@ -6,11 +6,14 @@ import com.google.common.base.Preconditions;
 
 public class ModuleNumber implements Comparable<ModuleNumber> {
 
+    private final static int GAP = 10000;
+    
     private final Integer value;
 
+    public static ModuleNumber NON_EXISTING_MODULE = new ModuleNumber(-1000); 
+            
     private ModuleNumber(Integer value) {
         Preconditions.checkNotNull(value, "value must not be null");
-        Preconditions.checkArgument(value >= 0, "value msut be >= 0");
         this.value = value;
     }
 
@@ -39,8 +42,10 @@ public class ModuleNumber implements Comparable<ModuleNumber> {
     }
 
     public Integer getModuleNumberWithoutVersionInfo() {
-        if (value > 10000) {
-            return value - 10000;
+        if (value > GAP) {
+            int factor = value / GAP;
+            
+            return value - (factor * GAP);
         } else {
             return value;
         }
@@ -70,11 +75,7 @@ public class ModuleNumber implements Comparable<ModuleNumber> {
     }
 
     private Double asDouble() {
-        if (value > 10000) {
-            return getModuleNumberWithoutVersionInfo() + 0.1;
-        } else {
-            return value * 1.0;
-        }
+        return (getModuleNumberWithoutVersionInfo() * 1.0) + (0.01 * getVersion());
     }
     
     public int compareTo(ModuleNumber moduleNumber) {
@@ -83,6 +84,30 @@ public class ModuleNumber implements Comparable<ModuleNumber> {
             return n1.compareTo(moduleNumber.asDouble());
         }
         return 0;
+    }
+
+    public boolean isVersioned() {
+        return getVersion() > 0;
+    }
+    
+    public Integer getVersion() {
+        if (value < GAP) {
+            return 0;
+        } else {
+            return value / GAP;
+        }
+    }
+    
+    public Optional<String> getVersionAsString() {
+        if (getVersion() == 0) {
+            return Optional.absent();
+        } else {
+            return Optional.of(" [#" + getVersion() + "]");
+        }
+    }
+
+    public ModuleNumber newVersion(int version) {
+        return new ModuleNumber(value + (GAP * version));
     }
 
 }

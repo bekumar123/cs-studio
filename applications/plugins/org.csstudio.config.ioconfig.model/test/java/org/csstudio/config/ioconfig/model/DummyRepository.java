@@ -16,6 +16,7 @@ import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.service.internal.Channel4ServicesDBO;
 import org.csstudio.config.ioconfig.model.types.GsdFileId;
 import org.csstudio.config.ioconfig.model.types.ModuleList;
+import org.csstudio.config.ioconfig.model.types.PrototypeList;
 
 /**
  * @author hrickens
@@ -196,6 +197,5 @@ public class DummyRepository implements IRepository {
         // TODO Auto-generated method stub
         return null;
     }
-
 
 }

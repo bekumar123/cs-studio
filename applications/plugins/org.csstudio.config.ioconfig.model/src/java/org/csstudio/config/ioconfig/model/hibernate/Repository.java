@@ -40,9 +40,11 @@ import org.csstudio.config.ioconfig.model.PersistenceException;
 import org.csstudio.config.ioconfig.model.SensorsDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ChannelDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDFileDBO;
+import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.service.internal.Channel4ServicesDBO;
 import org.csstudio.config.ioconfig.model.types.GsdFileId;
 import org.csstudio.config.ioconfig.model.types.ModuleList;
+import org.csstudio.config.ioconfig.model.types.PrototypeList;
 
 /**
  * @author gerke
@@ -160,7 +162,7 @@ public final class Repository {
     public static ModuleList loadModules(@Nonnull final GsdFileId gsdFileId) throws PersistenceException {
         return _REPOSITORY.loadModules(gsdFileId);
     }
-
+   
     /**
      *
      * @param forceRefresh if true load new from the DB, otherwise get the cache.
@@ -229,10 +231,6 @@ public final class Repository {
 
     public static <T> void refresh (@Nonnull final T dbClass) throws PersistenceException {
         _REPOSITORY.refresh(dbClass);
-    }
-
-    public static <T> void detach (@Nonnull final T dbClass) throws PersistenceException {
-        _REPOSITORY.detach(dbClass);
     }
 
     /**

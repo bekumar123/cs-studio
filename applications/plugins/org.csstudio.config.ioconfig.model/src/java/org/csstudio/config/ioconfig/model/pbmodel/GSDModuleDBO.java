@@ -49,6 +49,7 @@ import javax.persistence.UniqueConstraint;
 import org.csstudio.config.ioconfig.model.DBClass;
 import org.csstudio.config.ioconfig.model.DocumentDBO;
 import org.csstudio.config.ioconfig.model.IDocumentable;
+import org.csstudio.config.ioconfig.model.types.ModuleNumber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,6 +140,11 @@ public class GSDModuleDBO extends DBClass implements Comparable<GSDModuleDBO>, I
 
     public int getModuleId() {
         return _moduleId;
+    }
+
+    @Transient
+    public ModuleNumber getModuleNumber() {
+        return ModuleNumber.moduleNumber(_moduleId).get();
     }
 
     public void setModuleId(final int moduleId) {
@@ -262,9 +268,9 @@ public class GSDModuleDBO extends DBClass implements Comparable<GSDModuleDBO>, I
 
     /**
      *  Die Tabellen MIME_FILES und MIME_FILES_DDB_MCPROTOTYPE liegen auf einer anderen DB.
-     *  Daher wird hier mit einem Link gearbeitet der folgenden Rechte benötigt.
-     *  -  Für MIME_FILES ist das Grant: select.
-     *  -  Für MIME_FILES_DDB_MCPROTOTYPE ist das Grant: select, insert, update, delete.
+     *  Daher wird hier mit einem Link gearbeitet der folgenden Rechte benoetigt.
+     *  -  Fuer MIME_FILES ist das Grant: select.
+     *  -  Fuer MIME_FILES_DDB_MCPROTOTYPE ist das Grant: select, insert, update, delete.
      *
      * @return Documents for the Node.
      */

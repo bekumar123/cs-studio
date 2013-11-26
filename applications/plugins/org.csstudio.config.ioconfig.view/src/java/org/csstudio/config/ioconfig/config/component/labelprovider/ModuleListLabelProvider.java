@@ -12,6 +12,7 @@ import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.SlaveCfgData;
 import org.csstudio.config.ioconfig.model.pbmodel.SlaveCfgDataBuilder;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdModuleModel2;
+import org.csstudio.config.ioconfig.model.types.ModuleNumber;
 import org.csstudio.ui.util.CustomMediaFactory;
 import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.IFontProvider;
@@ -21,6 +22,8 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Table;
+
+import com.google.common.base.Optional;
 
 /**
  * @author hrickens
@@ -73,7 +76,8 @@ public class ModuleListLabelProvider extends LabelProvider implements IFontProvi
      *            the Table how use this LabelProvider.
      * @param file
      */
-    public ModuleListLabelProvider(@Nonnull final Table table, IModuleSelectionListBoxConfig moduleSelectionListBoxConfig) {
+    public ModuleListLabelProvider(@Nonnull final Table table,
+            IModuleSelectionListBoxConfig moduleSelectionListBoxConfig) {
 
         this.moduleSelectionListBoxConfig = moduleSelectionListBoxConfig;
 
@@ -173,8 +177,18 @@ public class ModuleListLabelProvider extends LabelProvider implements IFontProvi
     @Override
     @Nonnull
     public final String getText(@Nonnull final Object element) {
-        if (element instanceof GsdModuleModel2) {
-            return ((GsdModuleModel2) element).getModuleNumber() + " : " + element.toString();
+        if (element instanceof GSDModuleDBO) {
+            Optional<ModuleNumber> moduleNumber = ModuleNumber.moduleNumber(((GSDModuleDBO) element).getModuleId());
+            if (moduleNumber.isPresent()) {
+                String moduleNumberAsString = String.valueOf(moduleNumber.get().getModuleNumberWithoutVersionInfo());
+                Optional<String> versionNumber = moduleNumber.get().getVersionAsString();
+                String text = moduleNumberAsString + " : " + element.toString();
+                if (versionNumber.isPresent()) {
+                    return text + " " +  versionNumber.get();
+                } else {
+                    return text;                  
+                }
+            }
         }
         return element.toString();
     }

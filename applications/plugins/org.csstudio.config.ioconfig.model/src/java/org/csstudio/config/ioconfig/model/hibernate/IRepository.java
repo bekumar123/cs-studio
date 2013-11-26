@@ -15,9 +15,11 @@ import org.csstudio.config.ioconfig.model.PersistenceException;
 import org.csstudio.config.ioconfig.model.SensorsDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ChannelDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDFileDBO;
+import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.service.internal.Channel4ServicesDBO;
 import org.csstudio.config.ioconfig.model.types.GsdFileId;
 import org.csstudio.config.ioconfig.model.types.ModuleList;
+import org.csstudio.config.ioconfig.model.types.PrototypeList;
 
 /**
  *
@@ -188,7 +190,7 @@ public interface IRepository {
      * @return
      */
     ModuleList loadModules(@Nonnull final GsdFileId gsdFileId) throws PersistenceException; 
-    
+        
     /**
      * Load the short Description (max. 40 character) selected by the IO Name.
      * @param ioName the selection IO-Name.

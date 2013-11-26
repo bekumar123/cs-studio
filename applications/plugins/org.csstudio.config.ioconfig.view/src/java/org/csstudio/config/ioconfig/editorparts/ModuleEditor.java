@@ -293,7 +293,7 @@ public final class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
                     setPartName(moduleName.get().getValue());
                     getNameWidget().setText(moduleName.get().getValue());
                 } else {
-                    throw new IllegalStateException("Can't determine modul name for module-id "
+                    throw new IllegalStateException("Can't determine module name for module-id "
                             + selectedModuleNumber.get().getValue() + ".");
                 }
 

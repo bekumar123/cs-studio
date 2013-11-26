@@ -30,6 +30,7 @@ import org.csstudio.config.ioconfig.model.service.internal.Channel4ServicesDBO;
 import org.csstudio.config.ioconfig.model.types.GsdFileId;
 import org.csstudio.config.ioconfig.model.types.ModuleList;
 import org.csstudio.config.ioconfig.model.types.ModuleNumber;
+import org.csstudio.config.ioconfig.model.types.PrototypeList;
 import org.hibernate.HibernateException;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
@@ -50,6 +51,8 @@ import com.google.common.base.Optional;
  */
 public class HibernateRepository implements IRepository {
 
+    private static final int MAX_IN_SIZE = 900;
+    
     /**
      * @author hrickens
      * @since 24.01.2012
@@ -620,7 +623,31 @@ public class HibernateRepository implements IRepository {
                     }
                 });
 
-                return new ModuleList(result);
+                List<ModuleChannelPrototypeDBO> prototypeInfo = new ArrayList<ModuleChannelPrototypeDBO>();
+                
+                int fromIndex = 0;
+                int toIndex = result.size();
+                
+                if (toIndex > MAX_IN_SIZE) {
+                    toIndex = MAX_IN_SIZE;
+                }
+                
+                if (false) {
+                while (true) {
+                    final Query prototypeQuery = session.createQuery("from " + ModuleChannelPrototypeDBO.class.getName()
+                        + " as m where m.GSDModule in (:modules)");
+                    prototypeQuery.setParameterList("modules", result.subList(fromIndex, toIndex));                
+                    prototypeInfo.addAll( prototypeQuery.list());
+                    if (toIndex < result.size()) {
+                        fromIndex = toIndex;
+                        toIndex = fromIndex + MAX_IN_SIZE;
+                        if (toIndex > result.size()) {
+                            toIndex = result.size();
+                        }
+                    }
+                }
+                }
+                return new ModuleList(result, new PrototypeList(prototypeInfo));
             }
         };
         return _instance.doInDevDBHibernateEager(hibernateCallback);
@@ -728,42 +755,6 @@ public class HibernateRepository implements IRepository {
             LOG.warn("Save or update failed", he);
             final PersistenceException persistenceException = new PersistenceException(he);
             throw persistenceException;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Nonnull
-    public final GSDModuleDBO saveWithChildren(@Nonnull final GSDModuleDBO gsdModule) throws PersistenceException {
-        try {
-            _instance.doInDevDBHibernateLazy(new IHibernateCallback() {
-                private Session _session;
-
-                @SuppressWarnings("unchecked")
-                @Override
-                @Nonnull
-                public GSDModuleDBO execute(@Nonnull final Session session) {
-                    _session = session;
-                    final Set<ModuleChannelPrototypeDBO> values = gsdModule.getModuleChannelPrototypeNH();
-                    _session.saveOrUpdate(gsdModule);
-                    if (values != null && values.size() > 0) {
-                        saveChildren(values);
-                    }
-                    _session.flush();
-                    return gsdModule;
-                }
-
-                private void saveChildren(@Nonnull final Set<ModuleChannelPrototypeDBO> moduleChannelPrototypes) {
-                    for (final ModuleChannelPrototypeDBO prototype : moduleChannelPrototypes) {
-                        _session.saveOrUpdate(prototype);
-                    }
-                }
-            });
-            return gsdModule;
-        } catch (final HibernateException he) {
-            LOG.warn("Can't save", he);
-            throw new PersistenceException(he);
         }
     }
 

@@ -28,21 +28,20 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.csstudio.config.ioconfig.config.component.GridCompositeFactory;
 import org.csstudio.config.ioconfig.config.component.ModuleSelectionListBox;
 import org.csstudio.config.ioconfig.config.component.WatchableValue;
 import org.csstudio.config.ioconfig.config.view.IHasDocumentableObject;
 import org.csstudio.config.ioconfig.config.view.dialog.prototype.components.ChannelConfigDialogDataModel;
 import org.csstudio.config.ioconfig.config.view.dialog.prototype.components.InfoAreaComponent;
+import org.csstudio.config.ioconfig.config.view.dialog.prototype.components.NewVersionDialog;
 import org.csstudio.config.ioconfig.config.view.dialog.prototype.components.table.ChannelTableComponent;
 import org.csstudio.config.ioconfig.config.view.helper.DocumentationManageView;
 import org.csstudio.config.ioconfig.model.IDocumentable;
 import org.csstudio.config.ioconfig.model.PersistenceException;
-import org.csstudio.config.ioconfig.model.hibernate.Repository;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ModuleChannelPrototypeDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.SlaveDBO;
-import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdModuleModel2;
-import org.csstudio.config.ioconfig.model.types.GsdFileId;
 import org.csstudio.config.ioconfig.model.types.ModuleList;
 import org.csstudio.config.ioconfig.model.types.ModuleNumber;
 import org.csstudio.config.ioconfig.view.DeviceDatabaseErrorDialog;
@@ -70,11 +69,15 @@ import org.eclipse.swt.widgets.TabItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Optional;
+
 public final class ChannelConfigDialog extends Dialog implements IHasDocumentableObject, ISelectedTab {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ChannelConfigDialog.class);
 
     private final static int SAVE_BUTON_ID = 29123812;
+
+    private final static int CREATE_PROTOTYPE_ID = 23123812;
 
     private WatchableValue<Boolean> dirty;
 
@@ -83,10 +86,12 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
     private TabFolder ioTabFolder;
     private InfoAreaComponent infoAreaComponent;
     private DocumentationManageView documentationManageView;
-
+    private ModuleSelectionListBox moduleSelectionListBox;
+    
     private ChannelConfigDialogDataModel channelConfigDialogDataModel;
     private RemoveChannelPrototypeModelSelectionListener removeChannelPrototypeModelSelectionListener;
 
+    private Button createPrototypeButton;
     private Button addButton;
     private Button removeButton;
     private Button saveButton;
@@ -96,10 +101,13 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
     private TabItem outputTabItem;
 
     // @formatter:on
-    public ChannelConfigDialog(@Nullable final Shell parentShell, SlaveDBO selectedSlave) {
+    public ChannelConfigDialog(@Nullable final Shell parentShell, SlaveDBO selectedSlave) throws PersistenceException {
         //@formatter:off                
-        super(parentShell);      
-        channelConfigDialogDataModel = new ChannelConfigDialogDataModel(selectedSlave, selectedSlave.retrieveModuleList());        
+        super(parentShell);     
+        selectedSlave.getGSDFile();
+        ModuleList moduleList = selectedSlave.retrieveModuleList();
+        moduleList.createMissingModules(selectedSlave.getGSDFile());
+        channelConfigDialogDataModel = new ChannelConfigDialogDataModel(selectedSlave, moduleList);        
         setShellStyle(SWT.APPLICATION_MODAL | SWT.TITLE | SWT.BORDER);      
         dirty = new WatchableValue<Boolean>();
         dirty.addListener(new PropertyChangeListener() {            
@@ -196,21 +204,37 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
                         
         ((GridLayout) parent.getLayout()).numColumns = 2;
         ((GridData) parent.getLayoutData()).horizontalAlignment = SWT.FILL;
-        GridData layoutData;
-        GridLayout gridLayout;
-
-        // Button Left side
-        final Composite left = new Composite(parent, SWT.NONE);
-        layoutData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING | GridData.VERTICAL_ALIGN_CENTER);
-        layoutData.grabExcessHorizontalSpace = true;
-        layoutData.horizontalIndent = 350;
-        left.setLayoutData(layoutData);
-        gridLayout = new GridLayout(0, true);
-        gridLayout.marginWidth = 0;
-        gridLayout.marginHeight = 0;
-        left.setLayout(gridLayout);
+      
+        final Composite outerComposite = new GridCompositeFactory().parent(parent).column(2).assignLayoutData().build();   
+        final Composite farLeft =  new GridCompositeFactory().parent(outerComposite).build();
+        final Composite left = new GridCompositeFactory().parent(outerComposite).marginLeft(60).assignLayoutData().build();
         
-        addButton = createButton(left, IDialogConstants.NEXT_ID, Messages.ChannelConfigDialog_Add, false);        
+        createPrototypeButton = createButton(farLeft, CREATE_PROTOTYPE_ID, "New Version", false);
+        
+        createPrototypeButton.addSelectionListener(new SelectionListener() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                try {
+                    NewVersionDialog newVersionDialog = new NewVersionDialog(Display.getCurrent().getActiveShell(), "", "");
+                    if (newVersionDialog.open() == Dialog.OK) {
+                        channelConfigDialogDataModel.createNewVersion(channelConfigDialogDataModel.getCurrentModuleNumber());
+                        moduleSelectionListBox.refresh();
+                    }
+                } catch (PersistenceException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+            
+        });
+        
+        addButton = createButton(left, IDialogConstants.NEXT_ID, Messages.ChannelConfigDialog_Add, false);   
+        
         //@formatter:off
         addButton.addSelectionListener(new AddChannelPrototypeModelSelectionListener(
                 this, 
@@ -248,15 +272,15 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
 
         updateGuiStateFromDataModel();
 
-        // Button Left side
-        final Composite right = new Composite(parent, SWT.NONE);
-        layoutData = new GridData(GridData.HORIZONTAL_ALIGN_END | GridData.VERTICAL_ALIGN_CENTER);
-        right.setLayoutData(layoutData);
-        gridLayout = new GridLayout(0, true);
-        gridLayout.marginWidth = 0;
-        gridLayout.marginHeight = 0;
-        right.setLayout(gridLayout);
-
+        // Button right side
+        //@formatter:off
+        final Composite right = new GridCompositeFactory()
+            .parent(parent)
+            .horizontalAlignment(GridData.HORIZONTAL_ALIGN_END)
+            .assignLayoutData()
+            .build();
+            //@formatter::on
+       
         saveButton = createButton(right, SAVE_BUTON_ID, "Save", false);
         saveButton.addSelectionListener(new SelectionListener() {
             @Override
@@ -300,18 +324,19 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
         }
 
         GridData gridDataParent = (GridData) parent.getLayoutData();
-        gridDataParent.heightHint = 700;
+        gridDataParent.heightHint = 600;
         gridDataParent.widthHint = 1200;
+        gridDataParent.grabExcessHorizontalSpace = true;
+        gridDataParent.grabExcessVerticalSpace = false;
 
         final Composite gridComposite = new Composite(parent, SWT.NONE);
-        GridData gridData = new GridData(SWT.NONE, SWT.NONE, true, true);
+        GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
         gridComposite.setLayout(new GridLayout(3, false));
         gridComposite.setLayoutData(gridData);
 
         try {
             buildModuleTypList(parent, gridComposite);
         } catch (PersistenceException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             return null;
         }
@@ -353,13 +378,13 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
         gridComposite.setLayout(new GridLayout(2, false));
 
         //@formatter:off
-        ModuleSelectionListBox moduleSelectionListBox = new ModuleSelectionListBox(
+        moduleSelectionListBox = new ModuleSelectionListBox(
                 gridComposite, 
                 channelConfigDialogDataModel.getModulelist(),
                 channelConfigDialogDataModel.getGsdFileDBO(),
                 ModuleNumber.moduleNumber(channelConfigDialogDataModel.getCurrentModuleNumber().getValue()));
                 //@formatter:on
-        
+
         moduleSelectionListBox.buildComponent();
 
         moduleSelectionListBox.addSelectionChangedListener(new ISelectionChangedListener() {
@@ -383,22 +408,26 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
                     throw new IllegalStateException("outputTable must not be null");
                 }
 
-                IStructuredSelection structuredSelection = (IStructuredSelection) event.getSelection();
-                final GSDModuleDBO selectedModule = (GSDModuleDBO) (structuredSelection.getFirstElement());
+                if (channelConfigDialogDataModel == null) {
+                    throw new IllegalStateException("channelConfigDialogDataModel must not be null");
+                }
 
-                channelConfigDialogDataModel.refreshDataModel(ModuleNumber.moduleNumber(selectedModule.getModuleId()).get());
+                Optional<ModuleNumber> selectedModuleNumber = getSelectedModuleNumber(moduleSelectionListBox, event);
 
+                if (selectedModuleNumber.isPresent()) {
+                    ModuleNumber moduleNumber = selectedModuleNumber.get();
+                   createPrototypeButton.setEnabled(!moduleNumber.isVersioned());
+                } else {
+                    createPrototypeButton.setEnabled(false);                    
+                }
+                
+                channelConfigDialogDataModel.refreshDataModel(selectedModuleNumber);
                 inputTable.setData(channelConfigDialogDataModel.getInputChannelPrototypeModelList());
                 outputTable.setData(channelConfigDialogDataModel.getOutputChannelPrototypeModelList());
 
-                updateGuiStateFromDataModel();
+                infoAreaComponent.refresh(channelConfigDialogDataModel.getSlaveCfgDataList());
 
-                Display.getCurrent().asyncExec(new Runnable() {
-                    @Override
-                    public void run() {
-                        infoAreaComponent.refresh(channelConfigDialogDataModel.getSlaveCfgDataList());
-                    }
-                });
+                updateGuiStateFromDataModel();
 
             }
 
@@ -406,6 +435,29 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
 
         moduleSelectionListBox.selectFirstRow();
 
+    }
+
+    private Optional<ModuleNumber> getSelectedModuleNumber(ModuleSelectionListBox moduleSelectionListBox,
+            SelectionChangedEvent event) {
+
+        IStructuredSelection structuredSelection = (IStructuredSelection) event.getSelection();
+        GSDModuleDBO selectedModule = (GSDModuleDBO) (structuredSelection.getFirstElement());
+
+        if (selectedModule != null) {
+            return ModuleNumber.moduleNumber(selectedModule.getModuleId());
+        }
+
+        // no module selected => select firsts row
+        moduleSelectionListBox.selectFirstRow();
+        structuredSelection = moduleSelectionListBox.getStructuredSelection();
+        selectedModule = (GSDModuleDBO) (structuredSelection.getFirstElement());
+
+        if (selectedModule != null) {
+            return ModuleNumber.moduleNumber(selectedModule.getModuleId());
+        }
+
+        // no modules found -> maybe because of filter expression
+        return Optional.absent();
     }
 
     @Nonnull

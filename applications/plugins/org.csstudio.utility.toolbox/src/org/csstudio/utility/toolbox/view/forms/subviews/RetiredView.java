@@ -26,10 +26,10 @@ public class RetiredView extends AbstractSubView<ArticleRetired>{
 		wf.combo(composite, "ausgemustertDurch").label("User:").data(logUserService.findAll()).hint("wrap").build();
 	
 		wf.date(composite, "ausgemustertAm").label("Date:").hint("gaptop 5, wrap").build();
-
+	         
 		wf.text(composite, "begruendung").multiLine().label("Reason:", "wrap").hint("spanx 7, h 90!, growx, wrap")
 			.build();
-
+		 
 		return new Some<Composite>(composite);
 	}
 

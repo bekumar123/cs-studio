@@ -15,12 +15,14 @@ import javax.annotation.Nullable;
 
 import org.csstudio.archive.common.service.ArchiveServiceException;
 import org.csstudio.archive.reader.ArchiveReader;
+import org.csstudio.archive.vtype.trendplotter.VTypeHelper;
 import org.csstudio.common.trendplotter.Messages;
 import org.csstudio.common.trendplotter.preferences.Preferences;
-import org.csstudio.data.values.IValue;
 import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
 import org.csstudio.swt.xygraph.dataprovider.IDataProviderListener;
 import org.csstudio.swt.xygraph.linearscale.Range;
+import org.epics.vtype.VType;
+import org.epics.vtype.ValueUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -140,11 +142,11 @@ public class PVSamples extends PlotSamples
             return raw;
         }
         final PlotSample last = getSample(raw-1);
-        if (! last.getValue().getSeverity().hasValue()) {
-            return raw;
+        if (VTypeHelper.getSeverity(last.getValue())!=null) {
+            return raw+1;
         }
         // Last sample is valid, so it should still apply 'now'
-        return raw+1;
+        return raw;
     }
 
     /** @return Size of the actual historic and liveSamples samples
@@ -162,12 +164,14 @@ public class PVSamples extends PlotSamples
     synchronized public PlotSample getSample(final int index)
     {
         final int raw_count = getRawSize();
+
         if (index < raw_count) {
             return getRawSample(index);
         }
-        // Last sample is valid, so it should still apply 'now'
         final PlotSample sample = getRawSample(raw_count-1);
-        return ValueButcher.changeTimestampToNow(sample);
+        return  new PlotSample(sample.getSource(), VTypeHelper.transformTimestampToNow(sample.getValue()));
+            
+         // return ValueButcher.changeTimestampToNow(sample);
     }
 
     /** Get 'raw' sample, no continuation until 'now'
@@ -252,7 +256,7 @@ public class PVSamples extends PlotSamples
     synchronized public void mergeArchivedData(final String channel_name,
                                                final ArchiveReader reader,
                                                final RequestType requestType,
-                                               final List<IValue> result)
+                                               final List<VType> result)
                                                throws OsgiServiceUnavailableException,
                                                       ArchiveServiceException
     {
@@ -262,10 +266,11 @@ public class PVSamples extends PlotSamples
     /** Add another 'liveSamples' sample
      *  @param value 'Live' sample
      */
-    synchronized public void addLiveSample(IValue value)
+    synchronized public void addLiveSample(VType value)
     {
-        if (! value.getTime().isValid()) {
-            value = ValueButcher.changeTimestampToNow(value);
+        if (! ValueUtil.timeOf(value).isTimeValid()){
+            LOG.info("Add liveSample time error ");
+            value = VTypeHelper.transformTimestampToNow(value);
         }
         addLiveSample(new PlotSample(Messages.LiveData, value));
     }
@@ -275,11 +280,13 @@ public class PVSamples extends PlotSamples
      */
     synchronized public void addLiveSample(final PlotSample sample)
     {
+       
         liveSamples.add(sample);
         // History ends before the start of 'liveSamples' samples.
         // Adding a liveSamples sample might have moved the ring buffer,
         // so need to update whenever liveSamples data is extended.
         historicSamples.setBorderTime(liveSamples.getSample(0).getTime());
+     
     }
 
     /** Delete all samples */

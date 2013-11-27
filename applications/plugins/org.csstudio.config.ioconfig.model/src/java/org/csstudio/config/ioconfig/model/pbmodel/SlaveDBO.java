@@ -277,7 +277,10 @@ public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> {
         return NodeType.SLAVE;
     }
 
+    // length is 1170 = 234*5: 234 byte as profibus slave configuration, each 5 byte encoded as '0xab,'.
+    // we are using some more.
     @Nonnull
+    @Column(length=1220)
     public String getPrmUserData() {
         return GsdFileParser.intList2HexString(_prmUserDataList);
     }

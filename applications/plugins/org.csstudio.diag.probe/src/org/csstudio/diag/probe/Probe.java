@@ -14,8 +14,12 @@ import java.util.logging.Logger;
 import org.csstudio.apputil.ui.swt.ComboHistoryHelper;
 import org.csstudio.auth.security.SecurityFacade;
 import org.csstudio.csdata.ProcessVariable;
+import org.csstudio.data.values.IDoubleValue;
+import org.csstudio.data.values.IEnumeratedValue;
+import org.csstudio.data.values.ILongValue;
 import org.csstudio.data.values.IMetaData;
 import org.csstudio.data.values.INumericMetaData;
+import org.csstudio.data.values.IStringValue;
 import org.csstudio.data.values.IValue;
 import org.csstudio.util.swt.meter.MeterWidget;
 import org.csstudio.utility.pv.PV;
@@ -99,17 +103,17 @@ public class Probe extends ViewPart implements PVListener, ISelectionProvider
 	 * Id of the save value command.
 	 */
 	private static final String SAVE_VALUE_COMMAND_ID =
-		"org.csstudio.platform.ui.commands.saveValue"; //$NON-NLS-1$
+		"org.csstudio.config.savevalue.ui.commands.saveValue"; //$NON-NLS-1$
 	/**
 	 * Id of the PV parameter to the save value command.
 	 */
 	private static final String PV_PARAMETER_ID =
-		"org.csstudio.platform.ui.commands.saveValue.pv"; //$NON-NLS-1$
+		"org.csstudio.config.savevalue.ui.commands.saveValue.pv"; //$NON-NLS-1$
 	/**
 	 * Id of the value parameter to the save value command.
 	 */
 	private static final String VALUE_PARAMETER_ID =
-		"org.csstudio.platform.ui.commands.saveValue.value"; //$NON-NLS-1$
+		"org.csstudio.config.savevalue.ui.commands.saveValue.value"; //$NON-NLS-1$
 
     private static final String SECURITY_ID = "operating"; //$NON-NLS-1$
 
@@ -294,7 +298,7 @@ public class Probe extends ViewPart implements PVListener, ISelectionProvider
     /** Construct GUI. */
     private void createGUI(final Composite parent)
     {
-        final boolean canExecute = SecurityFacade.getInstance().canExecute(SECURITY_ID, true);
+        final boolean canExecute = SecurityFacade.getInstance().canExecute(SECURITY_ID, false);
         final FormLayout layout = new FormLayout();
         parent.setLayout(layout);
 
@@ -850,7 +854,7 @@ public class Probe extends ViewPart implements PVListener, ISelectionProvider
                 updateStatus(Messages.S_NotConnected);
                 return;
             }
-            pv.setValue(new_value);
+            pv.setValue(getValueType(new_value));
         }
         catch (final Throwable ex)
         {
@@ -858,7 +862,25 @@ public class Probe extends ViewPart implements PVListener, ISelectionProvider
         }
     }
 
-    /** Minimal ISelectionProvider */
+    private Object getValueType(String new_value) throws NumberFormatException {
+    	IValue value = pv.getValue();
+    	if (value instanceof IDoubleValue) {
+    		return(Double.parseDouble(new_value));
+    	}
+    	if (value instanceof ILongValue) {
+    		return(Double.parseDouble(new_value));
+//    		return(Long.parseLong(new_value));
+    	}
+    	if (value instanceof IStringValue) {
+    		return new_value;
+    	}
+    	if (value instanceof IEnumeratedValue) {
+    		return new_value;
+    	}
+		return null;
+	}
+
+	/** Minimal ISelectionProvider */
 	@Override
     public void addSelectionChangedListener(ISelectionChangedListener listener)
     {

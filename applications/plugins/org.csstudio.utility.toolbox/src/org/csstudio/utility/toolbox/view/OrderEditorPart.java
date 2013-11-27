@@ -8,11 +8,14 @@ import javax.persistence.EntityManager;
 import org.csstudio.utility.toolbox.actions.OpenOrderEditorAction;
 import org.csstudio.utility.toolbox.entities.Order;
 import org.csstudio.utility.toolbox.entities.OrderPos;
+import org.csstudio.utility.toolbox.entities.OrderType;
 import org.csstudio.utility.toolbox.framework.controller.CrudController;
 import org.csstudio.utility.toolbox.framework.template.AbstractCrudEditorPartTemplate;
 import org.csstudio.utility.toolbox.func.Func1Void;
 import org.csstudio.utility.toolbox.services.ArticleService;
 import org.csstudio.utility.toolbox.services.OrderPosService;
+import org.csstudio.utility.toolbox.services.OrderTypeService;
+import org.csstudio.utility.toolbox.types.OrderId;
 import org.csstudio.utility.toolbox.view.forms.OrderGuiForm;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
@@ -38,6 +41,9 @@ public class OrderEditorPart extends AbstractCrudEditorPartTemplate<Order> imple
    private ArticleService articleService;
 
    @Inject
+   private OrderTypeService orderTypeService;
+
+   @Inject
    private OrderPosService orderPosService;
 
    @Override
@@ -50,7 +56,16 @@ public class OrderEditorPart extends AbstractCrudEditorPartTemplate<Order> imple
    public void createPartControl(Composite composite) {
       orderGuiForm.createEditPart(composite, getEditorInput(), this);
       getEditorInput().setBeforeCommit(new BeforeCommit());
+      getEditorInput().setBeforeSave(new BeforeSave());
       setFocusWidget(orderGuiForm.getFocusWidget());
+   }
+
+   class BeforeSave implements Func1Void<Order> {
+      @Override
+      public void apply(Order order) {
+         OrderType orderType = orderTypeService.findByText(order.getBaType());
+         order.setBaTypeId(orderType.getId());
+      }
    }
 
    class BeforeCommit implements Func1Void<Order> {
@@ -65,12 +80,12 @@ public class OrderEditorPart extends AbstractCrudEditorPartTemplate<Order> imple
                   orderPos.getArticle().setGruppeArtikel(articleId);
                }
             }
-            orderPos.setBaNr(order.getNummer());
-            em.merge(orderPos);
+            orderPos.setBaId(new OrderId(order.getId()));
+            OrderPos op = em.merge(orderPos);
+            orderPos.setId(op.getId());
          }
       }
    }
-   
 
    @Override
    public void create() {

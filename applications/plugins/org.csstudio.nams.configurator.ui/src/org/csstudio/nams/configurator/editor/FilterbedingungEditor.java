@@ -167,6 +167,8 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
 
 	private final FilterTypeBean selectedFilterType = new FilterTypeBean();
 
+	private Text _idTextEntry;
+
 	private Text _nameTextEntry;
 	private Combo _rubrikComboEntry;
 	private Text _defaultMessageTextEntry;
@@ -202,6 +204,9 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
 
 		final Composite upperComposite = new Composite(outermain, SWT.NONE);
 		upperComposite.setLayout(new GridLayout(this.NUM_COLUMNS, false));
+		
+		_idTextEntry = this.createTextEntry(upperComposite, "ID", false);
+
 		this._nameTextEntry = this.createTextEntry(upperComposite, Messages.FilterbedingungEditor_name,
 				true);
 		this._rubrikComboEntryViewer = this.createComboEntry(upperComposite,
@@ -661,6 +666,10 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
 	protected void initDataBinding() {
 		final DataBindingContext context = new DataBindingContext();
 
+		final IObservableValue idTextObservable = BeansObservables
+				.observeValue(this.getWorkingCopyOfEditorInput(),
+						FilterbedingungBean.PropertyNames.filterbedingungID.name());
+		
 		final IObservableValue nameTextObservable = BeansObservables
 				.observeValue(this.getWorkingCopyOfEditorInput(),
 						FilterbedingungBean.PropertyNames.name.name());
@@ -675,6 +684,9 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
 								.name());
 
 		// bind observables
+		context.bindValue(SWTObservables.observeText(this._idTextEntry,
+				SWT.Modify), idTextObservable, null, null);
+		
 		context.bindValue(SWTObservables.observeText(this._nameTextEntry,
 				SWT.Modify), nameTextObservable, null, null);
 

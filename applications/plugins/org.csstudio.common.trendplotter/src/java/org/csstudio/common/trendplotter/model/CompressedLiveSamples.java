@@ -92,7 +92,7 @@ public class CompressedLiveSamples extends LiveSamples {
     }
 
     private boolean isCompressionDue(@Nonnull final LimitedArrayCircularQueue<PlotSample> samples) {
-        removeSamplesBeforeStart(samples,_intervalPovider.getTimeInterval().getStartMillis());
+       // removeSamplesBeforeStart(samples,_intervalPovider.getTimeInterval().getStartMillis());
         return samples.size() >= Math.max(samples.getCapacity(), 2) && newSamples>_securityCap;
     }
     @Nonnull
@@ -105,7 +105,7 @@ public class CompressedLiveSamples extends LiveSamples {
     @Nonnull
     private LimitedArrayCircularQueue<PlotSample> compress(@Nonnull final LimitedArrayCircularQueue<PlotSample> samples,
                                                            @Nonnull final Interval interval) {
-            removeSamplesBeforeStart(samples, interval.getStartMillis());
+        //    removeSamplesBeforeStart(samples, interval.getStartMillis());
             if(samples.size()<getCapacity() ){
                 LOG.info("Samples do not compress ");
                 return samples;
@@ -136,21 +136,27 @@ public class CompressedLiveSamples extends LiveSamples {
     private Long[] determinePerfectWindowForCompressedSamples(final int cap,
                                                               @Nonnull final LimitedArrayCircularQueue<PlotSample> samples,
                                                               final Interval intvl) {
-        final long endMillis = BaseTypeConversionSupport.toTimeInstant(samples.get(cap+_securityCap- 1).getTime()).getMillis();
-        final long startMillis = BaseTypeConversionSupport.toTimeInstant(samples.get(0).getTime()).getMillis();
+        long endMillis =0;// BaseTypeConversionSupport.toTimeInstant1(samples.get(cap+_securityCap- 1).getTime()).getMillis();
+        long startMillis =0;// BaseTypeConversionSupport.toTimeInstant1(samples.get(0).getTime()).getMillis();
+        for(PlotSample s: samples){
+           long st = BaseTypeConversionSupport.toTimeInstant1(s.getTime()).getMillis();
+           if(endMillis<st)endMillis=st;
+           if(startMillis>st)startMillis=st;
+        }
         final long realStartMillis =startMillis< intvl.getStartMillis()?intvl.getStartMillis(): startMillis;
         final long realEndMillis = Math.min(endMillis, intvl.getEndMillis());
         final long windowLengthMS = (long) ((realEndMillis - realStartMillis)/cap); // perfect
-        LOG.info("Samples Compressed TimeInterval: start {},  end   {}", new DateTime(realStartMillis) ,  new DateTime(realEndMillis));
-        LOG.info("Samples Compressed - windowLengthMS {} ",windowLengthMS);
+        LOG.info("determinePerfectWindow Samples Compressed TimeInterval: start {},  end   {}", new DateTime(realStartMillis) ,  new DateTime(realEndMillis));
+        LOG.info("determinePerfectWindow Samples Compressed - windowLengthMS {} ",windowLengthMS);
         return new Long[] {windowLengthMS*4}; // double - and don't forget - min and max are 2 samples per window
     }
+
 
     private void removeSamplesBeforeStart(@Nonnull final Queue<PlotSample> samples,
                                           @Nonnull final long startTimeInMS) {
         PlotSample next;
         while ((next = samples.peek()) != null) {
-            final TimeInstant time = BaseTypeConversionSupport.toTimeInstant(next.getTime());
+            final TimeInstant time = BaseTypeConversionSupport.toTimeInstant1(next.getTime());
             if (time.getMillis() < startTimeInMS) {
                 samples.poll();
             } else {

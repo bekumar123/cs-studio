@@ -1,12 +1,12 @@
 package org.csstudio.archive.reader.aapi;
 
-import org.csstudio.data.values.ISeverity;
+
 
 /** Implementation of the Severity interface for EPICS samples.
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class SeverityImpl implements ISeverity
+public class SeverityImpl //implements ISeverity
 {
 	final private String text;
 	final private boolean has_value;

@@ -75,4 +75,9 @@ public class EnumArchiveTypeConversionSupport extends ArchiveTypeConversionSuppo
             throw new TypeSupportException(value + " cannot be parsed into " + EpicsEnum.class.getSimpleName(), e);
         }
     }
+    @Override
+    @Nonnull
+    public Boolean isOptimizableByAveraging() {
+        return Boolean.TRUE;
+    }
 }

@@ -6,7 +6,10 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -17,6 +20,7 @@ import net.miginfocom.swt.MigLayout;
 
 import org.csstudio.utility.toolbox.AppLogger;
 import org.csstudio.utility.toolbox.common.Dialogs;
+import org.csstudio.utility.toolbox.common.Environment;
 import org.csstudio.utility.toolbox.entities.Article;
 import org.csstudio.utility.toolbox.entities.ArticleDelivered;
 import org.csstudio.utility.toolbox.entities.ArticleInStore;
@@ -34,6 +38,7 @@ import org.csstudio.utility.toolbox.framework.property.Property;
 import org.csstudio.utility.toolbox.framework.property.SearchTermType;
 import org.csstudio.utility.toolbox.framework.template.AbstractGuiFormTemplate;
 import org.csstudio.utility.toolbox.framework.template.CanSaveAction;
+import org.csstudio.utility.toolbox.func.ClearedPersistenceContextResponse;
 import org.csstudio.utility.toolbox.func.Func0Void;
 import org.csstudio.utility.toolbox.func.Func1Void;
 import org.csstudio.utility.toolbox.func.None;
@@ -67,251 +72,279 @@ import com.google.inject.Inject;
 
 public class ArticleGuiForm extends AbstractGuiFormTemplate<Article> implements PropertyChangeListener {
 
-   public static final Property ITEM_COMBO = new Property("ITEM_COMBO");
+    public static final Property ITEM_COMBO = new Property("ITEM_COMBO");
 
-   // Misuse propertyChangeEvent to inform view about state changes
-   private static final String EVENT_SOURCE_ARTICLE_INIT = "articleInit";
+    // Misuse propertyChangeEvent to inform view about state changes
+    private static final String EVENT_SOURCE_ARTICLE_INIT = "articleInit";
 
-   private static final String EVENT_SOURCE_ARTICLE_NEW = "articleNew";
+    private static final String EVENT_SOURCE_ARTICLE_NEW = "articleNew";
 
-   private static final String EVENT_SOURCE_ARTICLE_CHANGED = "articleChanged";
+    private static final String EVENT_SOURCE_ARTICLE_CHANGED = "articleChanged";
 
-   private static final String EVENT_SOURCE_ARTICLE_STATUS = "status";
+    private static final String EVENT_SOURCE_ARTICLE_STATUS = "status";
 
-   private WritableList articlesInGroup;
+    private WritableList articlesInGroup;
 
-   private BigDecimal articleDescriptionId;
+    private BigDecimal articleDescriptionId;
 
-   @Inject
-   private AppLogger logger;
+    @Inject
+    private Environment env;
 
-   @Inject
-   private EntityManager em;
+    @Inject
+    private AppLogger logger;
 
-   @Inject
-   private Validator validator;
+    @Inject
+    private EntityManager em;
 
-   @Inject
-   private ArticleSubViewDataProvider subViewDataProvider;
+    @Inject
+    private Validator validator;
 
-   @Inject
-   private FirmaService firmaService;
+    @Inject
+    private ArticleSubViewDataProvider subViewDataProvider;
 
-   @Inject
-   private ArticleStateService articleStateService;
+    @Inject
+    private FirmaService firmaService;
 
-   @Inject
-   private ArticleService articleService;
+    @Inject
+    private ArticleStateService articleStateService;
 
-   @Inject
-   private OrderPosService orderPosService;
+    @Inject
+    private ArticleService articleService;
 
-   @Inject
-   private ArticleGuiFormActionHandler articleGuiFormActionHandler;
+    @Inject
+    private OrderPosService orderPosService;
 
-   @Inject
-   private RentedView rentedView;
+    @Inject
+    private ArticleGuiFormActionHandler articleGuiFormActionHandler;
 
-   @Inject
-   private DeliveredView deliveredView;
+    @Inject
+    private RentedView rentedView;
 
-   @Inject
-   private RetiredView retiredView;
+    @Inject
+    private DeliveredView deliveredView;
 
-   @Inject
-   private StoreView storeView;
+    @Inject
+    private RetiredView retiredView;
 
-   @Inject
-   private InstalledView installedView;;
+    @Inject
+    private StoreView storeView;
 
-   @Inject
-   private MaintenanceView maintenanceView;
+    @Inject
+    private InstalledView installedView;;
 
-   @Inject
-   private TransactionContext transactionContext;
+    @Inject
+    private MaintenanceView maintenanceView;
 
-   private Article currentlySelectedArticle;
+    @Inject
+    private TransactionContext transactionContext;
 
-   private TabFolder tabFolder;
+    private Article currentlySelectedArticle;
 
-   private TabItem tabItemStatusData;
+    private TabFolder tabFolder;
 
-   @Override
-   protected void createEditComposite(Composite composite) {
-      createPart(composite);
-   }
+    private TabItem tabItemStatusData;
 
-   @Override
-   protected void createSearchComposite(Composite composite) {
-      createPart(composite);
-   }
+    @Override
+    protected void createEditComposite(Composite composite) {
+        createPart(composite);
+    }
 
-   @Override
-   protected TableViewer createSearchResultComposite(Composite composite) {
-      String[] titles = { "Note", "Status", "Internal Nr" };
-      int[] bounds = { 33, 33, 33 };
-      setSearchResultTableViewer(createTableViewer(composite, SEARCH_RESULT_TABLE_VIEWER, titles, bounds));
-      final Table table = getSearchResultTableViewer().getTable();
-      table.setLayoutData("spanx 7, ay top, growy, growx, height 330:330:1250, width 500:800:2000, wrap");
-      table.setHeaderVisible(true);
-      table.setLinesVisible(true);
-      return getSearchResultTableViewer();
-   }
+    @Override
+    protected void createSearchComposite(Composite composite) {
+        createPart(composite);
+    }
 
-   public void selectArticle(Article article) {
-      final int index = articlesInGroup.indexOf(article);
-      tabFolder.setSelection(0);
-      wf.select(ArticleGuiForm.ITEM_COMBO, index);
-      wf.notifyListenersWithSelectionEvent(ArticleGuiForm.ITEM_COMBO);
-   }
+    @Override
+    protected TableViewer createSearchResultComposite(Composite composite) {
+        String[] titles = { "Note", "Status", "Internal Nr" };
+        int[] bounds = { 33, 33, 33 };
+        setSearchResultTableViewer(createTableViewer(composite, SEARCH_RESULT_TABLE_VIEWER, titles, bounds));
+        final Table table = getSearchResultTableViewer().getTable();
+        table.setLayoutData("spanx 7, ay top, growy, growx, height 330:330:1250, width 500:800:2000, wrap");
+        table.setHeaderVisible(true);
+        table.setLinesVisible(true);
+        return getSearchResultTableViewer();
+    }
 
-   public void dispose() {
-      if (articlesInGroup != null) {
-         refreshArticleGroup();
-      }
-      // how to remove listeners ?
-      installedView.dispose();
-      rentedView.dispose();
-      retiredView.dispose();
-      maintenanceView.dispose();
-      deliveredView.dispose();
-      storeView.dispose();
-   }
+    public void selectArticle(Article article) {
+        final int index = articlesInGroup.indexOf(article);
+        tabFolder.setSelection(0);
+        wf.select(ArticleGuiForm.ITEM_COMBO, index);
+        wf.notifyListenersWithSelectionEvent(ArticleGuiForm.ITEM_COMBO);
+    }
 
-   @Override
-   protected boolean canCreateButton(Property property) {
-      return !((property.getName().equalsIgnoreCase(AbstractGuiFormTemplate.CREATE_NEW_FROM_SEARCH_BUTTON) || (property
-            .getName().equalsIgnoreCase(AbstractGuiFormTemplate.CREATE_NEW_BUTTON))) || (property.getName()
-            .equalsIgnoreCase(AbstractGuiFormTemplate.CREATE_COPY_BUTTON)));
-   }
+    public void dispose() {
+        if (articlesInGroup != null) {
+            refreshArticleGroup();
+        }
+        // how to remove listeners ?
+        installedView.dispose();
+        rentedView.dispose();
+        retiredView.dispose();
+        maintenanceView.dispose();
+        deliveredView.dispose();
+        storeView.dispose();
+    }
 
-   private void markError(Set<ConstraintViolation<Article>> validationErrors) {
-      StringBuffer sb = new StringBuffer();
-      for (ConstraintViolation<Article> violation : validationErrors) {
-         sb.append(violation.getPropertyPath().toString()).append(" : ").append(violation.getMessage()).append("\n");
-      }
-      Dialogs.message("Error in Article-View", sb.toString());
-   }
+    @Override
+    protected boolean canCreateButton(Property property) {
+        //@formatter:off
+        return !((property.getName().equalsIgnoreCase(AbstractGuiFormTemplate.CREATE_NEW_FROM_SEARCH_BUTTON) 
+                || (property.getName().equalsIgnoreCase(AbstractGuiFormTemplate.CREATE_NEW_BUTTON))) 
+                || (property.getName().equalsIgnoreCase(AbstractGuiFormTemplate.CREATE_COPY_BUTTON)));
+        //@formatter:on
+    }
 
-   private void markErrorSubView(Set<ConstraintViolation<BindingEntity>> validationErrors) {
-      StringBuffer sb = new StringBuffer();
-      for (ConstraintViolation<BindingEntity> violation : validationErrors) {
-         sb.append(violation.getPropertyPath().toString()).append(" : ").append(violation.getMessage()).append("\n");
-      }
-      Dialogs.message("Error in State-View", sb.toString());
-   }
+    private void markError(Set<ConstraintViolation<Article>> validationErrors) {
+        StringBuffer sb = new StringBuffer();
+        for (ConstraintViolation<Article> violation : validationErrors) {
+            sb.append(violation.getPropertyPath().toString()).append(" : ").append(violation.getMessage()).append("\n");
+        }
+        Dialogs.message("Error in Article-View", sb.toString());
+    }
 
-   // We handle the save manually. This is necessary since we handle a list
-   // of entities here. All other forms work on a single entity.
-   // Therefore we always return CanSaveAction.SAVE_HANDLED here.
-   @Override
-   protected CanSaveAction canSave() {
-      updateModelsInSubViews();
-      if (!validateArticleGroup()) {
-         return CanSaveAction.ABORT_SAVE;
-      }
-      try {
-         transactionContext.doRun(new Func0Void() {
-            @Override
-            public void apply() {
-               List<LagerArtikel> lagerArtikelList = subViewDataProvider.calculateStoreMovements();
-               for (Object article : articlesInGroup) {
-                  Article articleEntity = (Article) article;
-                  subViewDataProvider.autoCreateLookupData(articleEntity);
-                  subViewDataProvider.assignId(articleEntity);
-                  em.merge(article);
-               }
-               // record movements in and out of the inventory
-               for (LagerArtikel lagerArtikel : lagerArtikelList) {
-                  em.merge(lagerArtikel);
-               }
-               subViewDataProvider.mergeEntities();
+    private void markErrorSubView(Set<ConstraintViolation<BindingEntity>> validationErrors) {
+        StringBuffer sb = new StringBuffer();
+        for (ConstraintViolation<BindingEntity> violation : validationErrors) {
+            sb.append(violation.getPropertyPath().toString()).append(" : ").append(violation.getMessage()).append("\n");
+        }
+        Dialogs.message("Error in State-View", sb.toString());
+    }
+
+    // We handle the save manually here. This is necessary since we handle a
+    // list
+    // of entities here. All other forms work on a single entity.
+    // Therefore we always return CanSaveAction.SAVE_HANDLED here.
+    @Override
+    protected CanSaveAction canSave() {
+        updateModelsInSubViews();
+        if (!validateArticleGroup()) {
+            return CanSaveAction.ABORT_SAVE;
+        }
+        try {
+            transactionContext.doRun(new Func0Void() {
+                @Override
+                public void apply() {
+                    Map<BigDecimal, Option<ArticleInStore>> articlesInStore = retrieveArticelInStore(articlesInGroup);
+                    ClearedPersistenceContextResponse<List<LagerArtikel>> lagerArtikelList = subViewDataProvider
+                            .calculateStoreMovements();
+                    for (Object article : articlesInGroup) {
+                        Article articleEntity = (Article) article;
+                        subViewDataProvider.autoCreateLookupData(articleEntity);
+                        em.merge(article);
+                        if (!articleEntity.isInStore()) {
+                            Option<ArticleInStore> lastArticleInStore = articlesInStore.get(articleEntity.getId());
+                            if (lastArticleInStore.hasValue()) {
+                                ArticleInStore articleInStore = lastArticleInStore.get();
+                                articleInStore.setFlagExist("NO");
+                                em.merge(articleInStore);
+                            }
+                        }
+                    }
+                    // record movements in and out of the inventory
+                    for (LagerArtikel lagerArtikel : lagerArtikelList.getResponse()) {
+                        em.merge(lagerArtikel);
+                    }
+                    subViewDataProvider.mergeEntities();
+                }
+            });
+            if (getCrudController().hasValue()) {
+                getCrudController().get().setDirty(false);
+            } else {
+                throw new IllegalStateException("Unexpected state in ArticelGuiForm.canSave");
             }
-         });
-         if (getCrudController().hasValue()) {
-            getCrudController().get().setDirty(false);
-         } else {
-            throw new IllegalStateException("Unexpected state in ArticelGuiForm.canSave");
-         }
-         return CanSaveAction.SAVE_HANDLED;
-      } catch (Exception e) {
-         logger.logError(e);
-         refreshArticleGroup();
-         Dialogs.exception("Error while saving...", e);
-         return CanSaveAction.ABORT_SAVE;
-      }
-   }
+            return CanSaveAction.SAVE_HANDLED;
+        } catch (Exception e) {
+            logger.logError(e);
+            refreshArticleGroup();
+            Dialogs.exception("Error while saving...", e);
+            return CanSaveAction.ABORT_SAVE;
+        }
+    }
 
-   private boolean validateArticleGroup() {
-      for (Object article : articlesInGroup) {
-         Set<ConstraintViolation<Article>> validationErrors = validator.validate((Article) article);
-         if (!validationErrors.isEmpty()) {
-            markError(validationErrors);
-            return false;
-         }
-         Set<ConstraintViolation<BindingEntity>> subViewValidationErrors = subViewDataProvider
-               .validateSubViewFor((Article) article);
-         if (!subViewValidationErrors.isEmpty()) {
-            markErrorSubView(subViewValidationErrors);
-            return false;
-         }
-      }
-      return true;
-   }
+    private Map<BigDecimal, Option<ArticleInStore>> retrieveArticelInStore(WritableList articlesInGroup) {
+        Map<BigDecimal, Option<ArticleInStore>> result = new HashMap<BigDecimal, Option<ArticleInStore>>();
+        for (Object article : articlesInGroup) {
+            Article articleEntity = (Article) article;
+            BigDecimal artikelDatenId = articleEntity.getId();
+            ClearedPersistenceContextResponse<Option<ArticleInStore>> newestEntryInStore = articleService
+                    .findNewestEntryInStore(artikelDatenId);
+            result.put(artikelDatenId, newestEntryInStore.getResponse());
+        }
+        return result;
+    }
 
-   private void refreshArticleGroup() {
-      for (Object article : articlesInGroup) {
-         try {
-            em.refresh(article);
-         } catch (Exception ex) {
-            // do nothing
-         }
-      }
-   }
-
-   private void createPart(final Composite composite) {
-
-      articleGuiFormActionHandler.init(isSearchMode(), getEditorInput(), wf, getCrudController(), getCtx());
-
-      String rowLayout;
-
-      if (isSearchMode()) {
-         rowLayout = "[][][][][]15[][][][][][grow, fill]";
-      } else {
-         rowLayout = "[][][][][]15[][][grow, fill]";
-      }
-
-      MigLayout ml = new MigLayout("ins 10, gapy 4", "[80][250]80[80][250][10, grow, fill]", rowLayout);
-      composite.setLayout(ml);
-
-      wf.label(composite).text(getEditorInput().getTitle()).titleStyle().build();
-      wf.text(composite, "beschreibung").multiLine().isJoinedForSearch().label("Note:", "ay top")
-            .hint("spanx 5, h 40!, growx, wrap").build();
-
-      if (isSearchMode()) {
-
-         final Combo company = wf.combo(composite, "lieferantName").isJoined().label("Company:").hint("split 2")
-               .data(firmaService.findAll()).build();
-
-         wf.button(composite, "lookupCompany").withSearchImage().hint("wrap").listener(new SimpleSelectionListener() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-               articleGuiFormActionHandler.selectFirma(company);
+    private boolean validateArticleGroup() {
+        for (Object article : articlesInGroup) {
+            Set<ConstraintViolation<Article>> validationErrors = validator.validate((Article) article);
+            if (!validationErrors.isEmpty()) {
+                markError(validationErrors);
+                return false;
             }
-         }).build();
+            Set<ConstraintViolation<BindingEntity>> subViewValidationErrors = subViewDataProvider
+                    .validateSubViewFor((Article) article);
+            if (!subViewValidationErrors.isEmpty()) {
+                markErrorSubView(subViewValidationErrors);
+                return false;
+            }
+        }
+        return true;
+    }
 
-         wf.text(composite, "baNr", SearchTermType.STRING_IGNORE_FIRST_CHAR).label("BA Number:").isJoinedForSearch()
-               .limitInputToDigits().hint("growx, wrap, h 21!").build();
+    private void refreshArticleGroup() {
+        for (Object article : articlesInGroup) {
+            try {
+                em.refresh(article);
+            } catch (Exception ex) {
+                // do nothing
+            }
+        }
+    }
 
-      } else {
-         wf.text(composite, "lieferantName").multiLine().label("Company:").hint("growx, wrap, h 21!").build();
-      }
+    private void createPart(final Composite composite) {
 
-      if (isSearchMode()) {
-         createMainData(composite);
-      } else {
+        articleGuiFormActionHandler.init(isSearchMode(), getEditorInput(), wf, getCrudController(), getCtx());
 
-         // @formatter:off
+        String rowLayout;
+
+        if (isSearchMode()) {
+            rowLayout = "[][][][][]15[][][][][][grow, fill]";
+        } else {
+            rowLayout = "[][][][][]15[][][grow, fill]";
+        }
+
+        MigLayout ml = new MigLayout("ins 10, gapy 4", "[80][250]80[80][250][10, grow, fill]", rowLayout);
+        composite.setLayout(ml);
+
+        wf.label(composite).text(getEditorInput().getTitle()).titleStyle().build();
+        wf.text(composite, "beschreibung").multiLine().isJoinedForSearch().label("Note:", "ay top")
+                .hint("spanx 5, h 40!, growx, wrap").build();
+
+        if (isSearchMode()) {
+
+            final Combo company = wf.combo(composite, "lieferantName").isJoined().label("Company:").hint("split 2")
+                    .data(firmaService.findAll()).build();
+
+            wf.button(composite, "lookupCompany").withSearchImage().hint("wrap")
+                    .listener(new SimpleSelectionListener() {
+                        @Override
+                        public void widgetSelected(SelectionEvent e) {
+                            articleGuiFormActionHandler.selectFirma(company);
+                        }
+                    }).build();
+
+            wf.text(composite, "baNr", SearchTermType.STRING_SEARCH_EXACT).label("BA Number:").isJoinedForSearch()
+                    .limitInputToDigits().hint("growx, wrap, h 21!").build();
+
+        } else {
+            wf.text(composite, "lieferantName").multiLine().label("Company:").hint("growx, wrap, h 21!").build();
+        }
+
+        if (isSearchMode()) {
+            createMainData(composite);
+        } else {
+
+            // @formatter:off
          final Text baNr = wf.text(composite, "baNr")
                .label("BA Number:")
                .noBinding()
@@ -320,127 +353,130 @@ public class ArticleGuiForm extends AbstractGuiFormTemplate<Article> implements 
                .hint("growx, wrap, h 21!").build();
                // @formatter:on
 
-         createItemSelectionCombo(composite, getEditorInput());
-         createButtonComposite(composite);
-         createTabsheets(composite);
+            createItemSelectionCombo(composite, getEditorInput());
+            createButtonComposite(composite);
+            createTabsheets(composite);
 
-         // Display the BA number for the selected article
-         // init the view by sending EVENT_SOURCE_ARTICLE_INIT
-         getEditorInput().processData(new Func1Void<Article>() {
+            // Display the BA number for the selected article
+            // init the view by sending EVENT_SOURCE_ARTICLE_INIT
+            getEditorInput().processData(new Func1Void<Article>() {
+                @Override
+                public void apply(Article article) {
+                    BigDecimal gruppeArtikel = article.getGruppeArtikel();
+                    articleDescriptionId = article.getArticleDescription().getId();
+                    List<OrderPos> orderPos = orderPosService.findByGruppeArtikel(gruppeArtikel);
+                    if (!orderPos.isEmpty()) {
+                        baNr.setText(orderPos.get(0).getOrder().getNummer().toString());
+                    }
+                    propertyChange(new PropertyChangeEvent(ArticleGuiForm.this, EVENT_SOURCE_ARTICLE_INIT, article,
+                            article));
+                }
+            });
+
+            wf.notifyListenersWithSelectionEvent(ITEM_COMBO);
+
+        }
+
+    }
+
+    private void createMainData(Composite composite) {
+        if (isSearchMode()) {
+            wf.text(composite, "internId").label("Internal-Id:").hint("growx, wrap").build();
+        } else {
+            wf.text(composite, "internId").label("Internal-Id:").hint("growx, split 2").build();
+            wf.button(composite, "assignId").text("<=").hint("wrap").listener(new SimpleSelectionListener() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    articleGuiFormActionHandler.assignId();
+                }
+            }).build();
+        }
+        wf.text(composite, "serienNr").label("Serial-Nr:").hint("wrap, growx").build();
+        wf.text(composite, "gruppeArtikel").label("Article Group:").hint("growx").build();
+        wf.text(composite, "inventarNr").label("Inventory-Nr:").hint("wrap,growx").useBigDecimalConverter().build();
+        wf.combo(composite, "status").label("Status:").data(articleStateService.findAll()).hint("growx").build();
+        wf.text(composite, "gruppe").label("Group:").hint("wrap,growx").build();
+    }
+
+    private Option<IStructuredSelection> currentSelection = new None<IStructuredSelection>();
+
+    public void setButtonsEnabled(boolean enabled) {
+        if (wf.isWidgetPresent(P("showHistory"))) {
+            wf.setEnabled(P("showHistory"), enabled);
+            wf.setEnabled(P("contains"), enabled);
+            wf.setEnabled(P("isContainedIn"), enabled);
+        }
+    }
+
+    protected void createAdditionalSearchResultButtons(Composite composite, final TableViewer viewer) {
+
+        viewer.addSelectionChangedListener(new ISelectionChangedListener() {
             @Override
-            public void apply(Article article) {
-               BigDecimal gruppeArtikel = article.getGruppeArtikel();
-               articleDescriptionId = article.getArticleDescription().getId();
-               List<OrderPos> orderPos = orderPosService.findByGruppeArtikel(gruppeArtikel);
-               if (!orderPos.isEmpty()) {
-                  baNr.setText(orderPos.get(0).getOrder().getNummer().toString());
-               }
-               propertyChange(new PropertyChangeEvent(ArticleGuiForm.this, EVENT_SOURCE_ARTICLE_INIT, article, article));
+            public void selectionChanged(SelectionChangedEvent event) {
+                setButtonsEnabled(true);
+                currentSelection = new Some<IStructuredSelection>((IStructuredSelection) event.getSelection());
             }
-         });
+        });
 
-         wf.notifyListenersWithSelectionEvent(ITEM_COMBO);
+        Composite buttonComposite = new Composite(composite, SWT.NONE);
+        buttonComposite.setLayoutData("span 7");
+        MigLayout ml = new MigLayout("ins 0", "[150,fill][150, fill][150, fill]", "[fill]");
+        buttonComposite.setLayout(ml);
 
-      }
+        wf.button(buttonComposite, "showHistory").disable().text("Show article history")
+                .listener(new SimpleSelectionListener() {
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        if (currentSelection.hasValue()) {
+                            Article article = (Article) currentSelection.get().getFirstElement();
+                            articleGuiFormActionHandler.showHistory(article);
+                        }
+                    }
+                }).hint("h 29!").build();
 
-   }
-
-   private void createMainData(Composite composite) {
-      if (isSearchMode()) {
-         wf.text(composite, "internId").label("Internal-Id:").hint("growx, wrap").build();
-      } else {
-         wf.text(composite, "internId").label("Internal-Id:").hint("growx, split 2").build();
-         wf.button(composite, "assignId").text("<=").hint("wrap").listener(new SimpleSelectionListener() {
+        wf.button(buttonComposite, "contains").disable().text("Show contains").listener(new SimpleSelectionListener() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-               articleGuiFormActionHandler.assignId();
+                if (currentSelection.hasValue()) {
+                    Article article = (Article) currentSelection.get().getFirstElement();
+                    articleGuiFormActionHandler.showContains(article);
+                }
             }
-         }).build();
-      }
-      wf.text(composite, "serienNr").label("Serial-Nr:").hint("wrap, growx").build();
-      wf.text(composite, "gruppeArtikel").label("Article Group:").hint("growx").build();
-      wf.text(composite, "inventarNr").label("Inventory-Nr:").hint("wrap,growx").useBigDecimalConverter().build();
-      wf.combo(composite, "status").label("Status:").data(articleStateService.findAll()).hint("growx").build();
-      wf.text(composite, "gruppe").label("Group:").hint("wrap,growx").build();
-   }
+        }).hint("h 29!").build();
 
-   private Option<IStructuredSelection> currentSelection = new None<IStructuredSelection>();
+        wf.button(buttonComposite, "isContainedIn").disable().text("Show is contained in")
+                .listener(new SimpleSelectionListener() {
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        Article article = (Article) currentSelection.get().getFirstElement();
+                        articleGuiFormActionHandler.showIsContainedIn(article);
+                    }
+                }).hint("h 29!").build();
+    }
 
-   public void setButtonsEnabled(boolean enabled) {
-      wf.setEnabled(P("showHistory"), enabled);
-      wf.setEnabled(P("contains"), enabled);
-      wf.setEnabled(P("isContainedIn"), enabled);
-   }
-
-   protected void createAdditionalSearchResultButtons(Composite composite, final TableViewer viewer) {
-
-      viewer.addSelectionChangedListener(new ISelectionChangedListener() {
-         @Override
-         public void selectionChanged(SelectionChangedEvent event) {
-            setButtonsEnabled(true);
-            currentSelection = new Some<IStructuredSelection>((IStructuredSelection) event.getSelection());
-         }
-      });
-
-      Composite buttonComposite = new Composite(composite, SWT.NONE);
-      buttonComposite.setLayoutData("span 7");
-      MigLayout ml = new MigLayout("ins 0", "[150,fill][150, fill][150, fill]", "[fill]");
-      buttonComposite.setLayout(ml);
-
-      wf.button(buttonComposite, "showHistory").disable().text("Show article history")
-            .listener(new SimpleSelectionListener() {
-               @Override
-               public void widgetSelected(SelectionEvent e) {
-                  if (currentSelection.hasValue()) {
-                     Article article = (Article) currentSelection.get().getFirstElement();
-                     articleGuiFormActionHandler.showHistory(article);
-                  }
-               }
-            }).hint("h 29!").build();
-
-      wf.button(buttonComposite, "contains").disable().text("Show contains").listener(new SimpleSelectionListener() {
-         @Override
-         public void widgetSelected(SelectionEvent e) {
-            if (currentSelection.hasValue()) {
-               Article article = (Article) currentSelection.get().getFirstElement();
-               articleGuiFormActionHandler.showContains(article);
+    // Register listener for change of article selection
+    private void addItemSelectionListener(Combo combo) {
+        combo.addSelectionListener(new SimpleSelectionListener() {
+            @Override
+            public void widgetSelected(SelectionEvent evt) {
+                IStructuredSelection selection = wf.getSelection(ITEM_COMBO);
+                articleGuiFormActionHandler.changeArticleSelectionAndUpdateBinding(selection);
+                propertyChange(new PropertyChangeEvent(ArticleGuiForm.this, EVENT_SOURCE_ARTICLE_CHANGED, selection,
+                        selection));
             }
-         }
-      }).hint("h 29!").build();
+        });
+    }
 
-      wf.button(buttonComposite, "isContainedIn").disable().text("Show is contained in")
-            .listener(new SimpleSelectionListener() {
-               @Override
-               public void widgetSelected(SelectionEvent e) {
-                  Article article = (Article) currentSelection.get().getFirstElement();
-                  articleGuiFormActionHandler.showIsContainedIn(article);
-               }
-            }).hint("h 29!").build();
-   }
+    // Create combobox with all articles that belongs to an articlegroup.
+    private void createItemSelectionCombo(final Composite composite, final GenericEditorInput<Article> editorInput) {
+        editorInput.processData(new Func1Void<Article>() {
+            @Override
+            public void apply(Article article) {
+                List<Article> articles = articleService.findAllArticleInGroup(article.getGruppeArtikel());
+                articlesInGroup = new WritableList(articles, articles.getClass());
 
-   // Register listener for change of article selection
-   private void addItemSelectionListener(Combo combo) {
-      combo.addSelectionListener(new SimpleSelectionListener() {
-         @Override
-         public void widgetSelected(SelectionEvent evt) {
-            IStructuredSelection selection = wf.getSelection(ITEM_COMBO);
-            articleGuiFormActionHandler.changeArticleSelectionAndUpdateBinding(selection);
-            propertyChange(new PropertyChangeEvent(ArticleGuiForm.this, EVENT_SOURCE_ARTICLE_CHANGED, selection,
-                  selection));
-         }
-      });
-   }
-
-   // Create combobox with all articles that belongs to an articlegroup.
-   private void createItemSelectionCombo(final Composite composite, final GenericEditorInput<Article> editorInput) {
-      editorInput.processData(new Func1Void<Article>() {
-         @Override
-         public void apply(Article article) {
-            List<Article> articles = articleService.findAllArticleInGroup(article.getGruppeArtikel());
-            articlesInGroup = new WritableList(articles, articles.getClass());
-
-            // @formatter:off
-            Combo itemSelectionCombo = wf.combo(composite, ITEM_COMBO.getName())
+                // @formatter:off
+                Combo itemSelectionCombo = wf.combo(composite, ITEM_COMBO.getName())
                   .label("Item Position:")
                   .noBinding()
                   .data(articlesInGroup, new Property("index"))
@@ -449,182 +485,206 @@ public class ArticleGuiForm extends AbstractGuiFormTemplate<Article> implements 
                   .build();
                   // @formatter:on
 
-            articleGuiFormActionHandler.setSelectedArticleSelection(wf.getSelection(ITEM_COMBO));
-            addItemSelectionListener(itemSelectionCombo);
-         }
-      });
-   }
-
-   // create "Add new Article", "Add remaining articles" and
-   // "Bulk assign Internal-Ids" buttons
-   private void createButtonComposite(Composite composite) {
-
-      Composite buttonComposite = new Composite(composite, SWT.NONE);
-      MigLayout mlButtonComposite = new MigLayout("ins 0", "[165]5[165]5[165]", "[]5");
-
-      buttonComposite.setLayout(mlButtonComposite);
-      buttonComposite.setLayoutData("spanx 6, wrap");
-
-      wf.button(composite, "addNewArticle").text("Add new Article").hint("w 160!, h 28!")
-            .listener(new SimpleSelectionListener() {
-               @Override
-               public void widgetSelected(SelectionEvent e) {
-                  Article article = articleGuiFormActionHandler.addNewArticle(articlesInGroup);
-                  propertyChange(new PropertyChangeEvent(ArticleGuiForm.this, EVENT_SOURCE_ARTICLE_NEW, article,
-                        article));
-               }
-            }).build();
-
-      wf.button(composite, "addRemainingArticles").text("Add remaining articles").hint("w 160!, h 28!, split 2")
-            .listener(new SimpleSelectionListener() {
-               @Override
-               public void widgetSelected(SelectionEvent e) {
-                  Article refArticle = (Article) articlesInGroup.get(0);
-                  List<OrderPos> orderPos = orderPosService.findByGruppeArtikel(refArticle.getGruppeArtikel());
-                  if (!orderPos.isEmpty()) {
-                     BigDecimal anzahlBestellt = orderPos.get(0).getAnzahlBestellt();
-                     if (anzahlBestellt != null) {
-                        Article article = articleGuiFormActionHandler.addRemainingArticles(articlesInGroup,
-                              anzahlBestellt.intValue() - articlesInGroup.size());
-                        propertyChange(new PropertyChangeEvent(ArticleGuiForm.this, EVENT_SOURCE_ARTICLE_NEW, article,
-                              article));
-                     }
-                  }
-               }
-            }).build();
-
-      wf.button(composite, "assignAllIds").text("Bulk assign Internal-Ids").hint("w 160!, h 28!, wrap")
-            .listener(new SimpleSelectionListener() {
-               @Override
-               public void widgetSelected(SelectionEvent e) {
-                  articleGuiFormActionHandler.bulkAssignId(articlesInGroup);
-                  wf.setText(P("internId"), currentlySelectedArticle.getInternId());
-               }
-            }).build();
-
-   }
-
-   private void createTabsheets(Composite composite) {
-      tabFolder = wf.createTabFolder(composite);
-      tabFolder.setLayoutData("wrap, height 400:n:n, spanx 6, growx, growy");
-      tabFolder.addSelectionListener(new SimpleSelectionListener() {
-         @Override
-         public void widgetSelected(SelectionEvent e) {
-            TabFolder tf = (TabFolder) e.getSource();
-
-            boolean enabled = tf.getSelectionIndex() == 0;
-
-            wf.setEnabled(ITEM_COMBO, enabled);
-            wf.setEnabled(P("addNewArticle"), enabled);
-            wf.setEnabled(P("addRemainingArticles"), enabled);
-            wf.setEnabled(P("assignAllIds"), enabled);
-         }
-      });
-      createTabSheetMainData(tabFolder);
-   }
-
-   private void createTabSheetMainData(TabFolder tf) {
-      TabItem tabItemMain = wf.createTabItem("Article", tf);
-      Composite c1 = new Composite(tf, SWT.BORDER);
-      MigLayout mlc1 = new MigLayout("ins 10", "[80][250]80[80][250][10, grow, fill]", "[][][][][]12[fill][]");
-      c1.setLayout(mlc1);
-      tabItemMain.setControl(c1);
-      createMainData(c1);
-   }
-
-   // make sure that the status subview corresponds to the article status
-   @Override
-   public void propertyChange(PropertyChangeEvent evt) {
-      String newStatus;
-      String oldStatus;
-      if (evt.getPropertyName().equalsIgnoreCase(EVENT_SOURCE_ARTICLE_INIT)) {
-         currentlySelectedArticle = (Article) evt.getNewValue();
-         oldStatus = currentlySelectedArticle.getStatus();
-         newStatus = oldStatus;
-      } else if (evt.getPropertyName().equalsIgnoreCase(EVENT_SOURCE_ARTICLE_NEW)) {
-         currentlySelectedArticle = (Article) evt.getNewValue();
-         oldStatus = currentlySelectedArticle.getStatus();
-         newStatus = oldStatus;
-      } else if (evt.getPropertyName().equalsIgnoreCase(EVENT_SOURCE_ARTICLE_CHANGED)) {
-         IStructuredSelection structuredSelection = (IStructuredSelection) evt.getNewValue();
-         currentlySelectedArticle = (Article) structuredSelection.getFirstElement();
-         oldStatus = currentlySelectedArticle.getStatus();
-         newStatus = oldStatus;
-      } else if (evt.getPropertyName().equalsIgnoreCase(EVENT_SOURCE_ARTICLE_STATUS)) {
-         // triggered by setStatus(String status) in Article
-         newStatus = (String) evt.getNewValue();
-         oldStatus = (String) evt.getOldValue();
-      } else {
-         return;
-      }
-      if (tabItemStatusData != null) {
-         tabItemStatusData.dispose();
-      }
-      tabItemStatusData = wf.createTabItem("Status Data", tabFolder);
-      try {
-         Option<Composite> statusComposite = getCompositeFromStatus(newStatus, oldStatus);
-         if (statusComposite.hasValue()) {
-            tabItemStatusData.setControl(statusComposite.get());
-            int currentSelectionIndex = tabFolder.getSelectionIndex();
-            tabFolder.setSelection(currentSelectionIndex);
-         }
-      } catch (Exception e) {
-         logger.logError(e);
-      }
-   }
-
-   // create status subview for the given status
-   private Option<Composite> getCompositeFromStatus(String newStatus, String oldStatus) throws InstantiationException,
-         IllegalAccessException, InvocationTargetException {
-      // --- Ausgeliehen ---
-      if (newStatus.equalsIgnoreCase("ausgeliehen")) {
-         ArticleRented articleRented = subViewDataProvider.getOrCreateArticleRented(currentlySelectedArticle,
-               newStatus, oldStatus);
-         return rentedView.build(getCrudController().get(), articleRented, tabFolder);
-         // --- Angeliefert ---
-      } else if (newStatus.equalsIgnoreCase("angeliefert")) {
-         ArticleDelivered articleDelivered = subViewDataProvider.getOrCreateArticleDelivered(currentlySelectedArticle,
-               newStatus, oldStatus);
-         return deliveredView.build(getCrudController().get(), articleDelivered, tabFolder);
-         // --- Eingebaut ---
-      } else if (newStatus.equals("eingebaut")) {
-         ArticleInstalled articleInstalled = subViewDataProvider.getOrCreateArticleInstalled(currentlySelectedArticle,
-               newStatus, oldStatus);
-         Func1Void<InstalledView> selectArticle = new Func1Void<InstalledView>() {
-            @Override
-            public void apply(final InstalledView installedView) {
-               articleGuiFormActionHandler.lookupArticle(installedView);
+                articleGuiFormActionHandler.setSelectedArticleSelection(wf.getSelection(ITEM_COMBO));
+                addItemSelectionListener(itemSelectionCombo);
             }
-         };
-         return installedView.build(getCrudController().get(), articleInstalled, tabFolder, selectArticle);
-         // --- Im Lager ---
-      } else if (newStatus.equals("in Lager")) {
-         ArticleInStore articleInStore = subViewDataProvider.getOrCreateArticleInStore(currentlySelectedArticle,
-               newStatus, oldStatus);
-         return storeView.build(getCrudController().get(), articleInStore, articleDescriptionId, tabFolder);
-         // --- in Reparatur ---
-      } else if (newStatus.equals("ausgemustert")) {
-         ArticleRetired articleRetired = subViewDataProvider.getOrCreateArticleRetired(currentlySelectedArticle,
-               newStatus, oldStatus);
-         return retiredView.build(getCrudController().get(), articleRetired, tabFolder);
-         // --- in Reparatur ---
-      } else if (newStatus.equals("in Reparatur")) {
-         ArticleMaintenance articleMaintenance = subViewDataProvider.getOrCreateArticleMaintenance(
-               currentlySelectedArticle, newStatus, oldStatus);
-         return maintenanceView.build(getCrudController().get(), articleMaintenance, tabFolder);
-      } else {
-         subViewDataProvider.removeObject(currentlySelectedArticle);
-         return new None<Composite>();
-      }
-   }
+        });
+    }
 
-   private void updateModelsInSubViews() {
-      rentedView.updateModels();
-      deliveredView.updateModels();
-      retiredView.updateModels();
-      installedView.updateModels();
-      maintenanceView.updateModels();
-      storeView.updateModels();
-   }
+    // create "Add new Article", "Add remaining articles" and
+    // "Bulk assign Internal-Ids" buttons
+    private void createButtonComposite(Composite composite) {
+
+        Composite buttonComposite = new Composite(composite, SWT.NONE);
+        MigLayout mlButtonComposite = new MigLayout("ins 0", "[175]5[175]5[175]", "[]5");
+
+        buttonComposite.setLayout(mlButtonComposite);
+        buttonComposite.setLayoutData("spanx 6, wrap");
+
+        wf.button(composite, "addNewArticle").text("Add new Article").hint("w 170!, h 28!")
+                .listener(new SimpleSelectionListener() {
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        Article article = articleGuiFormActionHandler.addNewArticle(articlesInGroup);
+                        propertyChange(new PropertyChangeEvent(ArticleGuiForm.this, EVENT_SOURCE_ARTICLE_NEW, article,
+                                article));
+                    }
+                }).build();
+
+        wf.button(composite, "addRemainingArticles").text("Add remaining articles").hint("w 170!, h 28!, split 2")
+                .listener(new SimpleSelectionListener() {
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        Article refArticle = (Article) articlesInGroup.get(0);
+                        List<OrderPos> orderPos = orderPosService.findByGruppeArtikel(refArticle.getGruppeArtikel());
+                        if (!orderPos.isEmpty()) {
+                            BigDecimal anzahlBestellt = orderPos.get(0).getAnzahlBestellt();
+                            if (anzahlBestellt != null) {
+                                Article article = articleGuiFormActionHandler.addRemainingArticles(articlesInGroup,
+                                        anzahlBestellt.intValue() - articlesInGroup.size());
+                                propertyChange(new PropertyChangeEvent(ArticleGuiForm.this, EVENT_SOURCE_ARTICLE_NEW,
+                                        article, article));
+                            }
+                        }
+                    }
+                }).build();
+
+        wf.button(composite, "assignAllIds").text("Bulk assign Internal-Ids").hint("w 170!, h 28!, wrap")
+                .listener(new SimpleSelectionListener() {
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        articleGuiFormActionHandler.bulkAssignId(articlesInGroup);
+                        wf.setText(P("internId"), currentlySelectedArticle.getInternId());
+                    }
+                }).build();
+
+    }
+
+    private void createTabsheets(Composite composite) {
+        tabFolder = wf.createTabFolder(composite);
+        tabFolder.setLayoutData("wrap, height 400:n:n, spanx 6, growx, growy");
+        tabFolder.addSelectionListener(new SimpleSelectionListener() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                TabFolder tf = (TabFolder) e.getSource();
+
+                boolean enabled = tf.getSelectionIndex() == 0;
+
+                wf.setEnabled(ITEM_COMBO, enabled);
+                wf.setEnabled(P("addNewArticle"), enabled);
+                wf.setEnabled(P("addRemainingArticles"), enabled);
+                wf.setEnabled(P("assignAllIds"), enabled);
+            }
+        });
+        createTabSheetMainData(tabFolder);
+    }
+
+    private void createTabSheetMainData(TabFolder tf) {
+        TabItem tabItemMain = wf.createTabItem("Article", tf);
+        Composite c1 = new Composite(tf, SWT.BORDER);
+        MigLayout mlc1 = new MigLayout("ins 10", "[80][250]80[80][250][10, grow, fill]", "[][][][][]12[fill][]");
+        c1.setLayout(mlc1);
+        tabItemMain.setControl(c1);
+        createMainData(c1);
+    }
+
+    // make sure that the status subview corresponds to the article status
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        String newStatus;
+        String oldStatus;
+        if (evt.getPropertyName().equalsIgnoreCase(EVENT_SOURCE_ARTICLE_INIT)) {
+            currentlySelectedArticle = (Article) evt.getNewValue();
+            oldStatus = currentlySelectedArticle.getStatus();
+            newStatus = oldStatus;
+        } else if (evt.getPropertyName().equalsIgnoreCase(EVENT_SOURCE_ARTICLE_NEW)) {
+            currentlySelectedArticle = (Article) evt.getNewValue();
+            oldStatus = currentlySelectedArticle.getStatus();
+            newStatus = oldStatus;
+        } else if (evt.getPropertyName().equalsIgnoreCase(EVENT_SOURCE_ARTICLE_CHANGED)) {
+            IStructuredSelection structuredSelection = (IStructuredSelection) evt.getNewValue();
+            currentlySelectedArticle = (Article) structuredSelection.getFirstElement();
+            oldStatus = currentlySelectedArticle.getStatus();
+            newStatus = oldStatus;
+        } else if (evt.getPropertyName().equalsIgnoreCase(EVENT_SOURCE_ARTICLE_STATUS)) {
+            // triggered by setStatus(String status) in Article
+            newStatus = (String) evt.getNewValue();
+            oldStatus = (String) evt.getOldValue();
+        } else {
+            return;
+        }
+        if (tabItemStatusData != null) {
+            tabItemStatusData.dispose();
+        }
+        tabItemStatusData = wf.createTabItem("Status Data", tabFolder);
+        try {
+            Option<Composite> statusComposite = getCompositeFromStatus(newStatus, oldStatus);
+            if (statusComposite.hasValue()) {
+                tabItemStatusData.setControl(statusComposite.get());
+                int currentSelectionIndex = tabFolder.getSelectionIndex();
+                tabFolder.setSelection(currentSelectionIndex);
+            }
+        } catch (Exception e) {
+            Dialogs.exception("Unexpected error", e);
+            logger.logError(e);
+        }
+    }
+
+    // create status subview for the given status
+    private Option<Composite> getCompositeFromStatus(String newStatus, String oldStatus) throws InstantiationException,
+            IllegalAccessException, InvocationTargetException {
+        // --- Ausgeliehen ---
+        if (newStatus.equalsIgnoreCase("ausgeliehen")) {
+            ArticleRented articleRented = subViewDataProvider.getOrCreateArticleRented(currentlySelectedArticle,
+                    newStatus, oldStatus);
+            if (articleRented.isNew()) {
+                articleRented.setRentDate(new Date());
+            }
+            return rentedView.build(getCrudController().get(), articleRented, tabFolder);
+            // --- Angeliefert ---
+        } else if (newStatus.equalsIgnoreCase("angeliefert")) {
+            ArticleDelivered articleDelivered = subViewDataProvider.getOrCreateArticleDelivered(
+                    currentlySelectedArticle, newStatus, oldStatus);
+            if (articleDelivered.isNew()) {
+                articleDelivered.setEingegangenAm(new Date());
+            }
+            return deliveredView.build(getCrudController().get(), articleDelivered, tabFolder);
+            // --- Eingebaut ---
+        } else if (newStatus.equals("eingebaut")) {
+            ArticleInstalled articleInstalled = subViewDataProvider.getOrCreateArticleInstalled(
+                    currentlySelectedArticle, newStatus, oldStatus);
+            Func1Void<InstalledView> selectArticle = new Func1Void<InstalledView>() {
+                @Override
+                public void apply(final InstalledView installedView) {
+                    articleGuiFormActionHandler.lookupArticle(installedView);
+                }
+            };
+            if (articleInstalled.isNew()) {
+                articleInstalled.setEingebautAm(new Date());
+            }
+            return installedView.build(getCrudController().get(), articleInstalled, tabFolder, selectArticle);
+            // --- Im Lager ---
+        } else if (newStatus.equals("in Lager")) {
+            ArticleInStore articleInStore = subViewDataProvider.getOrCreateArticleInStore(currentlySelectedArticle,
+                    newStatus, oldStatus);
+            if (articleInStore.isNew()) {
+                articleInStore.setInLagerAm(new Date());
+                articleInStore.setFlagExist("YES");
+            }
+            return storeView.build(getCrudController().get(), articleInStore, articleDescriptionId, tabFolder);
+            // --- in Reparatur ---
+        } else if (newStatus.equals("ausgemustert")) {
+            ArticleRetired articleRetired = subViewDataProvider.getOrCreateArticleRetired(currentlySelectedArticle,
+                    newStatus, oldStatus);
+            if (articleRetired.isNew()) {
+                articleRetired.setAusgemustertAm(new Date());
+            }
+            return retiredView.build(getCrudController().get(), articleRetired, tabFolder);
+            // --- in Reparatur ---
+        } else if (newStatus.equals("in Reparatur")) {
+            ArticleMaintenance articleMaintenance = subViewDataProvider.getOrCreateArticleMaintenance(
+                    currentlySelectedArticle, newStatus, oldStatus);
+            if (articleMaintenance.isNew()) {
+                articleMaintenance.initId(env.getActiveLogGroup());
+                articleMaintenance.setStatus("definiert");
+                articleMaintenance.setStatusVom(new Date());
+            }
+            return maintenanceView.build(getCrudController().get(), articleMaintenance, tabFolder);
+        } else {
+            subViewDataProvider.removeObject(currentlySelectedArticle);
+            return new None<Composite>();
+        }
+    }
+
+    // update the models of the subviews.
+    // Called in canSave.
+    private void updateModelsInSubViews() {
+        rentedView.updateModels();
+        deliveredView.updateModels();
+        retiredView.updateModels();
+        installedView.updateModels();
+        maintenanceView.updateModels();
+        storeView.updateModels();
+    }
 
 }

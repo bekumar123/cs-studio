@@ -53,6 +53,8 @@ public class WinModChannel {
      * @param channelDBO
      */
     public WinModChannel(@Nonnull final ChannelDBO channelDBO) {
+        _desc = "";
+        setChannelType(channelDBO.getChannelType());
         setIsInput(channelDBO.isInput());
         setIsDigital(channelDBO);
         addDescription(channelDBO);
@@ -173,7 +175,7 @@ public class WinModChannel {
                 break;
             case DS33:
                 _lines = channelType.getByteSize();
-                _desc = "> " + channelType;
+//                _desc = "> " + channelType;
                 _convertedChannelType[0] = 'A'; // Analog
                 break;
             default:
@@ -204,6 +206,7 @@ public class WinModChannel {
         final DataType channelType = channelDBO.getChannelType();
         if (channelDBO.isDigital()) {
             _def = "0";
+            _io2 = ""; // empty string represents bit
         } else {
             _def = "0,00";
             final int byteSize = channelType.getByteSize();
@@ -218,9 +221,10 @@ public class WinModChannel {
                     _io2 = "D"; // Double Word
                     break;
                 case 5:
-                    _io2 = "D"; // hier kommt sicherlich was anderes hin!
+                    _io2 = "D"; // hack: this is the DS33 type. it will be displayed as a double word (here and now) and a status byte (somewhere later).
                     break;
                 default:
+                    _io2 = "?"; // this will raise problems with the output file, therefore it is chosen.
                     break;
             }
         }
@@ -245,7 +249,7 @@ public class WinModChannel {
      * @return
      */
     public boolean single() {
-        return _lines>1;
+        return _lines <= 1;
     }
 
 

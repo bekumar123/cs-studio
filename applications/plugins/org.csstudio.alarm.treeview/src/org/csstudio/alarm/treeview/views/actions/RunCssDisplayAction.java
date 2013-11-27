@@ -26,6 +26,8 @@ import javax.annotation.Nonnull;
 
 import org.csstudio.alarm.treeview.model.IAlarmTreeNode;
 import org.csstudio.alarm.treeview.model.ProcessVariableNode;
+import org.csstudio.alarm.treeview.preferences.AlarmTreePreference;
+import org.csstudio.alarm.treeview.views.actions.RunCssAlarmDisplayAction.AlarmsDisplayWithProperties;
 import org.csstudio.sds.ui.runmode.RunModeService;
 import org.csstudio.utility.ldap.treeconfiguration.EpicsAlarmcfgTreeNodeAttribute;
 import org.eclipse.core.runtime.IPath;
@@ -66,14 +68,52 @@ public final class RunCssDisplayAction extends Action {
         final IStructuredSelection selection = (IStructuredSelection) _viewer.getSelection();
         final Object selected = selection.getFirstElement();
         if (selected instanceof IAlarmTreeNode) {
-            final IAlarmTreeNode node = (IAlarmTreeNode) selected;
-            final IPath path = new Path(node.getInheritedPropertyWithUrlProtocol(EpicsAlarmcfgTreeNodeAttribute.CSS_DISPLAY));
-            final Map<String, String> aliases = new HashMap<String, String>();
+        	final IAlarmTreeNode node = (IAlarmTreeNode) selected;
+
+        	String inheritedPropertyWithUrlProtocol = node.getInheritedPropertyWithUrlProtocol(EpicsAlarmcfgTreeNodeAttribute.CSS_DISPLAY);
+            DisplayWithProperties displayWithProperties = new DisplayWithProperties(inheritedPropertyWithUrlProtocol);
+            final Map<String, String> aliases = displayWithProperties.getAliases();
+            
             if (node instanceof ProcessVariableNode) {
-                aliases.put("channel", node.getName());
+                String key = AlarmTreePreference.ALARM_DISPLAY_ALIAS.getValue();
+                aliases.put(key, node.getName());
             }
-            LOG.debug("Opening display: " + path);
-            RunModeService.getInstance().openDisplayShellInRunMode(path, aliases);
+            LOG.debug("Opening display: " + displayWithProperties.getPath());
+            RunModeService.getInstance().openDisplayShellInRunMode(displayWithProperties.getPath(), aliases);
         }
+    }
+    
+    class DisplayWithProperties {
+    	private Map<String, String> aliases;
+    	private IPath displayPath;
+    	
+    	public DisplayWithProperties(String encodedDisplayWithProperties) {
+            // split aliases from display name
+            String[] propertyComponents = encodedDisplayWithProperties.split("\\?");
+            
+            displayPath = new Path(propertyComponents[0]);
+            aliases = new HashMap<String, String>();
+            
+            if (propertyComponents.length > 1) {
+            	String[] keyValuePairs = propertyComponents[1].split(",");
+            	for (String keyValuePair : keyValuePairs) {
+					String[] keyAndValue = keyValuePair.split("=");
+					if (keyAndValue.length > 1) {
+						aliases.put(keyAndValue[0], keyAndValue[1]);
+					} else {
+						LOG.warn("Malformed Arguments in Alarm-Display: " + keyValuePair);
+					}
+				}
+            }
+
+    	}
+
+		public Map<String, String> getAliases() {
+			return aliases;
+		}
+
+		public IPath getPath() {
+			return displayPath;
+		}
     }
 }

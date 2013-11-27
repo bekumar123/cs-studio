@@ -509,7 +509,12 @@ public class DataBrowserPropertySheetPage extends Page implements IPropertySheet
         final SelectionListener start_end_action = new SelectionAdapter() {
             @Override
             public void widgetSelected(final SelectionEvent e) {
+                System.out
+                        .println("DataBrowserPropertySheetPage.createTimeAxisTab(...).new SelectionAdapter() {...}.widgetSelected() s "+System.currentTimeMillis());
                 StartEndTimeAction.run(parent.getShell(), model, operations_manager);
+                System.out
+                .println("DataBrowserPropertySheetPage.createTimeAxisTab(...).new SelectionAdapter() {...}.widgetSelected() e "+System.currentTimeMillis());
+   
             }
         };
         start_end.addSelectionListener(start_end_action);

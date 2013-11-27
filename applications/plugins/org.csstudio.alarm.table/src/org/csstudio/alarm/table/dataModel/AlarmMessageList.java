@@ -35,6 +35,7 @@ import java.util.Vector;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
+import org.csstudio.alarm.table.preferences.alarm.AlarmViewPreference;
 import org.csstudio.domain.desy.epics.alarm.EpicsAlarmSeverity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +60,7 @@ public class AlarmMessageList extends AbstractMessageList {
     private boolean _showOutdatedMessages = true;
 
     public AlarmMessageList() {
-        // nothing to do
+        _showOutdatedMessages = AlarmViewPreference.ALARMVIEW_SHOW_OUTDATED_MESSAGES.getValue();
     }
 
     /**

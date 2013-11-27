@@ -29,7 +29,6 @@ import com.google.inject.Provider;
 public abstract class AbstractCrudEditorPartTemplate<T extends BindingEntity> extends EditorPart implements
 			PropertyChangeListener, CrudController<T>, DataChangeSupport {
 
-	// @Inject
 	private GenericEditorInput<T> editorInput;
 
 	@Inject

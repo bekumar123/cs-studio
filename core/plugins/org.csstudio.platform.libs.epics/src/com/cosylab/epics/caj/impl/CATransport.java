@@ -263,30 +263,33 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	 * Notifies clients about disconnect.
 	 */
 	private void closedNotifyClients() {
+		TransportClient[] clients;
 		synchronized (owners)
 		{
 			// check if still acquired
 			int refs = owners.size();
-			if (refs > 0)
-			{ 
-				context.getLogger().fine("Transport to " + socketAddress + " still has " + refs + " client(s) active and closing...");
-				TransportClient[] clients = new TransportClient[refs];
-				owners.keySet().toArray(clients);
-				for (int i = 0; i < clients.length; i++)
-				{
-					try
-					{
-						clients[i].transportClosed();
-					}
-					catch (Throwable th)
-					{
-						// TODO remove
-						logger.log(Level.SEVERE, "", th);
-					}
-				}
-			}
+			if (refs == 0)
+				return;
 			
+			context.getLogger().fine("Transport to " + socketAddress + " still has " + refs + " client(s) active and closing...");
+			clients = new TransportClient[refs];
+			owners.keySet().toArray(clients);
 			owners.clear();
+		}
+
+		// NOTE: not perfect, but holding a lock on owners
+		// and calling external method leads to deadlocks
+		for (int i = 0; i < clients.length; i++)
+		{
+			try
+			{
+				clients[i].transportClosed();
+			}
+			catch (Throwable th)
+			{
+				// TODO remove
+				logger.log(Level.SEVERE, "", th);
+			}
 		}
 	}
 
@@ -604,67 +607,66 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	// TODO optimize !!!
 	public void send(ByteBuffer buffer) throws IOException
 	{
+		try
 		{
-			try
+			synchronized (sendLock)
 			{
-				synchronized (sendLock)
+				// prepare buffer
+				buffer.flip();
+
+				final int SEND_BUFFER_LIMIT = 16000;
+				int bufferLimit = buffer.limit();
+
+				// TODO remove?!
+				context.getLogger().finest("Sending " + bufferLimit + " bytes to " + socketAddress + ".");
+
+				// limit sending large buffers, split the into parts
+				int parts = (buffer.limit()-1) / SEND_BUFFER_LIMIT + 1;
+				for (int part = 1; part <= parts; part++)
 				{
-					// prepare buffer
-					buffer.flip();
-	
-					final int SEND_BUFFER_LIMIT = 16000;
-					int bufferLimit = buffer.limit();
-	
-					// TODO remove?!
-					context.getLogger().finest("Sending " + bufferLimit + " bytes to " + socketAddress + ".");
-	
-					// limit sending large buffers, split the into parts
-					int parts = (buffer.limit()-1) / SEND_BUFFER_LIMIT + 1;
-					for (int part = 1; part <= parts; part++)
+					if (parts > 1)
 					{
-						if (parts > 1)
-						{
-							buffer.limit(Math.min(part * SEND_BUFFER_LIMIT, bufferLimit));
-							context.getLogger().finest("[Parted] Sending (part " + part + "/" + parts + ") " + (buffer.limit()-buffer.position()) + " bytes to " + socketAddress + ".");
-						}
-						
-						final int TRIES = 10;
-						for (int tries = 0; /* tries <= TRIES */ ; tries++)
-						{
-							
-							// send
-							/*int bytesSent =*/ channel.write(buffer);
-							// bytesSend == buffer.position(), so there is no need for flip()
-							if (buffer.position() != buffer.limit())
-							{
-								if (tries >= TRIES)
-								{
-									context.getLogger().warning("Failed to send message to " + socketAddress + " - buffer full, will retry.");
-								}
-								
-								// flush & wait for a while...
-								context.getLogger().finest("Send buffer full for " + socketAddress + ", waiting...");
-								channel.socket().getOutputStream().flush();
-								try {
-									Thread.sleep(Math.min(15000,10+tries*100));
-								} catch (InterruptedException e) {
-									// noop
-								}
-								continue;
-							}
-							else
-								break;
-						}
-					
+						buffer.limit(Math.min(part * SEND_BUFFER_LIMIT, bufferLimit));
+						context.getLogger().finest("[Parted] Sending (part " + part + "/" + parts + ") " + (buffer.limit()-buffer.position()) + " bytes to " + socketAddress + ".");
 					}
-				}				
+					
+					final int TRIES = 10;
+					for (int tries = 0; /* tries <= TRIES */ ; tries++)
+					{
+						
+						// send
+						/*int bytesSent =*/ channel.write(buffer);
+						// bytesSend == buffer.position(), so there is no need for flip()
+						if (buffer.position() != buffer.limit())
+						{
+							if (tries >= TRIES)
+							{
+								context.getLogger().warning("Failed to send message to " + socketAddress + " - buffer full, will retry.");
+							}
+							
+							// flush & wait for a while...
+							context.getLogger().finest("Send buffer full for " + socketAddress + ", waiting...");
+							channel.socket().getOutputStream().flush();
+							try {
+								Thread.sleep(Math.min(15000,10+tries*100));
+							} catch (InterruptedException e) {
+								// noop
+							}
+							continue;
+						}
+						else
+							break;
+					}
+				
+				}
+				
 			}
-			catch (IOException ioex) 
-			{
-				// close connection
-				close(true);
-				throw ioex;
-			}
+		}
+		catch (IOException ioex) 
+		{
+			// close connection
+			close(true);
+			throw ioex;
 		}
 	}
 
@@ -1000,23 +1002,29 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 		if (unresponsiveTransport)
 		{
 		    unresponsiveTransport = false;
+		    
+		    TransportClient[] clients;
 			synchronized (owners)
 			{
-				TransportClient[] clients = new TransportClient[owners.size()];
+				clients = new TransportClient[owners.size()];
 				owners.keySet().toArray(clients);
-				for (int i = 0; i < clients.length; i++)
+			}
+
+			// NOTE: not perfect, but holding a lock on owners
+			// and calling external method leads to deadlocks
+			for (int i = 0; i < clients.length; i++)
+			{
+				try
 				{
-					try
-					{
-						clients[i].transportResponsive(this);
-					}
-					catch (Throwable th)
-					{
-						// TODO remove
-						logger.log(Level.SEVERE, "", th);
-					}
+					clients[i].transportResponsive(this);
+				}
+				catch (Throwable th)
+				{
+					// TODO remove
+					logger.log(Level.SEVERE, "", th);
 				}
 			}
+			
 		}
 	}
 
@@ -1045,41 +1053,20 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 				}
 			}
 		    
+			TransportClient[] clients;
 			synchronized (owners)
 			{
-				TransportClient[] clients = new TransportClient[owners.size()];
+				clients = new TransportClient[owners.size()];
 				owners.keySet().toArray(clients);
-				for (int i = 0; i < clients.length; i++)
-				{
-					try
-					{
-						clients[i].transportUnresponsive();
-					}
-					catch (Throwable th)
-					{
-						// TODO remove
-						logger.log(Level.SEVERE, "", th);
-					}
-				}
 			}
-		}
-	}
-
-
-	/**
-	 * Changed transport (server restared) notify. 
-	 */
-	public void changedTransport()
-	{
-		synchronized (owners)
-		{
-			TransportClient[] clients = new TransportClient[owners.size()];
-			owners.keySet().toArray(clients);
+			
+			// NOTE: not perfect, but holding a lock on owners
+			// and calling external method leads to deadlocks
 			for (int i = 0; i < clients.length; i++)
 			{
 				try
 				{
-					clients[i].transportChanged();
+					clients[i].transportUnresponsive();
 				}
 				catch (Throwable th)
 				{
@@ -1088,5 +1075,35 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 				}
 			}
 		}
+	}
+
+
+	/**
+	 * Changed transport (server restarted) notify. 
+	 */
+	public void changedTransport()
+	{
+		TransportClient[] clients;
+		synchronized (owners)
+		{
+			clients = new TransportClient[owners.size()];
+			owners.keySet().toArray(clients);
+		}
+		
+		// NOTE: not perfect, but holding a lock on owners
+		// and calling external method leads to deadlocks
+		for (int i = 0; i < clients.length; i++)
+		{
+			try
+			{
+				clients[i].transportChanged();
+			}
+			catch (Throwable th)
+			{
+				// TODO remove
+				logger.log(Level.SEVERE, "", th);
+			}
+		}
+		
 	}
 }

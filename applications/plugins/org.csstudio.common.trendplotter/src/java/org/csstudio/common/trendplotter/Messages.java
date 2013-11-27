@@ -60,6 +60,8 @@ public class Messages extends NLS
     public static String ArchiveServerInfoTT;
     public static String ArchiveURLDialogTitle;
     public static String AutoScale;
+    public static String AutoScaleBtn;
+    public static String AutoScaleButtonTT;
     public static String Axis;
     public static String AxisMax;
     public static String AxisMin;
@@ -144,6 +146,9 @@ public class Messages extends NLS
     public static String ImportTitle;
     public static String ImportTypeLbl;
     public static String Information;
+    public static String InitScale;
+    public static String InitScaleBtn;
+    public static String InitScaleButtonTT;
     public static String InspectSamples;
     public static String InvalidScanPeriodError;
     public static String InvalidStartEndTimeError;
@@ -158,7 +163,10 @@ public class Messages extends NLS
     public static String LogentryDefaultBody;
     public static String LogentryDefaultTitle;
     public static String LogScale;
+    public static String LinScaleButtonTT;
+    public static String LogScaleButtonTT;
     public static String Model_Disconnected;
+    public static String NegErrColumn;
     public static String Name;
     public static String NameLbl;
     public static String NotApplicable;
@@ -174,6 +182,7 @@ public class Messages extends NLS
     public static String Plot_TimeAxisName;
     public static String Plot_ValueAxisName;
     public static String Plot_ValueAxisNameFMT;
+    public static String PosErrColumn;
     public static String PrefPage_ArchiveFetchDelay;
     public static String PrefPage_Archives;
     public static String PrefPage_DataServerURLs;
@@ -182,6 +191,7 @@ public class Messages extends NLS
     public static String PrefPage_ScanPeriod;
     public static String PrefPage_TimeRange;
     public static String PrefPage_Title;
+    public static String PrefPage_MySql_Title;
     public static String PrefPage_TraceLineWidth;
     public static String PrefPage_UpdatePeriod;
     public static String PrintSnapshot;

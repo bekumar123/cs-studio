@@ -33,6 +33,9 @@ import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.typesupport.BaseTypeConversionSupport;
 import org.csstudio.domain.desy.typesupport.TypeSupportException;
+import org.epics.util.array.ArrayDouble;
+import org.epics.util.array.ListDouble;
+import org.epics.vtype.VType;
 
 import com.google.common.primitives.Doubles;
 
@@ -83,4 +86,25 @@ final class DoubleSystemVariableSupport extends EpicsSystemVariableSupport<Doubl
                                                  min,
                                                  max);
     }
+
+	@Override
+	@Nonnull
+	protected VType convertEpicsSystemVariableToVType(
+			final EpicsSystemVariable<Double> sysVar) throws TypeSupportException {
+			return org.epics.vtype.ValueFactory.newVDouble(sysVar.getData().doubleValue(),
+					getAlarm(sysVar.getAlarm()),
+					getTime(sysVar.getTimestamp()),
+					getDisplay(sysVar.getMetaData()));
+	}
+
+	@Override
+	@Nonnull
+	protected VType convertCollectionToVType(final Collection<Double> data,
+			final EpicsAlarm alarm, final TimeInstant timestamp)
+			throws TypeSupportException {
+		      final ListDouble l=new ArrayDouble( Doubles.toArray(data), true);
+		      return  org.epics.vtype.ValueFactory.newVDoubleArray( l, getAlarm(alarm), getTime(timestamp), org.epics.vtype.ValueFactory.displayNone());
+   }
+
+
 }

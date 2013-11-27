@@ -9,6 +9,7 @@ import javax.persistence.TypedQuery;
 import org.csstudio.utility.toolbox.entities.OrderPos;
 import org.csstudio.utility.toolbox.entities.OrderPosFinder;
 import org.csstudio.utility.toolbox.guice.ClearPersistenceContextOnReturn;
+import org.csstudio.utility.toolbox.types.OrderId;
 
 import com.google.inject.Inject;
 
@@ -26,9 +27,9 @@ public class OrderPosService implements OrderPosFinder {
 	
 	@ClearPersistenceContextOnReturn
 	@Override
-	public List<OrderPos> findByBaNr(BigDecimal baNr) {
-		TypedQuery<OrderPos> query = em.createNamedQuery(OrderPos.FIND_BY_BA_NR, OrderPos.class);
-		query.setParameter("baNr", baNr);
+	public List<OrderPos> findPositions(OrderId baId) {
+		TypedQuery<OrderPos> query = em.createNamedQuery(OrderPos.FIND_BY_PARENT_ID, OrderPos.class);
+		query.setParameter("baId", baId.getValue());
 		return query.getResultList();		
 	}
 }

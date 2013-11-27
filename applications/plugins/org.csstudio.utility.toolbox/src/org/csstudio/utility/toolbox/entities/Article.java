@@ -215,6 +215,11 @@ public class Article extends BindingEntity implements TextValue, Cloneable<Artic
 		return ToStringBuilder.reflectionToString(this);
 	}
 
+	@Transient
+    public boolean isInStore() {
+        return getStatus().equals("In Lager");
+    }
+
 	/**
 	 * @see java.lang.Object#hashCode()
 	 */

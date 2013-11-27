@@ -23,6 +23,9 @@ package org.csstudio.platform.libs.epics;
 
 import gov.aps.jca.jni.JNITargetArch;
 
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -131,10 +134,13 @@ public class EpicsPlugin extends Plugin
 
         if (!use_pure_java)
         {
+            getLogger().log(Level.INFO, "Using JNI");
             final String jni_target = JNITargetArch.getTargetArch();
+            getLogger().log(Level.INFO, "jni-target: " + jni_target);
             // this property must be unset, because JCA might mistakenly use it
             final String path = "gov.aps.jca.jni.epics."
                                  .concat(jni_target).concat(".library.path");
+            getLogger().log(Level.INFO, "path: " + path);
             System.setProperty(path, "");
             // In case we have a dependency to Com and ca,
             // try to load those.
@@ -170,8 +176,9 @@ public class EpicsPlugin extends Plugin
                         + "Could be a problem if JCA binary depends on them",
                         com_ca_exception);
                 // This is an error for sure:
-                getLogger().log(Level.SEVERE, "Cannot load JCA binary", ex);
+                getLogger().log(Level.INFO, "Cannot load JCA binary", ex);
             }
+            getLogger().log(Level.INFO, "jca lib loaded");
         }
     }
 

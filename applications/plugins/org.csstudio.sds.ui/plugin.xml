@@ -786,4 +786,9 @@
             name="PV Search View">
       </command>
    </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="org.csstudio.sds.ui.RunModeBoxAutostartStartup"></startup>
+   </extension>
 </plugin>

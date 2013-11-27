@@ -105,7 +105,10 @@ public class HistoryDialog extends TitleAreaDialog {
 			@Override
 			public String getText(Object element) {
 				ArticleHistoryInfo ahi = (ArticleHistoryInfo) element;
-				SimpleDateFormat sd = new SimpleDateFormat(env.getDateFormat());
+				if (ahi.getDate() == null) {
+				    return "";
+				}
+				SimpleDateFormat sd = new SimpleDateFormat(env.getDateFormat());				
 				return sd.format(ahi.getDate());
 			}
 		});

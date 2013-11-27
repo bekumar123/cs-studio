@@ -10,11 +10,12 @@ package org.csstudio.common.trendplotter.model;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Timer;
 import java.util.logging.Level;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -29,10 +30,11 @@ import org.csstudio.common.trendplotter.Activator;
 import org.csstudio.common.trendplotter.Messages;
 import org.csstudio.common.trendplotter.imports.ImportArchiveReaderFactory;
 import org.csstudio.common.trendplotter.preferences.Preferences;
-import org.csstudio.data.values.ITimestamp;
-import org.csstudio.data.values.TimestampFactory;
+
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.graphics.RGB;
+import org.epics.util.time.TimeDuration;
+import org.epics.util.time.Timestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -203,7 +205,7 @@ public class Model
     private double time_span = Preferences.getTimeSpan();
 
     /** End time of the data range */
-    private ITimestamp end_time = TimestampFactory.now();
+    private Timestamp end_time = Timestamp.now();
 
     /** Background color */
     private RGB background = new RGB(255, 255, 255);
@@ -596,9 +598,9 @@ public class Model
     /** @param start_time Start and ..
      *  @param end_time   end time of the range to display
      */
-    public void setTimerange(final ITimestamp start_time, final ITimestamp end_time)
+    public void setTimerange(final Timestamp start_time, final Timestamp end_time)
     {
-        final double new_span = end_time.toDouble() - start_time.toDouble();
+        final double new_span = end_time.getSec() - start_time.getSec();
         if (new_span > 0)
         {
             synchronized (this)
@@ -632,18 +634,18 @@ public class Model
     /** @return Start time of the data range
      *  @see #isScrollEnabled()
      */
-    synchronized public ITimestamp getStartTime()
+    synchronized public Timestamp getStartTime()
     {
-        return TimestampFactory.fromDouble(getEndTime().toDouble() - time_span);
+       return getEndTime().minus(TimeDuration.ofSeconds((long)time_span));
     }
 
     /** @return End time of the data range
      *  @see #isScrollEnabled()
      */
-    synchronized public ITimestamp getEndTime()
+    synchronized public Timestamp getEndTime()
     {
         if (scroll_enabled)
-            end_time = TimestampFactory.now();
+            end_time = Timestamp.now();
         return end_time;
     }
 
@@ -652,21 +654,29 @@ public class Model
      */
     synchronized public String getStartSpecification()
     {
+        SimpleDateFormat s=new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");  
+        Calendar c= Calendar.getInstance();
+        c.setTimeInMillis(getStartTime().getSec()*1000);
         if (scroll_enabled)
             return new RelativeTime(-time_span).toString();
         else
-            return getStartTime().toString();
+            return  s.format(c.getTime());       
+
+           // return getStartTime().toString();
     }
 
     /** @return String representation of end time. While scrolling, this is
      *          a relative time, otherwise an absolute date/time.
      */
     synchronized public String getEndSpecification()
-    {
+    { SimpleDateFormat s=new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");  
+        Calendar c= Calendar.getInstance();
+        c.setTimeInMillis(end_time.getSec()*1000);
         if (scroll_enabled)
             return RelativeTime.NOW;
         else
-            return end_time.toString();
+            return  s.format(c.getTime());  
+        // return TimeInstantBuilder.fromSeconds(end_time.getSec()).toString();
     }
 
     /** @return Background color */
@@ -804,6 +814,7 @@ public class Model
      */
     void fireItemDataConfigChanged(final PVItem item)
     {
+        System.out.println("Model.fireItemDataConfigChanged()");
         for (ModelListener listener : listeners)
             listener.changedItemDataConfig(item);
     }
@@ -899,8 +910,10 @@ public class Model
         }
         else
         {
-            XMLWriter.XML(writer, 1, TAG_START, getStartTime());
-            XMLWriter.XML(writer, 1, TAG_END, getEndTime());
+           // XMLWriter.XML(writer, 1, TAG_START, getStartTime());
+           // XMLWriter.XML(writer, 1, TAG_END, getEndTime());
+            XMLWriter.XML(writer, 1, TAG_START, getStartSpecification());
+            XMLWriter.XML(writer, 1, TAG_END, getEndSpecification());
         }
 
         // Time axis config
@@ -986,8 +999,8 @@ public class Model
         if (start.length() > 0  &&  end.length() > 0)
         {
             final StartEndTimeParser times = new StartEndTimeParser(start, end);
-            setTimerange(TimestampFactory.fromCalendar(times.getStart()),
-                         TimestampFactory.fromCalendar(times.getEnd()));
+            setTimerange(Timestamp.of(times.getStart().getTime()),
+                         Timestamp.of(times.getEnd().getTime()));
         }
 
         RGB color = loadColorFromDocument(root_node, TAG_BACKGROUND);

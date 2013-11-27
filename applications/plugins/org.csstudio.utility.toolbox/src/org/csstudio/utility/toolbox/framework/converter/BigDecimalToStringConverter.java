@@ -18,6 +18,9 @@ public class BigDecimalToStringConverter implements IConverter {
 
 	@Override
 	public Object convert(Object fromObject) {
+	    if (fromObject == null) {
+	        return "";
+	    }
 		String value = fromObject.toString();
 		value = value.replace(".", "");
 		return value;

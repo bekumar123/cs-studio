@@ -131,7 +131,7 @@
    </plugins>
 
    <features>
-      <feature id="org.csstudio.cagateway.feature" version="1.0.0.qualifier"/>
+      <feature id="org.csstudio.cagateway.feature" version="1.0.0.201212201100"/>
    </features>
 
    <configurations>

@@ -44,4 +44,10 @@ final class PreferenceConstants {
 	 */
 	final static String ANONYMOUS_LOGIN_PASSWORD = "anonPassword";
 
+	/**
+	 * Preference constant show xmpp login on startup.
+	 * Login anonymously if set to false.
+	 */
+	final static String AUTOMATIC_XMPP_LOGIN = "automaticXmppLogin";
+	
 }

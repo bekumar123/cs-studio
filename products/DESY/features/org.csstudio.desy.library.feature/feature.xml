@@ -2,7 +2,7 @@
 <feature
       id="org.csstudio.desy.library.feature"
       label="Library Feature"
-      version="1.0.0.201302071400"
+      version="1.5.4.201309031015"
       provider-name="Desy, Jan Hatje &lt;jan.hatje@desy.de&gt;">
 
    <description url="http://www.example.com/description">
@@ -272,6 +272,27 @@
 
    <plugin
          id="org.csstudio.utility.namespace.utility"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.csstudio.archive.vtype"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.csstudio.archive.vtype.trendplotter"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.epics.vtype"
          download-size="0"
          install-size="0"
          version="0.0.0"

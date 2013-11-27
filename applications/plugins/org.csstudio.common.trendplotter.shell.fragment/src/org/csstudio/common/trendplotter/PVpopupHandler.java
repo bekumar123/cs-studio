@@ -37,6 +37,7 @@ public class PVpopupHandler extends AbstractHandler {
     
     private Shell _shell;
     private Model _model;
+    private Plot _plot;
 
     public Object execute(ExecutionEvent event) throws ExecutionException {
         _model = new Model();
@@ -44,6 +45,17 @@ public class PVpopupHandler extends AbstractHandler {
         _shell.setText("Trendplotter Shell");
         _shell.setLocation(10, 10);
         _shell.setSize(800, 600);
+
+        // Create GUI elements (Plot)
+        final GridLayout layout = new GridLayout();
+        _shell.setLayout(layout);
+        
+        // Canvas that holds the graph
+        final Canvas plot_box = new Canvas(_shell, 0);
+        plot_box.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, layout.numColumns, 1));
+        
+        _plot = Plot.forCanvas(plot_box);
+        
         createMenuBar();
         
         
@@ -57,18 +69,8 @@ public class PVpopupHandler extends AbstractHandler {
             }
         }
         
-        // Create GUI elements (Plot)
-        final GridLayout layout = new GridLayout();
-        _shell.setLayout(layout);
-        
-        // Canvas that holds the graph
-        final Canvas plot_box = new Canvas(_shell, 0);
-        plot_box.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, layout.numColumns, 1));
-        
-        final Plot plot = Plot.forCanvas(plot_box);
-        
         // Create and start controller
-        final Controller controller = new Controller(_shell, _model, plot);
+        final Controller controller = new Controller(_shell, _model, _plot);
         try {
             controller.start();
         } catch (final Exception ex) {
@@ -118,6 +120,7 @@ public class PVpopupHandler extends AbstractHandler {
         MenuManager plotMenu = new MenuManager("Plot");
         
         plotMenu.add(new RemovePvAction(_model));
+        plotMenu.add(new SaveTrendAction(_shell, _model, _plot));
         menuManager.add(plotMenu);
         // Added by Markus Moeller, 2009-01-26
         // Search for the screenshot plugin

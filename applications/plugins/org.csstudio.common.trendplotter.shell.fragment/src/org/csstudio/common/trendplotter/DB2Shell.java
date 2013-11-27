@@ -1,9 +1,11 @@
 package org.csstudio.common.trendplotter;
 
 import java.util.logging.Level;
+
 import org.csstudio.common.trendplotter.Activator;
 import org.csstudio.common.trendplotter.Messages;
 import org.csstudio.common.trendplotter.editor.DataBrowserEditor;
+import org.csstudio.common.trendplotter.model.AxisConfig;
 import org.csstudio.common.trendplotter.model.Model;
 import org.csstudio.common.trendplotter.ui.Controller;
 import org.csstudio.common.trendplotter.ui.Plot;
@@ -41,6 +43,7 @@ public class DB2Shell {
     private IFile _file;
     private Shell _shell;
     private Model _model = new Model();
+    private Plot _plot = null;
     
     public DB2Shell(IFile file) {
         _file = file;
@@ -48,6 +51,16 @@ public class DB2Shell {
         _shell.setText(_file.getName());
         _shell.setLocation(10, 10);
         _shell.setSize(800, 600);
+
+        // Create GUI elements (Plot)
+        GridLayout layout = new GridLayout();
+        _shell.setLayout(layout);
+        
+        // Canvas that holds the graph
+        final Canvas plot_box = new Canvas(_shell, 0);
+        plot_box.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, layout.numColumns, 1));
+        
+        _plot = Plot.forCanvas(plot_box);
         createMenuBar();
     }
     
@@ -58,6 +71,7 @@ public class DB2Shell {
         MenuManager plotMenu = new MenuManager("Plot");
         
         plotMenu.add(new RemovePvAction(_model));
+        plotMenu.add(new SaveTrendAction(_shell, _model, _plot));
         menuManager.add(plotMenu);
         
         // Added by Markus Moeller, 2009-01-26
@@ -94,19 +108,17 @@ public class DB2Shell {
             }
         }
         
-        // Create GUI elements (Plot)
-        GridLayout layout = new GridLayout();
-        _shell.setLayout(layout);
-        
-        
-        // Canvas that holds the graph
-        final Canvas plot_box = new Canvas(_shell, 0);
-        plot_box.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, layout.numColumns, 1));
-        
-        Plot plot = Plot.forCanvas(plot_box);
+        //remove empty axis (Sometimes there are empty axis in plt config file and
+        //then DnD to first empty axis produces strange behaviour)
+        AxisConfig axis = _model.getEmptyAxis();
+        while (axis != null)
+        {
+            _model.removeAxis(axis);
+            axis = _model.getEmptyAxis();
+        }
         
         // Create and start controller
-        final Controller controller = new Controller(_shell, _model, plot);
+        final Controller controller = new Controller(_shell, _model, _plot);
         try {
             controller.start();
         } catch (Exception ex) {

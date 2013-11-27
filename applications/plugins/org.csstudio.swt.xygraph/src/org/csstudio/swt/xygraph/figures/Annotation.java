@@ -181,9 +181,6 @@ public class Annotation extends Figure implements IAxisListener, IDataProviderLi
 		graphics.setForegroundColor(tempColor);
 		Dimension size = infoLabel.getPreferredSize();
 		updateX0Y0Fromdxdy(size);	
-		//System.out.println(x0 +": " +y0 + " ");
-		System.out.println("---- curr pos x: " + currentPosition.x + "   y  " + currentPosition.y);
-		System.out.println("---- x0: " + x0 + "   y0  " + y0);
 
 		Rectangle infoBounds = new Rectangle((int) (currentPosition.x + x0 - size.width/2.0), 
 				(int) (currentPosition.y +y0 - size.height/2.0), size.width, size.height);

@@ -176,4 +176,20 @@ public interface PlotListener
 
     public void valueAxisLogScaleChanged(int index, boolean old,
             boolean logScale);
+    
+    /** Called when the user requests auto scale for all pvs
+     */
+    public void autoScaleRequested();
+
+    /** Called when the user initializes all pvs with HOPR LOPR
+     */
+    public void initScaleRequested();
+
+    /** Called when the user requests log scale for all pvs.
+     */
+    public void logScaleRequested();
+
+    /** Called when the user requests linear scale for all pvs.
+     */
+    public void linearScaleRequested();
 }

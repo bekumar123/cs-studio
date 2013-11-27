@@ -2,7 +2,7 @@
 <feature
       id="org.csstudio.desy.platform.base.feature"
       label="CSS Platform Base Feature"
-      version="1.0.0.201302181100"
+      version="1.5.6.201311121015"
       provider-name="Desy, Jan Hatje &lt;jan.hatje@desy.de&gt;">
 
    <description url="http://www.example.com/description">
@@ -311,20 +311,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.csstudio.logging"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.csstudio.logging.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.csstudio.ui.menu"
          download-size="0"
          install-size="0"
@@ -468,4 +454,18 @@
          fragment="true"
          unpack="false"/>
 
+   <plugin
+         id="org.csstudio.logging"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.csstudio.logging.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+         
 </feature>

@@ -33,9 +33,11 @@ import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.typesupport.BaseTypeConversionSupport;
 import org.csstudio.domain.desy.typesupport.TypeSupportException;
+import org.epics.vtype.VType;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
+import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Longs;
 
 /**
@@ -74,7 +76,22 @@ final class ByteSystemVariableSupport extends EpicsSystemVariableSupport<Byte> {
                                             null,
                                             Longs.toArray(longs));
     }
-
+	@Override
+	@Nonnull
+	protected VType convertCollectionToVType(final Collection<Byte> data,
+			final EpicsAlarm alarm, final TimeInstant timestamp)
+			throws TypeSupportException {
+		  final Collection<Double> longs =
+		            Collections2.transform(data,
+		                                   new Function<Byte, Double> () {
+		                @Override
+		                @Nonnull
+		                public Double apply(@Nonnull final Byte from) {
+		                    return Double.valueOf(from);
+		                }
+		            });
+		return  org.epics.vtype.ValueFactory.newVDoubleArray(Doubles.toArray(longs), getAlarm(alarm), getTime(timestamp), org.epics.vtype.ValueFactory.displayNone());
+	}
     @Override
     @Nonnull
     protected IValue convertToIMinMaxDoubleValue(@Nonnull final IAlarmSystemVariable<Byte> sysVar,
@@ -84,6 +101,8 @@ final class ByteSystemVariableSupport extends EpicsSystemVariableSupport<Byte> {
                                                  (EpicsAlarm) sysVar.getAlarm(),
                                                  sysVar.getData(), min, max);
     }
+
+
 //
 //    /**
 //     * {@inheritDoc}
@@ -124,4 +143,21 @@ final class ByteSystemVariableSupport extends EpicsSystemVariableSupport<Byte> {
                                             null,
                                             new long[]{sysVar.getData().longValue()});
     }
+
+
+
+	@Override
+	@Nonnull
+	protected VType convertEpicsSystemVariableToVType(
+			final EpicsSystemVariable<Byte> sysVar) throws TypeSupportException {
+		return org.epics.vtype.ValueFactory.newVDouble(new Double(sysVar.getData().longValue()),
+				getAlarm(sysVar.getAlarm()),
+				getTime(sysVar.getTimestamp()),
+				org.epics.vtype.ValueFactory.displayNone());
+	}
+
+
+
+
+
 }

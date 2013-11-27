@@ -1,8 +1,9 @@
 package org.csstudio.utility.toolbox.entities;
 
-import java.math.BigDecimal;
 import java.util.List;
 
+import org.csstudio.utility.toolbox.types.OrderId;
+
 public interface OrderPosFinder {
-	List<OrderPos> findByBaNr(BigDecimal baNr);
+	List<OrderPos> findPositions(OrderId baNr);
 }

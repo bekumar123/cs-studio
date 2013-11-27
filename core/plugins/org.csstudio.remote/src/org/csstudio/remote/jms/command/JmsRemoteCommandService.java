@@ -63,6 +63,12 @@ public class JmsRemoteCommandService implements IRemoteCommandService {
         
         try {
             MessageListener listenerAdapter = new MessageListenerAdapter(group, listener);
+//          (jhatje) 24.6.2013: initialize jms connection, because it can't be done in alarm service activator.  
+            try {
+				SharedJmsConnections.sharedReceiverConnections();
+			} catch (JmsUtilityException e) {
+				LOG.error("Error creating jms connection: " + e.getMessage());
+			}
             IMessageListenerSession listenerSession = SharedJmsConnections
                     .startMessageListener(listenerAdapter,
                                           new String[] { _topicName },

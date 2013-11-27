@@ -34,6 +34,7 @@
  */
 package org.csstudio.utility.quickstart;
 
+import org.csstudio.sds.ui.autostart.IRunModeBoxAutostartService;
 import org.csstudio.sds.ui.runmode.RunModeService;
 import org.csstudio.utility.quickstart.preferences.PreferenceConstants;
 import org.csstudio.utility.quickstart.preferences.PreferenceValidator;
@@ -57,27 +58,28 @@ import org.slf4j.LoggerFactory;
  */
 public class DisplayAutoStart implements Runnable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DisplayAutoStart.class);
-    
+	private static final Logger LOG = LoggerFactory
+			.getLogger(DisplayAutoStart.class);
+
 	private static final String PLT_FILE_EXTENSION = "plt";
 	private static final String SDS_FILE_EXTENSION = "sds";
+
+	private IRunModeBoxAutostartService runModeBoxAutostartService;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void run() {
+		runModeBoxAutostartService = Activator.getDefault()
+				.getRunModeBoxAutostartService();
+
 		final IPreferenceStore preferenceStore = Activator.getDefault()
 				.getPreferenceStore();
 		final PreferenceValidator preferenceValidator = new PreferenceValidator();
 		final String quickstartFiles = preferenceStore
 				.getString(PreferenceConstants.SDS_FILES);
 		final String[] array = quickstartFiles.split(";");
-		try {
-			waitForWorkbench();
-		} catch (final InterruptedException e) {
-			LOG.error("Quickstart startup error, ", e);
-		}
 		for (final String element : array) {
 			final String[] ItemFromPreferences = element.split("\\?");
 			final String[] checkedPrefItem = preferenceValidator
@@ -99,48 +101,32 @@ public class DisplayAutoStart implements Runnable {
 		final IPath sdsFilePath = Path.fromOSString(checkedPrefItem[0]);
 		final IFile file = ResourcesPlugin.getWorkspace().getRoot()
 				.getFile(sdsFilePath);
-// TODO (jhatje): enable when Databrwoser2 is integrates in CSS
-//		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
-//
-//			@Override
-//			public void run() {
-//
-//				DB2Shell dbShell = new DB2Shell(file);
-//				dbShell.openShell();
-//			}
-//		});
+		// TODO (jhatje): enable when Databrwoser2 is integrates in CSS
+		// PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+		//
+		// @Override
+		// public void run() {
+		//
+		// DB2Shell dbShell = new DB2Shell(file);
+		// dbShell.openShell();
+		// }
+		// });
 	}
 
 	private void startSdsDidplay(final String[] checkedPrefItem) {
 		final IPath sdsFilePath = Path.fromOSString(checkedPrefItem[0]);
-		LOG.debug("open: {}", sdsFilePath);
-		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-			@Override
-            public void run() {
-				RunModeService.getInstance().openDisplayShellInRunMode(
-						sdsFilePath);
-			}
-		});
-	}
 
-	/**
-	 * Wait until the workbench is available to start SDS displays.
-	 * 
-	 * @throws InterruptedException
-	 */
-	private void waitForWorkbench() throws InterruptedException {
-		boolean workbenchNotAvailable = true;
-		while (workbenchNotAvailable) {
-			try {
-				final IWorkbench workbench = PlatformUI.getWorkbench();
-				if (workbench != null) {
-					workbenchNotAvailable = false;
+		if (!runModeBoxAutostartService.containsDisplay(sdsFilePath.toString())) {
+			LOG.debug("open: {}", sdsFilePath);
+			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					RunModeService.getInstance().openDisplayShellInRunMode(
+							sdsFilePath);
 				}
-			} catch (final IllegalStateException e) {
-				// TODO (jhatje) : what shall happen here?
-			}
-			Thread.sleep(1000);
+			});
+		} else {
+			LOG.debug("already open: {}", sdsFilePath);
 		}
 	}
-
 }

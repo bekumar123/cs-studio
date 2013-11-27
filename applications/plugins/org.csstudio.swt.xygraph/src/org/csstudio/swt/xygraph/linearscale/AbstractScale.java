@@ -58,7 +58,7 @@ public abstract class AbstractScale extends Figure{
 
 
     /** the default minimum value of log scale range */
-    public final static double DEFAULT_LOG_SCALE_MIN = 0.1d;
+    public final static double DEFAULT_LOG_SCALE_MIN = 1e-10d;
 
     /** the default maximum value of log scale range */
     public final static double DEFAULT_LOG_SCALE_MAX = 100d;

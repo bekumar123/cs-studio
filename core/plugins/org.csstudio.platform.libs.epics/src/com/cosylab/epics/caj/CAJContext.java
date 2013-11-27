@@ -14,10 +14,29 @@
 
 package com.cosylab.epics.caj;
 
+import gov.aps.jca.CAException;
+import gov.aps.jca.Channel;
+import gov.aps.jca.Context;
+import gov.aps.jca.JCALibrary;
+import gov.aps.jca.TimeoutException;
+import gov.aps.jca.Version;
+import gov.aps.jca.configuration.Configurable;
+import gov.aps.jca.configuration.Configuration;
+import gov.aps.jca.configuration.ConfigurationException;
+import gov.aps.jca.event.ConnectionListener;
+import gov.aps.jca.event.ContextExceptionEvent;
+import gov.aps.jca.event.ContextExceptionListener;
+import gov.aps.jca.event.ContextMessageListener;
+import gov.aps.jca.event.DirectEventDispatcher;
+import gov.aps.jca.event.EventDispatcher;
+
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.DatagramChannel;
+import java.nio.channels.SelectionKey;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,28 +61,15 @@ import com.cosylab.epics.caj.impl.ResponseRequest;
 import com.cosylab.epics.caj.impl.Transport;
 import com.cosylab.epics.caj.impl.TransportClient;
 import com.cosylab.epics.caj.impl.reactor.Reactor;
+import com.cosylab.epics.caj.impl.reactor.ReactorHandler;
+import com.cosylab.epics.caj.impl.reactor.lf.LeaderFollowersHandler;
 import com.cosylab.epics.caj.impl.reactor.lf.LeaderFollowersThreadPool;
 import com.cosylab.epics.caj.impl.sync.NamedLockPattern;
 import com.cosylab.epics.caj.util.InetAddressUtil;
 import com.cosylab.epics.caj.util.IntHashMap;
 import com.cosylab.epics.caj.util.Timer;
 import com.cosylab.epics.caj.util.logging.ConsoleLogHandler;
-
-import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
-import gov.aps.jca.Context;
-import gov.aps.jca.JCALibrary;
-import gov.aps.jca.TimeoutException;
-import gov.aps.jca.Version;
-import gov.aps.jca.configuration.Configurable;
-import gov.aps.jca.configuration.Configuration;
-import gov.aps.jca.configuration.ConfigurationException;
-import gov.aps.jca.event.ConnectionListener;
-import gov.aps.jca.event.ContextExceptionEvent;
-import gov.aps.jca.event.ContextExceptionListener;
-import gov.aps.jca.event.ContextMessageListener;
-import gov.aps.jca.event.DirectEventDispatcher;
-import gov.aps.jca.event.EventDispatcher;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Implementation of CAJ JCA <code>Context</code>. 
@@ -85,7 +91,7 @@ public class CAJContext extends Context implements CAContext, CAJConstants, Conf
     /**
      * Maintenance version.
      */
-    private static final int CAJ_VERSION_MAINTENANCE = 10;
+    private static final int CAJ_VERSION_MAINTENANCE = 13;
 
     /**
      * Development version.
@@ -304,6 +310,8 @@ public class CAJContext extends Context implements CAContext, CAJConstants, Conf
 	 */
 	private AtomicInteger lastReceivedSequenceNumber = new AtomicInteger(0);
 	
+	private AtomicBoolean doNotShareChannels = new AtomicBoolean(System.getProperties().containsValue("CAJ_DO_NOT_SHARE_CHANNELS"));
+	
 	/**
 	 * Constructor.
 	 */
@@ -320,6 +328,27 @@ public class CAJContext extends Context implements CAContext, CAJConstants, Conf
     public Version getVersion()
     {
         return VERSION;
+    }
+    
+    public boolean isDoNotShareChannels() {
+        return doNotShareChannels.get();
+    }
+    
+    public void setDoNotShareChannels(boolean doNotShareChannels) {
+        // Ignore if the value is the same, to avoid an
+        // exception if the context was initialized but the new setting
+        // is equal to the old.
+        // Note that the value could change after this,
+        // so in principle one could still get an exception.
+        if (this.doNotShareChannels.get() == doNotShareChannels) {
+            return;
+        }
+        
+        if (state == NOT_INITIALIZED) {
+            this.doNotShareChannels.set(doNotShareChannels);
+        } else {
+            throw new IllegalStateException("Cannot change doNotShareChannels after the Context is initialized.");
+        }
     }
     
 	/**
@@ -740,6 +769,25 @@ public class CAJContext extends Context implements CAContext, CAJConstants, Conf
 						repeaterLocalAddress, CAConstants.CA_MINOR_PROTOCOL_REVISION,
 						CAConstants.CA_DEFAULT_PRIORITY);
 		
+			
+			// moved from BroadcastConnector due to JDK7 problem
+			ReactorHandler handler = broadcastTransport;
+			if (getLeaderFollowersThreadPool() != null)
+			    handler = new LeaderFollowersHandler(getReactor(), handler, getLeaderFollowersThreadPool());
+			try {
+				DatagramChannel channel = broadcastTransport.getChannel();
+				
+				// explicitly bind first
+				channel.socket().setReuseAddress(true);
+				channel.socket().bind(new InetSocketAddress(0));
+				
+				// and register to the selector
+				getReactor().register(channel, SelectionKey.OP_READ, handler);
+			} catch (Throwable e) {
+				// TODO
+				throw new RuntimeException(e);
+			}
+			
 			// set broadcast address list
 			if (addressList != null && addressList.length() > 0)
 			{
@@ -972,7 +1020,8 @@ public class CAJContext extends Context implements CAContext, CAJConstants, Conf
 		synchronized (channelsByCID)
 		{
 			channelsByCID.put(channel.getChannelID(), channel);
-			channelsByName.put(getUniqueChannelName(channel.getName(), channel.getPriority()), channel);
+			if (!doNotShareChannels.get())
+				channelsByName.put(getUniqueChannelName(channel.getName(), channel.getPriority()), channel);
 		}
 	}
 
@@ -985,7 +1034,8 @@ public class CAJContext extends Context implements CAContext, CAJConstants, Conf
 		synchronized (channelsByCID)
 		{
 			channelsByCID.remove(channel.getChannelID());
-			channelsByName.remove(getUniqueChannelName(channel.getName(), channel.getPriority()));
+			if (!doNotShareChannels.get())
+				channelsByName.remove(getUniqueChannelName(channel.getName(), channel.getPriority()));
 		}
 	}
 
@@ -1023,6 +1073,9 @@ public class CAJContext extends Context implements CAContext, CAJConstants, Conf
 	 */
 	public CAJChannel getChannel(String name, short priority, boolean acquire)
 	{
+		if (doNotShareChannels.get())
+			return null;
+		
 		synchronized (channelsByName)
 		{
 			CAJChannel channel = (CAJChannel)channelsByName.get(getUniqueChannelName(name, priority));

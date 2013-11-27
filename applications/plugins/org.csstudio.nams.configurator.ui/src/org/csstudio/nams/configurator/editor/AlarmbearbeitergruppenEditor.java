@@ -178,6 +178,8 @@ public class AlarmbearbeitergruppenEditor extends
 
 	private IStructuredContentProviderImplementation userContentProvider;
 
+	private Text _idTextEntry;
+
 	@Override
 	public void createPartControl(final Composite parent) {
 		this.formToolkit = new FormToolkit(parent.getDisplay());
@@ -185,6 +187,8 @@ public class AlarmbearbeitergruppenEditor extends
 		final Composite main = this.mainForm.getBody();
 		main.setBackground(parent.getBackground());
 		main.setLayout(new GridLayout(1, true));
+		
+
 		// main.setLayout(new FillLayout(SWT.VERTICAL));
 		{
 			final Composite textFieldComp = new Composite(main, SWT.None);
@@ -193,6 +197,8 @@ public class AlarmbearbeitergruppenEditor extends
 					textFieldComp);
 
 			{
+				_idTextEntry = this.createTextEntry(textFieldComp, "ID", false);
+				
 				this.name = this.createTextEntry(textFieldComp, Messages.AlarmbearbeitergruppenEditor_name, true);
 
 				this._rubrikComboEntryViewer = this.createComboEntry(
@@ -654,6 +660,10 @@ public class AlarmbearbeitergruppenEditor extends
 	protected void initDataBinding() {
 		final DataBindingContext context = new DataBindingContext();
 
+		final IObservableValue groupIdTextObservable = BeansObservables
+				.observeValue(this.getWorkingCopyOfEditorInput(),
+						AlarmbearbeiterGruppenBean.PropertyNames.groupID.name());
+		
 		final IObservableValue nameTextObservable = BeansObservables
 				.observeValue(this.getWorkingCopyOfEditorInput(),
 						AlarmbearbeiterGruppenBean.PropertyNames.name.name());
@@ -687,6 +697,10 @@ public class AlarmbearbeitergruppenEditor extends
 						this.userContentProvider, "entries"); //$NON-NLS-1$
 
 		// bind observables
+		
+		context.bindValue(SWTObservables.observeText(this._idTextEntry,
+				SWT.Modify), groupIdTextObservable, null, null);
+		
 		context.bindList(usersListInTableObservable, usersListObservable, null,
 				new UpdateListStrategy() {
 

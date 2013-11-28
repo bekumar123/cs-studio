@@ -61,7 +61,7 @@ public abstract class AbstractNamsView extends ViewPart {
 	protected static ConfigurationBeanService _configurationBeanService;
 	private static PreferenceService _preferenceService;
 	private static ConfigurationServiceFactory _configurationServiceFactory;
-	private static ILogger _logger;
+	protected static ILogger _logger;
 	private static Semaphore semaphore = new Semaphore(1);
 
 	public static boolean isInitialized() {

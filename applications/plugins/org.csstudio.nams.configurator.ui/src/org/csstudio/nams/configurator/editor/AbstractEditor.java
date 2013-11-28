@@ -136,17 +136,6 @@ public abstract class AbstractEditor<ConfigurationType extends AbstractConfigura
 			}
 			this.afterSafe();
 		} catch (final Throwable e) {
-//			final MessageBox messageBox = new MessageBox(PlatformUI
-//					.getWorkbench().getActiveWorkbenchWindow().getShell());
-//			messageBox.setText(Messages.AbstractEditor_saveFailed);
-//			Throwable cause = e.getCause();
-//			String message = e.getMessage();
-//			while (cause != null) {
-//				message += "\n" + cause.getMessage(); //$NON-NLS-1$
-//				cause = cause.getCause();
-//			}
-//			messageBox.setMessage(message);
-//			messageBox.open();
 			e.printStackTrace();
 		}
 		this.setPartName(this.originalEditorInput.getDisplayName() + " - " //$NON-NLS-1$

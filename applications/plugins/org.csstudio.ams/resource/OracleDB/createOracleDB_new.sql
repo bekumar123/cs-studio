@@ -399,16 +399,34 @@ CREATE TABLE  "AMS_USER_SYN"
 	 PRIMARY KEY ("IUSERID") ENABLE
    );
 
+CREATE TABLE  "AMS_MSG_EXT_PVS" 
+(	
+	"ID" NUMBER(11,0), 
+	"IGROUPREF" NUMBER(11,0) DEFAULT -1 NOT NULL ENABLE, 
+	"CPVNAME" VARCHAR2(128) NOT NULL ENABLE, 
+	 PRIMARY KEY ("ID") ENABLE,
+	 CONSTRAINT "AMS_MSG_EXT_PVS_UNIQUE" UNIQUE ("CPVNAME") ENABLE
+);
+
+CREATE TABLE  "AMS_MSG_EXT_PVS_SYN" 
+(	
+	"ID" NUMBER(11,0), 
+	"IGROUPREF" NUMBER(11,0) DEFAULT -1 NOT NULL ENABLE, 
+	"CPVNAME" VARCHAR2(128) NOT NULL ENABLE 
+);
+
 CREATE TABLE  AMS_MSG_EXTENSIONS
 (	
-	CPVNAME VARCHAR2(4000) NOT NULL, 
+	IDREF NUMBER(11,0)  NOT NULL, 
 	CMESSAGEKEY VARCHAR2(4000) NOT NULL, 
-	CMESSAGEVALUE VARCHAR2(4000) NOT NULL
+	CMESSAGEVALUE VARCHAR2(4000) NOT NULL,
+	CONSTRAINT "AMS_MSG_EXTENSIONS_CON" FOREIGN KEY ("IDREF") 
+	 REFERENCES  "AMS_MSG_EXT_PVS" ("ID") ON DELETE CASCADE ENABLE
 );
 
 CREATE TABLE  AMS_MSG_EXTENSIONS_SYN
 (	
-	CPVNAME VARCHAR2(4000) NOT NULL, 
+	IDREF NUMBER(11,0)  NOT NULL, 
 	CMESSAGEKEY VARCHAR2(4000) NOT NULL, 
 	CMESSAGEVALUE VARCHAR2(4000) NOT NULL
 );
@@ -429,6 +447,7 @@ CREATE TABLE  AMS_MSG_EXTENSIONS_SYN
 
  CREATE SEQUENCE   "AMS_USER_ID"  MINVALUE 0 MAXVALUE 999999999999999999999999999 INCREMENT BY 1 START WITH 485 CACHE 20 ORDER  NOCYCLE;
 
+ CREATE SEQUENCE   "AMS_MSG_EXT_ID"  MINVALUE 0 MAXVALUE 999999999999999999999999999 INCREMENT BY 1 START WITH 1 CACHE 20 ORDER  NOCYCLE;
 
 insert into AMS_FilterConditionType (iFilterConditionTypeID,cName,cClass,cClassUI) values (1,'Stringbasiert','org.csstudio.ams.filter.FilterConditionString','org.csstudio.ams.filter.ui.FilterConditionStringUI');
 insert into AMS_FilterConditionType (iFilterConditionTypeID,cName,cClass,cClassUI) values (2,'Zeitbasiert','org.csstudio.ams.filter.FilterConditionTimeBased','org.csstudio.ams.filter.ui.FilterConditionTimeBasedUI');
@@ -446,6 +465,7 @@ insert into AMS_FilterActionType (iFilterActionTypeID,cName,iTopicRef) values (7
 insert into AMS_FilterActionType (iFilterActionTypeID,cName,iTopicRef) values (8,'EMail an Gruppe',NULL);
 insert into AMS_FilterActionType (iFilterActionTypeID,cName,iTopicRef) values (9,'EMail an Gruppe Best.',NULL);
 insert into AMS_FilterActionType (iFilterActionTypeID,cName,iTopicRef) values (10,'Message an Topic',NULL);
+insert into AMS_FilterActionType (iFilterActionTypeID,cName,iTopicRef) values (11,'Erweiterte Message an Topic',NULL);
 
 insert into AMS_FilterActionType (iFilterActionTypeID,cName,iTopicRef) values (100,'Topic Special Log',1);
 insert into AMS_FilterActionType (iFilterActionTypeID,cName,iTopicRef) values (101,'Topic 101',2);

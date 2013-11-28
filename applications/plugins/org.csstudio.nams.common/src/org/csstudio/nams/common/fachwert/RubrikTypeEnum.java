@@ -7,7 +7,7 @@ package org.csstudio.nams.common.fachwert;
 
 /* 1 - User, 2 - UserGroup, 3 - FilterCond, 4 - Filter, 5 - Topic */
 public enum RubrikTypeEnum {
-	USER(1), USER_GROUP(2), FILTER_COND(3), FILTER(4), TOPIC(5);
+	USER(1), USER_GROUP(2), FILTER_COND(3), FILTER(4), TOPIC(5), FACILITY(6);
 
 	public static RubrikTypeEnum valueOf(final short value) {
 		switch (value) {
@@ -21,6 +21,8 @@ public enum RubrikTypeEnum {
 			return FILTER;
 		case 5:
 			return TOPIC;
+		case 6:
+			return FACILITY;
 		default:
 			throw new IllegalArgumentException();
 		}

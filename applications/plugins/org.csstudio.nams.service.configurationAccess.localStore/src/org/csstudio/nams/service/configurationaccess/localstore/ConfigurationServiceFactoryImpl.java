@@ -14,6 +14,7 @@ import org.csstudio.nams.service.configurationaccess.localstore.declaration.Alar
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.ConfigurationServiceFactory;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.DatabaseType;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.DefaultFilterDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.ExtendedMessagePvDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.HistoryDTO;
@@ -297,6 +298,7 @@ public class ConfigurationServiceFactoryImpl implements
 				.addAnnotatedClass(JunctorConditionForFilterTreeConditionJoinDTO.class)
 				.addAnnotatedClass(User2UserGroupDTO.class)
 				.addAnnotatedClass(NegationCondForFilterTreeDTO.class)
+				.addAnnotatedClass(ExtendedMessagePvDTO.class)
 
 				.addAnnotatedClass(FilterActionDTO.class)
 				.addAnnotatedClass(TopicFilterActionDTO.class)

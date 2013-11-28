@@ -39,6 +39,7 @@ public class Configuration {
 	private final Collection<StrgArFiltCondCompValDTO> allCompareValues;
 
 	private final Collection<DefaultFilterTextDTO> allDefaultFilterTextDTO;
+	private final Collection<ExtendedMessagePvDTO> allExtendedMessagesDTO;
 
 	public Configuration(
 			final Collection<AlarmbearbeiterDTO> alleAlarmbarbeiter,
@@ -47,7 +48,8 @@ public class Configuration {
 			final Collection<FilterDTO> allFilters,
 			final Collection<FilterConditionDTO> allFilterConditions,
 			final Collection<RubrikDTO> alleRubriken,
-			final Collection<DefaultFilterTextDTO> allDefaultFilterTextDTO) {
+			final Collection<DefaultFilterTextDTO> allDefaultFilterTextDTO,
+			final Collection<ExtendedMessagePvDTO> allExtendedMessagesDTO) {
 		super();
 		this.alleAlarmbarbeiter = (alleAlarmbarbeiter == null) ? new ArrayList<AlarmbearbeiterDTO>() : alleAlarmbarbeiter;
 		this.alleAlarmtopics = (alleAlarmtopics == null) ? new ArrayList<TopicDTO>() : alleAlarmtopics;
@@ -72,6 +74,7 @@ public class Configuration {
 		this.alleUser2UserGroupMappings = new LinkedList<User2UserGroupDTO>();
 		this.allCompareValues = new LinkedList<StrgArFiltCondCompValDTO>();
 		this.allDefaultFilterTextDTO = (allDefaultFilterTextDTO == null) ? new ArrayList<DefaultFilterTextDTO>() : allDefaultFilterTextDTO;
+		this.allExtendedMessagesDTO = allExtendedMessagesDTO;
 	}
 
 	public Collection<DefaultFilterTextDTO> getAllDefaultFilterTexts() {
@@ -129,5 +132,8 @@ public class Configuration {
 	public Collection<RubrikDTO> gibAlleRubriken() {
 		return this.alleRubriken;
 	}
-
+	
+	public Collection<ExtendedMessagePvDTO> gibAlleExtendedMessages() {
+		return allExtendedMessagesDTO;
+	}
 }

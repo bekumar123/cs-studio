@@ -6,6 +6,7 @@ import java.util.List;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.AlarmbearbeiterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.AlarmbearbeiterGruppenDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.Configuration;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.ExtendedMessagePvDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterConfiguration;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.HistoryDTO;
@@ -141,11 +142,13 @@ class LocalStoreConfigurationServiceImpl implements
 						FilterDTO.class, true);
 				Collection<DefaultFilterTextDTO> allDefaultFilterTextDTO = mapper
 						.loadAll(DefaultFilterTextDTO.class, true);
+				Collection<ExtendedMessagePvDTO> allExtendedMessagePvDTOs = mapper
+						.loadAll(ExtendedMessagePvDTO.class, true);
 
 				resultOfUnit = new Configuration(alleAlarmbarbeiter,
 						alleAlarmtopics, alleAlarmbearbeiterGruppen,
 						allFilters, allFilterConditions, alleRubriken,
-						allDefaultFilterTextDTO);
+						allDefaultFilterTextDTO, allExtendedMessagePvDTOs);
 
 				return resultOfUnit;
 			}
@@ -260,7 +263,7 @@ class LocalStoreConfigurationServiceImpl implements
 					"AMS_FILTER_FILTERACTION", "AMS_FILTER_FILTERCONDITION",
 					"AMS_TOPIC", "AMS_USER", "AMS_USERGROUP",
 					"AMS_USERGROUP_USER", "AMS_FILTERCOND_JUNCTION",
-					"AMS_FILTERCOND_FILTERCOND", "AMS_FILTERCOND_NEGATION", "AMS_FILTERCOND_PROPCOMPARE", "AMS_MSG_EXTENSIONS" };
+					"AMS_FILTERCOND_FILTERCOND", "AMS_FILTERCOND_NEGATION", "AMS_FILTERCOND_PROPCOMPARE", "AMS_MSG_EXTENSIONS", "AMS_MSG_EXT_PVS" };
 
 			for (String tabelle : tabellen) {
 				query = session.createSQLQuery("delete from " + tabelle

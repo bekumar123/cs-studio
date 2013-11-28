@@ -112,6 +112,20 @@ public class Messages extends NLS {
 	public static String FilterEditor_remove_not;
 	public static String FilterEditor_templates;
 	public static String FilterTreeLabelProvider_unknown_filter_condition;
+	public static String MessageExtensionEditor_add;
+
+	public static String MessageExtensionEditor_group;
+
+	public static String MessageExtensionEditor_key;
+
+	public static String MessageExtensionEditor_newEntry;
+
+	public static String MessageExtensionEditor_newValue;
+
+	public static String MessageExtensionEditor_pvName;
+
+	public static String MessageExtensionEditor_value;
+
 	public static String NotConditionForFilterTreeBean_jcfftb_not_prefix;
 	public static String NotConditionForFilterTreeBean_not_prefix;
 	public static String SyncronizeView_backend_failure;

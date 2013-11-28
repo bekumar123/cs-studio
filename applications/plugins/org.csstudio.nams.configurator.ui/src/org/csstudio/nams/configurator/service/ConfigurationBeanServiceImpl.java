@@ -26,6 +26,7 @@ import org.csstudio.nams.configurator.beans.FilterBean;
 import org.csstudio.nams.configurator.beans.FilterbedingungBean;
 import org.csstudio.nams.configurator.beans.IConfigurationBean;
 import org.csstudio.nams.configurator.beans.IReceiverBean;
+import org.csstudio.nams.configurator.beans.MessageExtensionBean;
 import org.csstudio.nams.configurator.beans.MessageTemplateBean;
 import org.csstudio.nams.configurator.beans.TimebasedFilterBean;
 import org.csstudio.nams.configurator.beans.User2GroupBean;
@@ -43,6 +44,7 @@ import org.csstudio.nams.service.configurationaccess.localstore.declaration.Alar
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.AlarmbearbeiterGruppenDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.Configuration;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.DefaultFilterDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.ExtendedMessagePvDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.LocalStoreConfigurationService;
@@ -111,6 +113,7 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 	private Collection<RubrikDTO> rubrikDTOs = new LinkedList<RubrikDTO>();
 
 	private MessageTemplateBean[] messageTemplateBeans;
+	private Map<Integer, MessageExtensionBean> extendedMessages = new HashMap<Integer, MessageExtensionBean>();
 
 	public ConfigurationBeanServiceImpl() {
 		if (ConfigurationBeanServiceImpl._previosInstance != null) {
@@ -143,6 +146,9 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 			}
 			if (bean instanceof FilterbedingungBean) {
 				this.deleteFilterbedingungBean((FilterbedingungBean) bean);
+			}
+			if (bean instanceof MessageExtensionBean) {
+				this.deleteMessageExtensionBean((MessageExtensionBean) bean);
 			}
 			this.loadConfiguration();
 			this.notifyDeleteListeners(bean);
@@ -225,6 +231,12 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 	}
 
 	@Override
+	public MessageExtensionBean[] getMessageExtensionBeans() {
+		Collection<MessageExtensionBean> values = extendedMessages.values();
+		return values.toArray(new MessageExtensionBean[values.size()]);
+	}
+
+	@Override
     public MessageTemplateBean[] getMessageTemplates() {
 		return this.messageTemplateBeans;
 	}
@@ -286,6 +298,9 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 		}
 		if (bean instanceof FilterbedingungBean) {
 			return (T) this.saveFilterbedingungBean((FilterbedingungBean) bean);
+		}
+		if (bean instanceof MessageExtensionBean) {
+			return (T) this.saveMessageExtensionBean((MessageExtensionBean) bean);
 		}
 		throw new RuntimeException("Failed saving unsupported bean " //$NON-NLS-1$
 				+ bean.getClass());
@@ -434,6 +449,16 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 		bean.setTopicName(dto.getTopicName());
 		bean.setRubrikName(this.getRubrikNameForId(dto.getGroupRef())); // GUI-Group
 		// = Rubrik
+		return bean;
+	}
+	
+	private MessageExtensionBean DTO2Bean(final ExtendedMessagePvDTO dto) {
+		final MessageExtensionBean bean = new MessageExtensionBean();
+		bean.setID(dto.getId());
+		bean.setPvName(dto.getPvName());
+		bean.setMessageExtensions(dto.getMessageExtensions());
+		bean.setRubrikName(getRubrikNameForId(dto.getGroupRef()));
+		
 		return bean;
 	}
 
@@ -611,6 +636,27 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 		}
 	}
 
+	private void deleteMessageExtensionBean(final MessageExtensionBean bean)
+			throws InconsistentConfigurationException, StorageError,
+			StorageException {
+		ExtendedMessagePvDTO dto = null;
+		for (final ExtendedMessagePvDTO potentialdto : this.entireConfiguration
+				.gibAlleExtendedMessages()) {
+			if (potentialdto.getId() == bean.getID()) {
+				dto = potentialdto;
+				break;
+			}
+		}
+		if (dto != null) {
+			this.configurationService.deleteDTO(dto);
+			this.extendedMessages.remove(dto.getId());
+			ConfigurationBeanServiceImpl._logger.logInfoMessage(this,
+					"ConfigurationBeanServiceImpl.delete() " //$NON-NLS-1$
+					+ "Message Extension #" + dto.getId() + " (" //$NON-NLS-1$
+					+ dto.getPvName() + ")");
+		}
+	}
+	
 	private FilterbedingungBean DTO2Bean(
 			final FilterConditionDTO filterCondtionDTO) {
 		FilterbedingungBean bean = new FilterbedingungBean();
@@ -778,6 +824,18 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 		}
 		return dto;
 	}
+	
+	private ExtendedMessagePvDTO findDTO4Bean(final MessageExtensionBean bean) {
+		ExtendedMessagePvDTO dto = null;
+		for (final ExtendedMessagePvDTO potentialdto : this.entireConfiguration
+				.gibAlleExtendedMessages()) {
+			if (potentialdto.getId() == bean.getID()) {
+				dto = potentialdto;
+				break;
+			}
+		}
+		return dto;
+	}
 
 	/**
 	 * @param condition
@@ -913,6 +971,17 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 				throw new RuntimeException("Couldn't load the Configuration"); //$NON-NLS-1$
 			}
 			this.rubrikDTOs = this.entireConfiguration.gibAlleRubriken();
+			
+			Collection<ExtendedMessagePvDTO> extendedMessageDTOs = this.entireConfiguration.gibAlleExtendedMessages();
+			for (ExtendedMessagePvDTO extendedMessagePvDTO : extendedMessageDTOs) {
+				MessageExtensionBean messageBean = DTO2Bean(extendedMessagePvDTO);
+				MessageExtensionBean oldBean = extendedMessages.get(extendedMessagePvDTO.getId());
+				if(oldBean != null) {
+					oldBean.updateState(messageBean);
+				} else {
+					extendedMessages.put(extendedMessagePvDTO.getId(), messageBean);
+				}
+			}
 
 			final Collection<AlarmbearbeiterDTO> alarmbearbeiter = this.entireConfiguration
 					.gibAlleAlarmbearbeiter();
@@ -1063,6 +1132,29 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 		return resultBean;
 	}
 
+	private MessageExtensionBean saveMessageExtensionBean(
+			final MessageExtensionBean bean) throws StorageError,
+			StorageException, InconsistentConfigurationException {
+		boolean inserted = false;
+		ExtendedMessagePvDTO dto = this.findDTO4Bean(bean);
+		if (dto == null) {
+			dto = new ExtendedMessagePvDTO();
+			inserted = true;
+		}
+		dto.setPvName(bean.getPvName());
+		dto.setGroupRef(this.getRubrikIDForName(bean.getRubrikName(),
+				RubrikTypeEnum.FACILITY));
+		dto.setMessageExtensions(bean.getMessageExtensions());
+		
+		this.configurationService.saveDTO(dto);
+		this.loadConfiguration();
+		
+		final MessageExtensionBean resultBean = this.extendedMessages.get(dto.getId());
+		
+		this.insertOrUpdateNotification(resultBean, inserted);
+		return resultBean;
+	}
+	
 	private AlarmbearbeiterGruppenBean saveAlarmbearbeiterGruppenBean(
 			final AlarmbearbeiterGruppenBean bean) throws StorageError,
 			StorageException, InconsistentConfigurationException {

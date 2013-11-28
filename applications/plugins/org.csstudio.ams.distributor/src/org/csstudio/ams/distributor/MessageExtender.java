@@ -6,7 +6,7 @@ import org.csstudio.ams.distributor.service.MessageExtensionService;
 
 public class MessageExtender {
 
-	private static final String PV_KEY = "PV_KEY";
+	private static final String PV_KEY = "NAME";
 	private final MessageExtensionService service;
 
 	public MessageExtender(MessageExtensionService service) {

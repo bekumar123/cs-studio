@@ -10,6 +10,6 @@
 
   <artifactId>org.csstudio.desy.library.feature</artifactId>
   <packaging>eclipse-feature</packaging>
-  <version>1.0.0.201302071400</version>
+  <version>1.5.4.201309031015</version>
   
 </project>

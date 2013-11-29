@@ -138,6 +138,8 @@
 	<module>../../applications/plugins/org.csstudio.alarm.service</module>
 	<module>../../applications/plugins/org.csstudio.apputil</module>
 	<module>../../applications/plugins/org.csstudio.apputil.ui</module>
+	<module>../../applications/plugins/org.csstudio.archive.vtype</module>
+	<module>../../applications/plugins/org.csstudio.archive.vtype.trendplotter</module>
 	<module>../../applications/plugins/org.csstudio.config.savevalue.service</module>
 	<module>../../applications/plugins/org.csstudio.domain.common</module>
 	<module>../../applications/plugins/org.csstudio.domain.desy</module>
@@ -165,6 +167,7 @@
 	<module>../../core/plugins/org.csstudio.utility.pv.epics</module>
 	<module>../../core/plugins/org.csstudio.utility.pvmanager</module>
 	<module>../../core/plugins/org.epics.util</module>
+	<module>../../core/plugins/org.epics.vtype</module>
 	<module>../../core/plugins/</module>
 	<!-- products/DESY/plugins/ -->
 	<module>./plugins/de.desy.language.editor.core</module>
@@ -201,10 +204,23 @@
    	<module>../../applications/plugins/org.csstudio.dct.treemodelexporter</module>
    	<module>../../applications/plugins/org.csstudio.dct.ui</module>
    	<module>../../applications/plugins/org.csstudio.utility.epicsDataBaseCompare</module>
+
+    <!--
+	Features
+	-->
+    <module>./features/org.csstudio.desy.platform.eclipse.feature</module>
+    <module>./features/org.csstudio.desy.platform.eclipse.team.feature</module>
+    <module>./features/org.csstudio.desy.platform.base.feature</module>
+    <module>./features/org.csstudio.desy.platform.user.feature</module>
+    <module>./features/org.csstudio.desy.library.feature</module>
+    <module>./features/org.csstudio.desy.sds.feature</module>
+    <module>./features/org.csstudio.desy.dct.feature</module>
+ 
 	<!--
 		Product
     -->
 	<module>./plugins/org.csstudio.desy.product.compilation/pom.xml</module>
+ </modules>
 	
 	<!--
 	<module>../../applications/plugins/org.hamcrest.core</module>
@@ -217,17 +233,7 @@
 	<module>../../applications/plugins/org.eclipse.equinox.ds</module>
 	<module>../../applications/plugins/org.eclipse.equinox.util</module>
 -->
-    <!--
-	Features
-	-->
-    <module>./features/org.csstudio.desy.platform.eclipse.feature</module>
-    <module>./features/org.csstudio.desy.platform.eclipse.team.feature</module>
-    <module>./features/org.csstudio.desy.platform.base.feature</module>
-    <module>./features/org.csstudio.desy.platform.user.feature</module>
-    <module>./features/org.csstudio.desy.library.feature</module>
-    <module>./features/org.csstudio.desy.sds.feature</module>
-    <module>./features/org.csstudio.desy.dct.feature</module>
-  </modules>
+
   <!--
 	SOURCE CODE MANAGEMENT
   <scm>

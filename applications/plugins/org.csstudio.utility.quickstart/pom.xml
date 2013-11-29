@@ -10,7 +10,7 @@
 
   <artifactId>org.csstudio.utility.quickstart</artifactId>
   <packaging>eclipse-plugin</packaging>
-  <version>1.3.0.201212201100</version>
+  <version>1.3.0.201308281100</version>
 
 </project>
 

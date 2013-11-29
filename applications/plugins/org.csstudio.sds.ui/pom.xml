@@ -10,7 +10,7 @@
 
   <artifactId>org.csstudio.sds.ui</artifactId>
   <packaging>eclipse-plugin</packaging>
-  <version>1.3.0.201302071400</version>
+  <version>1.3.0.201308021400</version>
 
 </project>
 

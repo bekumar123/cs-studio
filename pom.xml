@@ -28,12 +28,13 @@
   --> 
   <properties>
     <!-- VERSIONS -->
-    <tycho.version>0.16.0</tycho.version>
-    <tycho-extras.version>0.16.0</tycho-extras.version>
+    <tycho.version>0.19.0</tycho.version>
+    <tycho-extras.version>0.19.0</tycho-extras.version>
     <pmd.version>2.7.1</pmd.version>
     <checkstyle.version>2.9.1</checkstyle.version>
     <!-- IDS -->
     <tycho.groupid>org.eclipse.tycho</tycho.groupid>
+    <tycho.extras.groupid>org.eclipse.tycho.extras</tycho.extras.groupid>
     <sonatype.groupid>org.sonatype.tycho</sonatype.groupid>
     <maven.groupid>org.apache.maven.plugins</maven.groupid>
     <!-- REPOSITORY URLS -->
@@ -218,6 +219,11 @@
         <configuration>
           <enableRulesSummary>false</enableRulesSummary>
         </configuration>
+      </plugin>
+	  <plugin>
+        <groupId>${tycho.extras.groupid}</groupId>
+        <artifactId>tycho-version-bump-plugin</artifactId>
+        <version>0.19.0</version>
       </plugin>
     </plugins>
   </build>

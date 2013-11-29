@@ -10,7 +10,7 @@
 
   <artifactId>org.csstudio.sds.settings.desy</artifactId>
   <packaging>eclipse-plugin</packaging>
-  <version>1.3.0.201302141100</version>
+  <version>1.3.0.201304241100</version>
 
 </project>
 

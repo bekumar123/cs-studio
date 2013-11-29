@@ -10,7 +10,7 @@
 
   <artifactId>org.csstudio.desy.css.product.log4j</artifactId>
   <packaging>eclipse-plugin</packaging>
-  <version>1.0.0.201212201100</version>
+  <version>1.0.0.201308281100</version>
 
 </project>
 

@@ -10,7 +10,7 @@
 
   <artifactId>org.epics.util</artifactId>
   <packaging>eclipse-plugin</packaging>
-  <version>0.1.0.201212201100</version>
+  <version>0.2.1.201307091400</version>
 
 </project>
 

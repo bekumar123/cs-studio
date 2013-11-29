@@ -10,7 +10,7 @@
 
   <artifactId>org.csstudio.desy.product</artifactId>
   <packaging>eclipse-plugin</packaging>
-  <version>1.3.0.201302181100</version>
+  <version>1.5.4.201311121015</version>
 
 </project>
 

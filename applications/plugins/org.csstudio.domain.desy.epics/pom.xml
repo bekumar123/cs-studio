@@ -10,7 +10,7 @@
 
   <artifactId>org.csstudio.domain.desy.epics</artifactId>
   <packaging>eclipse-plugin</packaging>
-  <version>1.0.0.201212201100</version>
+  <version>1.0.0.201307091400</version>
 
 </project>
 

@@ -10,7 +10,7 @@
 
   <artifactId>org.csstudio.config.savevalue.service</artifactId>
   <packaging>eclipse-plugin</packaging>
-  <version>1.3.0.201212201100</version>
+  <version>1.3.0.201306171100</version>
 
 </project>
 

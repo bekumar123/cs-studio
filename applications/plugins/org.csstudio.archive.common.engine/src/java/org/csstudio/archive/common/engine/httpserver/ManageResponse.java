@@ -7,8 +7,11 @@
  ******************************************************************************/
 package org.csstudio.archive.common.engine.httpserver;
 
+import java.io.IOException;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,6 +19,8 @@ import org.csstudio.archive.common.engine.model.ArchiveGroup;
 import org.csstudio.archive.common.engine.model.EngineModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
 
 /**
  * Provide web page with engine overview.
@@ -26,7 +31,7 @@ class ManageResponse extends AbstractResponse {
     private static final String URL_BASE_DESC = Messages.HTTP_MANAGE;
 
     private static final Logger LOG = LoggerFactory.getLogger(ManageResponse.class);
-
+    private boolean isLogin=false;
     private static final String URL_BASE_PAGE = "/manage";
     static final String PARAM_CHANNEL_GROUP = "group";
     protected static final String URL_CHANNEL_PAGE = "/channel";
@@ -45,8 +50,8 @@ class ManageResponse extends AbstractResponse {
     /** Avoid serialization errors */
     private static final long serialVersionUID = 1L;
 
-    ManageResponse(@Nonnull final EngineModel model) {
-        super(model);
+    ManageResponse(@Nonnull final EngineModel model, final String adminParamKey, final String adminParamValue) {
+        super(model,adminParamKey,adminParamValue);
 
     }
 
@@ -106,10 +111,13 @@ class ManageResponse extends AbstractResponse {
             }
 
         };
+        if(isLogin){
         stopEngineForm(req, html);
         createAddChannelForm(req, html);
         importChannelForm(req, html);
-
+        }else{
+            createLoginForm(req, html);
+        }
         html.close();
     }
 
@@ -120,6 +128,8 @@ class ManageResponse extends AbstractResponse {
                               + "\" method=\"GET\" name=\"name\">";
         html.text(form);
         html.openTable(2, new String[] { Messages.HTTP_MANAGE_ADD_CHANNEL });
+        final String passwordName = "<input type=\"password\" id =\"pass1\" name=\"httpAdmin\" size=\"15\">";
+        html.tableLine(new String[] { Messages.PASSWORD, passwordName });
         String groupName = "<select name=\"group\">";
 
         for (final ArchiveGroup group : getModel().getGroups()) {
@@ -153,15 +163,31 @@ class ManageResponse extends AbstractResponse {
 
     }
 
+    private void createLoginForm(@Nonnull final HttpServletRequest req, @Nonnull final HTMLWriter html) {
 
+        String form =
+                      "<form action=\"" + this.baseUrl()
+                              + "\" method=\"POST\" name=\"name\" >";
+        html.text(form);
+        html.openTable(2, new String[] { Messages.HTTP_MANAGE_LOGIN });
+        final String passwordName = "<input type=\"password\"  name=\"httpAdmin\"  size=\" size=\"15\">";
+        html.tableLine(new String[] { Messages.PASSWORD, passwordName });
+        final String button = "<input type=\"submit\" value=\""+Messages.HTTP_MANAGE_LOGIN+"\">";
+
+        html.tableLine(new String[] { "", button });
+        html.closeTable();
+        form = "</form>";
+        html.text(form);
+
+    }
     private void stopEngineForm(@Nonnull final HttpServletRequest req, @Nonnull final HTMLWriter html) {
 
         String form =
                       "<form action=\"" + ShutdownResponse.baseUrl()
-                              + "\" method=\"GET\" name=\"name\" >";
+                              + "\" method=\"POST\" name=\"name\" >";
         html.text(form);
         html.openTable(2, new String[] { Messages.HTTP_MANAGE_STOP_ENGINE });
-        final String passwordName = "<input type=\"password\" name=\"httpAdmin\" size=\"" + size*1.5 + "\">";
+        final String passwordName = "<input type=\"password\" id =\"pass2\" name=\"httpAdmin\"   size=\" size=\"15\" >";
         html.tableLine(new String[] { Messages.PASSWORD, passwordName });
         final String button = "<input type=\"submit\" value=\""+Messages.HTTP_MANAGE_STOP_ENGINE+"\">";
 
@@ -172,6 +198,52 @@ class ManageResponse extends AbstractResponse {
 
     }
 
+    /** {@inheritDoc} */
+    @Override
+    protected void doPost(@Nonnull final HttpServletRequest req, @Nonnull final HttpServletResponse resp) throws ServletException,
+                                                                                                         IOException {
+        try {
+            if (!Strings.isNullOrEmpty(getAdminParamKey())) {
+                final String parameter = req.getParameter(getAdminParamKey());
+               if (!getAdminParamValue().equals(parameter)) {
+                    isLogin=false;
+                    fillResponse(req, resp);
+                }
+
+            }
+            isLogin=true;
+            fillResponse(req, resp);
+        } catch (final Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected void doGet(@Nonnull final HttpServletRequest req, @Nonnull final HttpServletResponse resp) throws ServletException,
+                                                                                                        IOException {
+        try {
+            if (!Strings.isNullOrEmpty(getAdminParamKey())) {
+                final String parameter = req.getParameter(getAdminParamKey());
+                if (!getAdminParamValue().equals(parameter)) {
+                    isLogin=false;
+                    fillResponse(req, resp);
+                }
+
+            }
+            isLogin=true;
+            fillResponse(req, resp);
+        } catch (final Exception ex) {
+            ex.printStackTrace();
+            if (resp.isCommitted()) {
+                LOG.warn("HTTP Server exception", ex);
+                return;
+            }
+            resp.sendError(400, "HTTP Server exception" + ex.getMessage());
+        }
+    }
 
     private void importChannelForm(@Nonnull final HttpServletRequest req, @Nonnull final HTMLWriter html) {
 
@@ -179,14 +251,14 @@ class ManageResponse extends AbstractResponse {
                       "<form action=\"" + ImportFileResponse.baseUrl()
                               + "\" method=\"POST\" name=\"name\" enctype=\"multipart/form-data\">";
         html.text(form);
-        html.openTable(2, new String[] { "Channels Import" });
-        final String passwordName = "<input type=\"password\" name=\"httpAdmin\" size=\"" + size*1.5 + "\">";
+        html.openTable(2, new String[] { Messages.HTTP_MANAGE_IMPORT_CHANNEL});
+        final String passwordName = "<input type=\"password\" id =\"pass3\" name=\"httpAdmin\" size=\" size=\"15\">";
         html.tableLine(new String[] { Messages.PASSWORD, passwordName });
         final String datei = "<input type=\"file\" name=\"fileName\" size=\"50\" maxlength=\"100000\" accept=\"text/config\">";
         html.tableLine(new String[] { "W&auml;hlen Sie eine Importatei von Ihrem Rechner aus:"});
         html.tableLine(new String[] { "", datei });
 
-        final String button = "<input type=\"submit\" value=\"Import\">";
+        final String button = "<input type=\"submit\" value=\""+Messages.HTTP_MANAGE_IMPORT+"\">";
 
         html.tableLine(new String[] { "", button });
         html.closeTable();

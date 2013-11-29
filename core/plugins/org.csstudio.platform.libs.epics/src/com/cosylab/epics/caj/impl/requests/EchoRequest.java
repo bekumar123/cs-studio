@@ -14,6 +14,11 @@
 
 package com.cosylab.epics.caj.impl.requests;
 
+import java.nio.ByteBuffer;
+import java.util.logging.Logger;
+
+import com.cosylab.epics.caj.impl.CAConstants;
+import com.cosylab.epics.caj.impl.CATransport;
 import com.cosylab.epics.caj.impl.Request;
 import com.cosylab.epics.caj.impl.Transport;
 
@@ -23,7 +28,8 @@ import com.cosylab.epics.caj.impl.Transport;
  * @version $id$
  */
 public class EchoRequest extends AbstractCARequest {
-
+	// Get Logger
+		private static final Logger logger = Logger.getLogger(EchoRequest.class.getName());
 	/**
 	 * @param transport
 	 */
@@ -39,13 +45,17 @@ public class EchoRequest extends AbstractCARequest {
 			requestMessage = insertCAHeader(transport, null,
 											(short)0, (short)0, (short)0, transport.getMinorRevision(),
 											0, 0);
+		
+
+
+		logger.warning("create new Echorequest Massage:  commando  " + 23+ "  transport.getMinorRevision()  "+transport.getMinorRevision());   
 	}
 
 	/**
 	 * @see com.cosylab.epics.caj.impl.Request#getPriority()
 	 */
 	public byte getPriority() {
-		return Request.SEND_IMMEDIATELY_PRIORITY;
+		return Request.SEND_IMMEDIATELY_ECHOREQUST_PRIORITY;
 	}
 
 }

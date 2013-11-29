@@ -70,12 +70,13 @@ public class CAConnector implements Connector {
 		CATransport transport = (CATransport)context.getTransportRegistry().get(address, priority);
 		if (transport != null)
 		{
-			context.getLogger().finer("Reusing existant connection to CA server: " + address);
+			context.getLogger().finer("Reusing existant connection to CA server:  " + address);
 			if (transport.acquire(client))
 				return transport;
 		}
 
 		boolean lockAcquired = namedLocker.acquireSynchronizationObject(address, LOCK_TIMEOUT);
+		
 		if (lockAcquired)
 		{ 
 			try
@@ -108,19 +109,21 @@ public class CAConnector implements Connector {
 	
 				// create transport
 				transport = new CATransport(context, client, responseHandler, socket, transportRevision, priority);
+				context.getLogger().warning("New connection to CA server:  " + address +"  transportRevision  "+ transportRevision);
+				
 				ReactorHandler handler = transport;
 				if (context.getLeaderFollowersThreadPool() != null)
 				    handler = new LeaderFollowersHandler(context.getReactor(), handler, context.getLeaderFollowersThreadPool());
 				
 				// register to reactor
 				context.getReactor().register(socket, SelectionKey.OP_READ, handler);
-				context.getLogger().warning("socket.socket().getSendBufferSize()"+socket.socket().getSendBufferSize());
+				context.getLogger().warning("socket.socket().getSendBufferSize() "+socket.socket().getSendBufferSize());
 				// issue version including priority, username and local hostname
 				new VersionRequest(transport, priority).submit();
 				new UserNameRequest(transport).submit();
 				new HostNameRequest(transport).submit();
 				
-				context.getLogger().finer("Connected to CA server: " + address);
+				context.getLogger().warning("Connected to CA server: " + address);
 	
 				return transport;
 	

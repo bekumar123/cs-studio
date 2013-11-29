@@ -38,8 +38,7 @@ public class HTMLWriter {
      *  @param title HTML title
      *  @throws Exception on error
      */
-    public HTMLWriter(@Nonnull final HttpServletResponse resp,
-                      @Nonnull final String title) throws Exception {
+    public HTMLWriter(@Nonnull final HttpServletResponse resp, @Nonnull final String title) throws Exception {
         resp.setContentType("text/html");
         html = resp.getWriter();
         text("<html>");
@@ -67,8 +66,7 @@ public class HTMLWriter {
      *  @param title HTML title
      *  @throws Exception on error
      */
-    public HTMLWriter(@Nonnull final HttpServletResponse resp,
-                      @Nonnull final String title,final String channelName) throws Exception {
+    public HTMLWriter(@Nonnull final HttpServletResponse resp, @Nonnull final String title, final String channelName) throws Exception {
         resp.setContentType("text/html");
         html = resp.getWriter();
         text("<html>");
@@ -77,20 +75,21 @@ public class HTMLWriter {
         text("<script type=\"text/javascript\" src=\"/sorttable.js\"></script>\n");
         text("<link rel=\"stylesheet\" type=\"text/css\" href=\"/archiver.css\"></link>");
         text("</head>");
-        text("<body background='" + BACKGROUND + "' onload=\"recusivLoadChannel('"+channelName+"')\">");
+        text("<body background='" + BACKGROUND + "' onload=\"recusivLoadChannel('" + channelName + "')\">");
         h1(title);
 
         text("<div id=\"navigation\">");
-        createNavigationBar(MainResponse.linkTo(),
-                            GroupsResponse.linkTo(),
-                            DisconnectedResponse.linkTo(Messages.HTTP_DISCONNECTED),
-                            ManageResponse.linkTo(),
-                            HelpResponse.linkTo());
+        createNavigationBar(MainResponse.linkTo());
+        createNavigationBar(GroupsResponse.linkTo());
+        createNavigationBar(DisconnectedResponse.linkTo(Messages.HTTP_DISCONNECTED));
+        createNavigationBar(ManageResponse.linkTo());
+        createNavigationBar(HelpResponse.linkTo());
         text("</div>");
 
         text("<div id=\"content\">");
     }
-    private void createNavigationBar(@Nonnull final String...navPoints) {
+
+    private void createNavigationBar(@Nonnull final String... navPoints) {
         for (final String nav : navPoints) {
             text("<li>" + nav + "</li>");
         }
@@ -102,11 +101,10 @@ public class HTMLWriter {
         text("</div>");
         text("<hr width='100%' align='left'>");
         text("<div id=\"timeAndHint\">");
-        text( new TimestampFormat("dd.MM.yyyy' 'HH:mm:ss").format(Timestamp.of( TimeInstantBuilder.fromNow().getSeconds(), 0)));
-     //   text(TimeInstantBuilder.fromNow().formatted());
+        text(new TimestampFormat("dd.MM.yyyy' 'HH:mm:ss").format(Timestamp.of(TimeInstantBuilder.fromNow().getSeconds(), 0)));
+        //   text(TimeInstantBuilder.fromNow().formatted());
         text("(Use web browser's Reload to refresh this page)");
         text("</div>");
-
 
         text("</blockquote>");
         text("</body>");
@@ -118,6 +116,7 @@ public class HTMLWriter {
     protected void text(@Nonnull final String text) {
         html.println(text);
     }
+
     /** Add header */
     protected void h1(@Nonnull final String text) {
         text("<h1>" + text + "</h1>");
@@ -139,15 +138,13 @@ public class HTMLWriter {
      *  @see #tableLine(String[])
      *  @see #closeTable()
      */
-    protected void openTable(final int initialColSpan,
-                             @Nonnull final String[] headers) {
+    protected void openTable(final int initialColSpan, @Nonnull final String[] headers) {
         text("<table border='0' class='sortable'>");
         text("<thead>");
         text("  <tr bgcolor='#FFCC66'>");
-        text("    <th align='center' colspan='" + initialColSpan + "'>" +
-                        headers[0] + "</th>");
-        for (int i=1; i<headers.length; ++i) {
-            if( headers[i] !=null) {
+        text("    <th align='center' colspan='" + initialColSpan + "'>" + headers[0] + "</th>");
+        for (int i = 1; i < headers.length; ++i) {
+            if (headers[i] != null) {
                 text("    <th align='center'>" + headers[i] + "</th>");
             }
         }
@@ -166,22 +163,22 @@ public class HTMLWriter {
         text("  <tr>");
         boolean first = true;
         for (final String column : columns) {
-             if( column !=null){
-            if (first) {
-                first = false;
-                if (oddTableRow) {
-                    text("    <th align='left' valign='top'>" + column + "</th>");
+            if (column != null) {
+                if (first) {
+                    first = false;
+                    if (oddTableRow) {
+                        text("    <th align='left' valign='top'>" + column + "</th>");
+                    } else {
+                        text("    <th align='left' valign='top' bgcolor='#DFDFFF'>" + column + "</th>");
+                    }
                 } else {
-                    text("    <th align='left' valign='top' bgcolor='#DFDFFF'>" + column + "</th>");
-                }
-            } else {
-                if (oddTableRow) {
-                    text("    <td align='center' valign='top'>" + column + "</td>");
-                } else {
-                    text("    <td align='center' valign='top' bgcolor='#DFDFFF'>" + column + "</td>");
+                    if (oddTableRow) {
+                        text("    <td align='center' valign='top'>" + column + "</td>");
+                    } else {
+                        text("    <td align='center' valign='top' bgcolor='#DFDFFF'>" + column + "</td>");
+                    }
                 }
             }
-         }
         }
         text("  </tr>");
         oddTableRow = !oddTableRow;

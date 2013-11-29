@@ -46,6 +46,8 @@ public final class Messages {
     public static final String HTTP_MAIN = "Main";
     public static final String HTTP_MANAGE = "Manage";
     public static final String HTTP_MANAGE_ADD_CHANNEL = "Add Channel";
+    public static final String HTTP_MANAGE_IMPORT_CHANNEL = "Channels Import";
+    public static final String HTTP_MANAGE_IMPORT="Import";
     public static final String HTTP_MANAGE_STOP_ENGINE = "Stop Engine";
     public static final String HTTP_MAIN_TITLE = "Archive Engine";
     public static final String HTTP_NEVER = "never";
@@ -88,6 +90,7 @@ public final class Messages {
     public static final String HTTP_YES = "Yes";
     public static final String HTTP_SUB_TABLETITLE = "Last 10 channel update:";
     public static final String PASSWORD = "Password";
+    public static final String HTTP_MANAGE_LOGIN="Login";
     /**
      * Constructor.
      */

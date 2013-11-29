@@ -97,6 +97,10 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	 * Local receive (socket) buffer.
 	 */
 	private ByteBuffer socketBuffer;
+	/**
+	 * Local receive (socket) buffer for echo request message.
+	 */
+	private ByteBuffer socketBufferForRequst;
 	
 	/**
 	 * Send queue.
@@ -635,25 +639,29 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 					}
 					final int TRIES = 10;
 					for (int tries = 0; /* tries <= TRIES */ ; tries++)
-					{ 
-					   
+					{ String s=" buffer  ";
+					for(  int i=0;i<buffer.limit();i++){
+						byte b=buffer.get(i);
+						if(b>0x20)
+						s+=(char) b;	
+						else s+=b;
+						}
+						
+						context.getLogger().warning(" Channel state isOpen= " +  channel.isOpen() +" isConnected= "+ channel.isConnected()+" isBlocking= "+ channel.isBlocking()+" isConnectionPending= "+ channel.isConnectionPending()+s);
+						
 					//	 Set<SelectionKey> selectedKeys = sel.selectedKeys();
 					  	// send
-					    /*int	bytesSent = */channel.write(buffer);
+					/*int	bytesSent = */channel.write(buffer);
+					// bytesSend == buffer.position(), so there is no need for flip()
+					//    byte bb[]=new byte[SEND_BUFFER_LIMIT];
+					//	 channel.socket().getOutputStream().write(bb);
+					 //  context.getLogger().warning("Send buffer value to" + socketAddress +" "+  channel.socket().getSendBufferSize()+bb.toString() );
 					
-						// bytesSend == buffer.position(), so there is no need for flip()
-				
 						if (buffer.position() != buffer.limit())
 						{
-							context.getLogger().warning("Send buffer value to" + socketAddress +" "+  channel.socket().getSendBufferSize()+  channel.socket().getOutputStream().toString());
 							if (tries >= TRIES)
 							{
-								String s="";
-								for(byte b:buffer.array()){
-									if(b>0x20)
-									s+=(char) b;	
-									else s+=b;
-									}
+								
 								context.getLogger().warning("Failed to send message to " + socketAddress + " - buffer full, will retry." +" (buffer.position()  "+buffer.position()+" (buffer.limit()  "+buffer.limit());
 								context.getLogger().warning("Send buffer value to" + socketAddress + s);
 							}
@@ -746,19 +754,19 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 		    flushPending = true;
 		}
 	    
-	    return spawnFlushing();
+	    return spawnFlushing( flushTask);
 	}
 	
 	/**
      * @return success flag.
      */
-    private boolean spawnFlushing()
+    private boolean spawnFlushing( Runnable task)
     {
         LeaderFollowersThreadPool lftp = context.getLeaderFollowersThreadPool();
 	    if (lftp != null)
 	    {
 		    // reuse LF threadpool to do async flush
-	        lftp.execute(flushTask);
+	        lftp.execute(task);
 	        return true;
 	    }
 	    else
@@ -823,35 +831,66 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 			    
 			    // possible race condition check
 				if (!closed && sendQueue.size() > 0)
-				    spawnFlushing();
+				    spawnFlushing( flushTask);
 			}
 		}
 	}
-
+	/**
+	 * Flush task  for send echo request message (to be executed by an thread pool).
+	 */
+	 Runnable flushBufferTask =
+				new Runnable() {
+			        /**
+			    	 * @see java.lang.Runnable#run()
+			    	 */
+			    	public void run() {
+			    		flushInternalBuffer(socketBufferForRequst);
+			    	}
+				};
+    /**
+	 * Flush send buffer (blocks until flushed).
+	 * @see com.cosylab.epics.caj.impl.Transport#flush()
+	 */
+	public void flushInternalBuffer(ByteBuffer buf)
+	{
+		try{	
+			send(buf);
+		}
+		catch (IOException ioex)
+		{
+			// close connection
+			close(true);
+		
+		}
+		finally
+		{
+			    // possible race condition check
+				if (!closed && buf.position()!=buf.limit())
+				    spawnFlushing(flushBufferTask);
+    	}
+	}
 	/**
 	 * @see com.cosylab.epics.caj.impl.Transport#submit(com.cosylab.epics.caj.impl.Request)
 	 */
 	public void submit(Request requestMessage) throws IOException {
-		ByteBuffer message = requestMessage.getRequestMessage();
+		final ByteBuffer message = requestMessage.getRequestMessage();
 			
 		// empty message
 		if (message.capacity() == 0)
 			return;
-		String s="";
-		for(byte b:message.array()){
-			if(b > 0X20)
-			s+=(char) b;	
-			else s+=b;
-		}	
-		// send or enqueue
-/*		if (requestMessage.getPriority() == Request.SEND_IMMEDIATELY_PRIORITY){
 	
-			    context.getLogger().warning("new EchoRequest(this) Send message value   "   + s);
-		    	send(message);
-		}
-			
-		else
-		{*/
+		// send or enqueue
+		if (requestMessage.getPriority() == Request.SEND_IMMEDIATELY_PRIORITY){
+			  	send(message);
+			}else if(requestMessage.getPriority() == Request.SEND_IMMEDIATELY_ECHOREQUST_PRIORITY)	//send echo request message with self priority 110. 
+			{
+				//save echo request message in cache 
+				socketBufferForRequst=message;
+				//new task start for send echo request message
+				spawnFlushing(flushBufferTask);
+				
+			}else
+	      	{
 			message.flip();
 
 			synchronized (sendQueue) {
@@ -865,13 +904,12 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 				
 				// TODO !!! check message size, it can exceed sendBuffer capacity
                                 try {
-                                    context.getLogger().warning("new EchoRequest(this) enqueue message value   "   + s);
-			                		sendBuffer.put(message);
+                                	sendBuffer.put(message);
                                 } catch(BufferOverflowException ex) {
                                 	throw new RuntimeException("Message exceeds write buffer size (com.cosylab.epics.caj.impl.CachedByteBufferAllocator.buffer_size)", ex);
                                 }
 			}
-		//}
+		}
 	}
 
 	/**
@@ -934,9 +972,6 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	{
 		if (!probeResponsePending){
 			    	rescheduleTimer(connectionTimeout);
-			}else{
-				context.getLogger().warning(Thread.currentThread().toString()+ "  beaconArrivalNotify()  probeResponsePending=" +probeResponsePending);
-				
 			}
 	}
 
@@ -990,7 +1025,6 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	 */
 	public void echoNotify()
 	{
-		context.getLogger().warning("Response   "+probeResponsePending+"    "+probeTimeoutDetected);
 		synchronized(probeLock)
 		{
 			if (probeResponsePending)
@@ -1003,7 +1037,8 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 					sendEcho();
 				}
 				else
-				{
+				{   
+					context.getLogger().warning("Response echoNotify  "+probeResponsePending+"    "+probeTimeoutDetected +"  " +System.currentTimeMillis());
 					// transport is responsive
 					probeTimeoutDetected = false;
 					probeResponsePending = false;
@@ -1025,14 +1060,16 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 			try
 			{
 				new EchoRequest(this).submit();
-				context.getLogger().warning("new EchoRequest(this)   ");
+				context.getLogger().warning("new EchoRequest(this)  to " + socketAddress.getHostName());
 			}
 			catch (IOException ex)
 			{
+				logger.log(Level.SEVERE, "",ex);
 				probeResponsePending = false;
 			}
 			rescheduleTimer(CAConstants.CA_ECHO_TIMEOUT);
-			context.getLogger().warning("rescheduleTimer 5000");
+			context.getLogger().warning("rescheduleTimer 5000  "	+"  " +System.currentTimeMillis());
+		
 		}
 	}
 
@@ -1041,7 +1078,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	 */
 	private void responsiveTransport()
 	{
-		synchronized (this){
+	
 		if (unresponsiveTransport)
 		{
 		    unresponsiveTransport = false;
@@ -1069,7 +1106,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 				}
 			}
 		}
-		}
+		
 	}
 
 	/**
@@ -1077,7 +1114,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	 */
 	private void unresponsiveTransport()
 	{
-		synchronized (this){
+		
 		if (!unresponsiveTransport)
 		{
 		    unresponsiveTransport = true;
@@ -1122,7 +1159,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 				}
 			}
 		}
-		}
+		
 	}
 
 

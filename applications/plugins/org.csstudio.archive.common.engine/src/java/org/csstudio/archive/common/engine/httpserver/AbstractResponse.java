@@ -51,6 +51,7 @@ abstract class AbstractResponse extends HttpServlet {
         _adminParamValue = null;
         _adminParamKey = null;
     }
+
     /** Construct <code>HttpServlet</code>
      *  @param title Page title
      */
@@ -61,10 +62,12 @@ abstract class AbstractResponse extends HttpServlet {
         _adminParamKey = adminParamKey;
         _adminParamValue = admingParamValue;
     }
+
     @Nonnull
     public String getAdminParamKey() {
         return _adminParamKey;
     }
+
     @Nonnull
     public String getAdminParamValue() {
         return _adminParamValue;
@@ -79,39 +82,40 @@ abstract class AbstractResponse extends HttpServlet {
     protected EngineModel getModel() {
         return _model;
     }
+
     /** {@inheritDoc} */
     @Override
-    protected void doPost(@Nonnull final HttpServletRequest req,
-                         @Nonnull final HttpServletResponse resp)
-                         throws ServletException, IOException {
+    protected void doPost(@Nonnull final HttpServletRequest req, @Nonnull final HttpServletResponse resp) throws ServletException,
+                                                                                                         IOException {
         try {
-         /*   if (!Strings.isNullOrEmpty(_adminParamKey)) {
+            if (!Strings.isNullOrEmpty(_adminParamKey)) {
                 final String parameter = req.getParameter(_adminParamKey);
                 if (!_adminParamValue.equals(parameter)) {
-                    redirectToErrorPage(resp, "This command or URL is secured by an admin key=value pair for " + _adminParamKey + "=?" +
-                                              "\nPlease ensure to add the correct admin key=value pair.");
+                    redirectToErrorPage(resp, "This command or URL is secured by an admin key=value pair for "
+                                              + _adminParamKey + "=?"
+                                              + "\nPlease ensure to add the correct admin key=value pair.");
                     return;
                 }
-            }*/
+            }
             fillResponse(req, resp);
         } catch (final Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
-        }
+    }
 
     /** {@inheritDoc} */
     @Override
-    protected void doGet(@Nonnull final HttpServletRequest req,
-                         @Nonnull final HttpServletResponse resp)
-                         throws ServletException, IOException {
+    protected void doGet(@Nonnull final HttpServletRequest req, @Nonnull final HttpServletResponse resp) throws ServletException,
+                                                                                                        IOException {
         try {
             if (!Strings.isNullOrEmpty(_adminParamKey)) {
                 final String parameter = req.getParameter(_adminParamKey);
                 if (!_adminParamValue.equals(parameter)) {
-                    redirectToErrorPage(resp, "This command or URL is secured by an admin key=value pair for " + _adminParamKey + "=?" +
-                                              "\nPlease ensure to add the correct admin key=value pair.");
+                    redirectToErrorPage(resp, "This command or URL is secured by an admin key=value pair for "
+                                              + _adminParamKey + "=?"
+                                              + "\nPlease ensure to add the correct admin key=value pair.");
                     return;
                 }
             }
@@ -132,10 +136,7 @@ abstract class AbstractResponse extends HttpServlet {
      *  @param req The request
      *  @param resp The response
      */
-    protected abstract void fillResponse(@Nonnull final HttpServletRequest req,
-                                         @Nonnull final HttpServletResponse resp)
-       throws Exception;
-
+    protected abstract void fillResponse(@Nonnull final HttpServletRequest req, @Nonnull final HttpServletResponse resp) throws Exception;
 
     @Nonnull
     protected String getValueAsString(@CheckForNull final ISystemVariable<?> var) {
@@ -153,23 +154,21 @@ abstract class AbstractResponse extends HttpServlet {
         return valueAsString.substring(0, Math.min(valueAsString.length(), maxValueDisplay));
     }
 
-
-    protected void redirectToErrorPage(@Nonnull final HttpServletResponse resp,
-                                       @Nonnull final String msg) throws Exception {
+    protected void redirectToErrorPage(@Nonnull final HttpServletResponse resp, @Nonnull final String msg) throws Exception {
         final HTMLWriter html = new HTMLWriter(resp, "Request error");
         html.text("Error on processing request:\n" + msg);
         MainResponse.linkTo(Messages.HTTP_MAIN);
         html.close();
     }
-    protected void redirectToWarnPage(@Nonnull final HttpServletResponse resp,
-                                      @Nonnull final String msg) throws Exception {
+
+    protected void redirectToWarnPage(@Nonnull final HttpServletResponse resp, @Nonnull final String msg) throws Exception {
         final HTMLWriter html = new HTMLWriter(resp, "Request warning");
         html.text("Warning on processing request:\n" + msg);
         MainResponse.linkTo(Messages.HTTP_MAIN);
         html.close();
     }
-    protected void redirectToSuccessPage(@Nonnull final HttpServletResponse resp,
-                                         @Nonnull final String msg) throws Exception {
+
+    protected void redirectToSuccessPage(@Nonnull final HttpServletResponse resp, @Nonnull final String msg) throws Exception {
         final HTMLWriter html = new HTMLWriter(resp, "Request success");
         html.text("Request successful:\n" + msg);
         MainResponse.linkTo(Messages.HTTP_MAIN);
@@ -185,12 +184,14 @@ abstract class AbstractResponse extends HttpServlet {
     public static final class Url {
         private String _url;
         private boolean _hasParams;
+
         /**
          * Constructor.
          */
         public Url(@Nonnull final String url) {
             _url = url;
         }
+
         @Nonnull
         public Url with(@Nonnull final String key, @Nonnull final String value) {
             if (!_hasParams) {
@@ -201,6 +202,7 @@ abstract class AbstractResponse extends HttpServlet {
             _hasParams = true;
             return this;
         }
+
         @Nonnull
         public String link(@CheckForNull final String text) {
             if (Strings.isNullOrEmpty(text)) {
@@ -208,6 +210,7 @@ abstract class AbstractResponse extends HttpServlet {
             }
             return "<a href=\"" + _url + "\">" + text + "</a>";
         }
+
         @Nonnull
         public String url() {
             return _url;

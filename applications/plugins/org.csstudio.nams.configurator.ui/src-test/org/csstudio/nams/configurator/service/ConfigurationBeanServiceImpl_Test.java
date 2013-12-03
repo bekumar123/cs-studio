@@ -13,6 +13,7 @@ import org.csstudio.nams.service.configurationaccess.localstore.declaration.Alar
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.AlarmbearbeiterGruppenDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.Configuration;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.DefaultFilterDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.ExtendedMessagePvDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.LocalStoreConfigurationService;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.TimeBasedFilterDTO;
@@ -94,6 +95,7 @@ public class ConfigurationBeanServiceImpl_Test extends TestCase {
 		final Collection<FilterConditionDTO> allFilterConditions = new LinkedList<FilterConditionDTO>();
 		final Collection<RubrikDTO> alleRubriken = new LinkedList<RubrikDTO>();
 		final Collection<DefaultFilterTextDTO> allDefaultFilterTexts = new LinkedList<DefaultFilterTextDTO>();
+		final Collection<ExtendedMessagePvDTO> allExtendedMessagePvDTOs = new  LinkedList<ExtendedMessagePvDTO>();
 
 		alleAlarmbarbeiter.add(new AlarmbearbeiterDTO(1, 0, "TestUserName", "test@testdomain.de", "phone#Mobile", "phone#Fest", "OK", "ACK", true));
 		
@@ -105,7 +107,7 @@ public class ConfigurationBeanServiceImpl_Test extends TestCase {
 		
 		return new Configuration(alleAlarmbarbeiter, alleAlarmtopics,
 				alleAlarmbearbeiterGruppen, allFilters, allFilterConditions,
-				alleRubriken, allDefaultFilterTexts);
+				alleRubriken, allDefaultFilterTexts, allExtendedMessagePvDTOs);
 	}
 
 }

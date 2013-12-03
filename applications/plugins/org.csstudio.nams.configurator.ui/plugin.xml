@@ -55,6 +55,14 @@
             id="org.csstudio.nams.configurator.syncronize"
             name="%view.name.5">
       </view>
+      <view
+            allowMultiple="false"
+            category="org.csstudio.nams.newconfigurator"
+            class="org.csstudio.nams.configurator.views.MessageExtensionView"
+            fastViewWidthRatio=".5f"
+            id="org.csstudio.nams.configurator.messageextension"
+            name="Message Extensions">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.editors">
@@ -99,6 +107,12 @@
             icon="icons/ams.gif"
             id="org.csstudio.nams.configurator.editor.WatchDogFilterEditor"
             name="WatchDog Filter Editor">
+      </editor>
+      <editor
+            class="org.csstudio.nams.configurator.editor.MessageExtensionEditor"
+            icon="icons/ams.gif"
+            id="org.csstudio.nams.configurator.editor.MessageExtensionEditor"
+            name="MessageExtensionEditor">
       </editor>
    </extension>
    <extension
@@ -161,6 +175,17 @@
          <view
                closeable="false"
                id="org.csstudio.nams.configurator.filter"
+               minimized="false"
+               moveable="true"
+               ratio="0.4f"
+               relationship="stack"
+               relative="org.csstudio.nams.configurator.alarmbearbeitergruppen"
+               showTitle="true"
+               visible="true">
+         </view>
+         <view
+               closeable="false"
+               id="org.csstudio.nams.configurator.messageextension"
                minimized="false"
                moveable="true"
                ratio="0.4f"

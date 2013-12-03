@@ -13,6 +13,7 @@ import org.csstudio.ams.configReplicator.ConfigReplicator;
 import org.csstudio.ams.dbAccess.AmsConnectionFactory;
 import org.csstudio.ams.dbAccess.ConfigDbProperties;
 import org.csstudio.ams.dbAccess.configdb.FlagDAO;
+import org.csstudio.ams.distributor.service.MessageExtensionService;
 
 /**
  * Service that copies the configuration from the master configuration database
@@ -34,20 +35,24 @@ class ConfigurationSynchronizer implements Runnable {
     private boolean _stopped = false;
     private MessageProducer _jmsProducer;
     private Session _jmsSession;
+	private final MessageExtensionService messageExtensionService;
 
     /**
      * Creates a new synchronizer object.
+     * @param messageExtensionService 
      */
     public ConfigurationSynchronizer(Connection localDatabaseConnection,
                                      Connection cacheDatabaseConnection,
                                      ConfigDbProperties prop,
                                      Session jmsSession,
-                                     MessageProducer jmsProducer) {
+                                     MessageProducer jmsProducer, 
+                                     MessageExtensionService messageExtensionService) {
         _localDatabaseConnection = localDatabaseConnection;
         _cacheDatabaseConnection = cacheDatabaseConnection;
         dbProperties = prop;
         _jmsSession = jmsSession;
         _jmsProducer = jmsProducer;
+		this.messageExtensionService = messageExtensionService;
         _state = readSynchronizationState();
     }
 
@@ -105,6 +110,7 @@ class ConfigurationSynchronizer implements Runnable {
                     break;
                 case SYNCHRONIZATION_COMPLETED:
                     sendSynchronizationCompletedMessage();
+                    messageExtensionService.reloadConfiguration();
                     break;
             }
         }

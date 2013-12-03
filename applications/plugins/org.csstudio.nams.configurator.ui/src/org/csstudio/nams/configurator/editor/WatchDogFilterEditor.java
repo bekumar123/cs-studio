@@ -479,9 +479,9 @@ public class WatchDogFilterEditor extends AbstractEditor<WatchDogFilterBean> {
 
 			@Override
 			protected boolean canEdit(final Object element) {
-				if (element instanceof AlarmTopicFilterAction) {
-					return false;
-				}
+//				if (element instanceof AlarmTopicFilterAction) {
+//					return false;
+//				}
 				return true;
 			}
 

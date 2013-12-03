@@ -1,7 +1,6 @@
 
 package org.csstudio.nams.configurator.views;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -25,8 +24,8 @@ import org.csstudio.nams.service.configurationaccess.localstore.declaration.Loca
 import org.csstudio.nams.service.logging.declaration.ILogger;
 import org.csstudio.nams.service.preferenceservice.declaration.HoldsAPreferenceId;
 import org.csstudio.nams.service.preferenceservice.declaration.PreferenceService;
-import org.csstudio.nams.service.preferenceservice.declaration.PreferenceServiceDatabaseKeys;
 import org.csstudio.nams.service.preferenceservice.declaration.PreferenceService.PreferenceChangeListener;
+import org.csstudio.nams.service.preferenceservice.declaration.PreferenceServiceDatabaseKeys;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.MenuManager;
@@ -62,7 +61,7 @@ public abstract class AbstractNamsView extends ViewPart {
 	protected static ConfigurationBeanService _configurationBeanService;
 	private static PreferenceService _preferenceService;
 	private static ConfigurationServiceFactory _configurationServiceFactory;
-	private static ILogger _logger;
+	protected static ILogger _logger;
 	private static Semaphore semaphore = new Semaphore(1);
 
 	public static boolean isInitialized() {

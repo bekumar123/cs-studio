@@ -587,9 +587,9 @@ public class FilterEditor extends AbstractEditor<DefaultFilterBean> {
 
 			@Override
 			protected boolean canEdit(final Object element) {
-				if (element instanceof AlarmTopicFilterAction) {
-					return false;
-				}
+//				if (element instanceof AlarmTopicFilterAction) {
+//					return false;
+//				}
 				return true;
 			}
 

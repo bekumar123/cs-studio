@@ -22,7 +22,7 @@ import org.csstudio.nams.service.configurationaccess.localstore.declaration.NewA
  * (
  * iGroupId		NUMBER(11) NOT NULL,		
  * cGroupName		VARCHAR2(128),
- * sType			NUMBER(6),			/* 1 - User, 2 - UserGroup, 3 - FilterCond, 4 - Filter, 5 - Topic 
+ * sType			NUMBER(6),			/* 1 - User, 2 - UserGroup, 3 - FilterCond, 4 - Filter, 5 - Topic, 6 - Facility 
  * 	PRIMARY KEY (iGroupId)
  * );
  * </pre>

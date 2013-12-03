@@ -190,74 +190,6 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
     private static String managementPassword;
 
     /**
-     * Versucht via dem Distributor eine Synchronisation auszufürehn. Das
-     * Ergebnis gibt an, ob weitergearbeitet werden soll.
-     *
-     * @param instance
-     * @param logger
-     * @param amsAusgangsProducer
-     * @param amsCommandConsumer
-     * @param extComendProducer
-     * @param localStoreConfigurationService
-     * @return {@code true} bei Erfolg, {@false} sonst.
-     */
-    private static boolean versucheZuSynchronisieren(
-            final DecisionDepartmentActivator instance, final ILogger logger,
-            final Producer amsAusgangsProducer,
-            final Consumer amsCommandConsumer,
-            final LocalStoreConfigurationService localStoreConfigurationService) {
-        boolean result = false;
-        try {
-
-            logger
-                    .logInfoMessage(
-                            instance,
-                            "Decision department application orders distributor to synchronize configuration...");
-            SyncronisationsAutomat.syncronisationUeberDistributorAusfueren(
-                    amsAusgangsProducer, amsCommandConsumer,
-                    localStoreConfigurationService,
-                    DecisionDepartmentActivator.historyService);
-            if (!SyncronisationsAutomat.hasBeenCanceled()) {
-                // Abbruch bei Syncrinisation
-                result = true;
-            }
-        } catch (final Throwable messagingException) {
-            if (SyncronisationsAutomat.hasBeenCanceled()) {
-                // Abbruch bei Syncrinisation
-                logger
-                        .logInfoMessage(
-                                instance,
-                                "Decision department application was interrupted and requested to shut down during synchroisation of configuration.");
-                result = false;
-            } else {
-
-                logger.logFatalMessage(instance,
-                        "Exception while synchronizing configuration.",
-                        messagingException);
-                result = false;
-
-            }
-        }
-//        } catch (final StorageException storageException) {
-//            logger.logFatalMessage(instance,
-//                    "Exception while synchronizing configuration.",
-//                    storageException);
-//            result = false;
-//        } catch (final UnknownConfigurationElementError unknownConfigurationElementError) {
-//            logger.logFatalMessage(instance,
-//                    "Exception while synchronizing configuration.",
-//                    unknownConfigurationElementError);
-//            result = false;
-//        } catch (final InconsistentConfigurationException inconsistentConfiguration) {
-//            logger.logFatalMessage(instance,
-//                    "Exception while synchronizing configuration.",
-//                    inconsistentConfiguration);
-//            result = false;
-//        }
-        return result;
-    }
-
-    /**
      * Indicates if the application instance should continue working. Unused in
      * the activator instance.
      *
@@ -1023,4 +955,72 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
     public String getInfo() {
         return appInfo.toString();
     }
+
+	/**
+	     * Versucht via dem Distributor eine Synchronisation auszufürehn. Das
+	     * Ergebnis gibt an, ob weitergearbeitet werden soll.
+	     *
+	     * @param instance
+	     * @param logger
+	     * @param amsAusgangsProducer
+	     * @param amsCommandConsumer
+	     * @param extComendProducer
+	     * @param localStoreConfigurationService
+	     * @return {@code true} bei Erfolg, {@false} sonst.
+	     */
+	    private static boolean versucheZuSynchronisieren(
+	            final DecisionDepartmentActivator instance, final ILogger logger,
+	            final Producer amsAusgangsProducer,
+	            final Consumer amsCommandConsumer,
+	            final LocalStoreConfigurationService localStoreConfigurationService) {
+	        boolean result = false;
+	        try {
+	
+	            logger
+	                    .logInfoMessage(
+	                            instance,
+	                            "Decision department application orders distributor to synchronize configuration...");
+	            SyncronisationsAutomat.syncronisationUeberDistributorAusfueren(
+	                    amsAusgangsProducer, amsCommandConsumer,
+	                    localStoreConfigurationService,
+	                    DecisionDepartmentActivator.historyService);
+	            if (!SyncronisationsAutomat.hasBeenCanceled()) {
+	                // Abbruch bei Syncrinisation
+	                result = true;
+	            }
+	        } catch (final Throwable messagingException) {
+	            if (SyncronisationsAutomat.hasBeenCanceled()) {
+	                // Abbruch bei Syncrinisation
+	                logger
+	                        .logInfoMessage(
+	                                instance,
+	                                "Decision department application was interrupted and requested to shut down during synchroisation of configuration.");
+	                result = false;
+	            } else {
+	
+	                logger.logFatalMessage(instance,
+	                        "Exception while synchronizing configuration.",
+	                        messagingException);
+	                result = false;
+	
+	            }
+	        }
+	//        } catch (final StorageException storageException) {
+	//            logger.logFatalMessage(instance,
+	//                    "Exception while synchronizing configuration.",
+	//                    storageException);
+	//            result = false;
+	//        } catch (final UnknownConfigurationElementError unknownConfigurationElementError) {
+	//            logger.logFatalMessage(instance,
+	//                    "Exception while synchronizing configuration.",
+	//                    unknownConfigurationElementError);
+	//            result = false;
+	//        } catch (final InconsistentConfigurationException inconsistentConfiguration) {
+	//            logger.logFatalMessage(instance,
+	//                    "Exception while synchronizing configuration.",
+	//                    inconsistentConfiguration);
+	//            result = false;
+	//        }
+	        return result;
+	    }
 }

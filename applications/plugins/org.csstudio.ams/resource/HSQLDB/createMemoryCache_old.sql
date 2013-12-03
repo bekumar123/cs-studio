@@ -262,6 +262,28 @@ create table AMS_History
 	PRIMARY KEY(iHistoryID)
 );
 
+<<<<<<< HEAD:applications/plugins/org.csstudio.ams/resource/HSQLDB/createMemoryCache_old.sql
+=======
+drop table AMS_MSG_EXT_PVS;
+CREATE TABLE AMS_MSG_EXT_PVS 
+(	
+	ID BIGINT, 
+	IGROUPREF BIGINT, 
+	CPVNAME VARCHAR(128), 
+	PRIMARY KEY (ID)
+);
+
+drop table AMS_MSG_EXTENSIONS;
+CREATE TABLE  AMS_MSG_EXTENSIONS
+(	
+	IDREF BIGINT, 
+	CMESSAGEKEY VARCHAR(4000), 
+	CMESSAGEVALUE VARCHAR(4000)
+);
+
+
+drop table AMS_Flag;
+>>>>>>> e9f148c23e395624612132131901bf519fe13779:applications/plugins/org.csstudio.ams/resource/DerbyDB/CreateDerbyDB.sql
 create table AMS_Flag
 (
 	cFlagName		VARCHAR(32)	NOT NULL,

@@ -1,5 +1,5 @@
 -- SQL-Skript zum Erzeugen der AMS-Datenbank in Derby
--- Aktuelle Version vom 21.10.2013
+-- Aktuelle Version vom 03.12.2013
 -- Änderungen von C1-WPS
 
 CONNECT 'jdbc:derby://localhost/amsdb;create=true';
@@ -33,6 +33,8 @@ DROP TABLE AMS_FilterCondition;
 DROP TABLE AMS_Message;
 DROP TABLE AMS_MessageChain;
 DROP TABLE AMS_History;
+DROP TABLE AMS_Msg_Ext_PVS;
+DROP TABLE AMS_Msg_Extensions;
 
 CREATE TABLE AMS_FilterCond_FilterCond
 (
@@ -256,6 +258,21 @@ CREATE TABLE AMS_FilterCond_PropCompare
     cMessageKeyValue VARCHAR(16) NOT NULL,
     sOperator INT,
     PRIMARY KEY (iFilterConditionRef)
+);
+
+CREATE TABLE  AMS_Msg_Ext_PVS
+(   
+    id INT NOT NULL, 
+    iGroupRef INT DEFAULT -1 NOT NULL, 
+    cPVName VARCHAR(128) NOT NULL, 
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE AMS_Msg_Extensions
+(   
+    idRef INT NOT NULL, 
+    cMessageKey VARCHAR(4000) NOT NULL, 
+    cMessageValue VARCHAR(4000) NOT NULL
 );
 
 CREATE TABLE AMS_Message

@@ -29,6 +29,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import org.csstudio.ams.AmsConstants;
 import org.csstudio.ams.ExitException;
 import org.csstudio.ams.Log;
@@ -50,7 +51,6 @@ import org.csstudio.ams.dbAccess.configdb.FilterDAO;
 import org.csstudio.ams.dbAccess.configdb.FilterFilterActionDAO;
 import org.csstudio.ams.dbAccess.configdb.FilterFilterConditionDAO;
 import org.csstudio.ams.dbAccess.configdb.FlagDAO;
-import org.csstudio.ams.dbAccess.configdb.HistoryDAO;
 import org.csstudio.ams.dbAccess.configdb.MessageChainDAO;
 import org.csstudio.ams.dbAccess.configdb.MessageDAO;
 import org.csstudio.ams.dbAccess.configdb.MessageExtensionsDAO;
@@ -68,8 +68,8 @@ public class ConfigReplicator implements AmsConstants {
     /**
 	 * Copying configuration from one database to another.
 	 */
-	public static void replicateConfiguration(Connection masterDB,
-	                                          Connection localDB)
+	public static void replicateConfiguration(final Connection masterDB,
+	                                          final Connection localDB)
 												throws Exception {
 		try {
 
@@ -139,7 +139,7 @@ public class ConfigReplicator implements AmsConstants {
 			UserDAO.copyUser(masterDB, localDB);
 			UserGroupDAO.copyUserGroup(masterDB, localDB);
 			UserGroupUserDAO.copyUserGroupUser(masterDB, localDB);
-			
+
 			MessageExtensionsDAO.copyMessageExtensions(masterDB, localDB);
 
 			Log.log(Log.INFO, "Replicating configuration finished.");
@@ -151,10 +151,10 @@ public class ConfigReplicator implements AmsConstants {
             }
 
 			masterDB.commit();
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			try {
 				masterDB.rollback();
-			} catch(Exception e) {
+			} catch(final Exception e) {
 				Log.log(Log.WARN, "Rollback failed.", e);
 			}
 
@@ -164,14 +164,14 @@ public class ConfigReplicator implements AmsConstants {
 		} finally {
 			try {
 				masterDB.setAutoCommit(true);
-			} catch(Exception e) {
+			} catch(final Exception e) {
 			    // Ignore me
 			}
 		}
 		// All O.K.
 	}
 
-	public static void createMemoryCacheDb(Connection cacheDb, File sqlScript) throws ReplicationException {
+	public static void createMemoryCacheDb(final Connection cacheDb, final File sqlScript) throws ReplicationException {
 
 	    Log.log(Log.INFO, "Creating memory cache database.");
 	    try {
@@ -180,15 +180,15 @@ public class ConfigReplicator implements AmsConstants {
 //	        sqlFile.execute(cacheDb, false);
 
 	        // HSQLDB 2.2.9.0:
-	         SqlFile sqlFile = new SqlFile(sqlScript);
+	         final SqlFile sqlFile = new SqlFile(sqlScript);
 	         sqlFile.setConnection(cacheDb);
 	         sqlFile.execute();
 	        Log.log(Log.INFO, "SQL-Script for the cache loaded and executed.");
-	    } catch (IOException e) {
+	    } catch (final IOException e) {
 	        throw new ReplicationException(e);
-	    } catch (SqlToolError e) {
+	    } catch (final SqlToolError e) {
 	        throw new ReplicationException(e);
-	    } catch (SQLException e) {
+	    } catch (final SQLException e) {
 	        throw new ReplicationException(e);
 	    }
 
@@ -215,8 +215,8 @@ public class ConfigReplicator implements AmsConstants {
 	 * Copying configuration from one database to another.
 	 * @throws ReplicationException
 	 */
-	public static void replicateConfigurationToHsql(Connection masterDB,
-			                                        Connection hsqlDB)
+	public static void replicateConfigurationToHsql(final Connection masterDB,
+			                                        final Connection hsqlDB)
 			                                                throws ReplicationException {
 
 		try {
@@ -247,7 +247,7 @@ public class ConfigReplicator implements AmsConstants {
             UserDAO.removeAll(hsqlDB);
             UserGroupDAO.removeAll(hsqlDB);
             UserGroupUserDAO.removeAll(hsqlDB);
-            
+
             MessageExtensionsDAO.removeAll(hsqlDB);
 
 			Log.log(Log.INFO, "Start copying master configuration to memory cache database.");
@@ -285,11 +285,13 @@ public class ConfigReplicator implements AmsConstants {
 			UserGroupUserDAO.copyUserGroupUser(masterDB, hsqlDB, "");
 
 			MessageExtensionsDAO.copyMessageExtensions(masterDB, hsqlDB, "");
-			
+
 			// ADDED: gs, fz 2012-09-12
 			MessageDAO.removeAll(hsqlDB);
 			MessageChainDAO.removeAll(hsqlDB);
-			HistoryDAO.removeAll(hsqlDB);
+
+			// The memory cache does not contain the history table
+			// HistoryDAO.removeAll(hsqlDB);
 
 			// The following line causes a Memory-Exception, because the history table contains
 			// soooooo many data...
@@ -302,7 +304,7 @@ public class ConfigReplicator implements AmsConstants {
 
 			Log.log(Log.INFO, "Copying to memory cache database finished.");
 
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			throw new ReplicationException(e);
 		}
 		// All O.K.
@@ -311,9 +313,9 @@ public class ConfigReplicator implements AmsConstants {
 	/**
 	 * This method is only for testing purposes
 	 */
-	public static void selectFromCacheDb(Connection memDb, long userGroupId) {
+	public static void selectFromCacheDb(final Connection memDb, final long userGroupId) {
 
-	    String sql = "SELECT * FROM ams_usergroup_user WHERE iUserGroupRef=? ORDER BY iuserref";
+	    final String sql = "SELECT * FROM ams_usergroup_user WHERE iUserGroupRef=? ORDER BY iuserref";
 	    PreparedStatement query = null;
 	    ResultSet rs = null;
 
@@ -330,16 +332,16 @@ public class ConfigReplicator implements AmsConstants {
 	            CACTIVEREASON       |VARCHAR
 	            TTIMECHANGE         |BIGINT
 	            */
-	            long userRef = rs.getLong("iUserRef");
-	            short active = rs.getShort("sActive");
-	            String reason = rs.getString("cActiveReason");
+	            final long userRef = rs.getLong("iUserRef");
+	            final short active = rs.getShort("sActive");
+	            final String reason = rs.getString("cActiveReason");
 	            Log.log(Log.INFO, userRef + " | " + active + " | " + reason);
 	        }
-	    } catch (SQLException e) {
+	    } catch (final SQLException e) {
 	        Log.log(Log.ERROR, "selectFromCacheDb(): " + e.getMessage());
 	    } finally {
-	        if(rs!=null){try{rs.close();}catch(Exception e){/**/}}
-	        if(query!=null){try{query.close();}catch(Exception e){/**/}}
+	        if(rs!=null){try{rs.close();}catch(final Exception e){/**/}}
+	        if(query!=null){try{query.close();}catch(final Exception e){/**/}}
 	    }
 	}
 }

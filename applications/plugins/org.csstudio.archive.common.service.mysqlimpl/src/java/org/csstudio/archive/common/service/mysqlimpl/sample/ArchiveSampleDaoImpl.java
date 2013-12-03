@@ -169,6 +169,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         //   try {
         try {
             ArchiveSampleBatchQueueCollector.getInstance().getArchiveSampleBatchQueueApplication().setValue(getEngineMgr().submitToBatch(s));
+
         } catch (final TypeSupportException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

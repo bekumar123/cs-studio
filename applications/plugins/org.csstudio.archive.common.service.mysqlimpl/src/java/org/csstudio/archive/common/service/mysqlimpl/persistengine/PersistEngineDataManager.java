@@ -166,7 +166,7 @@ public class PersistEngineDataManager {
                                                                                    prefPeriodInMS,
                                                                                    handler);
             //   _writeSamplesExecutor.scheduleAtFixedRate(newWorker1, 0L, 1000, TimeUnit.MILLISECONDS);
-            _writeSamplesExecutor.scheduleWithFixedDelay(newWorker1, 1L, 1000, TimeUnit.MILLISECONDS);
+            executor.scheduleWithFixedDelay(newWorker1, 1L, 1000, TimeUnit.MILLISECONDS);
             submittedWorkers.add(newWorker1);
             LOG.warn("new Thread for {} start", handler.getClass().getSimpleName());
 

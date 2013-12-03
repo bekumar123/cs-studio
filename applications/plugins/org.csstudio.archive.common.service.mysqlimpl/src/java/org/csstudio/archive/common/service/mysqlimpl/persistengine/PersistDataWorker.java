@@ -40,7 +40,6 @@ import org.csstudio.archive.common.service.mysqlimpl.batch.IBatchQueueHandlerPro
 import org.csstudio.archive.common.service.mysqlimpl.dao.ArchiveConnectionHandler;
 import org.csstudio.archive.common.service.mysqlimpl.dao.ArchiveDaoException;
 import org.csstudio.archive.common.service.mysqlimpl.notification.ArchiveNotifications;
-import org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleBatchQueueHandler;
 import org.csstudio.domain.desy.task.AbstractTimeMeasuredRunnable;
 import org.csstudio.domain.desy.time.StopWatch;
 import org.csstudio.domain.desy.time.StopWatch.RunningStopWatch;
@@ -186,10 +185,9 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
                     LOG.debug("{}", iii.length);
                     //  stmt.execute();
                     // stmt.executeUpdate();
-                           if (!(handler instanceof ArchiveSampleBatchQueueHandler)) {
                     LOG.info("{}ms for {}x {}", new Object[] { _watch.getElapsedTimeInMillis(), iii.length,
                                                               handler.getHandlerType().getSimpleName() });
-                         }
+
                 } catch (final Throwable t) {
                     handler.getQueue().addAll(elements);
                     elements.clear();

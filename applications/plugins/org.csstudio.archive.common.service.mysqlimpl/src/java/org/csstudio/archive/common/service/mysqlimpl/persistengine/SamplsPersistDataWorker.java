@@ -28,8 +28,6 @@ import org.csstudio.archive.common.service.mysqlimpl.batch.BatchQueueHandlerSupp
 import org.csstudio.archive.common.service.mysqlimpl.batch.IBatchQueueHandlerProvider;
 import org.csstudio.archive.common.service.mysqlimpl.dao.ArchiveConnectionHandler;
 import org.epics.pvmanager.TypeSupport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
@@ -40,8 +38,7 @@ import com.google.common.collect.Lists;
  * @since 18.07.2013
  */
 public class SamplsPersistDataWorker extends PersistDataWorker {
-    private static final Logger LOG = LoggerFactory.getLogger(SamplsPersistDataWorker.class);
-    private static final Logger EMAIL_LOG = LoggerFactory.getLogger("ErrorPerEmailLogger");
+
     private final String _name;
     private final List<Object> _rescueDataList = Lists.newLinkedList();
     private final ArchiveConnectionHandler _connectionHandler;

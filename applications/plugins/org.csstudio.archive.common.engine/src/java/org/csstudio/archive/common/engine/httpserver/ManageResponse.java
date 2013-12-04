@@ -252,9 +252,7 @@ class ManageResponse extends AbstractResponse {
                               + "\" method=\"POST\" name=\"name\" enctype=\"multipart/form-data\">";
         html.text(form);
         html.openTable(2, new String[] { Messages.HTTP_MANAGE_IMPORT_CHANNEL});
-        final String passwordName = "<input type=\"password\" id =\"pass3\" name=\"httpAdmin\" size=\" size=\"15\">";
-        html.tableLine(new String[] { Messages.PASSWORD, passwordName });
-        final String datei = "<input type=\"file\" name=\"fileName\" size=\"50\" maxlength=\"100000\" accept=\"text/config\">";
+        final String datei = "<input type=\"file\" name=\"fileName\" size=\"50\" maxlength=\"1000000\" accept=\"text/config\">";
         html.tableLine(new String[] { "W&auml;hlen Sie eine Importatei von Ihrem Rechner aus:"});
         html.tableLine(new String[] { "", datei });
 

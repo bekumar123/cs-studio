@@ -21,9 +21,11 @@
  */
 package org.csstudio.archive.common.engine.httpserver;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -68,6 +70,18 @@ public class ImportFileResponse extends AbstractResponse {
             resp.sendRedirect(new Url(ImportResultResponse.baseUrl()).url());//ShowChannelResponse.urlTo(name.toString()));
     }
 
+    /** {@inheritDoc} */
+    @Override
+    protected void doPost(@Nonnull final HttpServletRequest req, @Nonnull final HttpServletResponse resp) throws ServletException,
+                                                                                                         IOException {
+        try {
+               fillResponse(req, resp);
+        } catch (final Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+    }
     @Nonnull
     public static String baseUrl() {
         return URL_IMPORT_ACTION;

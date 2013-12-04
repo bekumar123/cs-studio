@@ -1371,7 +1371,7 @@ public class Trace extends Figure implements IDataProviderListener,
 			lowIndex = nearBinarySearchX(min, true);
 		if (max < traceDataProvider.getSample(highIndex).getXValue())
 			highIndex = nearBinarySearchX(max, false);
-		return new Range(lowIndex, highIndex+1);
+		return new Range(lowIndex, highIndex);
 	}
 
 	// It will return the index on the closest left(if left is true) or right of

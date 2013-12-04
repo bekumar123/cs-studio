@@ -23,7 +23,6 @@ package org.csstudio.archive.common.reader;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.regex.Pattern;
 
 import javax.annotation.CheckForNull;
@@ -51,7 +50,6 @@ import org.epics.vtype.VType;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 
 /**
  * The plugin.xml registers this factory for ArchiveReaders
@@ -217,10 +215,11 @@ public final class DesyArchiveReaderFactory implements ArchiveReaderFactory {
               final IArchiveSample lastSampleBefore = service.readLastSampleBefore(name, s);
 
              // final Collection<IArchiveSample<Serializable, ISystemVariable<Serializable>>> samples = service.readSamples(channel.getName(), s, e, null);
-              final Collection<IArchiveSample> samples = (Collection)service.readSamples(channel.getName(), s, e, null);
+              final  Collection<IArchiveSample> samples = (Collection)service.readSamples(channel.getName(), s, e, null);
 
               if (samples.size() <= count) {
-                  return new DesyArchiveValueIterator(Iterables.concat(Collections.<IArchiveSample>singleton(lastSampleBefore), samples),
+                 // return new DesyArchiveValueIterator(Iterables.concat(Collections.<IArchiveSample>singleton(lastSampleBefore), samples),name, s, e);
+                  return new DesyArchiveValueIterator( samples,
                                                       name, s, e);
               }
 

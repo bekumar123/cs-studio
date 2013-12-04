@@ -39,6 +39,7 @@ import org.csstudio.archive.common.service.sample.IArchiveSample;
 import org.csstudio.archive.common.service.sample.SampleMinMaxAggregator;
 import org.csstudio.archive.vtype.trendplotter.ArchiveVStatistics;
 import org.csstudio.archive.vtype.trendplotter.VTypeHelper;
+import org.csstudio.domain.desy.epics.types.EpicsSystemVariable;
 import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
 import org.csstudio.domain.desy.system.ISystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
@@ -48,6 +49,7 @@ import org.csstudio.domain.desy.typesupport.BaseTypeConversionSupport;
 import org.csstudio.domain.desy.typesupport.TypeSupportException;
 import org.epics.util.text.NumberFormats;
 import org.epics.util.time.Timestamp;
+import org.epics.vtype.AlarmSeverity;
 import org.epics.vtype.Display;
 import org.epics.vtype.VStatistics;
 import org.epics.vtype.VType;
@@ -192,12 +194,15 @@ public class EquidistantTimeBinsIterator extends AbstractValueIterator {
         if (ch == null) {
             throw new ArchiveServiceException("Channel retrieval failed for channel '" + channelName + "'!", null);
         }
-        final Limits<?> l = service.readDisplayLimits(channelName);
+       // final Limits<?> l = service.readDisplayLimits(channelName);
+        final Limits<?> l = ch.getDisplayLimits();
         if (l != null) {
-            return ValueFactory.newDisplay(new Double(l.getLow().toString()),  new Double(0.0),  new Double(0.0), "", NumberFormats.toStringFormat(),  new Double(0.0),
+            return ValueFactory.newDisplay((Double)l.getLow(),  new Double(0.0),  new Double(0.0), "", NumberFormats.toStringFormat(),  new Double(0.0),
                                            new Double(0.0), new Double(l.getHigh().toString()),  new Double(0.0),  new Double(l.getLow().toString()));
         }
-        return null;
+        return ValueFactory.newDisplay( new Double(0.0),  new Double(0.0),  new Double(0.0), "", NumberFormats.toStringFormat(),  new Double(0.0),
+                                               new Double(0.0), new Double(0.0),  new Double(0.0),  new Double(0.0));
+
     }
 
 
@@ -243,26 +248,34 @@ public class EquidistantTimeBinsIterator extends AbstractValueIterator {
             _firstSample =
                 aggregateSamplesUntilWindowEnd(_firstSample, curWindowEnd, getIterator(), _agg);
         }
+       final EpicsSystemVariable a=(EpicsSystemVariable)_lastSampleOfLastWindow.getSystemVariable();
 
-        final VType iVal = createMinMaxDoubleValue(curWindowEnd, display, _agg);
+       final AlarmSeverity  severty= a.getAlarm().getSeverity().toString().equals("INVALID")?AlarmSeverity.INVALID:
+           a.getAlarm().getSeverity().toString().equals("MAJOR")?AlarmSeverity.MAJOR:
+           a.getAlarm().getSeverity().toString().equals("MINOR")?AlarmSeverity.MINOR:
+           a.getAlarm().getSeverity().toString().equals("NO_ALARM")?AlarmSeverity.NONE:AlarmSeverity.UNDEFINED;
+
+        final VType iVal = createMinMaxDoubleValue(curWindowEnd, display, _agg,severty,a.getAlarm().getStatus().toString());
         final VStatistics st = (VStatistics) iVal;
          final String q=_firstSample!=null? _firstSample.getRequestType() : "";
         _currentWindow++;
-        return new ArchiveVStatistics( VTypeHelper.getTimestamp(iVal), st.getAlarmSeverity(), st.getAlarmName(), st,q, st.getAverage(), st.getMin(), st.getMax(), st.getStdDev(), st.getNSamples());
+
+        return new ArchiveVStatistics( VTypeHelper.getTimestamp(iVal),severty, a.getAlarm().getStatus().toString(), st,q, st.getAverage(), st.getMin(), st.getMax(), st.getStdDev(), st.getNSamples());
 
     }
 
     @Nonnull
     private VType createMinMaxDoubleValue(@Nonnull final TimeInstant curWindowEnd,
                                            @Nonnull final Display display,
-                                           @Nonnull final SampleMinMaxAggregator agg) throws Exception {
+                                           @Nonnull final SampleMinMaxAggregator agg,  final AlarmSeverity  severty, final String s) throws Exception {
         final Double avg = agg.getAvg();
         final Double min = agg.getMin();
         final Double max = agg.getMax();
 
+
         if (avg != null && min != null && max != null) {
             //TODO (jhatje): implement vType
-            return ValueFactory.newVStatistics(avg, 0, min, max, 1, ValueFactory.alarmNone(), ValueFactory.newTime(Timestamp.of(curWindowEnd.getSeconds(), (int)(curWindowEnd.getNanos()%TimeInstant.NANOS_PER_SECOND))),display);
+            return ValueFactory.newVStatistics(avg, 0, min, max, 1, ValueFactory.newAlarm(severty, s), ValueFactory.newTime(Timestamp.of(curWindowEnd.getSeconds(), (int)(curWindowEnd.getNanos()%TimeInstant.NANOS_PER_SECOND))),display);
            /* return ValueFactory.createMinMaxDoubleValue(BaseTypeConversionSupport.toTimestamp(curWindowEnd),
                                                         new Severity("OK"), null, metaData, IValue.Quality.Interpolated,
                                                         new double[]{avg.doubleValue()},
@@ -341,6 +354,7 @@ public class EquidistantTimeBinsIterator extends AbstractValueIterator {
                              minimum == null ? value : BaseTypeConversionSupport.toDouble(minimum),
                              maximum == null ? value : BaseTypeConversionSupport.toDouble(maximum),
                              curSampleTime);
+
     }
 
     /**

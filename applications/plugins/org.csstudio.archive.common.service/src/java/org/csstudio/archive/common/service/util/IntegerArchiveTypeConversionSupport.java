@@ -48,8 +48,20 @@ public class IntegerArchiveTypeConversionSupport extends AbstractNumberArchiveTy
     @Override
     @Nonnull
     public Integer convertFromArchiveString(@Nonnull final String value) throws TypeSupportException {
+
         try {
-            return Integer.parseInt(value);
+            int index=value.indexOf("(");
+            if(index>0){
+                final String subStr=value.substring(index+1, value.indexOf(")"));
+                return  Integer.parseInt(subStr,10);
+            }
+            index=value.indexOf(":");
+            if(index>0){
+                final String subStr=value.substring(index+1, value.length());
+                return  Integer.parseInt(subStr,10);
+            }
+
+            return  Integer.parseInt(value,10);
         } catch (final NumberFormatException e) {
             throw new TypeSupportException("Parsing failed.", e);
         }

@@ -143,10 +143,10 @@ public class PVSamples extends PlotSamples
         }
         final PlotSample last = getSample(raw-1);
         if (VTypeHelper.getSeverity(last.getValue())!=null) {
-            return raw;
+            return raw+1;
         }
         // Last sample is valid, so it should still apply 'now'
-        return raw+1;
+        return raw;
     }
 
     /** @return Size of the actual historic and liveSamples samples
@@ -163,6 +163,7 @@ public class PVSamples extends PlotSamples
     @Override
     synchronized public PlotSample getSample(final int index)
     {
+        synchronized(this){
         final int raw_count = getRawSize();
 
         if (index < raw_count) {
@@ -170,7 +171,7 @@ public class PVSamples extends PlotSamples
         }
         final PlotSample sample = getRawSample(raw_count-1);
         return  new PlotSample(sample.getSource(), VTypeHelper.transformTimestampToNow(sample.getValue()));
-            
+        }    
          // return ValueButcher.changeTimestampToNow(sample);
     }
 

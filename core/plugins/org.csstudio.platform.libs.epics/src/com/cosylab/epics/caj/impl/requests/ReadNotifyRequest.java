@@ -28,6 +28,7 @@ import com.cosylab.epics.caj.CAJChannel;
 import com.cosylab.epics.caj.CAJContext;
 import com.cosylab.epics.caj.impl.DBRDecoder;
 import com.cosylab.epics.caj.impl.NotifyResponseRequest;
+import com.cosylab.epics.caj.impl.Request;
 import com.cosylab.epics.caj.impl.Transport;
 
 /**
@@ -237,6 +238,13 @@ public class ReadNotifyRequest extends AbstractCARequest implements NotifyRespon
 		}
 		*/
 		
+	}
+	/**
+	 * Return default priority.
+	 * @see com.cosylab.epics.caj.impl.Request#getPriority()
+	 */
+	public byte getPriority() {
+		return Request.SEND_IMMEDIATELY_ECHOREQUST_PRIORITY;
 	}
 
 }

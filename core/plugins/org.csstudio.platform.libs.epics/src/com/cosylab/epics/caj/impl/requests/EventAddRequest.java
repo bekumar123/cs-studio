@@ -176,7 +176,7 @@ public class EventAddRequest extends AbstractCARequest implements NotifyResponse
 		
 		}
 		// immediate send (increase priority - all subsequent sends will be done immediately).
-		priority = Request.SEND_IMMEDIATELY_PRIORITY;
+		priority = Request.SEND_IMMEDIATELY_ECHOREQUST_PRIORITY;
 		transport.submit(this);
 	}
 

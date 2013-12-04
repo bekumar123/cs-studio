@@ -165,4 +165,9 @@ public enum DataFlavor {
 		return null;
 
 	}
+	
+	@Override
+	public String toString() {
+		return javaType.getName() + " " + dalType.getName() ;
+	}
 }

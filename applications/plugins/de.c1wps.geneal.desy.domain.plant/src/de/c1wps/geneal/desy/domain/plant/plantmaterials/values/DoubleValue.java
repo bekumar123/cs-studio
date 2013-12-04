@@ -3,7 +3,6 @@ package de.c1wps.geneal.desy.domain.plant.plantmaterials.values;
 import java.io.Serializable;
 
 import de.c1wps.geneal.desy.domain.plant.plantmaterials.PlantUnitDataTypes;
-import de.c1wps.geneal.desy.domain.plant.plantmaterials.PvAttributeNames;
 
 public class DoubleValue extends BasePlantUnitValue implements
 		IPlantUnitValue<Double>, Serializable {

@@ -4,16 +4,15 @@ import java.util.NavigableMap;
 
 import javax.annotation.Nullable;
 
+import org.csstudio.sds.history.domain.HistoryArchiveSample;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
-
-import de.c1wps.geneal.desy.domain.plant.plantmaterials.values.IPlantUnitValue;
 
 public interface IPvValueHistoryDataService {
 	
 	@Nullable
-	public IPlantUnitValue<?> getLatestValueBefore(String csAddress, DateTime time);
+	public HistoryArchiveSample getLatestValueBefore(String csAddress, DateTime time);
 	
-	public NavigableMap<DateTime, IPlantUnitValue<?>> getSamples(String csAddress, Interval interval);
+	public NavigableMap<DateTime, HistoryArchiveSample> getSamples(String csAddress, Interval interval);
 	
 }

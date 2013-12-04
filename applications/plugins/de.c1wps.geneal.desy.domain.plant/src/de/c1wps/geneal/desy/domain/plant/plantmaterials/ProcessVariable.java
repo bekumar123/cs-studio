@@ -29,7 +29,9 @@ public class ProcessVariable implements IPlantUnit, IPVAttributeContainer, Seria
 	private PVConnectionState connectionState;
 
 	private PVSeverityState severityState;
-
+	
+	private PVAlarmStatus alarmStatus;
+	
 	private List<ProcessVariableAttribute> attributes;
 
 	private Date timeStamp;
@@ -192,6 +194,8 @@ public class ProcessVariable implements IPlantUnit, IPVAttributeContainer, Seria
 
 	@Override
 	public ProcessVariable copyDeep() {
+		//CME: copyDeep is broken!
+		
 		ProcessVariable copy = null;
 		if (hasType()) {
 			copy = new ProcessVariable(this.id, this.displayName, this.type);
@@ -401,5 +405,13 @@ public class ProcessVariable implements IPlantUnit, IPVAttributeContainer, Seria
 
 	public PVSeverityState getSeverityState() {
 		return severityState;
+	}
+
+	public void setAlarmStatus(PVAlarmStatus pvAlarmState) {
+		this.alarmStatus = pvAlarmState;
+	}
+	
+	public PVAlarmStatus getAlarmStatus() {
+		return alarmStatus;
 	}
 }

@@ -4,14 +4,13 @@ import java.util.Map.Entry;
 import java.util.NavigableMap;
 
 import org.csstudio.sds.history.IHistoryDataContentEnricher;
+import org.csstudio.sds.history.domain.HistoryArchiveSample;
 import org.csstudio.sds.history.domain.service.IPvValueHistoryDataService;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
 import de.c1wps.geneal.desy.domain.plant.plantmaterials.PVConnectionState;
-import de.c1wps.geneal.desy.domain.plant.plantmaterials.PVSeverityState;
 import de.c1wps.geneal.desy.domain.plant.plantmaterials.ProcessVariable;
-import de.c1wps.geneal.desy.domain.plant.plantmaterials.values.IPlantUnitValue;
 
 /**
  * This class handles loading and caching of values for one concrete {@link ProcessVariable}.
@@ -28,7 +27,7 @@ public class HistoryDataContentEnricher implements IHistoryDataContentEnricher {
 	private Interval _interval; // TODO CME: should time interval be calculated from first and last element of the
 								// NavigableMap?
 
-	private NavigableMap<DateTime, IPlantUnitValue<?>> _values;
+	private NavigableMap<DateTime, HistoryArchiveSample> _values;
 
 	private boolean _availableInCache;
 
@@ -59,16 +58,16 @@ public class HistoryDataContentEnricher implements IHistoryDataContentEnricher {
 
 		ProcessVariable newPvCopy = _processVariable.copyDeep();
 		String csAddress = _processVariable.getControlSystemAddress();
-		IPlantUnitValue<?> value = null;
+		HistoryArchiveSample value = null;
 
 		if (isInCachedTimeInterval(timeStamp)) {
-			Entry<DateTime, IPlantUnitValue<?>> entry = _values.floorEntry(timeStamp);
+			Entry<DateTime, HistoryArchiveSample> entry = _values.floorEntry(timeStamp);
 
 			if (entry != null) {
 				value = entry.getValue();
 			} else if (_availableInCache == true) {
 //				System.out.println(" +++++++++++++++++  dont do this repeatedly"); // TODO CME: remove
-				IPlantUnitValue<?> latestValueBefore = _pvValueService.getLatestValueBefore(csAddress, timeStamp);
+				HistoryArchiveSample latestValueBefore = _pvValueService.getLatestValueBefore(csAddress, timeStamp);
 				if (latestValueBefore != null) {
 					_values.put(timeStamp, latestValueBefore);
 					value = latestValueBefore;
@@ -84,11 +83,11 @@ public class HistoryDataContentEnricher implements IHistoryDataContentEnricher {
 			_values = _pvValueService.getSamples(csAddress, interval);
 			_interval = interval;
 
-			Entry<DateTime, IPlantUnitValue<?>> entry = _values.floorEntry(timeStamp);
+			Entry<DateTime, HistoryArchiveSample> entry = _values.floorEntry(timeStamp);
 			if (entry != null) {
 				value = entry.getValue();
 			} else {
-				IPlantUnitValue<?> latestValueBefore = _pvValueService.getLatestValueBefore(csAddress, timeStamp);
+				HistoryArchiveSample latestValueBefore = _pvValueService.getLatestValueBefore(csAddress, timeStamp);
 				if (latestValueBefore != null) {
 					_values.put(timeStamp, latestValueBefore);
 					value = latestValueBefore;
@@ -98,10 +97,11 @@ public class HistoryDataContentEnricher implements IHistoryDataContentEnricher {
 		}
 
 		if (value != null) {
-			newPvCopy.setValue(value);
+			newPvCopy.setValue(value.getValue());
+			newPvCopy.setSeverityState(value.getSeverityState());
+			newPvCopy.setAlarmStatus(value.getPvAlarmState());
 			newPvCopy.setTimeStamp(timeStamp.toDate());
 			newPvCopy.setConnectionState(PVConnectionState.CONNECTED);
-			newPvCopy.setSeverityState(PVSeverityState.OK); //TODO CME: set right severity state from archive sample
 		} else {
 			newPvCopy.setConnectionState(PVConnectionState.DISCONNECTED);
 			newPvCopy.setValue(null);
@@ -124,7 +124,7 @@ public class HistoryDataContentEnricher implements IHistoryDataContentEnricher {
 		} else
 			return false;
 	}
-
+	
 	@Override
 	public String toString() {
 		StringBuilder result = new StringBuilder();

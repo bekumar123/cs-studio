@@ -71,7 +71,6 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 	@Override
 	public void removeListener(ChannelListener listener) {
 		LOG.error("AnyDataChannelFromPV.removeListener()");
-
 	}
 
 	@Override
@@ -117,7 +116,6 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 	@Override
 	public void stop() {
 		LOG.error("AnyDataChannelFromPV.stop()");
-
 	}
 
 	@Override
@@ -289,7 +287,7 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 			LOG.trace("AnyDataChannelFromPV.AnyDataImpl.stringValue()");
 
 			if (_processVariable.hasValue() && _processVariable.getValue().getData() instanceof String) {
-				return (String) _processVariable.getValue().getData();
+				return _processVariable.getValue().getData().toString();
 			}
 			LOG.error("no current String data available for " + _processVariable.getControlSystemAddress());
 			return "no Data";
@@ -333,8 +331,16 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 
 		@Override
 		public Number numberValue() {
-			LOG.error("AnyDataChannelFromPV.AnyDataImpl.numberSeqValue()");
-			return null;
+			//Wird aufgerufen, wenn der Kanaltyp EpicsEnum ist.
+			LOG.trace("AnyDataChannelFromPV.AnyDataImpl.numberValue()");
+			
+			if (_processVariable.hasValue() && _processVariable.getValue().getData() instanceof Number) {
+				return (Number) _processVariable.getValue().getData();
+			} else {
+				LOG.error("no current double data available for " + _processVariable.getControlSystemAddress());
+				return null;
+			}
+			
 		}
 
 		@Override
@@ -453,8 +459,6 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 
 		@Override
 		public String getUnits() {
-			LOG.error("AnyDataChannelFromPV.MetaDataImpl.getUnits()");
-			// TODO CME: return unit type of the value (e.g. K, g/s, bar)
 			if (_processVariable.hasAttribute(PvAttributeNames.DESC)) {
 				IPlantUnitValue<?> unitValue = _processVariable.getAttributeByName(PvAttributeNames.DESC).getValueAsObject();
 				if (unitValue.getDataType() == PlantUnitDataTypes.STRING) {
@@ -497,7 +501,7 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 		@Override
 		public AccessType getAccessType() {
 			LOG.error("AnyDataChannelFromPV.MetaDataImpl.getAccessType()");
-			return null;
+			return AccessType.READ;
 		}
 
 		@Override

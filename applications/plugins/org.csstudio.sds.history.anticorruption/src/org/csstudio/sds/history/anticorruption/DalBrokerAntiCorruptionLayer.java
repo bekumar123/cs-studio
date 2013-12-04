@@ -2,6 +2,7 @@ package org.csstudio.sds.history.anticorruption;
 
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,31 +15,35 @@ import org.csstudio.dal.simple.ISimpleDalBroker;
 import org.csstudio.dal.simple.RemoteInfo;
 import org.csstudio.sds.history.IHistoryDataService;
 import org.csstudio.sds.history.anticorruption.adapter.listener.ChannelToPvListener;
+import org.csstudio.sds.history.domain.service.IPvInformationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.cosylab.util.CommonException;
 
-import de.c1wps.geneal.desy.domain.plant.domainvalues.PlantUnitId;
 import de.c1wps.geneal.desy.domain.plant.plantmaterials.ProcessVariable;
 
 public class DalBrokerAntiCorruptionLayer implements ISimpleDalBroker {
 	
 	private static Logger LOG = LoggerFactory.getLogger("DalAnti");
+	private static Logger LOG_LISTENER = LoggerFactory.getLogger("DalAnti_listener");
 
 	private Map<String, ProcessVariable> _allProcessVariables;
 	
 	private List<ChannelToPvListener> _registeredChannelListener;
 
 	private IHistoryDataService _historyService;
-
-	public DalBrokerAntiCorruptionLayer(Map<String, ProcessVariable> allProcessVariables, IHistoryDataService historyDataService) {
-		assert allProcessVariables != null : "allProcessVariables != null";
+	
+	private IPvInformationService _pvInformationService;
+	
+	public DalBrokerAntiCorruptionLayer(IPvInformationService pvInformationService, IHistoryDataService historyDataService) {
+		assert pvInformationService != null : "pvInformationService != null";
 		assert historyDataService != null : "historyDataService != null";
 		
 		_registeredChannelListener = new ArrayList<ChannelToPvListener>();
+		_allProcessVariables = new HashMap<>();
 		
-		_allProcessVariables = allProcessVariables;
+		_pvInformationService = pvInformationService;
 		_historyService = historyDataService;
 	}
 
@@ -93,10 +98,10 @@ public class DalBrokerAntiCorruptionLayer implements ISimpleDalBroker {
 	@Override
 	public synchronized void registerListener(final ConnectionParameters cparam, final ChannelListener listener) {
 		String remoteInfoName = cparam.getRemoteInfo().getRemoteName();
-		LOG.debug("register listener for: " + remoteInfoName);
+		LOG_LISTENER.info(remoteInfoName + " " + cparam.getDataType());
 
 		//TODO CME: inspect dataflavor from cparam for more information (e.g. datatype) 
-		
+
 		//TODO CME: review
 		if (remoteInfoName.endsWith(".SEVR")) {
 			remoteInfoName = remoteInfoName.substring(0, remoteInfoName.length() - 5);
@@ -108,17 +113,16 @@ public class DalBrokerAntiCorruptionLayer implements ISimpleDalBroker {
 			_historyService.addMonitoredPv(channelToPvListener);
 			_registeredChannelListener.add(channelToPvListener);
 			
-		} else { // fallback if PlantInformation does not have a pv for this channel address.
-			LOG.debug("no processvariable for " + remoteInfoName + " in PlantInformationService found");
+		} else {
+			ProcessVariable processVariable = _pvInformationService.getProcessVariable(remoteInfoName);
+			_allProcessVariables.put(remoteInfoName, processVariable);
 			
-			ProcessVariable newPv = new ProcessVariable(new PlantUnitId(), "workaround pv");
-			newPv.setControlSystemAddress(remoteInfoName);
-			ChannelToPvListener channelToPvListener = new ChannelToPvListener(listener, newPv);
+			ChannelToPvListener channelToPvListener = new ChannelToPvListener(listener, processVariable);
 			_historyService.addMonitoredPv(channelToPvListener);
 			_registeredChannelListener.add(channelToPvListener);
 		}
 	}
-
+	
 	@Override
 	public void deregisterListener(ConnectionParameters cparam, ChannelListener listener) throws InstantiationException, CommonException {
 		for (ChannelToPvListener pvListener : _registeredChannelListener) {
@@ -132,55 +136,47 @@ public class DalBrokerAntiCorruptionLayer implements ISimpleDalBroker {
 
 	@Override
 	public void registerListener(ConnectionParameters cparam, DynamicValueListener listener) throws InstantiationException, CommonException {
-		// TODO Auto-generated method stub
 		LOG.error("DalBrokerAntiCorruptionLayer.registerListener()");
 	}
 
 	@Override
 	public void deregisterListener(ConnectionParameters cparam, DynamicValueListener listener) throws InstantiationException,
 			CommonException {
-		// TODO Auto-generated method stub
 		LOG.error("DalBrokerAntiCorruptionLayer.deregisterListener()");
 	}
 
 	@Override
 	public void registerListener(ConnectionParameters cparam, PropertyChangeListener listener) throws InstantiationException,
 			CommonException {
-		// TODO Auto-generated method stub
 		LOG.error("DalBrokerAntiCorruptionLayer.registerListener()");
 	}
 
 	@Override
 	public void deregisterListener(ConnectionParameters cparam, PropertyChangeListener listener) throws InstantiationException,
 			CommonException {
-		// TODO Auto-generated method stub
 		LOG.error("DalBrokerAntiCorruptionLayer.deregisterListener()");
 	}
 
 	@Override
 	public void registerListener(ConnectionParameters cparam, DynamicValueListener listener, Map<String, Object> parameters)
 			throws InstantiationException, CommonException {
-		// TODO Auto-generated method stub
 		LOG.error("DalBrokerAntiCorruptionLayer.registerListener()");
 	}
 
 	@Override
 	public void deregisterListener(ConnectionParameters cparam, DynamicValueListener listener, Map<String, Object> parameters)
 			throws InstantiationException, CommonException {
-		// TODO Auto-generated method stub
 		LOG.error("DalBrokerAntiCorruptionLayer.deregisterListener()");
 	}
 
 	@Override
 	public String getDefaultPlugType() {
-		// TODO Auto-generated method stub
 		LOG.error("DalBrokerAntiCorruptionLayer.getDefaultPlugType()");
 		return null;
 	}
 
 	@Override
 	public void setDefaultPlugType(String plugType) {
-		// TODO Auto-generated method stub
 		LOG.error("DalBrokerAntiCorruptionLayer.setDefaultPlugType()");
 	}
 

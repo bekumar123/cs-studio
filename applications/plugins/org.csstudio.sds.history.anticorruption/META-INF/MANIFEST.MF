@@ -10,7 +10,11 @@ Require-Bundle: org.slf4j;bundle-version="1.6.1",
  org.csstudio.dal;bundle-version="3.1.0",
  de.c1wps.geneal.desy.domain.plant;bundle-version="1.0.0",
  javax.annotation;bundle-version="1.3.0",
- org.csstudio.sds.history.domain;bundle-version="1.0.0"
+ org.csstudio.sds.history.domain;bundle-version="1.0.0",
+ org.csstudio.archive.reader;bundle-version="3.0.0",
+ org.csstudio.archive.common.service;bundle-version="1.0.0",
+ org.csstudio.archive.common.service.mysqlimpl;bundle-version="1.0.0",
+ org.csstudio.sds.history.pvinformation;bundle-version="1.0.0"
 Service-Component: OSGI-INF/dal-acl-component.xml,OSGI-INF/realtime_dalbroker_factory-component.xml,
  OSGI-INF/history_dalbroker_factory-component.xml
 Export-Package: org.csstudio.sds.history.anticorruption.service

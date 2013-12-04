@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.csstudio.sds.history.anticorruption.historydataservicefactory">
    <implementation class="org.csstudio.sds.history.anticorruption.HistoryDataServiceFactory"/>
-   <reference bind="bindPlantInformatioService" cardinality="0..1" interface="de.c1wps.geneal.desy.domain.plant.plantinformationservice.IPlantInformationService" name="IPlantInformationService" policy="static" unbind="unbindPlantInformatioService"/>
    <reference bind="bindHistoryDataService" cardinality="1..1" interface="org.csstudio.sds.history.IHistoryDataService" name="IHistoryDataService" policy="static" unbind="unbindHistoryDataService"/>
    <service>
       <provide interface="org.csstudio.sds.history.anticorruption.service.IHistoryDataServiceFactory"/>
    </service>
+   <reference bind="bindPvInformationService" cardinality="1..1" interface="org.csstudio.sds.history.domain.service.IPvInformationService" name="IPvInformationService" policy="static" unbind="unbindPvInformationService"/>
 </scr:component>

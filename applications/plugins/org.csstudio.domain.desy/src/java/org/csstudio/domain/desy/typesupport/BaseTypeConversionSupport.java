@@ -37,7 +37,6 @@ import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
 import org.epics.pvmanager.TypeSupport;
 import org.epics.util.time.Timestamp;
-import org.epics.vtype.Time;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;

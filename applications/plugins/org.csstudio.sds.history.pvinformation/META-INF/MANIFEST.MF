@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Pvinformation
+Bundle-SymbolicName: org.csstudio.sds.history.pvinformation
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: de.c1wps.geneal.desy.domain.plant;bundle-version="1.0.0",
+ org.csstudio.sds.history.domain;bundle-version="1.0.0",
+ org.csstudio.archive.reader;bundle-version="3.0.0",
+ org.csstudio.archive.common.service;bundle-version="1.0.0",
+ org.csstudio.archive.common.service.mysqlimpl;bundle-version="1.0.0",
+ org.csstudio.domain.desy
+Service-Component: OSGI-INF/pvinformation-component.xml

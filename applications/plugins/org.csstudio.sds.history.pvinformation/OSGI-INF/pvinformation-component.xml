@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.csstudio.sds.history.pvinformation">
+   <implementation class="org.csstudio.sds.history.pvinformation.service.PvInformationService"/>
+   <reference bind="bindArchiveReaderFacade" cardinality="1..1" interface="org.csstudio.archive.common.service.IArchiveReaderFacade" name="IArchiveReaderFacade" policy="static" unbind="unbindArchiveReaderFacade"/>
+   <service>
+      <provide interface="org.csstudio.sds.history.domain.service.IPvInformationService"/>
+   </service>
+</scr:component>

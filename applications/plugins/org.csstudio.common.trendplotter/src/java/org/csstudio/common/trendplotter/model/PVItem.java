@@ -47,7 +47,6 @@ import org.csstudio.utility.pv.PV;
 import org.csstudio.utility.pv.PVFactory;
 import org.csstudio.utility.pv.PVListener;
 import org.eclipse.swt.widgets.Display;
-import org.epics.util.text.NumberFormats;
 import org.epics.util.time.Timestamp;
 import org.epics.vtype.AlarmSeverity;
 import org.epics.vtype.VType;
@@ -366,7 +365,7 @@ public class PVItem extends ModelItem implements PVListener {
 
         pv_deadband = createAndStartMdelPV(samples);
         //has_deadband = retrieveDeadbandExistenceInfoFor(name);
-
+        createAndStartAdelPV(samples);
         this.scan_timer = timer;
         pv.addListener(this);
         pv.start();
@@ -454,14 +453,11 @@ public class PVItem extends ModelItem implements PVListener {
          if(!value.getSeverity().hasValue()) alarm=AlarmSeverity.UNDEFINED;
          status=value.getStatus();
          Quality quality = value.getQuality()== org.csstudio.data.values.IValue.Quality.Interpolated?Quality.Interpolated:Quality.Original;
-         org.epics.vtype.Display display=  ValueFactory.newDisplay( new Double(0.0),  new Double(0.0),  new Double(0.0), "", NumberFormats.toStringFormat(),  new Double(0.0),
-                 new Double(0.0), new Double(0.0),  new Double(0.0),  new Double(0.0));
          if(value instanceof IEnumeratedValue)
-           //  return  new ArchiveVString(t,alarm, status,new Integer(((IEnumeratedValue)value).getValue()).toString());
-             return  new ArchiveVNumber(t,alarm, status,display,((IEnumeratedValue)value).getValue());
+             return  new ArchiveVString(t,alarm, status,new Integer(((IEnumeratedValue)value).getValue()).toString());
              
         // System.out.println("PVItem.getVTypeValue() "+value.getClass());
-          display= ValueFactory.newDisplay(
+         org.epics.vtype.Display display= ValueFactory.newDisplay(
                                         (Double) ((INumericMetaData)value.getMetaData()).getDisplayLow(),
                                         (Double) ((INumericMetaData)value.getMetaData()).getAlarmLow(),
                                         (Double) ((INumericMetaData)value.getMetaData()).getWarnLow(),
@@ -487,7 +483,6 @@ public class PVItem extends ModelItem implements PVListener {
              return  new ArchiveVString(t,alarm, status,((IStringValue)value).getValue());
         }
          if(value instanceof IEnumeratedValue){
-          
              return  new ArchiveVString(t,alarm, status,((IEnumeratedValue)value).getMetaData().getStates().toString());
         }
         return null;
@@ -657,7 +652,34 @@ public class PVItem extends ModelItem implements PVListener {
         mdel_pv.start();
         return mdel_pv;
     }
+    private PV createAndStartAdelPV(final PVSamples pv_samples) throws Exception {
+        final String mdelChannelName = EpicsNameSupport.parseBaseName(super.toString())
+                + EpicsChannelName.FIELD_SEP + RecordField.ADEL.getFieldName();
+        final PV adel_pv = PVFactory.createPV(mdelChannelName);
+        adel_pv.addListener(new PVListener() {
 
+            @Override
+            public void pvValueUpdate(final PV newPV) {
+                final IValue mdelValue = newPV.getValue();
+                Number adel;
+                if (mdelValue instanceof IDoubleValue) {
+                    adel = Double.valueOf(((IDoubleValue) mdelValue).getValue());
+                } else if (mdelValue instanceof ILongValue) {
+                    adel = Long.valueOf(((ILongValue) mdelValue).getValue());
+                } else {
+                    return;
+                }
+                pv_samples.setHistorySamplesDeadband(adel);
+            }
+
+            @Override
+            public void pvDisconnected(final PV newPV) {
+                pv_samples.setHistorySamplesDeadband(null);
+            }
+        });
+        adel_pv.start();
+        return adel_pv;
+    }
     /**
      * @param b
      */

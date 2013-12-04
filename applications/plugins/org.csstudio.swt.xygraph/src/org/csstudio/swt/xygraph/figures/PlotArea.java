@@ -90,7 +90,6 @@ public class PlotArea extends Figure {
 	private Layer gridLayer;
 	private Layer traceLayer;
 	private Layer annotationLayer;
-    private Layer upperLayer;
 	
 	private Color revertBackColor;
 
@@ -99,11 +98,9 @@ public class PlotArea extends Figure {
 		gridLayer = new Layer();
 		traceLayer = new Layer();
 		annotationLayer = new Layer();
-		upperLayer = new Layer();
 		layeredPane.add(gridLayer);
 		layeredPane.add(traceLayer);
 		layeredPane.add(annotationLayer);
-		layeredPane.add(upperLayer);
 		add(layeredPane);
 		
 		this.xyGraph = xyGraph;
@@ -245,8 +242,6 @@ public class PlotArea extends Figure {
 		gridLayer.setBounds(clientArea);
 		traceLayer.setBounds(clientArea);
 		annotationLayer.setBounds(clientArea);
-		upperLayer.setBounds(clientArea);
-		
 		for (Trace trace : traceList) {
 			if (trace != null && trace.isVisible())
 				// Shrink will make the trace has no intersection with axes,

@@ -33,11 +33,9 @@ import org.csstudio.archive.vtype.trendplotter.ArchiveVNumberArray;
 import org.csstudio.archive.vtype.trendplotter.ArchiveVStatistics;
 import org.csstudio.archive.vtype.trendplotter.ArchiveVString;
 import org.csstudio.archive.vtype.trendplotter.VTypeHelper;
-import org.csstudio.domain.desy.epics.types.EpicsSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.typesupport.TypeSupportException;
 import org.epics.util.time.Timestamp;
-import org.epics.vtype.AlarmSeverity;
 import org.epics.vtype.VEnum;
 import org.epics.vtype.VNumber;
 import org.epics.vtype.VNumberArray;
@@ -105,44 +103,37 @@ public class DesyArchiveValueIterator<V extends Serializable> extends AbstractVa
         if(o==null) {
             return null;
         }
-        final EpicsSystemVariable a=(EpicsSystemVariable)((IArchiveSample) o).getSystemVariable();
-
-        final AlarmSeverity  severty= a.getAlarm().getSeverity().toString().equals("INVALID")?AlarmSeverity.INVALID:
-            a.getAlarm().getSeverity().toString().equals("MAJOR")?AlarmSeverity.MAJOR:
-            a.getAlarm().getSeverity().toString().equals("MINOR")?AlarmSeverity.MINOR:
-            a.getAlarm().getSeverity().toString().equals("NO_ALARM")?AlarmSeverity.NONE:AlarmSeverity.UNDEFINED;
-
         final VType value =(VType) ARCH_SAMPLE_2_VTYPE_FUNC.apply(o);
         final String q=((IArchiveSample) o).getRequestType();
         final Timestamp time =VTypeHelper.getTimestamp(value);
         if(value instanceof VStatistics){
             final VStatistics st = (VStatistics) value;
-            return new ArchiveVStatistics(time,severty, a.getAlarm().getStatus().toString(), st, q, st.getAverage(), st.getMin(), st.getMax(), st.getStdDev(), st.getNSamples());
+            return new ArchiveVStatistics(time, st.getAlarmSeverity(), st.getAlarmName(), st, q, st.getAverage(), st.getMin(), st.getMax(), st.getStdDev(), st.getNSamples());
         }
         if (value instanceof VNumber)
         {
             final VNumber number = (VNumber) value;
 
-            return new ArchiveVNumber(time,severty, a.getAlarm().getStatus().toString(), number, number.getValue(),q);
+            return new ArchiveVNumber(time, number.getAlarmSeverity(), number.getAlarmName(), number, number.getValue(),q);
         }
         if (value instanceof VString)
         {
             final VString string = (VString) value;
             if(string instanceof ArchiveVString ) {
-                return new ArchiveVString(time, severty, a.getAlarm().getStatus().toString(),q, string.getValue());
+                return new ArchiveVString(time, string.getAlarmSeverity(), string.getAlarmName(),q, string.getValue());
             } else {
-                return new ArchiveVString(time, severty, a.getAlarm().getStatus().toString(),q, string.getValue());
+                return new ArchiveVString(time, string.getAlarmSeverity(), string.getAlarmName(),q, string.getValue());
             }
         }
         if (value instanceof VNumberArray)
         {
             final VNumberArray number = (VNumberArray) value;
-            return new ArchiveVNumberArray(time, severty, a.getAlarm().getStatus().toString(), number,q, number.getData());
+            return new ArchiveVNumberArray(time, number.getAlarmSeverity(), number.getAlarmName(), number,q, number.getData());
         }
         if (value instanceof VEnum)
         {
             final VEnum labelled = (VEnum) value;
-            return new ArchiveVEnum(time, severty, a.getAlarm().getStatus().toString(),q, labelled.getLabels(), labelled.getIndex());
+            return new ArchiveVEnum(time, labelled.getAlarmSeverity(), labelled.getAlarmName(),q, labelled.getLabels(), labelled.getIndex());
         }
      return value;
     }

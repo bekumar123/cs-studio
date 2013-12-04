@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Desy domain types
 Bundle-SymbolicName: org.csstudio.domain.desy
-Bundle-Version: 1.0.0.201305241400
+Bundle-Version: 1.0.0.201307091400
 Bundle-Vendor: Desy <css-developer@desy.de>, Bastian Knerr
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-BuddyPolicy: registered

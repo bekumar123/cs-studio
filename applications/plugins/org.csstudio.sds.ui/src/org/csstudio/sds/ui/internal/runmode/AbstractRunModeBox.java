@@ -289,6 +289,8 @@ public abstract class AbstractRunModeBox {
 	 */
 	public final synchronized void dispose() {
 		if(!_disposed) {
+			callback.displayWillClose();
+			
 			_disposed = true;
 
 			// remove all change listeners

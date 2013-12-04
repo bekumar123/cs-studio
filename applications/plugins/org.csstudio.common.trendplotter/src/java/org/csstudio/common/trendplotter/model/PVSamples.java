@@ -171,7 +171,7 @@ public class PVSamples extends PlotSamples
         }
         final PlotSample sample = getRawSample(raw_count-1);
         return  new PlotSample(sample.getSource(), VTypeHelper.transformTimestampToNow(sample.getValue()));
-        }    
+            
          // return ValueButcher.changeTimestampToNow(sample);
     }
 
@@ -345,5 +345,11 @@ public class PVSamples extends PlotSamples
             liveSamples.add(plotSample);
         }
         historicSamples.clear();
+    }
+    public String getMedl(){
+        return liveSamples.getDeadband()==null ? "":liveSamples.getDeadband().toString();
+    }
+    public String getAdel(){
+        return historicSamples.getDeadband()==null ? "":historicSamples.getDeadband().toString();
     }
 }

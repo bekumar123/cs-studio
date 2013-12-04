@@ -373,7 +373,8 @@ public class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
                     desc=" ";
                 }
                 if(desc.contains("\r\n")) {
-                    desc = desc.split("\r\n")[0];
+                    String[] split = desc.split("\r\n");
+					desc = split.length > 0 ? split[0] : " ";
                 }
                 channelDescSB.append(desc);
                 channelDescSB.append("\n");

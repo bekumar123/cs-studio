@@ -111,7 +111,7 @@ public class ValueFactory {
     public static Alarm newAlarm(Number value, Display display) {
         // Calculate new AlarmSeverity, using display ranges
         AlarmSeverity severity = AlarmSeverity.NONE;
-        String status = "NONE";
+        String status = "NONE_ALARM";
         if (value.doubleValue() <= display.getLowerAlarmLimit()) {
             status = "LOLO";
             severity = AlarmSeverity.MAJOR;

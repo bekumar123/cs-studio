@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: DESY Archive Reader
 Bundle-SymbolicName: org.csstudio.archive.common.reader;singleton:=true
-Bundle-Version: 1.0.0.201306211100
+Bundle-Version: 1.0.0.201307091400
 Bundle-Activator: org.csstudio.archive.common.reader.MysqlArchiveReaderActivator
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
@@ -21,5 +21,4 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.6.0",
  org.joda.time;bundle-version="1.6.2",
  org.slf4j;bundle-version="1.6.1",
  org.csstudio.data;bundle-version="3.1.0",
- org.csstudio.archive.vtype.trendplotter;bundle-version="1.0.0",
- org.csstudio.domain.desy.epics
+ org.csstudio.archive.vtype.trendplotter;bundle-version="1.0.0"

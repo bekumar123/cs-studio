@@ -26,6 +26,7 @@ import java.util.List;
 import org.csstudio.platform.simpledal.ProcessVariableAddressValidationServiceTracker;
 import org.csstudio.sds.SdsPlugin;
 import org.csstudio.sds.internal.rules.RuleService;
+import org.csstudio.sds.ui.autostart.IRunModeBoxAutostartService;
 import org.csstudio.sds.ui.internal.editor.newproperties.colorservice.ColorAndFontSaxHandler;
 import org.csstudio.sds.ui.internal.editor.newproperties.colorservice.ColorAndFontService;
 import org.csstudio.sds.ui.internal.editor.newproperties.colorservice.IColorAndFontService;
@@ -44,6 +45,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,6 +93,10 @@ public final class SdsUiPlugin extends AbstractUIPlugin {
 	private PvSearchFolderPreferenceService pvSearchFolderPreferenceService;
 
 	private ProcessVariableAddressValidationServiceTracker pvAddressValidationServiceTracker;
+
+	private RunModeBoxAutostartService runModeBoxAutostartService;
+
+	private ServiceRegistration<IRunModeBoxAutostartService> runModeBoxAutostartServiceRegistration;
 
 	/**
 	 * Standard constructor.
@@ -151,7 +157,11 @@ public final class SdsUiPlugin extends AbstractUIPlugin {
 		pvSearchFolderPreferenceService = new PvSearchFolderPreferenceService(this.getPreferenceStore());
 		
 		pvAddressValidationServiceTracker = new ProcessVariableAddressValidationServiceTracker(context);
+		
+		runModeBoxAutostartService = new RunModeBoxAutostartService();
+		runModeBoxAutostartServiceRegistration = context.registerService(IRunModeBoxAutostartService.class, runModeBoxAutostartService, null);
 	}
+
 
 	/**
 	 * {@inheritDoc}
@@ -160,6 +170,7 @@ public final class SdsUiPlugin extends AbstractUIPlugin {
 	public void stop(final BundleContext context) throws Exception {
 		super.stop(context);
 		pvAddressValidationServiceTracker.close();
+		runModeBoxAutostartServiceRegistration.unregister();
 	}
 
 	public IColorAndFontService getColorAndFontService() {
@@ -176,5 +187,9 @@ public final class SdsUiPlugin extends AbstractUIPlugin {
 
 	public ProcessVariableAddressValidationServiceTracker getProcessVariableAddressValidationServiceTracker() {
 		return this.pvAddressValidationServiceTracker;
+	}
+	
+	public IRunModeBoxAutostartService getRunModeBoxAutostartService() {
+		return runModeBoxAutostartService;
 	}
 }

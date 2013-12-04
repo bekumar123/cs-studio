@@ -157,6 +157,8 @@ public class LiveSamplesCompressor {
         PlotSample min = next;
         PlotSample max = next;
         long nextWindowEnd = Math.min(startOfCompressionMS + windowLengthMS, endOfCompressionMS);
+        //System.out.println("-w: " + nextWindowEnd);
+        LOG.info("Compress Min Max Value am:  {}",ValueFactory.timeNow().getTimestamp().toString());
         List<PlotSample> result = Lists.newLinkedList();
         int count=0;
         while ( next != null ) {
@@ -172,19 +174,16 @@ public class LiveSamplesCompressor {
             }
             min = next.getYValue() < min.getYValue() ? next : min;
             max = next.getYValue() > max.getYValue() ? next : max;
-
-
-            next= samples.poll();
-
             if(count>10000){ 
                 LOG.info("Stop Compress stage manuel {}. Sample count : ",samples.size()); 
                 break;
                 }
-            if (!isSampleBefore(next, nextWindowEnd)) {
+            if (isSampleBefore(next, nextWindowEnd)) {
                 result = storeMinMax(min, max, result);
                 min = next;
                 max = next;
             }
+            next= samples.poll();       
         }
         LOG.info("Compress Min Max Value result: von  {} to {} ",samples.size(),result.size());
        return result;

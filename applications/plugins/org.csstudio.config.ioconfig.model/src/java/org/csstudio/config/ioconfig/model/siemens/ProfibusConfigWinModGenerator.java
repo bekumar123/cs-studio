@@ -24,7 +24,6 @@ package org.csstudio.config.ioconfig.model.siemens;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -142,7 +141,7 @@ public class ProfibusConfigWinModGenerator {
      */
     public int appendConfigurationData(final int normslaveParamDataSize, @CheckForNull final String configurationData) {
         int size = normslaveParamDataSize;
-        if (configurationData != null) {
+        if ((configurationData != null) && (!configurationData.isEmpty())) {
             size += configurationData.split(",").length;
             final String cleanConfigData = cleanString(configurationData);
             _winModConfig.append(cleanConfigData).append(" ");
@@ -214,12 +213,12 @@ public class ProfibusConfigWinModGenerator {
             final WinModChannel winModChannel = new WinModChannel(channelDBO);
 
             if(!winModChannel.single()) {
+                // only output the 1st line with double word and the last with status (type DS33)
+                // this will cause trouble if other singles are present
                 appendLine(0, channelDBO, winModChannel, winModChannel.getConvertedChannelType());
                 winModChannel.setDef("0");
                 winModChannel.setIO2("B");
-                for (int i = 0; i < winModChannel.getLineSize(); i++) {
-                    appendAddLine(i, channelDBO, winModChannel, winModChannel.getMbbChannelType());
-                }
+                appendAddLine(4, channelDBO, winModChannel, winModChannel.getMbbChannelType());
             } else {
                 appendLine(0, channelDBO, winModChannel, winModChannel.getConvertedChannelType());
             }
@@ -245,8 +244,7 @@ public class ProfibusConfigWinModGenerator {
                 appendAs2HexString(_winModConfig, length);
                 _winModConfig
                 .append(" ")
-                .append(Arrays.toString(slaveCfgData.toArray()).replaceAll(",", " ")
-                        .replaceAll("[\\[\\]]", "")).append("\"").append(LINE_END)
+                .append(createSlaveCfgString(slaveCfgData)).append("\"").append(LINE_END)
                         .append("  OBJECT_REMOVEABLE ").append("\"1\"").append(LINE_END)
                         .append("END").append(LINE_END).append(LINE_END);
             }
@@ -256,6 +254,17 @@ public class ProfibusConfigWinModGenerator {
         for (final Entry<Short, ChannelStructureDBO> entry : entrySet) {
             createChannel(entry.getValue());
         }
+    }
+
+    @Nonnull
+    private String createSlaveCfgString(@Nonnull List<Integer> slaveCfgData) {
+        StringBuilder result = new StringBuilder();
+        for (Integer integer : slaveCfgData) {
+            // only low bytes are considered, high bytes have to be 0 by definition
+            String integerRepresentation = String.format("%02X ", (integer & 0xFF));
+            result.append(integerRepresentation);
+        }
+        return result.toString();
     }
 
     private void createSlave(@Nonnull final SlaveDBO slave) {

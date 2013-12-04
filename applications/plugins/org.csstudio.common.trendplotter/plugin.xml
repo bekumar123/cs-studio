@@ -101,6 +101,12 @@
             id="org.csstudio.trends.databrowser.preferences"
             name="%TrendPlotter">
       </page>
+      <page
+            category="org.csstudio.platform.ui.css.applications.trends"
+            class="org.csstudio.common.trendplotter.preferences.PreferenceMysqlPage"
+            id="org.csstudio.trends.databrowser.preferences"
+            name="%TrendPlotterMysql">
+      </page>
    </extension>
      <extension
          point="org.eclipse.ui.preferencePages">

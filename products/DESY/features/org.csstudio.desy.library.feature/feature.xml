@@ -2,7 +2,7 @@
 <feature
       id="org.csstudio.desy.library.feature"
       label="Library Feature"
-      version="1.0.0.201307101400"
+      version="1.0.0.201307301400"
       provider-name="Desy, Jan Hatje &lt;jan.hatje@desy.de&gt;">
 
    <description url="http://www.example.com/description">
@@ -395,27 +395,6 @@
 
    <plugin
          id="org.epics.vtype"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="de.c1wps.geneal.desy.domain.plant"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="de.c1wps.geneal.desy.service.common"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.mchange"
          download-size="0"
          install-size="0"
          version="0.0.0"

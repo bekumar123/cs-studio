@@ -13,7 +13,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.csstudio.archive.reader.UnknownChannelException;
-import org.csstudio.common.trendplotter.Activator;
 import org.csstudio.common.trendplotter.Messages;
 import org.csstudio.common.trendplotter.archive.ArchiveFetchJob;
 import org.csstudio.common.trendplotter.archive.ArchiveFetchJobListener;
@@ -30,12 +29,10 @@ import org.csstudio.common.trendplotter.model.PVItem;
 import org.csstudio.common.trendplotter.preferences.Preferences;
 import org.csstudio.common.trendplotter.propsheet.AddArchiveCommand;
 import org.csstudio.common.trendplotter.propsheet.AddAxisCommand;
+import org.csstudio.common.trendplotter.propsheet.ChangeArchiveRescaleCommand;
 import org.csstudio.common.trendplotter.propsheet.ChangeAxisConfigCommand;
 import org.csstudio.csdata.ProcessVariable;
 import org.csstudio.data.values.ITimestamp;
-import org.csstudio.sds.history.domain.events.UpdateTimeEvent;
-import org.csstudio.sds.history.domain.listener.ITimeChangeListener;
-import org.csstudio.sds.history.domain.listener.ITimeperiodUpdateListener;
 import org.csstudio.swt.xygraph.figures.Annotation;
 import org.csstudio.swt.xygraph.figures.Axis;
 import org.csstudio.swt.xygraph.figures.Trace.TraceType;
@@ -53,8 +50,6 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.epics.util.time.Timestamp;
-import org.joda.time.DateTime;
-import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -229,8 +224,7 @@ public class Controller implements ArchiveFetchJobListener
                 // Update model's time range
                 model.setTimerange(start_time, end_time);
                 // Controller's ModelListener will fetch new archived data
-                System.out.println("Controller.Controller(...).new PlotListener() {...}.timeAxisChanged()  e  "+ System.currentTimeMillis());
-            }
+             }
 
             @Override
             public void valueAxisChanged(final int index, final double lower, final double upper)
@@ -242,8 +236,7 @@ public class Controller implements ArchiveFetchJobListener
             @Override
             public void droppedName(final String name)
             {
-                System.out.println("Controller.Controller(...).new PlotListener() {...}.droppedName()  s  " +System.currentTimeMillis()  );
-                // Offer potential PV name in dialog so user can edit/cancel
+                 // Offer potential PV name in dialog so user can edit/cancel
                 final AddPVAction add = new AddPVAction(plot.getOperationsManager(), shell, model, false);
                 // Allow passing in many names, assuming that white space separates them
                 final String[] names = name.split("[\\r\\n\\t ]+"); //$NON-NLS-1$
@@ -256,8 +249,7 @@ public class Controller implements ArchiveFetchJobListener
             @Override
             public void droppedPVName(final ProcessVariable name, final ArchiveDataSource archive)
             {
-                System.out.println("Controller.Controller(...).new PlotListener() {...}.droppedPVName()  s  "+System.currentTimeMillis() );
-                if (name == null)
+                 if (name == null)
                 {
                     if (archive == null)
                         return;
@@ -450,27 +442,6 @@ public class Controller implements ArchiveFetchJobListener
                     final ChangeAxisConfigCommand command = new ChangeAxisConfigCommand(plot.getOperationsManager(), axis);
                     axis.setRange(configurer.getMin(axis), configurer.getMax(axis));
                     command.rememberNewConfig();
-                }
-            }
-            
-            @Override
-            public void setIndexTimeline(boolean status) {
-                model.enableScrolling(false);
-                plot.setTimeIndexLineVisible(status);
-            }
-            
-            @Override
-            public void timeIndexPositionChanged(DateTime timeIndex, boolean mouseUp) {
-                updateTimeChangeListners(timeIndex, mouseUp);
-            }
-            
-            @Override
-            public void syncTimeperiodWithHistoryControl() {
-                DateTime startTime = new DateTime(model.getStartTime().toDate().getTime());
-                DateTime endTime = new DateTime(model.getEndTime().toDate().getTime());
-                
-                for (ITimeperiodUpdateListener listener : timeperiodUpdateListener) {
-                    listener.setTimePeriod(startTime, endTime);
                 }
             }
         });

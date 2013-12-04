@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.csstudio.sds.internal.runmode.DataAccessType;
 import org.csstudio.sds.internal.runmode.RunModeBoxInput;
 import org.csstudio.sds.ui.SdsUiPlugin;
 import org.csstudio.sds.ui.internal.actions.OpenScreenshotAction;
@@ -45,6 +44,7 @@ import org.eclipse.gef.ui.actions.ZoomOutAction;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -93,6 +93,12 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
     private Shell _shell;
     
     private Point parentLocation;
+    private Point defaultLocation;
+    private Point defaultSize;
+
+	private final RunModeBoxLayoutData lastLayoutDataOrNull;
+
+	private ZoomManager zoomManager;
     
     /**
      * Constructor.
@@ -100,14 +106,10 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
      * @param input
      *            the input
      */
-    public ShellRunModeBox(RunModeBoxInput input, Point parentLocation) {
+    public ShellRunModeBox(RunModeBoxInput input, Point parentLocation, RunModeBoxLayoutData lastLayoutDataOrNull) {
         super(input);
-        
-        if (parentLocation != null) {
-            this.parentLocation = parentLocation;
-        } else {
-            this.parentLocation = new Point(0, 0);
-        }
+		this.lastLayoutDataOrNull = lastLayoutDataOrNull;
+        this.parentLocation = parentLocation;
     }
     
     /**
@@ -119,12 +121,24 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
                                      final int width,
                                      final int height,
                                      final String title) {
+        final Runtime runtime = Runtime.getRuntime();
+    	LOG.info("Free mem: " + runtime.freeMemory() + " - Total mem: " + runtime.totalMemory() + " - Max mem: " + runtime.maxMemory());
         List<RunModeBoxInput> predecessors = getPredecessors(getInput());
+        
+        if(openRelative && this.parentLocation != null) {
+        	// relative displays should be opened relative to their parent's location upon reset
+        	this.defaultLocation = new Point(parentLocation.x + x, parentLocation.y + y);
+        } else {
+        	this.defaultLocation = new Point(x, y);
+        }
         
         // create a shell
         _shell = new Shell();
         _shell.setText(title);
-        if (openRelative) {
+        // for relative displays, only use last layout data if being opened automatically after restart (indicated by parentLocation)
+        if (lastLayoutDataOrNull != null && this.parentLocation == null) {
+        	_shell.setLocation(lastLayoutDataOrNull.getPosition());
+        } else if (openRelative && this.parentLocation != null) {
             _shell.setLocation(parentLocation.x + x, parentLocation.y + y);
         } else {
             _shell.setLocation(x, y);
@@ -141,24 +155,17 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
         scrollComposite.setLayoutData(GridDataFactory.fillDefaults().grab(true, true).indent(0, 0)
                 .create());
         scrollComposite.setLayout(getFillLayout());
-        scrollComposite.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
+        scrollComposite.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
         
         // create a parent composite that fills the whole shell
         GridLayout parentLayout = new GridLayout(1, false);
-        
-        //TODO CME: maybe there is a better way to indicate history mode. Seems to be a hack for me. This does not affect "view run mode"!
-        int historyMargin = 0;
-        if (getInput().getDataAccessType() == DataAccessType.HISTORY) { 
-			historyMargin = 6;
-		}
-        
         parentLayout.horizontalSpacing = 0;
-        parentLayout.marginWidth = historyMargin;
-        parentLayout.marginHeight = historyMargin;
+        parentLayout.marginWidth = 0;
+        parentLayout.marginHeight = 0;
         parentLayout.verticalSpacing = 0;
         final Composite parent = new Composite(scrollComposite, SWT.NONE);
-		parent.setLayout(parentLayout);
-        parent.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE)); // CME: color of margin in history mode
+        parent.setLayout(parentLayout);
+        parent.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW));
         
         // create a composite for the graphical viewer
         Composite c = new Composite(parent, SWT.NONE);
@@ -188,10 +195,21 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
             Point size = navigation.computeSize(width, SWT.DEFAULT);
             fullHeight = fullHeight + size.y;
         }
-        _shell.setSize(fullWidth + SCROLLBAR_MARGIN + (historyMargin * 3), fullHeight + SHELL_BORDER + SCROLLBAR_MARGIN + (historyMargin * 3));
+
+        this.defaultSize = new Point(fullWidth + SCROLLBAR_MARGIN, fullHeight + SHELL_BORDER + SCROLLBAR_MARGIN);
+    	if (lastLayoutDataOrNull != null) {
+    		_shell.setSize(lastLayoutDataOrNull.getSize());
+    	} else {
+    		_shell.setSize(this.defaultSize);
+    	}
         
         // configure a graphical viewer
         final GraphicalViewer graphicalViewer = createGraphicalViewer(c);
+        
+        RootEditPart rootEditPart = graphicalViewer.getRootEditPart();
+		if(rootEditPart instanceof ScalableFreeformRootEditPart) {
+        	zoomManager = ((ScalableFreeformRootEditPart)rootEditPart).getZoomManager();
+        }
         
         ActionRegistry actionRegistry = new ActionRegistry();
         this.createActions(actionRegistry);
@@ -226,6 +244,11 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
             }
         });
         
+        if(lastLayoutDataOrNull != null && zoomManager != null) {
+        	// restore zoom level
+        	zoomManager.setZoom(lastLayoutDataOrNull.getZoomFactor());
+        }
+        
         // open the shell
         _shell.open();
         
@@ -248,8 +271,8 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
      * box.
      * 
      * @param input
-     *            the current box�s input
-     * @return the input�s of all predecessor boxes
+     *            the current box's input
+     * @return the input's of all predecessor boxes
      */
     private List<RunModeBoxInput> getPredecessors(RunModeBoxInput input) {
         List<RunModeBoxInput> result = new ArrayList<RunModeBoxInput>();
@@ -291,7 +314,10 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
      * Disposes the shell.
      */
     protected void doDispose() {
+        final Runtime runtime = Runtime.getRuntime();
+    	LOG.info("Free mem: " + runtime.freeMemory() + " - Total mem: " + runtime.totalMemory() + " - Max mem: " + runtime.maxMemory());
         // close the shell
+    	zoomManager = null;
         if (!_shell.isDisposed()) {
             _shell.close();
             _shell = null;
@@ -323,23 +349,39 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
         RootEditPart rootEditPart = graphicalViewer.getRootEditPart();
         
         if (rootEditPart instanceof ScalableFreeformRootEditPart) {
-            final ZoomManager zm = ((ScalableFreeformRootEditPart) rootEditPart).getZoomManager();
-            
             final List<String> zoomLevels = new ArrayList<String>(3);
             zoomLevels.add(ZoomManager.FIT_ALL);
             zoomLevels.add(ZoomManager.FIT_WIDTH);
             zoomLevels.add(ZoomManager.FIT_HEIGHT);
-            zm.setZoomLevelContributions(zoomLevels);
+            zoomManager.setZoomLevelContributions(zoomLevels);
             
-            if (zm != null) {
-                MenuManager zoomManager = new MenuManager("Zoom");
-                final IAction zoomIn = new ZoomInAction(zm);
-                final IAction zoomOut = new ZoomOutAction(zm);
+            if (zoomManager != null) {
+                MenuManager zoomMenuManager = new MenuManager("Zoom");
+                final IAction zoomIn = new ZoomInAction(zoomManager);
+                final IAction zoomOut = new ZoomOutAction(zoomManager);
                 
-                zoomManager.add(zoomIn);
-                zoomManager.add(zoomOut);
+                zoomMenuManager.add(zoomIn);
+                zoomMenuManager.add(zoomOut);
                 
-                menuManager.add(zoomManager);
+                menuManager.add(zoomMenuManager);
+                
+                zoomMenuManager.add(new Separator());
+                IAction resetSizeAndPositionAction = new Action() {
+					@Override
+					public void run() {
+						_shell.setLocation(defaultLocation);
+						_shell.setSize(defaultSize);
+						if(zoomManager != null) {
+							zoomManager.setZoom(1);
+						}
+					}
+					
+					@Override
+					public String getText() {
+						return "Reset window layout";
+					}
+				};
+				zoomMenuManager.add(resetSizeAndPositionAction);
             }
             
             MenuManager layerManager = new MenuManager("Layers");
@@ -436,7 +478,6 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
                     + new SimpleDateFormat("hh:mm").format(new Date(input.getTimestamp())) + "]");
         }
         
-        //TODO CME: real time or history mode?
         @Override
         public void mouseUp(MouseEvent e) {
             RunModeService.getInstance().openDisplayShellInRunMode(_input.getFilePath(),
@@ -455,9 +496,38 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
         }
     }
     
-    @Override
-    public Point getCurrentLocation() {
-        return _shell.getLocation();
+    public boolean hasShell() {
+    	return _shell != null;
     }
     
+    @Override
+    public Point getCurrentLocation() {
+    	Point result = null;
+    	
+    	if(hasShell()) {
+    		result = _shell.getLocation(); 
+    	}
+    	
+        return result; 
+    }
+    
+    public Point getCurrentSize() {
+    	Point result = null;
+    	
+    	if(hasShell()) {
+    		result = _shell.getSize(); 
+    	}
+    	
+    	return result; 
+    }
+    
+    public double getCurrentZoomFactor() {
+    	double result = 1;
+    	
+    	if(zoomManager != null) {
+    		result = zoomManager.getZoom();
+    	}
+    	
+    	return result;
+    }
 }

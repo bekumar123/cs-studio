@@ -52,7 +52,6 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Display;
 import org.epics.util.time.Timestamp;
-import org.joda.time.DateTime;
 
 /**
  * Data Browser 'Plot' that displays the samples in a {@link Model}.
@@ -100,12 +99,6 @@ public class Plot
     final private AutoScaleButton autoScaleButton;
     
     final private InitScaleButton initScaleButton;
-
-    private SyncTimeperiodButton syncTimeperiodBtn;
-
-    private IndexTimelineButton timeIndexLineBtn;
-    
-    private TimeIndexLine timeIndexLine;
 
     /**
      * Create a plot that is attached to an SWT canvas
@@ -171,16 +164,6 @@ public class Plot
         initScaleButton = new InitScaleButton();
         plot.addToolbarButton(initScaleButton);
 
-        plot.addToolbarSeparator();
-        
-        syncTimeperiodBtn = new SyncTimeperiodButton();
-        plot.addToolbarButton(syncTimeperiodBtn);
-        
-        timeIndexLineBtn = new IndexTimelineButton();
-        plot.addToolbarButton(timeIndexLineBtn);
-        
-        timeIndexLine = new TimeIndexLine(plot.getXYGraph().primaryXAxis, plot.getXYGraph().primaryYAxis);
-        
         // Configure axes
         final Axis time_axis = xygraph.primaryXAxis;
         time_axis.setDateEnabled(true);
@@ -333,8 +316,6 @@ public class Plot
         time_config_button.addPlotListener(listener);
         autoScaleButton.addPlotListener(listener);
         initScaleButton.addPlotListener(listener);
-        syncTimeperiodBtn.addPlotListener(listener);
-        timeIndexLineBtn.addPlotListener(listener);
 
         // Ajout L.PHILIPPE
         PlotConfigListener configListener = new PlotConfigListener(listener);

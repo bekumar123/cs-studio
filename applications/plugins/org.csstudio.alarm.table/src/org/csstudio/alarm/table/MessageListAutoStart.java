@@ -118,7 +118,7 @@ public class MessageListAutoStart implements IStartupServiceListener {
         for (TopicSet topicSet : topicSets) {
             if (topicSet.isStartUp()) {
                 try {
-                    LOG.error("Start alarm list for topic set {}", topicSet.getName());
+                    LOG.info("Start alarm list for topic set {}", topicSet.getName());
                     AlarmMessageList messageList = new AlarmMessageList();
                     _topicsetForAlarmService.createAndConnectForTopicSet(topicSet,
                                                                          messageList,

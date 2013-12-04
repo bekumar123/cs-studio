@@ -355,7 +355,6 @@ public class LogView extends ViewPart implements IConnectionHolder {
             final IAlarmTableListener alarmTableListener = new AlarmListener();
             try {
                 final AbstractMessageList messageList = createMessageList();
-                messageList.showOutdatedMessages(AlarmViewPreference.ALARMVIEW_SHOW_OUTDATED_MESSAGES.getValue());
                 _topicsetService.createAndConnectForTopicSet(topicSet,
                                                              messageList,
                                                              alarmTableListener);

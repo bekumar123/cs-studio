@@ -150,13 +150,10 @@ public class HistoricSamples extends PlotSamples
     @Override
     synchronized public PlotSample getSample(final int i)
     {  
-        synchronized(this){
         if (i >= visible_size) {
             throw new IndexOutOfBoundsException("Index " + i + " exceeds visible size " + visible_size);
         }
-        if (i>=sample_map.get(request_type).length) {
-            throw new IndexOutOfBoundsException("Index " + i + " exceeds sample_map size " + sample_map.get(request_type).length);
-        } 
+        
         return sample_map.get(request_type)[i];
         }
     }
@@ -245,8 +242,7 @@ public class HistoricSamples extends PlotSamples
     private PlotSample[] removeNotConnectedValues(PlotSample[] array) {
         List<PlotSample> samplesWithoutNA = new ArrayList<PlotSample>(array.length);
         for (PlotSample sample : array) {
-            String s=sample.getValue().toString();
-            if (!s.startsWith("#")) {
+            if (!sample.getValue().toString().startsWith("#")) {
                 samplesWithoutNA.add(sample);
             }
         }

@@ -50,13 +50,12 @@ import javax.persistence.UniqueConstraint;
 import org.csstudio.config.ioconfig.model.DBClass;
 import org.csstudio.config.ioconfig.model.DocumentDBO;
 import org.csstudio.config.ioconfig.model.IDocumentable;
-import org.csstudio.config.ioconfig.model.hibernate.Repository;
 import org.csstudio.config.ioconfig.model.types.ModuleInfo;
 import org.csstudio.config.ioconfig.model.types.ModuleLabel;
 import org.csstudio.config.ioconfig.model.types.ModuleName;
 import org.csstudio.config.ioconfig.model.types.ModuleNumber;
 import org.csstudio.config.ioconfig.model.types.ModuleVersionInfo;
-import org.csstudio.config.ioconfig.model.types.ParsedModuleInfo;
+import org.hibernate.annotations.BatchSize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -277,6 +276,7 @@ public class GSDModuleDBO extends DBClass implements Comparable<GSDModuleDBO>, I
     }
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "GSDModule", fetch = FetchType.EAGER)
+    @BatchSize(size=100)
     @CheckForNull
     public Set<ModuleChannelPrototypeDBO> getModuleChannelPrototype() {
         return _moduleChannelPrototypes;
@@ -362,8 +362,7 @@ public class GSDModuleDBO extends DBClass implements Comparable<GSDModuleDBO>, I
      * @return Documents for the Node.
      */
     @Override
-    // changed roger
-    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.REFRESH })
+    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.REFRESH })
     @JoinTable(name = "MIME_FILES_DDB_MCPROTOTYPE_LNK", joinColumns = @JoinColumn(name = "prototype_id", referencedColumnName = "id", unique = true), inverseJoinColumns = @JoinColumn(name = "docs_id", referencedColumnName = "id"))
     @Nonnull
     public Set<DocumentDBO> getDocuments() {

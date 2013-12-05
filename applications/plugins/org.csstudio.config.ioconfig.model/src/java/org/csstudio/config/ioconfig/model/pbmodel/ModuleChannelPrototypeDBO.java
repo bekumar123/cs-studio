@@ -37,6 +37,8 @@ import org.csstudio.config.ioconfig.model.DBClass;
 import org.csstudio.config.ioconfig.model.PersistenceException;
 import org.csstudio.config.ioconfig.model.hibernate.Repository;
 import org.csstudio.config.ioconfig.model.types.ModuleNumber;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import com.google.common.base.Optional;
 
@@ -109,30 +111,7 @@ public class ModuleChannelPrototypeDBO extends DBClass implements Comparable<Mod
         setShift(-1);
         setInput(false);
     }
-    
-    @Override
-    public  int compareTo(@CheckForNull final ModuleChannelPrototypeDBO other) {
-        if(other==null) {
-            return -1;
-        }
-        if(getId() == other.getId()) {
-            return 0;
-        }else if(isInput()==other.isInput()) {
-            return 1;
-        }
-        if(getOffset()!=other.getOffset()) {
-            return getOffset()-other.getOffset();
-        }
-        // this is a Error handling
-        return getId() - other.getId();
         
-    }
-    
-    @Override
-    public final boolean equals(@CheckForNull final Object obj) {
-        return super.equals(obj);
-    }
-    
     @Column(nullable=true)
     @CheckForNull
     public Integer getByteOrdering() {
@@ -190,12 +169,7 @@ public class ModuleChannelPrototypeDBO extends DBClass implements Comparable<Mod
     public DataType getType() {
         return _type;
     }
-    
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
-    
+        
     @Column(nullable=false)
     public boolean isInput() {
         return _input;
@@ -259,6 +233,34 @@ public class ModuleChannelPrototypeDBO extends DBClass implements Comparable<Mod
         _type = type;
     }
     
+    @Override
+    public  int compareTo(@CheckForNull final ModuleChannelPrototypeDBO other) {
+        if(other==null) {
+            return -1;
+        }
+        if(getId() == other.getId()) {
+            return 0;
+        }else if(isInput()==other.isInput()) {
+            return 1;
+        }
+        if(getOffset()!=other.getOffset()) {
+            return getOffset()-other.getOffset();
+        }
+        // this is a Error handling
+        return getId() - other.getId();
+        
+    }
+    
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public final boolean equals(@CheckForNull final Object obj) {
+        return super.equals(obj);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -274,5 +276,5 @@ public class ModuleChannelPrototypeDBO extends DBClass implements Comparable<Mod
         sb.append(_offset).append(":").append(_name);
         return sb.toString();
     }
-    
+
 }

@@ -51,6 +51,7 @@ import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdFileParser;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.ParsedGsdFileModel;
 import org.csstudio.config.ioconfig.model.types.ParsedModuleInfo;
 import org.csstudio.config.ioconfig.model.types.RepositoryRefreshable;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -109,8 +110,8 @@ public class GSDFileDBO implements Serializable, RepositoryRefreshable {
     }
 
     /** @return the Text of gsdFile */
-    // Es gibt Problme Text die mehr als 150KB gr��e in die DB zu schreiben.
-    // Das Problem liegt bei log4J. Bei so gro�en Files darf das Logging nicht
+    // Es gibt Problme Text die mehr als 150KB in die DB zu schreiben.
+    // Das Problem liegt bei log4J. Bei so grossen Files darf das Logging nicht
     // auf Debug stehen!
     @Lob
     @Basic(fetch = FetchType.EAGER)
@@ -154,7 +155,7 @@ public class GSDFileDBO implements Serializable, RepositoryRefreshable {
      * @return a map of the Modules from this GSD File.
      */
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "GSDFile", fetch = FetchType.EAGER)
-    @OrderBy("moduleId")
+    //@OrderBy("moduleId")
     @MapKey(name = "moduleId")
     @CheckForNull
     //

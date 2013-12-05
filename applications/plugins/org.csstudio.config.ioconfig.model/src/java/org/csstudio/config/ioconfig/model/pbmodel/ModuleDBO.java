@@ -44,9 +44,7 @@ import org.csstudio.config.ioconfig.model.NodeType;
 import org.csstudio.config.ioconfig.model.PersistenceException;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdFileParser;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdModuleModel2;
-import org.csstudio.config.ioconfig.model.types.ModuleName;
 import org.csstudio.config.ioconfig.model.types.ModuleNumber;
-import org.csstudio.config.ioconfig.model.types.ModuleVersionInfo;
 import org.hibernate.annotations.BatchSize;
 
 import com.google.common.base.Optional;

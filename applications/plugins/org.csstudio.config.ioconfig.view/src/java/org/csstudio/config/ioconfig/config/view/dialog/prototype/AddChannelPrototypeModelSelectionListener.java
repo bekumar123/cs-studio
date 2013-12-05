@@ -6,9 +6,8 @@ import java.util.Date;
 import javax.annotation.Nonnull;
 
 import org.csstudio.config.ioconfig.config.component.IRefreshable;
-import org.csstudio.config.ioconfig.config.view.dialog.prototype.components.ChannelConfigDialogDataModel;
+import org.csstudio.config.ioconfig.config.view.dialog.prototype.components.ChannelDataModel;
 import org.csstudio.config.ioconfig.editorparts.AbstractNodeEditor;
-import org.csstudio.config.ioconfig.model.hibernate.Repository;
 import org.csstudio.config.ioconfig.model.pbmodel.DataType;
 import org.csstudio.config.ioconfig.model.pbmodel.ModuleChannelPrototypeDBO;
 import org.eclipse.swt.events.SelectionEvent;
@@ -19,14 +18,14 @@ final class AddChannelPrototypeModelSelectionListener implements SelectionListen
     private final static boolean IS_INPUT = true;
     
     private final ISelectedTab parentDialog;
-    private final ChannelConfigDialogDataModel channelConfigDialogDataModel;
+    private final ChannelDataModel channelConfigDialogDataModel;
     private final IRefreshable outputTable;
     private final IRefreshable inputTable;
 
     //@formatter:off
     public AddChannelPrototypeModelSelectionListener(
             @Nonnull final ISelectedTab parentDialog,
-            @Nonnull ChannelConfigDialogDataModel channelConfigDialogDataModel,
+            @Nonnull final ChannelDataModel channelConfigDialogDataModel,
             @Nonnull final IRefreshable outputTable, 
             @Nonnull final IRefreshable inputTable) {
             //@formatter:on
@@ -108,8 +107,8 @@ final class AddChannelPrototypeModelSelectionListener implements SelectionListen
         moduleChannelPrototype.setOffset(offset);
         moduleChannelPrototype.setType(tmpType);
         moduleChannelPrototype.setInput(input);
-        moduleChannelPrototype.setGSDModule( channelConfigDialogDataModel.getPrototypeModule());
-        channelConfigDialogDataModel.getPrototypeModule().addModuleChannelPrototype(moduleChannelPrototype);
+        moduleChannelPrototype.setGSDModule(channelConfigDialogDataModel.getPrototypeModule());
+        channelConfigDialogDataModel.addModuleChannelPrototype(moduleChannelPrototype);
         data.add(moduleChannelPrototype);
         uiComponent.refresh();
     }

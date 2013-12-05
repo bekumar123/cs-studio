@@ -47,7 +47,7 @@ public class TestIoNameDictionary {
    @Test
    public void testGetNonExistingName() {
       EpicsAddress epcisAddress = ioNameDictionary.get(new IoName("Bsp_BOO111L"));
-      assertThat(epcisAddress.getAddress(), is("<Error: unknown Bsp_BOO111L>"));
+      assertThat(epcisAddress.getAddress(), is("%%% Error: unknown Bsp_BOO111L"));
    }
 
    @Test(expected = IllegalStateException.class)

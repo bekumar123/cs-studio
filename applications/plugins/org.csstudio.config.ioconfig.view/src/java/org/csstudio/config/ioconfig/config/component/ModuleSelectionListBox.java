@@ -1,22 +1,21 @@
 package org.csstudio.config.ioconfig.config.component;
 
-import java.util.Map;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.csstudio.config.ioconfig.config.component.labelprovider.ModuleListLabelProvider;
-import org.csstudio.config.ioconfig.model.pbmodel.GSDFileDBO;
-import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
-import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdModuleModel2;
+import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBOReadOnly;
+import org.csstudio.config.ioconfig.model.types.ModuleLabel;
+import org.csstudio.config.ioconfig.model.types.ModuleList;
+import org.csstudio.config.ioconfig.model.types.ModuleName;
 import org.csstudio.config.ioconfig.model.types.ModuleNumber;
+import org.csstudio.config.ioconfig.model.types.ParsedModuleInfo;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
-import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -35,29 +34,33 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
     protected static final Logger LOG = LoggerFactory.getLogger(ModuleSelectionListBox.class);
 
     private Text filter;
-    
+
     private final Composite composite;
-    private final GSDFileDBO gsdFile;
+    private final ModuleList moduleList;
+    private final ParsedModuleInfo parsedModuleInfo;
     private final Optional<ModuleNumber> selectedModuleNumber;
 
-    private TableViewer moduleTypList;
+    private TableViewer tableViewerModuleList;
     private ModuleSelectionListBoxConfigurator moduleSelectionListBoxConfigurator;
     private Optional<ISelectionChangedListener> selectionChangedListener = Optional.absent();
-    
+
     //@formatter:off
     public ModuleSelectionListBox(
-            @Nonnull final Composite composite,           
-            @Nonnull GSDFileDBO gsdFile,
-            Optional<ModuleNumber> selectedModuleNumber) {
+            @Nonnull final Composite composite,   
+            @Nonnull final ModuleList moduleList,
+            @Nonnull final ParsedModuleInfo parsedModuleInfo,
+            @Nonnull Optional<ModuleNumber> selectedModuleNumber) {
             //@formatter:on
 
         Preconditions.checkNotNull(composite, "composite must not be null");
-        Preconditions.checkNotNull(gsdFile, "gsdFile must not be null");
+        Preconditions.checkNotNull(moduleList, "moduleList must not be null");
+        Preconditions.checkNotNull(parsedModuleInfo, "parsedModuleInfo must not be null");
         Preconditions.checkNotNull(selectedModuleNumber, "selectedModuleNumber must not be null");
-        Preconditions.checkNotNull(gsdFile.getParsedGsdFileModel(), "getParsedGsdFileModel must not return null");
 
         this.composite = composite;
-        this.gsdFile = gsdFile;
+        this.moduleList = moduleList;
+        this.parsedModuleInfo = parsedModuleInfo;
+
         this.selectedModuleNumber = selectedModuleNumber;
         this.moduleSelectionListBoxConfigurator = new ModuleSelectionListBoxConfigurator();
     }
@@ -74,37 +77,37 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
 
         filter = buildFilterText(gridComposite);
 
-        moduleTypList = new TableViewer(gridComposite, SWT.SINGLE | SWT.V_SCROLL | SWT.BORDER);
+        tableViewerModuleList = new TableViewer(gridComposite, SWT.SINGLE | SWT.V_SCROLL | SWT.BORDER);
         GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
         layoutData.minimumWidth = 250;
 
-        moduleTypList.getTable().setLayoutData(layoutData);
-        moduleTypList.setContentProvider(new ModuleListContentProvider());
-        moduleTypList.setLabelProvider(new ModuleListLabelProvider(moduleTypList.getTable(),
-                moduleSelectionListBoxConfigurator));
+        tableViewerModuleList.getTable().setLayoutData(layoutData);
+        tableViewerModuleList.setContentProvider(new ModuleListContentProvider());
 
-        final Map<Integer, GsdModuleModel2> gsdModuleList = gsdFile.getParsedGsdFileModel().getModuleMap();
+        //@formatter:off
+        tableViewerModuleList.setLabelProvider(new ModuleListLabelProvider(
+                tableViewerModuleList.getTable(),
+                moduleList,
+                parsedModuleInfo));
+                //@formatter:on
 
         if (selectedModuleNumber.isPresent()) {
-            final GsdModuleModel2 selectModuleModel = gsdModuleList.get(selectedModuleNumber.get().getValue());
-            if (selectModuleModel != null) {
-                moduleTypList.setSelection(new StructuredSelection(selectModuleModel));
-                if (moduleSelectionListBoxConfigurator.isAutoFilter()) {
-                    filter.setText(selectModuleModel.getName());
-                }
+            Object[] elements = new Object[] { moduleList.getObject(selectedModuleNumber.get()) };
+            tableViewerModuleList.setSelection(new StructuredSelection(elements));
+            if (moduleSelectionListBoxConfigurator.isAutoFilter()) {
+                ModuleLabel moduleLabel = moduleList.getModuleLabel(selectedModuleNumber.get());
+                filter.setText(moduleLabel.buildLabelWithoutModuleNumber());
             }
         }
-
+        
         setTypListFilter(filter);
-        setTypeListSorter();
+        tableViewerModuleList.setInput(moduleList);
 
-        moduleTypList.setInput(gsdModuleList);
-
-        moduleTypList.getTable().showSelection();
+        tableViewerModuleList.getTable().showSelection();
         filter.addModifyListener(new FilterModifyListener(this));
 
         if (moduleSelectionListBoxConfigurator.isReadOnly()) {
-            moduleTypList.getTable().setEnabled(false);
+            tableViewerModuleList.getTable().setEnabled(false);
             filter.setEditable(false);
         } else {
             if (this.selectionChangedListener.isPresent()) {
@@ -114,19 +117,19 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
 
     }
 
-    public void setEditable(boolean enabled) {
-        moduleTypList.getTable().setEnabled(enabled);    
-        filter.setEditable(enabled);
+    public void disableEditing() {
+        tableViewerModuleList.getTable().setEnabled(false);
+        filter.setEditable(false);
     }
-    
+
     public void addSelectionChangedListener(ISelectionChangedListener selectionChangedListener) {
-        if (moduleTypList == null) {
+        if (tableViewerModuleList == null) {
             this.selectionChangedListener = Optional.of(selectionChangedListener);
         } else {
             if (moduleSelectionListBoxConfigurator.isReadOnly()) {
                 throw new IllegalStateException("You must not add a SelectionChangedListener to a read only table");
             }
-            moduleTypList.addSelectionChangedListener(selectionChangedListener);
+            tableViewerModuleList.addSelectionChangedListener(selectionChangedListener);
         }
     }
 
@@ -134,16 +137,23 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
         return selectedModuleNumber;
     }
 
-    public void select(GsdModuleModel2 gsdModuleModel) {
-        moduleTypList.setSelection(new StructuredSelection(gsdModuleModel), true);
+    public void select(final ModuleNumber moduleNumber) {
+        GSDModuleDBOReadOnly gsdModuleDBOReadOnly = moduleList.getModule(moduleNumber);
+        if (gsdModuleDBOReadOnly != null) {
+            tableViewerModuleList.setSelection(new StructuredSelection(gsdModuleDBOReadOnly), true);
+        }
     }
 
     public void selectFirstRow() {
-        moduleTypList.getTable().select(0);
+        tableViewerModuleList.getTable().select(0);
+    }
+
+    public StructuredSelection getStructuredSelection() {
+        return (StructuredSelection) tableViewerModuleList.getSelection();
     }
 
     public void refresh() {
-        moduleTypList.refresh();
+        tableViewerModuleList.refresh();
     }
 
     @Nonnull
@@ -160,39 +170,31 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
             return;
         }
 
-        moduleTypList.addFilter(new ViewerFilter() {
-
+        tableViewerModuleList.addFilter(new ViewerFilter() {
             @Override
             public boolean select(@Nullable final Viewer viewer, @Nullable final Object parentElement,
                     @Nullable final Object element) {
-                if (element instanceof GsdModuleModel2) {
-                    final GsdModuleModel2 gsdModuleModel = (GsdModuleModel2) element;
+                if (element instanceof GSDModuleDBOReadOnly) {
+                    final GSDModuleDBOReadOnly gsdModuleDbo = (GSDModuleDBOReadOnly) element;
                     if (filter.getText() == null || filter.getText().length() < 1) {
                         return true;
                     }
-                    final String filterString = ".*" + filter.getText().replaceAll("\\*", ".*") + ".*";
-                    return gsdModuleModel.toString().matches(filterString);
+                    return gsdModuleDbo.moduleNameContains(filter.getText());
                 }
                 return false;
             }
-
         });
 
         if (moduleSelectionListBoxConfigurator.isIgnoreModulesWithoutPrototype()) {
 
             // only display modules with prototype
-            moduleTypList.addFilter(new ViewerFilter() {
+            tableViewerModuleList.addFilter(new ViewerFilter() {
                 @Override
                 public boolean select(@Nullable final Viewer viewer, @Nullable final Object parentElement,
                         @Nullable final Object element) {
-                    if (element instanceof GsdModuleModel2) {
-                        final GsdModuleModel2 gmm = (GsdModuleModel2) element;
-                        final int selectedModuleNo = gmm.getModuleNumber();
-                        GSDModuleDBO module = null;
-                        if (gsdFile != null) {
-                            module = gsdFile.getGSDModule(selectedModuleNo);
-                        }
-                        return module != null;
+                    if (element instanceof GSDModuleDBOReadOnly) {
+                        final GSDModuleDBOReadOnly gsdModuleDbo = (GSDModuleDBOReadOnly) element;
+                        return moduleList.hasPrototype(gsdModuleDbo.getModuleNumber());
                     }
                     return true;
                 }
@@ -201,46 +203,27 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
 
     }
 
-    private void setTypeListSorter() {
-
-        moduleTypList.setSorter(new ViewerSorter() {
-
-            @Override
-            public int compare(@Nullable final Viewer viewer, @Nullable final Object e1, @Nullable final Object e2) {
-                if (e1 instanceof GsdModuleModel2 && e2 instanceof GsdModuleModel2) {
-                    final GsdModuleModel2 eUPD1 = (GsdModuleModel2) e1;
-                    final GsdModuleModel2 eUPD2 = (GsdModuleModel2) e2;
-                    return eUPD1.getModuleNumber() - eUPD2.getModuleNumber();
-                }
-                return super.compare(viewer, e1, e2);
-            }
-
-        });
-    }
-
     /**
      * This class provides the content for the table.
      */
     private static class ModuleListContentProvider implements IStructuredContentProvider {
 
         public final Object[] getElements(@Nullable final Object arg0) {
-            if (arg0 instanceof Map) {
-                @SuppressWarnings("unchecked")
-                final Map<Integer, GsdModuleModel2> map = (Map<Integer, GsdModuleModel2>) arg0;
-                return map.values().toArray(new GsdModuleModel2[0]);
+            if (arg0 instanceof ModuleList) {
+                ModuleList moduleList = (ModuleList) arg0;
+                Object[] objects = moduleList.toArray();
+                return objects;
             }
             return null;
         }
 
         @Override
         public final void dispose() {
-            // We don't create any resources, so we don't dispose any
         }
 
         @Override
         public final void inputChanged(@Nullable final Viewer arg0, @Nullable final Object arg1,
                 @Nullable final Object arg2) {
-            // do nothing
         }
 
     }

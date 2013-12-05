@@ -49,6 +49,10 @@ import javax.persistence.Transient;
 import org.csstudio.config.ioconfig.model.Diagnose;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdFileParser;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.ParsedGsdFileModel;
+import org.csstudio.config.ioconfig.model.types.ParsedModuleInfo;
+import org.csstudio.config.ioconfig.model.types.RepositoryRefreshable;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 /**
  * @author hrickens
@@ -58,8 +62,8 @@ import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.ParsedGsdFileModel;
  */
 @Entity
 @Table(name = "ddb_GSD_File")
-public class GSDFileDBO implements Serializable {
-    
+public class GSDFileDBO implements Serializable, RepositoryRefreshable {
+
     private static final long serialVersionUID = 1L;
     /** The DB ID. */
     private int _id;
@@ -69,44 +73,44 @@ public class GSDFileDBO implements Serializable {
     private String _gsdFile;
     /** Configured Modules of this GSD File. */
     private Map<Integer, GSDModuleDBO> _gSDModules;
-    
+
     private ParsedGsdFileModel _parsedGsdFileModel;
-    
+
     /** */
     public GSDFileDBO() {
         // Constructor for Hibernate
     }
-    
+
     /**
      * @param name
      *            Name of gsdFile.
      * @param gsdFile
      *            The text of gsdFile.
-     * @throws IOException 
+     * @throws IOException
      */
     public GSDFileDBO(@Nonnull final String name, @Nonnull final String gsdFile) throws IOException {
         setName(name);
         setGSDFile(gsdFile);
     }
-    
+
     /** @return the ID. */
     @Id
     @GeneratedValue
     public int getId() {
         return _id;
     }
-    
+
     /**
      * @param id
      *            set the ID.
      */
-    public void setId( final int id) {
+    public void setId(final int id) {
         this._id = id;
     }
-    
+
     /** @return the Text of gsdFile */
-    // Es gibt Problme Text die mehr als 150KB größe in die DB zu schreiben.
-    // Das Problem liegt bei log4J. Bei so großen Files darf das Logging nicht
+    // Es gibt Problme Text die mehr als 150KB grï¿½ï¿½e in die DB zu schreiben.
+    // Das Problem liegt bei log4J. Bei so groï¿½en Files darf das Logging nicht
     // auf Debug stehen!
     @Lob
     @Basic(fetch = FetchType.EAGER)
@@ -115,27 +119,27 @@ public class GSDFileDBO implements Serializable {
     public String getGSDFile() {
         return _gsdFile;
     }
-    
+
     /**
      * @param gsdFile
      *            set the Text of gsdFile.
-     * @throws IOException 
+     * @throws IOException
      */
     public void setGSDFile(@Nonnull final String gsdFile) throws IOException {
         _gsdFile = gsdFile;
-        if(_gsdFile!=null) {
+        if (_gsdFile != null) {
             final GsdFileParser gsdFileParser = new GsdFileParser();
             _parsedGsdFileModel = gsdFileParser.parse(this);
         }
     }
-    
+
     /** @return the Name of gsdFile */
     @Column(unique = true, nullable = false)
     @Nonnull
     public String getName() {
         return _name;
     }
-    
+
     /**
      * @param name
      *            set the Name of gsdFile.
@@ -144,62 +148,70 @@ public class GSDFileDBO implements Serializable {
         this._name = name;
         Diagnose.addNewLine(_name + "\t" + this.getClass().getSimpleName());
     }
+
     /**
-     *
+     * 
      * @return a map of the Modules from this GSD File.
      */
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "GSDFile", fetch = FetchType.EAGER)
     @OrderBy("moduleId")
     @MapKey(name = "moduleId")
     @CheckForNull
-    public Map<Integer, GSDModuleDBO> getGSDModules() {
+    //
+    // only used by Hibernate
+    //
+    protected Map<Integer, GSDModuleDBO> getGSDModules() {
         return _gSDModules;
     }
-    
+
     /**
-     *
+     * 
      * @param gsdModules
      *            set the Modules for this GSD File.
      */
-    public void setGSDModules(@Nullable final Map<Integer, GSDModuleDBO> gsdModules) {
+    //
+    // only used by Hibernate
+    //
+    protected void setGSDModules(@Nullable final Map<Integer, GSDModuleDBO> gsdModules) {
         _gSDModules = gsdModules;
     }
 
     /**
      * Get a Module of this File.
-     *
+     * 
      * @param indexModule
      *            the index for the given Module.
      * @return the selected Module.
      */
     @CheckForNull
     public GSDModuleDBO getGSDModule(@Nonnull final Integer indexModule) {
-        return _gSDModules == null?null:_gSDModules.get(indexModule);
+        return _gSDModules == null ? null : _gSDModules.get(indexModule);
     }
-    
+
     /**
-     *
+     * Only used for testing
+     * 
      * @param gSDModule
      *            add a Module to this file.
      */
     public void addGSDModule(@Nonnull final GSDModuleDBO gSDModule) {
         gSDModule.setGSDFile(this);
-        if(_gSDModules == null) {
+        if (_gSDModules == null) {
             _gSDModules = new HashMap<Integer, GSDModuleDBO>();
         }
         _gSDModules.put(gSDModule.getModuleId(), gSDModule);
     }
-    
+
     @Transient
     public boolean isMasterNonHN() {
         return getParsedGsdFileModel().isMaster();
     }
-    
+
     @Transient
     public boolean isSlaveNonHN() {
-        return getParsedGsdFileModel().isSalve();
+        return getParsedGsdFileModel().isSlave();
     }
-    
+
     /** @return the Name of this gsdFile */
     @Transient
     @Override
@@ -207,11 +219,17 @@ public class GSDFileDBO implements Serializable {
     public String toString() {
         return getName();
     }
-    
+
     @Transient
     @Nonnull
     public ParsedGsdFileModel getParsedGsdFileModel() {
         return _parsedGsdFileModel;
     }
-    
+
+    @Transient
+    @Nonnull
+    public ParsedModuleInfo getParsedModuleInfo() {
+        return new ParsedModuleInfo(_parsedGsdFileModel.getModuleMap());
+    }
+
 }

@@ -40,9 +40,14 @@ import org.csstudio.config.ioconfig.model.GSDFileTypes;
 import org.csstudio.config.ioconfig.model.INodeVisitor;
 import org.csstudio.config.ioconfig.model.NodeType;
 import org.csstudio.config.ioconfig.model.PersistenceException;
+import org.csstudio.config.ioconfig.model.hibernate.Repository;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdFileParser;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdModuleModel2;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.ParsedGsdFileModel;
+import org.csstudio.config.ioconfig.model.types.GsdFileId;
+import org.csstudio.config.ioconfig.model.types.ModuleList;
+import org.csstudio.config.ioconfig.model.types.ModuleNumber;
+import org.csstudio.config.ioconfig.model.types.ParsedModuleInfo;
 import org.hibernate.annotations.BatchSize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +63,7 @@ import org.slf4j.LoggerFactory;
 @BatchSize(size = 32)
 @Table(name = "ddb_Profibus_Slave")
 //@SecondaryTable(name="nodeDB", pkJoinColumns = @)
-public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> {
+public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> implements GSDModuleDataProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(SlaveDBO.class);
 
@@ -164,6 +169,25 @@ public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> {
             childrenCopy.setSortIndexNonHibernate(node.getSortIndex());
         }
         return copy;
+    }
+
+    @Transient
+    public ModuleList retrieveModuleList() {
+        try {
+            return Repository.loadModules(new GsdFileId(_gsdFile.getId()));
+        } catch (PersistenceException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+    
+    @Transient
+    public GSDModuleDBO getPrototypeModule(ModuleNumber moduleNumber) {
+        return getGSDFile().getParsedGsdFileModel().getGsdFileDBO().getGSDModule(moduleNumber.getValue());
+    }
+
+    @Transient
+    public ParsedModuleInfo getParsedModuleInfo() {
+        return getGSDFile().getParsedModuleInfo();
     }
 
     /**
@@ -530,4 +554,5 @@ public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> {
         setSlaveFlag(128);
         super.assembleEpicsAddressString();
     }
+
 }

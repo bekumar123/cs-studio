@@ -87,7 +87,11 @@ public class AbstractGsNodeEditorTest {
                 final BitMask bitMaskIntcerceptor) {
             //@formatter:on
             this.userDataList = userDataList;
-            return getUserPrmDataValue(extUserPrmDataRef, extUserPrmData, bitMaskIntcerceptor);
+            return getUserPrmDataValue(
+                    extUserPrmDataRef.getIndex(),
+                    getPrmUserDataList(),
+                    extUserPrmData, 
+                    bitMaskIntcerceptor);
         }
 
     }

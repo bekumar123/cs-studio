@@ -60,7 +60,7 @@ public final class ResolutionUtil {
 				resolved = DctActivator.getDefault().getFieldFunctionService().evaluate(resolved, record, key);
 				resolved = DctActivator.getDefault().getFieldFunctionService().resolve(resolved, aliases);
 			} catch (Exception e) {
-				resolved = "<Error: "+e.getMessage()+">";
+				resolved = "%%% Error: "+e.getMessage();
 			}
 			
 			result.put(key, resolved);

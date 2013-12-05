@@ -28,7 +28,7 @@ public class InfoAreaComponent implements IComponent {
     private Composite info;   
     private TabFolder tabFolder;
     
-    public InfoAreaComponent(Composite infoDialogArea, List<SlaveCfgData> slaveCfgDataList) {
+    public InfoAreaComponent(final Composite infoDialogArea, final List<SlaveCfgData> slaveCfgDataList) {
         super();
         this.infoDialogArea = infoDialogArea;
         this.slaveCfgDataList = slaveCfgDataList;
@@ -48,13 +48,10 @@ public class InfoAreaComponent implements IComponent {
         refresh(slaveCfgDataList);
     }
     
-    public void refresh(List<SlaveCfgData> slaveCfgDataList) {
+    public void refresh(final List<SlaveCfgData> slaveCfgDataList) {
 
         this.slaveCfgDataList = slaveCfgDataList;
-        
-        final int size = 12;
-        final int leftUperCorner = 0;
-        
+          
         if (tabFolder != null) {
             tabFolder.dispose();
         }
@@ -86,7 +83,6 @@ public class InfoAreaComponent implements IComponent {
             new Label(box, SWT.NONE).setText(Messages.ChannelConfigDialog_Parameter_
                     + slaveCfgData.getParameterAsHexString());
 
-            createGraphicalDataStructurePresentation(size, leftUperCorner, slaveCfgData, box);
             tabItem.setControl(box);
         }
         
@@ -94,46 +90,4 @@ public class InfoAreaComponent implements IComponent {
         infoDialogArea.layout();
     }
     
-    
-    private static final class PaintListenerImplementation implements PaintListener {
-        private final int _leftUperCorner;
-        private final int _size;
-        private final SlaveCfgData _slaveCfgData;
-
-        PaintListenerImplementation(@Nonnull final SlaveCfgData slaveCfgData, final int leftUperCorner, final int size) {
-            _slaveCfgData = slaveCfgData;
-            _leftUperCorner = leftUperCorner;
-            _size = size;
-        }
-
-        @Override
-        public void paintControl(@Nonnull final PaintEvent e) {
-            final int x0 = 0;
-            final int x1 = _size * _slaveCfgData.getWordSize();
-            e.gc.drawRectangle(x0, _leftUperCorner, x1, _size);
-            e.gc.drawRectangle(x0, _leftUperCorner + _size, x1, _size);
-            final String type = Messages.ChannelConfigDialog_AD;
-            final Point stringExtent = e.gc.stringExtent(type);
-            e.gc.drawString(type, (x1 - stringExtent.x) / 2, _leftUperCorner, true);
-            for (int j = 1; j <= _slaveCfgData.getWordSize(); j++) {
-                final int x2 = x0 + j * _size;
-                e.gc.drawLine(x2, _leftUperCorner + _size, x2, _leftUperCorner + 2 * _size);
-            }
-        }
-    }
-    
-    public void createGraphicalDataStructurePresentation(final int size, final int leftUperCorner,
-            @Nonnull final SlaveCfgData slaveCfgData, @Nonnull final Composite box) {
-        for (int i = 0; i < slaveCfgData.getNumber(); i++) {
-            final Canvas canvas = new Canvas(box, SWT.NONE);
-            final int horizSpan = slaveCfgData.getWordSize() / 8;
-            final GridData gridData = new GridData(SWT.FILL, SWT.TOP, true, false, horizSpan, 1);
-            gridData.widthHint = size * slaveCfgData.getWordSize() + 15;
-            gridData.heightHint = 2 * size + 5;
-            canvas.setLayoutData(gridData);
-            final PaintListenerImplementation listener;
-            listener = new PaintListenerImplementation(slaveCfgData, leftUperCorner, size);
-            canvas.addPaintListener(listener);
-        }
-    }
 }

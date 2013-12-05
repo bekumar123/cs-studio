@@ -27,6 +27,7 @@ package org.csstudio.config.ioconfig.model.pbmodel;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -49,8 +50,17 @@ import javax.persistence.UniqueConstraint;
 import org.csstudio.config.ioconfig.model.DBClass;
 import org.csstudio.config.ioconfig.model.DocumentDBO;
 import org.csstudio.config.ioconfig.model.IDocumentable;
+import org.csstudio.config.ioconfig.model.hibernate.Repository;
+import org.csstudio.config.ioconfig.model.types.ModuleInfo;
+import org.csstudio.config.ioconfig.model.types.ModuleLabel;
+import org.csstudio.config.ioconfig.model.types.ModuleName;
+import org.csstudio.config.ioconfig.model.types.ModuleNumber;
+import org.csstudio.config.ioconfig.model.types.ModuleVersionInfo;
+import org.csstudio.config.ioconfig.model.types.ParsedModuleInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
 
 /**
  * The Hibernate Persistence DataModel for the Profibus GSD Module.
@@ -64,7 +74,7 @@ import org.slf4j.LoggerFactory;
 @Entity
 @Table(name = "ddb_GSD_Module", uniqueConstraints = { @UniqueConstraint(columnNames = {
         "gSDFile_Id", "moduleId" }) })
-public class GSDModuleDBO extends DBClass implements Comparable<GSDModuleDBO>, IDocumentable {
+public class GSDModuleDBO extends DBClass implements Comparable<GSDModuleDBO>, IDocumentable, GSDModuleDBOReadOnly {
 
     protected static final Logger LOG = LoggerFactory.getLogger(GSDModuleDBO.class);
     
@@ -106,9 +116,6 @@ public class GSDModuleDBO extends DBClass implements Comparable<GSDModuleDBO>, I
      */
     private String _name;
 
-    /**
-     *
-     */
     private int _moduleId;
 
     private Set<ModuleChannelPrototypeDBO> _moduleChannelPrototypes;
@@ -119,6 +126,10 @@ public class GSDModuleDBO extends DBClass implements Comparable<GSDModuleDBO>, I
 
     private Set<DocumentDBO> _documents;
 
+    private String _versionTag;
+    
+    private String _versionNote;
+    
     /**
      * Default Constructor needed by Hibernate.
      */
@@ -133,12 +144,36 @@ public class GSDModuleDBO extends DBClass implements Comparable<GSDModuleDBO>, I
      *            The Module name.
      */
     public GSDModuleDBO(@Nonnull final String name) {
+        this();
         setName(name);
-        _isDirty = true;
+    }
+
+    public GSDModuleDBO(final ModuleInfo info, final GSDFileDBO gsdFileDBO) {
+        this();
+        
+        Preconditions.checkNotNull(info, "info must not be null");
+        Preconditions.checkNotNull(gsdFileDBO, "gsdFileDBO must not be null");
+
+        initCreated();
+        initUpdated();
+        
+        setGSDFile(gsdFileDBO);
+        setModuleId(info.getModuleNumber().getValue());
+        setName(info.getModuleName().getValue());
     }
 
     public int getModuleId() {
         return _moduleId;
+    }
+
+    @Transient
+    public ModuleNumber getModuleNumber() {
+        return ModuleNumber.moduleNumber(_moduleId).get();
+    }
+
+    @Transient
+    public boolean isVersioned() {
+        return getModuleNumber().isVersioned();
     }
 
     public void setModuleId(final int moduleId) {
@@ -180,6 +215,65 @@ public class GSDModuleDBO extends DBClass implements Comparable<GSDModuleDBO>, I
     @Nonnull
     public String getName() {
         return _name;
+    }
+
+    @Transient
+    public boolean moduleNameContains(String filterText) {        
+        ModuleLabel moduleLabel = getModuleLabel();
+        return moduleLabel.buildLabel().contains(filterText);
+    }
+
+    @Transient
+    public ModuleLabel getModuleLabel() {
+        ModuleVersionInfo moduleVersionInfo = ModuleVersionInfo.build(getModuleNumber(), getVersionTag(), getVersionNote());
+        return moduleVersionInfo.getModuleLabel(new ModuleName(getName()));
+    }
+
+    @Override
+    @Transient
+    public GSDModuleDBO cloneNewVersion(ModuleNumber nextVersionedModuleNumber, ModuleVersionInfo moduleVersionInfo) {
+        
+        Preconditions.checkArgument(nextVersionedModuleNumber.isVersioned(),
+                "nextVersionedModuleNumber must  be versioned");
+
+        GSDModuleDBO versionedGSDModuleDBO = new GSDModuleDBO();
+        versionedGSDModuleDBO.setGSDFile(getGSDFile());
+        versionedGSDModuleDBO.setModuleId(nextVersionedModuleNumber.getValue());
+        versionedGSDModuleDBO.setName(getName());
+        versionedGSDModuleDBO.setVersionTag(moduleVersionInfo.getVersionTag().getValue());
+        versionedGSDModuleDBO.setVersionNote(moduleVersionInfo.getVersionNote().getValue());
+        versionedGSDModuleDBO.initCreated();
+        versionedGSDModuleDBO.initUpdated();
+        
+        return versionedGSDModuleDBO;
+    }
+    
+    public void initCreated() {
+        setCreatedBy("Roger");
+        setCreatedOn(new Date());        
+    }
+
+    public void initUpdated() {
+        setUpdatedBy("Roger");
+        setUpdatedOn(new Date());        
+    }
+
+    @Column(name="version_tag", nullable=true)
+    public String getVersionTag() {
+        return _versionTag;
+    }
+
+    public void setVersionTag(String versionTag) {
+        this._versionTag = versionTag;
+    }
+
+    @Column(name="version_note", nullable=true)
+    public String getVersionNote() {
+        return _versionNote;
+    }
+
+    public void setVersionNote(String versionNote) {
+        this._versionNote = versionNote;
     }
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "GSDModule", fetch = FetchType.EAGER)
@@ -259,17 +353,17 @@ public class GSDModuleDBO extends DBClass implements Comparable<GSDModuleDBO>, I
         _isDirty = dirty;
     }
 
-
     /**
      *  Die Tabellen MIME_FILES und MIME_FILES_DDB_MCPROTOTYPE liegen auf einer anderen DB.
-     *  Daher wird hier mit einem Link gearbeitet der folgenden Rechte benötigt.
-     *  -  Für MIME_FILES ist das Grant: select.
-     *  -  Für MIME_FILES_DDB_MCPROTOTYPE ist das Grant: select, insert, update, delete.
+     *  Daher wird hier mit einem Link gearbeitet der folgenden Rechte benoetigt.
+     *  -  Fuer MIME_FILES ist das Grant: select.
+     *  -  Fuer MIME_FILES_DDB_MCPROTOTYPE ist das Grant: select, insert, update, delete.
      *
      * @return Documents for the Node.
      */
     @Override
-    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.REFRESH })
+    // changed roger
+    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.REFRESH })
     @JoinTable(name = "MIME_FILES_DDB_MCPROTOTYPE_LNK", joinColumns = @JoinColumn(name = "prototype_id", referencedColumnName = "id", unique = true), inverseJoinColumns = @JoinColumn(name = "docs_id", referencedColumnName = "id"))
     @Nonnull
     public Set<DocumentDBO> getDocuments() {
@@ -335,7 +429,6 @@ public class GSDModuleDBO extends DBClass implements Comparable<GSDModuleDBO>, I
         final GSDModuleDBO other = (GSDModuleDBO) obj;
         return (getId() == other.getId());
     }
-    
     
 
 }

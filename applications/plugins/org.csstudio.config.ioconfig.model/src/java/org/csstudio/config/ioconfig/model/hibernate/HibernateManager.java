@@ -80,10 +80,12 @@ public final class HibernateManager extends AbstractHibernateManager {
         for (final Class<?> clazz : getClasses()) {
             _cfg.addAnnotatedClass(clazz);
         }
+        
         final String classDriver = prefs.getString(pluginId, HIBERNATE_CONNECTION_DRIVER_CLASS, "", null);
         final String url = prefs.getString(pluginId, HIBERNATE_CONNECTION_URL, "", null);
         final String userName = prefs.getString(pluginId, DDB_USER_NAME, "", null);
         final String password = prefs.getString(pluginId, DDB_PASSWORD, "", null);
+        
         LOG.debug("Use User: " + userName);
         LOG.debug("Use Password: " + password);
 
@@ -106,10 +108,11 @@ public final class HibernateManager extends AbstractHibernateManager {
                 .setProperty("c3p0.timeout", "1800")
                 .setProperty("c3p0.acquire_increment", "1")
                 .setProperty("c3p0.idle_test_period", "100")
-                .setProperty("c3p0.max_statements", "1");
-                // .setProperty("hibernate.hbm2ddl.auto", "update")
-                // .setProperty("hibernate.show_sql", "true")
-                // .setProperty("hibernate.format_sql", "true").setProperty("hibernate.use_sql_comments", "true")
+                .setProperty("c3p0.max_statements", "1")
+                //.setProperty("hibernate.hbm2ddl.auto", "update")
+                //.setProperty("hibernate.show_sql", "true")
+                .setProperty("hibernate.format_sql", "true")
+                .setProperty("hibernate.use_sql_comments", "true");
                 // .setProperty("hibernate.cache.use_second_level_cache", "true");
                 //@formatter:on
 

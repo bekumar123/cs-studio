@@ -61,26 +61,26 @@ import org.hibernate.cfg.AnnotationConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author hrickens
- * @author $Author: hrickens $
- * @version $Revision: 1.7 $
- * @since 08.07.2011
- */
 public abstract class AbstractHibernateManager extends Observable implements IHibernateManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(HibernateTestManager.class);
     private static final Set<Class<?>> CLASSES = new HashSet<Class<?>>();
 
-    private SessionFactory _sessionFactoryDevDB;
-    private Session _sessionLazy;
+    private SessionFactory sessionFactory;
+
+    private Session sessionLazy;
+
+    // Special session to load documents.
+    // Needed since the DocumentationManagerView calls Document save
+    // that can cause unwanted updates to the database.
+    private Session sessionDocument;
 
     /**
      * The timeout in sec.
      */
-    private int _timeout = 10;
+    private int timeout = 10;
 
-    private Transaction _trx;
+    private Transaction trx;
 
     /**
      * Constructor.
@@ -114,37 +114,68 @@ public abstract class AbstractHibernateManager extends Observable implements IHi
 
     @Override
     public final synchronized void closeSession() {
-        if (_sessionLazy != null && _sessionLazy.isOpen()) {
-            // _sessionLazy.close();
-            _sessionLazy.disconnect();
-            _sessionLazy = null;
+        if (sessionLazy != null && sessionLazy.isOpen()) {
+            sessionLazy.disconnect();
+            sessionLazy = null;
         }
-        if (_sessionFactoryDevDB != null && !_sessionFactoryDevDB.isClosed()) {
-            _sessionFactoryDevDB.close();
-            _sessionFactoryDevDB = null;
+        if (sessionDocument != null && sessionDocument.isOpen()) {
+            sessionDocument.disconnect();
+            sessionDocument = null;
+        }
+        if (sessionFactory != null && !sessionFactory.isClosed()) {
+            sessionFactory.close();
+            sessionFactory = null;
         }
         LOG.info("DB Session  Factory closed");
+    }
 
+    public <T> T executeAndUseDocumentSession(@Nonnull final IHibernateCallback hibernateCallback)
+            throws PersistenceException {
+        trx = null;
+        try {
+            if (sessionDocument == null) {
+                if (sessionFactory == null) {
+                    initSessionFactory();
+                }
+                sessionDocument = sessionFactory.openSession();
+            }
+            trx = sessionDocument.getTransaction();
+            trx.setTimeout(timeout);
+            trx.begin();
+            final T result = execute(hibernateCallback, sessionDocument);
+            trx.commit();
+            return result;
+        } catch (final HibernateException ex) {
+            tryRollback(ex);
+            try {
+                if (sessionDocument != null && sessionDocument.isOpen()) {
+                    sessionDocument.close();
+                }
+            } finally {
+                sessionDocument = null;
+            }
+            throw new PersistenceException(ex);
+        }
     }
 
     @Override
     @CheckForNull
-    public final <T> T doInDevDBHibernateEager(@Nonnull final IHibernateCallback hibernateCallback)
+    public final <T> T executeAndCloseSession(@Nonnull final IHibernateCallback hibernateCallback)
             throws PersistenceException {
         try {
-            initSessionFactoryDevDB();
+            initSessionFactory();
         } catch (final Exception e) {
             throw new PersistenceException("Can't init Hibernate Session", e);
         }
-        _trx = null;
-        Session sessionEager = _sessionFactoryDevDB.openSession();
+        trx = null;
+        Session sessionEager = sessionFactory.openSession();
         T result;
         try {
-            _trx = sessionEager.getTransaction();
-            _trx.setTimeout(_timeout);
-            _trx.begin();
+            trx = sessionEager.getTransaction();
+            trx.setTimeout(timeout);
+            trx.begin();
             result = execute(hibernateCallback, sessionEager);
-            _trx.commit();
+            trx.commit();
         } catch (final HibernateException ex) {
             notifyObservers(ex);
             tryRollback(ex);
@@ -158,41 +189,32 @@ public abstract class AbstractHibernateManager extends Observable implements IHi
         return result;
     }
 
-    /**
-     * 
-     * @param <T>
-     *            The result Object type.
-     * @param hibernateCallback
-     *            The Hibernate call back.
-     * @return the Session resulte.
-     */
     @Override
     @CheckForNull
-    public final <T> T doInDevDBHibernateLazy(@Nonnull final IHibernateCallback hibernateCallback)
+    public final <T> T executeAndKeepSessionOpen(@Nonnull final IHibernateCallback hibernateCallback)
             throws PersistenceException {
-        initSessionFactoryDevDB();
-        _trx = null;
+        trx = null;
         try {
-            if (_sessionLazy == null) {
-                if (_sessionFactoryDevDB == null) {
-                    initSessionFactoryDevDB();
+            if (sessionLazy == null) {
+                if (sessionFactory == null) {
+                    initSessionFactory();
                 }
-                _sessionLazy = _sessionFactoryDevDB.openSession();
+                sessionLazy = sessionFactory.openSession();
             }
-            _trx = _sessionLazy.getTransaction();
-            _trx.setTimeout(_timeout);
-            _trx.begin();
-            final T result = execute(hibernateCallback, _sessionLazy);
-            _trx.commit();
+            trx = sessionLazy.getTransaction();
+            trx.setTimeout(timeout);
+            trx.begin();
+            final T result = execute(hibernateCallback, sessionLazy);
+            trx.commit();
             return result;
         } catch (final HibernateException ex) {
             tryRollback(ex);
             try {
-                if (_sessionLazy != null && _sessionLazy.isOpen()) {
-                    _sessionLazy.close();
+                if (sessionLazy != null && sessionLazy.isOpen()) {
+                    sessionLazy.close();
                 }
             } finally {
-                _sessionLazy = null;
+                sessionLazy = null;
             }
             throw new PersistenceException(ex);
         }
@@ -206,8 +228,8 @@ public abstract class AbstractHibernateManager extends Observable implements IHi
     @Nonnull
     abstract AnnotationConfiguration getCfg();
 
-    private void initSessionFactoryDevDB() {
-        if (_sessionFactoryDevDB != null && !_sessionFactoryDevDB.isClosed()) {
+    private void initSessionFactory() {
+        if (sessionFactory != null && !sessionFactory.isClosed()) {
             return;
         }
         buildConfig();
@@ -222,38 +244,31 @@ public abstract class AbstractHibernateManager extends Observable implements IHi
         }
     }
 
-    /**
-     * @return
-     */
     @Override
     public final boolean isConnected() {
-        return _sessionFactoryDevDB != null ? _sessionFactoryDevDB.isClosed() : false;
+        return sessionFactory != null ? sessionFactory.isClosed() : false;
     }
 
     public final void setSessionFactory(@Nullable final SessionFactory sf) {
         synchronized (HibernateManager.class) {
-            _sessionFactoryDevDB = sf;
+            sessionFactory = sf;
         }
     }
 
     /**
      * 
      * @param timeout
-     *            set the DB Timeout.
+     *            set the DB Timeout in seconds.
      */
     public final void setTimeout(final int timeout) {
-        _timeout = timeout;
+        this.timeout = timeout;
     }
 
-    /**
-     * @param ex
-     * @throws PersistenceException
-     */
     final void tryRollback(@Nonnull final HibernateException ex) {
         notifyObservers(ex);
-        if (_trx != null) {
+        if (trx != null) {
             try {
-                _trx.rollback();
+                trx.rollback();
             } catch (final HibernateException exRb) {
                 LOG.error("Can't rollback", exRb);
             }

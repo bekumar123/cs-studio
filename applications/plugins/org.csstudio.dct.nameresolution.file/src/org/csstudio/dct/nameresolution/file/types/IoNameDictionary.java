@@ -35,7 +35,7 @@ public class IoNameDictionary {
         if (dictionary.containsKey(ioName)) {
             return dictionary.get(ioName).getEcpisAddress();
         } else {
-            return new EpicsAddress("<Error: unknown " + ioName.getIoName() + ">");
+            return new EpicsAddress("%%% Error: unknown " + ioName.getIoName());
         }
     }
 

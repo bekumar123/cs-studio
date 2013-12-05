@@ -56,32 +56,10 @@ public final class OpenDisplayActionHandler implements IWidgetActionHandler {
 		OpenDisplayActionModel displayAction = (OpenDisplayActionModel) action;
 		IPath path = displayAction.getResource();
 
-		// resolve the forwarded aliases
-
-		// ... we take all aliases that are in the namespace of the widget that
-		// was used to execute this action
-		Map<String, String> allAliases = widget.getAllInheritedAliases();
-
-		// ... the aliases that are forwarded to the new display are configured
-		// on the action
-		Map<String, String> forwardedAliases = displayAction.getAliases();
-
-		// ... we resolve the forwarded aliases using all known information
-		for (String key : forwardedAliases.keySet()) {
-			String raw = forwardedAliases.get(key);
-
-			String resolved;
-			try {
-				resolved = ChannelReferenceValidationUtil.createCanonicalName(
-						raw, allAliases);
-
-				forwardedAliases.put(key, resolved);
-			} catch (ChannelReferenceValidationException e) {
-				// ignore
-				LOG.info("Cannot resolve alias [" + raw + "]");
-			}
-
-		}
+		//send current aliases from widget to ActionModel that the model is able to 
+		//resolve the aliases. This is necessary if aliases are dynamic and changes 
+		//after first initialisation of the action.
+		displayAction.setAliasesFromWidget(widget.getAllInheritedAliases());
 
 		// close the parent display if necessary
 
@@ -101,12 +79,14 @@ public final class OpenDisplayActionHandler implements IWidgetActionHandler {
 		if (displayAction.getTarget() == OpenDisplayActionTarget.SHELL) {
 			RunModeService.getInstance().openDisplayShellInRunMode(
 					path,
-					forwardedAliases,
+//					forwardedAliases,
+					displayAction.getAliases(),
 					(RunModeBoxInput) widget.getRoot().getRuntimeContext()
 							.getRunModeBoxInput());
 		} else if (displayAction.getTarget() == OpenDisplayActionTarget.VIEW) {
 			RunModeService.getInstance().openDisplayViewInRunMode(path,
-					forwardedAliases);
+//					forwardedAliases);
+					displayAction.getAliases());
 		} else {
 			throw new IllegalArgumentException("Not implemented yet.");
 		}

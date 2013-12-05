@@ -910,8 +910,10 @@ public class Model
         }
         else
         {
-            XMLWriter.XML(writer, 1, TAG_START, getStartTime());
-            XMLWriter.XML(writer, 1, TAG_END, getEndTime());
+           // XMLWriter.XML(writer, 1, TAG_START, getStartTime());
+           // XMLWriter.XML(writer, 1, TAG_END, getEndTime());
+            XMLWriter.XML(writer, 1, TAG_START, getStartSpecification());
+            XMLWriter.XML(writer, 1, TAG_END, getEndSpecification());
         }
 
         // Time axis config

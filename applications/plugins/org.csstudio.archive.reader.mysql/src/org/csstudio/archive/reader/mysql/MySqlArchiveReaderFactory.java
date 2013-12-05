@@ -1,5 +1,6 @@
+
 /*
- * Copyright (c) 2007 Stiftung Deutsches Elektronen-Synchrotron,
+ * Copyright (c) 2013 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -19,34 +20,25 @@
  * PROJECT IN THE FILE LICENSE.HTML. IF THE LICENSE IS NOT INCLUDED YOU MAY FIND A COPY
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
  */
-/*
- * $Id: PreferenceConstants.java,v 1.3 2009/08/31 12:11:45 hrickens Exp $
- */
-package org.csstudio.config.ioconfig.model.preference;
+
+package org.csstudio.archive.reader.mysql;
+
+import org.csstudio.archive.reader.ArchiveReader;
+import org.csstudio.archive.reader.ArchiveReaderFactory;
 
 /**
- * @author hrickens
- * @author $Author: hrickens $
- * @version $Revision: 1.3 $
- * @since 24.04.2009
+ * The factory for the archive reader that gets its data from the MySQL server.
+ *
+ * @author mmoeller
+ * @since 14.03.2013
  */
-public final class PreferenceConstants {
-    
-    public static final String DDB_FACILITIES = "ddbFacilities";
-    public static final String DDB_LOGBOOK = "ddbLogbook";
-    public static final String DDB_LOGBOOK_MEANING = "ddbLogbookMeaning";
-    public static final String DDB_USER_NAME = "ddbUserName2";
-    public static final String DDB_PASSWORD = "ddbPassword2";
-    public static final String HIBERNATE_CONNECTION_DRIVER_CLASS = "hibernateConnectionDriverClass";
-    public static final String HIBERNATE_CONNECTION_URL = "hibernateConnectionUrl";
-    public static final String DIALECT = "dialect";
-    public static final String SHOW_SQL = "showSql";
-    public static final String DDB_TIMEOUT= "ddb_connection_timeout";
+public class MySqlArchiveReaderFactory implements ArchiveReaderFactory {
 
     /**
-     * Constructor.
+     * {@inheritDoc}
      */
-    private PreferenceConstants() {
-        // Constructor.
+    @Override
+    public ArchiveReader getArchiveReader(String url) throws Exception {
+        return new MySqlArchiveReader(url);
     }
 }

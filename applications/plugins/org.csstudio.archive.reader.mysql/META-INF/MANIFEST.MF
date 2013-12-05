@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Mysql Archive Reader
+Bundle-SymbolicName: org.csstudio.archive.reader.mysql;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Markus Moeller <markus.moeller@desy.de>
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.csstudio.archive.reader;bundle-version="3.2.0",
+ org.csstudio.apputil;bundle-version="3.0.2"
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .,
+ lib/commons-codec-1.6.jar,
+ lib/commons-logging-1.1.1.jar,
+ lib/ws-commons-util-1.0.2.jar,
+ lib/xmlrpc-3.1.jar

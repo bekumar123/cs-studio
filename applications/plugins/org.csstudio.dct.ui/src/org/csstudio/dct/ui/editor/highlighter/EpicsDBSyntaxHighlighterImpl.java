@@ -147,9 +147,7 @@ public class EpicsDBSyntaxHighlighterImpl implements IEpicsDBSyntaxHighlighter {
             int end = start;
             if (start >= 0) {
                 end = export.indexOf('"', start + 1);
-                if (end >= start
-                    && (export.startsWith("%%%", start + 1) || export.startsWith("<Error",
-                                                                                 start + 1))) {
+                if (end >= start && export.startsWith("%%%", start + 1)) {
                     styleRanges.put(start, new StyleRange(start,
                                                           end - start + 1,
                                                           error,

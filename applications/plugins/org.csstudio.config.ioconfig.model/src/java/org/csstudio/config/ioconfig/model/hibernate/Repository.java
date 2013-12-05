@@ -40,11 +40,9 @@ import org.csstudio.config.ioconfig.model.PersistenceException;
 import org.csstudio.config.ioconfig.model.SensorsDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ChannelDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDFileDBO;
-import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.service.internal.Channel4ServicesDBO;
 import org.csstudio.config.ioconfig.model.types.GsdFileId;
 import org.csstudio.config.ioconfig.model.types.ModuleList;
-import org.csstudio.config.ioconfig.model.types.PrototypeList;
 
 /**
  * @author gerke
@@ -54,8 +52,8 @@ import org.csstudio.config.ioconfig.model.types.PrototypeList;
  */
 public final class Repository {
 
-    private static IRepository _REPOSITORY = new HibernateRepository(null);
-    private static List<DocumentDBO> _DOCUMENTS;
+    private static IRepository REPOSITORY = new HibernateRepository(null);
+    private static List<DocumentDBO> DOCUMENTS;
 
     /**
      * Default Constructor
@@ -71,10 +69,10 @@ public final class Repository {
      * @param repository the repository to inject.
      */
     public static void injectIRepository(@Nonnull final IRepository repository) {
-        if(_REPOSITORY!=null) {
-            _REPOSITORY.close();
+        if(REPOSITORY!=null) {
+            REPOSITORY.close();
         }
-        _REPOSITORY = repository;
+        REPOSITORY = repository;
     }
 
     /**
@@ -84,7 +82,7 @@ public final class Repository {
      */
     @Nonnull
     public static String getEpicsAddressString(@Nonnull final String ioName) throws PersistenceException {
-        return _REPOSITORY.getEpicsAddressString(ioName);
+        return REPOSITORY.getEpicsAddressString(ioName);
     }
 
     /**
@@ -93,7 +91,7 @@ public final class Repository {
      */
     @Nonnull
     public static List<String> getIoNames() throws PersistenceException {
-        return _REPOSITORY.getIoNames();
+        return REPOSITORY.getIoNames();
     }
 
     /**
@@ -102,7 +100,7 @@ public final class Repository {
      */
     @Nonnull
     public static List<String> getIoNames(@Nonnull final String iocName) throws PersistenceException {
-        return _REPOSITORY.getIoNames(iocName);
+        return REPOSITORY.getIoNames(iocName);
     }
 
     /**
@@ -114,7 +112,7 @@ public final class Repository {
      */
     @Nonnull
     public static <T> List<T> load(@Nonnull final Class<T> clazz) throws PersistenceException {
-        return _REPOSITORY.load(clazz);
+        return REPOSITORY.load(clazz);
     }
 
     /**
@@ -129,7 +127,7 @@ public final class Repository {
      */
     @CheckForNull
     public static <T> T load(@Nonnull final Class<T> clazz, @Nonnull final Serializable id) throws PersistenceException{
-        return _REPOSITORY.load(clazz, id);
+        return REPOSITORY.load(clazz, id);
     }
 
     /**
@@ -139,7 +137,7 @@ public final class Repository {
      */
     @Nonnull
     public static List<SensorsDBO> loadSensors(@Nonnull final String ioName) throws PersistenceException {
-        return _REPOSITORY.loadSensors(ioName);
+        return REPOSITORY.loadSensors(ioName);
     }
 
     /**
@@ -150,7 +148,7 @@ public final class Repository {
      */
     @CheckForNull
     public static SensorsDBO loadSensor(@Nonnull final String ioName, @Nonnull final String selection) throws PersistenceException {
-        return _REPOSITORY.loadSensor(ioName, selection);
+        return REPOSITORY.loadSensor(ioName, selection);
     }
 
     /**
@@ -160,7 +158,7 @@ public final class Repository {
      */
     @CheckForNull
     public static ModuleList loadModules(@Nonnull final GsdFileId gsdFileId) throws PersistenceException {
-        return _REPOSITORY.loadModules(gsdFileId);
+        return REPOSITORY.loadModules(gsdFileId);
     }
    
     /**
@@ -170,11 +168,10 @@ public final class Repository {
      */
     @Nonnull
     public static List<DocumentDBO> loadDocument(final boolean forceRefresh) throws PersistenceException {
-        if(forceRefresh || _DOCUMENTS == null) {
-            _DOCUMENTS = _REPOSITORY.loadDocument();
+        if(forceRefresh || DOCUMENTS == null) {
+            DOCUMENTS = REPOSITORY.loadDocument();
         }
-
-        return _DOCUMENTS;
+        return DOCUMENTS;
     }
 
     /**
@@ -182,7 +179,7 @@ public final class Repository {
      *            The GSD File to remove.
      */
     public static void removeGSDFiles(@Nonnull final GSDFileDBO gsdFile) throws PersistenceException {
-        _REPOSITORY.removeGSDFiles(gsdFile);
+        REPOSITORY.removeGSDFiles(gsdFile);
     }
 
     /**
@@ -193,7 +190,7 @@ public final class Repository {
      */
     @CheckForNull
     public static <T extends DBClass> void removeNode(@Nonnull final T dbClass) throws PersistenceException {
-        _REPOSITORY.removeNode(dbClass);
+        REPOSITORY.removeNode(dbClass);
     }
 
     /**
@@ -203,7 +200,7 @@ public final class Repository {
      */
     @Nonnull
     public static GSDFileDBO save(@Nonnull final GSDFileDBO gsdFile) throws PersistenceException {
-        return _REPOSITORY.save(gsdFile);
+        return REPOSITORY.save(gsdFile);
     }
 
     /**
@@ -213,7 +210,7 @@ public final class Repository {
      */
     @Nonnull
     public static DocumentDBO save(@Nonnull final DocumentDBO document) throws PersistenceException {
-        return _REPOSITORY.save(document);
+        return REPOSITORY.save(document);
     }
 
     /**
@@ -226,11 +223,11 @@ public final class Repository {
      */
     @Nonnull
     public static <T extends DBClass> T saveOrUpdate(@Nonnull final T dbClass) throws PersistenceException {
-        return _REPOSITORY.saveOrUpdate(dbClass);
+        return REPOSITORY.saveOrUpdate(dbClass);
     }
 
     public static <T> void refresh (@Nonnull final T dbClass) throws PersistenceException {
-        _REPOSITORY.refresh(dbClass);
+        REPOSITORY.refresh(dbClass);
     }
 
     /**
@@ -242,7 +239,7 @@ public final class Repository {
      */
     @Nonnull
     public static <T extends DBClass> T update(@Nonnull final T dbClass) throws PersistenceException {
-        return _REPOSITORY.update(dbClass);
+        return REPOSITORY.update(dbClass);
     }
 
     /**
@@ -252,7 +249,7 @@ public final class Repository {
      */
     @Nonnull
     public static DocumentDBO update(@Nonnull final DocumentDBO document) throws PersistenceException {
-        return _REPOSITORY.update(document);
+        return REPOSITORY.update(document);
     }
 
     /**
@@ -262,7 +259,7 @@ public final class Repository {
      */
     @CheckForNull
     public static ChannelDBO loadChannel(@Nonnull final String ioName) throws PersistenceException {
-        final ChannelDBO loadChannel = _REPOSITORY.loadChannel(ioName);
+        final ChannelDBO loadChannel = REPOSITORY.loadChannel(ioName);
         return loadChannel;
     }
 
@@ -273,7 +270,7 @@ public final class Repository {
      */
     @CheckForNull
     public static Channel4ServicesDBO loadChannelWithInternId(@Nullable final String internId) throws PersistenceException{
-        final Channel4ServicesDBO channel = _REPOSITORY.loadChannelWithInternId(internId);
+        final Channel4ServicesDBO channel = REPOSITORY.loadChannelWithInternId(internId);
         return channel;
     }
 
@@ -284,17 +281,17 @@ public final class Repository {
      */
     @Nonnull
     public static String getShortChannelDesc(@Nonnull final String ioName) throws PersistenceException {
-        return _REPOSITORY.getShortChannelDesc(ioName);
+        return REPOSITORY.getShortChannelDesc(ioName);
     }
 
     @CheckForNull
     public static List<PV2IONameMatcherModelDBO> loadPV2IONameMatcher(@Nonnull final Collection<String> pvName) throws PersistenceException {
-        return _REPOSITORY.loadPV2IONameMatcher(pvName);
+        return REPOSITORY.loadPV2IONameMatcher(pvName);
     }
 
     @CheckForNull
     public static PV2IONameMatcherModelDBO loadIOName2PVMatcher(@Nonnull final String ioNames) throws PersistenceException {
-        return _REPOSITORY.loadIOName2PVMatcher(ioNames);
+        return REPOSITORY.loadIOName2PVMatcher(ioNames);
     }
 
 
@@ -303,8 +300,8 @@ public final class Repository {
      * e.g. DB Sessions
      */
     public static void close() {
-        if(_REPOSITORY!=null) {
-            _REPOSITORY.close();
+        if(REPOSITORY!=null) {
+            REPOSITORY.close();
         }
     }
 
@@ -312,7 +309,7 @@ public final class Repository {
      * @return
      */
     public static boolean isConnected() {
-        return _REPOSITORY==null ? false : _REPOSITORY.isConnected();
+        return REPOSITORY==null ? false : REPOSITORY.isConnected();
     }
 
 }

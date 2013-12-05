@@ -63,6 +63,8 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Optional;
+
 /**
  * @author hrickens
  * @author $Author: hrickens $
@@ -77,10 +79,13 @@ public final class DocumentTableViewerBuilder {
      * @since 06.01.2011
      */
     private static class AddFile2DBSelectionListener implements SelectionListener {
-        private final TableViewer _viewer;
         
-        public AddFile2DBSelectionListener(@Nullable final TableViewer viewer) {
-            _viewer = viewer;
+        private final TableViewer viewer;
+        private final Optional<Runnable> newDocumentAddedCallback;
+        
+        public AddFile2DBSelectionListener(@Nullable final TableViewer viewer, Optional<Runnable> newDocumentAddedCallback) {
+            this.viewer = viewer;
+            this.newDocumentAddedCallback = newDocumentAddedCallback;
         }
         
         @Override
@@ -95,8 +100,8 @@ public final class DocumentTableViewerBuilder {
         
         private void addDocDialog() {
             DocumentDBO firstElement = null;
-            if(_viewer!=null) {
-                final StructuredSelection selection = (StructuredSelection) _viewer.getSelection();
+            if(viewer!=null) {
+                final StructuredSelection selection = (StructuredSelection) viewer.getSelection();
                 firstElement = (DocumentDBO) selection.getFirstElement();
             }
             final AddDocDialog addDocDialog = new AddDocDialog(new Shell(), firstElement);
@@ -104,6 +109,9 @@ public final class DocumentTableViewerBuilder {
                 final DocumentDBO document = addDocDialog.getDocument();
                 try {
                     Repository.save(document);
+                    if (newDocumentAddedCallback.isPresent()) {
+                        newDocumentAddedCallback.get().run();
+                    }
                 } catch (final PersistenceException e) {
                     DeviceDatabaseErrorDialog.open(null, "Can't add File to Node", e);
                     LOG.error("Can't add File to Node", e);
@@ -221,7 +229,7 @@ public final class DocumentTableViewerBuilder {
     }
     
     @Nonnull
-    public static TableViewer crateDocumentTable(@Nonnull final Composite group, final boolean showHierarchy) {
+    public static TableViewer createDocumentTable(@Nonnull final Composite group, final boolean showHierarchy) {
         final TableColumnLayout tableColumnLayout = new TableColumnLayout();
         final Composite tableComposite = new Composite(group, SWT.BORDER);
         GridDataFactory.fillDefaults().grab(true, true).applyTo(tableComposite);
@@ -268,8 +276,10 @@ public final class DocumentTableViewerBuilder {
     }
     
     @Nonnull 
-    public static AddFile2DBSelectionListener getAddFile2DBSelectionListener(@Nonnull final TableViewer viewer) {
-        return new AddFile2DBSelectionListener(viewer);
+    public static AddFile2DBSelectionListener getAddFile2DBSelectionListener(
+            @Nonnull final TableViewer viewer,
+            Optional<Runnable> newDocumentAddedCallback) {
+        return new AddFile2DBSelectionListener(viewer, newDocumentAddedCallback);
     }
     
     public static void makeMenus(@Nonnull final TableViewer viewer) {
@@ -287,7 +297,7 @@ public final class DocumentTableViewerBuilder {
                           .getImage(ISharedImages.IMG_ETOOL_SAVEAS_EDIT));
         
         final MenuItem renameItem = new MenuItem(menu, SWT.PUSH);
-        renameItem.addSelectionListener(new AddFile2DBSelectionListener(viewer));
+        renameItem.addSelectionListener(new AddFile2DBSelectionListener(viewer, Optional.<Runnable>absent()));
         renameItem.setText("&Update");
         
         viewer.getTable().setMenu(menu);

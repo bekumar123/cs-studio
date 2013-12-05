@@ -28,7 +28,7 @@ public class InfoAreaComponent implements IComponent {
     private Composite info;   
     private TabFolder tabFolder;
     
-    public InfoAreaComponent(Composite infoDialogArea, List<SlaveCfgData> slaveCfgDataList) {
+    public InfoAreaComponent(final Composite infoDialogArea, final List<SlaveCfgData> slaveCfgDataList) {
         super();
         this.infoDialogArea = infoDialogArea;
         this.slaveCfgDataList = slaveCfgDataList;
@@ -48,7 +48,7 @@ public class InfoAreaComponent implements IComponent {
         refresh(slaveCfgDataList);
     }
     
-    public void refresh(List<SlaveCfgData> slaveCfgDataList) {
+    public void refresh(final List<SlaveCfgData> slaveCfgDataList) {
 
         this.slaveCfgDataList = slaveCfgDataList;
           

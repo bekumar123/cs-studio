@@ -16,7 +16,7 @@ import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.service.internal.Channel4ServicesDBO;
 import org.csstudio.config.ioconfig.model.types.GsdFileId;
 import org.csstudio.config.ioconfig.model.types.ModuleList;
-import org.csstudio.config.ioconfig.model.types.PrototypeList;
+import org.csstudio.config.ioconfig.model.types.ConfiguredModuleList;
 
 /**
  * @author hrickens
@@ -184,12 +184,6 @@ public class DummyRepository implements IRepository {
     @Override
     public <T> void refresh(T dbClass) throws PersistenceException {
         // TODO Auto-generated method stub
-    }
-
-    @Override
-    public <T> void detach(T object) throws PersistenceException {
-        // TODO Auto-generated method stub
-        
     }
 
     @Override

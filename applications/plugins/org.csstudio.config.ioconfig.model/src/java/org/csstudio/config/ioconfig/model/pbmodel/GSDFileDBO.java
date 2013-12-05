@@ -43,13 +43,16 @@ import javax.persistence.Lob;
 import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
-import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.csstudio.config.ioconfig.model.Diagnose;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdFileParser;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.ParsedGsdFileModel;
+import org.csstudio.config.ioconfig.model.types.ParsedModuleInfo;
+import org.csstudio.config.ioconfig.model.types.RepositoryRefreshable;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 /**
  * @author hrickens
@@ -59,7 +62,7 @@ import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.ParsedGsdFileModel;
  */
 @Entity
 @Table(name = "ddb_GSD_File")
-public class GSDFileDBO implements Serializable {
+public class GSDFileDBO implements Serializable, RepositoryRefreshable {
 
     private static final long serialVersionUID = 1L;
     /** The DB ID. */
@@ -154,7 +157,10 @@ public class GSDFileDBO implements Serializable {
     @OrderBy("moduleId")
     @MapKey(name = "moduleId")
     @CheckForNull
-    public Map<Integer, GSDModuleDBO> getGSDModules() {
+    //
+    // only used by Hibernate
+    //
+    protected Map<Integer, GSDModuleDBO> getGSDModules() {
         return _gSDModules;
     }
 
@@ -163,7 +169,10 @@ public class GSDFileDBO implements Serializable {
      * @param gsdModules
      *            set the Modules for this GSD File.
      */
-    public void setGSDModules(@Nullable final Map<Integer, GSDModuleDBO> gsdModules) {
+    //
+    // only used by Hibernate
+    //
+    protected void setGSDModules(@Nullable final Map<Integer, GSDModuleDBO> gsdModules) {
         _gSDModules = gsdModules;
     }
 
@@ -180,6 +189,7 @@ public class GSDFileDBO implements Serializable {
     }
 
     /**
+     * Only used for testing
      * 
      * @param gSDModule
      *            add a Module to this file.
@@ -214,6 +224,12 @@ public class GSDFileDBO implements Serializable {
     @Nonnull
     public ParsedGsdFileModel getParsedGsdFileModel() {
         return _parsedGsdFileModel;
+    }
+
+    @Transient
+    @Nonnull
+    public ParsedModuleInfo getParsedModuleInfo() {
+        return new ParsedModuleInfo(_parsedGsdFileModel.getModuleMap());
     }
 
 }

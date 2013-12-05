@@ -44,7 +44,9 @@ import org.csstudio.config.ioconfig.model.NodeType;
 import org.csstudio.config.ioconfig.model.PersistenceException;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdFileParser;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdModuleModel2;
+import org.csstudio.config.ioconfig.model.types.ModuleName;
 import org.csstudio.config.ioconfig.model.types.ModuleNumber;
+import org.csstudio.config.ioconfig.model.types.ModuleVersionInfo;
 import org.hibernate.annotations.BatchSize;
 
 import com.google.common.base.Optional;
@@ -227,6 +229,12 @@ public class ModuleDBO extends AbstractNodeSharedImpl<SlaveDBO, ChannelStructure
 
     @Transient
     @CheckForNull
+    public void setGSDFile(GSDFileDBO gsdFileDBO) {
+        getSlave().setGSDFile(gsdFileDBO);
+    }
+
+    @Transient
+    @CheckForNull
     public GSDModuleDBO getGSDModule() {
         final GSDFileDBO gsdFile = getGSDFile();
         return gsdFile == null ? null : gsdFile.getGSDModule(getModuleNumber());
@@ -240,7 +248,8 @@ public class ModuleDBO extends AbstractNodeSharedImpl<SlaveDBO, ChannelStructure
         if (!moduleNumber.isPresent()) {
             return null;
         }
-        return gsdFile == null ? null : gsdFile.getParsedGsdFileModel().getModule(moduleNumber.get().getModuleNumberWithoutVersionInfo());
+        return gsdFile == null ? null : gsdFile.getParsedGsdFileModel().getModule(
+                moduleNumber.get().getModuleNumberWithoutVersionInfo());
     }
 
     public int getInputOffset() {
@@ -438,8 +447,8 @@ public class ModuleDBO extends AbstractNodeSharedImpl<SlaveDBO, ChannelStructure
         if (firstAccess) {
             _configurationData.set(index, value);
         } else {
-            Integer oldValue = _configurationData.get(index) ;
-            _configurationData.set(index, value | oldValue);                                            
+            Integer oldValue = _configurationData.get(index);
+            _configurationData.set(index, value | oldValue);
         }
     }
 
@@ -492,25 +501,19 @@ public class ModuleDBO extends AbstractNodeSharedImpl<SlaveDBO, ChannelStructure
         if (getSortIndex() != null) {
             sb.append(getSortIndex());
         }
-        
+
         Optional<ModuleNumber> moduleNumber = ModuleNumber.moduleNumber(getModuleNumber());
-        String moduleNumberAsString;
-        Optional <String> versionNumber = Optional.absent();
+        String moduleNumberAsString = "?";
+
         if (moduleNumber.isPresent()) {
             moduleNumberAsString = moduleNumber.get().getModuleNumberWithoutVersionInfo().toString();
-            versionNumber = moduleNumber.get().getVersionAsString();
-        } else {
-            moduleNumberAsString = "?";
         }
+        
         sb.append('[').append(moduleNumberAsString).append(']');
         if (getName() != null) {
             sb.append(':').append(getName());
-        }        
-        
-        if (versionNumber.isPresent()) {
-            sb.append(" " + versionNumber.get());
         }
-        
+
         return sb.toString();
     }
 

@@ -19,15 +19,8 @@ import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.service.internal.Channel4ServicesDBO;
 import org.csstudio.config.ioconfig.model.types.GsdFileId;
 import org.csstudio.config.ioconfig.model.types.ModuleList;
-import org.csstudio.config.ioconfig.model.types.PrototypeList;
+import org.csstudio.config.ioconfig.model.types.ConfiguredModuleList;
 
-/**
- *
- * @author hrickens
- * @author $Author: hrickens $
- * @version $Revision: 1.5 $
- * @since 30.04.2009
- */
 public interface IRepository {
 
     /**
@@ -42,18 +35,6 @@ public interface IRepository {
     @Nonnull
     <T> void refresh(@Nonnull final T object) throws PersistenceException;
     
-    /**
-     * @param <T>
-     *            ClassTyp of the DBClass
-     * @param dbClass
-     *            the Data class to detach.
-     * @return the Saved Data class.
-     * @throws PersistenceException
-     * @throws PersistenceException
-     */
-    @Nonnull
-    <T> void detach(@Nonnull final T object) throws PersistenceException;
-        
     /**
      * @param <T>
      *            ClassTyp of the DBClass

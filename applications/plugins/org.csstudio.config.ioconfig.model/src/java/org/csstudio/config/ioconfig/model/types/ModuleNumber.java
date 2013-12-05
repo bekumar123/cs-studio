@@ -9,8 +9,6 @@ public class ModuleNumber implements Comparable<ModuleNumber> {
     private final static int GAP = 10000;
     
     private final Integer value;
-
-    public static ModuleNumber NON_EXISTING_MODULE = new ModuleNumber(-1000); 
             
     private ModuleNumber(Integer value) {
         Preconditions.checkNotNull(value, "value must not be null");

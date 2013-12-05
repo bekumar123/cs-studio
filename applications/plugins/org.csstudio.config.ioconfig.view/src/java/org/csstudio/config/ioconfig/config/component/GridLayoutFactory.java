@@ -2,7 +2,7 @@ package org.csstudio.config.ioconfig.config.component;
 
 import org.eclipse.swt.layout.GridLayout;
 
-public class GridLayoutFactory {
+class GridLayoutFactory {
 
     private int numColumns = 0;
     private int marginLeft = 0;

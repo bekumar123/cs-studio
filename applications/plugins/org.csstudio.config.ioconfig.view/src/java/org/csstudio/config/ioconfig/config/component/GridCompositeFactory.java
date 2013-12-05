@@ -13,7 +13,6 @@ public class GridCompositeFactory {
     private int marginLeft = 0;
     private int horizontalAlignment = GridData.HORIZONTAL_ALIGN_BEGINNING;
     private int verticalAlignment = GridData.VERTICAL_ALIGN_BEGINNING;
-    private boolean assignLayoutData = false;
 
     public GridCompositeFactory parent(Composite parent) {
         this.parent = parent;
@@ -40,22 +39,17 @@ public class GridCompositeFactory {
         return this;
     }
 
-    public GridCompositeFactory assignLayoutData() {
-        assignLayoutData = true;
-        return this;
-    }
-
     public Composite build() {
         final Composite composite = new Composite(parent, SWT.NONE);
 
-        if (assignLayoutData) {
+        if (parent.getLayout() instanceof GridLayout) {
             GridData layoutData = new GridData(horizontalAlignment | verticalAlignment);
             layoutData.grabExcessHorizontalSpace = true;
             layoutData.grabExcessVerticalSpace = true;
             layoutData.horizontalIndent = 0;
             composite.setLayoutData(layoutData);
         }
-        
+
         GridLayout gridLayout = new GridLayoutFactory().column(numColumns).marginLeft(marginLeft).build();
         composite.setLayout(gridLayout);
 

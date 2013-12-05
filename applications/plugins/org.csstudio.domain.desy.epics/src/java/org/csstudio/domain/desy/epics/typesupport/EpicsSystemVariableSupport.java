@@ -322,19 +322,13 @@ public abstract class EpicsSystemVariableSupport<T> extends
 
 	@Nonnull
 	public static AlarmSeverity getAlarmSeverity(@Nonnull final EpicsAlarm alarm) {
-		AlarmSeverity serverty=AlarmSeverity.UNDEFINED;
-		switch(alarm.getSeverity()){
-			case  INVALID:serverty=AlarmSeverity.INVALID; break;
-			case MAJOR:serverty=AlarmSeverity.MAJOR;break;
-			case MINOR:serverty=AlarmSeverity.MINOR; break;
-			case NO_ALARM:serverty=AlarmSeverity.NONE;break;
-			case UNKNOWN:serverty=AlarmSeverity.UNDEFINED;break;
-		default:
-			break;
-
-		}
-		return serverty;
-
+			switch(alarm.getSeverity()){
+			case  INVALID: return AlarmSeverity.INVALID;
+			case MAJOR:return AlarmSeverity.MAJOR;
+			case MINOR:return AlarmSeverity.MINOR;
+			case NO_ALARM: return AlarmSeverity.NONE;
+			default:return AlarmSeverity.UNDEFINED;
+			}
 	}
 
 }

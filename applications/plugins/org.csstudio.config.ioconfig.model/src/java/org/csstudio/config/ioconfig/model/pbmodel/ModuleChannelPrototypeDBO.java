@@ -36,6 +36,9 @@ import javax.persistence.Transient;
 import org.csstudio.config.ioconfig.model.DBClass;
 import org.csstudio.config.ioconfig.model.PersistenceException;
 import org.csstudio.config.ioconfig.model.hibernate.Repository;
+import org.csstudio.config.ioconfig.model.types.ModuleNumber;
+
+import com.google.common.base.Optional;
 
 /**
  * @author hrickens
@@ -134,6 +137,11 @@ public class ModuleChannelPrototypeDBO extends DBClass implements Comparable<Mod
     @CheckForNull
     public Integer getByteOrdering() {
         return _byteOrdering;
+    }
+    
+    @Transient
+    public Optional<ModuleNumber> getModuleNumber() {
+        return ModuleNumber.moduleNumber(_gSDModule.getModuleId());
     }
     
     @ManyToOne

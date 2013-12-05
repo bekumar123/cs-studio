@@ -21,7 +21,7 @@
  *
  * $Id: DesyKrykCodeTemplates.xml,v 1.7 2010/04/20 11:43:22 bknerr Exp $
  */
-package org.csstudio.config.ioconfig.model.pbmodel;
+package org.csstudio.config.ioconfig.model.types;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,9 +29,13 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import org.csstudio.config.ioconfig.model.pbmodel.SlaveCfgData;
+
+import com.google.common.collect.ImmutableList;
+
 /**
  * Create SlaveCfgData's from a set of parameter
- *
+ * 
  * @author hrickens
  * @author $Author: hrickens $
  * @version $Revision: 1.7 $
@@ -44,14 +48,14 @@ public class SlaveCfgDataBuilder {
     /**
      * Constructor.
      */
-    public SlaveCfgDataBuilder(@Nonnull final List<Integer> slaveCfgData) {
-       final Iterator<Integer> iterator = slaveCfgData.iterator();
+    SlaveCfgDataBuilder(@Nonnull final List<Integer> slaveCfgData) {
+        final Iterator<Integer> iterator = slaveCfgData.iterator();
         while (iterator.hasNext()) {
             final Integer parameter = iterator.next();
             // Test Simple oder Special Header
-            if( parameter != 0 && (parameter & 0x30) == 0) {
+            if (parameter != 0 && (parameter & 0x30) == 0) {
                 int parameter1;
-                if(iterator.hasNext()) {
+                if (iterator.hasNext()) {
                     parameter1 = iterator.next();
                     _slaveCfgDataList.add(new SlaveCfgData(parameter, parameter1));
 
@@ -64,6 +68,7 @@ public class SlaveCfgDataBuilder {
 
     @Nonnull
     public List<SlaveCfgData> getSlaveCfgDataList() {
-        return _slaveCfgDataList;
+        return ImmutableList.copyOf(_slaveCfgDataList);
     }
+
 }

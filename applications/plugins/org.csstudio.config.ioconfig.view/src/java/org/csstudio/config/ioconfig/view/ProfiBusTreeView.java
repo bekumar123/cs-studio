@@ -31,7 +31,9 @@ import org.csstudio.config.ioconfig.commands.CallEditor;
 import org.csstudio.config.ioconfig.commands.CallNewChildrenNodeEditor;
 import org.csstudio.config.ioconfig.commands.CallNewFacilityEditor;
 import org.csstudio.config.ioconfig.commands.CallNewSiblingNodeEditor;
+import org.csstudio.config.ioconfig.config.dialogs.LongRunningOperation;
 import org.csstudio.config.ioconfig.config.view.dialog.prototype.ChannelConfigDialog;
+import org.csstudio.config.ioconfig.config.view.dialog.prototype.components.ChannelConfigDialogDataModel;
 import org.csstudio.config.ioconfig.config.view.helper.ProfibusHelper;
 import org.csstudio.config.ioconfig.editorparts.AbstractNodeEditor;
 import org.csstudio.config.ioconfig.model.AbstractNodeSharedImpl;
@@ -45,13 +47,15 @@ import org.csstudio.config.ioconfig.model.pbmodel.MasterDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ProfibusSubnetDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.SlaveDBO;
+import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDataProvider;
+import org.csstudio.config.ioconfig.model.types.ModuleList;
 import org.csstudio.config.ioconfig.view.actions.CreateStatisticAction;
 import org.csstudio.config.ioconfig.view.actions.CreateWinModAction;
 import org.csstudio.config.ioconfig.view.actions.CreateXMLConfigAction;
 import org.csstudio.config.ioconfig.view.actions.DeleteNodeAction;
 import org.csstudio.config.ioconfig.view.actions.PasteNodeAction;
 import org.csstudio.config.ioconfig.view.actions.RenameNodeAction;
-import org.csstudio.config.ioconfig.view.serachview.SearchDialog;
+import org.csstudio.config.ioconfig.view.searchview.SearchDialog;
 import org.csstudio.config.ioconfig.view.treeview.DBLoaderJob;
 import org.csstudio.config.ioconfig.view.treeview.HibernateDBPreferenceChangeListener;
 import org.csstudio.config.ioconfig.view.treeview.ILoader;
@@ -103,6 +107,8 @@ import org.eclipse.ui.part.DrillDownAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Optional;
+
 /**
  * @author hrickens
  * @author $Author: hrickens $
@@ -122,7 +128,8 @@ public class ProfiBusTreeView extends Composite implements ILoader {
     /**
      * The ProfiBus Tree View.
      */
-    private final TreeViewer _viewer;
+    private static TreeViewer _viewer;
+    
     /**
      * The parent Composite for the Node Config Composite.
      */
@@ -225,6 +232,8 @@ public class ProfiBusTreeView extends Composite implements ILoader {
     public ProfiBusTreeView(@Nonnull final Composite parent, final int style, @Nonnull final IViewSite site) {
 
         super(parent, style);
+        
+        
         new InstanceScope().getNode(IOConfigActivator.PLUGIN_ID).addPreferenceChangeListener(
                 new HibernateDBPreferenceChangeListener(getViewer(), this));
         _site = site;
@@ -316,6 +325,10 @@ public class ProfiBusTreeView extends Composite implements ILoader {
         });
     }
 
+    public static void select(Object object) {
+        ProfiBusTreeView._viewer.setSelection(new StructuredSelection(object));
+    }
+    
     /**
      * Add a new Facility to the tree root.
      * 
@@ -334,7 +347,7 @@ public class ProfiBusTreeView extends Composite implements ILoader {
     public boolean closeOpenEditor() {
         boolean isOpen = false;
         if (_openNodeEditor != null) {
-            _openNodeEditor.perfromClose();
+            _openNodeEditor.performClose();
             if (_openNodeEditor != null) {
                 isOpen = _openNodeEditor.isSaveOnCloseNeeded();
                 final StructuredSelection selection = new StructuredSelection(_openNodeEditor.getNode());
@@ -533,7 +546,6 @@ public class ProfiBusTreeView extends Composite implements ILoader {
                     try {
                         node.assembleEpicsAddressString();
                     } catch (final PersistenceException e) {
-                        // TODO Handle DDB Error
                         e.printStackTrace();
                     }
                 }
@@ -543,12 +555,10 @@ public class ProfiBusTreeView extends Composite implements ILoader {
         _assembleEpicsAddressStringAction.setToolTipText("Refesh from all childen the EPICS Address Strings");
         _assembleEpicsAddressStringAction.setImageDescriptor(CustomMediaFactory.getInstance()
                 .getImageDescriptorFromPlugin(IOConfigActivatorUI.PLUGIN_ID, "icons/refresh.gif"));
-
     }
 
     private void makeCopyNodeAction() {
         _copyNodeAction = new Action() {
-
             @Override
             @SuppressWarnings("unchecked")
             public void run() {
@@ -581,7 +591,6 @@ public class ProfiBusTreeView extends Composite implements ILoader {
 
     private void makeCutNodeAction() {
         _cutNodeAction = new Action() {
-
             @Override
             @SuppressWarnings("unchecked")
             public void run() {
@@ -623,6 +632,8 @@ public class ProfiBusTreeView extends Composite implements ILoader {
 
     }
 
+    private ModuleList moduleList;
+
     /**
      * Generate a Action that opens the 'Manage Prototypes' view.
      */
@@ -631,10 +642,50 @@ public class ProfiBusTreeView extends Composite implements ILoader {
             @Override
             public void run() {
                 if (getSelectedNodes().getFirstElement() instanceof SlaveDBO) {
-                    final SlaveDBO selectedSlave = (SlaveDBO) getSelectedNodes().getFirstElement();                                   
-                    ChannelConfigDialog channelConfigDialog = new ChannelConfigDialog(Display.getCurrent()
-                            .getActiveShell(), selectedSlave);                    
+
+                    final SlaveDBO selectedSlave = (SlaveDBO) getSelectedNodes().getFirstElement();
+
+                    Runnable runInNewThread = new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                
+                                moduleList = selectedSlave.retrieveModuleList();
+                                
+                                //@formatter:off
+                                moduleList.addMissingModules(
+                                        selectedSlave.getParsedModuleInfo(),
+                                        selectedSlave.getGSDFile());
+                                        //@formatter:on
+                                
+                                if (moduleList.hasAddedMissingModules()) {
+                                    moduleList.sort();
+                                    Repository.refresh(selectedSlave.getGSDFile());
+                                }
+
+                            } catch (PersistenceException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    };
+
+                    LongRunningOperation.run(runInNewThread, Optional.<Runnable>absent());
+
+                    //@formatter:off
+                    ChannelConfigDialog channelConfigDialog = new ChannelConfigDialog(
+                            Display.getCurrent()
+                            .getActiveShell(), 
+                            new ChannelConfigDialogDataModel(
+                                    selectedSlave.getGSDFile(),
+                                    (GSDModuleDataProvider)selectedSlave, 
+                                    moduleList,
+                                    selectedSlave.getParsedModuleInfo()));
+                            //@formatter:on
+                    
                     channelConfigDialog.open();
+                    
+                    getTreeViewer().refresh();
+
                 }
             }
         };
@@ -905,7 +956,7 @@ public class ProfiBusTreeView extends Composite implements ILoader {
         getViewer().setInput("Please wait a moment");
         final AbstractNodeEditor<?> openEditor = getOpenEditor();
         if (openEditor != null) {
-            openEditor.perfromClose();
+            openEditor.performClose();
         }
         try {
             getViewer().getTree().setEnabled(false);

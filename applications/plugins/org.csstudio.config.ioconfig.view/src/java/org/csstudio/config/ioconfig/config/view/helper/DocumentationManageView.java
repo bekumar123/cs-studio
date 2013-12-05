@@ -60,11 +60,14 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Optional;
 
 /**
  * @author hrickens
@@ -99,10 +102,10 @@ public class DocumentationManageView extends Composite {
         }
 
         private void addAll() {
-            getDocumentAvailable().addAll(getDocumentResorce());
-            getDocumentResorce().clear();
-            setDocAvailableTableInput();
-            setDocResorceTableInput();
+            getDocumentSelected().addAll(getDocumentResource());
+            getDocumentResource().clear();
+            setDocSelectedTableInput();
+            setDocResourceTableInput();
             setSaveButton();
         }
     }
@@ -134,12 +137,11 @@ public class DocumentationManageView extends Composite {
 
         @SuppressWarnings("unchecked")
         private void doAddDoc() {
-            final IStructuredSelection sSelect = (IStructuredSelection) _docResorceTableViewer
-            .getSelection();
-            getDocumentResorce().removeAll(sSelect.toList());
-            getDocumentAvailable().addAll(sSelect.toList());
-            setDocAvailableTableInput();
-            setDocResorceTableInput();
+            final IStructuredSelection sSelect = (IStructuredSelection) documentResourcesTableViewer.getSelection();
+            getDocumentResource().removeAll(sSelect.toList());
+            getDocumentSelected().addAll(sSelect.toList());
+            setDocSelectedTableInput();
+            setDocResourceTableInput();
             setSaveButton();
         }
     }
@@ -157,11 +159,13 @@ public class DocumentationManageView extends Composite {
 
         /**
          * Constructor.
+         * 
          * @param search
          * @param filter
          * @param docResorceTableViewer
          */
-        protected FilterModifyListener(@Nonnull final Text search, @Nonnull final ViewerFilterExtension filter, @Nonnull final TableViewer targetTableViewer) {
+        protected FilterModifyListener(@Nonnull final Text search, @Nonnull final ViewerFilterExtension filter,
+                @Nonnull final TableViewer targetTableViewer) {
             _search = search;
             _filter = filter;
             _targetTableViewer = targetTableViewer;
@@ -200,8 +204,8 @@ public class DocumentationManageView extends Composite {
 
         private void refreshDocuments() {
             try {
-                setDocumentResorce(Repository.loadDocument(true));
-                setDocResorceTableInput();
+                setDocumentResource(Repository.loadDocument(true));
+                setDocResourceTableInput();
             } catch (final PersistenceException e) {
                 DeviceDatabaseErrorDialog.open(null, "Can't load Documents!", e);
                 LOG.error("Can't load Documents!", e);
@@ -225,19 +229,19 @@ public class DocumentationManageView extends Composite {
 
         @Override
         public void widgetDefaultSelected(@Nonnull final SelectionEvent e) {
-            getDocumentResorce().addAll(getDocumentAvailable());
-            getDocumentAvailable().clear();
-            setDocAvailableTableInput();
-            setDocResorceTableInput();
+            getDocumentResource().addAll(getDocumentSelected());
+            getDocumentSelected().clear();
+            setDocSelectedTableInput();
+            setDocResourceTableInput();
             setSaveButton();
         }
 
         @Override
         public void widgetSelected(@Nonnull final SelectionEvent e) {
-            getDocumentResorce().addAll(getDocumentAvailable());
-            getDocumentAvailable().clear();
-            setDocAvailableTableInput();
-            setDocResorceTableInput();
+            getDocumentResource().addAll(getDocumentSelected());
+            getDocumentSelected().clear();
+            setDocSelectedTableInput();
+            setDocResourceTableInput();
             setSaveButton();
         }
     }
@@ -252,6 +256,7 @@ public class DocumentationManageView extends Composite {
 
         /**
          * Constructor.
+         * 
          * @param docAvailableTableViewer
          */
         public RemoveSelectionListener() {
@@ -270,12 +275,11 @@ public class DocumentationManageView extends Composite {
 
         @SuppressWarnings("unchecked")
         private void doRemoveDoc() {
-            final IStructuredSelection sSelect = (IStructuredSelection) _docAvailableTableViewer
-            .getSelection();
-            getDocumentResorce().addAll(sSelect.toList());
-            getDocumentAvailable().removeAll(sSelect.toList());
-            setDocAvailableTableInput();
-            setDocResorceTableInput();
+            final IStructuredSelection sSelect = (IStructuredSelection) selectedDocumentsTableViewer.getSelection();
+            getDocumentResource().addAll(sSelect.toList());
+            getDocumentSelected().removeAll(sSelect.toList());
+            setDocSelectedTableInput();
+            setDocResourceTableInput();
             setSaveButton();
         }
     }
@@ -290,31 +294,30 @@ public class DocumentationManageView extends Composite {
         private String _filterString = "";
 
         @Override
-        public boolean select(@Nullable final Viewer viewer,
-                              @Nullable final Object parentElement,
-                              @Nullable final Object element) {
-            if(element instanceof IDocument) {
+        public boolean select(@Nullable final Viewer viewer, @Nullable final Object parentElement,
+                @Nullable final Object element) {
+            if (element instanceof IDocument) {
                 boolean status = false;
                 final IDocument doc = (IDocument) element;
 
                 final String subject = doc.getSubject();
-                if(subject != null) {
+                if (subject != null) {
                     status |= subject.toLowerCase().contains(_filterString.toLowerCase());
                 }
                 final String mimeType = doc.getMimeType();
-                if(mimeType != null) {
+                if (mimeType != null) {
                     status |= mimeType.toLowerCase().contains(_filterString.toLowerCase());
                 }
                 final String desclong = doc.getDesclong();
-                if(desclong != null) {
+                if (desclong != null) {
                     status |= desclong.toLowerCase().contains(_filterString.toLowerCase());
                 }
                 final Date createdDate = doc.getCreatedDate();
-                if(createdDate != null) {
+                if (createdDate != null) {
                     status |= createdDate.toString().contains(_filterString);
                 }
                 final String keywords = doc.getKeywords();
-                if(keywords != null) {
+                if (keywords != null) {
                     status |= keywords.toLowerCase().contains(_filterString.toLowerCase());
                 }
                 return status;
@@ -329,61 +332,52 @@ public class DocumentationManageView extends Composite {
 
     private static final Logger LOG = LoggerFactory.getLogger(DocumentationManageView.class);
 
-    /**
-     * The table with a list of all assigned documents.
-     */
-    private TableViewer _docAvailableTableViewer;
-    /**
-     * The table with a list of all not assigned documents.
-     */
-    private TableViewer _docResorceTableViewer;
-    /**
-     * A List whit the assigned Documents.
-     */
-    private List<DocumentDBO> _documentAvailable = new ArrayList<DocumentDBO>();
-    /**
-     * A List whit all Documents.
-     */
-    private List<DocumentDBO> _documentResorce;
-    private boolean _isActivate;
-    private final Composite _mainComposite;
-    private ArrayList<DocumentDBO> _originDocs;
+    private TableViewer selectedDocumentsTableViewer;
+    
+    private TableViewer documentResourcesTableViewer;
 
-    private final IHasDocumentableObject _parentNodeConfig;
+    private List<DocumentDBO> selectedDocuments = new ArrayList<DocumentDBO>();
+    
+    private List<DocumentDBO> allDocumentResources;
+    
+    private List<DocumentDBO> documentResources;
 
-    /**
-     * @param parent
-     *            The Parent Composite.
-     * @param style
-     *            The Composite Style.
-     * @param parentNodeConfig
-     *            The parent Node configuration.
-     */
-    public DocumentationManageView(@Nonnull final Composite parent,
-                                   final int style,
-                                   @Nonnull final IHasDocumentableObject parentNodeConfig) {
+    // list with documents before any changes to the selection were made
+    private ArrayList<DocumentDBO> originalDocumentSelection;
+
+    private boolean isActivate;
+    private final Composite mainComposite;
+    
+    private final IHasDocumentableObject parentNode;
+
+    //@formatter:off
+    public DocumentationManageView(
+            @Nonnull final Composite parent, 
+            final int style,
+            @Nonnull final IHasDocumentableObject parentNode) {
+            //@formatter:on
+
         super(parent, style);
         this.setLayout(new GridLayout(1, false));
         final GridData layoutData = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
         this.setLayoutData(layoutData);
-        _parentNodeConfig = parentNodeConfig;
+        this.parentNode = parentNode;
 
         // -Body
         final GridLayoutFactory fillDefaults = GridLayoutFactory.fillDefaults();
-        final ScrolledComposite scrolledComposite = new ScrolledComposite(this, SWT.H_SCROLL
-                                                                          | SWT.V_SCROLL);
+        final ScrolledComposite scrolledComposite = new ScrolledComposite(this, SWT.H_SCROLL | SWT.V_SCROLL);
         scrolledComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
         scrolledComposite.setExpandVertical(true);
         scrolledComposite.setExpandHorizontal(true);
         fillDefaults.numColumns(3);
         scrolledComposite.setLayout(fillDefaults.create());
 
-        _mainComposite = new Composite(scrolledComposite, SWT.NONE);
-        _mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        mainComposite = new Composite(scrolledComposite, SWT.NONE);
+        mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         fillDefaults.numColumns(3);
-        _mainComposite.setLayout(fillDefaults.create());
+        mainComposite.setLayout(fillDefaults.create());
 
-        scrolledComposite.setContent(_mainComposite);
+        scrolledComposite.setContent(mainComposite);
         scrolledComposite.setMinSize(700, 250);
 
         makeSearchDocTable();
@@ -392,18 +386,18 @@ public class DocumentationManageView extends Composite {
     }
 
     public final void cancel() {
-        if(_documentResorce != null) {
-            _documentResorce.addAll(_documentAvailable);
+        if (documentResources != null) {
+            documentResources.addAll(selectedDocuments);
         }
-        _documentAvailable.clear();
-        if(_originDocs != null) {
-            _documentAvailable.addAll(_originDocs);
-            if(_documentResorce != null) {
-                _documentResorce.removeAll(_originDocs);
+        selectedDocuments.clear();
+        if (originalDocumentSelection != null) {
+            selectedDocuments.addAll(originalDocumentSelection);
+            if (documentResources != null) {
+                documentResources.removeAll(originalDocumentSelection);
             }
         }
-        setDocAvailableTableInput();
-        setDocResorceTableInput();
+        setDocSelectedTableInput();
+        setDocResourceTableInput();
     }
 
     /**
@@ -411,17 +405,13 @@ public class DocumentationManageView extends Composite {
      */
     @Nonnull
     public final Set<DocumentDBO> getDocuments() {
-        final Set<DocumentDBO> set = new HashSet<DocumentDBO>(_documentAvailable);
+        final Set<DocumentDBO> set = new HashSet<DocumentDBO>(selectedDocuments);
         return set;
     }
 
     public final void onActivate() {
-        if(!_isActivate) {
-            final IDocumentable node = _parentNodeConfig.getDocumentableObject();
-            if(node != null) {
-                setDocs(node.getDocuments());
-                _isActivate = true;
-            }
+        if (!isActivate) {
+            refresh();
         }
     }
 
@@ -451,14 +441,35 @@ public class DocumentationManageView extends Composite {
      * @param chosserComposite
      */
     private void buildNewDocButton(@Nonnull final Composite chosserComposite) {
+        
         final Button addNewDocButton = new Button(chosserComposite, SWT.PUSH);
+        
         addNewDocButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
         addNewDocButton.setText("<New");
         addNewDocButton.setToolTipText("Add a new Document from the File-System");
         addNewDocButton.setToolTipText("Add a new Document to the Database");
         addNewDocButton.setEnabled(true);
-        addNewDocButton.addSelectionListener(DocumentTableViewerBuilder
-                                             .getAddFile2DBSelectionListener(null));
+        
+        Runnable newDocumentAddedCallback = new Runnable() {           
+            @Override
+            public void run() {
+                try {
+                    allDocumentResources = new ArrayList<DocumentDBO>(Repository.loadDocument(true));
+                    Display.getCurrent().asyncExec(new Runnable() {                        
+                        @Override
+                        public void run() {
+                            refresh();
+                        }
+                    });
+                } catch (PersistenceException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        
+        addNewDocButton.addSelectionListener(DocumentTableViewerBuilder.getAddFile2DBSelectionListener(
+                null,
+                Optional.of(newDocumentAddedCallback)));
     }
 
     /**
@@ -484,14 +495,13 @@ public class DocumentationManageView extends Composite {
     }
 
     private void makeAvailableDocTable() {
-        final Composite availableGroup = makeGroup("Available");
-        _docAvailableTableViewer = DocumentTableViewerBuilder.crateDocumentTable(availableGroup,
-                                                                                 false);
-        DocumentTableViewerBuilder.makeMenus(_docAvailableTableViewer);
+        final Composite availableGroup = makeGroup("Selected");
+        selectedDocumentsTableViewer = DocumentTableViewerBuilder.createDocumentTable(availableGroup, false);
+        DocumentTableViewerBuilder.makeMenus(selectedDocumentsTableViewer);
     }
 
     private void makeChooser() {
-        final Composite chosserComposite = new Composite(_mainComposite, SWT.NONE);
+        final Composite chosserComposite = new Composite(mainComposite, SWT.NONE);
         final GridData layoutData = new GridData(SWT.CENTER, SWT.FILL, false, false, 1, 1);
         chosserComposite.setLayoutData(layoutData);
         final GridLayoutFactory fillDefaults = GridLayoutFactory.fillDefaults();
@@ -501,8 +511,7 @@ public class DocumentationManageView extends Composite {
 
         final Button refreshButton = new Button(chosserComposite, SWT.FLAT);
         refreshButton.setLayoutData(new GridData(SWT.CENTER, SWT.BEGINNING, false, false));
-        refreshButton.setImage(IOConfigActivatorUI.getImageDescriptor("icons/refresh.gif")
-                               .createImage());
+        refreshButton.setImage(IOConfigActivatorUI.getImageDescriptor("icons/refresh.gif").createImage());
         refreshButton.setToolTipText("Refresh List of Documents");
         refreshButton.addSelectionListener(new RefreshDocumnetsSelectionListener());
         Label label = new Label(chosserComposite, SWT.NONE);
@@ -522,7 +531,7 @@ public class DocumentationManageView extends Composite {
 
     @Nonnull
     private Composite makeGroup(@Nonnull final String groupHead) {
-        final Group searchGroup = new Group(_mainComposite, SWT.NO_SCROLL);
+        final Group searchGroup = new Group(mainComposite, SWT.NO_SCROLL);
         final GridLayout layout = new GridLayout(1, true);
         searchGroup.setLayout(layout);
         searchGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -543,68 +552,78 @@ public class DocumentationManageView extends Composite {
         search.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
         search.setMessage("Filter");
 
-        _docResorceTableViewer = DocumentTableViewerBuilder.crateDocumentTable(searchGroup, false);
+        documentResourcesTableViewer = DocumentTableViewerBuilder.createDocumentTable(searchGroup, false);
 
-        search.addModifyListener(new FilterModifyListener(search, filter, _docResorceTableViewer));
+        search.addModifyListener(new FilterModifyListener(search, filter, documentResourcesTableViewer));
         try {
-            _documentResorce = new ArrayList<DocumentDBO>(Repository.loadDocument(false));
+            allDocumentResources = new ArrayList<DocumentDBO>(Repository.loadDocument(false));
+            documentResources = new ArrayList<DocumentDBO>(allDocumentResources);
         } catch (final PersistenceException e) {
-            _documentResorce = new ArrayList<DocumentDBO>();
+            documentResources = new ArrayList<DocumentDBO>();
             DeviceDatabaseErrorDialog.open(null, "Can't load Documents!", e);
             LOG.error("Can't load Documents!", e);
         }
-        _docResorceTableViewer.addFilter(filter);
-        _docResorceTableViewer.setFilters(new ViewerFilter[] {filter});
-        TableViewerEditor.create(_docResorceTableViewer,
-                                 new ColumnViewerEditorActivationStrategy(_docResorceTableViewer),
-                                 ColumnViewerEditor.DEFAULT);
+        documentResourcesTableViewer.addFilter(filter);
+        documentResourcesTableViewer.setFilters(new ViewerFilter[] { filter });
+        TableViewerEditor.create(documentResourcesTableViewer, new ColumnViewerEditorActivationStrategy(
+                documentResourcesTableViewer), ColumnViewerEditor.DEFAULT);
 
-        DocumentTableViewerBuilder.makeMenus(_docResorceTableViewer);
+        DocumentTableViewerBuilder.makeMenus(documentResourcesTableViewer);
+    }
+
+    public void refresh() {
+        final IDocumentable node = parentNode.getDocumentableObject();
+        if (node != null) {
+            setDocs(node.getDocuments());
+            isActivate = true;
+        }
     }
 
     private void setDocs(@CheckForNull final Set<DocumentDBO> set) {
-        _originDocs = new ArrayList<DocumentDBO>();
-        _documentAvailable = new ArrayList<DocumentDBO>();
-        if(set != null) {
-            _originDocs.addAll(set);
-            _documentAvailable.addAll(set);
-            setDocAvailableTableInput();
-            if(_documentResorce != null) {
-                _documentResorce.removeAll(set);
+        originalDocumentSelection = new ArrayList<DocumentDBO>();
+        selectedDocuments = new ArrayList<DocumentDBO>();
+        if (set != null) {
+            originalDocumentSelection.addAll(set);
+            selectedDocuments.addAll(set);
+            setDocSelectedTableInput();
+            if (documentResources != null) {
+                documentResources.clear();
+                documentResources.addAll(allDocumentResources);
+                documentResources.removeAll(set);
             }
         }
-        setDocResorceTableInput();
+        setDocResourceTableInput();
     }
 
     @Nonnull
-    protected final List<DocumentDBO> getDocumentAvailable() {
-        return _documentAvailable;
+    protected final List<DocumentDBO> getDocumentSelected() {
+        return selectedDocuments;
     }
 
     @Nonnull
-    protected final List<DocumentDBO> getDocumentResorce() {
-        return _documentResorce;
+    protected final List<DocumentDBO> getDocumentResource() {
+        return documentResources;
     }
 
-    protected final void setDocAvailableTableInput() {
-        _docAvailableTableViewer.setInput(_documentAvailable);
+    protected final void setDocSelectedTableInput() {
+        selectedDocumentsTableViewer.setInput(selectedDocuments);
     }
 
-    protected final void setDocResorceTableInput() {
-        _docResorceTableViewer.setInput(_documentResorce);
+    protected final void setDocResourceTableInput() {
+        documentResourcesTableViewer.setInput(documentResources);
     }
 
-    protected final void setDocumentResorce(@Nonnull final List<DocumentDBO> documentResorce) {
-        _documentResorce = documentResorce;
+    protected final void setDocumentResource(@Nonnull final List<DocumentDBO> documentResorce) {
+        documentResources = documentResorce;
     }
 
     protected final void setSaveButton() {
-        if(_originDocs.size() == _documentAvailable.size()) {
-            final ArrayList<DocumentDBO> temp = new ArrayList<DocumentDBO>(_originDocs);
-            temp.removeAll(_documentAvailable);
-            _parentNodeConfig.setSavebuttonEnabled("documentaion", temp.size() != 0);
+        if (originalDocumentSelection.size() == selectedDocuments.size()) {
+            final ArrayList<DocumentDBO> temp = new ArrayList<DocumentDBO>(originalDocumentSelection);
+            temp.removeAll(selectedDocuments);
+            parentNode.setSavebuttonEnabled("documents", temp.size() != 0);
         } else {
-            _parentNodeConfig.setSavebuttonEnabled("documentaion", true);
+            parentNode.setSavebuttonEnabled("documents", true);
         }
     }
 

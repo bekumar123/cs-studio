@@ -414,7 +414,13 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
                 final ExtUserPrmData extUserPrmData = parsedGsdFileModel.getExtUserPrmData(extUserPrmDataRef
                         .getIntValue());
                 if (extUserPrmData != null) {
-                    final Integer value = getUserPrmDataValue(extUserPrmDataRef, extUserPrmData, new BitMaskImpl());
+                    //@formatter:off
+                    final Integer value = getUserPrmDataValue(
+                            extUserPrmDataRef.getIndex(), 
+                            getPrmUserDataList(),
+                            extUserPrmData, 
+                            new BitMaskImpl());
+                            //@formatter:on
                     makeCurrentUserParamDataItem(currentUserParamDataComposite, extUserPrmData, value);
                 }
             }
@@ -559,13 +565,11 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
 
     //@formatter:off
     int getUserPrmDataValue(
-            @Nonnull final KeyValuePair extUserPrmDataRef,
+            @Nonnull final Integer index,
+            @Nonnull final List<Integer> prmUserDataList, 
             @Nonnull final ExtUserPrmData extUserPrmData, 
             @Nonnull final BitMask bitMask) {
             //@formatter:on
-
-        final List<Integer> prmUserDataList = getPrmUserDataList();
-        final Integer index = extUserPrmDataRef.getIndex();
 
         if (index != null && index < prmUserDataList.size()) {
 

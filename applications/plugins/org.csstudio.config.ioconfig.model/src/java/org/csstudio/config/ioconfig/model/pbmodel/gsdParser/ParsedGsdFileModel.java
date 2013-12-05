@@ -112,7 +112,7 @@ public class ParsedGsdFileModel extends AbstractGsdPropertyModel implements Seri
         return intProperty==null?false:intProperty!=0;
     }
     
-    public boolean isSalve() {
+    public boolean isSlave() {
         final Integer intProperty = getIntProperty("Station_Type");
         // Station_Type == 0 => Slave
         return intProperty==null?false:intProperty==0;

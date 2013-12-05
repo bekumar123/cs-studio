@@ -1,4 +1,4 @@
-package org.csstudio.config.ioconfig.view.serachview;
+package org.csstudio.config.ioconfig.view.searchview;
 
 import java.util.Date;
 

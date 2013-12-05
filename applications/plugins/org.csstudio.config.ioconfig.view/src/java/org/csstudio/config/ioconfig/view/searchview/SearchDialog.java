@@ -22,7 +22,7 @@
 /*
  * $Id: SearchDialog.java,v 1.11 2010/08/20 13:33:04 hrickens Exp $
  */
-package org.csstudio.config.ioconfig.view.serachview;
+package org.csstudio.config.ioconfig.view.searchview;
 
 import java.util.ArrayList;
 import java.util.Date;

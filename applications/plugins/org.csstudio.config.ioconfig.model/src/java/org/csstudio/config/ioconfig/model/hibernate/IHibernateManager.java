@@ -28,36 +28,19 @@ import javax.annotation.Nonnull;
 
 import org.csstudio.config.ioconfig.model.PersistenceException;
 
-/**
- * TODO (hrickens) : 
- * 
- * @author hrickens
- * @author $Author: hrickens $
- * @version $Revision: 1.7 $
- * @since 21.06.2011
- */
 public interface IHibernateManager {
     
-    
     @CheckForNull
-    <T> T doInDevDBHibernateEager(@Nonnull final IHibernateCallback hibernateCallback) throws PersistenceException;
-    
-    /**
-     *
-     * @param <T>
-     *            The result Object type.
-     * @param hibernateCallback
-     *            The Hibernate call back.
-     * @return the Session resulte.
-     */
+    <T> T executeAndUseDocumentSession(@Nonnull final IHibernateCallback hibernateCallback) throws PersistenceException;
+
     @CheckForNull
-    <T> T doInDevDBHibernateLazy(@Nonnull final IHibernateCallback hibernateCallback) throws PersistenceException;
+    <T> T executeAndCloseSession(@Nonnull final IHibernateCallback hibernateCallback) throws PersistenceException;
+        
+    @CheckForNull
+    <T> T executeAndKeepSessionOpen(@Nonnull final IHibernateCallback hibernateCallback) throws PersistenceException;
     
     void closeSession();
     
-    /**
-     * @return
-     */
     boolean isConnected();
     
 }

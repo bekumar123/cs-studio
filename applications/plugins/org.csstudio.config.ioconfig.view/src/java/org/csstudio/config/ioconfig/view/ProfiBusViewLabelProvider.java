@@ -79,8 +79,8 @@ class ProfiBusViewLabelProvider extends ColumnLabelProvider {
 
     private boolean haveProgrammableModule(@Nullable final Object element) {
         /*
-         * TODO: (hrickens) Das finden von Projekt Document Datein führt teilweise dazu das sich
-         * CSS Aufhängt! if (element instanceof Slave) { Slave node = (Slave) element;
+         * TODO: (hrickens) Das finden von Projekt Document Datein fuehhrt teilweise dazu das sich
+         * CSS Aufhaengt! if (element instanceof Slave) { Slave node = (Slave) element;
          * Set<Document> documents = node.getDocuments(); while (documents.iterator().hasNext())
          * { Document doc = (Document) documents.iterator().next(); if (doc.getSubject() != null
          * && doc.getSubject().startsWith("Projekt:")) { return true; } } }

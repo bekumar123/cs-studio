@@ -87,6 +87,8 @@ import org.eclipse.ui.part.EditorPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
 /**
  * The skeletal structure for an Editor to editing a Node.
  * 
@@ -336,7 +338,7 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?, ?>>
         return false; // save as not supported
     }
 
-    public void perfromClose() {
+    public void performClose() {
         final IViewSite site = getProfiBusTreeView().getSite();
         site.getPage().closeEditor(this, true);
     }
@@ -590,11 +592,10 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?, ?>>
         shortDescText.setEditable(false);
         shortDescText.setEnabled(false);
 
-        final Text descText = new Text(gDesc, SWT.BORDER | SWT.MULTI);
+        final Text descText = new Text(gDesc, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
         descText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
         descText.setEditable(true);
         descText.addModifyListener(new ModifyListener() {
-
             @Override
             public void modifyText(@Nonnull final ModifyEvent e) {
                 final String string = getShortDesc(descText.getText());
@@ -1100,13 +1101,13 @@ public abstract class AbstractNodeEditor<T extends AbstractNodeSharedImpl<?, ?>>
     @Nonnull
     protected String getShortDesc(@Nonnull final String descText) {
         // guard: do not process null or empty
-        if ((descText == null) || (descText.isEmpty())) {
+        if (Strings.isNullOrEmpty(descText)) {
             return "";
         }
 
         final String[] split = descText.split("[\r\n]");
         // take care if splitting fails
-        if ((split == null) || (split.length == 0)) {
+            if ((split == null) || (split.length == 0)) {
             return "";
         }
 

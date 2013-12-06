@@ -31,8 +31,12 @@ import org.csstudio.sds.internal.model.StringMapProperty;
 import org.csstudio.sds.internal.model.StringProperty;
 import org.csstudio.sds.model.ActionType;
 import org.csstudio.sds.model.WidgetPropertyCategory;
+import org.csstudio.sds.util.ChannelReferenceValidationException;
+import org.csstudio.sds.util.ChannelReferenceValidationUtil;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A {@link AbstractWidgetActionModel}, which opens a display in a shell or in a view..
@@ -65,6 +69,13 @@ public final class OpenDisplayActionModel extends AbstractWidgetActionModel {
 	 */
 	public static final String PROP_CLOSE = "close";
 
+	/**
+	 * Aliases form the widget that holds the action.
+	 */
+	private Map<String, String> allInheritedAliases;
+
+    private static final Logger LOG = LoggerFactory.getLogger(OpenDisplayActionModel.class);
+	
 	/**
 	 * Constructor.
 	 * 
@@ -109,12 +120,34 @@ public final class OpenDisplayActionModel extends AbstractWidgetActionModel {
 	}
 
 	/**
-	 * Returns the new aliases for the display.
+	 * Returns the new aliases for the display. They are resolved
+	 * on every request, because also aliases can be dynamic.
 	 * 
 	 * @return The new aliases for the display
 	 */
 	public Map<String, String> getAliases() {
-		return getProperty(PROP_ALIASES).getPropertyValue();
+		
+		// ... the aliases that are forwarded to the new display are configured
+		// on the action
+		Map<String, String> resolvedAliases = new HashMap<String, String>((Map<String, String>) getProperty(PROP_ALIASES).getPropertyValue());
+
+		// ... we resolve the forwarded aliases using all known information
+		for (String key : resolvedAliases.keySet()) {
+			String raw = resolvedAliases.get(key);
+
+			String resolved;
+			try {
+				resolved = ChannelReferenceValidationUtil.createCanonicalName(
+						raw, allInheritedAliases);
+
+				resolvedAliases.put(key, resolved);
+			} catch (ChannelReferenceValidationException e) {
+				// ignore
+				LOG.info("Cannot resolve alias [" + raw + "]");
+			}
+
+		}
+		return resolvedAliases;
 	}
 
 	/**
@@ -170,6 +203,10 @@ public final class OpenDisplayActionModel extends AbstractWidgetActionModel {
 			return buffer.toString();
 		}
 		return getDescription();
+	}
+
+	public void setAliasesFromWidget(Map<String, String> allInheritedAliases) {
+		this.allInheritedAliases = allInheritedAliases;
 	}
 
 }

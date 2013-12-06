@@ -51,7 +51,7 @@ public class DescriptionEntry {
         //@formatter:off
         String text = SPS_TYPE + ": " 
             + tcpConnectionNr.toString() + "/" + spsAddress.toString() 
-            + " 'T=" + spsType.getTypeName();
+            + " 'T=" + spsType.getEpicsTypeName();
             //@formatter:on
         if (spsType == SpsType.BOOL) {
             Optional<Integer> bitPos = spsAddress.getBitPos();
@@ -61,7 +61,7 @@ public class DescriptionEntry {
             } else {
                 throw new IllegalStateException("BOOLEAN but bit position is not set: " + ioName.getIoName());
             }
-            text = text + " B=" + bit;
+            text = text + ",B=" + bit;
         }
         text = text + "'";
         return new EpicsAddress(text);

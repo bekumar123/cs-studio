@@ -17,7 +17,13 @@ public class TcpConnectionNr {
     }
 
     public String toString() {
-        return String.valueOf(tcpConnectionNr);
+    	// 2013-11-11: JP grausamer Hack eingebaut
+    	// tcpConnectionNr wird modulo 10 ausgegeben
+    	// Damit wird folgendes erreicht: Die IP-Configuration erlaubt nur eine Richtung (write oder read) je TCP-Verbindung.
+    	// Um beides zu ermöglichen, wird write zb. '3' und read '33' bezeichnet, hier wird read wieder auf '3' zurück gebogen.
+    	// Das muss geändert werden, indem die IP-Configuration erweitert wird.
+    	
+        return String.valueOf(tcpConnectionNr % 10);
     }
 
     @Override

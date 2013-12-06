@@ -10,16 +10,16 @@ import com.google.common.base.Preconditions;
 public enum SpsType {
 
     //@formatter:off
-    BOOL("BOOL", 1),
+    BOOL("BOOL", "INT8", 1),
     BYTE("BYTE", 1),
-    CHAR("CHAR", 1),
-    WORD("WORD", 2),
-    INT("INT", 2),
+    CHAR("CHAR", "INT8", 1),
+    WORD("WORD", "INT16", 2),
+    INT("INT", "INT16", 2),
     S5TIME("S5TIME", 2),
     DWORD("DWORD", 4), 
     TIME("TIME", 4), 
-    DINT("DINT", 4), 
-    REAL("REAL", 4),
+    DINT("DINT", "INT32", 4), 
+    REAL("REAL", "FLOAT", 4),
     TIME_OF_DAY("TIME_OF_DAY", 4),
     STRING(SpsType.STRING_TYPE),
     ARRAY(SpsType.ARRAY_TYPE),
@@ -30,16 +30,21 @@ public enum SpsType {
     private static final String ARRAY_TYPE = "ARRAY";
 
     private String typeName;
+    private String epicsTypeName;
     private int size;
 
-    private SpsType(String spsType, int size) {
+    private SpsType(String spsType, String epicsType, int size) {
         this.typeName = spsType.toUpperCase().trim();
+        this.epicsTypeName = epicsType.toUpperCase().trim();
         this.size = size;
     }
 
+    private SpsType(String spsType, int size) {
+    	this(spsType, spsType, size);
+    }
+
     private SpsType(String spsType) {
-        this.typeName = spsType.toUpperCase().trim();
-        this.size = 0;
+    	this(spsType, spsType, 0);
     }
 
     public static SpsType getSpsType(String typeName) throws SpsParseException {
@@ -60,8 +65,8 @@ public enum SpsType {
         throw new SpsParseException("Unknown type " + typeName);
     }
 
-    public String getTypeName() {
-        return typeName;
+    public String getEpicsTypeName() {
+        return epicsTypeName;
     }
 
     public int getSize() {

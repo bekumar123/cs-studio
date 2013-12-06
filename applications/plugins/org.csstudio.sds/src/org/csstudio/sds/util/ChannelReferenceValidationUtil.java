@@ -202,7 +202,7 @@ public final class ChannelReferenceValidationUtil {
 					markerList, true, aliases);
 
 			if(canonicalName==null || canonicalName.length()<=0) {
-				canonicalName = "??";
+				canonicalName = "unerlaubterAliasAufruf";
 			}
 			Matcher matcher2 = createSearchPattern(requiredAliasName).matcher(
 					result);

@@ -138,6 +138,9 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
     }
 
     public void select(final ModuleNumber moduleNumber) {
+        
+        Preconditions.checkNotNull(moduleNumber, "moduleNumber must not be null");
+        
         GSDModuleDBOReadOnly gsdModuleDBOReadOnly = prototypeList.getModule(moduleNumber);
         if (gsdModuleDBOReadOnly != null) {
             tableViewerModuleList.setSelection(new StructuredSelection(gsdModuleDBOReadOnly), true);

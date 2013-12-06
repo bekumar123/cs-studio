@@ -193,35 +193,4 @@ public class DBClass {
         _dirty = dirty;
     }
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + getId();
-        return result;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean equals(@CheckForNull final Object obj) {
-        if(this == obj) {
-            return true;
-        }
-        if(obj == null) {
-            return false;
-        }
-        if(getClass() != obj.getClass()) {
-            return false;
-        }
-        final DBClass other = (DBClass) obj;
-        if(getId() != other.getId()) {
-            return false;
-        }
-        return true;
-    }
 }

@@ -1,6 +1,7 @@
 package org.csstudio.config.ioconfig.model.types;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -14,12 +15,12 @@ public class ParsedModuleInfo {
     
     private final Map<Integer, GsdModuleModel2> moduleInfo;
 
-    public ParsedModuleInfo(Map<Integer, GsdModuleModel2> moduleInfo) {
+    public ParsedModuleInfo(final Map<Integer, GsdModuleModel2> moduleInfo) {
         
         Preconditions.checkNotNull(moduleInfo, "moduleInfo must not be null");
         Preconditions.checkArgument(moduleInfo.size() > 0, "size must be > 0");
         
-        this.moduleInfo = moduleInfo;
+        this.moduleInfo = new HashMap<Integer, GsdModuleModel2>(moduleInfo);
     }
     
     public List<ModuleInfo> getModuleInfo() {
@@ -31,16 +32,19 @@ public class ParsedModuleInfo {
     }
     
     public ModuleInfo getModuleInfo(final ModuleNumber moduleNumber) {
+        
+        Preconditions.checkNotNull(moduleNumber, "moduleNumber must not be null");
+
         return createModuleInfo(moduleInfo.get(moduleNumber.getModuleNumberWithoutVersionInfo()));            
     }
     
-    private ModuleInfo createModuleInfo(GsdModuleModel2 gsdModuleModel2) {
+    private ModuleInfo createModuleInfo(final GsdModuleModel2 gsdModuleModel2) {
         
         Preconditions.checkNotNull(gsdModuleModel2, "gsdModuleModel2 must not be null");
         
         boolean input = false;
         boolean output = false;
-        boolean isWordSize = false;
+        boolean isWordSize = true;
         
         final SlaveCfgDataBuilder slaveCfgDataFactory = new SlaveCfgDataBuilder(gsdModuleModel2.getValue());
         for (final SlaveCfgData slaveCfgData : slaveCfgDataFactory.getSlaveCfgDataList()) {

@@ -12,6 +12,11 @@ public class ModuleVersionInfo {
     private final Optional<VersionNote> versionNote;
 
     ModuleVersionInfo(final ModuleNumber moduleNumber, final Optional<VersionTag> versionTag, final Optional<VersionNote> versionNote) {
+
+        Preconditions.checkNotNull(moduleNumber, "moduleNumber must not be null");
+        Preconditions.checkNotNull(versionTag, "versionTag must not be null");
+        Preconditions.checkNotNull(versionNote, "versionNote must not be null");
+
         this.moduleNumber = moduleNumber;
         this.versionTag = versionTag;
         this.versionNote = versionNote;
@@ -36,8 +41,7 @@ public class ModuleVersionInfo {
 
         Preconditions.checkNotNull(moduleNumber, "moduleNumber must not be null");
         Preconditions.checkNotNull(versionTag, "versionTag must not be null");
-        Preconditions.checkNotNull(versionTag, "versionNote must not be null");
-        Preconditions.checkArgument(!versionTag.isEmpty(), "versionTAg must not be empty");
+        Preconditions.checkArgument(!versionTag.isEmpty(), "versionTag must not be empty");
         
         //@formatter:off
         return new ModuleVersionInfo(moduleNumber, 

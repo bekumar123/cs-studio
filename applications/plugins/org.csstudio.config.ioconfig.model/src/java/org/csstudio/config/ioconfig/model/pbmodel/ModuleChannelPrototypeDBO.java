@@ -251,16 +251,6 @@ public class ModuleChannelPrototypeDBO extends DBClass implements Comparable<Mod
         
     }
     
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
-
-    @Override
-    public final boolean equals(@CheckForNull final Object obj) {
-        return super.equals(obj);
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -277,4 +267,44 @@ public class ModuleChannelPrototypeDBO extends DBClass implements Comparable<Mod
         return sb.toString();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        if (getId() == 0) {
+            return super.hashCode(); 
+        }
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + getId();
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(@CheckForNull final Object obj) {
+        if(this == obj) {
+            return true;
+        }
+        if(obj == null) {
+            return false;
+        }
+        if(getClass() != obj.getClass()) {
+            return false;
+        }
+        final DBClass other = (DBClass) obj;
+        if (getId() == 0) {
+            return super.equals(obj);
+        }
+        if (other.getId() == 0) {
+            return super.equals(obj);
+        }
+        if(getId() != other.getId()) {
+            return false;
+        }
+        return true;
+    }
 }

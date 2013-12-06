@@ -153,8 +153,8 @@ public class GSDModuleDBO extends DBClass implements Comparable<GSDModuleDBO>, I
         Preconditions.checkNotNull(info, "info must not be null");
         Preconditions.checkNotNull(gsdFileDBO, "gsdFileDBO must not be null");
 
-        initCreated();
-        initUpdated();
+        assignCreated();
+        assingUpdated();
         
         setGSDFile(gsdFileDBO);
         setModuleId(info.getModuleNumber().getValue());
@@ -241,18 +241,18 @@ public class GSDModuleDBO extends DBClass implements Comparable<GSDModuleDBO>, I
         versionedGSDModuleDBO.setName(getName());
         versionedGSDModuleDBO.setVersionTag(moduleVersionInfo.getVersionTag().getValue());
         versionedGSDModuleDBO.setVersionNote(moduleVersionInfo.getVersionNote().getValue());
-        versionedGSDModuleDBO.initCreated();
-        versionedGSDModuleDBO.initUpdated();
+        versionedGSDModuleDBO.assignCreated();
+        versionedGSDModuleDBO.assingUpdated();
         
         return versionedGSDModuleDBO;
     }
     
-    public void initCreated() {
+    public void assignCreated() {
         setCreatedBy("Roger");
         setCreatedOn(new Date());        
     }
 
-    public void initUpdated() {
+    public void assingUpdated() {
         setUpdatedBy("Roger");
         setUpdatedOn(new Date());        
     }
@@ -276,7 +276,7 @@ public class GSDModuleDBO extends DBClass implements Comparable<GSDModuleDBO>, I
     }
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "GSDModule", fetch = FetchType.EAGER)
-    @BatchSize(size=100)
+    @BatchSize(size=32)
     @CheckForNull
     public Set<ModuleChannelPrototypeDBO> getModuleChannelPrototype() {
         return _moduleChannelPrototypes;

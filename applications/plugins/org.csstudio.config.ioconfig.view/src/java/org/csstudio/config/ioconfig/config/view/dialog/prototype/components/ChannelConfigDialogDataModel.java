@@ -14,11 +14,11 @@ import org.csstudio.config.ioconfig.model.pbmodel.ModuleChannelPrototypeDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.SlaveCfgData;
 import org.csstudio.config.ioconfig.model.types.ModuleInfo;
 import org.csstudio.config.ioconfig.model.types.ModuleLabel;
-import org.csstudio.config.ioconfig.model.types.PrototypeList;
 import org.csstudio.config.ioconfig.model.types.ModuleName;
 import org.csstudio.config.ioconfig.model.types.ModuleNumber;
 import org.csstudio.config.ioconfig.model.types.ModuleVersionInfo;
 import org.csstudio.config.ioconfig.model.types.ParsedModuleInfo;
+import org.csstudio.config.ioconfig.model.types.PrototypeList;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -87,7 +87,7 @@ public class ChannelConfigDialogDataModel implements ChannelDataModel {
         
         setEmptyChannelPrototypeName2Unused();
         
-        prototype.initUpdated();
+        prototype.assingUpdated();
 
         prototype.save();
         
@@ -130,7 +130,7 @@ public class ChannelConfigDialogDataModel implements ChannelDataModel {
 
     public ModuleLabel getModuleLabel() {
         ModuleVersionInfo moduleVersionInfo = getModuleVersionInfo();
-        return moduleVersionInfo.getModuleLabel(new ModuleName(getModuleName()));
+        return moduleVersionInfo.getModuleLabel(getModuleName());
     }
 
     public GSDModuleDBO createNewVersion(final ModuleVersionInfo moduleVersionInfo) throws PersistenceException {
@@ -172,10 +172,6 @@ public class ChannelConfigDialogDataModel implements ChannelDataModel {
         return currentModuleNumber;
     }
 
-    public String getModuleName() {
-        return Strings.nullToEmpty(prototypeList.getModuleName(getCurrentModuleNumber()).getValue());
-    }
-
     public boolean isHasInputFields() {
         return hasInputFields;
     }
@@ -190,6 +186,10 @@ public class ChannelConfigDialogDataModel implements ChannelDataModel {
 
     public boolean hasData() {
         return isHasInputFields() || isHasOutputFields();
+    }
+
+    private ModuleName getModuleName() {
+        return new ModuleName(Strings.nullToEmpty(prototypeList.getModuleName(getCurrentModuleNumber()).getValue()));
     }
 
     private void setEmptyChannelPrototypeName2Unused() {

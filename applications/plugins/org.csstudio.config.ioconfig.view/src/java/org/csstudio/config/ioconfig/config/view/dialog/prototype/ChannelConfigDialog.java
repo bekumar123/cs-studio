@@ -128,6 +128,9 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
                         if (getSaveButton() != null) {
                             getSaveButton().setEnabled(dirty);
                         }
+                        if (createNewVersionButton != null) {
+                            createNewVersionButton.setEnabled(!dirty);
+                        }
                     }
                 });
             }

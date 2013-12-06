@@ -96,14 +96,6 @@ public class ModuleNumber implements Comparable<ModuleNumber> {
         }
     }
     
-    public Optional<String> getVersionAsString() {
-        if (getVersion() == 0) {
-            return Optional.absent();
-        } else {
-            return Optional.of(" [#" + getVersion() + "]");
-        }
-    }
-
     public ModuleNumber newVersion(int version) {
         return new ModuleNumber(value + (GAP * version));
     }

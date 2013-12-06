@@ -6,7 +6,7 @@ import com.google.common.base.Preconditions;
 
 public class ModuleNumber implements Comparable<ModuleNumber> {
 
-    private final static int GAP = 10000;
+    private final static int GAP = 1000000;
     
     private final Integer value;
             

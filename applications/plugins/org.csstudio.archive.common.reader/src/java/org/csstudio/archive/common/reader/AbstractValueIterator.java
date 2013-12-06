@@ -21,7 +21,6 @@
  */
 package org.csstudio.archive.common.reader;
 
-import java.util.Collection;
 import java.util.Iterator;
 
 import javax.annotation.Nonnull;
@@ -48,14 +47,14 @@ public abstract class AbstractValueIterator implements ValueIterator {
     private final TimeInstant _end;
 
 
-    private final Collection<IArchiveSample>  _samples;
+    private final Iterable<IArchiveSample> _samples;
     private final Iterator<IArchiveSample> _samplesIter;
 
 
     /**
      * Constructor.
      */
-    protected AbstractValueIterator( @Nonnull final Collection<IArchiveSample> samples,
+    protected AbstractValueIterator(@Nonnull final Iterable<IArchiveSample> samples,
                                     @Nonnull final String channelName,
                                     @Nonnull final TimeInstant start,
                                     @Nonnull final TimeInstant end) {

@@ -53,8 +53,6 @@ import org.epics.util.time.Timestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.c1wps.geneal.desy.service.common.tracker.IGenericServiceListener;
-
 /** Controller that interfaces the {@link Model} with the {@link Plot}:
  *  <ul>
  *  <li>For each item in the Model, create a trace in the plot.
@@ -116,12 +114,7 @@ public class Controller implements ArchiveFetchJobListener
 
     /** Is there any Y axis that's auto-scaled? */
     private volatile boolean have_autoscale_axis = false;
-    
-    /** Listeners that are interested in the current displayed timeperiod */
-    private List<ITimeperiodUpdateListener> timeperiodUpdateListener = new ArrayList<ITimeperiodUpdateListener>();
-    
-    /** Listeners that are interested in the current chosen time index */
-    private List<ITimeChangeListener> timeChangeListener = new ArrayList<ITimeChangeListener>();
+
 
     /** Initialize
      *  @param shell Shell
@@ -185,14 +178,12 @@ public class Controller implements ArchiveFetchJobListener
             @Override
             public void timeConfigRequested()
             {
-                System.out.println("Controller.Controller(...).new PlotListener() {...}.timeConfigRequested() s "+System.currentTimeMillis());
                 StartEndTimeAction.run(shell, model, plot.getOperationsManager());
-                System.out.println("Controller.Controller(...).new PlotListener() {...}.timeConfigRequested() e "+System.currentTimeMillis());
             }
 
             @Override
             public void timeAxisChanged(final long start_ms, final long end_ms)
-            {System.out.println("Controller.Controller(...).new PlotListener() {...}.timeAxisChanged()  s   " +System.currentTimeMillis());
+            {
                 if (model.isScrollEnabled())
                 {
                     final long dist = Math.abs(end_ms - System.currentTimeMillis());
@@ -243,7 +234,6 @@ public class Controller implements ArchiveFetchJobListener
                 for (String n : names)
                     if (! add.runWithSuggestedName(n, null))
                         break;
-                System.out.println("Controller.Controller(...).new PlotListener() {...}.droppedName()  e  " +System.currentTimeMillis()  );
             }
 
             @Override
@@ -287,13 +277,11 @@ public class Controller implements ArchiveFetchJobListener
 //                            axis, archive);
 //                    return;
                 }
-                System.out.println("Controller.Controller(...).new PlotListener() {...}.droppedPVName()  e  "+System.currentTimeMillis() );
             }
 
             @Override
             public void droppedFilename(String file_name)
             {
-              System.out.println("Controller.Controller(...).new PlotListener() {...}.droppedFilename()   s  "    +System.currentTimeMillis() );
                 final FileImportDialog dlg = new FileImportDialog(shell, file_name);
                 if (dlg.open() != Window.OK)
                     return;
@@ -314,15 +302,12 @@ public class Controller implements ArchiveFetchJobListener
                 AddModelItemCommand.forPV(shell, operations_manager,
                         model, dlg.getItemName(), Preferences.getScanPeriod(),
                         axis, imported);
-                System.out.println("Controller.Controller(...).new PlotListener() {...}.droppedFilename()   e  "    +System.currentTimeMillis() );
             }
 
             @Override
             public void xyGraphConfigChanged(XYGraph newValue)
             {
-                System.out.println("Controller.Controller(...).new PlotListener() {...}.xyGraphConfigChanged()  s  "+System.currentTimeMillis() );
                 model.fireGraphConfigChanged();
-                System.out.println("Controller.Controller(...).new PlotListener() {...}.xyGraphConfigChanged()  s  "+System.currentTimeMillis() );
             }
 
             @Override
@@ -567,16 +552,6 @@ public class Controller implements ArchiveFetchJobListener
             }
         };
         model.addListener(model_listener);
-        
-        //TODO CME: should this move into the DataBrowserEditor class?
-        //TODO CME: potential nullpointer or leak when the trendplotter editor view is closed
-        Activator.getDefault()
-            .addUpdateTimeperiodServiceListener(createTimeperiodUpdateServiceListener());
-        
-        timeChangeListener = Activator.getDefault().getTimeChangeListeners();
-        
-        Activator.getDefault().getBundle().getBundleContext()
-            .registerService(ITimeChangeListener.class, createITimeChangeListener(), null);
     }
 
     /** @param suppress_redraws <code>true</code> if controller should suppress
@@ -990,65 +965,12 @@ public class Controller implements ArchiveFetchJobListener
                         return;
                     ExceptionDetailsErrorDialog.openError(shell, Messages.Information, message, error);
                     job.getPVItem().removeArchiveDataSource(archive);
-
                 }
             });
-        } else if (error instanceof UnknownChannelException)
+        }
+        else if (error instanceof UnknownChannelException)
             LOG.warn("No archived data for " + job.getPVItem().getDisplayName());
         else
             LOG.warn("No archived data for " + job.getPVItem().getDisplayName());
     }
-    
-    private void updateTimeChangeListners(DateTime timeIndex, boolean mouseUp) {
-        DateTime starTime = new DateTime(model.getStartTime().toDate().getTime());
-        DateTime endTime = new DateTime(model.getEndTime().toDate().getTime());
-        UpdateTimeEvent updateTimeEvent = new UpdateTimeEvent(timeIndex, this, mouseUp, new Interval(starTime, endTime));
-        
-        for (ITimeChangeListener listener : timeChangeListener) {
-            listener.handleTimeIndexChanged(updateTimeEvent);
-        }
-    }
-    
-    private IGenericServiceListener<ITimeperiodUpdateListener> createTimeperiodUpdateServiceListener() {
-        return new IGenericServiceListener<ITimeperiodUpdateListener>() {
-            @Override
-            public void bindService(ITimeperiodUpdateListener service) {
-                timeperiodUpdateListener.add(service);
-            }
-            
-            @Override
-            public void unbindService(ITimeperiodUpdateListener service) {
-                timeperiodUpdateListener.remove(service);
-            }
-        };
-    }
-    
-    private IGenericServiceListener<ITimeChangeListener> createITimeChangeServiceListener() {
-        return new IGenericServiceListener<ITimeChangeListener>() {
-            @Override
-            public void bindService(ITimeChangeListener service) {
-                timeChangeListener.add(service);
-            }
-            
-            @Override
-            public void unbindService(ITimeChangeListener service) {
-                timeChangeListener.remove(service);
-            }
-        };
-    }
-    
-    private ITimeChangeListener createITimeChangeListener() {
-        return new ITimeChangeListener() {
-            
-            @Override
-            public void handleTimeIndexChanged(UpdateTimeEvent updateTimeEvent) {
-                if (updateTimeEvent.getEventSource() == Controller.this) {
-                    return;
-                }
-                plot.setTimeIndexLinePosition(updateTimeEvent.getTimeStamp());
-            }
-        };
-
-    }
-    
 }

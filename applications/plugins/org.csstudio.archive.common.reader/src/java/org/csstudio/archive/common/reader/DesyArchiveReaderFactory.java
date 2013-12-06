@@ -23,6 +23,7 @@ package org.csstudio.archive.common.reader;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.regex.Pattern;
 
 import javax.annotation.CheckForNull;
@@ -50,6 +51,7 @@ import org.epics.vtype.VType;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 
 /**
  * The plugin.xml registers this factory for ArchiveReaders

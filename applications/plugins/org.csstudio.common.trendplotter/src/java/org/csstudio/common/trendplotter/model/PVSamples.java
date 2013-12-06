@@ -163,7 +163,6 @@ public class PVSamples extends PlotSamples
     @Override
     synchronized public PlotSample getSample(final int index)
     {
-        synchronized(this){
         final int raw_count = getRawSize();
 
         if (index < raw_count) {

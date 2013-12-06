@@ -62,7 +62,7 @@ public class DesyArchiveValueIterator<V extends Serializable> extends AbstractVa
     /**
      * Constructor.
      */
-    DesyArchiveValueIterator(@SuppressWarnings("rawtypes") @Nonnull final Collection<IArchiveSample> iterable ,
+    DesyArchiveValueIterator(@SuppressWarnings("rawtypes") @Nonnull final Iterable<IArchiveSample> iterable,
                              @Nonnull final String channelName,
                              @Nonnull final TimeInstant start,
                              @Nonnull final TimeInstant end) {

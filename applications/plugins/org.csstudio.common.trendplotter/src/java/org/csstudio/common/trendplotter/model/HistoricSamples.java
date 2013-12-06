@@ -155,7 +155,6 @@ public class HistoricSamples extends PlotSamples
         }
         
         return sample_map.get(request_type)[i];
-        }
     }
 
     /** {@inheritDoc} */

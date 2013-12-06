@@ -27,7 +27,6 @@ import org.csstudio.swt.xygraph.figures.Annotation.CursorLineStyle;
 import org.csstudio.swt.xygraph.figures.Axis;
 import org.csstudio.swt.xygraph.figures.IAxisListener;
 import org.csstudio.swt.xygraph.figures.ITraceListener;
-import org.csstudio.swt.xygraph.figures.PlotArea;
 import org.csstudio.swt.xygraph.figures.ToolbarArmedXYGraph;
 import org.csstudio.swt.xygraph.figures.Trace;
 import org.csstudio.swt.xygraph.figures.Trace.PointStyle;
@@ -226,15 +225,6 @@ public class Plot
         });
 
         xygraph.primaryYAxis.addListener(createValueAxisListener(0));
-        
-        timeIndexLine.setPositonListener(new IPositionListener() {
-           
-            @Override
-            public void positionChanged(double xPosition, boolean mouseUp) {
-               DateTime timePosition = new DateTime((long) xPosition); //TODO CME: review cast
-               listener.timeIndexPositionChanged(timePosition, true); //CME: hard coded 'true': Every mouse move will update history data
-            }
-        });
     }
 
     /**
@@ -327,22 +317,6 @@ public class Plot
     public OperationsManager getOperationsManager()
     {
         return xygraph.getOperationsManager();
-    }
-    
-    public void setTimeIndexLineVisible(final boolean visible) {
-        PlotArea plotArea = getXYGraph().getPlotArea();
-        if (visible) {
-            plotArea.addFigureToUpperLayer(timeIndexLine);
-            timeIndexLine.updateToDefaultPosition();
-            plotArea.revalidate();
-            plotArea.repaint();
-        } else {
-            plotArea.removeFigureFromUpperLayer(timeIndexLine);
-        }
-    }
-    
-    public void setTimeIndexLinePosition(DateTime timeIndex) {
-        timeIndexLine.setPosition(timeIndex.getMillis());
     }
 
     /** @return <code>true</code> if toolbar is visible */

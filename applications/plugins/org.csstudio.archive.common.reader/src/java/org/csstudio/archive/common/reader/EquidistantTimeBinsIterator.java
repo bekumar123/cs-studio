@@ -192,15 +192,12 @@ public class EquidistantTimeBinsIterator extends AbstractValueIterator {
         if (ch == null) {
             throw new ArchiveServiceException("Channel retrieval failed for channel '" + channelName + "'!", null);
         }
-       // final Limits<?> l = service.readDisplayLimits(channelName);
-        final Limits<?> l = ch.getDisplayLimits();
+        final Limits<?> l = service.readDisplayLimits(channelName);
         if (l != null) {
             return ValueFactory.newDisplay(new Double(l.getLow().toString()),  new Double(0.0),  new Double(0.0), "", NumberFormats.toStringFormat(),  new Double(0.0),
                                            new Double(0.0), new Double(l.getHigh().toString()),  new Double(0.0),  new Double(l.getLow().toString()));
         }
-        return ValueFactory.newDisplay( new Double(0.0),  new Double(0.0),  new Double(0.0), "", NumberFormats.toStringFormat(),  new Double(0.0),
-                                               new Double(0.0), new Double(0.0),  new Double(0.0),  new Double(0.0));
-
+        return null;
     }
 
 
@@ -246,7 +243,6 @@ public class EquidistantTimeBinsIterator extends AbstractValueIterator {
             _firstSample =
                 aggregateSamplesUntilWindowEnd(_firstSample, curWindowEnd, getIterator(), _agg);
         }
-       final EpicsSystemVariable a=(EpicsSystemVariable)_lastSampleOfLastWindow.getSystemVariable();
 
         final VType iVal = createMinMaxDoubleValue(curWindowEnd, display, _agg);
         final VStatistics st = (VStatistics) iVal;
@@ -263,7 +259,6 @@ public class EquidistantTimeBinsIterator extends AbstractValueIterator {
         final Double avg = agg.getAvg();
         final Double min = agg.getMin();
         final Double max = agg.getMax();
-
 
         if (avg != null && min != null && max != null) {
             //TODO (jhatje): implement vType
@@ -346,7 +341,6 @@ public class EquidistantTimeBinsIterator extends AbstractValueIterator {
                              minimum == null ? value : BaseTypeConversionSupport.toDouble(minimum),
                              maximum == null ? value : BaseTypeConversionSupport.toDouble(maximum),
                              curSampleTime);
-
     }
 
     /**

@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 import org.csstudio.config.ioconfig.config.component.labelprovider.ModuleListLabelProvider;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBOReadOnly;
 import org.csstudio.config.ioconfig.model.types.ModuleLabel;
-import org.csstudio.config.ioconfig.model.types.ModuleList;
+import org.csstudio.config.ioconfig.model.types.PrototypeList;
 import org.csstudio.config.ioconfig.model.types.ModuleName;
 import org.csstudio.config.ioconfig.model.types.ModuleNumber;
 import org.csstudio.config.ioconfig.model.types.ParsedModuleInfo;
@@ -36,7 +36,7 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
     private Text filter;
 
     private final Composite composite;
-    private final ModuleList moduleList;
+    private final PrototypeList prototypeList;
     private final ParsedModuleInfo parsedModuleInfo;
     private final Optional<ModuleNumber> selectedModuleNumber;
 
@@ -47,18 +47,18 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
     //@formatter:off
     public ModuleSelectionListBox(
             @Nonnull final Composite composite,   
-            @Nonnull final ModuleList moduleList,
+            @Nonnull final PrototypeList prototypeList,
             @Nonnull final ParsedModuleInfo parsedModuleInfo,
             @Nonnull Optional<ModuleNumber> selectedModuleNumber) {
             //@formatter:on
 
         Preconditions.checkNotNull(composite, "composite must not be null");
-        Preconditions.checkNotNull(moduleList, "moduleList must not be null");
+        Preconditions.checkNotNull(prototypeList, "prototypeList must not be null");
         Preconditions.checkNotNull(parsedModuleInfo, "parsedModuleInfo must not be null");
         Preconditions.checkNotNull(selectedModuleNumber, "selectedModuleNumber must not be null");
 
         this.composite = composite;
-        this.moduleList = moduleList;
+        this.prototypeList = prototypeList;
         this.parsedModuleInfo = parsedModuleInfo;
 
         this.selectedModuleNumber = selectedModuleNumber;
@@ -87,21 +87,21 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
         //@formatter:off
         tableViewerModuleList.setLabelProvider(new ModuleListLabelProvider(
                 tableViewerModuleList.getTable(),
-                moduleList,
+                prototypeList,
                 parsedModuleInfo));
                 //@formatter:on
 
         if (selectedModuleNumber.isPresent()) {
-            Object[] elements = new Object[] { moduleList.getObject(selectedModuleNumber.get()) };
+            Object[] elements = new Object[] { prototypeList.getModule(selectedModuleNumber.get()) };
             tableViewerModuleList.setSelection(new StructuredSelection(elements));
             if (moduleSelectionListBoxConfigurator.isAutoFilter()) {
-                ModuleLabel moduleLabel = moduleList.getModuleLabel(selectedModuleNumber.get());
+                ModuleLabel moduleLabel = prototypeList.getModuleLabel(selectedModuleNumber.get());
                 filter.setText(moduleLabel.buildLabelWithoutModuleNumber());
             }
         }
         
         setTypListFilter(filter);
-        tableViewerModuleList.setInput(moduleList);
+        tableViewerModuleList.setInput(prototypeList);
 
         tableViewerModuleList.getTable().showSelection();
         filter.addModifyListener(new FilterModifyListener(this));
@@ -138,7 +138,7 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
     }
 
     public void select(final ModuleNumber moduleNumber) {
-        GSDModuleDBOReadOnly gsdModuleDBOReadOnly = moduleList.getModule(moduleNumber);
+        GSDModuleDBOReadOnly gsdModuleDBOReadOnly = prototypeList.getModule(moduleNumber);
         if (gsdModuleDBOReadOnly != null) {
             tableViewerModuleList.setSelection(new StructuredSelection(gsdModuleDBOReadOnly), true);
         }
@@ -187,14 +187,14 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
 
         if (moduleSelectionListBoxConfigurator.isIgnoreModulesWithoutPrototype()) {
 
-            // only display modules with prototype
+            // only display modules with channel configuration
             tableViewerModuleList.addFilter(new ViewerFilter() {
                 @Override
                 public boolean select(@Nullable final Viewer viewer, @Nullable final Object parentElement,
                         @Nullable final Object element) {
                     if (element instanceof GSDModuleDBOReadOnly) {
                         final GSDModuleDBOReadOnly gsdModuleDbo = (GSDModuleDBOReadOnly) element;
-                        return moduleList.hasPrototype(gsdModuleDbo.getModuleNumber());
+                        return prototypeList.hasChannelConfiguration(gsdModuleDbo.getModuleNumber());
                     }
                     return true;
                 }
@@ -209,9 +209,9 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
     private static class ModuleListContentProvider implements IStructuredContentProvider {
 
         public final Object[] getElements(@Nullable final Object arg0) {
-            if (arg0 instanceof ModuleList) {
-                ModuleList moduleList = (ModuleList) arg0;
-                Object[] objects = moduleList.toArray();
+            if (arg0 instanceof PrototypeList) {
+                PrototypeList prototypeList = (PrototypeList) arg0;
+                Object[] objects = prototypeList.toArray();
                 return objects;
             }
             return null;

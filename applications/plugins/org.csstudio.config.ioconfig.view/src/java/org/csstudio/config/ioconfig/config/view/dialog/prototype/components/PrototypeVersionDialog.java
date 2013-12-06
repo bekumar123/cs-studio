@@ -68,7 +68,7 @@ public class PrototypeVersionDialog extends Dialog {
         labelTag.setText("Tag:");
         labelTag.setLayoutData("ay top");
 
-        textTag = new Text(container, SWT.BORDER | SWT.WRAP);
+        textTag = new Text(container, SWT.BORDER);
         textTag.setLayoutData("growx, wrap, ay top, h 23!");
         textTag.setTextLimit(25);
 

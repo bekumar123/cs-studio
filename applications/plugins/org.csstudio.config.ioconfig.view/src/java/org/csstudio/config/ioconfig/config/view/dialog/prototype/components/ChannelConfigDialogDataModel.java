@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.csstudio.config.ioconfig.model.PersistenceException;
-import org.csstudio.config.ioconfig.model.hibernate.AbstractHibernateManager;
 import org.csstudio.config.ioconfig.model.hibernate.Repository;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBOReadOnly;
@@ -15,12 +14,11 @@ import org.csstudio.config.ioconfig.model.pbmodel.ModuleChannelPrototypeDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.SlaveCfgData;
 import org.csstudio.config.ioconfig.model.types.ModuleInfo;
 import org.csstudio.config.ioconfig.model.types.ModuleLabel;
-import org.csstudio.config.ioconfig.model.types.ModuleList;
+import org.csstudio.config.ioconfig.model.types.PrototypeList;
 import org.csstudio.config.ioconfig.model.types.ModuleName;
 import org.csstudio.config.ioconfig.model.types.ModuleNumber;
 import org.csstudio.config.ioconfig.model.types.ModuleVersionInfo;
 import org.csstudio.config.ioconfig.model.types.ParsedModuleInfo;
-import org.csstudio.config.ioconfig.model.types.RepositoryRefreshable;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -28,9 +26,8 @@ import com.google.common.base.Strings;
 
 public class ChannelConfigDialogDataModel implements ChannelDataModel {
 
-    private final RepositoryRefreshable gsdFileDBO;
     private GSDModuleDataProvider selectedSlave;
-    private final ModuleList moduleList;
+    private final PrototypeList prototypeList;
     private final ParsedModuleInfo parsedModuleInfo;
 
     private GSDModuleDBO prototype;
@@ -47,23 +44,20 @@ public class ChannelConfigDialogDataModel implements ChannelDataModel {
 
     //@formatter:off
     public ChannelConfigDialogDataModel(
-            final RepositoryRefreshable gsdFileDBO,
             final GSDModuleDataProvider selectedSlave, 
-            final ModuleList moduleList,
+            final PrototypeList prototypeList,
             final ParsedModuleInfo parsedModuleInfo) {
             //@formatter:on
 
-        Preconditions.checkNotNull(gsdFileDBO, "gsdFileDBO must not be null");
         Preconditions.checkNotNull(selectedSlave, "selectedSlave must not be null");
-        Preconditions.checkNotNull(moduleList, "moduleList must not be null");
+        Preconditions.checkNotNull(prototypeList, "prototypeList must not be null");
         Preconditions.checkNotNull(parsedModuleInfo, "parsedModuleInfo must not be null");
 
-        this.gsdFileDBO = gsdFileDBO;
         this.selectedSlave = selectedSlave;
-        this.moduleList = moduleList;
+        this.prototypeList = prototypeList;
         this.parsedModuleInfo = parsedModuleInfo;
 
-        refreshDataModel(moduleList.getFirstModuleNumber());
+        refreshDataModel(prototypeList.getFirstModuleNumber());
     }
 
     public void refresh(final Optional<ModuleNumber> moduleNumber) {
@@ -98,7 +92,7 @@ public class ChannelConfigDialogDataModel implements ChannelDataModel {
         prototype.save();
         
         editedModuleVersionInfo = Optional.absent();
-        this.moduleList.unsetEditedModuleVersionInfo();
+        this.prototypeList.unsetEditedModuleVersionInfo();
         refreshFromRepository(); 
     }
 
@@ -108,7 +102,7 @@ public class ChannelConfigDialogDataModel implements ChannelDataModel {
         removeEmptyEntries(outputChannelPrototypeModelList);
         
         editedModuleVersionInfo = Optional.absent();
-        this.moduleList.unsetEditedModuleVersionInfo();
+        this.prototypeList.unsetEditedModuleVersionInfo();
         refreshFromRepository();
     }
 
@@ -131,7 +125,7 @@ public class ChannelConfigDialogDataModel implements ChannelDataModel {
         Preconditions.checkNotNull(moduleVersionInfo, "moduleVersionInfo must not be null");
 
         this.editedModuleVersionInfo = Optional.of(moduleVersionInfo);
-        this.moduleList.setEditedModuleVersionInfo(moduleVersionInfo);
+        this.prototypeList.setEditedModuleVersionInfo(moduleVersionInfo);
     }
 
     public ModuleLabel getModuleLabel() {
@@ -145,17 +139,19 @@ public class ChannelConfigDialogDataModel implements ChannelDataModel {
         Preconditions.checkArgument(!moduleVersionInfo.getModuleNumber().isVersioned(),
                 "moduleNumber must not be versioned");
 
-        GSDModuleDBOReadOnly originGSDModuleDBO = moduleList.getModule(moduleVersionInfo.getModuleNumber());
+        GSDModuleDBOReadOnly originGSDModuleDBO = prototypeList.getModule(moduleVersionInfo.getModuleNumber());
         
         //@formatter:off
         GSDModuleDBO versionedGSDModuleDBO = originGSDModuleDBO.cloneNewVersion(
-                moduleList.getNextVersionedModuleNumber(moduleVersionInfo.getModuleNumber()),
+                prototypeList.getNextVersionedModuleNumber(moduleVersionInfo.getModuleNumber()),
                 moduleVersionInfo);
                 //@formatter:on
         
         Repository.saveOrUpdate(versionedGSDModuleDBO);        
-        moduleList.add(versionedGSDModuleDBO);
+        prototypeList.add(versionedGSDModuleDBO);
                 
+        selectedSlave.registerNewPrototype(versionedGSDModuleDBO);
+        
         return versionedGSDModuleDBO;
     }
 
@@ -168,8 +164,8 @@ public class ChannelConfigDialogDataModel implements ChannelDataModel {
         return parsedModuleInfo;
     }
 
-    public ModuleList getModulelist() throws PersistenceException {
-        return moduleList;
+    public PrototypeList getPrototypeList() throws PersistenceException {
+        return prototypeList;
     }
 
     public ModuleNumber getCurrentModuleNumber() {
@@ -177,7 +173,7 @@ public class ChannelConfigDialogDataModel implements ChannelDataModel {
     }
 
     public String getModuleName() {
-        return Strings.nullToEmpty(moduleList.getModuleName(getCurrentModuleNumber()).getValue());
+        return Strings.nullToEmpty(prototypeList.getModuleName(getCurrentModuleNumber()).getValue());
     }
 
     public boolean isHasInputFields() {
@@ -230,7 +226,7 @@ public class ChannelConfigDialogDataModel implements ChannelDataModel {
         inputChannelPrototypeModelList = new ArrayList<ModuleChannelPrototypeDBO>();
         outputChannelPrototypeModelList = new ArrayList<ModuleChannelPrototypeDBO>();
 
-        prototype = selectedSlave.getPrototypeModule(moduleNumber);
+        prototype = selectedSlave.getPrototype(moduleNumber);
         
         if (prototype == null) {
             throw new IllegalStateException("Prototype must not be null");
@@ -254,8 +250,9 @@ public class ChannelConfigDialogDataModel implements ChannelDataModel {
         
     }
 
-    public void refreshFromRepository() throws PersistenceException {
-        Repository.refresh(gsdFileDBO);
+
+    private void refreshFromRepository() throws PersistenceException {
+        selectedSlave.refreshProtoype(getCurrentModuleNumber());
     }
 
     public ArrayList<ModuleChannelPrototypeDBO> getInputChannelPrototypeModelList() {
@@ -270,7 +267,7 @@ public class ChannelConfigDialogDataModel implements ChannelDataModel {
     public void addModuleChannelPrototype(ModuleChannelPrototypeDBO moduleChannelPrototype) {
         getPrototypeModule().addModuleChannelPrototype(moduleChannelPrototype);
     }
-
+   
     @Override
     public void removeModuleChannelPrototype(ModuleChannelPrototypeDBO moduleChannelPrototype) {
         getPrototypeModule().removeModuleChannelPrototype(moduleChannelPrototype);        

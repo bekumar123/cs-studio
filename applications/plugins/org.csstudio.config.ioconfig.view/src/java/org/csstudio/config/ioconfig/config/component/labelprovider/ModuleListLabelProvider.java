@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBOReadOnly;
 import org.csstudio.config.ioconfig.model.types.ModuleInfo;
 import org.csstudio.config.ioconfig.model.types.ModuleLabel;
-import org.csstudio.config.ioconfig.model.types.ModuleList;
+import org.csstudio.config.ioconfig.model.types.PrototypeList;
 import org.csstudio.config.ioconfig.model.types.ModuleNumber;
 import org.csstudio.config.ioconfig.model.types.ParsedModuleInfo;
 import org.csstudio.ui.util.CustomMediaFactory;
@@ -28,7 +28,7 @@ import org.eclipse.swt.widgets.Table;
  */
 public class ModuleListLabelProvider extends LabelProvider implements IFontProvider, IColorProvider {
 
-    private final ModuleList moduleList;
+    private final PrototypeList prototypeList;
     
     private final ParsedModuleInfo parsedModuleInfo;
 
@@ -67,18 +67,18 @@ public class ModuleListLabelProvider extends LabelProvider implements IFontProvi
      * 
      * @param table
      *            the Table how use this LabelProvider.
-     * @param moduleList 
-     * @param moduleList
+     * @param prototypeList 
+     * @param prototypeList
      * @param file
      */
     //@formatter:off
     public ModuleListLabelProvider(@Nonnull 
             final Table table,
-            final ModuleList moduleList, 
+            final PrototypeList prototypeList, 
             final ParsedModuleInfo parsedModuleInfo) {
             //@formatter:on
 
-        this.moduleList = moduleList;
+        this.prototypeList = prototypeList;
         this.parsedModuleInfo = parsedModuleInfo;
 
         final FontData fontData = table.getFont().getFontData()[0];
@@ -154,7 +154,7 @@ public class ModuleListLabelProvider extends LabelProvider implements IFontProvi
     public final String getText(@Nonnull final Object element) {
         if (element instanceof GSDModuleDBOReadOnly) {
             GSDModuleDBOReadOnly gsdModuleDBO = (GSDModuleDBOReadOnly)element;
-            ModuleLabel moduleLabel = moduleList.getModuleLabel(gsdModuleDBO.getModuleNumber());
+            ModuleLabel moduleLabel = prototypeList.getModuleLabel(gsdModuleDBO.getModuleNumber());
             return moduleLabel.buildLabel();
         }
         return element.toString();

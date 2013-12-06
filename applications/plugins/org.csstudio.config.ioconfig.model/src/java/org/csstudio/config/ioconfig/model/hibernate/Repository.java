@@ -28,6 +28,7 @@ package org.csstudio.config.ioconfig.model.hibernate;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -40,9 +41,10 @@ import org.csstudio.config.ioconfig.model.PersistenceException;
 import org.csstudio.config.ioconfig.model.SensorsDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ChannelDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDFileDBO;
+import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.service.internal.Channel4ServicesDBO;
 import org.csstudio.config.ioconfig.model.types.GsdFileId;
-import org.csstudio.config.ioconfig.model.types.ModuleList;
+import org.csstudio.config.ioconfig.model.types.PrototypeList;
 
 /**
  * @author gerke
@@ -154,10 +156,10 @@ public final class Repository {
     /**
      * Retrieve module list.
      * @param as gsdFileId
-     * @return a {@link ModuleList}
+     * @return a {@link PrototypeList}
      */
     @CheckForNull
-    public static ModuleList loadModules(@Nonnull final GsdFileId gsdFileId) throws PersistenceException {
+    public static PrototypeList loadModules(@Nonnull final GsdFileId gsdFileId) throws PersistenceException {
         return REPOSITORY.loadModules(gsdFileId);
     }
    
@@ -240,16 +242,6 @@ public final class Repository {
     @Nonnull
     public static <T extends DBClass> T update(@Nonnull final T dbClass) throws PersistenceException {
         return REPOSITORY.update(dbClass);
-    }
-
-    /**
-     * @param document
-     *            the document that update to DB.
-     * @return the update document.
-     */
-    @Nonnull
-    public static DocumentDBO update(@Nonnull final DocumentDBO document) throws PersistenceException {
-        return REPOSITORY.update(document);
     }
 
     /**

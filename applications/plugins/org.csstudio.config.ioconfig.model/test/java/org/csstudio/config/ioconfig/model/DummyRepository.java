@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -15,7 +16,7 @@ import org.csstudio.config.ioconfig.model.pbmodel.GSDFileDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.service.internal.Channel4ServicesDBO;
 import org.csstudio.config.ioconfig.model.types.GsdFileId;
-import org.csstudio.config.ioconfig.model.types.ModuleList;
+import org.csstudio.config.ioconfig.model.types.PrototypeList;
 import org.csstudio.config.ioconfig.model.types.ConfiguredModuleList;
 
 /**
@@ -146,15 +147,8 @@ public class DummyRepository implements IRepository {
         return gsdModule;
     }
 
-    @SuppressWarnings("unused")
     public final boolean search(@Nullable final Class<?> class1, final int id) {
         return false;
-    }
-
-    @Override
-    @Nonnull
-    public final DocumentDBO update(@Nonnull final DocumentDBO document) {
-        return document;
     }
 
     @Override
@@ -187,7 +181,7 @@ public class DummyRepository implements IRepository {
     }
 
     @Override
-    public ModuleList loadModules(GsdFileId gsdFileId) throws PersistenceException {
+    public PrototypeList loadModules(GsdFileId gsdFileId) throws PersistenceException {
         // TODO Auto-generated method stub
         return null;
     }

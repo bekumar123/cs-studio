@@ -3,6 +3,7 @@ package org.csstudio.config.ioconfig.model.hibernate;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -18,7 +19,7 @@ import org.csstudio.config.ioconfig.model.pbmodel.GSDFileDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.service.internal.Channel4ServicesDBO;
 import org.csstudio.config.ioconfig.model.types.GsdFileId;
-import org.csstudio.config.ioconfig.model.types.ModuleList;
+import org.csstudio.config.ioconfig.model.types.PrototypeList;
 import org.csstudio.config.ioconfig.model.types.ConfiguredModuleList;
 
 public interface IRepository {
@@ -109,7 +110,7 @@ public interface IRepository {
      */
     @Nonnull
     List<DocumentDBO> loadDocument() throws PersistenceException;
-
+    
     /**
      * @param document
      *            the document that save to DB
@@ -117,14 +118,6 @@ public interface IRepository {
      */
     @Nonnull
     DocumentDBO save(@Nonnull final DocumentDBO document) throws PersistenceException;
-
-    /**
-     * @param document
-     *            the document that update to DB.
-     * @return the update document.
-     */
-    @Nonnull
-    DocumentDBO update(@Nonnull final DocumentDBO document) throws PersistenceException;
 
     /**
      * Give a to a ioName the Epics Address String.
@@ -170,7 +163,7 @@ public interface IRepository {
      * @param gsdFileId
      * @return
      */
-    ModuleList loadModules(@Nonnull final GsdFileId gsdFileId) throws PersistenceException; 
+    PrototypeList loadModules(@Nonnull final GsdFileId gsdFileId) throws PersistenceException; 
         
     /**
      * Load the short Description (max. 40 character) selected by the IO Name.

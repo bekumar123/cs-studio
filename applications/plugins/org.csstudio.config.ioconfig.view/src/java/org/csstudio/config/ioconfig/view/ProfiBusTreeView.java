@@ -48,7 +48,7 @@ import org.csstudio.config.ioconfig.model.pbmodel.ModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ProfibusSubnetDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.SlaveDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDataProvider;
-import org.csstudio.config.ioconfig.model.types.ModuleList;
+import org.csstudio.config.ioconfig.model.types.PrototypeList;
 import org.csstudio.config.ioconfig.view.actions.CreateStatisticAction;
 import org.csstudio.config.ioconfig.view.actions.CreateWinModAction;
 import org.csstudio.config.ioconfig.view.actions.CreateXMLConfigAction;
@@ -632,7 +632,7 @@ public class ProfiBusTreeView extends Composite implements ILoader {
 
     }
 
-    private ModuleList moduleList;
+    private PrototypeList prototypeList;
 
     /**
      * Generate a Action that opens the 'Manage Prototypes' view.
@@ -650,16 +650,16 @@ public class ProfiBusTreeView extends Composite implements ILoader {
                         public void run() {
                             try {
                                 
-                                moduleList = selectedSlave.retrieveModuleList();
+                                prototypeList = selectedSlave.retrievePrototypeList();
                                 
                                 //@formatter:off
-                                moduleList.addMissingModules(
+                                prototypeList.addMissingModules(
                                         selectedSlave.getParsedModuleInfo(),
                                         selectedSlave.getGSDFile());
                                         //@formatter:on
                                 
-                                if (moduleList.hasAddedMissingModules()) {
-                                    moduleList.sort();
+                                if (prototypeList.hasAddedMissingModules()) {
+                                    prototypeList.sort();
                                     Repository.refresh(selectedSlave.getGSDFile());
                                 }
 
@@ -676,9 +676,8 @@ public class ProfiBusTreeView extends Composite implements ILoader {
                             Display.getCurrent()
                             .getActiveShell(), 
                             new ChannelConfigDialogDataModel(
-                                    selectedSlave.getGSDFile(),
                                     (GSDModuleDataProvider)selectedSlave, 
-                                    moduleList,
+                                    prototypeList,
                                     selectedSlave.getParsedModuleInfo()));
                             //@formatter:on
                     

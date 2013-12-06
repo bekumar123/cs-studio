@@ -42,7 +42,6 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -50,20 +49,10 @@ import org.csstudio.config.ioconfig.model.Diagnose;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdFileParser;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.ParsedGsdFileModel;
 import org.csstudio.config.ioconfig.model.types.ParsedModuleInfo;
-import org.csstudio.config.ioconfig.model.types.RepositoryRefreshable;
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
-/**
- * @author hrickens
- * @author $Author: hrickens $
- * @version $Revision: 1.4 $
- * @since 28.06.2007
- */
 @Entity
 @Table(name = "ddb_GSD_File")
-public class GSDFileDBO implements Serializable, RepositoryRefreshable {
+public class GSDFileDBO implements Serializable {
 
     private static final long serialVersionUID = 1L;
     /** The DB ID. */
@@ -161,7 +150,7 @@ public class GSDFileDBO implements Serializable, RepositoryRefreshable {
     //
     // only used by Hibernate
     //
-    protected Map<Integer, GSDModuleDBO> getGSDModules() {
+    Map<Integer, GSDModuleDBO> getGSDModules() {
         return _gSDModules;
     }
 
@@ -170,23 +159,20 @@ public class GSDFileDBO implements Serializable, RepositoryRefreshable {
      * @param gsdModules
      *            set the Modules for this GSD File.
      */
-    //
-    // only used by Hibernate
-    //
-    protected void setGSDModules(@Nullable final Map<Integer, GSDModuleDBO> gsdModules) {
+    void setGSDModules(@Nullable final Map<Integer, GSDModuleDBO> gsdModules) {
         _gSDModules = gsdModules;
     }
 
     /**
      * Get a Module of this File.
      * 
-     * @param indexModule
-     *            the index for the given Module.
+     * @param moduleId
+     *            the moduleId for the given Module.
      * @return the selected Module.
      */
     @CheckForNull
-    public GSDModuleDBO getGSDModule(@Nonnull final Integer indexModule) {
-        return _gSDModules == null ? null : _gSDModules.get(indexModule);
+    public GSDModuleDBO getGSDModule(@Nonnull final Integer moduleId) {
+        return _gSDModules == null ? null : _gSDModules.get(moduleId);
     }
 
     /**

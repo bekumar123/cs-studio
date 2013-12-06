@@ -42,7 +42,7 @@ import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBOReadOnly;
 import org.csstudio.config.ioconfig.model.pbmodel.ModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdModuleModel2;
 import org.csstudio.config.ioconfig.model.types.GsdFileId;
-import org.csstudio.config.ioconfig.model.types.ModuleList;
+import org.csstudio.config.ioconfig.model.types.PrototypeList;
 import org.csstudio.config.ioconfig.model.types.ModuleNumber;
 import org.csstudio.config.ioconfig.view.DeviceDatabaseErrorDialog;
 import org.csstudio.config.ioconfig.view.ProfiBusTreeView;
@@ -76,7 +76,7 @@ public final class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
 
     private Optional<ModuleNumber> selectedModuleNumber;
 
-    private ModuleList moduleList;
+    private PrototypeList prototypeList;
 
     private Composite gridComposite;
 
@@ -185,14 +185,14 @@ public final class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
         gridComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
         gridComposite.setLayout(new GridLayout(2, false));
 
-        moduleList = Repository.loadModules(new GsdFileId(getGsdFile().getId()));
+        prototypeList = Repository.loadModules(new GsdFileId(getGsdFile().getId()));
 
         Optional<ModuleNumber> moduleNumber = ModuleNumber.moduleNumber(module.getModuleNumber());
 
         //@formatter:off
         moduleSelectionListBox = new ModuleSelectionListBox(
                 gridComposite, 
-                moduleList,
+                prototypeList,
                 getGsdFile().getParsedModuleInfo(),
                 moduleNumber);
                 //@formatter:on

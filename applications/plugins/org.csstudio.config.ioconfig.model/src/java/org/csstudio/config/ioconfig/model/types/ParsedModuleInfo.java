@@ -36,6 +36,8 @@ public class ParsedModuleInfo {
     
     private ModuleInfo createModuleInfo(GsdModuleModel2 gsdModuleModel2) {
         
+        Preconditions.checkNotNull(gsdModuleModel2, "gsdModuleModel2 must not be null");
+        
         boolean input = false;
         boolean output = false;
         boolean isWordSize = false;

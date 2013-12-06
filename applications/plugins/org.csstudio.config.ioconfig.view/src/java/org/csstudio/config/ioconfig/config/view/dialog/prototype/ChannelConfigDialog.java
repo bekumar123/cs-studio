@@ -335,7 +335,6 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
                         newlyCreatedVersionedPrototype = channelConfigDialogDataModel.createNewVersion(
                                 newVersionDialog.getModuleVersionInfo().get());
                                 //@formatter:on
-                        channelConfigDialogDataModel.refreshFromRepository();
                     } catch (PersistenceException e) {
                         e.printStackTrace();
                     }
@@ -454,7 +453,7 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
         //@formatter:off
         moduleSelectionListBox = new ModuleSelectionListBox(
                 gridComposite, 
-                channelConfigDialogDataModel.getModulelist(),
+                channelConfigDialogDataModel.getPrototypeList(),
                 channelConfigDialogDataModel.getParsedModuleInfo(),
                 ModuleNumber.moduleNumber(channelConfigDialogDataModel.getCurrentModuleNumber().getValue()));
                 //@formatter:on

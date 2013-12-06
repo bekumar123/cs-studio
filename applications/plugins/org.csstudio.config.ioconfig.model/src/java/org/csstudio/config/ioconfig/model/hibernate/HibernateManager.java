@@ -110,7 +110,7 @@ public final class HibernateManager extends AbstractHibernateManager {
                 .setProperty("c3p0.idle_test_period", "100")
                 .setProperty("c3p0.max_statements", "1")
                 //.setProperty("hibernate.hbm2ddl.auto", "update")
-                .setProperty("hibernate.show_sql", "true")
+                //.setProperty("hibernate.show_sql", "true")
                 .setProperty("hibernate.format_sql", "true")
                 .setProperty("hibernate.use_sql_comments", "true");
                 // .setProperty("hibernate.cache.use_second_level_cache", "true");

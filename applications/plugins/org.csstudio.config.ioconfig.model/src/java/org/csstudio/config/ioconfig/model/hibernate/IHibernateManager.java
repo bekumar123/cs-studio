@@ -31,9 +31,6 @@ import org.csstudio.config.ioconfig.model.PersistenceException;
 public interface IHibernateManager {
     
     @CheckForNull
-    <T> T executeAndUseDocumentSession(@Nonnull final IHibernateCallback hibernateCallback) throws PersistenceException;
-
-    @CheckForNull
     <T> T executeAndCloseSession(@Nonnull final IHibernateCallback hibernateCallback) throws PersistenceException;
         
     @CheckForNull

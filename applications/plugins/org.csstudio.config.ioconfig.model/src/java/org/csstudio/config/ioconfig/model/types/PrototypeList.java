@@ -16,14 +16,14 @@ import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBOReadOnly;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
-public class ModuleList {
+public class PrototypeList {
 
     private final Map<ModuleNumber, GSDModuleDBOReadOnly> modules;
     private final List<GSDModuleDBOReadOnly> moduleList;
     private final ConfiguredModuleList configuredModules;
     private Optional<ModuleVersionInfo> editedModuleVersionInfo;
 
-    public ModuleList(final List<GSDModuleDBOReadOnly> moduleList, final ConfiguredModuleList configuredModules) {
+    public PrototypeList(final List<GSDModuleDBOReadOnly> moduleList, final ConfiguredModuleList configuredModules) {
 
         Preconditions.checkNotNull(moduleList, "moduleList must not be null");
         Preconditions.checkNotNull(configuredModules, "configuredModules must not be null");
@@ -53,13 +53,6 @@ public class ModuleList {
 
     public void unsetEditedModuleVersionInfo() {
         this.editedModuleVersionInfo = Optional.absent();
-    }
-
-    public Optional<Object> getObject(final ModuleNumber moduleNumber) {
-        
-        Preconditions.checkNotNull(moduleNumber, "moduleNumber must not be null");
-
-        return Optional.of((Object) modules.get(moduleNumber));
     }
 
     public ModuleLabel getModuleLabel(final ModuleNumber moduleNumber) {
@@ -94,10 +87,11 @@ public class ModuleList {
         if (!modules.containsKey(moduleNumber)) {
             throw new IllegalStateException("No module for number " + moduleNumber);
         }
+        
         return modules.get(moduleNumber);
     }
 
-    public boolean hasPrototype(final ModuleNumber moduleNumber) {
+    public boolean hasChannelConfiguration(final ModuleNumber moduleNumber) {
         
         Preconditions.checkNotNull(moduleNumber, "moduleNumber must not be null");
 
@@ -167,7 +161,7 @@ public class ModuleList {
     }
 
     public void sort() {
-        Collections.sort(moduleList, ModuleList.createComparator());
+        Collections.sort(moduleList, PrototypeList.createComparator());
     }
 
     private static Comparator<GSDModuleDBOReadOnly> createComparator() {

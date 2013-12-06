@@ -23,11 +23,14 @@ package org.csstudio.config.ioconfig.model.pbmodel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -45,24 +48,17 @@ import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdFileParser;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdModuleModel2;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.ParsedGsdFileModel;
 import org.csstudio.config.ioconfig.model.types.GsdFileId;
-import org.csstudio.config.ioconfig.model.types.ModuleList;
+import org.csstudio.config.ioconfig.model.types.PrototypeList;
 import org.csstudio.config.ioconfig.model.types.ModuleNumber;
 import org.csstudio.config.ioconfig.model.types.ParsedModuleInfo;
 import org.hibernate.annotations.BatchSize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author gerke
- * @author $Author: hrickens $
- * @version $Revision: 1.7 $
- * @since 26.03.2007
- */
-
 @Entity
 @BatchSize(size = 32)
 @Table(name = "ddb_Profibus_Slave")
-//@SecondaryTable(name="nodeDB", pkJoinColumns = @)
+// @SecondaryTable(name="nodeDB", pkJoinColumns = @)
 public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> implements GSDModuleDataProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(SlaveDBO.class);
@@ -112,8 +108,8 @@ public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> imple
     private String _iDNo;
 
     /**
-     * This Constructor is only used by Hibernate. To create an new {@link SlaveDBO}
-     * {@link #Slave(MasterDBO)}
+     * This Constructor is only used by Hibernate. To create an new
+     * {@link SlaveDBO} {@link #Slave(MasterDBO)}
      */
     public SlaveDBO() {
         // only for Hibernate
@@ -143,6 +139,7 @@ public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> imple
 
     /**
      * {@inheritDoc}
+     * 
      * @throws PersistenceException
      */
     @Override
@@ -172,17 +169,32 @@ public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> imple
     }
 
     @Transient
-    public ModuleList retrieveModuleList() {
+    public PrototypeList retrievePrototypeList() {
         try {
             return Repository.loadModules(new GsdFileId(_gsdFile.getId()));
         } catch (PersistenceException e) {
             throw new IllegalStateException(e);
         }
     }
-    
+
     @Transient
-    public GSDModuleDBO getPrototypeModule(ModuleNumber moduleNumber) {
-        return getGSDFile().getParsedGsdFileModel().getGsdFileDBO().getGSDModule(moduleNumber.getValue());
+    public GSDModuleDBO getPrototype(ModuleNumber moduleNumber) {
+        return getGSDFile().getGSDModule(moduleNumber.getValue());
+    }
+
+    @Transient
+    public void registerNewPrototype(GSDModuleDBO gsdModule) {
+        Map<Integer, GSDModuleDBO> currentGsdModules = getGSDFile().getGSDModules();
+        currentGsdModules.put(gsdModule.getModuleId(),  gsdModule);        
+    }
+
+    @Transient
+    public void refreshProtoype(ModuleNumber moduleNumber) {
+        try {
+            Repository.refresh(getGSDFile().getGSDModule(moduleNumber.getValue()));
+        } catch (PersistenceException e) {
+            e.printStackTrace();
+        }
     }
 
     @Transient
@@ -207,14 +219,14 @@ public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> imple
     @Transient
     private boolean fill() {
         final GSDFileDBO gsdFile = getGSDFile();
-        if(gsdFile == null) {
+        if (gsdFile == null) {
             return false;
         }
 
         final ParsedGsdFileModel parsedGsdFileModel = gsdFile.getParsedGsdFileModel();
 
         // Head
-        if(parsedGsdFileModel != null) {
+        if (parsedGsdFileModel != null) {
             setVersion(parsedGsdFileModel.getGsdRevision());
 
             setVendorName(parsedGsdFileModel.getVendorName());
@@ -228,8 +240,8 @@ public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> imple
             setRevision(parsedGsdFileModel.getRevision());
             parsedGsdFileModel.isModularStation();
             _maxSize = parsedGsdFileModel.getMaxModule().shortValue();
-            if(parsedGsdFileModel.isModularStation()) {
-                if(_maxSize < 1) {
+            if (parsedGsdFileModel.isModularStation()) {
+                if (_maxSize < 1) {
                     return false;
                 }
             }
@@ -272,7 +284,7 @@ public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> imple
     }
 
     /**
-     *
+     * 
      * @return Min. station delay time.
      */
     public int getMinTsdr() {
@@ -280,12 +292,12 @@ public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> imple
     }
 
     /**
-     *
+     * 
      * @return get the Model Name of Slave.
      */
     @Nonnull
     public String getModelName() {
-        if(_modelName == null) {
+        if (_modelName == null) {
             _modelName = "";
         }
         return _modelName;
@@ -301,10 +313,11 @@ public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> imple
         return NodeType.SLAVE;
     }
 
-    // length is 1170 = 234*5: 234 byte as profibus slave configuration, each 5 byte encoded as '0xab,'.
+    // length is 1170 = 234*5: 234 byte as profibus slave configuration, each 5
+    // byte encoded as '0xab,'.
     // we are using some more.
     @Nonnull
-    @Column(length=1220)
+    @Column(length = 1220)
     public String getPrmUserData() {
         return GsdFileParser.intList2HexString(_prmUserDataList);
     }
@@ -327,7 +340,7 @@ public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> imple
 
     @Nonnull
     public String getRevision() {
-        if(_revision == null) {
+        if (_revision == null) {
             _revision = "";
         }
         return _revision;
@@ -346,12 +359,12 @@ public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> imple
     }
 
     /**
-     *
+     * 
      * @return The Vendor name of this slave.
      */
     @Nonnull
     public String getVendorName() {
-        if(_vendorName == null) {
+        if (_vendorName == null) {
             _vendorName = "";
         }
         return _vendorName;
@@ -369,12 +382,13 @@ public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> imple
     public int hashCode() {
         return super.hashCode();
     }
+
     // CHECKSTYLE ON: StrictDuplicateCode
 
     /**
-     * Swap the SortIndex of two nodes. Is the given SortIndex in use the other node became the old
-     * SortIndex of this node.
-     *
+     * Swap the SortIndex of two nodes. Is the given SortIndex in use the other
+     * node became the old SortIndex of this node.
+     * 
      * @param index
      *            the new sortIndex for this node.
      * @throws PersistenceException
@@ -382,21 +396,21 @@ public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> imple
     @Override
     public void moveSortIndex(final int toIndex) throws PersistenceException {
         final short index = (short) toIndex;
-        if(index == getSortIndex()) { // no new Address don't move
+        if (index == getSortIndex()) { // no new Address don't move
             return;
         }
-        if(getParent() == null) { // Have no Parent
+        if (getParent() == null) { // Have no Parent
             setSortIndexNonHibernate(index);
             LOG.warn("Slave has no Parent!");
             return;
         }
-        if(index < 0) {
+        if (index < 0) {
             throw new ArrayIndexOutOfBoundsException(index);
         }
         // Move a exist Node
         final SlaveDBO moveNode = getParent().getChildrenAsMap().get(index);
-        if(moveNode != null) {
-            moveNode.moveSortIndex( index + 1);
+        if (moveNode != null) {
+            moveNode.moveSortIndex(index + 1);
         }
         setSortIndexNonHibernate(index);
     }
@@ -424,19 +438,19 @@ public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> imple
      *            set the GSDFile.
      */
     public void setGSDFile(@CheckForNull final GSDFileDBO gsdFile) {
-        if(gsdFile == null) {
+        if (gsdFile == null) {
             _gsdFile = null;
-        } else if(!gsdFile.equals(_gsdFile)) {
+        } else if (!gsdFile.equals(_gsdFile)) {
             final GSDFileDBO oldGDS = _gsdFile;
             _gsdFile = gsdFile;
-            if(!fill()) {
+            if (!fill()) {
                 _gsdFile = oldGDS;
             }
         }
     }
 
     /**
-     *
+     * 
      * @param minTsdr
      *            set Min. station delay time.
      */
@@ -445,11 +459,11 @@ public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> imple
         minTsdrSet.add(minTsdr);
         Integer minSlaveIntervall;
         final GSDFileDBO gsdFile = getGSDFile();
-        if(gsdFile != null) {
+        if (gsdFile != null) {
             final ParsedGsdFileModel parsedGsdFileModel = gsdFile.getParsedGsdFileModel();
-            if(parsedGsdFileModel != null) {
+            if (parsedGsdFileModel != null) {
                 minSlaveIntervall = parsedGsdFileModel.getIntProperty("Min_Slave_Intervall");
-                if(minSlaveIntervall != null) {
+                if (minSlaveIntervall != null) {
                     minTsdrSet.add(minSlaveIntervall);
                 }
             }
@@ -458,7 +472,7 @@ public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> imple
     }
 
     /**
-     *
+     * 
      * @param modelName
      *            Set the Model Name of Slave.
      */
@@ -473,7 +487,7 @@ public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> imple
 
     public void setPrmUserData(@Nonnull final String prmUserData) {
         _prmUserDataList = new ArrayList<Integer>();
-        if(prmUserData != null&&!prmUserData.trim().isEmpty()) {
+        if (prmUserData != null && !prmUserData.trim().isEmpty()) {
             final String[] split = prmUserData.split(",");
             for (final String value : split) {
                 _prmUserDataList.add(GsdFileParser.gsdValue2Int(value));
@@ -514,7 +528,8 @@ public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> imple
     }
 
     /**
-     * @param vendorName Set the Vendor name of this slave.
+     * @param vendorName
+     *            Set the Vendor name of this slave.
      */
     public void setVendorName(@Nonnull final String vendorName) {
         _vendorName = vendorName;
@@ -536,11 +551,11 @@ public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> imple
         StringBuilder cfgData = new StringBuilder();
         for (final ModuleDBO module : getChildrenAsMap().values()) {
             final GsdModuleModel2 gsdModuleModel2 = module.getGsdModuleModel2();
-            if(gsdModuleModel2 != null) {
+            if (gsdModuleModel2 != null) {
                 cfgData = cfgData.append(gsdModuleModel2.getValueAsString().trim()).append(",");
             }
         }
-        if(cfgData.toString().endsWith(",")) {
+        if (cfgData.toString().endsWith(",")) {
             cfgData = cfgData.deleteCharAt(cfgData.length() - 1);
         }
         return cfgData.toString();

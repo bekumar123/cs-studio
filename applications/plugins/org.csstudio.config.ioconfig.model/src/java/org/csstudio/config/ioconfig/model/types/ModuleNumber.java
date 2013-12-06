@@ -73,7 +73,7 @@ public class ModuleNumber implements Comparable<ModuleNumber> {
     }
 
     private Double asDouble() {
-        return (getModuleNumberWithoutVersionInfo() * 1.0) + (0.01 * getVersion());
+        return (getModuleNumberWithoutVersionInfo() * 1.0) + (0.001 * getVersion());
     }
     
     public int compareTo(ModuleNumber moduleNumber) {

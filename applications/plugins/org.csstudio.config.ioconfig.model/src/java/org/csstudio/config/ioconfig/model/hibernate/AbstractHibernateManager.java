@@ -68,12 +68,7 @@ public abstract class AbstractHibernateManager extends Observable implements IHi
 
     private SessionFactory sessionFactory;
 
-    public static Session sessionLazy;
-
-    // Special session to load documents.
-    // Needed since the DocumentationManagerView calls Document save
-    // that can cause unwanted updates to the database.
-    private Session sessionDocument;
+    private Session sessionLazy;
 
     /**
      * The timeout in sec.
@@ -118,46 +113,13 @@ public abstract class AbstractHibernateManager extends Observable implements IHi
             sessionLazy.disconnect();
             sessionLazy = null;
         }
-        if (sessionDocument != null && sessionDocument.isOpen()) {
-            sessionDocument.disconnect();
-            sessionDocument = null;
-        }
         if (sessionFactory != null && !sessionFactory.isClosed()) {
             sessionFactory.close();
             sessionFactory = null;
         }
         LOG.info("DB Session  Factory closed");
     }
-
-    public <T> T executeAndUseDocumentSession(@Nonnull final IHibernateCallback hibernateCallback)
-            throws PersistenceException {
-        trx = null;
-        try {
-            if (sessionDocument == null) {
-                if (sessionFactory == null) {
-                    initSessionFactory();
-                }
-                sessionDocument = sessionFactory.openSession();
-            }
-            trx = sessionDocument.getTransaction();
-            trx.setTimeout(timeout);
-            trx.begin();
-            final T result = execute(hibernateCallback, sessionDocument);
-            trx.commit();
-            return result;
-        } catch (final HibernateException ex) {
-            tryRollback(ex);
-            try {
-                if (sessionDocument != null && sessionDocument.isOpen()) {
-                    sessionDocument.close();
-                }
-            } finally {
-                sessionDocument = null;
-            }
-            throw new PersistenceException(ex);
-        }
-    }
-
+  
     @Override
     @CheckForNull
     public final <T> T executeAndCloseSession(@Nonnull final IHibernateCallback hibernateCallback)
@@ -221,7 +183,7 @@ public abstract class AbstractHibernateManager extends Observable implements IHi
     }
 
     @CheckForNull
-    final <T> T execute(@Nonnull final IHibernateCallback callback, @Nonnull final Session sess) {
+    private final <T> T execute(@Nonnull final IHibernateCallback callback, @Nonnull final Session sess) {
         return callback.execute(sess);
     }
 

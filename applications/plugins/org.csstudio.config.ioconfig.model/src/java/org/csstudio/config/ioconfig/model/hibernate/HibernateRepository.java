@@ -28,7 +28,7 @@ import org.csstudio.config.ioconfig.model.service.internal.Channel4ServicesDBO;
 import org.csstudio.config.ioconfig.model.types.ConfiguredModuleList;
 import org.csstudio.config.ioconfig.model.types.GsdFileId;
 import org.csstudio.config.ioconfig.model.types.ModuleId;
-import org.csstudio.config.ioconfig.model.types.ModuleList;
+import org.csstudio.config.ioconfig.model.types.PrototypeList;
 import org.hibernate.HibernateException;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
@@ -378,6 +378,9 @@ public class HibernateRepository implements IRepository {
         return hibernateManager.isConnected();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T> void refresh(final T object) throws PersistenceException {
         hibernateManager.executeAndKeepSessionOpen(new IHibernateCallback() {
@@ -385,9 +388,7 @@ public class HibernateRepository implements IRepository {
             @Override
             @Nonnull
             public T execute(@Nonnull final Session session) {
-                session.evict(object);
-                session.load(object, ((GSDFileDBO)object).getId());
-                //session.refresh(object);
+                session.refresh(object);
                 return object;
             }
 
@@ -466,7 +467,7 @@ public class HibernateRepository implements IRepository {
     @Override
     @CheckForNull
     public final List<DocumentDBO> loadDocument() throws PersistenceException {
-        return hibernateManager.executeAndUseDocumentSession(new IHibernateCallback() {
+        return hibernateManager.executeAndCloseSession(new IHibernateCallback() {
             @Override
             @SuppressWarnings("unchecked")
             @CheckForNull
@@ -579,7 +580,7 @@ public class HibernateRepository implements IRepository {
 
     @Override
     @Nonnull
-    public final ModuleList loadModules(@Nonnull final GsdFileId gsdFileId) throws PersistenceException {
+    public final PrototypeList loadModules(@Nonnull final GsdFileId gsdFileId) throws PersistenceException {
         
         Preconditions.checkNotNull(gsdFileId, "gsdFileId must not be null");
         
@@ -587,7 +588,7 @@ public class HibernateRepository implements IRepository {
             @Override
             @SuppressWarnings("unchecked")
             @Nonnull
-            public ModuleList execute(@Nonnull final Session session) {
+            public PrototypeList execute(@Nonnull final Session session) {
 
                 final Query query = session.createQuery("from " + GSDModuleDBO.class.getName()
                         + " as m where m.GSDFile.id = :gsdFileId");
@@ -615,7 +616,7 @@ public class HibernateRepository implements IRepository {
                     resultReadOnly.add(gsdModuleDBO);
                 }
                 
-                ModuleList moduleList = new ModuleList(resultReadOnly, new ConfiguredModuleList(configuredModules));
+                PrototypeList moduleList = new PrototypeList(resultReadOnly, new ConfiguredModuleList(configuredModules));
                 moduleList.sort();
 
                 return moduleList;
@@ -668,7 +669,7 @@ public class HibernateRepository implements IRepository {
     @Nonnull
     public final DocumentDBO save(@Nonnull final DocumentDBO document) throws PersistenceException {
 
-        hibernateManager.executeAndUseDocumentSession(new IHibernateCallback() {
+        hibernateManager.executeAndCloseSession(new IHibernateCallback() {
 
             @SuppressWarnings("unchecked")
             @Override
@@ -728,29 +729,6 @@ public class HibernateRepository implements IRepository {
             final PersistenceException persistenceException = new PersistenceException(he);
             throw persistenceException;
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Nonnull
-    public final DocumentDBO update(@Nonnull final DocumentDBO document) throws PersistenceException {
-
-        hibernateManager.executeAndKeepSessionOpen(new IHibernateCallback() {
-
-            @SuppressWarnings("unchecked")
-            @Override
-            @Nonnull
-            public DocumentDBO execute(@Nonnull final Session session) {
-                document.setUpdateDate(new Date());
-                session.update(document);
-                session.flush();
-                return document;
-            }
-
-        });
-        return document;
     }
 
     /**

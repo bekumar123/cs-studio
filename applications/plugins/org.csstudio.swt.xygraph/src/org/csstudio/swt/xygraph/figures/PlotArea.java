@@ -185,17 +185,6 @@ public class PlotArea extends Figure {
 		}
 		return result;
 	}
-	
-	
-	public void addFigureToUpperLayer(Figure figure) {
-		upperLayer.add(figure);
-		revalidate();
-	}
-	
-	public void removeFigureFromUpperLayer(Figure figure) {
-		upperLayer.remove(figure);
-		revalidate();
-	}
 
 	/**
 	 * Add an annotation to the plot area.

@@ -7,7 +7,13 @@ public class Characteristic<T> {
 
 	public static final Characteristic<Double> MAXIMUM = new Characteristic<Double>("MAXIMUM", Double.class);
 	public static final Characteristic<Double> MINIMUM = new Characteristic<Double>("MINIMUM", Double.class);
+	/**
+	 * Graph Min (Lower Display Limit)
+	 */
 	public static final Characteristic<Double> GRAPH_MIN = new Characteristic<Double>("GRAPH_MIN", Double.class);
+	/**
+	 * Graph Max (Upper Display Limit)
+	 */
 	public static final Characteristic<Double> GRAPH_MAX = new Characteristic<Double>("GRAPH_MAX", Double.class);
 	public static final Characteristic<Double> ALARM_MIN = new Characteristic<Double>("ALARM_MIN", Double.class);
 	public static final Characteristic<Double> ALARM_MAX = new Characteristic<Double>("ALARM_MAX", Double.class);

@@ -34,12 +34,12 @@ public class PvAccessTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetter() throws Exception {
-		Type<Long> type = Type.LONG;
-		ICsPvAccess<Long> csPvAccessMock = mock(ICsPvAccess.class);
+		Type<Integer> type = Type.LONG;
+		ICsPvAccess<Integer> csPvAccessMock = mock(ICsPvAccess.class);
 		when(csPvAccessMock.getPvAddress()).thenReturn(
 				PvAddress.getValue("myPv"));
 
-		PvAccess<Long> pvAccess = new PvAccess<Long>(csPvAccessMock, type,
+		PvAccess<Integer> pvAccess = new PvAccess<Integer>(csPvAccessMock, type,
 				ListenerType.ALARM);
 		assertEquals(PvAddress.getValue("myPv"), pvAccess.getPVAddress());
 		assertEquals(Type.LONG, pvAccess.getType());
@@ -51,17 +51,17 @@ public class PvAccessTest {
 	public void testRegisterAndDeregister() throws Exception {
 
 		// prepare PvAccess
-		Type<Long> type = Type.LONG;
-		ICsPvAccess<Long> csPvAccessMock = mock(ICsPvAccess.class);
-		PvAccess<Long> objectUnderTest = new PvAccess<Long>(csPvAccessMock,
+		Type<Integer> type = Type.LONG;
+		ICsPvAccess<Integer> csPvAccessMock = mock(ICsPvAccess.class);
+		PvAccess<Integer> objectUnderTest = new PvAccess<Integer>(csPvAccessMock,
 				type, ListenerType.VALUE);
 
 		// Register listener 1
-		IPvListener<Long> listenerMock1 = mock(IPvListener.class);
+		IPvListener<Integer> listenerMock1 = mock(IPvListener.class);
 		objectUnderTest.registerListener(listenerMock1);
 
 		// Register listener 2
-		IPvListener<Long> listenerMock2 = mock(IPvListener.class);
+		IPvListener<Integer> listenerMock2 = mock(IPvListener.class);
 		objectUnderTest.registerListener(listenerMock2);
 
 		// check underlying monitor registration
@@ -71,14 +71,14 @@ public class PvAccessTest {
 		verify(csPvAccessMock, times(1)).initMonitor(argument.capture());
 
 		// test event
-		ICsPvListener<Long> registredListener = argument.getValue();
+		ICsPvListener<Integer> registredListener = argument.getValue();
 		assertEquals(ListenerType.VALUE, registredListener.getType());
-		CsPvData<Long> csPvData = new CsPvData<Long>(7L,
-				createTestCharacteristics());
+		CsPvData<Integer> csPvData = new CsPvData<Integer>(7,
+				createTestCharacteristics(), Type.DOUBLE);
 		registredListener.valueChanged(csPvData);
 
-		verify(listenerMock1).valueChanged(objectUnderTest, 7L);
-		verify(listenerMock2).valueChanged(objectUnderTest, 7L);
+		verify(listenerMock1).valueChanged(objectUnderTest, 7);
+		verify(listenerMock2).valueChanged(objectUnderTest, 7);
 
 		// Deregister first listener
 
@@ -136,8 +136,8 @@ public class PvAccessTest {
 	@SuppressWarnings("unchecked")
 	@Test(expected = IllegalStateException.class)
 	public void testDeregisterNotExisting_2() throws Exception {
-		ICsPvAccess<Long> csPvAccessMock = mock(ICsPvAccess.class);
-		PvAccess<Long> objectUnderTest = new PvAccess<Long>(csPvAccessMock,
+		ICsPvAccess<Integer> csPvAccessMock = mock(ICsPvAccess.class);
+		PvAccess<Integer> objectUnderTest = new PvAccess<Integer>(csPvAccessMock,
 				Type.LONG, ListenerType.VALUE);
 
 		// register one listener
@@ -150,8 +150,8 @@ public class PvAccessTest {
 	@SuppressWarnings("unchecked")
 	@Test()
 	public void testDeregisterAll() throws Exception {
-		ICsPvAccess<Long> csPvAccessMock = mock(ICsPvAccess.class);
-		PvAccess<Long> objectUnderTest = new PvAccess<Long>(csPvAccessMock,
+		ICsPvAccess<Integer> csPvAccessMock = mock(ICsPvAccess.class);
+		PvAccess<Integer> objectUnderTest = new PvAccess<Integer>(csPvAccessMock,
 				Type.LONG, ListenerType.VALUE);
 
 		// register two listener
@@ -173,8 +173,8 @@ public class PvAccessTest {
 	@Test
 	public void testGetValue() throws DalException {
 
-		final ICsPvAccess<Long> csPvAccessMock = mock(ICsPvAccess.class);
-		PvAccess<Long> objectUnderTest = new PvAccess<Long>(csPvAccessMock,
+		final ICsPvAccess<Integer> csPvAccessMock = mock(ICsPvAccess.class);
+		PvAccess<Integer> objectUnderTest = new PvAccess<Integer>(csPvAccessMock,
 				Type.LONG, ListenerType.VALUE);
 
 		assertNull(objectUnderTest.getLastKnownValue());
@@ -195,7 +195,7 @@ public class PvAccessTest {
 					ArgumentCaptor<ICsResponseListener> captor = ArgumentCaptor.forClass(ICsResponseListener.class);
 					verify(csPvAccessMock).getValue(captor.capture());
 					ICsResponseListener listener = captor.getValue();
-					listener.onSuccess(new CsPvData<Long>(65L, characteristics));
+					listener.onSuccess(new CsPvData<Integer>(65, characteristics, Type.DOUBLE));
 
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -214,8 +214,8 @@ public class PvAccessTest {
 	@Test(expected = TimeoutException.class, timeout = 300)
 	public void testGetValueWithTimeout() throws DalException {
 
-		final ICsPvAccess<Long> csPvAccessMock = mock(ICsPvAccess.class);
-		PvAccess<Long> objectUnderTest = new PvAccess<Long>(csPvAccessMock,
+		final ICsPvAccess<Integer> csPvAccessMock = mock(ICsPvAccess.class);
+		PvAccess<Integer> objectUnderTest = new PvAccess<Integer>(csPvAccessMock,
 				Type.LONG, ListenerType.VALUE);
 
 		objectUnderTest.getValue(250, TimeUnit.MILLISECONDS);
@@ -227,14 +227,14 @@ public class PvAccessTest {
 
 		ICsOperationHandle operationHandle = mock(ICsOperationHandle.class);
 
-		final ICsPvAccess<Long> csPvAccessMock = mock(ICsPvAccess.class);
+		final ICsPvAccess<Integer> csPvAccessMock = mock(ICsPvAccess.class);
 		when(csPvAccessMock.getValue(any(ICsResponseListener.class)))
 				.thenReturn(operationHandle);
 
-		PvAccess<Long> objectUnderTest = new PvAccess<Long>(csPvAccessMock,
+		PvAccess<Integer> objectUnderTest = new PvAccess<Integer>(csPvAccessMock,
 				Type.LONG, ListenerType.VALUE);
 
-		IResponseListener<Long> listener = mock(IResponseListener.class);
+		IResponseListener<Integer> listener = mock(IResponseListener.class);
 		objectUnderTest.getValue(250, TimeUnit.MILLISECONDS, listener);
 
 		verify(listener, timeout(30000).times(1)).onTimeout();
@@ -268,7 +268,7 @@ public class PvAccessTest {
 					.set(Characteristic.TIMESTAMP, new Timestamp(1000, 0))
 					.build();
 			captor.getValue().onSuccess(
-					new CsPvData<String>(value, characteristics));
+					new CsPvData<String>(value, characteristics, Type.STRING));
 
 			assertEquals(value, objectUnderTest.getLastKnownValue());
 			assertEquals(characteristics,
@@ -287,7 +287,7 @@ public class PvAccessTest {
 			Characteristics characteristics = Characteristics.builder()
 					.set(Characteristic.TIMESTAMP, new Timestamp(2000, 0))
 					.build();
-			captor.getValue().valueChanged(new CsPvData<String>(value, characteristics));
+			captor.getValue().valueChanged(new CsPvData<String>(value, characteristics, Type.STRING));
 
 			assertEquals(value, objectUnderTest.getLastKnownValue());
 			

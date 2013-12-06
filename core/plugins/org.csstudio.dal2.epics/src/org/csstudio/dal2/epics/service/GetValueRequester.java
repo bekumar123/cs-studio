@@ -37,7 +37,7 @@ class GetValueRequester<T> extends AbstractChannelOperator implements
 	@Override
 	protected void onFirstConnect(ConnectionEvent ev) {
 
-		DBRType dbrType = TypeMapper.getMapper(_type).getDBRCtrlType();
+		DBRType dbrType = TypeMapper.getMapper(_type, getNativeType()).getDBRCtrlType();
 		int elementCount = getChannel().getElementCount();
 
 		try {
@@ -60,11 +60,11 @@ class GetValueRequester<T> extends AbstractChannelOperator implements
 						"Error reading value from channel: received null");
 			} else {
 				DBR dbr = ev.getDBR();
-				T value = TypeMapper.getMapper(_type).mapValue(dbr);
+				T value = TypeMapper.getMapper(_type, getNativeType()).mapValue(dbr);
 				String hostname = getChannel().getHostName();
 				Characteristics characteristics = new CharacteristicsService()
 						.newCharacteristics(dbr, hostname);
-				CsPvData<T> pvData = new CsPvData<T>(value, characteristics);
+				CsPvData<T> pvData = new CsPvData<T>(value, characteristics, getNativeType());
 
 				dispose();
 

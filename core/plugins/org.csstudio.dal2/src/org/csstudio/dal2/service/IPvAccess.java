@@ -122,4 +122,14 @@ public interface IPvAccess<T> {
 	 */
 	boolean isConnected();
 
+	/**
+	 * Returns true if a (last known) native type is available
+	 */
+	boolean hasLastKnownNativeType();
+	
+	/**
+	 * Returns the last known native type of the pv.
+	 */
+	Type<?> getLastKnownNativeType();
+
 }

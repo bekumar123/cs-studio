@@ -62,7 +62,7 @@ public class Dal2ReconnectTest {
 		
 		final AlarmListener[] listener = new AlarmListener[5000];
 		// create pv access
-		final IPvAccess<Long>[] access = new IPvAccess[5000];
+		final IPvAccess<Integer>[] access = new IPvAccess[5000];
 		for (int i = 0; i < 5000; i++) {
 			PvAddress address = PvAddress.getValue("Test:Ramp_calc_" + i);
 			access[i] = _dalService.getPVAccess(address, Type.LONG,
@@ -238,18 +238,18 @@ public class Dal2ReconnectTest {
 		Thread.sleep(1000); // wait until soft ioc comes down
 	}
 
-	private static class AlarmListener implements IPvListener<Long> {
+	private static class AlarmListener implements IPvListener<Integer> {
 
 		private boolean receivedAlarm;
 
 		@Override
-		public void connectionChanged(IPvAccess<Long> source,
+		public void connectionChanged(IPvAccess<Integer> source,
 				boolean isConnected) {
 			// nothing to do
 		}
 
 		@Override
-		public synchronized void valueChanged(IPvAccess<Long> source, Long value) {
+		public synchronized void valueChanged(IPvAccess<Integer> source, Integer value) {
 			if (source.getLastKnownCharacteristics().getStatus().isAlarm()) {
 				receivedAlarm = true;
 			}

@@ -1,6 +1,7 @@
 package org.csstudio.dal2.service.cs;
 
 import org.csstudio.dal2.dv.ListenerType;
+import org.csstudio.dal2.dv.Type;
 
 /**
  * A pv listener
@@ -12,13 +13,20 @@ import org.csstudio.dal2.dv.ListenerType;
 public interface ICsPvListener<T> {
 
 	/**
-	 * Called when the connection state changed
+	 * Called when the connection has been established
 	 * 
 	 * @param pvName Name of the pv
-	 * @param isConnected
+	 * @param nativeTyoe the nativeType
 	 */
-    void connectionChanged(String pvName, boolean isConnected);
+    void connected(String pvName, Type<?> nativeType);
 
+    /**
+	 * Called when the connection has been closed
+	 * 
+	 * @param pvName Name of the pv
+	 */
+    void disconnected(String pvName);
+    
     /**
      * Called when the state of the pv has changed (according to the listener type: {@link #getType()})
      * 

@@ -33,14 +33,14 @@ public class Scenario_DAL2JMS {
 			for (int i = 0; i < numberOfPVs; i++) {
 
 				PvAddress address = PvAddress.getValue("Test:Ramp_calc_" + i);
-				IPvAccess<Long> pvAccess = dalService.getPVAccess(address,
+				IPvAccess<Integer> pvAccess = dalService.getPVAccess(address,
 						Type.LONG, ListenerType.VALUE);
-				pvAccess.registerListener(new IPvListener<Long>() {
+				pvAccess.registerListener(new IPvListener<Integer>() {
 
 					boolean inAlarm = false;
 
 					@Override
-					public void valueChanged(IPvAccess<Long> source, Long value) {
+					public void valueChanged(IPvAccess<Integer> source, Integer value) {
 
 						Characteristics characteristics = source
 								.getLastKnownCharacteristics();
@@ -61,7 +61,7 @@ public class Scenario_DAL2JMS {
 					}
 
 					@Override
-					public void connectionChanged(IPvAccess<Long> source,
+					public void connectionChanged(IPvAccess<Integer> source,
 							boolean isConnected) {
 					}
 				});

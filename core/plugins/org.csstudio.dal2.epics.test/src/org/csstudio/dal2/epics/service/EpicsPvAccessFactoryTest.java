@@ -47,12 +47,12 @@ public class EpicsPvAccessFactoryTest {
 		PvAddress pvAddress = PvAddress.getValue("TestDal:ConstantPV");
 		
 		EpicsPvAccessFactory service = new EpicsPvAccessFactory(jcaContext);
-		EpicsPvAccess<Long> pvAccess1 = (EpicsPvAccess<Long>) service.createPVAccess(pvAddress, Type.LONG);
+		EpicsPvAccess<Integer> pvAccess1 = (EpicsPvAccess<Integer>) service.createPVAccess(pvAddress, Type.LONG);
 		
 		assertEquals(pvAddress, pvAccess1.getPvAddress());
 		assertEquals(jcaContext, pvAccess1.getJcaContext());
 		
-		EpicsPvAccess<Long> pvAccess2 = (EpicsPvAccess<Long>) service.createPVAccess(pvAddress, Type.LONG);
+		EpicsPvAccess<Integer> pvAccess2 = (EpicsPvAccess<Integer>) service.createPVAccess(pvAddress, Type.LONG);
 		assertNotSame(pvAccess1, pvAccess2);
 	}
 	

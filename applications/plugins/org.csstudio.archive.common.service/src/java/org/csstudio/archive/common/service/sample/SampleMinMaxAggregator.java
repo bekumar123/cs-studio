@@ -104,7 +104,7 @@ public class SampleMinMaxAggregator {
     public synchronized void reset() {
         _resetTimeStamp = _lastSampleTimeStamp;
         _lastSampleTimeStamp = null;
-        _lastAvgBeforeReset = _avg.getValue();
+        _lastAvgBeforeReset = _avg.readValue();
         _minVal = null;
         _maxVal = null;
 
@@ -112,7 +112,7 @@ public class SampleMinMaxAggregator {
     }
     @CheckForNull
     public synchronized Double getAvg() {
-        return _avg.getValue();
+        return _avg.readValue();
     }
     @CheckForNull
     public synchronized Double getMin() {

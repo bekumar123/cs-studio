@@ -25,10 +25,13 @@ import org.csstudio.dal2.service.cs.ICsResponseListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Primary implementation of {@link IPvAccess}
+ */
 public class PvAccess<T> implements IPvAccess<T> {
 
-	private static final Logger LOG = LoggerFactory.getLogger(PvAccess.class); 
-	
+	private static final Logger LOG = LoggerFactory.getLogger(PvAccess.class);
+
 	/**
 	 * Timeout (s) used for synchronous getValue
 	 */
@@ -80,6 +83,12 @@ public class PvAccess<T> implements IPvAccess<T> {
 	private ListenerType _listenerType;
 
 	/**
+	 * The native type of the pv or null. <br/>
+	 * The native type will be available after the first connection
+	 */
+	private Type<?> _lastKnownNativeType;
+
+	/**
 	 * Constructor
 	 * 
 	 * @param csPvAccess
@@ -104,6 +113,16 @@ public class PvAccess<T> implements IPvAccess<T> {
 	public Type<T> getType() {
 		assert _type != null : "Postcondition: result != null";
 		return _type;
+	}
+
+	@Override
+	public boolean hasLastKnownNativeType() {
+		return _lastKnownNativeType != null;
+	}
+
+	@Override
+	public Type<?> getLastKnownNativeType() {
+		return _lastKnownNativeType;
 	}
 
 	@Override
@@ -187,8 +206,7 @@ public class PvAccess<T> implements IPvAccess<T> {
 		_csPvAccess.getValue(synchronizingListener);
 
 		CsPvData<T> result = synchronizingListener.getValue(timeout, unit);
-
-		updateLastKnown(result.getValue(), result.getCharacteristics());
+		updateLastKnown(result);
 		return result.getValue();
 	}
 
@@ -212,17 +230,15 @@ public class PvAccess<T> implements IPvAccess<T> {
 		return _connected.get();
 	}
 
-	private synchronized void updateLastKnown(T value,
-			Characteristics characteristics) {
-
-		_lastKnownValue = value;
-
+	private synchronized void updateLastKnown(CsPvData<T> result) {
+		_lastKnownValue = result.getValue();
 		if (_lastKnownCharacteristics == null) {
-			_lastKnownCharacteristics = characteristics;
+			_lastKnownCharacteristics = result.getCharacteristics();
 		} else {
 			_lastKnownCharacteristics = _lastKnownCharacteristics
-					.createUpdate(characteristics);
+					.createUpdate(result.getCharacteristics());
 		}
+		_lastKnownNativeType = result.getNativeType();
 	}
 
 	/**
@@ -245,7 +261,7 @@ public class PvAccess<T> implements IPvAccess<T> {
 
 			this.callback = callback;
 			synchronized (this) {
-				this.csOperationHandle = _csPvAccess.getValue(this); 
+				this.csOperationHandle = _csPvAccess.getValue(this);
 				this.timeoutTask = EXECUTOR.schedule(new Runnable() {
 					@Override
 					public void run() {
@@ -265,9 +281,8 @@ public class PvAccess<T> implements IPvAccess<T> {
 		@Override
 		public synchronized void onSuccess(CsPvData<T> response) {
 			if (timeoutTask.cancel(false)) {
-				T value = response.getValue();
-				updateLastKnown(value, response.getCharacteristics());
-				callback.onSuccess(value);
+				updateLastKnown(response);
+				callback.onSuccess(response.getValue());
 			}
 		}
 
@@ -292,20 +307,29 @@ public class PvAccess<T> implements IPvAccess<T> {
 		}
 
 		@Override
-		public void connectionChanged(String pvName, boolean isConnected) {
-
+		public void connected(String pvName, Type<?> nativeType) {
 			synchronized (PvAccess.this) {
-				_connected.set(isConnected);
+				_connected.set(true);
+				_lastKnownNativeType = nativeType;
 				for (IPvListener<T> listener : _listener) {
-					listener.connectionChanged(PvAccess.this, isConnected);
+					listener.connectionChanged(PvAccess.this, true);
 				}
 			}
 		}
 
+		public void disconnected(String pvName) {
+			synchronized (PvAccess.this) {
+				_connected.set(false);
+				for (IPvListener<T> listener : _listener) {
+					listener.connectionChanged(PvAccess.this, false);
+				}
+			}
+		};
+
 		@Override
 		public void valueChanged(CsPvData<T> data) {
 			synchronized (PvAccess.this) {
-				updateLastKnown(data.getValue(), data.getCharacteristics());
+				updateLastKnown(data);
 				for (IPvListener<T> listener : _listener) {
 					listener.valueChanged(PvAccess.this, data.getValue());
 				}
@@ -314,9 +338,7 @@ public class PvAccess<T> implements IPvAccess<T> {
 
 		@Override
 		public void errorReceived(String message) {
-
-			// TODO How to handle message?
-			System.err.println(message);
+			LOG.error("Retrieved error message: " + message);
 		}
 
 		@Override

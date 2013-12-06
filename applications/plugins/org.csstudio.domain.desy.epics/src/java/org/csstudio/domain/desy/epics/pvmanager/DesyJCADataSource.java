@@ -34,7 +34,10 @@ import org.epics.pvmanager.jca.JCADataSource;
  *
  * @author bknerr
  * @since 30.08.2011
+ *
+ * @deprecated use {@link JCADataSource} since DesyJCADataSource provides no additional functionality
  */
+@Deprecated
 public class DesyJCADataSource extends JCADataSource {
 
     public DesyJCADataSource(@Nonnull final String className,
@@ -42,15 +45,8 @@ public class DesyJCADataSource extends JCADataSource {
         super(className, monitorMask);
     }
 
-    @Override
-    @Nonnull
-    protected ChannelHandler createChannel(@Nonnull final String channelName) {
-        // TODO (2012-10-26 jp adapted to new pvmanager)
-        return new DesyJCAChannelHandler(channelName, this);
-    }
-
     @CheckForNull
-    public DesyJCAChannelHandler getHandler(@Nonnull final String channelName) {
-        return (DesyJCAChannelHandler) getChannels().get(channelName);
+    public ChannelHandler getHandler(@Nonnull final String channelName) {
+        return getChannels().get(channelName);
     }
 }

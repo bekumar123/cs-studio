@@ -7,9 +7,6 @@
  ******************************************************************************/
 package org.csstudio.archive.common.engine;
 
-import gov.aps.jca.JCALibrary;
-import gov.aps.jca.Monitor;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
@@ -24,17 +21,11 @@ import org.csstudio.archive.common.engine.model.EngineModelException;
 import org.csstudio.archive.common.engine.model.EngineState;
 import org.csstudio.archive.common.engine.service.IServiceProvider;
 import org.csstudio.archive.common.engine.service.ServiceProvider;
-import org.csstudio.domain.desy.epics.pvmanager.DesyJCADataSource;
-import org.csstudio.domain.desy.epics.types.EpicsSystemVariable;
 import org.csstudio.domain.desy.time.StopWatch;
 import org.csstudio.domain.desy.time.StopWatch.RunningStopWatch;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.epics.pvmanager.Notification;
-import org.epics.pvmanager.NotificationSupport;
-import org.epics.pvmanager.PVManager;
-import org.epics.pvmanager.TypeSupport;
 import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,12 +106,10 @@ public class ArchiveEngineApplication implements IApplication {
             return EXIT_OK;
         }
 
-        final DesyJCADataSource dataSource = configureJCADataSources();
-
         EngineHttpServer httpServer = null;
         try {
             setRun(true);
-            _model = new EngineModel(_engineName, provider, dataSource);
+            _model = new EngineModel(_engineName, provider);
 
             httpServer = startHttpServer(_model, provider);
             if (httpServer == null) {
@@ -142,33 +131,6 @@ public class ArchiveEngineApplication implements IApplication {
 
     private synchronized boolean getRun() {
         return _run;
-    }
-
-    @SuppressWarnings("rawtypes")
-    @Nonnull
-    private DesyJCADataSource configureJCADataSources() {
-        LOG.info("Configure JCA Datasource and setup PVManager.");
-        final DesyJCADataSource dataSource =
-            new DesyJCADataSource(JCALibrary.CHANNEL_ACCESS_JAVA, Monitor.LOG);
-        PVManager.setDefaultDataSource(dataSource);
-
-        TypeSupport.addTypeSupport(new NotificationSupport<EpicsSystemVariable>(EpicsSystemVariable.class) {
-            @Override
-            @Nonnull
-            public Notification<EpicsSystemVariable> prepareNotification(@CheckForNull final EpicsSystemVariable oldValue,
-                                                                         @CheckForNull final EpicsSystemVariable newValue) {
-                if (oldValue != null && newValue != null) {
-                    if (!oldValue.getData().equals(newValue.getData())) {
-                        return new Notification<EpicsSystemVariable>(true, newValue);
-                    }
-                    return new Notification<EpicsSystemVariable>(false, newValue);
-                } else if (oldValue == null && newValue == null) {
-                    return new Notification<EpicsSystemVariable>(false, null);
-                }
-                return new Notification<EpicsSystemVariable>(true, newValue);
-            }
-        });
-        return dataSource;
     }
 
     private void stopEngineAndClearConfiguration(@Nonnull final EngineModel model) throws EngineModelException {

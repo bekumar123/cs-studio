@@ -83,10 +83,10 @@ public class EpicsPVAccessTest {
 
 	@Test
 	public void testConnectionChangesWhenIocStartsAndStops() throws Exception {
-		EpicsPvAccess<Long> pva = new EpicsPvAccess<Long>(_jcaContext,
+		EpicsPvAccess<Integer> pva = new EpicsPvAccess<Integer>(_jcaContext,
 				PvAddress.getValue("TestDal:ConstantPV"), Type.LONG);
 
-		PvListenerMock<Long> listener = new PvListenerMock<Long>(
+		PvListenerMock<Integer> listener = new PvListenerMock<Integer>(
 				ListenerType.VALUE);
 
 		pva.initMonitor(listener);
@@ -109,7 +109,7 @@ public class EpicsPVAccessTest {
 
 		String PV = "TestDal:ConstantPV";
 
-		EpicsPvAccess<Long> pva = new EpicsPvAccess<Long>(_jcaContext,
+		EpicsPvAccess<Integer> pva = new EpicsPvAccess<Integer>(_jcaContext,
 				PvAddress.getValue(PV), Type.LONG);
 
 		ICsPvListener listenerMock = mock(ICsPvListener.class);
@@ -119,22 +119,22 @@ public class EpicsPVAccessTest {
 
 		pva.initMonitor(listenerMock);
 
-		verify(listenerMock, timeout(5000)).connectionChanged(PV, true);
+		verify(listenerMock, timeout(5000)).connected(PV, Type.DOUBLE);
 		stopSoftIoc();
 
-		verify(listenerMock, timeout(5000)).connectionChanged(PV, false);
+		verify(listenerMock, timeout(5000)).disconnected(PV);
 	}
 
 	@Test(timeout = 7000)
 	public void testMonitor() throws Exception {
 		startUpSoftIoc();
 
-		EpicsPvAccess<Long> pva = new EpicsPvAccess<Long>(_jcaContext,
+		EpicsPvAccess<Integer> pva = new EpicsPvAccess<Integer>(_jcaContext,
 				PvAddress.getValue("TestDal:Counter"), Type.LONG);
 
-		PvListenerMock2<Long> listener = new PvListenerMock2<Long>(
-				ListenerType.VALUE, 0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 0L,
-				1L, 2L, 3L, 4L, 5L);
+		PvListenerMock2<Integer> listener = new PvListenerMock2<Integer>(
+				ListenerType.VALUE, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0,
+				1, 2, 3, 4, 5);
 		pva.initMonitor(listener);
 
 		while (!listener.isFinished()) {
@@ -152,16 +152,15 @@ public class EpicsPVAccessTest {
 	public void testMonitorAlarm() throws Exception {
 		startUpSoftIoc();
 
-		EpicsPvAccess<Long> pva = new EpicsPvAccess<Long>(_jcaContext,
+		EpicsPvAccess<Integer> pva = new EpicsPvAccess<Integer>(_jcaContext,
 				PvAddress.getValue("TestDal:AlarmCounter"), Type.LONG);
 
-		ICsPvListener<Long> listener = mock(ICsPvListener.class);
+		ICsPvListener<Integer> listener = mock(ICsPvListener.class);
 		when(listener.getType()).thenReturn(ListenerType.ALARM);
 
 		pva.initMonitor(listener);
 
-		verify(listener, timeout(5000)).connectionChanged(
-				"TestDal:AlarmCounter", true);
+		verify(listener, timeout(5000)).connected("TestDal:AlarmCounter", Type.DOUBLE);
 
 		ArgumentCaptor<CsPvData> captor = ArgumentCaptor
 				.forClass(CsPvData.class);
@@ -233,10 +232,10 @@ public class EpicsPVAccessTest {
 
 		// retrieve as long
 		{
-			EpicsPvAccess<Long> pva = new EpicsPvAccess<Long>(_jcaContext,
+			EpicsPvAccess<Integer> pva = new EpicsPvAccess<Integer>(_jcaContext,
 					address, Type.LONG);
 
-			ICsResponseListener<CsPvData<Long>> callback = mock(ICsResponseListener.class);
+			ICsResponseListener<CsPvData<Integer>> callback = mock(ICsResponseListener.class);
 			pva.getValue(callback);
 
 			ArgumentCaptor<CsPvData> captor = ArgumentCaptor
@@ -244,7 +243,7 @@ public class EpicsPVAccessTest {
 			verify(callback, timeout(500)).onSuccess(captor.capture());
 			CsPvData csPvData = captor.getValue();
 
-			assertEquals(4L, csPvData.getValue());
+			assertEquals(4, csPvData.getValue());
 		}
 
 		// retrieve as enum

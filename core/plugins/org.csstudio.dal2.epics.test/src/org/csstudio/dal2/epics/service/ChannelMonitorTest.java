@@ -73,12 +73,13 @@ public class ChannelMonitorTest {
 		// simulate connect event
 		when(channel.getConnectionState())
 				.thenReturn(ConnectionState.CONNECTED);
+		when(channel.getFieldType()).thenReturn(DBRType.STRING);
 		ConnectionListener connectionListener = connectionListenerCaptor
 				.getValue();
 		connectionListener
 				.connectionChanged(new ConnectionEvent(channel, true));
 
-		verify(pvListener, timeout(1000)).connectionChanged(pv.getAddress(), true);
+		verify(pvListener, timeout(1000)).connected(pv.getAddress(), Type.STRING);
 
 		ArgumentCaptor<MonitorListener> monitorListenerCaptor = ArgumentCaptor
 				.forClass(MonitorListener.class);

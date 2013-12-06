@@ -70,6 +70,7 @@ public class GetValueRequesterTest {
 		// simulate connect event
 		when(channel.getConnectionState())
 				.thenReturn(ConnectionState.CONNECTED);
+		when(channel.getFieldType()).thenReturn(DBRType.STRING);
 		ConnectionListener connListener = connListenerCaptor.getValue();
 		connListener.connectionChanged(new ConnectionEvent(channel, true));
 

@@ -95,6 +95,10 @@ public class DalService implements IDalService {
 	@Override
 	public synchronized <T> IPvAccess<T> getPVAccess(PvAddress address,
 			Type<T> type) {
+		
+		assert address != null : "Precondition: address != null";
+		assert type != null : "Precondition: type != null";
+		
 		return getPVAccess(address, type, ListenerType.VALUE);
 	}
 

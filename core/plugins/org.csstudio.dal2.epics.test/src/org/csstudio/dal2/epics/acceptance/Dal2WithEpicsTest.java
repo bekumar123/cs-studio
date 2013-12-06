@@ -5,7 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
@@ -95,11 +95,11 @@ public class Dal2WithEpicsTest {
 		stopSoftIoc();
 	}
 
-	@Test(expected = DalException.class, timeout = 900)
+	@Test(expected = DalException.class, timeout = 2000)
 	public void testSyncGetValueWithTimeout() throws DalException {
 
 		PvAddress address = PvAddress.getValue("TestDal:ConstantPV");
-		IPvAccess<Long> pvAccess = _dalService.getPVAccess(address, Type.LONG,
+		IPvAccess<Integer> pvAccess = _dalService.getPVAccess(address, Type.LONG,
 				ListenerType.VALUE);
 		pvAccess.getValue(500, TimeUnit.MILLISECONDS); // This should run on a
 														// timeout
@@ -109,7 +109,7 @@ public class Dal2WithEpicsTest {
 	public void testSyncGetValue() throws Exception {
 
 		PvAddress address = PvAddress.getValue("TestDal:ConstantPV");
-		IPvAccess<Long> pvAccess = _dalService.getPVAccess(address, Type.LONG,
+		IPvAccess<Integer> pvAccess = _dalService.getPVAccess(address, Type.LONG,
 				ListenerType.VALUE);
 
 		assertNull(pvAccess.getLastKnownValue());
@@ -139,23 +139,59 @@ public class Dal2WithEpicsTest {
 		stopSoftIoc();
 	}
 
+	@Test
+	public void testSyncGetNative() throws Exception {
+
+		PvAddress address = PvAddress.getValue("TestDal:ConstantPV");
+		IPvAccess<Object> pvAccess = _dalService.getPVAccess(address, Type.NATIVE,
+				ListenerType.VALUE);
+
+		assertNull(pvAccess.getLastKnownValue());
+		assertNull(pvAccess.getLastKnownCharacteristics());
+		assertFalse(pvAccess.isConnected());
+
+		startUpSoftIoc();
+
+		assertNull(pvAccess.getLastKnownValue());
+		assertNull(pvAccess.getLastKnownCharacteristics());
+		assertFalse(pvAccess.isConnected());
+
+		Object value = pvAccess.getValue();
+		assertEquals(Double.class, value.getClass());
+		assertEquals(new Double(5), value);
+		
+		Characteristics characteristics = pvAccess
+				.getLastKnownCharacteristics();
+		assertEquals(0L, characteristics.get(Characteristic.GRAPH_MIN)
+				.longValue());
+		assertEquals(100L, characteristics.get(Characteristic.GRAPH_MAX)
+				.longValue());
+		assertEquals(70L, characteristics.get(Characteristic.ALARM_MAX)
+				.longValue());
+
+		assertFalse(pvAccess.isConnected());
+
+		stopSoftIoc();
+	}
+
+	
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testASyncGetValue() throws Exception {
 
 		PvAddress address = PvAddress.getValue("TestDal:ConstantPV");
-		IPvAccess<Long> pvAccess = _dalService.getPVAccess(address, Type.LONG,
+		IPvAccess<Integer> pvAccess = _dalService.getPVAccess(address, Type.LONG,
 				ListenerType.VALUE);
 
 		startUpSoftIoc();
 
-		final IResponseListener<Long> callback = mock(IResponseListener.class);
+		final IResponseListener<Integer> callback = mock(IResponseListener.class);
 		pvAccess.getValue(callback);
 
 		new AssertWithTimeout(200) {
 			@Override
 			protected void performCheck() throws Exception {
-				verify(callback, times(1)).onSuccess(5L);
+				verify(callback, times(1)).onSuccess(5);
 			}
 		};
 		assertEquals(5L, pvAccess.getLastKnownValue().longValue());
@@ -180,10 +216,10 @@ public class Dal2WithEpicsTest {
 
 		PvAddress address = PvAddress.getValue("TestDal:ConstantPV");
 
-		final IPvAccess<Long> pvAccess = _dalService.getPVAccess(address,
+		final IPvAccess<Integer> pvAccess = _dalService.getPVAccess(address,
 				Type.LONG, ListenerType.VALUE);
 
-		final IPvListener<Long> listener = mock(IPvListener.class);
+		final IPvListener<Integer> listener = mock(IPvListener.class);
 		pvAccess.registerListener(listener);
 
 		assertNull(pvAccess.getLastKnownValue());
@@ -193,15 +229,15 @@ public class Dal2WithEpicsTest {
 		Thread.sleep(250);
 
 		verify(listener, times(0)).connectionChanged(pvAccess, true);
-		verify(listener, times(0)).valueChanged(pvAccess, 7L);
+		verify(listener, times(0)).valueChanged(pvAccess, 7);
 
 		startUpSoftIoc();
 
 		verify(listener, timeout(1000).times(1)).connectionChanged(pvAccess,
 				true);
-		verify(listener, timeout(1000).atLeast(1)).valueChanged(pvAccess, 5L);
+		verify(listener, timeout(1000).atLeast(1)).valueChanged(pvAccess, 5);
 
-		assertEquals(5L, pvAccess.getLastKnownValue().longValue());
+		assertEquals(5, pvAccess.getLastKnownValue().intValue());
 
 		Characteristics characteristics = pvAccess
 				.getLastKnownCharacteristics();
@@ -227,7 +263,7 @@ public class Dal2WithEpicsTest {
 
 		verify(listener, timeout(10000).times(1)).connectionChanged(pvAccess,
 				true);
-		verify(listener, timeout(10000).atLeast(1)).valueChanged(pvAccess, 5L);
+		verify(listener, timeout(10000).atLeast(1)).valueChanged(pvAccess, 5);
 
 		stopSoftIoc();
 	}
@@ -288,16 +324,16 @@ public class Dal2WithEpicsTest {
 		startUpSoftIoc();
 
 		PvAddress address = PvAddress.getValue("TestDal:Counter");
-		final IPvAccess<Long> pvAccess = _dalService.getPVAccess(address,
+		final IPvAccess<Integer> pvAccess = _dalService.getPVAccess(address,
 				Type.LONG, ListenerType.VALUE);
 
-		final IPvListener<Long> listener = mock(IPvListener.class);
+		final IPvListener<Integer> listener = mock(IPvListener.class);
 		pvAccess.registerListener(listener);
 
 		// expect connect
 		verify(listener, timeout(1000)).connectionChanged(pvAccess, true);
 		verify(listener, timeout(1000).atLeast(1)).valueChanged(eq(pvAccess),
-				anyLong());
+				anyInt());
 		assertTrue(pvAccess.isConnected());
 
 		stopSoftIoc();
@@ -313,13 +349,13 @@ public class Dal2WithEpicsTest {
 		// expect connect
 		verify(listener, timeout(10000)).connectionChanged(pvAccess, true);
 		verify(listener, timeout(10000).atLeast(1)).valueChanged(eq(pvAccess),
-				anyLong());
+				anyInt());
 		assertTrue(pvAccess.isConnected());
 
 		// repeat check to ensure new (!) value changed events to occur
 		Mockito.reset(listener);
 		verify(listener, timeout(10000).atLeast(1)).valueChanged(eq(pvAccess),
-				anyLong());
+				anyInt());
 
 		stopSoftIoc();
 	}

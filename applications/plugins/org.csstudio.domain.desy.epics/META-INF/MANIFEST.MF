@@ -12,10 +12,11 @@ Require-Bundle: org.csstudio.domain.desy;bundle-version="1.0.0",
  com.google.common,
  org.slf4j;bundle-version="1.6.1",
  org.epics.util;bundle-version="0.3.0",
- org.epics.vtype;bundle-version="2.0.0"
+ org.epics.vtype;bundle-version="2.0.0",
+ org.csstudio.utility.pvmanager;bundle-version="2.0.0",
+ org.csstudio.utility.pvmanager.epics;bundle-version="2.0.0"
 Export-Package: org.csstudio.domain.desy.epics.alarm,
  org.csstudio.domain.desy.epics.name,
- org.csstudio.domain.desy.epics.pvmanager,
  org.csstudio.domain.desy.epics.types,
  org.csstudio.domain.desy.epics.typesupport
 Bundle-Vendor: Desy <css-developer@desy.de>, Bastian Knerr

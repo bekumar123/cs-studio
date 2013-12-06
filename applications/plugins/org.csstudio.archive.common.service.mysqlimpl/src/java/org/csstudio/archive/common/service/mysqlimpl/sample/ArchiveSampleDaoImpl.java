@@ -50,6 +50,7 @@ import org.csstudio.archive.common.service.sample.ArchiveSample;
 import org.csstudio.archive.common.service.sample.IArchiveSample;
 import org.csstudio.archive.common.service.sample.SampleMinMaxAggregator;
 import org.csstudio.archive.common.service.util.ArchiveTypeConversionSupport;
+import org.csstudio.domain.desy.alarm.IAlarm;
 import org.csstudio.domain.desy.epics.typesupport.EpicsSystemVariableSupport;
 import org.csstudio.domain.desy.system.ControlSystem;
 import org.csstudio.domain.desy.system.ISystemVariable;
@@ -141,6 +142,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
     void createSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveDaoException {
 
         try {
+            final IAlarm alarm = ((ArchiveSample)samples.iterator().next()).getAlarm();
             getEngineMgr().submitToBatch(samples);
 
             final List<? extends AbstractReducedDataSample> minuteSamples =

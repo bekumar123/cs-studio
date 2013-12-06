@@ -40,7 +40,7 @@ public class EpicsPvAccess<T> implements ICsPvAccess<T> {
 	 * The type used for the connection to the process variable
 	 */
 	private Type<T> _type;
-
+	
 	/**
 	 * A map with open async requests
 	 */

@@ -2,10 +2,13 @@ package org.csstudio.dal2.epics.service;
 
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBRType;
+import gov.aps.jca.dbr.DBR_Byte;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_Enum;
+import gov.aps.jca.dbr.DBR_Float;
 import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.dbr.DBR_LABELS_Enum;
+import gov.aps.jca.dbr.DBR_Short;
 import gov.aps.jca.dbr.DBR_String;
 
 import java.nio.channels.IllegalSelectorException;
@@ -56,6 +59,19 @@ public abstract class TypeMapper<T> {
 	private boolean _primary;
 
 	static {
+		registerMapper(new TypeMapper<Byte>(Type.BYTE, DBRType.BYTE, true) {
+			@Override
+			public Byte mapValue(DBR dbrValue) {
+				return ((DBR_Byte) dbrValue).getByteValue()[0];
+			}
+		});
+		registerMapper(new TypeMapper<byte[]>(Type.BYTE_SEQ, DBRType.BYTE,
+				false) {
+			@Override
+			public byte[] mapValue(DBR dbrValue) {
+				return ((DBR_Byte) dbrValue).getByteValue();
+			}
+		});
 		registerMapper(new TypeMapper<Double>(Type.DOUBLE, DBRType.DOUBLE, true) {
 			@Override
 			public Double mapValue(DBR dbrValue) {
@@ -69,25 +85,48 @@ public abstract class TypeMapper<T> {
 				return ((DBR_Double) dbrValue).getDoubleValue();
 			}
 		});
-		registerMapper(new TypeMapper<Long>(Type.LONG, DBRType.INT, true) {
+		registerMapper(new TypeMapper<Integer>(Type.LONG, DBRType.INT, true) {
 			@Override
-			public Long mapValue(DBR dbrValue) {
+			public Integer mapValue(DBR dbrValue) {
 				DBR_Int dbrInt = (DBR_Int) dbrValue;
-				return (long) dbrInt.getIntValue()[0];
+				return dbrInt.getIntValue()[0];
 			}
 		});
-		registerMapper(new TypeMapper<long[]>(Type.LONG_SEQ, DBRType.INT, false) {
+		registerMapper(new TypeMapper<int[]>(Type.LONG_SEQ, DBRType.INT, false) {
 			@Override
-			public long[] mapValue(DBR dbrValue) {
+			public int[] mapValue(DBR dbrValue) {
 				DBR_Int dbrInt = (DBR_Int) dbrValue;
-				int[] intValues = dbrInt.getIntValue();
-
-				long[] result = new long[intValues.length];
-				for (int i = 0; i < intValues.length; i++) {
-					result[i] = intValues[i];
-				}
-
-				return result;
+				return dbrInt.getIntValue();
+			}
+		});
+		registerMapper(new TypeMapper<Float>(Type.FLOAT, DBRType.FLOAT, true) {
+			@Override
+			public Float mapValue(DBR dbrValue) {
+				DBR_Float dbr = (DBR_Float) dbrValue;
+				return dbr.getFloatValue()[0];
+			}
+		});
+		registerMapper(new TypeMapper<float[]>(Type.FLOAT_SEQ, DBRType.FLOAT,
+				false) {
+			@Override
+			public float[] mapValue(DBR dbrValue) {
+				DBR_Float dbr = (DBR_Float) dbrValue;
+				return dbr.getFloatValue();
+			}
+		});
+		registerMapper(new TypeMapper<Short>(Type.SHORT, DBRType.SHORT, true) {
+			@Override
+			public Short mapValue(DBR dbrValue) {
+				DBR_Short dbr = (DBR_Short) dbrValue;
+				return dbr.getShortValue()[0];
+			}
+		});
+		registerMapper(new TypeMapper<short[]>(Type.SHORT_SEQ, DBRType.SHORT,
+				false) {
+			@Override
+			public short[] mapValue(DBR dbrValue) {
+				DBR_Short dbr = (DBR_Short) dbrValue;
+				return dbr.getShortValue();
 			}
 		});
 		registerMapper(new TypeMapper<String>(Type.STRING, DBRType.STRING, true) {
@@ -135,6 +174,7 @@ public abstract class TypeMapper<T> {
 		// });
 
 		Set<Type<?>> checklist = new HashSet<Type<?>>(Type.listTypes());
+		checklist.remove(Type.NATIVE);
 		checklist.removeAll(_typeMapper.keySet());
 		if (!checklist.isEmpty()) {
 			LOGGER.warn("Incomplete type mapping: Missing mapping for "
@@ -155,6 +195,25 @@ public abstract class TypeMapper<T> {
 			_dbr2mapper.put(dbrType, mapper);
 		}
 	}
+	
+	/**
+	 * Creates a type mapper wrapping the mapper of the native type
+	 * @param nativeTypeMapper
+	 * @return
+	 */
+	private static TypeMapper<Object> createWrapper(final TypeMapper<?> nativeTypeMapper) {
+		return new TypeMapper<Object>(Type.NATIVE, DBRType.UNKNOWN, false) {
+			@Override
+			public Object mapValue(DBR dbrValue) {
+				return nativeTypeMapper.mapValue(dbrValue);
+			}
+			
+			@Override
+			public DBRType getDBRCtrlType() {
+				return nativeTypeMapper.getDBRCtrlType();
+			}
+		};
+	}
 
 	/**
 	 * Provides the mapper for a given dal2 type
@@ -173,6 +232,34 @@ public abstract class TypeMapper<T> {
 	}
 
 	/**
+	 * Provides the mapper for a given type or uses the native type if the type
+	 * is {@link Type#NATIVE}
+	 * 
+	 * @param type
+	 *            the type
+	 * @param nativeType
+	 *            the native type
+	 * @return
+	 * 
+	 * @require type != null
+	 * @require nativeType != null
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> TypeMapper<T> getMapper(Type<T> type, Type<?> nativeType) {
+
+		assert type != null : "Precondition: type != null";
+		assert nativeType != null : "Precondition: nativeType != null";
+
+		TypeMapper<T> mapper;
+		if (type == Type.NATIVE) {
+			mapper = (TypeMapper<T>) createWrapper(getMapper(nativeType));
+		} else {
+			mapper = getMapper(type);
+		}
+		return mapper;
+	}
+
+	/**
 	 * Provides the suitable type for a given dbr type
 	 * 
 	 * @throws IllegalSelectorException
@@ -180,12 +267,13 @@ public abstract class TypeMapper<T> {
 	 */
 	public static Type<?> getType(DBRType dbrType) {
 
-		TypeMapper<?> result = _dbr2mapper.get(dbrType);
-		if (result == null) {
+		TypeMapper<?> mapper = _dbr2mapper.get(dbrType);
+		if (mapper == null) {
 			throw new IllegalStateException("No mapping defined for dbrType "
 					+ dbrType);
 		}
-		return result.getType();
+		assert mapper.isPrimary() : "Check: mapper.isPrimary()";
+		return mapper.getType();
 	}
 
 	/**

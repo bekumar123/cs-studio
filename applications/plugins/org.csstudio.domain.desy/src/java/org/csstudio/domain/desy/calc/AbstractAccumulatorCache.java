@@ -26,8 +26,9 @@ package org.csstudio.domain.desy.calc;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
-import org.epics.pvmanager.Function;
+import org.epics.pvmanager.ReadFunction;
 import org.epics.pvmanager.ValueCache;
+import org.epics.pvmanager.ValueCacheImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * @param <A> the type of the value to be accumulated
  * @param <R> the return type of the accumulation result
  */
-public abstract class AbstractAccumulatorCache<A, R> extends Function<R> {
+public abstract class AbstractAccumulatorCache<A, R> implements ReadFunction<R> {
 
     private static final Logger LOG =
         LoggerFactory.getLogger(AbstractAccumulatorCache.class);
@@ -54,23 +55,23 @@ public abstract class AbstractAccumulatorCache<A, R> extends Function<R> {
      * @param type
      */
     public AbstractAccumulatorCache(@Nonnull final Class<R> type) {
-        _accumulatedValue = new ValueCache<R>(type);
+        _accumulatedValue = new ValueCacheImpl<R>(type);
         _num = 0;
     }
 
     public void accumulate(@Nonnull final A nextValue) {
-        final R val = calculateAccumulation(_accumulatedValue.getValue(), nextValue);
+        final R val = calculateAccumulation(_accumulatedValue.readValue(), nextValue);
         if (_num >= Integer.MAX_VALUE) {
             LOG.warn("Potential accumulation overflow detected - number of accumulations is reset to zero.");
             _num = 0;
         }
         _num++;
-        _accumulatedValue.setValue(val);
+        _accumulatedValue.writeValue(val);
     }
 
 
     public void clear() {
-        _accumulatedValue.setValue(null);
+        _accumulatedValue.writeValue(null);
         _num = 0;
     }
 
@@ -79,8 +80,8 @@ public abstract class AbstractAccumulatorCache<A, R> extends Function<R> {
      */
     @Override
     @CheckForNull
-    public R getValue() {
-        return _accumulatedValue.getValue();
+    public R readValue() {
+        return _accumulatedValue.readValue();
     }
 
     protected long getNumberOfAccumulations() {

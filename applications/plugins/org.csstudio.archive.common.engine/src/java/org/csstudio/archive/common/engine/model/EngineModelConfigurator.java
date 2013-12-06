@@ -41,7 +41,6 @@ import org.csstudio.archive.common.service.engine.ArchiveEngineId;
 import org.csstudio.archive.common.service.engine.IArchiveEngine;
 import org.csstudio.archive.common.service.util.ArchiveTypeConversionSupport;
 import org.csstudio.domain.desy.epics.name.EpicsChannelName;
-import org.csstudio.domain.desy.epics.pvmanager.DesyJCADataSource;
 import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
 import org.csstudio.domain.desy.system.ControlSystem;
 import org.csstudio.domain.desy.system.ISystemVariable;
@@ -68,10 +67,9 @@ public final class EngineModelConfigurator {
 
     public static void configureGroup(@Nonnull final IServiceProvider provider,
                                       @Nonnull final ArchiveGroup group,
-                                      @Nonnull final ConcurrentMap<String, ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> channelMap,
-                                      @Nonnull final DesyJCADataSource dataSource)
+                                      @Nonnull final ConcurrentMap<String, ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> channelMap)
                                       throws ArchiveServiceException,
-                                             OsgiServiceUnavailableException {
+                                             OsgiServiceUnavailableException, EngineModelException {
         LOG.info("Configure group '{}'.", group.getName());
         final Collection<IArchiveChannel> channelCfgs =
             provider.getEngineFacade().getChannelsByGroupId(group.getId());
@@ -79,7 +77,7 @@ public final class EngineModelConfigurator {
 
         for (final IArchiveChannel channelCfg : channelCfgs) {
             final ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>> channelBuffer =
-                createAndAddArchiveChannelBuffer(provider, channelCfg, channelMap, dataSource);
+                createAndAddArchiveChannelBuffer(provider, channelCfg, channelMap);
             group.add(channelBuffer);
         }
     }
@@ -88,12 +86,11 @@ public final class EngineModelConfigurator {
     public static ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>
     createAndAddArchiveChannelBuffer(@Nonnull final IServiceProvider provider,
                                      @Nonnull final IArchiveChannel channelCfg,
-                                     @Nonnull final ConcurrentMap<String, ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> channelMap,
-                                     @Nonnull final DesyJCADataSource dataSource) {
+                                     @Nonnull final ConcurrentMap<String, ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> channelMap) throws EngineModelException {
 
         @SuppressWarnings({ "rawtypes", "unchecked" })
         final ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>> channel =
-            new ArchiveChannelBuffer(channelCfg, provider, dataSource);
+            new ArchiveChannelBuffer(channelCfg, provider);
 
         ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>> presentChannel =
             channelMap.putIfAbsent(channel.getName(), channel);
@@ -180,7 +177,6 @@ public final class EngineModelConfigurator {
                                                                  @Nullable final String high,
                                                                  @Nullable final ArchiveGroup group,
                                                                  @Nullable final ConcurrentMap<String, ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> channelMap,
-                                                                 @Nullable final DesyJCADataSource dataSource,
                                                                  @Nonnull final IServiceProvider provider) throws EngineModelException {
     // CHECKSTYLE ON: ParameterNumber
 
@@ -213,7 +209,7 @@ public final class EngineModelConfigurator {
                 provider.getEngineFacade().getChannelByName(epicsName.toString());
             if (cfg != null) {
                 final ArchiveChannelBuffer<?, ?> channelBuffer =
-                    createAndAddArchiveChannelBuffer(provider, cfg, channelMap, dataSource);
+                    createAndAddArchiveChannelBuffer(provider, cfg, channelMap);
                 group.add(channelBuffer);
 
                 return channelBuffer;

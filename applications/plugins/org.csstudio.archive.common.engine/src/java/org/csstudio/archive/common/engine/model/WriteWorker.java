@@ -163,7 +163,7 @@ final class WriteWorker extends AbstractTimeMeasuredRunnable {
 
     @CheckForNull
     protected Double getAvgWriteCount() {
-        return _avgWriteCount.getValue();
+        return _avgWriteCount.readValue();
     }
 
     @CheckForNull

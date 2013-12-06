@@ -30,7 +30,6 @@ import org.csstudio.archive.common.service.enginestatus.ArchiveEngineStatus;
 import org.csstudio.archive.common.service.enginestatus.EngineMonitorStatus;
 import org.csstudio.archive.common.service.enginestatus.IArchiveEngineStatus;
 import org.csstudio.domain.desy.epics.name.EpicsChannelName;
-import org.csstudio.domain.desy.epics.pvmanager.DesyJCADataSource;
 import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
 import org.csstudio.domain.desy.system.ISystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
@@ -75,17 +74,14 @@ public final class EngineModel {
 
     private final IServiceProvider _provider;
     private IArchiveEngine _engine;
-    private final DesyJCADataSource _dataSource;
 
     /**
      * Constructor
      */
     public EngineModel(@Nonnull final String engineName,
-                       @Nonnull final IServiceProvider provider,
-                       @Nonnull final DesyJCADataSource dataSource) throws EngineModelException {
+                       @Nonnull final IServiceProvider provider) throws EngineModelException {
         _name = engineName;
         _provider = provider;
-        _dataSource = dataSource;
 
         _groupMap = new MapMaker().concurrencyLevel(2).makeMap();
         _channelMap = new MapMaker().concurrencyLevel(2).makeMap();
@@ -390,7 +386,7 @@ public final class EngineModel {
 
             for (final IArchiveChannelGroup groupCfg : groups) {
                 final ArchiveGroup group = addGroup(groupCfg);
-                EngineModelConfigurator.configureGroup(_provider, group, _channelMap, _dataSource);
+                EngineModelConfigurator.configureGroup(_provider, group, _channelMap);
             }
         } catch (final Exception e) {
             handleExceptions(e);
@@ -462,7 +458,6 @@ public final class EngineModel {
                                                                     high,
                                                                     group,
                                                                     _channelMap,
-                                                                    _dataSource,
                                                                     _provider);
         return (ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>) channelBuffer;
     }

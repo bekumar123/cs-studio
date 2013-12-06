@@ -103,7 +103,7 @@ public abstract class AbstractTimeMeasuredRunnable implements Runnable {
     }
 
     private long getAccumulatedValue() {
-        final Double value = _avgRunDurationInNanos.getValue();
+        final Double value = _avgRunDurationInNanos.readValue();
         if (value == null) {
             return 0L;
         }

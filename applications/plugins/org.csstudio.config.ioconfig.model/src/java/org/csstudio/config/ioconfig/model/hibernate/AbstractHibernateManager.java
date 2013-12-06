@@ -68,7 +68,7 @@ public abstract class AbstractHibernateManager extends Observable implements IHi
 
     private SessionFactory sessionFactory;
 
-    private Session sessionLazy;
+    public static Session sessionLazy;
 
     // Special session to load documents.
     // Needed since the DocumentationManagerView calls Document save

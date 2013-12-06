@@ -385,7 +385,9 @@ public class HibernateRepository implements IRepository {
             @Override
             @Nonnull
             public T execute(@Nonnull final Session session) {
-                session.refresh(object);
+                session.evict(object);
+                session.load(object, ((GSDFileDBO)object).getId());
+                //session.refresh(object);
                 return object;
             }
 

@@ -322,8 +322,8 @@ public class CAJChannel extends Channel implements TransportClient {
 				return;
 			// TODO revise this reconnection...
 			// wenhua pruefung die Connectionstate des channels
-			else if (connectionState == ConnectionState.CONNECTED)
-				throw new IllegalStateException("Channel already connected.");
+		//	else if (connectionState == ConnectionState.CONNECTED)
+		//		throw new IllegalStateException("Channel already connected.");
 			
 			// revision < v4.1 do not have access rights, grant all
 			if (transport.getMinorRevision() < 1)

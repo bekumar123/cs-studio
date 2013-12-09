@@ -154,15 +154,15 @@ IWorkbenchPreferencePage {
         descLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
         descLabel.setText("Hibernate Settings for the IO Configurator to the Device Database");
         new Label(dbComposite, SWT.NONE);
-        addField(new StringFieldEditor(DDB_USER_NAME, "DDB User &Name:", dbComposite));
-        StringFieldEditor editor = new StringFieldEditor(DDB_PASSWORD, "DDB &Password:", dbComposite);
+//      addField(new StringFieldEditor(DDB_USER_NAME, "DDB User &Name:", dbComposite));
+//      StringFieldEditor editor = new StringFieldEditor(DDB_PASSWORD, "DDB &Password:", dbComposite);
         addField(new IntegerFieldEditor(DDB_TIMEOUT, "DDB &Timeout:", dbComposite,3));
-        editor.getTextControl(dbComposite).setEchoChar('*');
-        addField(editor);
+//      editor.getTextControl(dbComposite).setEchoChar('*');
+//      addField(editor);
         addField(new StringFieldEditor(HIBERNATE_CONNECTION_DRIVER_CLASS,
                                        "Hibernate &connection driver:", dbComposite));
         addField(new StringFieldEditor(DIALECT, "&Dialect:", dbComposite));
-        editor = new MultiLineStringFieldEditor(HIBERNATE_CONNECTION_URL, "&URL:", dbComposite);
+        StringFieldEditor editor = new MultiLineStringFieldEditor(HIBERNATE_CONNECTION_URL, "&URL:", dbComposite);
         final GridData layoutData = new GridData(SWT.FILL, SWT.FILL, false, true);
         layoutData.widthHint = 360;
         editor.getTextControl(dbComposite).setLayoutData(layoutData);

@@ -152,7 +152,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
      */
     @Override
     public <V extends Serializable, T extends ISystemVariable<V>> int createSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveDaoException {
-        final int size = 0;
+        int size = 0;
         final Collection<IArchiveSample<V, T>> s = new ArrayList<IArchiveSample<V, T>>();
         for (final IArchiveSample<V, T> ss : samples) {
             final ArchiveSample<V, T> mySample = (ArchiveSample<V, T>) ss;
@@ -166,9 +166,9 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                 s.add(mySample);
             }
         }
-        //   try {
-        try {
-            ArchiveSampleBatchQueueCollector.getInstance().getArchiveSampleBatchQueueApplication().setValue(getEngineMgr().submitToBatch(s));
+       try {
+            size=getEngineMgr().submitToBatch(s);
+     //       ArchiveSampleBatchQueueCollector.getInstance().getArchiveSampleBatchQueueApplication().setValue(size);
 
         } catch (final TypeSupportException e) {
             // TODO Auto-generated catch block

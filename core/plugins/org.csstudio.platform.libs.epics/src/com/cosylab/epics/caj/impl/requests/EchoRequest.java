@@ -47,7 +47,7 @@ public class EchoRequest extends AbstractCARequest {
 											0, 0);
 		
 
-
+         //init a new Echorequest 
 		logger.warning("create new Echorequest Massage:  commando  " + 23+ "  transport.getMinorRevision()  "+transport.getMinorRevision());   
 	}
 

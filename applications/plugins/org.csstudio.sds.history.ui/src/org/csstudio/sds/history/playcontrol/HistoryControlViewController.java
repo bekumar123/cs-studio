@@ -20,8 +20,7 @@ import org.joda.time.Interval;
 /**
  * Controller for the {@link HistoryControlView}.
  * 
- * @author Christian
- * 
+ * @author Christian Mein
  */
 
 // TODO CME: use BigInteger/Decimal for calculation? maybe this usecase allows use of double 

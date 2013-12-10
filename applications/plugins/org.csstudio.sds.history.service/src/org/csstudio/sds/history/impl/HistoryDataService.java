@@ -13,6 +13,8 @@ import org.csstudio.sds.history.domain.listener.ITimeChangeListener;
 import org.csstudio.sds.history.domain.service.IPvValueHistoryDataService;
 import org.csstudio.sds.history.enricher.HistoryDataContentEnricher;
 import org.csstudio.sds.history.enricher.HistoryTimeContentEnricher;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,21 +30,23 @@ import de.c1wps.geneal.desy.domain.plant.plantmaterials.ProcessVariable;
  * @author Christian Mein
  * 
  */
-// TODO CME: This class should also implement a "DalBroker" equivalent thing.
-
 // TODO CME: separation of concerns? This class handles registration of IPvChangeListener and updates all PvUpdater.
 public class HistoryDataService implements IHistoryDataService, ITimeChangeListener {
 
 	private static final Logger LOG = LoggerFactory.getLogger(HistoryDataService.class);
+	private static final DateTimeFormatter TIME_FORMAT = DateTimeFormat.forPattern("dd.MM.yy HH:mm:ss");
 
 	private Map<String, IPvUpdater> _allPvUpdater = new HashMap<String, IPvUpdater>();
 
 	private IPvValueHistoryDataService _pvValueHistoryDataService;
 
 	private UpdateTimeEvent _lastUpdateTimeEvent;
+	
 
 	@Override
 	public void handleTimeIndexChanged(UpdateTimeEvent updateTimeEvent) {
+		LOG.info(">>> Change time to: " + TIME_FORMAT.print(updateTimeEvent.getTimeStamp()));
+		
 		if (updateTimeEvent.doUpdateData()) {
 			for (IPvUpdater pvUpdater : _allPvUpdater.values()) {
 				pvUpdater.handleTimeIndexChanged(updateTimeEvent);

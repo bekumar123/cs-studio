@@ -14,6 +14,7 @@ import org.csstudio.dal.simple.ConnectionParameters;
 import org.csstudio.dal.simple.ISimpleDalBroker;
 import org.csstudio.dal.simple.RemoteInfo;
 import org.csstudio.sds.history.IHistoryDataService;
+import org.csstudio.sds.history.anticorruption.adapter.ChannelType;
 import org.csstudio.sds.history.anticorruption.adapter.listener.ChannelToPvListener;
 import org.csstudio.sds.history.domain.service.IPvInformationService;
 import org.slf4j.Logger;
@@ -103,13 +104,15 @@ public class DalBrokerAntiCorruptionLayer implements ISimpleDalBroker {
 		//TODO CME: inspect dataflavor from cparam for more information (e.g. datatype) 
 
 		//TODO CME: review
+		ChannelType channelType = ChannelType.VALUE;
 		if (remoteInfoName.endsWith(".SEVR")) {
 			remoteInfoName = remoteInfoName.substring(0, remoteInfoName.length() - 5);
+			channelType = ChannelType.SEVR;
 		}
 		
 		if (_allProcessVariables.containsKey(remoteInfoName)) {
 			ProcessVariable pv = _allProcessVariables.get(remoteInfoName);
-			ChannelToPvListener channelToPvListener = new ChannelToPvListener(listener, pv);
+			ChannelToPvListener channelToPvListener = new ChannelToPvListener(listener, pv,channelType);
 			_historyService.addMonitoredPv(channelToPvListener);
 			_registeredChannelListener.add(channelToPvListener);
 			
@@ -117,10 +120,11 @@ public class DalBrokerAntiCorruptionLayer implements ISimpleDalBroker {
 			ProcessVariable processVariable = _pvInformationService.getProcessVariable(remoteInfoName);
 			_allProcessVariables.put(remoteInfoName, processVariable);
 			
-			ChannelToPvListener channelToPvListener = new ChannelToPvListener(listener, processVariable);
+			ChannelToPvListener channelToPvListener = new ChannelToPvListener(listener, processVariable, channelType);
 			_historyService.addMonitoredPv(channelToPvListener);
 			_registeredChannelListener.add(channelToPvListener);
 		}
+		
 	}
 	
 	@Override

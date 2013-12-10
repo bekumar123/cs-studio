@@ -17,6 +17,7 @@ import org.csstudio.dal.simple.AnyDataChannel;
 import org.csstudio.dal.simple.ChannelListener;
 import org.csstudio.dal.simple.MetaData;
 import org.csstudio.dal.simple.Severity;
+import org.csstudio.sds.history.anticorruption.adapter.ChannelType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,13 +44,16 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 	private Logger LOG = LoggerFactory.getLogger("AnyDataLog");
 
 	private ProcessVariable _processVariable;
+	
+	private ChannelType _channelType;
 
 	private final AnyData _anyData;
 
 	private final MetaData _metaData;
 
-	public AnyDataChannelFromPV(ProcessVariable processVariable) {
+	public AnyDataChannelFromPV(ProcessVariable processVariable, ChannelType channelType) {
 		_processVariable = processVariable;
+		_channelType = channelType;
 		_anyData = this.new AnyDataImpl();
 		_metaData = this.new MetaDataImpl();
 	}
@@ -296,7 +300,6 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 		@Override
 		public double doubleValue() {
 			LOG.trace("AnyDataChannelFromPV.AnyDataImpl.doubleValue()");
-			// TODO CME type: ...
 			if (_processVariable.hasValue() && _processVariable.getValue().getData() instanceof Double) {
 				return (Double) _processVariable.getValue().getData();
 			} else {
@@ -307,8 +310,33 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 
 		@Override
 		public long longValue() {
-			LOG.error("AnyDataChannelFromPV.AnyDataImpl.longValue()");
-			return 0;
+			LOG.trace("AnyDataChannelFromPV.AnyDataImpl.longValue()");
+			switch (_channelType) {
+			case VALUE:
+				return getPvValueAsLong();
+			case SEVR:
+				return getPvSeverityAsLong();
+			default:
+				return 0;
+			}
+		}
+		
+		private long getPvValueAsLong() {
+			if (_processVariable.hasValue() && _processVariable.getValue().getData() instanceof Integer) {
+				return ((Integer) _processVariable.getValue().getData()).longValue();
+			} else {
+				LOG.error("no current data available for type long" + _processVariable.getControlSystemAddress());
+				return 0;
+			}
+		}
+		
+		private long getPvSeverityAsLong() {
+			if (_processVariable.getSeverityState() != null) {
+				System.out.println("Severity: " + _processVariable.getSeverityState().getSeverityLevel());
+				return _processVariable.getSeverityState().getSeverityLevel();
+			} else {
+				return PVSeverityState.UNKNOWN.getSeverityLevel();
+			}
 		}
 
 		@Override
@@ -331,13 +359,13 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 
 		@Override
 		public Number numberValue() {
-			//Wird aufgerufen, wenn der Kanaltyp EpicsEnum ist.
+			//Used when channel type is EpicsEnum.
 			LOG.trace("AnyDataChannelFromPV.AnyDataImpl.numberValue()");
 			
 			if (_processVariable.hasValue() && _processVariable.getValue().getData() instanceof Number) {
 				return (Number) _processVariable.getValue().getData();
 			} else {
-				LOG.error("no current double data available for " + _processVariable.getControlSystemAddress());
+				LOG.error("no current data for numberValue() available for " + _processVariable.getControlSystemAddress());
 				return null;
 			}
 			
@@ -352,7 +380,6 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 		@Override
 		public Object anyValue() {
 			LOG.error("AnyDataChannelFromPV.AnyDataImpl.anyValue()");
-			// TODO Auto-generated method stub
 			return null;
 		}
 
@@ -459,8 +486,8 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 
 		@Override
 		public String getUnits() {
-			if (_processVariable.hasAttribute(PvAttributeNames.DESC)) {
-				IPlantUnitValue<?> unitValue = _processVariable.getAttributeByName(PvAttributeNames.DESC).getValueAsObject();
+			if (_processVariable.hasAttribute(PvAttributeNames.UNIT)) {
+				IPlantUnitValue<?> unitValue = _processVariable.getAttributeByName(PvAttributeNames.UNIT).getValueAsObject();
 				if (unitValue.getDataType() == PlantUnitDataTypes.STRING) {
 					return (String) unitValue.getData();
 				}

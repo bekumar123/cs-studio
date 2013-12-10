@@ -31,6 +31,7 @@ import de.c1wps.geneal.desy.domain.plant.plantmaterials.PVSeverityState;
 import de.c1wps.geneal.desy.domain.plant.plantmaterials.values.DoubleValue;
 import de.c1wps.geneal.desy.domain.plant.plantmaterials.values.IPlantUnitValue;
 import de.c1wps.geneal.desy.domain.plant.plantmaterials.values.IntegerValue;
+import de.c1wps.geneal.desy.domain.plant.plantmaterials.values.StringValue;
 
 public class PvValueHistoryDataService implements IPvValueHistoryDataService {
 
@@ -64,7 +65,6 @@ public class PvValueHistoryDataService implements IPvValueHistoryDataService {
 			}
 			return null;
 		}
-
 	}
 
 	@Override
@@ -102,32 +102,23 @@ public class PvValueHistoryDataService implements IPvValueHistoryDataService {
 		TimeInstant timestamp = archiveSample.getSystemVariable().getTimestamp();
 		DateTime timeStamp = new DateTime(timestamp.getMillis());
 
-		Object value = archiveSample.getValue();
-		IPlantUnitValue<?> plantValue = null;
-		if (value instanceof Double) {
-			plantValue = new DoubleValue((Double) archiveSample.getValue());
-		} else if (value instanceof EpicsEnum) {
-			EpicsEnum epicsEnumState = (EpicsEnum) value;
-			plantValue = new IntegerValue(epicsEnumState.getStateIndex());
-		} else {
-			System.out.println("archive sample class: " + archiveSample.getValue().getClass().getName());
-		}
+		IPlantUnitValue<?> plantValue = getPvValueFromArchiveSample(archiveSample);
 
-		HistoryArchiveSample hSample = HistoryArchiveSample.createHistoryArchiveSample(timeStamp, plantValue);
+		HistoryArchiveSample historySample = HistoryArchiveSample.createHistoryArchiveSample(timeStamp, plantValue);
 
 		if (archiveSample instanceof ArchiveSample<?, ?>) {
-			ArchiveSample aSample = (ArchiveSample) archiveSample;
+			ArchiveSample<?,?> aSample = (ArchiveSample<?,?>) archiveSample;
 			EpicsAlarm alarm = (EpicsAlarm) aSample.getAlarm();
 
 			PVAlarmStatus alarmStatus = PVAlarmStatus.valueOf(alarm.getStatus().name()); // CME: works because it is a
 																							// copy
 			PVSeverityState severityState = PVSeverityState.parseEpicsAlarmSeverity(alarm.getSeverity().name());
 
-			hSample.setPVSeverityState(severityState);
-			hSample.setPvAlarmState(alarmStatus);
+			historySample.setPVSeverityState(severityState);
+			historySample.setPvAlarmState(alarmStatus);
 		}
 
-		return hSample;
+		return historySample;
 	}
 	
 	public void bindArchiveReaderFacade(IArchiveReaderFacade archiveReader) {
@@ -136,5 +127,26 @@ public class PvValueHistoryDataService implements IPvValueHistoryDataService {
 
 	public void unbindArchiveReaderFacade(IArchiveReaderFacade archiveReader) {
 		_archiveReaderFacade = null;
+	}
+	
+	private IPlantUnitValue<?> getPvValueFromArchiveSample(IArchiveSample<Serializable, ISystemVariable<Serializable>> archiveSample) {
+		Object value = archiveSample.getValue();
+		IPlantUnitValue<?> plantValue = null;
+		
+		if (value instanceof Double) {
+			plantValue = new DoubleValue((Double) archiveSample.getValue());
+		} else if (value instanceof Integer) {
+			plantValue = new IntegerValue((Integer) archiveSample.getValue());
+		} else if (value instanceof String) {
+			plantValue = new StringValue((String) archiveSample.getValue());
+		} else if (value instanceof EpicsEnum) {
+			EpicsEnum epicsEnumState = (EpicsEnum) value;
+			plantValue = new IntegerValue(epicsEnumState.getStateIndex());
+		}
+		else {
+			LOG.error("no type defined for retrieved value from archive sample. Archive type: " + archiveSample.getValue().getClass().getName());
+			System.out.println("archive sample class: " + archiveSample.getValue().getClass().getName()); // TODO CME: remove
+		}
+		return plantValue;
 	}
 }

@@ -109,15 +109,12 @@ public class CAConnector implements Connector {
 	
 				// create transport
 				transport = new CATransport(context, client, responseHandler, socket, transportRevision, priority);
-				context.getLogger().warning("New connection to CA server:  " + address +"  transportRevision  "+ transportRevision);
-				
 				ReactorHandler handler = transport;
 				if (context.getLeaderFollowersThreadPool() != null)
 				    handler = new LeaderFollowersHandler(context.getReactor(), handler, context.getLeaderFollowersThreadPool());
 				
 				// register to reactor
 				context.getReactor().register(socket, SelectionKey.OP_READ, handler);
-				context.getLogger().warning("socket.socket().getSendBufferSize() "+socket.socket().getSendBufferSize());
 				// issue version including priority, username and local hostname
 				new VersionRequest(transport, priority).submit();
 				new UserNameRequest(transport).submit();

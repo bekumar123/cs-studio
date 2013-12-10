@@ -29,11 +29,6 @@ public interface Request {
 	 */
 	public static final short SEND_IMMEDIATELY_PRIORITY = 100; 
 	/**
-	 * Highest priority, echo request message is sent immediately.
-	 */
-	public static final short SEND_IMMEDIATELY_ECHOREQUST_PRIORITY = 110; 
-
-	/**
 	 * Maximum user message priority.
 	 */
 	public static final short MAX_USER_PRIORITY = SEND_IMMEDIATELY_PRIORITY - 1; 

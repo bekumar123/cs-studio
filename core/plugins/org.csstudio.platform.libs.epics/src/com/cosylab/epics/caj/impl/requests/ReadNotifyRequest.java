@@ -28,7 +28,6 @@ import com.cosylab.epics.caj.CAJChannel;
 import com.cosylab.epics.caj.CAJContext;
 import com.cosylab.epics.caj.impl.DBRDecoder;
 import com.cosylab.epics.caj.impl.NotifyResponseRequest;
-import com.cosylab.epics.caj.impl.Request;
 import com.cosylab.epics.caj.impl.Transport;
 
 /**
@@ -121,7 +120,6 @@ public class ReadNotifyRequest extends AbstractCARequest implements NotifyRespon
 	    requestMessage = insertCAHeader(transport, null,
 	            						(short)15, 0, (short)dataType, dataCount,
 	            						sid, ioid);
-	    context.getLogger().warning("create new ReadNotifyRequest to for channel  " + channel.getChannelID()); 
 	}
 
 	/**
@@ -157,7 +155,6 @@ public class ReadNotifyRequest extends AbstractCARequest implements NotifyRespon
 				        new GetEvent(channel, dbr, caStatus),
 						callback
 					);
-			 context.getLogger().warning("create new ReadNotifyRequest response of channel " + channel.getChannelID()); 
 		}
 		finally
 		{
@@ -196,20 +193,12 @@ public class ReadNotifyRequest extends AbstractCARequest implements NotifyRespon
 		prohibitIOCancel = true;
 
 		cancel();
-		 context.getLogger().warning("create new ReadNotifyRequest timeout of channel " + channel.getChannelID()); 
 		// ... and notify
 		if (callback != null)
 			context.getEventDispatcher().dispatch(
 			        new GetEvent(channel, null, CAStatus.TIMEOUT),
 					callback
 				);
-	}
-	/**
-	 * Return default priority.
-	 * @see com.cosylab.epics.caj.impl.Request#getPriority()
-	 */
-	public byte getPriority() {
-		return Request.DEFAULT_USER_PRIORITY;
 	}
 	/**
 	 * @see com.cosylab.epics.caj.impl.ResponseRequest#exception(int, java.lang.String)

@@ -47,7 +47,7 @@ public class EchoRequest extends AbstractCARequest {
 											0, 0);
 		
 
-
+         //init a new Echorequest 
 		logger.warning("create new Echorequest Massage:  commando  " + 23+ "  transport.getMinorRevision()  "+transport.getMinorRevision());   
 	}
 
@@ -55,7 +55,7 @@ public class EchoRequest extends AbstractCARequest {
 	 * @see com.cosylab.epics.caj.impl.Request#getPriority()
 	 */
 	public byte getPriority() {
-		return Request.SEND_IMMEDIATELY_ECHOREQUST_PRIORITY;
+		return Request.SEND_IMMEDIATELY_PRIORITY;
 	}
 
 }

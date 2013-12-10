@@ -2,7 +2,7 @@
 <feature
       id="org.csstudio.desy.desytools.feature"
       label="Desytools Feature"
-      version="1.5.3.201311141100"
+      version="1.5.6.201312091300"
       provider-name="Desy, Jan Hatje &lt;jan.hatje@desy.de&gt;">
 
    <description url="http://www.example.com/description">

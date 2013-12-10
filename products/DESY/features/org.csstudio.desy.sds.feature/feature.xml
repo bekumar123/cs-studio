@@ -174,4 +174,25 @@
          version="0.0.0"
          unpack="false"/>
 
+   <plugin
+         id="de.c1wps.geneal.desy.domain.plant"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="de.c1wps.geneal.desy.service.common"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.mchange"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>

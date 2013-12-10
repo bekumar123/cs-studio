@@ -54,7 +54,7 @@ public class CommandsPopupMenuContribution extends ExtensionContributionFactory
 				.getSelection();
 
 		ID userId = null;
-		if (selection.getFirstElement() instanceof IRosterEntry) {
+		if (selection != null && selection.getFirstElement() instanceof IRosterEntry) {
 		    IRosterEntry rosterEntry = (IRosterEntry) selection.getFirstElement();
 		    IUser user = rosterEntry.getUser();
 		    userId = user.getID();

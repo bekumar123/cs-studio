@@ -74,7 +74,7 @@ public abstract class AbstractReducedDataSampleBatchQueueHandler<T extends Abstr
             return sql;
     }
 
-    /**
+    /**wenhua neue spalt in DB
      * {@inheritDoc}
      */
     @Override

@@ -96,7 +96,7 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
         new MapMaker().concurrencyLevel(2).weakKeys().makeMap();
     private final Map<ArchiveChannelId, IArchiveChannel> _channelCacheById =
         new MapMaker().concurrencyLevel(2).weakKeys().makeMap();
-
+//wenhua use value in channel table
     private final String _selectChannelPrefix =
         "SELECT " + TAB + ".id, " + TAB + ".name, " + TAB + ".datatype, " + TAB + ".group_id, " + TAB + ".last_sample_time, " +
                     TAB + ".enabled, " + TAB + ".display_high, " + TAB + ".display_low, " +
@@ -121,8 +121,9 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
                                              " WHERE name=?";
     private final String _updateChannelEnabledStmt = "UPDATE " + getDatabaseName() + "." + TAB +
                                                      " SET enabled=? WHERE name=?";
+    //wenhua write unit of value for channel in DB
     private final String _updateChannelDatatypeStmt = "UPDATE " + getDatabaseName() + "." + TAB +
-                                                      " SET datatype=? WHERE id=?";
+                                                " SET datatype=? WHERE id=?";
     private final String _updateChannelUnitStmt = "UPDATE " + getDatabaseName() + "." + TAB +
             " SET uv=? WHERE id=?";
 
@@ -585,7 +586,7 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
         }
         return UpdateResult.failed("Channel '" + id.asString() + "' has not been updated, doesn't it exist?");
     }
-    /**
+    /**    //wenhua write unit of value for channel in DB
      * {@inheritDoc}
      */
     @Override

@@ -169,7 +169,7 @@ public class ArchiveChannelStatusDaoImpl extends AbstractArchiveDao implements I
         return DeleteResult.failed("Channel status removal failed for id '" + id.intValue() + "'");
     }
 
-
+//return lastChannelstatus
     /**
      * {@inheritDoc}
      */

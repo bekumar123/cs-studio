@@ -33,7 +33,7 @@ import org.csstudio.domain.desy.time.TimeInstant;
  * @since 21.07.2011
  */
 class MinuteReducedDataSample extends AbstractReducedDataSample {
-    /**
+    /**wenhua neue spalt in db
      * Constructor.
      */
 

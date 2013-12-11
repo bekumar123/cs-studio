@@ -83,7 +83,7 @@ public class ArchiveSampleBatchQueueHandler extends BatchQueueHandlerSupport<Arc
     }
 
 
-    /**
+    /**wenhua neue spalt in db
      * {@inheritDoc}
      */
     @Override

@@ -39,6 +39,7 @@ abstract class AbstractReducedDataSample {
     private final Double _avg;
     private final Double _min;
     private final Double _max;
+   //wenhua
     private final int _status;
     private final int _severty;
     private final int _count;

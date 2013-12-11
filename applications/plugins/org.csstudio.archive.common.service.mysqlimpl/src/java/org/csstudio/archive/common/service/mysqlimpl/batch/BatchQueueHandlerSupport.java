@@ -83,7 +83,8 @@ public abstract class BatchQueueHandlerSupport<T> extends AbstractTypeSupport<T>
         }
         return Collections.emptyList();
     }
-
+/*wenhua xu return queue size back
+*/
     public static <T> int addToQueue(@Nonnull final Collection<T> newEntries) throws TypeSupportException {
         if (newEntries.isEmpty()) {
             return 0 ;

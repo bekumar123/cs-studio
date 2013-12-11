@@ -80,6 +80,7 @@ public class MySQLArchivePreferenceService {
         public static final MySQLArchiveServicePreference<Integer> MAX_ALLOWED_PACKET_IN_KB =
             new MySQLArchiveServicePreference<Integer>("maxAllowedPacketInKB", 32768)
                 .with(new MinMaxPreferenceValidator<Integer>(MIN_PACKET_SIZE_KB, MAX_PACKET_SIZE_KB));
+       // wenhua  Queue maxima size
         public static final MySQLArchiveServicePreference<Integer> QUEUE_MAXI_SIZE =
                 new MySQLArchiveServicePreference<Integer>("queueMaxiSize", 600000);
 

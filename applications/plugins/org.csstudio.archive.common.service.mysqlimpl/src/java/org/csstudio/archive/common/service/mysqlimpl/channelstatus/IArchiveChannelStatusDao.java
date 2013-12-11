@@ -51,7 +51,8 @@ public interface IArchiveChannelStatusDao {
     @Nonnull
     DeleteResult deleteStatusForChannelId(@Nonnull final ArchiveChannelId id) throws ArchiveDaoException;
 
-    /**
+  
+    /**return lastChannelstatus
      * @param id
      * @return
      */

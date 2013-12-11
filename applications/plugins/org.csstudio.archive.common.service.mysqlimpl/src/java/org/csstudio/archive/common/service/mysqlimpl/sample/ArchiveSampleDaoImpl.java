@@ -147,7 +147,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         BatchQueueHandlerSupport.installHandlerIfNotExists(new HourReducedDataSampleBatchQueueHandler(getDatabaseName()));
        }
 
-    /**
+    /**wenhua Status serverty in Sample berechnen
      * {@inheritDoc}
      */
     @Override

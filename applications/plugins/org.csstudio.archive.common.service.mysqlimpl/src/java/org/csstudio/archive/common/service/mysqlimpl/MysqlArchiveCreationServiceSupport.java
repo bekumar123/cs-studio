@@ -80,7 +80,7 @@ public class MysqlArchiveCreationServiceSupport {
         _channelGroupDao = channelGroupDao;
         _channelStatusDao = channelStatusDao;
     }
-
+// wenhua return Queue size
     <V extends Serializable, T extends ISystemVariable<V>>
     int createSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveServiceException {
         try {

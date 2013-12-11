@@ -51,6 +51,7 @@ public class ArchiveSample<V extends Serializable,
     private final ArchiveChannelId _channelId;
     private final T _sysVar;
     private final IAlarm _alarm;
+    //wenhua serverty und status als int wert
     private Integer servertyIndex;
     private Integer statusIndex;
 

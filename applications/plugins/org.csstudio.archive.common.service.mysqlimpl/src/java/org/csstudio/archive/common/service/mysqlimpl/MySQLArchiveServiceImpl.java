@@ -109,6 +109,7 @@ public class MySQLArchiveServiceImpl implements IArchiveEngineFacade, IArchiveRe
      * {@inheritDoc}
      */
     @Override
+    // wenhua return Queue size
     public <V extends Serializable, T extends ISystemVariable<V>>
     int writeSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveServiceException {
         return _createSupport.createSamples(samples);
@@ -195,7 +196,7 @@ public class MySQLArchiveServiceImpl implements IArchiveEngineFacade, IArchiveRe
                                          @Nonnull final String datatype) throws ArchiveServiceException {
         _updateSupport.updateChannelDataType(id, datatype);
     }
-    /**
+    /** wenhua update unit of vlaue in db
      * {@inheritDoc}
      */
     @Override

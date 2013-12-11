@@ -47,6 +47,7 @@ public class DoubleArchiveTypeConversionSupport extends AbstractNumberArchiveTyp
     @Nonnull
     public Double convertFromArchiveString(@Nonnull final String value) throws TypeSupportException {
         try {
+        //wenhua Xu: checke null
         	if(value==null) {
             return null;
         }

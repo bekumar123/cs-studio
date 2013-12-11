@@ -47,6 +47,7 @@ public class SampleMinMaxAggregator {
     private Double _lastVal;
     private TimeInstant _lastSampleTimeStamp;
     private TimeInstant _resetTimeStamp;
+    //wenhua Statistic for count in minute and stunde
     private int count=0;
 
     /**

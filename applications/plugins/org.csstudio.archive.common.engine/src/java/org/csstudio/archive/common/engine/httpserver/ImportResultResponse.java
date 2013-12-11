@@ -36,6 +36,9 @@ class ImportResultResponse extends AbstractChannelResponse {
     }
 
     @Override
+       /* wenhua xu
+         error msg output 
+       */
     protected void fillResponse(@Nonnull final HttpServletRequest req,
                                 @Nonnull final HttpServletResponse resp) throws Exception {
             // HTML table similar to group's list of channels

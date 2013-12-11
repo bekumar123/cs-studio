@@ -110,7 +110,9 @@ class MainResponse extends AbstractResponse {
         final TimeInstant start = getModel().getStartTime();
 
         if (start != null) {
-
+              /* wenhua xu
+             timeformate in germany
+           */
             html.tableLine(new String[] {Messages.HTTP_STARTTIME,  new TimestampFormat("dd.MM.yyyy' 'HH:mm:ss").format(   Timestamp.of( getModel().getStartTime().getSeconds(), 0)) });
             final Duration dur = new Duration(start.getInstant(),
                                               TimeInstantBuilder.fromNow().getInstant());
@@ -127,6 +129,9 @@ class MainResponse extends AbstractResponse {
     private void createChannelStatsRows(@Nonnull final HTMLWriter html) {
         int numOfChannels = 0;
         int numOfConnectedChannels = 0;
+           /* wenhua xu
+          new info line for engine
+       */
         int numOfStartedChannels = 0;
         int numOfConnectedStateChannels = 0;
         int numOfDisconnectedStateChannels = 0;
@@ -208,7 +213,10 @@ class MainResponse extends AbstractResponse {
                                      });
 
         final TimeInstant lastWriteTime = getModel().getLastWriteTime();
-        html.tableLine(new String[] {Messages.HTTP_LAST_WRITETIME,
+       
+             /* wenhua xu
+          timeformate in germany
+       */ html.tableLine(new String[] {Messages.HTTP_LAST_WRITETIME,
                                      lastWriteTime == null ? Messages.HTTP_NEVER :
                                          new TimestampFormat("dd.MM.yyyy' 'HH:mm:ss").format(Timestamp.of( getModel().getLastWriteTime().getSeconds(), 0))
                                                               });

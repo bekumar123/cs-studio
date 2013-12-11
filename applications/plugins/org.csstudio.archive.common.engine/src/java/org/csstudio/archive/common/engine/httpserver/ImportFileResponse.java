@@ -34,10 +34,9 @@ import org.csstudio.archive.common.engine.model.EngineModel;
 import org.csstudio.domain.desy.epics.name.EpicsChannelName;
 
 /**
- * TODO (bknerr) :
  *
- * @author bknerr
- * @since 30.09.2011
+ * @author wenhua xu
+ * @since 30.09.2013
  */
 public class ImportFileResponse extends AbstractResponse {
 

@@ -505,6 +505,7 @@ var forEach = function(object, block, context) {
 		resolve.forEach(object, block, context);
 	}
 };
+//wenhua: letzt 10 channelwert und channel status in Seit http://krynfsc:4811/channel/show? ausgeben 
 var channelName="";
 function writeTable(){
 	var xmlhttp;

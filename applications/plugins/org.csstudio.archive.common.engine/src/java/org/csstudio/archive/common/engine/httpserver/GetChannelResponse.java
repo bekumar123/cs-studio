@@ -28,7 +28,7 @@ import org.epics.util.time.Timestamp;
 import org.epics.util.time.TimestampFormat;
 
 /** Provide web page with detail for one channel.
- *  @author Kay Kasemir
+ *  @author wenhua xu
  */
 @SuppressWarnings("nls")
 class GetChannelResponse extends AbstractChannelResponse {

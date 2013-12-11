@@ -84,6 +84,9 @@ class ShowGroupResponse extends AbstractGroupResponse {
             group.isStarted() ? Messages.HTTP_YES : HTMLWriter.makeRedText(Messages.HTTP_NO),
         });
         final TimeInstant lastWriteTime = getModel().getLastWriteTime();
+             /* wenhua xu
+          timeformate in germany
+       */
         html.tableLine(new String[] {
                 Messages.HTTP_LAST_WRITETIME,
                 lastWriteTime != null ? new TimestampFormat("dd.MM.yyyy' 'HH:mm:ss").format(Timestamp.of(lastWriteTime.getSeconds(), 0)): Messages.HTTP_NOT_AVAILABLE,
@@ -96,6 +99,9 @@ class ShowGroupResponse extends AbstractGroupResponse {
         }
         html.closeTable();
     }
+           /* wenhua xu
+          Adel for channel
+       */
     private String getAdel(@Nonnull final String channelName){
         final ArchiveChannelBuffer<?, ?> channel =getModel().getChannel(channelName+".ADEL");
 
@@ -145,6 +151,9 @@ class ShowGroupResponse extends AbstractGroupResponse {
                 final SampleBuffer<?, ?, ?> buffer = channel.getSampleBuffer();
                 final SampleBufferStatistics stats = buffer.getBufferStats();
                 final ISystemVariable<?> mostRecentSample = channel.getMostRecentSample();
+                     /* wenhua xu
+                     new column in Group table
+                 */
                 final ConnectionState state=channel.getConnectState();
                 final String connState = state!=null? ConnectionState.CONNECTED.equals(state)?   state.getName() : HTMLWriter.makeRedText( state.getName()): HTMLWriter.makeRedText("UNKNOWN");
                 final String cajDirectconnState ;

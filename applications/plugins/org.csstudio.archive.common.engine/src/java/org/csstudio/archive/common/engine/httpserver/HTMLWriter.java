@@ -51,6 +51,9 @@ public class HTMLWriter {
         h1(title);
 
         text("<div id=\"navigation\">");
+        /* wenhua xu
+          new nav. menue for manage
+       */
         createNavigationBar(MainResponse.linkTo(),
                             GroupsResponse.linkTo(),
                             DisconnectedResponse.linkTo(Messages.HTTP_DISCONNECTED),
@@ -82,6 +85,9 @@ public class HTMLWriter {
         createNavigationBar(MainResponse.linkTo());
         createNavigationBar(GroupsResponse.linkTo());
         createNavigationBar(DisconnectedResponse.linkTo(Messages.HTTP_DISCONNECTED));
+         /* wenhua xu
+          new nav. menue for manage
+       */
         createNavigationBar(ManageResponse.linkTo());
         createNavigationBar(HelpResponse.linkTo());
         text("</div>");
@@ -101,6 +107,9 @@ public class HTMLWriter {
         text("</div>");
         text("<hr width='100%' align='left'>");
         text("<div id=\"timeAndHint\">");
+           /* wenhua xu
+          timeformate in Germany
+       */
         text(new TimestampFormat("dd.MM.yyyy' 'HH:mm:ss").format(Timestamp.of(TimeInstantBuilder.fromNow().getSeconds(), 0)));
         //   text(TimeInstantBuilder.fromNow().formatted());
         text("(Use web browser's Reload to refresh this page)");

@@ -197,7 +197,6 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
         if (_pv != null) {
             _pv.close();
         }
-
         _pv = PVManager.read(newValuesOf(channel(_name))).maxRate(RATE);
 
         _listener = new DesyArchivePVManagerListener(this, _pv, _provider, _name, _id, _datatype) {
@@ -207,13 +206,9 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
                 synchronized (this) {
                     _receivedSampleCount++;
                     _mostRecentSysVar = (T) sample.getSystemVariable();
-                 /*   if(_name.startsWith("G47c:K:K")) {
-                        System.out.println(_name+ "    ArchiveChannelBuffer.initPvAndListener()  " +sample.getValue());
-                    }*/
                 }
                 _ringBuffer.add(sample);
                 if(_ringBuffer.isEmpty() || !_ringBuffer.equals(_ringBuffer.get(_ringBuffer.size()-1))){} else {
-
                 }
                 return _buffer.add(sample);
 
@@ -248,6 +243,9 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
             throw new EngineModelException("Internal service error on handling channel connection info.", e);
         }
     }
+        /* wenhua xu
+        channel connectedstate from DB
+       */
     public boolean isChannelConnected() throws EngineModelException {
         boolean isConn=false;
         try {
@@ -336,6 +334,9 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
     public boolean isEnabled() {
         return _isEnabled;
     }
+      /* wenhua xu
+        channel connectedstate from  PVManager
+       */
     public ConnectionState getConnectState(){
           try{
             final DesyJCAChannelHandler channelHandler = (DesyJCAChannelHandler)_source.getChannels().get(_name);
@@ -344,6 +345,9 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
             return null;
           }
     }
+     /* wenhua xu
+        channel connectedstate from  CAJ
+       */
     public ConnectionState getCAJDirectConnectState(){
         try{
           final DesyJCAChannelHandler channelHandler = (DesyJCAChannelHandler)_source.getChannels().get(_name);

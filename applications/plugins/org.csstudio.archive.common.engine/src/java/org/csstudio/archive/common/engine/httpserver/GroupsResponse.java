@@ -56,9 +56,12 @@ class GroupsResponse extends AbstractResponse {
                                         numOf(Messages.HTTP_UNKNOWN_CHANNEL), numOf(Messages.HTTP_COLUMN_RECEIVEDVALUES),
                                         Messages.HTTP_COLUMN_QUEUEAVG, Messages.HTTP_COLUMN_QUEUEMAX, });
     }
-
+       /*wenhua xu
+       new column Channel with conncted State, channel with neverconnected State .. for ../groups page
+     */   
     private void createGroupsTable(@Nonnull final HTMLWriter html) {
 
+        
         int totalNumOfChannels = 0;
         int totalNumOfConnectedChannels = 0;
         int totalNumOfConnectedStateChannels = 0;

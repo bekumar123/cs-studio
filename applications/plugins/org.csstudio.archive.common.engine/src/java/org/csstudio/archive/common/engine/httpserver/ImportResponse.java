@@ -62,6 +62,9 @@ public class ImportResponse extends AbstractResponse {
 
              final String s ="";
             //Here request is the reference of HttpServletRequest.
+               /* wenhua xu
+               import channel from localfile
+            */
              final String fileName=req.getParameter("fileName");
             final List<EpicsChannelName> channelList = config.configureChannelsFromFile(fileName);
 

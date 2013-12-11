@@ -26,6 +26,10 @@ public class FileArchiveConfigure {
     public FileArchiveConfigure(final EngineModel model) {
         _model = model;
     }
+/*
+*configurien channelList from inputstrem 
+*for managementresponse upload of local file with POST 
+*/
     public List<EpicsChannelName> configureChannelsFromFile(final ServletInputStream in) {
 
         final List<EpicsChannelName> channelList = new ArrayList<EpicsChannelName>();
@@ -96,7 +100,7 @@ public class FileArchiveConfigure {
                 if (line.startsWith("#")) {
                     continue;
                 }
-                              final String[] split = line.split("\\s+");
+                final String[] split = line.split("\\s+");
                 if (split.length == 0) {
                     continue;
                 }
@@ -141,6 +145,10 @@ public class FileArchiveConfigure {
         }
         return channelList;
     }
+    /*
+*configurien channelList from inputstrem 
+*for managementresponse upload of local file with GET 
+*/
     public List<EpicsChannelName> configureChannelsFromFile(final String fileName) {
         if(fileName==null ||fileName.isEmpty() || fileName.length()<10) {
             return configureChannelsFromFile();

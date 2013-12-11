@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
 
 /**
- * Provide web page with engine overview.
- *  @author Kay Kasemir
+ * Provide web page with manage overversion.
+ *  @author Wenhua Xu
  */
 class ManageResponse extends AbstractResponse {
 

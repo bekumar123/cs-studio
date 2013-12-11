@@ -192,7 +192,9 @@ public final class EngineModel {
 
         checkAndUpdateLastShutdownStatus(_provider, _engine, _channelMap.values());
         startChannelGroups(_groupMap.values());
-
+          /* wenhua xu
+       WriteExecutor starte Writethread for eache channel Group
+       */
         _writeExecutor = new WriteExecutor(_provider, _engine.getId(), _channelMap.values(), this);
         _writeExecutor.start(_heartBeatPeriodInMS, _writePeriodInMS);
         LOG.info("Engine {} Start",getName());
@@ -304,9 +306,6 @@ public final class EngineModel {
 
     private void startChannelGroups(@Nonnull final Collection<ArchiveGroup> groups) throws EngineModelException {
         for (final ArchiveGroup group : groups) {
-            if (group.getId().intValue() == 14) {
-                // group.start(ArchiveEngineStatus.ENGINE_START);
-            }
             group.start(ArchiveEngineStatus.ENGINE_START);
             if (getState() == EngineState.SHUTDOWN_REQUESTED) {
                 break;

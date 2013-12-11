@@ -123,10 +123,12 @@ public class EngineHttpServer {
         httpService.registerServlet(ShutdownResponse.baseUrl(), new ShutdownResponse(model, adminParamKey, adminParamValue),
                                     null, httpContext);
         httpService.registerServlet(ImportResponse.baseUrl(), new ImportResponse(model, adminParamKey, adminParamValue),
-                                    null, httpContext);
+                               null, httpContext);
+      /*wenhua xu
+        new servelet for ImportFileResponse
+     */                          
         httpService.registerServlet(ImportFileResponse.baseUrl(), new ImportFileResponse(model, adminParamKey, adminParamValue),
                                     null, httpContext);
-
 
     }
 
@@ -143,8 +145,14 @@ public class EngineHttpServer {
                                     new GroupsResponse(model), null, httpContext);
         httpService.registerServlet(ShowGroupResponse.baseUrl(),
                                     new ShowGroupResponse(model), null, httpContext);
+            /*wenhua xu
+        new servelet for GetChannelResponse
+     */  
         httpService.registerServlet(GetChannelResponse.baseUrl(),
                                     new GetChannelResponse(model), null, httpContext);
+                  /*wenhua xu
+        new servelet for ManageResponse
+     */  
         httpService.registerServlet(ManageResponse.baseUrl(),
                                     new ManageResponse(model, adminParamKey, adminParamValue), null, httpContext);
         httpService.registerServlet(StartGroupResponse.baseUrl(),
@@ -153,7 +161,6 @@ public class EngineHttpServer {
                                     null, httpContext);
         httpService.registerServlet(AddGroupResponse.baseUrl(),
                                     new AddGroupResponse(model), null, httpContext);
-
     }
 
 

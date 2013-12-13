@@ -26,6 +26,7 @@ import org.csstudio.archive.common.service.sample.ArchiveSample;
 import org.csstudio.archive.common.service.sample.IArchiveSample;
 import org.csstudio.dal2.dv.Characteristic;
 import org.csstudio.dal2.dv.Characteristics;
+import org.csstudio.dal2.dv.ListenerType;
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Timestamp;
 import org.csstudio.dal2.dv.Type;
@@ -183,7 +184,7 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
 
         try {
             final IDalService dalService = _provider.getDalService();
-            _pvAccess = dalService.getPVAccess(_address, Type.NATIVE);
+            _pvAccess = dalService.getPVAccess(_address, Type.NATIVE, ListenerType.LOG);
         } catch (final OsgiServiceUnavailableException e) {
             throw new EngineModelException("Missing dynamic service", e);
         }

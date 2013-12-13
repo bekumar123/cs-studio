@@ -29,7 +29,7 @@ public abstract class ComboHistoryHelper
     private final int max;
 
     /** Attach helper to given combo box, using default list length. */
-    public ComboHistoryHelper(IDialogSettings settings, String tag, ComboViewer combo)
+    public ComboHistoryHelper(final IDialogSettings settings, final String tag, final ComboViewer combo)
     {
         this(settings, tag, combo, DEFAULT_MAX);
     }
@@ -40,8 +40,8 @@ public abstract class ComboHistoryHelper
      *  @param combo    The ComboViewer
      *  @param max      Max list length
      */
-    public ComboHistoryHelper(IDialogSettings settings, String tag,
-                              ComboViewer combo, int max)
+    public ComboHistoryHelper(final IDialogSettings settings, final String tag,
+                              final ComboViewer combo, final int max)
     {
         this.settings = settings;
         this.tag = tag;
@@ -54,15 +54,15 @@ public abstract class ComboHistoryHelper
         combo.getCombo().addSelectionListener(new SelectionListener()
         {
             // Called after <Return> was pressed
-            public void widgetDefaultSelected(SelectionEvent e)
+            public void widgetDefaultSelected(final SelectionEvent e)
             {
-                String new_entry = ComboHistoryHelper.this.combo.getCombo().getText();
+                final String new_entry = ComboHistoryHelper.this.combo.getCombo().getText();
                 addEntry(new_entry);
                 newSelection(new_entry);
             }
 
             // Called after existing entry was picked from list
-            public void widgetSelected(SelectionEvent e)
+            public void widgetSelected(final SelectionEvent e)
             {   handleNewSelection();    }
         });
 
@@ -70,10 +70,11 @@ public abstract class ComboHistoryHelper
 
     /** Add entry to the list. */
     @SuppressWarnings("nls")
-    public void addEntry(String new_entry)
+    public void addEntry(final String new_entry)
     {
-        if (debug)
+        if (debug) {
             System.out.println("ComboHelper: Add "+new_entry);
+        }
 
         // Locate & remove the entry to avoid duplicates.
         // A simple remove() would throw exception in case the elem isn't found.
@@ -82,7 +83,7 @@ public abstract class ComboHistoryHelper
         for (int i=0; i<ctrl.getItemCount(); ++i)
         {
             final Object obj = combo.getElementAt(i);
-            String elem = (String) obj;
+            final String elem = (String) obj;
             if (elem.equals(new_entry))
             {
                 combo.remove(obj);
@@ -90,25 +91,29 @@ public abstract class ComboHistoryHelper
             }
         }
         // Maybe remove oldest (first) entry to keep list size <= max
-        if (ctrl.getItemCount() >= max)
-        	combo.remove(combo.getElementAt(0));
+        if (ctrl.getItemCount() >= max) {
+            combo.remove(combo.getElementAt(0));
+        }
 
         // Add new entry to the end
         combo.add(new_entry);
-        if (! only_a_reorg)
+        if (! only_a_reorg) {
             ctrl.select(ctrl.getItemCount()-1);
+        }
 
-        if (debug)
-            for (int i=0; i<ctrl.getItemCount(); ++i)
+        if (debug) {
+            for (int i=0; i<ctrl.getItemCount(); ++i) {
                 System.out.println(String.format("Item %2d: '%s'",
                                                  i,
                                                  combo.getElementAt(i)));
+            }
+        }
     }
 
     /** Notify about new selection. */
     private void handleNewSelection()
     {
-        String name = combo.getCombo().getText();
+        final String name = combo.getCombo().getText();
         newSelection(name);
     }
 
@@ -118,20 +123,22 @@ public abstract class ComboHistoryHelper
     /** Load persisted list values. */
     public void loadSettings()
     {
-        IDialogSettings pvs = settings.getSection(tag);
-        if (pvs == null)
+        final IDialogSettings pvs = settings.getSection(tag);
+        if (pvs == null) {
             return;
-        String values[] = pvs.getArray(TAG);
-        if (values != null)
-            for (int i = 0; i < values.length; i++) {
-                combo.add(values[i]);
+        }
+        final String values[] = pvs.getArray(TAG);
+        if (values != null) {
+            for (final String value : values) {
+                combo.add(value);
     }
+        }
     }
 
     /** Save list values to persistent storage. */
     public void saveSettings()
     {
-        IDialogSettings values = settings.addNewSection(tag);
+        final IDialogSettings values = settings.addNewSection(tag);
         values.put(TAG, combo.getCombo().getItems());
     }
 }

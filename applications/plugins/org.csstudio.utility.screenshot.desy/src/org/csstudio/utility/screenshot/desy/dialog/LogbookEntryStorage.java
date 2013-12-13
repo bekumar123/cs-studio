@@ -45,14 +45,14 @@ import org.slf4j.LoggerFactory;
  * @since 08.08.2012
  */
 public class LogbookEntryStorage {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(LogbookEntryStorage.class);
-    
+
     private File dataFile;
-    
+
     public LogbookEntryStorage() {
-        Bundle bundle = DestinationPlugin.getBundleContext().getBundle();
-        File dataDir = bundle.getDataFile("dialog");
+        final Bundle bundle = DestinationPlugin.getBundleContext().getBundle();
+        final File dataDir = bundle.getDataFile("dialog");
         boolean success = dataDir.exists();
         if (!success) {
             success = dataDir.mkdir();
@@ -66,40 +66,40 @@ public class LogbookEntryStorage {
             dataFile = new File("./dialog.properties");
         }
     }
-    
-    public boolean storeLogbookEntry(LogbookEntry entry) {
-        boolean success = false;    
+
+    public boolean storeLogbookEntry(final LogbookEntry entry) {
+        boolean success = false;
         BufferedWriter writer = null;
         try {
             writer = new BufferedWriter(new FileWriter(dataFile));
             writer.write(entry.createPropertiesList());
             success = true;
-        } catch (IOException e) {
+        } catch (final IOException e) {
             success = false;
         } finally {
-            if (writer!=null) {try{writer.close();}catch(Exception e){/*Ignore Me*/}}
+            if (writer!=null) {try{writer.close();}catch(final Exception e){/*Ignore Me*/}}
         }
         return success;
     }
 
     public LogbookEntry readLogbookEntry() {
         LogbookEntry entry = new LogbookEntry();
-        Properties prop = new Properties();
+        final Properties prop = new Properties();
         try {
             prop.load(new FileInputStream(dataFile));
             if (prop.containsKey("LOGBOOKNAME")) {
                 entry.setLogbookName(prop.getProperty("LOGBOOKNAME"));
                 prop.remove("LOGBOOKNAME");
             }
-            Enumeration<?> keys = prop.keys();
+            final Enumeration<?> keys = prop.keys();
             while (keys.hasMoreElements()) {
-                String key = (String) keys.nextElement();
+                final String key = (String) keys.nextElement();
                 entry.setLogbookProperty(key, prop.getProperty(key));
             }
-        } catch (FileNotFoundException e) {
+        } catch (final FileNotFoundException e) {
             LOG.info("[*** FileNotFoundException ***]: The file does not exist yet, but will be created.");
             entry = new LogbookEntry();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             LOG.error("[*** IOException ***]: {}", e.getMessage());
             entry = new LogbookEntry();
         }

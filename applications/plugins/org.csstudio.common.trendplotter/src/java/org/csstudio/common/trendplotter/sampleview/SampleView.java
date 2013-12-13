@@ -189,7 +189,6 @@ public class SampleView extends DataBrowserAwareView
                 {
                     cell.setText("OK");
                     cell.setBackground(null);
-                    return;
                 }
                 final Display display = cell.getControl().getDisplay();
                 if (severity.equals(AlarmSeverity.MAJOR))
@@ -210,6 +209,11 @@ public class SampleView extends DataBrowserAwareView
                 final PlotSample sample = (PlotSample) cell.getElement();
                 final VType value = sample.getValue();
                 cell.setText(VTypeHelper.getMessage(value));
+                if (VTypeHelper.getMessage(value).equals("NONE"))
+                {
+                    cell.setText("OK");
+                    cell.setBackground(null);
+                }
             }
         });
         // Sample Source column

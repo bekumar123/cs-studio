@@ -345,4 +345,10 @@ public class PVSamples extends PlotSamples
         }
         historicSamples.clear();
     }
+    public String getMedl(){
+        return liveSamples.getDeadband()==null ? "":liveSamples.getDeadband().toString();
+    }
+    public String getAdel(){
+        return historicSamples.getDeadband()==null ? "":historicSamples.getDeadband().toString();
+    }
 }

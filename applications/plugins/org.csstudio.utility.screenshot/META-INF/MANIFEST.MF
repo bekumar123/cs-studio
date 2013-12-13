@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Screenshot Plug-in
 Bundle-SymbolicName: org.csstudio.utility.screenshot; singleton:=true
-Bundle-Version: 1.3.0.201304241100
+Bundle-Version: 1.3.0.201312131500
 Bundle-Activator: org.csstudio.utility.screenshot.ScreenshotPlugin
 Bundle-Localization: plugin
 Bundle-ActivationPolicy: lazy
@@ -18,4 +18,4 @@ Bundle-ClassPath: lib/activation.jar,
  lib/smtp.jar,
  .
 Export-Package: org.csstudio.utility.screenshot
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

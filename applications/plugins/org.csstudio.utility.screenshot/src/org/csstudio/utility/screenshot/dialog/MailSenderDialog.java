@@ -36,8 +36,10 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -74,11 +76,10 @@ public class MailSenderDialog extends Dialog implements SelectionListener {
     private Text textMailText = null;
     private ComboViewer cbvAddresses = null;
 
-    private ComboHistoryHelper addressHelper;
+    protected ComboHistoryHelper addressHelper;
 
     private final int INIT_WIDTH = DialogUnit.mapUnitX(432);
     private final int INIT_HEIGHT = DialogUnit.mapUnitY(310);
-
 
     /**
      *
@@ -87,6 +88,18 @@ public class MailSenderDialog extends Dialog implements SelectionListener {
     public MailSenderDialog(final Shell shell) {
     	super(shell);
         parentShell = shell;
+        parentShell.addFocusListener(new FocusListener() {
+
+            public void focusGained(final FocusEvent event) {
+                System.out.println("focusGained: " + event.toString());
+            }
+
+            public void focusLost(final FocusEvent event) {
+                System.out.println("focusLost: " + event.toString());
+            }
+
+        });
+        setShellStyle(SWT.CLOSE | SWT.TITLE | SWT.BORDER | SWT.OK);
         setBlockOnOpen(true);
     }
 
@@ -95,7 +108,6 @@ public class MailSenderDialog extends Dialog implements SelectionListener {
      */
     @Override
 	protected void configureShell(final Shell shell) {
-
     	super.configureShell(shell);
         shell.setText(ScreenshotPlugin.getDefault().getNameAndVersion() + ScreenshotMessages.getString("MailSenderDialog.DIALOG_TITLE"));
     }
@@ -104,10 +116,8 @@ public class MailSenderDialog extends Dialog implements SelectionListener {
      *
      */
     @Override
-	protected void initializeBounds()
-    {
+	protected void initializeBounds() {
         final Rectangle rect = parentShell.getBounds();
-
         this.getShell().setBounds(rect.x + (rect.width - INIT_WIDTH) / 2, rect.y + (rect.height - INIT_HEIGHT) / 2, INIT_WIDTH, INIT_HEIGHT);
     }
 
@@ -116,9 +126,6 @@ public class MailSenderDialog extends Dialog implements SelectionListener {
      */
     @Override
 	protected Control createDialogArea(final Composite parent) {
-
-    	String temp = null;
-        GridData gd = null;
 
         final GridLayout layout = new GridLayout(7, true);
         layout.verticalSpacing = 12;
@@ -131,7 +138,7 @@ public class MailSenderDialog extends Dialog implements SelectionListener {
 
         // First row
         final Label labelDummyRow1 = new Label(parent, SWT.SHADOW_NONE | SWT.LEFT);
-        gd = new GridData();
+        GridData gd = new GridData();
         gd.grabExcessHorizontalSpace = true;
         gd.horizontalSpan = 6;
         gd.horizontalAlignment = SWT.FILL;
@@ -170,7 +177,7 @@ public class MailSenderDialog extends Dialog implements SelectionListener {
         gd.grabExcessHorizontalSpace = true;
         textFrom.setLayoutData(gd);
         if(mailEntry != null) {
-        	temp = mailEntry.getMailFromAddress();
+        	final String temp = mailEntry.getMailFromAddress();
             if(temp != null) {
                 textFrom.setText(temp);
             }
@@ -179,7 +186,10 @@ public class MailSenderDialog extends Dialog implements SelectionListener {
         btnCarbonCopy = new Button(parent, SWT.CHECK);
         btnCarbonCopy.setText(ScreenshotMessages.getString("MailSenderDialog.LABEL_COPY"));
 
-        final boolean sendCopy = pref.getBoolean(ScreenshotPlugin.PLUGIN_ID, ScreenshotPreferenceConstants.COPY_TO_SENDER, false, null);
+        final boolean sendCopy = pref.getBoolean(ScreenshotPlugin.PLUGIN_ID,
+                                                 ScreenshotPreferenceConstants.COPY_TO_SENDER,
+                                                 false,
+                                                 null);
         btnCarbonCopy.setSelection(sendCopy);
         gd = new GridData();
         gd.horizontalSpan = 2;
@@ -203,7 +213,7 @@ public class MailSenderDialog extends Dialog implements SelectionListener {
         gd.grabExcessHorizontalSpace = true;
         textTo.setLayoutData(gd);
         if(mailEntry != null) {
-            temp = mailEntry.getMailToAddress();
+            final String temp = mailEntry.getMailToAddress();
             if(temp != null) {
                 textTo.setText(temp);
             }
@@ -243,7 +253,7 @@ public class MailSenderDialog extends Dialog implements SelectionListener {
 
         cbvAddresses.getCombo().addDisposeListener(new DisposeListener() {
         	public void widgetDisposed(final DisposeEvent e) {
-                getAddressHelper().saveSettings();
+                addressHelper.saveSettings();
             }
         });
 
@@ -266,7 +276,7 @@ public class MailSenderDialog extends Dialog implements SelectionListener {
         gd.grabExcessHorizontalSpace = true;
         textSubject.setLayoutData(gd);
         if(mailEntry != null) {
-            temp = mailEntry.getMailSubject();
+            final String temp = mailEntry.getMailSubject();
             if(temp != null) {
                 textSubject.setText(temp);
             }
@@ -294,7 +304,7 @@ public class MailSenderDialog extends Dialog implements SelectionListener {
         gd.grabExcessVerticalSpace = true;
         textMailText.setLayoutData(gd);
         if(mailEntry != null) {
-            temp = mailEntry.getMailText();
+            final String temp = mailEntry.getMailText();
             if(temp != null) {
                 textMailText.setText(temp);
             }
@@ -358,8 +368,8 @@ public class MailSenderDialog extends Dialog implements SelectionListener {
         return mailEntry;
     }
 
-    private boolean createMailEntry()
-    {
+    private boolean createMailEntry() {
+
         boolean result = true;
 
         final String f = textFrom.getText().trim();
@@ -369,9 +379,7 @@ public class MailSenderDialog extends Dialog implements SelectionListener {
         }
 
         final String s = textSubject.getText().trim();
-
         final String m = textMailText.getText().trim();
-
         final boolean cpy = btnCarbonCopy.getSelection();
 
         if(result == true) {
@@ -381,10 +389,6 @@ public class MailSenderDialog extends Dialog implements SelectionListener {
         return result;
     }
 
-    public ComboHistoryHelper getAddressHelper() {
-        return addressHelper;
-    }
-
     public void widgetDefaultSelected(final SelectionEvent event) {
         widgetSelected(event);
     }
@@ -392,7 +396,7 @@ public class MailSenderDialog extends Dialog implements SelectionListener {
     public void widgetSelected(final SelectionEvent event) {
 
     	if(event.widget instanceof Button) {
-            final Button source = (Button)event.widget;
+            final Button source = (Button) event.widget;
 
             if(source.getText().compareToIgnoreCase(ScreenshotMessages.getString("MailSenderDialog.BUTTON_SEND")) == 0)
             {

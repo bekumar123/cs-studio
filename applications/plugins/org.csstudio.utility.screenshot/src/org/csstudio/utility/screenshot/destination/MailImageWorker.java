@@ -93,8 +93,9 @@ public class MailImageWorker implements IImageWorker {
         final String imageFilename = "capture.jpg";
 
         if(image == null) {
-
-            MessageDialog.openInformation(parentShell, ScreenshotPlugin.getDefault().getNameAndVersion(), ScreenshotMessages.getString("MailImageWorker.NO_IMAGE"));
+            MessageDialog.openInformation(parentShell,
+                                          ScreenshotPlugin.getDefault().getNameAndVersion(),
+                                          ScreenshotMessages.getString("MailImageWorker.NO_IMAGE"));
             return;
         }
 
@@ -112,7 +113,6 @@ public class MailImageWorker implements IImageWorker {
         bufferedImage = convertToBufferedImage(image.getImageData());
 
         MailSenderDialog dialog = new MailSenderDialog(parentShell);
-
         final int value = dialog.open();
         if(value == Window.OK && dialog.getMailEntry() != null) {
 

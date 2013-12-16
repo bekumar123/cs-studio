@@ -903,105 +903,105 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          id="com.ibm.icu"
          download-size="0"
          install-size="0"
-         version="4.4.2.v20110823"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.core.commands"
          download-size="0"
          install-size="0"
-         version="3.6.0.I20110111-0800"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.core.contenttype"
          download-size="0"
          install-size="0"
-         version="3.4.100.v20110423-0524"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.core.databinding"
          download-size="0"
          install-size="0"
-         version="1.4.0.I20110111-0800"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.core.databinding.beans"
          download-size="0"
          install-size="0"
-         version="1.2.100.I20100824-0800"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.core.databinding.observable"
          download-size="0"
          install-size="0"
-         version="1.4.0.I20110222-0800"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.core.databinding.property"
          download-size="0"
          install-size="0"
-         version="1.4.0.I20110222-0800"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.core.expressions"
          download-size="0"
          install-size="0"
-         version="3.4.300.v20110228"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.core.jobs"
          download-size="0"
          install-size="0"
-         version="3.5.101.v20120113-1953"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.core.runtime"
          download-size="0"
          install-size="0"
-         version="3.7.0.v20110110"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.core.runtime.compatibility.auth"
          download-size="0"
          install-size="0"
-         version="3.2.200.v20110110"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.app"
          download-size="0"
          install-size="0"
-         version="1.3.100.v20110321"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.common"
          download-size="0"
          install-size="0"
-         version="3.6.0.v20110523"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.ds"
          download-size="0"
          install-size="0"
-         version="1.3.1.R37x_v20110701"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.launcher"
          download-size="0"
          install-size="0"
-         version="1.2.0.v20110502"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
@@ -1011,7 +1011,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="ppc"
          download-size="0"
          install-size="0"
-         version="1.1.100.v20110502"
+         version="0.0.0"
          fragment="true"/>
 
    <plugin
@@ -1021,7 +1021,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="x86"
          download-size="0"
          install-size="0"
-         version="1.1.100.v20110502"
+         version="0.0.0"
          fragment="true"/>
 
    <plugin
@@ -1031,7 +1031,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="ppc"
          download-size="0"
          install-size="0"
-         version="1.1.101.v20120109-1504"
+         version="0.0.0"
          fragment="true"/>
 
    <plugin
@@ -1041,7 +1041,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="x86"
          download-size="0"
          install-size="0"
-         version="1.1.101.v20120109-1504"
+         version="0.0.0"
          fragment="true"/>
 
    <plugin
@@ -1051,7 +1051,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="x86_64"
          download-size="0"
          install-size="0"
-         version="1.1.101.v20120109-1504"
+         version="0.0.0"
          fragment="true"/>
 
    <plugin
@@ -1061,7 +1061,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="ppc"
          download-size="0"
          install-size="0"
-         version="1.1.0.v20110530"
+         version="0.0.0"
          fragment="true"/>
 
    <plugin
@@ -1071,7 +1071,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="ppc64"
          download-size="0"
          install-size="0"
-         version="1.1.0.v20110530"
+         version="0.0.0"
          fragment="true"/>
 
    <plugin
@@ -1081,7 +1081,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="ppc64"
          download-size="0"
          install-size="0"
-         version="1.0.100.v20110505"
+         version="0.0.0"
          fragment="true"/>
 
    <plugin
@@ -1091,7 +1091,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="s390"
          download-size="0"
          install-size="0"
-         version="1.1.100.v20110505"
+         version="0.0.0"
          fragment="true"/>
 
    <plugin
@@ -1101,7 +1101,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="s390x"
          download-size="0"
          install-size="0"
-         version="1.1.100.v20110505"
+         version="0.0.0"
          fragment="true"/>
 
    <plugin
@@ -1111,7 +1111,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="x86"
          download-size="0"
          install-size="0"
-         version="1.1.100.v20110505"
+         version="0.0.0"
          fragment="true"/>
 
    <plugin
@@ -1121,7 +1121,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="x86_64"
          download-size="0"
          install-size="0"
-         version="1.1.100.v20110505"
+         version="0.0.0"
          fragment="true"/>
 
    <plugin
@@ -1131,7 +1131,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="sparc"
          download-size="0"
          install-size="0"
-         version="1.1.100.v20110505"
+         version="0.0.0"
          fragment="true"/>
 
    <plugin
@@ -1141,7 +1141,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="x86"
          download-size="0"
          install-size="0"
-         version="1.1.100.v20110505"
+         version="0.0.0"
          fragment="true"/>
 
    <plugin
@@ -1151,7 +1151,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="x86"
          download-size="0"
          install-size="0"
-         version="1.1.100.v20110502"
+         version="0.0.0"
          fragment="true"/>
 
    <plugin
@@ -1161,84 +1161,84 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="x86_64"
          download-size="0"
          install-size="0"
-         version="1.1.100.v20110502"
+         version="0.0.0"
          fragment="true"/>
 
    <plugin
          id="org.eclipse.equinox.preferences"
          download-size="0"
          install-size="0"
-         version="3.4.2.v20120111-2020"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.registry"
          download-size="0"
          install-size="0"
-         version="3.5.101.R37x_v20110810-1611"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.simpleconfigurator"
          download-size="0"
          install-size="0"
-         version="1.0.200.v20110815-1438"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.util"
          download-size="0"
          install-size="0"
-         version="1.0.300.v20110502"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.help"
          download-size="0"
          install-size="0"
-         version="3.5.100.v20110426"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.jface"
          download-size="0"
          install-size="0"
-         version="3.7.0.v20110928-1505"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.jface.databinding"
          download-size="0"
          install-size="0"
-         version="1.5.0.I20100907-0800"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.osgi"
          download-size="0"
          install-size="0"
-         version="3.7.2.v20120110-1415"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.osgi.services"
          download-size="0"
          install-size="0"
-         version="3.3.0.v20110513"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.rcp"
          download-size="0"
          install-size="0"
-         version="3.7.2.v201202080800"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.swt"
          download-size="0"
          install-size="0"
-         version="3.7.2.v3740f"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
@@ -1248,7 +1248,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="ppc"
          download-size="0"
          install-size="0"
-         version="3.7.2.v3740f"
+         version="0.0.0"
          fragment="true"
          unpack="false"/>
 
@@ -1259,7 +1259,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="x86"
          download-size="0"
          install-size="0"
-         version="3.7.2.v3740f"
+         version="0.0.0"
          fragment="true"
          unpack="false"/>
 
@@ -1270,7 +1270,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="ppc"
          download-size="0"
          install-size="0"
-         version="3.7.2.v3740f"
+         version="0.0.0"
          fragment="true"
          unpack="false"/>
 
@@ -1281,7 +1281,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="x86"
          download-size="0"
          install-size="0"
-         version="3.7.2.v3740f"
+         version="0.0.0"
          fragment="true"
          unpack="false"/>
 
@@ -1292,7 +1292,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="x86_64"
          download-size="0"
          install-size="0"
-         version="3.7.2.v3740f"
+         version="0.0.0"
          fragment="true"
          unpack="false"/>
 
@@ -1303,7 +1303,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="ppc"
          download-size="0"
          install-size="0"
-         version="3.7.2.v3740f"
+         version="0.0.0"
          fragment="true"
          unpack="false"/>
 
@@ -1314,7 +1314,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="ppc64"
          download-size="0"
          install-size="0"
-         version="3.7.2.v3740f"
+         version="0.0.0"
          fragment="true"
          unpack="false"/>
 
@@ -1325,7 +1325,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="ia64_32"
          download-size="0"
          install-size="0"
-         version="3.7.2.v3740f"
+         version="0.0.0"
          fragment="true"
          unpack="false"/>
 
@@ -1336,7 +1336,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="ppc64"
          download-size="0"
          install-size="0"
-         version="3.7.2.v3740f"
+         version="0.0.0"
          fragment="true"
          unpack="false"/>
 
@@ -1347,7 +1347,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="s390"
          download-size="0"
          install-size="0"
-         version="3.7.2.v3740f"
+         version="0.0.0"
          fragment="true"
          unpack="false"/>
 
@@ -1358,7 +1358,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="s390x"
          download-size="0"
          install-size="0"
-         version="3.7.2.v3740f"
+         version="0.0.0"
          fragment="true"
          unpack="false"/>
 
@@ -1369,7 +1369,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="x86"
          download-size="0"
          install-size="0"
-         version="3.7.2.v3740f"
+         version="0.0.0"
          fragment="true"
          unpack="false"/>
 
@@ -1380,7 +1380,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="x86_64"
          download-size="0"
          install-size="0"
-         version="3.7.2.v3740f"
+         version="0.0.0"
          fragment="true"
          unpack="false"/>
 
@@ -1391,7 +1391,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="sparc"
          download-size="0"
          install-size="0"
-         version="3.7.2.v3740f"
+         version="0.0.0"
          fragment="true"
          unpack="false"/>
 
@@ -1402,7 +1402,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="x86"
          download-size="0"
          install-size="0"
-         version="3.7.2.v3740f"
+         version="0.0.0"
          fragment="true"
          unpack="false"/>
 
@@ -1413,7 +1413,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="x86"
          download-size="0"
          install-size="0"
-         version="3.7.2.v3740f"
+         version="0.0.0"
          fragment="true"
          unpack="false"/>
 
@@ -1424,7 +1424,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          arch="x86_64"
          download-size="0"
          install-size="0"
-         version="3.7.2.v3740f"
+         version="0.0.0"
          fragment="true"
          unpack="false"/>
 
@@ -1432,7 +1432,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          id="org.eclipse.ui"
          download-size="0"
          install-size="0"
-         version="3.7.0.v20110928-1505"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
@@ -1441,7 +1441,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          ws="carbon"
          download-size="0"
          install-size="0"
-         version="4.0.100.I20101109-0800"
+         version="0.0.0"
          fragment="true"
          unpack="false"/>
 
@@ -1451,7 +1451,7 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          ws="cocoa"
          download-size="0"
          install-size="0"
-         version="1.1.0.I20101109-0800"
+         version="0.0.0"
          fragment="true"
          unpack="false"/>
 
@@ -1459,14 +1459,14 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          id="org.eclipse.ui.workbench"
          download-size="0"
          install-size="0"
-         version="3.7.1.v20120104-1859"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.update.configurator"
          download-size="0"
          install-size="0"
-         version="3.3.100.v20100512"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin

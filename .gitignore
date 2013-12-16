@@ -1,5 +1,6 @@
 *CVS/
 .git/*
+*target/
 
 *~
 *.swp
@@ -13,6 +14,7 @@ build/ext/
 logs/*.log
 log/*.log
 
+target/*
 
 # SNS, KEK Products: Ignore output of headless build
 # syntax: glob
@@ -44,6 +46,8 @@ applications/plugins/org.apache.log4j/target/
 applications/plugins/org.apache.tools.ant.junit/target/
 applications/plugins/org.apache.tools.ant/target/
 applications/plugins/org.csstudio.alarm.service/target/
+applications/plugins/org.csstudio.archive.vtype/target/
+applications/plugins/org.csstudio.archive.vtype.trendplotter/target/
 applications/plugins/org.csstudio.apputil.ui/target/
 applications/plugins/org.csstudio.apputil/target/
 applications/plugins/org.csstudio.config.savevalue.service/target/
@@ -152,5 +156,6 @@ products/DESY/plugins/de.desy.language.editor.details/target/
 products/DESY/plugins/de.desy.language.editor.ui/target/
 products/DESY/plugins/de.desy.language.libraries/target/
 products/DESY/plugins/org.csstudio.desy.css.product.log4j/target/
+products/DESY/plugins/org.csstudio.desy.product.compilation/target/
 products/DESY/plugins/org.csstudio.desy.product/target/
 products/DESY/plugins/org.csstudio.desy.startuphelper/target/

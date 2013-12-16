@@ -51,7 +51,7 @@ import org.eclipse.ui.views.IViewRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.istack.internal.Nullable;
+//import com.sun.istack.internal.Nullable;
 
 /**
  * RecordPropertyView creates view for the plugin.
@@ -398,7 +398,7 @@ public class RecordPropertyView extends ViewPart {
         }
         
         @Override
-        public int compare(@Nonnull Viewer viewer, @Nullable Object e1, @Nullable Object e2) {
+        public int compare(@Nonnull Viewer viewer, Object e1, Object e2) {
             _viewer = viewer;
             if(e1 instanceof RecordPropertyEntry && e2 instanceof RecordPropertyEntry) {
                 RecordPropertyEntry node1 = (RecordPropertyEntry) e1;
@@ -477,12 +477,12 @@ public class RecordPropertyView extends ViewPart {
         }
         
         @Override
-        public void widgetDefaultSelected(@Nullable SelectionEvent e) {
+        public void widgetDefaultSelected(SelectionEvent e) {
             setState();
         }
         
         @Override
-        public void widgetSelected(@Nullable SelectionEvent e) {
+        public void widgetSelected(SelectionEvent e) {
             setState();
         }
         

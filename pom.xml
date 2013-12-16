@@ -51,6 +51,7 @@
 	<indigo-update-repo.url>http://download.eclipse.org/eclipse/updates/3.7</indigo-update-repo.url>
 	<epp-repo.url>http://download.eclipse.org/technology/epp/packages/indigo/</epp-repo.url>
 	<epp-update-repo.url>http://download.eclipse.org/technology/epp/packages/indigo/SR2/</epp-update-repo.url>
+<!--	<desy-features.url>file:/F:/target/repository</desy-features.url>-->
     <!-- ENCODING -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -63,6 +64,11 @@
       <url>${indigo-repo.url}</url>
       <layout>p2</layout>
     </repository>
+<!--    <repository>
+      <id>desy</id>
+      <url>${desy-features.url}</url>
+      <layout>p2</layout>
+    </repository>-->
     <repository>
       <id>indigoupdate</id>
       <url>${indigo-update-repo.url}</url>
@@ -178,7 +184,16 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>${tycho.groupid}</groupId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+		<version>3.0</version>
+        <configuration>
+            <meminitial>1500m</meminitial>
+            <maxmem>2524m</maxmem>
+       </configuration>
+    </plugin>
+      <plugin>
+	<groupId>${tycho.groupid}</groupId>
         <artifactId>tycho-source-plugin</artifactId>
         <version>${tycho.version}</version>
         <executions>

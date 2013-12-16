@@ -138,9 +138,23 @@
 	<module>../../applications/plugins/org.csstudio.alarm.service</module>
 	<module>../../applications/plugins/org.csstudio.apputil</module>
 	<module>../../applications/plugins/org.csstudio.apputil.ui</module>
+	<module>../../applications/plugins/org.csstudio.archive.common.reader</module>
+	<module>../../applications/plugins/org.csstudio.archive.common.requesttype</module>
+	<module>../../applications/plugins/org.csstudio.archive.common.service</module>
+	<module>../../applications/plugins/org.csstudio.archive.common.service.mysqlimpl</module>
+	<module>../../applications/plugins/org.csstudio.archive.reader</module>
+	<module>../../applications/plugins/org.csstudio.archive.reader.archiverecord</module>
+	<module>../../applications/plugins/org.csstudio.archive.reader.channelarchiver</module>
 	<module>../../applications/plugins/org.csstudio.archive.vtype</module>
 	<module>../../applications/plugins/org.csstudio.archive.vtype.trendplotter</module>
+	<module>../../applications/plugins/org.csstudio.config.ioconfig.model</module>
+	<module>../../applications/plugins/org.csstudio.config.ioconfig.view</module>
 	<module>../../applications/plugins/org.csstudio.config.savevalue.service</module>
+	<module>../../applications/plugins/org.csstudio.config.savevalue.ui</module>
+	<module>../../applications/plugins/org.csstudio.diag.probe</module>
+	<module>../../applications/plugins/org.csstudio.display.pvtable</module>
+	<module>../../applications/plugins/org.csstudio.utility.recordProperty</module>
+	<module>../../applications/plugins/org.csstudio.utility.sysmon</module>
 	<module>../../applications/plugins/org.csstudio.domain.common</module>
 	<module>../../applications/plugins/org.csstudio.domain.desy</module>
 	<module>../../applications/plugins/org.csstudio.domain.desy.epics</module>
@@ -149,15 +163,25 @@
 	<module>../../applications/plugins/org.csstudio.email</module>
 	<module>../../applications/plugins/org.csstudio.logbook</module>
 	<module>../../applications/plugins/org.csstudio.persister</module>
+	<module>../../applications/plugins/org.csstudio.utility.documentViewer</module>
 	<module>../../applications/plugins/org.csstudio.utility.httpd</module>
+	<module>../../applications/plugins/org.csstudio.utility.ldap.nameSpaceBrowser</module>
 	<module>../../applications/plugins/org.csstudio.utility.ldap.service</module>
 	<module>../../applications/plugins/org.csstudio.utility.ldap.service.impl</module>
 	<module>../../applications/plugins/org.csstudio.utility.ldap.treeconfiguration</module>
 	<module>../../applications/plugins/org.csstudio.utility.ldap.ui</module>
 	<module>../../applications/plugins/org.csstudio.utility.namespace.utility</module>
+	<module>../../applications/plugins/org.csstudio.utility.nameSpaceBrowser</module>
+	<module>../../applications/plugins/org.csstudio.utility.nameSpaceSearch</module>
+	<module>../../applications/plugins/org.csstudio.utility.screenshot.desy</module>
+	<module>../../applications/plugins/org.csstudio.utility.toolbox</module>
 	<module>../../applications/plugins/org.csstudio.utility.pv.ui</module>
 	<module>../../applications/plugins/org.csstudio.utility.screenshot</module>
 	<module>../../applications/plugins/org.csstudio.utility.treemodel</module>
+	<module>../../applications/plugins/org.remotercp.common</module>
+	<module>../../applications/plugins/org.remotercp.domain.authorization</module>
+	<module>../../applications/plugins/org.remotercp.service.connection</module>
+	<module>../../applications/plugins/org.remotercp.util</module>
 	<module>../../applications/plugins/</module>
 	<!-- core/plugins/ -->
 	<module>../../core/plugins/org.csstudio.dal.ui</module>
@@ -170,6 +194,11 @@
 	<module>../../core/plugins/org.epics.vtype</module>
 	<module>../../core/plugins/</module>
 	<!-- products/DESY/plugins/ -->
+	<module>./plugins/de.desy.language.snl</module>
+	<module>./plugins/de.desy.language.snl.configuration.linux</module>
+	<module>./plugins/de.desy.language.snl.diagram</module>
+	<module>./plugins/de.desy.language.snl.diagram.ui</module>
+	<module>./plugins/de.desy.language.snl.ui</module>
 	<module>./plugins/de.desy.language.editor.core</module>
 	<module>./plugins/de.desy.language.editor.details</module>
 	<module>./plugins/de.desy.language.editor.ui</module>
@@ -195,16 +224,58 @@
 	<module>../../applications/plugins/org.csstudio.utility.adlConverter</module>
 	<module>../../applications/plugins/org.csstudio.utility.displaybrowser</module><!-- ACHTUNG: Package-Name -->
 	<module>../../applications/plugins/org.csstudio.utility.quickstart</module>
+	<module>../../applications/plugins/org.csstudio.snl.intro</module>
+	<module>../../applications/plugins/org.csstudio.common.trendplotter</module>
+	<module>../../applications/plugins/org.csstudio.common.trendplotter.shell.fragment</module>
+	<module>../../applications/plugins/org.csstudio.diag.epics.pvtree</module>
+	<module>../NSLS2/plugins/org.csstudio.diag.epics.pvtree.intro</module>
+
 	<!--
 	Plug-ins (org.csstudio.desy.dct.feature)
     -->
 	<!-- applications/plugins/ -->
    	<module>../../applications/plugins/org.csstudio.dct</module>
+   	<module>../../applications/plugins/org.csstudio.dct.desy</module>
 	<module>../../applications/plugins/org.csstudio.dct.intro</module>
    	<module>../../applications/plugins/org.csstudio.dct.treemodelexporter</module>
    	<module>../../applications/plugins/org.csstudio.dct.ui</module>
    	<module>../../applications/plugins/org.csstudio.utility.epicsDataBaseCompare</module>
 
+		<!--
+	Plug-ins (org.csstudio.desy.alarm.feature)
+    -->
+	<!-- applications/plugins/ -->
+   	<module>../../applications/plugins/org.csstudio.alarm.dbaccess</module>
+   	<module>../../applications/plugins/org.csstudio.alarm.intro</module>
+	<module>../../applications/plugins/org.csstudio.alarm.table</module>
+   	<module>../../applications/plugins/org.csstudio.alarm.treeview</module>
+   	<module>../../applications/plugins/org.csstudio.ams</module>
+   	<module>../../applications/plugins/org.csstudio.ams.alarmchainmanager</module>
+	<module>../../applications/plugins/org.csstudio.diag.icsiocmonitor.service</module>
+	<module>../../applications/plugins/org.csstudio.diag.icsiocmonitor.ui</module>
+	<module>../../applications/plugins/org.csstudio.nams.common</module>
+	<module>../../applications/plugins/org.csstudio.nams.common.activatorUtils</module>
+	<module>../../applications/plugins/org.csstudio.nams.configurator.ui</module>
+	<module>../../applications/plugins/org.csstudio.nams.service.configurationAccess.localStore</module>
+	<module>../../applications/plugins/org.csstudio.nams.service.logging</module>
+	<module>../../applications/plugins/org.csstudio.nams.service.messaging</module>
+	<module>../../applications/plugins/org.csstudio.nams.service.messaging.impl.jms</module>
+	<module>../../applications/plugins/org.csstudio.nams.service.preferenceservice</module>
+	<module>../../applications/plugins/org.csstudio.nams.service.preferenceservice.ui</module>
+
+	<!--
+	Plug-ins (org.csstudio.desy.development.feature)
+    -->
+	<!-- applications/plugins/ -->
+	<module>../../applications/plugins/org.csstudio.config.authorizeid</module>
+	<module>../../applications/plugins/org.csstudio.config.kryoNameBrowser</module>
+	<module>../../applications/plugins/org.csstudio.diag.IOCremoteManagement</module>
+	<module>../../applications/plugins/org.csstudio.diag.jmssender</module>
+	<module>../../applications/plugins/org.csstudio.diag.snlDebugger</module>
+	<module>../../applications/plugins/org.csstudio.utility.caSnooper</module>
+	<module>../../applications/plugins/org.csstudio.utility.caSnooperUi</module>
+	<module>../../applications/plugins/org.csstudio.utility.IOC-Socket-Communication</module>
+	
     <!--
 	Features
 	-->
@@ -213,8 +284,13 @@
     <module>./features/org.csstudio.desy.platform.base.feature</module>
     <module>./features/org.csstudio.desy.platform.user.feature</module>
     <module>./features/org.csstudio.desy.library.feature</module>
+    <module>./features/org.csstudio.desy.snl.feature</module>
     <module>./features/org.csstudio.desy.sds.feature</module>
     <module>./features/org.csstudio.desy.dct.feature</module>
+    <module>./features/org.csstudio.desy.pv.feature</module>
+    <module>./features/org.csstudio.desy.alarm.feature</module>
+    <module>./features/org.csstudio.desy.desytools.feature</module>
+    <module>./features/org.csstudio.desy.development.feature</module>
  
 	<!--
 		Product

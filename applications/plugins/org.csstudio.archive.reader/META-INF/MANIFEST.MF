@@ -6,8 +6,7 @@ Bundle-Version: 3.0.0.201307091400
 Bundle-Vendor: Kay Kasemir <kasemirk@ornl.gov> - SNS
 Require-Bundle: org.junit4,
  org.eclipse.core.runtime,
- org.csstudio.archive.vtype;bundle-version="1.0.0";visibility:=reexport,
- org.csstudio.utility.test;bundle-version="1.0.0";resolution:=optional
+ org.csstudio.archive.vtype;bundle-version="1.0.0";visibility:=reexport
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: org.csstudio.archive.reader

@@ -45,6 +45,7 @@ import org.csstudio.headless.common.util.StandardStreams;
 import org.csstudio.headless.common.xmpp.XmppCredentials;
 import org.csstudio.headless.common.xmpp.XmppSessionException;
 import org.csstudio.headless.common.xmpp.XmppSessionHandler;
+import org.csstudio.utility.jms.JmsTool;
 import org.csstudio.utility.jms.sharedconnection.SharedJmsConnections;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -137,14 +138,17 @@ public class DeliverySystemApplication implements IApplication,
                                       null);
         LOG.debug("JMS Consumer URL 1: {}", url1);
         LOG.debug("JMS Consumer URL 2: {}", url2);
-        SharedJmsConnections.staticInjectConsumerUrlAndClientId(url1, url2, "AmsDeliverySystemConsumer");
+        SharedJmsConnections.staticInjectConsumerUrlAndClientId(url1,
+                                                                url2,
+                                                                JmsTool.createUniqueClientId("AmsDeliverySystemConsumer"));
 
         url1 = prefs.getString(AmsActivator.PLUGIN_ID,
                                AmsPreferenceKey.P_JMS_AMS_SENDER_PROVIDER_URL,
                                "tcp://localhost:62616",
                                null);
         LOG.debug("JMS Publisher URL: {}", url1);
-        SharedJmsConnections.staticInjectPublisherUrlAndClientId(url1, "AmsDeliverySystemPublisher");
+        SharedJmsConnections.staticInjectPublisherUrlAndClientId(url1,
+                                                                 JmsTool.createUniqueClientId("AmsDeliverySystemPublisher"));
 
         running = startDeliveryWorker();
 

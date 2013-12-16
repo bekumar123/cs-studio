@@ -136,14 +136,14 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                                 + vorgangsmappe.getWeiteresVersandVorgehen());
 
                 if (vorgangsmappe.getWeiteresVersandVorgehen() == WeiteresVersandVorgehen.VERSENDEN) {
-                    // Nachricht nicht anreichern. Wird im JMSProducer gemacht 
+                    // Nachricht nicht anreichern. Wird im JMSProducer gemacht
                 	// Versenden
                     DecisionDepartmentActivator.logger
                             .logInfoMessage(this, "decission office ordered message to be send: \""
                                             + vorgangsmappe.getAlarmNachricht().toString()
                                             + "\" [internal process id: "
                                             + vorgangsmappe.gibMappenkennung().toString() + "]");
-                    
+
                     DecisionDepartmentActivator.this.amsAusgangsProducer.sendeVorgangsmappe(vorgangsmappe);
                 }
 
@@ -547,8 +547,8 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                             + amsSenderProviderUrl);
             this.amsMessagingSessionForProducer = DecisionDepartmentActivator.messagingService
                     .createNewMessagingSession(
-                            preferenceService
-                                    .getString(PreferenceServiceJMSKeys.P_JMS_AMS_TSUB_DD_OUTBOX),
+                            JmsTool.createUniqueClientId(preferenceService
+                                    .getString(PreferenceServiceJMSKeys.P_JMS_AMS_TSUB_DD_OUTBOX)),
                             new String[] { amsSenderProviderUrl });
 
             final String amsAusgangsTopic = DecisionDepartmentActivator.preferenceService
@@ -590,8 +590,8 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
             // holen
             this.amsMessagingSessionForConsumer = DecisionDepartmentActivator.messagingService
                     .createNewMessagingSession(
-                            preferenceService
-                                    .getString(PreferenceServiceJMSKeys.P_JMS_AMS_TSUB_COMMAND_DECISSION_DEPARTMENT),
+                            JmsTool.createUniqueClientId(preferenceService
+                                    .getString(PreferenceServiceJMSKeys.P_JMS_AMS_TSUB_COMMAND_DECISSION_DEPARTMENT)),
                             new String[] { amsProvider1, amsProvider2 });
             final String extProvider1 = DecisionDepartmentActivator.preferenceService
                     .getString(PreferenceServiceJMSKeys.P_JMS_EXTERN_PROVIDER_URL_1);
@@ -605,8 +605,8 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                             + extProvider2);
             this.extMessagingSessionForConsumer = DecisionDepartmentActivator.messagingService
                     .createNewMessagingSession(
-                            preferenceService
-                                    .getString(PreferenceServiceJMSKeys.P_JMS_EXT_TSUB_ALARM),
+                            JmsTool.createUniqueClientId(preferenceService
+                                    .getString(PreferenceServiceJMSKeys.P_JMS_EXT_TSUB_ALARM)),
                             new String[] { extProvider1, extProvider2 });
 
             final String extAlarmTopic = DecisionDepartmentActivator.preferenceService
@@ -975,7 +975,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
 	            final LocalStoreConfigurationService localStoreConfigurationService) {
 	        boolean result = false;
 	        try {
-	
+
 	            logger
 	                    .logInfoMessage(
 	                            instance,
@@ -997,12 +997,12 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
 	                                "Decision department application was interrupted and requested to shut down during synchroisation of configuration.");
 	                result = false;
 	            } else {
-	
+
 	                logger.logFatalMessage(instance,
 	                        "Exception while synchronizing configuration.",
 	                        messagingException);
 	                result = false;
-	
+
 	            }
 	        }
 	//        } catch (final StorageException storageException) {

@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -72,6 +71,7 @@ import org.csstudio.ams.dbAccess.configdb.UserGroupUserTObject;
 import org.csstudio.ams.dbAccess.configdb.UserSynDAO;
 import org.csstudio.ams.dbAccess.configdb.UserTObject;
 import org.csstudio.ams.internal.AmsPreferenceKey;
+import org.csstudio.utility.jms.JmsTool;
 import org.csstudio.utility.jms.consumer.JmsRedundantConsumer;
 import org.csstudio.utility.jms.publisher.JmsMultiplePublisher;
 import org.csstudio.utility.jms.sharedconnection.SharedJmsConnections;
@@ -340,7 +340,7 @@ public class DistributorWork extends Thread implements AmsConstants, MessageList
 			extConnection = extFactory.createConnection();
 
 			// ADDED BY: Markus Moeller, 25.05.2007
-			extConnection.setClientID("DistributorWorkSenderExternal");
+            extConnection.setClientID(JmsTool.createUniqueClientId("DistributorWorkSenderExternal"));
 
 			extSession = extConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
@@ -432,7 +432,7 @@ public class DistributorWork extends Thread implements AmsConstants, MessageList
 
 	/**
 	 * Returns the shutdown state.
-	 * 
+	 *
 	 * @return True, if the shutdown have occured clean otherwise false
 	 */
 	public boolean stoppedClean() {
@@ -448,7 +448,7 @@ public class DistributorWork extends Thread implements AmsConstants, MessageList
 
 	/**
 	 * Sends the message to the JMS-Connector.
-	 * 
+	 *
 	 * @param text
 	 *            The Message
 	 * @param topic
@@ -800,7 +800,7 @@ public class DistributorWork extends Thread implements AmsConstants, MessageList
 	/**
 	 * Send the message to a default topic which was configured as default
 	 * destination in preference page.
-	 * 
+	 *
 	 * @param message
 	 *            The message to be send
 	 */
@@ -830,11 +830,11 @@ public class DistributorWork extends Thread implements AmsConstants, MessageList
 			if (ct.isFullMessageReceiver()) {
 				map = this.getMessageContent(mapMsg);
 			}
-			
+
 			if(fa.getFilterActionTypeRef() == FILTERACTIONTYPE_TO_JMS_EXTENDED) {
 				messageExtender.extendMessageMap(map);
 			}
-			
+
 			publishToConnectorJms(text, topic.getTopicName(), map);
 		}
 		else if (fa.getFilterActionTypeRef() == FILTERACTIONTYPE_SMS) {
@@ -1266,7 +1266,7 @@ public class DistributorWork extends Thread implements AmsConstants, MessageList
 	/**
 	 * Changes the status of the user in the SYNC table. It is required to avoid
 	 * problems after a restart of the processes.
-	 * 
+	 *
 	 * @param readConnection
 	 * @param writeConnection
 	 * @param groupNum
@@ -1549,7 +1549,7 @@ public class DistributorWork extends Thread implements AmsConstants, MessageList
 
 	/**
 	 * Send a reply message for an JMS topic.
-	 * 
+	 *
 	 * @param topic
 	 *            The current JMS topic, where the message is sent to
 	 * @param msgChainId

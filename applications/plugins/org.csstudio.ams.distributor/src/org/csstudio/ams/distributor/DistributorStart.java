@@ -49,6 +49,7 @@ import org.csstudio.headless.common.xmpp.XmppCredentials;
 import org.csstudio.headless.common.xmpp.XmppSessionException;
 import org.csstudio.headless.common.xmpp.XmppSessionHandler;
 import org.csstudio.utility.jms.IConnectionMonitor;
+import org.csstudio.utility.jms.JmsTool;
 import org.csstudio.utility.jms.TransportEvent;
 import org.csstudio.utility.jms.sharedconnection.ISharedConnectionHandle;
 import org.csstudio.utility.jms.sharedconnection.SharedJmsConnections;
@@ -218,8 +219,13 @@ public class DistributorStart implements IApplication,
                                  null)
             };
 
-            SharedJmsConnections.staticInjectPublisherUrlAndClientId(publisherUrl, "AmsDistributorPublisher");
-            SharedJmsConnections.staticInjectConsumerUrlAndClientId(consumerURLs[0], consumerURLs[1], "AmsDistributorConsumer");
+            SharedJmsConnections
+                 .staticInjectPublisherUrlAndClientId(publisherUrl,
+                                                     JmsTool.createUniqueClientId("AmsDistributorPublisher"));
+            SharedJmsConnections
+                 .staticInjectConsumerUrlAndClientId(consumerURLs[0],
+                                                     consumerURLs[1],
+                                                     JmsTool.createUniqueClientId("AmsDistributorConsumer"));
 
             final ISharedConnectionHandle publisherHandle = SharedJmsConnections.sharedSenderConnection();
             // Create a JMS sender connection

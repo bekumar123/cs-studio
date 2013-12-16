@@ -49,6 +49,7 @@ import org.csstudio.domain.common.statistic.Collector;
 import org.csstudio.platform.utility.jms.JmsRedundantProducer;
 import org.csstudio.platform.utility.jms.JmsRedundantProducer.ProducerId;
 import org.csstudio.platform.utility.jms.JmsRedundantReceiver;
+import org.csstudio.utility.jms.JmsTool;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
@@ -259,12 +260,20 @@ public class MessageGuardCommander extends Job {
 
         // --- JMS Receiver Connect---
         // _amsReceiver = new
-        // JmsRedundantReceiver("AmsMassageMinderWorkReceiverInternal",
+        // JmsRedundantReceiver("AmsMessageMinderWorkReceiverInternal",
         // storeAct.get(org.csstudio.ams.internal.SampleService.P_JMS_AMS_PROVIDER_URL_1,""),
         // storeAct.get(SampleService.P_JMS_AMS_PROVIDER_URL_2,""));
-        _amsReceiver = new JmsRedundantReceiver("AmsMassageMinderWorkReceiverInternal", storeAct
-                .getString(AmsActivator.PLUGIN_ID, AmsPreferenceKey.P_JMS_AMS_PROVIDER_URL_1, "NONE", null), storeAct
-                .getString(AmsActivator.PLUGIN_ID, AmsPreferenceKey.P_JMS_AMS_PROVIDER_URL_2, "NONE", null));
+        String url1 =  storeAct.getString(AmsActivator.PLUGIN_ID,
+                                          AmsPreferenceKey.P_JMS_AMS_PROVIDER_URL_1,
+                                          "tcp://localhost:61616",
+                                          null);
+        String url2 = storeAct.getString(AmsActivator.PLUGIN_ID,
+                                         AmsPreferenceKey.P_JMS_AMS_PROVIDER_URL_2,
+                                         "tcp://localhost:64616",
+                                         null);
+        _amsReceiver = new JmsRedundantReceiver(JmsTool.createUniqueClientId("AmsMessageMinderWorkReceiverInternal"),
+                                                url1,
+                                                url2);
         if (!_amsReceiver.isConnected()) {
             Log.log(this, Log.FATAL, "Could not create amsReceiver");
         }
@@ -280,7 +289,7 @@ public class MessageGuardCommander extends Job {
         // --- JMS Producer Connect ---
         final String[] urls = new String[] { storeAct
                 .getString(AmsActivator.PLUGIN_ID, AmsPreferenceKey.P_JMS_AMS_SENDER_PROVIDER_URL, "NONE", null) };
-        _amsProducer = new JmsRedundantProducer("AmsMassageMinderWorkProducerInternal", urls);
+        _amsProducer = new JmsRedundantProducer("AmsMessageMinderWorkProducerInternal", urls);
         // TODO: remove debug settings
         _producerID = _amsProducer.createProducer(storeAct.getString(AmsActivator.PLUGIN_ID,
                                                                      AmsPreferenceKey.P_JMS_AMS_TOPIC_DISTRIBUTOR,

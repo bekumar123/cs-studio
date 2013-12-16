@@ -1,0 +1,7 @@
+
+2013-12-13
+----------
+
+ Dieses Plugin ist veraltet. Die aktuellen Entwicklungen finden sich unter
+ 
+  DESY-extern/cs-studio/rel15x

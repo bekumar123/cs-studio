@@ -34,6 +34,7 @@ import org.csstudio.ams.delivery.util.jms.JmsAsyncConsumer;
 import org.csstudio.ams.delivery.voicemail.isdn.VoicemailDevice;
 import org.csstudio.ams.internal.AmsPreferenceKey;
 import org.csstudio.platform.utility.jms.JmsSimpleProducer;
+import org.csstudio.utility.jms.JmsTool;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.slf4j.Logger;
@@ -154,7 +155,10 @@ public class VoicemailDeliveryWorker extends AbstractDeliveryWorker {
                                               "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
                                               null);
 
-        amsPublisherReply = new JmsSimpleProducer("VoicemailConnectorWorkSenderInternal", url, factoryClass, topic);
+        amsPublisherReply = new JmsSimpleProducer(JmsTool.createUniqueClientId("VoicemailConnectorWorkSenderInternal"),
+                                                  url,
+                                                  factoryClass,
+                                                  topic);
         if (amsPublisherReply.isConnected() == false) {
             LOG.error("Could not create amsPublisherReply");
             return false;
@@ -170,7 +174,8 @@ public class VoicemailDeliveryWorker extends AbstractDeliveryWorker {
                                           AmsPreferenceKey.P_JMS_AMS_PROVIDER_URL_2,
                                           "tcp://localhost:64616",
                                           null);
-            amsConsumer = new JmsAsyncConsumer("VoicemailConnectorWorkReceiverInternal", url1, url2);
+            amsConsumer = new JmsAsyncConsumer(JmsTool.createUniqueClientId("VoicemailConnectorWorkReceiverInternal"),
+                                                                            url1, url2);
             success = amsConsumer.createRedundantSubscriber(
                     "amsSubscriberVm",
                     prefs.getString(AmsActivator.PLUGIN_ID,

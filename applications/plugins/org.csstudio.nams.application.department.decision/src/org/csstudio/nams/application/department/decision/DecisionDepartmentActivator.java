@@ -643,8 +643,8 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                             + amsSenderProviderUrl);
             this.amsMessagingSessionForProducer = DecisionDepartmentActivator.messagingService
                     .createNewMessagingSession(
-                            preferenceService
-                                    .getString(PreferenceServiceJMSKeys.P_JMS_AMS_TSUB_DD_OUTBOX),
+                            JmsTool.createUniqueClientId(preferenceService
+                                    .getString(PreferenceServiceJMSKeys.P_JMS_AMS_TSUB_DD_OUTBOX)),
                             new String[] { amsSenderProviderUrl });
 
             final String amsAusgangsTopic = DecisionDepartmentActivator.preferenceService
@@ -682,12 +682,12 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                     "PreferenceServiceJMSKeys.P_JMS_AMS_PROVIDER_URL_2 = "
                             + amsProvider2);
 
-            // FIXM E(done) clientid!! gegebenenfalls aus preferencestore
+            // FIXME(done) clientid!! gegebenenfalls aus preferencestore
             // holen
             this.amsMessagingSessionForConsumer = DecisionDepartmentActivator.messagingService
                     .createNewMessagingSession(
-                            preferenceService
-                                    .getString(PreferenceServiceJMSKeys.P_JMS_AMS_TSUB_COMMAND_DECISSION_DEPARTMENT),
+                            JmsTool.createUniqueClientId(preferenceService
+                                    .getString(PreferenceServiceJMSKeys.P_JMS_AMS_TSUB_COMMAND_DECISSION_DEPARTMENT)),
                             new String[] { amsProvider1, amsProvider2 });
             final String extProvider1 = DecisionDepartmentActivator.preferenceService
                     .getString(PreferenceServiceJMSKeys.P_JMS_EXTERN_PROVIDER_URL_1);
@@ -701,8 +701,8 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                             + extProvider2);
             this.extMessagingSessionForConsumer = DecisionDepartmentActivator.messagingService
                     .createNewMessagingSession(
-                            preferenceService
-                                    .getString(PreferenceServiceJMSKeys.P_JMS_EXT_TSUB_ALARM),
+                            JmsTool.createUniqueClientId(preferenceService
+                                    .getString(PreferenceServiceJMSKeys.P_JMS_EXT_TSUB_ALARM)),
                             new String[] { extProvider1, extProvider2 });
 
             final String extAlarmTopic = DecisionDepartmentActivator.preferenceService

@@ -36,6 +36,7 @@ import org.csstudio.alarm.service.internal.AlarmConfigurationServiceImpl;
 import org.csstudio.alarm.service.internal.AlarmServiceDalImpl;
 import org.csstudio.alarm.service.internal.AlarmServiceJmsImpl;
 import org.csstudio.servicelocator.ServiceLocatorFactory;
+import org.csstudio.utility.jms.JmsTool;
 import org.csstudio.utility.jms.JmsUtilityException;
 import org.csstudio.utility.jms.sharedconnection.ISharedConnectionHandle;
 import org.csstudio.utility.jms.sharedconnection.SharedJmsConnections;
@@ -55,13 +56,13 @@ import org.slf4j.LoggerFactory;
  * @since 26.04.2010
  */
 public class AlarmServiceActivator extends AbstractUIPlugin {
-	private static final Logger LOG = LoggerFactory.getLogger(AlarmServiceActivator.class);    
+	private static final Logger LOG = LoggerFactory.getLogger(AlarmServiceActivator.class);
     // The plug-in ID
     public static final String PLUGIN_ID = "org.csstudio.alarm.service"; //$NON-NLS-1$
-    
+
     // The shared instance.
     private static AlarmServiceActivator PLUGIN;
-    
+
     /**
      * The constructor.
      */
@@ -71,7 +72,7 @@ public class AlarmServiceActivator extends AbstractUIPlugin {
         }
         PLUGIN = this;
     }
-    
+
     /**
      * Returns the shared instance.
      */
@@ -79,20 +80,20 @@ public class AlarmServiceActivator extends AbstractUIPlugin {
     public static AlarmServiceActivator getDefault() {
         return PLUGIN;
     }
-    
+
     @Override
     public void start(@Nullable final BundleContext context) throws Exception {
     	super.start(context);
         LOG.debug("Starting AlarmService");
-        
+
         if (context == null) {
             throw new IllegalArgumentException("Bundle context is null in doStart method.");
         }
-        
+
         registerAlarmConfigurationService(context);
         registerAcknowledgeService(context);
         registerAtJmsService(context);
-        
+
         // Provide implementation for alarm service
         final boolean isDAL = AlarmPreference.ALARMSERVICE_IS_DAL_IMPL.getValue();
         if (isDAL) {
@@ -101,19 +102,19 @@ public class AlarmServiceActivator extends AbstractUIPlugin {
             registerJMSService(context);
         }
     }
-    
+
     @Override
     public void stop(@Nullable final BundleContext context) throws Exception {
     	super.stop(context);
         LOG.debug("Stopping AlarmService");
         PLUGIN = null;
     }
-    
+
     private void registerAcknowledgeService(@Nonnull final BundleContext context) throws RemoteException,
                                                                                  NotBoundException {
         if (AlarmPreference.ALARMSERVICE_RUNS_AS_SERVER.getValue()) {
             LOG.debug("Registering acknowledge service implementation");
-            AcknowledgeServiceImpl ackService = new AcknowledgeServiceImpl(new TimeService());
+            final AcknowledgeServiceImpl ackService = new AcknowledgeServiceImpl(new TimeService());
             ServiceLocatorFactory.registerServiceWithTracker("Acknowledge service implementation.",
                                                              context,
                                                              IRemoteAcknowledgeService.class,
@@ -132,23 +133,26 @@ public class AlarmServiceActivator extends AbstractUIPlugin {
                                                    IRemoteAcknowledgeService.class);
         }
     }
-    
-    private void registerAtJmsService(BundleContext context) {
-		IPreferencesService prefs = Platform.getPreferencesService();
-    	
+
+    private void registerAtJmsService(final BundleContext context) {
+		final IPreferencesService prefs = Platform.getPreferencesService();
+
 		// TODO (jp  2012-10-09) strings are used to prevent dependency to outdated plugin
 		// we have to construct a new plugin providing prefs and ui to set them
-        String jmsUrl1 = prefs.getString("org.csstudio.platform.utility.jms", "receiverBrokerURL1", "", null);
-        String jmsUrl2 = prefs.getString("org.csstudio.platform.utility.jms", "receiverBrokerURL2", "", null);
-        String id = "AlarmService"; 
+        final String jmsUrl1 = prefs.getString("org.csstudio.platform.utility.jms", "receiverBrokerURL1", "", null);
+        final String jmsUrl2 = prefs.getString("org.csstudio.platform.utility.jms", "receiverBrokerURL2", "", null);
+        final String id = "AlarmService";
         LOG.info("AlarmServiceActivator injecting receiver url 1 {}, receiver url 2 {} to SharedJmsConnections", jmsUrl1, jmsUrl2);
-    	SharedJmsConnections.staticInjectConsumerUrlAndClientId(jmsUrl1, jmsUrl2, id);
-    	
-        String jmsUrl3 = prefs.getString("org.csstudio.platform.utility.jms", "senderBrokerURL", "", null);
-        SharedJmsConnections.staticInjectPublisherUrlAndClientId(jmsUrl3, id);
-    	
+    	SharedJmsConnections.staticInjectConsumerUrlAndClientId(jmsUrl1,
+    	                                                        jmsUrl2,
+    	                                                        JmsTool.createUniqueClientId(id));
+
+        final String jmsUrl3 = prefs.getString("org.csstudio.platform.utility.jms", "senderBrokerURL", "", null);
+        SharedJmsConnections.staticInjectPublisherUrlAndClientId(jmsUrl3,
+                                                                 JmsTool.createUniqueClientId(id));
+
     	// we still have to trigger the lazy creation of the receiver service
-        //(jhatje 31.5.2013: move initialization from AlarmServiceActivator to AlarmConnectionJMSImpl because in Activator the 
+        //(jhatje 31.5.2013: move initialization from AlarmServiceActivator to AlarmConnectionJMSImpl because in Activator the
         //connection is initialzed on CSS startup even if no Alarm Table is started.
 //    	try {
 //            SharedJmsConnections.sharedReceiverConnections();
@@ -161,25 +165,25 @@ public class AlarmServiceActivator extends AbstractUIPlugin {
 
     public ISharedConnectionHandle[] getJmsConnectionHandle() {
     	ISharedConnectionHandle[] connectionHandle = null;
-    	IPreferencesService prefs = Platform.getPreferencesService();
-    	
+    	final IPreferencesService prefs = Platform.getPreferencesService();
+
     	// TODO (jp  2012-10-09) strings are used to prevent dependency to outdated plugin
     	// we have to construct a new plugin providing prefs and ui to set them
-    	String jmsUrl1 = prefs.getString("org.csstudio.platform.utility.jms", "receiverBrokerURL1", "", null);
-    	String jmsUrl2 = prefs.getString("org.csstudio.platform.utility.jms", "receiverBrokerURL2", "", null);
-    	String id = "AlarmService"; 
+    	final String jmsUrl1 = prefs.getString("org.csstudio.platform.utility.jms", "receiverBrokerURL1", "", null);
+    	final String jmsUrl2 = prefs.getString("org.csstudio.platform.utility.jms", "receiverBrokerURL2", "", null);
+    	final String id = "AlarmService";
     	LOG.info("AlarmServiceActivator injecting receiver url 1 {}, receiver url 2 {} to SharedJmsConnections", jmsUrl1, jmsUrl2);
-    	SharedJmsConnections.staticInjectConsumerUrlAndClientId(jmsUrl1, jmsUrl2, id);
-    	
-    	String jmsUrl3 = prefs.getString("org.csstudio.platform.utility.jms", "senderBrokerURL", "", null);
-    	SharedJmsConnections.staticInjectPublisherUrlAndClientId(jmsUrl3, id);
-    	
+    	SharedJmsConnections.staticInjectConsumerUrlAndClientId(jmsUrl1, jmsUrl2, JmsTool.createUniqueClientId(id));
+
+    	final String jmsUrl3 = prefs.getString("org.csstudio.platform.utility.jms", "senderBrokerURL", "", null);
+    	SharedJmsConnections.staticInjectPublisherUrlAndClientId(jmsUrl3, JmsTool.createUniqueClientId(id));
+
     	// we still have to trigger the lazy creation of the receiver service
     	try {
     		connectionHandle = SharedJmsConnections.sharedReceiverConnections();
-    	} catch (JMSException e) {
+    	} catch (final JMSException e) {
     		LOG.error("AlarmServiceActivator failed to start SharedJmsConnections", e);
-    	} catch (JmsUtilityException e) {
+    	} catch (final JmsUtilityException e) {
     		LOG.error("AlarmServiceActivator failed to start SharedJmsConnections", e);
     	}
     	return connectionHandle;
@@ -187,27 +191,27 @@ public class AlarmServiceActivator extends AbstractUIPlugin {
 
 	private void registerAlarmConfigurationService(@Nonnull final BundleContext context) {
         LOG.debug("Registering Alarm configuration service implementation");
-        
+
         ServiceLocatorFactory
                 .registerServiceWithTracker("Alarm configuration service implementation.",
                                             context,
                                             IAlarmConfigurationService.class,
                                             new AlarmConfigurationServiceImpl());
     }
-    
+
     private void registerJMSService(@Nonnull final BundleContext context) {
         LOG.debug("Registering JMS implementation for the alarm service");
-        
+
         ServiceLocatorFactory
                 .registerServiceWithTracker("JMS implementation of the alarm service.",
                                             context,
                                             IAlarmService.class,
                                             new AlarmServiceJmsImpl());
     }
-    
+
     private void registerDALService(@Nonnull final BundleContext context) {
         LOG.debug("Registering DAL implementation for the alarm service");
-        
+
         ServiceLocatorFactory
                 .registerServiceWithTracker("DAL implementation of the alarm service.",
                                             context,

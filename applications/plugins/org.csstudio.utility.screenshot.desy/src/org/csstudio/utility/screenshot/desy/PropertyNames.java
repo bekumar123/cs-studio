@@ -31,7 +31,7 @@ package org.csstudio.utility.screenshot.desy;
  * @since 08.08.2012
  */
 public class PropertyNames {
-    
+
     public static final String PROPERTY_IDENTIFYER = "IDENTIFYER";
     public static final String PROPERTY_ACCOUNTNAME = "ACCOUNTNAME";
     public static final String PROPERTY_LOGGROUP = "LOGGROUP";
@@ -56,7 +56,7 @@ public class PropertyNames {
     public static final int PROPERTYCOUNT = 20;
 
     private static String[] keyList;
-    
+
     static {
         keyList = new String[PropertyNames.PROPERTYCOUNT];
         keyList[0] = PropertyNames.PROPERTY_IDENTIFYER;
@@ -84,6 +84,6 @@ public class PropertyNames {
     public static String[] getKeyList() {
         return keyList;
     }
-    
+
     private PropertyNames() {}
 }

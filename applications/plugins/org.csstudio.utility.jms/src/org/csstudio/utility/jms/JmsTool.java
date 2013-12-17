@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2008 Stiftung Deutsches Elektronen-Synchrotron,
+ * Copyright (c) 2013 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -19,38 +19,29 @@
  * USAGE AND OTHER RIGHTS AND OBLIGATIONS IS INCLUDED WITH THE DISTRIBUTION OF THIS
  * PROJECT IN THE FILE LICENSE.HTML. IF THE LICENSE IS NOT INCLUDED YOU MAY FIND A COPY
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
- *
  */
 
-package org.csstudio.utility.screenshot.menu.action;
+package org.csstudio.utility.jms;
 
-import org.csstudio.utility.screenshot.ScreenshotWorker;
-import org.csstudio.utility.screenshot.internal.localization.ScreenshotMessages;
-import org.eclipse.jface.action.Action;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
- *  @author Markus Moeller
- *
+ * @author mmoeller
+ * @since 16.12.2013
  */
-public class FitImageAction extends Action {
+public class JmsTool {
 
-    private ScreenshotWorker worker = null;
-
-    public FitImageAction(final ScreenshotWorker w) {
-        worker = w;
-        this.setText(ScreenshotMessages.getString("ScreenshotView.TOOL_FIT"));
-        this.setToolTipText(ScreenshotMessages.getString("ScreenshotView.TOOL_FIT_TT"));
-        if(worker.getAllImages() != null) {
-            if(worker.getAllImages().getDisplayedImage() == null) {
-                this.setEnabled(false);
-            }
-        } else {
-            this.setEnabled(false);
+    public static String createUniqueClientId(String id) {
+        String hostName = null;
+        try {
+            hostName = InetAddress.getLocalHost().getHostName();
+        } catch(final UnknownHostException uhe) {
+            hostName = "unknown-host";
         }
-    }
-
-    @Override
-    public void run() {
-        worker.getPaintSurface().fitCanvas();
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+        return id + "-" + hostName + "-" + format.format(new Date(System.currentTimeMillis()));
     }
 }

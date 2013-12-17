@@ -34,43 +34,42 @@ package org.csstudio.utility.screenshot;
 
 public class MailEntry
 {
-    private String  mailFrom        = null;
-    private String  mailTo          = null;
-    private String  mailSubject     = null;
-    private String  mailText        = null;
-    private boolean copyToSender    = false;
-    
-    public MailEntry(String from, String to, String subject, String text, boolean copy)
-    {
-        mailFrom     = from;
-        mailTo       = to;
-        mailSubject  = subject;
-        mailText     = text;
+    private final String mailFrom;
+    private final String mailTo;
+    private final String mailSubject;
+    private final String mailText;
+    private final boolean copyToSender;
+
+    public MailEntry(final String from,
+                     final String to,
+                     final String subject,
+                     final String text,
+                     final boolean copy) {
+        mailFrom = from;
+        mailTo = to;
+        mailSubject = subject;
+        mailText = text;
         copyToSender = copy;
     }
-    
-    public String getMailFromAddress()
-    {
+
+    public String getMailFromAddress() {
+
         return mailFrom.trim();
     }
-    
-    public String getMailToAddress()
-    {
+
+    public String getMailToAddress() {
         return mailTo.trim();
     }
 
-    public String getMailSubject()
-    {
+    public String getMailSubject() {
         return mailSubject.trim();
     }
 
-    public String getMailText()
-    {
+    public String getMailText() {
         return mailText.trim();
     }
-    
-    public boolean copyToSender()
-    {
+
+    public boolean copyToSender() {
         return copyToSender;
     }
 }

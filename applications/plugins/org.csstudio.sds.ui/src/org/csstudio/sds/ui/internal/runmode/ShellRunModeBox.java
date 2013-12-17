@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.csstudio.sds.internal.runmode.DataAccessType;
 import org.csstudio.sds.internal.runmode.RunModeBoxInput;
 import org.csstudio.sds.ui.SdsUiPlugin;
 import org.csstudio.sds.ui.internal.actions.OpenScreenshotAction;
@@ -157,15 +158,20 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
         scrollComposite.setLayout(getFillLayout());
         scrollComposite.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
         
+        int spacing = 0;
+        if (getInput().getDataAccessType() == DataAccessType.HISTORY) {
+        	spacing = 10;
+        }
+        
         // create a parent composite that fills the whole shell
         GridLayout parentLayout = new GridLayout(1, false);
         parentLayout.horizontalSpacing = 0;
-        parentLayout.marginWidth = 0;
-        parentLayout.marginHeight = 0;
+        parentLayout.marginWidth = spacing;
+        parentLayout.marginHeight = spacing;
         parentLayout.verticalSpacing = 0;
         final Composite parent = new Composite(scrollComposite, SWT.NONE);
         parent.setLayout(parentLayout);
-        parent.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW));
+        parent.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
         
         // create a composite for the graphical viewer
         Composite c = new Composite(parent, SWT.NONE);

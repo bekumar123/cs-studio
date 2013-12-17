@@ -229,9 +229,11 @@ public class HistoryControlViewController extends ViewPart implements ITimeChang
 	}
 
 	private void updateTimeChangeListener(boolean updateData) {
-		UpdateTimeEvent event = new UpdateTimeEvent(_currentTime, this, updateData, new Interval(_startTime, _endTime));
-		for (ITimeChangeListener listener : _timeChangeListener) {
-			listener.handleTimeIndexChanged(event);
+		if (_startTime.isBefore(_currentTime) && _endTime.isAfter(_currentTime)) {
+			UpdateTimeEvent event = new UpdateTimeEvent(_currentTime, this, updateData, new Interval(_startTime, _endTime));
+			for (ITimeChangeListener listener : _timeChangeListener) {
+				listener.handleTimeIndexChanged(event);
+			}
 		}
 	}
 

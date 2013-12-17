@@ -36,5 +36,10 @@ public class UnknownValue extends BasePlantUnitValue implements
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public String getStringValue() {
+		return data.toString();
+	}
 
 }

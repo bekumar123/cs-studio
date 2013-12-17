@@ -3,7 +3,6 @@ package de.c1wps.geneal.desy.domain.plant.plantmaterials.values;
 import java.io.Serializable;
 
 import de.c1wps.geneal.desy.domain.plant.plantmaterials.PlantUnitDataTypes;
-import de.c1wps.geneal.desy.domain.plant.plantmaterials.PvAttributeNames;
 
 public class IntegerValue extends BasePlantUnitValue implements
 		IPlantUnitValue<Integer>, Serializable {
@@ -99,5 +98,10 @@ public class IntegerValue extends BasePlantUnitValue implements
 	public String toString() {
 		return super.toString() + ", value: " + getData() + ", dataType: "
 				+ getDataType();
+	}
+	
+	@Override
+	public String getStringValue() {
+		return value.toString();
 	}
 }

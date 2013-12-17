@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import de.c1wps.geneal.desy.domain.plant.plantmaterials.PVAlarmStatus;
 import de.c1wps.geneal.desy.domain.plant.plantmaterials.PVSeverityState;
 import de.c1wps.geneal.desy.domain.plant.plantmaterials.values.DoubleValue;
+import de.c1wps.geneal.desy.domain.plant.plantmaterials.values.EnumValue;
 import de.c1wps.geneal.desy.domain.plant.plantmaterials.values.IPlantUnitValue;
 import de.c1wps.geneal.desy.domain.plant.plantmaterials.values.IntegerValue;
 import de.c1wps.geneal.desy.domain.plant.plantmaterials.values.StringValue;
@@ -54,7 +55,7 @@ public class PvValueHistoryDataService implements IPvValueHistoryDataService {
 			// not representing the proper value for the given time. For example when the archive is missing samples for
 			// a time period.
 		} catch (ArchiveServiceException e) {
-			LOG.error(e.getMessage());
+			LOG.debug(e.getMessage());
 		}
 
 		if (lastSample != null) {
@@ -81,7 +82,7 @@ public class PvValueHistoryDataService implements IPvValueHistoryDataService {
 			// CME: the mysql service uses minutes values when duration > 1 day and uses hour values when duration > 45
 			// days
 		} catch (ArchiveServiceException e) {
-			LOG.error(e.getMessage());
+			LOG.debug(e.getMessage());
 		}
 
 		if (readSamples == null) {
@@ -110,8 +111,7 @@ public class PvValueHistoryDataService implements IPvValueHistoryDataService {
 			ArchiveSample<?,?> aSample = (ArchiveSample<?,?>) archiveSample;
 			EpicsAlarm alarm = (EpicsAlarm) aSample.getAlarm();
 
-			PVAlarmStatus alarmStatus = PVAlarmStatus.valueOf(alarm.getStatus().name()); // CME: works because it is a
-																							// copy
+			PVAlarmStatus alarmStatus = PVAlarmStatus.valueOf(alarm.getStatus().name()); 
 			PVSeverityState severityState = PVSeverityState.parseEpicsAlarmSeverity(alarm.getSeverity().name());
 
 			historySample.setPVSeverityState(severityState);
@@ -141,7 +141,7 @@ public class PvValueHistoryDataService implements IPvValueHistoryDataService {
 			plantValue = new StringValue((String) archiveSample.getValue());
 		} else if (value instanceof EpicsEnum) {
 			EpicsEnum epicsEnumState = (EpicsEnum) value;
-			plantValue = new IntegerValue(epicsEnumState.getStateIndex());
+			plantValue = new EnumValue(epicsEnumState.getStateIndex(), epicsEnumState.getState());
 		}
 		else {
 			LOG.error("no type defined for retrieved value from archive sample. Archive type: " + archiveSample.getValue().getClass().getName());

@@ -17,7 +17,7 @@ import org.csstudio.dal.simple.AnyDataChannel;
 import org.csstudio.dal.simple.ChannelListener;
 import org.csstudio.dal.simple.MetaData;
 import org.csstudio.dal.simple.Severity;
-import org.csstudio.sds.history.anticorruption.adapter.ChannelType;
+import org.csstudio.sds.history.anticorruption.adapter.ChannelFieldType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,13 +45,13 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 
 	private ProcessVariable _processVariable;
 	
-	private ChannelType _channelType;
+	private ChannelFieldType _channelType;
 
 	private final AnyData _anyData;
 
 	private final MetaData _metaData;
 
-	public AnyDataChannelFromPV(ProcessVariable processVariable, ChannelType channelType) {
+	public AnyDataChannelFromPV(ProcessVariable processVariable, ChannelFieldType channelType) {
 		_processVariable = processVariable;
 		_channelType = channelType;
 		_anyData = this.new AnyDataImpl();
@@ -290,12 +290,13 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 		public String stringValue() {
 			LOG.trace("AnyDataChannelFromPV.AnyDataImpl.stringValue()");
 
-			if (_processVariable.hasValue() && _processVariable.getValue().getData() instanceof String) {
-				return _processVariable.getValue().getData().toString();
+			if (_processVariable.hasValue()) {
+				return _processVariable.getValue().getStringValue();
 			}
 			LOG.error("no current String data available for " + _processVariable.getControlSystemAddress());
 			return "no Data";
 		}
+		
 
 		@Override
 		public double doubleValue() {
@@ -316,8 +317,10 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 				return getPvValueAsLong();
 			case SEVR:
 				return getPvSeverityAsLong();
+			case AM:
+				return getPvValueAsLong();
 			default:
-				return 0;
+				return getPvValueAsLong();
 			}
 		}
 		
@@ -332,10 +335,21 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 		
 		private long getPvSeverityAsLong() {
 			if (_processVariable.getSeverityState() != null) {
-				System.out.println("Severity: " + _processVariable.getSeverityState().getSeverityLevel());
-				return _processVariable.getSeverityState().getSeverityLevel();
+				PVSeverityState severityState = _processVariable.getSeverityState();
+				switch (severityState) {
+				case OK:
+					return 0;
+				case MINOR:
+					return 1;
+				case MAJOR:
+					return 2;
+				case INVALID:
+					return 3;
+				default:
+					return 3;
+				}				
 			} else {
-				return PVSeverityState.UNKNOWN.getSeverityLevel();
+				return 3;
 			}
 		}
 
@@ -486,6 +500,7 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 
 		@Override
 		public String getUnits() {
+			LOG.trace("AnyDataChannelFromPV.MetaDataImpl.getUnits()");
 			if (_processVariable.hasAttribute(PvAttributeNames.UNIT)) {
 				IPlantUnitValue<?> unitValue = _processVariable.getAttributeByName(PvAttributeNames.UNIT).getValueAsObject();
 				if (unitValue.getDataType() == PlantUnitDataTypes.STRING) {

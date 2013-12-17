@@ -1,7 +1,7 @@
 package org.csstudio.sds.history.anticorruption.adapter.listener;
 
 import org.csstudio.dal.simple.ChannelListener;
-import org.csstudio.sds.history.anticorruption.adapter.ChannelType;
+import org.csstudio.sds.history.anticorruption.adapter.ChannelFieldType;
 import org.csstudio.sds.history.anticorruption.adapter.anydata.AnyDataChannelFromPV;
 import org.csstudio.sds.history.domain.listener.IPvChangeListener;
 
@@ -19,7 +19,7 @@ public class ChannelToPvListener implements IPvChangeListener {
 	
 	private ProcessVariable _processVariable;
 	
-	private ChannelType _channelType;
+	private ChannelFieldType _channelType;
 
 	/**
 	 * Constructs the adapter. The instance will route process variable state changes to the given channel listener.
@@ -29,7 +29,7 @@ public class ChannelToPvListener implements IPvChangeListener {
 	 * @param processVariable
 	 *            the process variable
 	 */
-	public ChannelToPvListener(ChannelListener channelListener, ProcessVariable processVariable, ChannelType channelType) {
+	public ChannelToPvListener(ChannelListener channelListener, ProcessVariable processVariable, ChannelFieldType channelType) {
 		assert channelListener != null : "channelListener != null";
 		assert processVariable != null : "processVariable != null";
 		assert channelType != null : "channelType != null";

@@ -39,6 +39,7 @@ public class PvInformationService implements IPvInformationService {
 							low));
 					newPv.addAttribute(displayLow);
 				}
+				
 			} catch (ArchiveServiceException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -134,4 +134,9 @@ public class DoubleValue extends BasePlantUnitValue implements
 		return super.toString() + ", value: " + getData() + ", dataType: "
 				+ getDataType();
 	}
+
+	@Override
+	public String getStringValue() {
+		return value.toString();
+	}
 }

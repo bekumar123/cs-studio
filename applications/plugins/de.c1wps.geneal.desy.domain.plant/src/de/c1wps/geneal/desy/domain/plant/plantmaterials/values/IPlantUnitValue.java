@@ -15,4 +15,6 @@ public interface IPlantUnitValue<ValueType> {
 	void setWritable(boolean writable);
 	
 	PlantUnitDataTypes getDataType();
+	
+	String getStringValue(); //CME: Diploma thesis comment: the string representation of a Value should maybe be handled by PlantInformationModel
 }

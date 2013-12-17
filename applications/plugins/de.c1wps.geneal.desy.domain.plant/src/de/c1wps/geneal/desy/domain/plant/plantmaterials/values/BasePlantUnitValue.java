@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 import de.c1wps.geneal.desy.domain.plant.plantmaterials.PlantUnitDataTypes;
-import de.c1wps.geneal.desy.domain.plant.plantmaterials.PvAttributeNames;
 
 public abstract class BasePlantUnitValue implements Serializable {
 

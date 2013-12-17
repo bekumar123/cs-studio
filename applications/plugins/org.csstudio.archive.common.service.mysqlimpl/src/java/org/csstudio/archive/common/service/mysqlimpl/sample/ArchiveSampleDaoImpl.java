@@ -543,11 +543,11 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
     @CheckForNull
     private <V> Class<V> createDataTypeClass(@Nonnull final IArchiveChannel channel) throws ArchiveDaoException,
                                                                                     TypeSupportException {
-        String datatype = channel.getDataType();
+        final String datatype = channel.getDataType();
         if (datatype == null) {
             throw new ArchiveDaoException("The datatype of channel " + channel.getName() + " is unknown!", null);
         }
-        datatype = datatype.equals("EpicsEnum") ? "Integer" : datatype;
+//        datatype = datatype.equals("EpicsEnum") ? "Integer" : datatype;
         return (Class<V>) ArchiveTypeConversionSupport.createTypeClassFromArchiveString(datatype);
     }
 

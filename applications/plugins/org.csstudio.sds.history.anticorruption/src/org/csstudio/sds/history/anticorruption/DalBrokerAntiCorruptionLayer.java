@@ -14,7 +14,7 @@ import org.csstudio.dal.simple.ConnectionParameters;
 import org.csstudio.dal.simple.ISimpleDalBroker;
 import org.csstudio.dal.simple.RemoteInfo;
 import org.csstudio.sds.history.IHistoryDataService;
-import org.csstudio.sds.history.anticorruption.adapter.ChannelType;
+import org.csstudio.sds.history.anticorruption.adapter.ChannelFieldType;
 import org.csstudio.sds.history.anticorruption.adapter.listener.ChannelToPvListener;
 import org.csstudio.sds.history.domain.service.IPvInformationService;
 import org.slf4j.Logger;
@@ -99,20 +99,19 @@ public class DalBrokerAntiCorruptionLayer implements ISimpleDalBroker {
 	@Override
 	public synchronized void registerListener(final ConnectionParameters cparam, final ChannelListener listener) {
 		String remoteInfoName = cparam.getRemoteInfo().getRemoteName();
-		LOG_LISTENER.info(remoteInfoName + " " + cparam.getDataType());
+//		System.out.println("=== registerListener: " + remoteInfoName + " " + cparam.getDataType());
 
 		//TODO CME: inspect dataflavor from cparam for more information (e.g. datatype) 
 
 		//TODO CME: review
-		ChannelType channelType = ChannelType.VALUE;
-		if (remoteInfoName.endsWith(".SEVR")) {
-			remoteInfoName = remoteInfoName.substring(0, remoteInfoName.length() - 5);
-			channelType = ChannelType.SEVR;
+		ChannelFieldType channelType = ChannelFieldType.getChannelFieldType(remoteInfoName);
+		if (channelType == ChannelFieldType.SEVR) {
+			remoteInfoName = ChannelFieldType.getChannelNameWithoutFieldType(remoteInfoName, channelType);
 		}
 		
 		if (_allProcessVariables.containsKey(remoteInfoName)) {
-			ProcessVariable pv = _allProcessVariables.get(remoteInfoName);
-			ChannelToPvListener channelToPvListener = new ChannelToPvListener(listener, pv,channelType);
+			ProcessVariable processVariable = _allProcessVariables.get(remoteInfoName);
+			ChannelToPvListener channelToPvListener = new ChannelToPvListener(listener, processVariable, channelType);
 			_historyService.addMonitoredPv(channelToPvListener);
 			_registeredChannelListener.add(channelToPvListener);
 			
@@ -124,7 +123,6 @@ public class DalBrokerAntiCorruptionLayer implements ISimpleDalBroker {
 			_historyService.addMonitoredPv(channelToPvListener);
 			_registeredChannelListener.add(channelToPvListener);
 		}
-		
 	}
 	
 	@Override

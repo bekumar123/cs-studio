@@ -38,7 +38,6 @@ import org.eclipse.ui.PlatformUI;
  */
 public class ShowIocMonitor extends AbstractHandler {
 
-	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
         final IWorkbench workbench = PlatformUI.getWorkbench();

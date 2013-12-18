@@ -393,7 +393,7 @@ public abstract class ValueFormat extends Format {
      */
     public List<String> parseStringArray(String source) {
         String[] tokens = source.split(",");
-        List<String> values = new ArrayList<>();
+        List<String> values = new ArrayList<String>();
         for (String token : tokens) {
             values.add(parseString(token.trim()));
         }

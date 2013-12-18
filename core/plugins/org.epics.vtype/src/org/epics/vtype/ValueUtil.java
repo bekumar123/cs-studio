@@ -11,7 +11,6 @@ import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import org.epics.util.array.ListNumber;
 import org.epics.util.time.TimestampFormat;
 
@@ -247,19 +246,19 @@ public class ValueUtil {
         if (d1 == d2) {
             return true;
         }
-        
-        if (Objects.equals(d1.getFormat(), d2.getFormat()) &&
-                Objects.equals(d1.getUnits(), d2.getUnits()) &&
-                Objects.equals(d1.getLowerDisplayLimit(), d2.getLowerDisplayLimit()) &&
-                Objects.equals(d1.getLowerAlarmLimit(), d2.getLowerAlarmLimit()) &&
-                Objects.equals(d1.getLowerWarningLimit(), d2.getLowerWarningLimit()) &&
-                Objects.equals(d1.getUpperWarningLimit(), d2.getUpperWarningLimit()) &&
-                Objects.equals(d1.getUpperAlarmLimit(), d2.getUpperAlarmLimit()) &&
-                Objects.equals(d1.getUpperDisplayLimit(), d2.getUpperDisplayLimit()) &&
-                Objects.equals(d1.getLowerCtrlLimit(), d2.getLowerCtrlLimit()) &&
-                Objects.equals(d1.getUpperCtrlLimit(), d2.getUpperCtrlLimit())) {
-            return true;
-        }
+//Todo jhatje: remove java 1.7 dependencies        
+//        if (Objects.equals(d1.getFormat(), d2.getFormat()) &&
+//                Objects.equals(d1.getUnits(), d2.getUnits()) &&
+//                Objects.equals(d1.getLowerDisplayLimit(), d2.getLowerDisplayLimit()) &&
+//                Objects.equals(d1.getLowerAlarmLimit(), d2.getLowerAlarmLimit()) &&
+//                Objects.equals(d1.getLowerWarningLimit(), d2.getLowerWarningLimit()) &&
+//                Objects.equals(d1.getUpperWarningLimit(), d2.getUpperWarningLimit()) &&
+//                Objects.equals(d1.getUpperAlarmLimit(), d2.getUpperAlarmLimit()) &&
+//                Objects.equals(d1.getUpperDisplayLimit(), d2.getUpperDisplayLimit()) &&
+//                Objects.equals(d1.getLowerCtrlLimit(), d2.getLowerCtrlLimit()) &&
+//                Objects.equals(d1.getUpperCtrlLimit(), d2.getUpperCtrlLimit())) {
+//            return true;
+//        }
         
         return false;
     }

@@ -11,8 +11,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 public class ShowKryoNameBrowser extends AbstractHandler {
-
-	@Override
+	
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 	        IWorkbench workbench = PlatformUI.getWorkbench();
 	        IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();

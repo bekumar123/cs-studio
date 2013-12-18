@@ -20,7 +20,7 @@ public class CheckPvInArchives extends AbstractHandler
     public Object execute(final ExecutionEvent event) throws ExecutionException
     {
         StringBuffer infoText = new StringBuffer();
-        infoText.append(System.lineSeparator() + "Record is in archive(s): ");
+        infoText.append("\nRecord is in archive(s): ");
         final IStructuredSelection selection = (IStructuredSelection) HandlerUtil.getActiveMenuSelection(event);
         final ProcessVariable[] pvs = AdapterUtil.convert(selection, ProcessVariable.class);
         CheckPvInArchivesJob job = new CheckPvInArchivesJob("pvSearchJob", pvs[0].getName());

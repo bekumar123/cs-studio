@@ -29,7 +29,7 @@ public class CheckPvInArchivesJob extends Job
     @Override
     protected IStatus run(IProgressMonitor monitor) {
         _infoText = new StringBuffer();
-        _infoText.append(System.lineSeparator() + "Record is in archive(s): ");
+        _infoText.append("\nRecord is in archive(s): ");
         
         ArchiveDataSource[] archiveDataSources = Preferences.getArchives();
         for (ArchiveDataSource archiveDataSource : archiveDataSources) {
@@ -38,7 +38,7 @@ public class CheckPvInArchivesJob extends Job
                 reader = ArchiveRepository.getInstance().getArchiveReader(archiveDataSource.getUrl());
                 String[] names = reader.getNamesByPattern(archiveDataSource.getKey(), _pvName);
                 if (names != null && names.length > 0) {
-                    _infoText.append(System.lineSeparator() + archiveDataSource.getName());
+                    _infoText.append("\n" + archiveDataSource.getName());
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -47,7 +47,7 @@ public class CheckPvInArchivesJob extends Job
         Display.getDefault().asyncExec(new Runnable() {
             @Override
             public void run() {
-        MessageDialog md = new MessageDialog(null, "PV Archive Info", null, _pvName + System.lineSeparator() + CheckPvInArchivesJob.this._infoText.toString(), MessageDialog.INFORMATION, new String[] { "OK" }, 0);
+        MessageDialog md = new MessageDialog(null, "PV Archive Info", null, _pvName + "\n" + CheckPvInArchivesJob.this._infoText.toString(), MessageDialog.INFORMATION, new String[] { "OK" }, 0);
         md.open();
             }
         });

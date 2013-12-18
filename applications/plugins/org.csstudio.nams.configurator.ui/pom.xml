@@ -8,7 +8,7 @@
     <version>BUILD-VERSION</version>
   </parent>
 
-  <artifactId>org.csstudio.nams.common.activatorUtils</artifactId>
+  <artifactId>org.csstudio.nams.configurator.ui</artifactId>
   <packaging>eclipse-plugin</packaging>
 
   <version>1.3.0.201303271100</version>

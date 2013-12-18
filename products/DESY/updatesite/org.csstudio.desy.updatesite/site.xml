@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.csstudio.desy.platform.base.feature_1.5.6.201311121015.jar" id="org.csstudio.desy.platform.base.feature" version="1.5.6.201311121015">
+      <category name="org.csstudio.desy.updatesite"/>
+   </feature>
+   <feature url="features/org.csstudio.desy.platform.eclipse.feature_1.0.0.201212201100.jar" id="org.csstudio.desy.platform.eclipse.feature" version="1.0.0.201212201100">
+      <category name="org.csstudio.desy.updatesite"/>
+   </feature>
+   <feature url="features/org.csstudio.desy.platform.user.feature_1.0.0.201212201100.jar" id="org.csstudio.desy.platform.user.feature" version="1.0.0.201212201100">
+      <category name="org.csstudio.desy.updatesite"/>
+   </feature>
+   <feature url="features/org.csstudio.desy.alarm.feature_1.5.3.201308281100.jar" id="org.csstudio.desy.alarm.feature" version="1.5.3.201308281100">
+      <category name="org.csstudio.desy.updatesite"/>
+   </feature>
+   <feature url="features/org.csstudio.desy.dct.feature_1.0.0.201302211400.jar" id="org.csstudio.desy.dct.feature" version="1.0.0.201302211400">
+      <category name="org.csstudio.desy.updatesite"/>
+   </feature>
+   <feature url="features/org.csstudio.desy.desytools.feature_1.5.6.201311110930.jar" id="org.csstudio.desy.desytools.feature" version="1.5.6.201311110930">
+      <category name="org.csstudio.desy.updatesite"/>
+   </feature>
+   <feature url="features/org.csstudio.desy.development.feature_1.0.0.201212201100.jar" id="org.csstudio.desy.development.feature" version="1.0.0.201212201100">
+      <category name="org.csstudio.desy.updatesite"/>
+   </feature>
+   <feature url="features/org.csstudio.desy.library.feature_1.5.4.201309031015.jar" id="org.csstudio.desy.library.feature" version="1.5.4.201309031015">
+      <category name="org.csstudio.desy.updatesite"/>
+   </feature>
+   <feature url="features/org.csstudio.desy.pv.feature_1.5.6.201311121015.jar" id="org.csstudio.desy.pv.feature" version="1.5.6.201311121015">
+      <category name="org.csstudio.desy.updatesite"/>
+   </feature>
+   <feature url="features/org.csstudio.desy.sds.feature_1.5.3.201308281100.jar" id="org.csstudio.desy.sds.feature" version="1.5.3.201308281100">
+      <category name="org.csstudio.desy.updatesite"/>
+   </feature>
+   <feature url="features/org.csstudio.desy.snl.feature_1.0.0.201212201100.jar" id="org.csstudio.desy.snl.feature" version="1.0.0.201212201100">
+      <category name="org.csstudio.desy.updatesite"/>
+   </feature>
+   <category-def name="org.csstudio.desy.updatesite" label="Desy CSS Update Site"/>
+</site>

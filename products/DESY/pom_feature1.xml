@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <!--
+	PARENT
+  -->
+  <parent>
+    <groupId>org.csstudio</groupId>
+    <artifactId>master</artifactId>
+    <version>BUILD-VERSION</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <!--
+	ARTIFACT
+  -->
+  <groupId>org.csstudio</groupId>
+  <artifactId>parent</artifactId>
+  <packaging>pom</packaging>
+  <!--
+	DESCRIPTION
+  -->
+  <name>CSS</name>
+  <description>
+	CSS Feature eclipse platform for DESY
+  </description>
+  <url>http://www.desy.de</url>
+  <!--
+	MODULES
+  -->
+  <modules>
+    <!--
+	Features
+	-->
+    <module>./features/org.csstudio.desy.platform.eclipse.feature</module>
+    <module>./updatesite/org.csstudio.desy.platform.eclipse.updatesite</module>
+ 
+  </modules>
+	
+	
+	
+</project>

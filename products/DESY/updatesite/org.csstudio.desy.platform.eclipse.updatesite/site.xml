@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.csstudio.desy.platform.eclipse.feature_1.0.0.201212201100.jar" id="org.csstudio.desy.platform.eclipse.feature" version="1.0.0.201212201100">
+      <category name="org.csstudio.desy.platform.eclipse.updatesite"/>
+   </feature>
+   <category-def name="org.csstudio.desy.platform.eclipse.updatesite" label="org.csstudio.desy.platform.eclipse.updatesite"/>
+</site>

@@ -282,7 +282,6 @@
 	Features
 	-->
     <module>./features/org.csstudio.desy.platform.eclipse.feature</module>
-    <module>./features/org.csstudio.desy.platform.eclipse.team.feature</module>
     <module>./features/org.csstudio.desy.platform.base.feature</module>
     <module>./features/org.csstudio.desy.platform.user.feature</module>
     <module>./features/org.csstudio.desy.library.feature</module>
@@ -293,11 +292,16 @@
     <module>./features/org.csstudio.desy.alarm.feature</module>
     <module>./features/org.csstudio.desy.desytools.feature</module>
     <module>./features/org.csstudio.desy.development.feature</module>
- 
+
+	<!--
+		Update Site
+    -->
+	<module>./updatesite/org.csstudio.desy.updatesite/pom.xml</module>
 	<!--
 		Product
     -->
 	<module>./plugins/org.csstudio.desy.product.compilation/pom.xml</module>
+	
  </modules>
 	
 	<!--

@@ -51,7 +51,6 @@
 	<indigo-update-repo.url>http://download.eclipse.org/eclipse/updates/3.7</indigo-update-repo.url>
 	<epp-repo.url>http://download.eclipse.org/technology/epp/packages/indigo/</epp-repo.url>
 	<epp-update-repo.url>http://download.eclipse.org/technology/epp/packages/indigo/SR2/</epp-update-repo.url>
-	<desy-features.url>file:/F:/target/repository</desy-features.url>
     <!-- ENCODING -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -62,11 +61,6 @@
     <repository>
       <id>indigo</id>
       <url>${indigo-repo.url}</url>
-      <layout>p2</layout>
-    </repository>
-   <repository>
-      <id>desy</id>
-      <url>${desy-features.url}</url>
       <layout>p2</layout>
     </repository>
     <repository>

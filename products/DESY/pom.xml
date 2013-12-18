@@ -113,7 +113,7 @@
 	<module>../../core/plugins/org.csstudio.logging</module>
 	<module>../../core/plugins/org.csstudio.logging.ui</module>
 	<module>../../core/plugins/org.csstudio.ui.menu</module>
-	<module>../../core/plugins/org.csstudio.remote</module>
+<!--	<module>../../core/plugins/org.csstudio.remote</module>-->
 	<module>../../core/plugins/org.csstudio.platform.utility.jms</module>
 	<module>../../core/plugins/org.csstudio.platform.utility.jms.ui</module>
 	<module>../../core/plugins/org.csstudio.platform.libs.epics.win32</module>
@@ -161,6 +161,7 @@
 	<module>../../applications/plugins/org.csstudio.domain.desy.softioc</module>
 	<module>../../applications/plugins/org.csstudio.domain.desy.ui</module>
 	<module>../../applications/plugins/org.csstudio.email</module>
+	<module>../../applications/plugins/org.csstudio.email.ui</module>
 	<module>../../applications/plugins/org.csstudio.logbook</module>
 	<module>../../applications/plugins/org.csstudio.persister</module>
 	<module>../../applications/plugins/org.csstudio.utility.documentViewer</module>
@@ -249,8 +250,9 @@
    	<module>../../applications/plugins/org.csstudio.alarm.intro</module>
 	<module>../../applications/plugins/org.csstudio.alarm.table</module>
    	<module>../../applications/plugins/org.csstudio.alarm.treeview</module>
-   	<module>../../applications/plugins/org.csstudio.ams</module>
+  	<module>../../applications/plugins/org.csstudio.ams</module>
    	<module>../../applications/plugins/org.csstudio.ams.alarmchainmanager</module>
+	<module>../../applications/plugins/org.csstudio.ams.monitor</module>
 	<module>../../applications/plugins/org.csstudio.diag.icsiocmonitor.service</module>
 	<module>../../applications/plugins/org.csstudio.diag.icsiocmonitor.ui</module>
 	<module>../../applications/plugins/org.csstudio.nams.common</module>

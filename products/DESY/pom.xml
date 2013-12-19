@@ -281,7 +281,7 @@
     <!--
 	Features
 	-->
-    <module>./features/org.csstudio.desy.platform.eclipse.feature</module>
+<!--    <module>./features/org.csstudio.desy.platform.eclipse.feature</module>-->
     <module>./features/org.csstudio.desy.platform.base.feature</module>
 <!--    <module>./features/org.csstudio.desy.platform.user.feature</module>-->
     <module>./features/org.csstudio.desy.library.feature</module>

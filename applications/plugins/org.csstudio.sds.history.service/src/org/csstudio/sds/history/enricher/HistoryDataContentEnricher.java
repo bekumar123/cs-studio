@@ -25,7 +25,7 @@ public class HistoryDataContentEnricher implements IHistoryDataContentEnricher {
 	private ProcessVariable _processVariable;
 
 	private Interval _interval; // TODO CME: should time interval be calculated from first and last element of the
-								// NavigableMap?
+								// NavigableMap? Maybe yes, because the logic in this class could then be made simpler.
 
 	private NavigableMap<DateTime, HistoryArchiveSample> _values;
 

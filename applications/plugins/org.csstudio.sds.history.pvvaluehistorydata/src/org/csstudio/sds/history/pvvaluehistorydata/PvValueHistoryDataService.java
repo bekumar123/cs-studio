@@ -51,7 +51,7 @@ public class PvValueHistoryDataService implements IPvValueHistoryDataService {
 
 		try {
 			lastSample = _archiveReaderFacade.readLastSampleBefore(csAddress, timeInstant);
-			// TODO CME: Discuss. This gets the latest sample from the archive. Even though it can be very old and thus
+			// TODO CME: Discuss: This gets the latest sample from the archive. Even though it can be very old and thus
 			// not representing the proper value for the given time. For example when the archive is missing samples for
 			// a time period.
 		} catch (ArchiveServiceException e) {

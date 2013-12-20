@@ -57,13 +57,13 @@
     <!--
 	Plug-ins (org.csstudio.desy.platform.eclipse.feature)
     -->
-    <module>../../applications/plugins/org.ehcache</module>
-	<module>../../applications/plugins/org.apache.tools.ant</module>
-	<module>../../applications/plugins/org.apache.tools.ant.junit</module>
 	<!--
 	Plug-ins (org.csstudio.desy.platform.base.feature)
     -->
 	<!-- applications/plugins/ -->
+    <module>../../applications/plugins/org.ehcache</module>
+	<module>../../applications/plugins/org.apache.tools.ant</module>
+	<module>../../applications/plugins/org.apache.tools.ant.junit</module>
 	<module>../../applications/plugins/org.slf4j</module>
 	<module>../../applications/plugins/org.slf4j-log4j12</module>
 	<module>../../applications/plugins/org.slf4j.bridge</module>
@@ -113,7 +113,7 @@
 	<module>../../core/plugins/org.csstudio.logging</module>
 	<module>../../core/plugins/org.csstudio.logging.ui</module>
 	<module>../../core/plugins/org.csstudio.ui.menu</module>
-<!--	<module>../../core/plugins/org.csstudio.remote</module>-->
+	<module>../../core/plugins/org.csstudio.remote</module>
 	<module>../../core/plugins/org.csstudio.platform.utility.jms</module>
 	<module>../../core/plugins/org.csstudio.platform.utility.jms.ui</module>
 	<module>../../core/plugins/org.csstudio.platform.libs.epics.win32</module>
@@ -281,7 +281,7 @@
     <!--
 	Features
 	-->
-<!--    <module>./features/org.csstudio.desy.platform.eclipse.feature</module>-->
+    <module>./features/org.csstudio.desy.platform.eclipse.feature</module>
     <module>./features/org.csstudio.desy.platform.base.feature</module>
 <!--    <module>./features/org.csstudio.desy.platform.user.feature</module>-->
     <module>./features/org.csstudio.desy.library.feature</module>
@@ -296,7 +296,7 @@
 	<!--
 		Update Site
     -->
-	<module>./updatesite/org.csstudio.desy.updatesite/pom.xml</module>
+<!--	<module>./updatesite/org.csstudio.desy.updatesite/pom.xml</module>-->
 	<!--
 		Product
     -->

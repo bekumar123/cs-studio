@@ -866,20 +866,6 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          unpack="false"/>
 
    <plugin
-         id="org.apache.tools.ant"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.apache.tools.ant.junit"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.ant.core"
          download-size="0"
          install-size="0"
@@ -1468,12 +1454,6 @@ THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, U
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-
-   <plugin
-         id="org.ehcache"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.nebula.widgets.gallery"

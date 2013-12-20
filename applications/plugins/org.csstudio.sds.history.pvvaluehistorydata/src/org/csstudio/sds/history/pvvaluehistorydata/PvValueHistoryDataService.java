@@ -36,7 +36,7 @@ import de.c1wps.geneal.desy.domain.plant.plantmaterials.values.StringValue;
 
 public class PvValueHistoryDataService implements IPvValueHistoryDataService {
 
-	private static Logger LOG = LoggerFactory.getLogger("HistoryLogging");
+	private static Logger LOG = LoggerFactory.getLogger("History");
 
 	private IArchiveReaderFacade _archiveReaderFacade;
 

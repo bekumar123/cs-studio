@@ -313,12 +313,10 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 		public long longValue() {
 			LOG.trace("AnyDataChannelFromPV.AnyDataImpl.longValue()");
 			switch (_channelType) {
-			case VALUE:
+			case VAL:
 				return getPvValueAsLong();
 			case SEVR:
 				return getPvSeverityAsLong();
-			case AM:
-				return getPvValueAsLong();
 			default:
 				return getPvValueAsLong();
 			}

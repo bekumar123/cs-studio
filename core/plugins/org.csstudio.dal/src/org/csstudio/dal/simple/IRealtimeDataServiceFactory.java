@@ -4,6 +4,6 @@ import org.csstudio.dal.CssApplicationContext;
 
 public interface IRealtimeDataServiceFactory {
 	
-	public ISimpleDalBroker getNewDataService(CssApplicationContext cssApplicationContext);
+	public ISimpleDalBroker getDataService(CssApplicationContext cssApplicationContext);
 
 }

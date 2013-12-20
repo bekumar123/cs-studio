@@ -245,7 +245,7 @@ public final class SdsPlugin extends Plugin {
 	}
 	
 	public ISimpleDalBroker getRealtimeDalBroker(CssApplicationContext cssApplicationContext) {
-		return _realtimeDalServiceFactory.getNewDataService(cssApplicationContext);
+		return _realtimeDalServiceFactory.getDataService(cssApplicationContext);
 	}
 	
 	public ISimpleDalBroker getHistoryDalBroker() {

@@ -1,51 +1,60 @@
 package org.csstudio.sds.history.anticorruption.adapter;
 
+
+/**
+ * No Description.
+ * 
+ * CME: Maybe the idea of this class is not good.
+ * 
+ * @author cmein
+ *
+ */
 public enum ChannelFieldType {
-	VALUE, SEVR, AM;
+	VAL, SEVR;
 
 	/**
-	 * Returns the field type for the given channel name, e.g. ChannelFieldType.SEVR for 'name.SEVR'.
-	 * Default is ChannelFieldType.VALUE
+	 * Returns the field type for the given channel name, e.g.
+	 * ChannelFieldType.SEVR for 'name.SEVR'. Default is ChannelFieldType.VALUE
 	 * 
-	 * @param channelName 
-	 * @return 
+	 * @param channelName
+	 * @return
 	 */
 	public static ChannelFieldType getChannelFieldType(String channelName) {
 		if (channelName.endsWith(".SEVR")) {
 			return ChannelFieldType.SEVR;
-		} else if (channelName.endsWith(".AM")) {
-			return ChannelFieldType.AM;
 		}
-		return ChannelFieldType.VALUE;
+		return ChannelFieldType.VAL;
 	}
-	
+
 	/**
 	 * Returns the given channelName without the field type.
 	 * 
-	 * Defined for '.SEVR', '.AM'.
+	 * Defined for '.SEVR'
 	 * 
 	 * @param channelName
 	 * @param fieldType
 	 * @return
 	 */
-	public static String getChannelNameWithoutFieldType(String channelName, ChannelFieldType fieldType) {
+	public static String getChannelNameWithoutFieldType(String channelName,
+			ChannelFieldType fieldType) {
 		String channelNameWithoutField = channelName;
-		
+
 		switch (fieldType) {
 		case SEVR:
-			if (channelName.endsWith(".SEVR")) {
-				channelNameWithoutField = channelName.substring(0, channelName.length() - 5);
-			}
-			break;
-		case AM:
-			if (channelName.endsWith(".AM")) {
-				channelNameWithoutField = channelName.substring(0, channelName.length() - 3);
-			}
-			break;
+			if (channelName.endsWith(".SEVR"))
+				return channelName.substring(0, channelName.length() - 5);
 		default:
 			break;
 		}
-		
 		return channelNameWithoutField;
+	}
+
+	public static String removeValAndSevrFromChannelName(String channelName) {
+		if (channelName.endsWith(".SEVR"))
+			return channelName.substring(0, channelName.length() - 5);
+		else if (channelName.endsWith(".VAL"))
+			return channelName.substring(0, channelName.length() - 4);
+		else
+			return channelName;
 	}
 }

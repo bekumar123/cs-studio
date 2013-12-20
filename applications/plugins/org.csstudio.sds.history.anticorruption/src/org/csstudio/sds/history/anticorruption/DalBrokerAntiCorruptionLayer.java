@@ -104,10 +104,8 @@ public class DalBrokerAntiCorruptionLayer implements ISimpleDalBroker {
 
 		//TODO CME: review
 		ChannelFieldType channelType = ChannelFieldType.getChannelFieldType(remoteInfoName);
-		if (channelType == ChannelFieldType.SEVR) {
-			remoteInfoName = ChannelFieldType.getChannelNameWithoutFieldType(remoteInfoName, channelType);
-		}
-		
+		remoteInfoName = ChannelFieldType.removeValAndSevrFromChannelName(remoteInfoName);
+				
 		if (_allProcessVariables.containsKey(remoteInfoName)) {
 			ProcessVariable processVariable = _allProcessVariables.get(remoteInfoName);
 			ChannelToPvListener channelToPvListener = new ChannelToPvListener(listener, processVariable, channelType);

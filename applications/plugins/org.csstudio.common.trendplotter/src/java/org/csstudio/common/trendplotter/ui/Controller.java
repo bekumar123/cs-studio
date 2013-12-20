@@ -13,6 +13,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.csstudio.archive.reader.UnknownChannelException;
+import org.csstudio.common.trendplotter.Activator;
 import org.csstudio.common.trendplotter.Messages;
 import org.csstudio.common.trendplotter.archive.ArchiveFetchJob;
 import org.csstudio.common.trendplotter.archive.ArchiveFetchJobListener;
@@ -29,10 +30,12 @@ import org.csstudio.common.trendplotter.model.PVItem;
 import org.csstudio.common.trendplotter.preferences.Preferences;
 import org.csstudio.common.trendplotter.propsheet.AddArchiveCommand;
 import org.csstudio.common.trendplotter.propsheet.AddAxisCommand;
-import org.csstudio.common.trendplotter.propsheet.ChangeArchiveRescaleCommand;
 import org.csstudio.common.trendplotter.propsheet.ChangeAxisConfigCommand;
 import org.csstudio.csdata.ProcessVariable;
 import org.csstudio.data.values.ITimestamp;
+import org.csstudio.sds.history.domain.events.UpdateTimeEvent;
+import org.csstudio.sds.history.domain.listener.ITimeChangeListener;
+import org.csstudio.sds.history.domain.listener.ITimeperiodUpdateListener;
 import org.csstudio.swt.xygraph.figures.Annotation;
 import org.csstudio.swt.xygraph.figures.Axis;
 import org.csstudio.swt.xygraph.figures.Trace.TraceType;
@@ -50,8 +53,12 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.epics.util.time.Timestamp;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.c1wps.geneal.desy.service.common.tracker.IGenericServiceListener;
 
 /** Controller that interfaces the {@link Model} with the {@link Plot}:
  *  <ul>
@@ -114,6 +121,12 @@ public class Controller implements ArchiveFetchJobListener
 
     /** Is there any Y axis that's auto-scaled? */
     private volatile boolean have_autoscale_axis = false;
+    
+    /** Listeners that are interested in the current displayed timeperiod */
+    private List<ITimeperiodUpdateListener> timeperiodUpdateListener = new ArrayList<ITimeperiodUpdateListener>();
+    
+    /** Listeners that are interested in the current chosen time index */
+    private List<ITimeChangeListener> timeChangeListener = new ArrayList<ITimeChangeListener>();
 
 
     /** Initialize
@@ -429,6 +442,28 @@ public class Controller implements ArchiveFetchJobListener
                     command.rememberNewConfig();
                 }
             }
+
+            @Override
+            public void setIndexTimeline(boolean status) {
+                model.enableScrolling(false);
+                plot.setTimeIndexLineVisible(status);
+            }
+            
+            @Override
+            public void timeIndexPositionChanged(DateTime timeIndex, boolean mouseUp) {
+                updateTimeChangeListners(timeIndex, mouseUp);
+            }
+            
+            @Override
+            public void syncTimeperiodWithHistoryControl() {
+                DateTime startTime = new DateTime(model.getStartTime().toDate().getTime());
+                DateTime endTime = new DateTime(model.getEndTime().toDate().getTime());
+                
+                for (ITimeperiodUpdateListener listener : timeperiodUpdateListener) {
+                    listener.setTimePeriod(startTime, endTime);
+                }
+            }
+            
         });
 
         model_listener = new ModelListener()
@@ -552,6 +587,16 @@ public class Controller implements ArchiveFetchJobListener
             }
         };
         model.addListener(model_listener);
+        
+        //TODO CME: should this move into the DataBrowserEditor class?
+        //TODO CME: potential nullpointer or leak when the trendplotter editor view is closed
+        Activator.getDefault()
+            .addUpdateTimeperiodServiceListener(createTimeperiodUpdateServiceListener());
+        
+        timeChangeListener = Activator.getDefault().getTimeChangeListeners();
+        
+        Activator.getDefault().getBundle().getBundleContext()
+            .registerService(ITimeChangeListener.class, createITimeChangeListener(), null);
     }
 
     /** @param suppress_redraws <code>true</code> if controller should suppress
@@ -972,5 +1017,57 @@ public class Controller implements ArchiveFetchJobListener
             LOG.warn("No archived data for " + job.getPVItem().getDisplayName());
         else
             LOG.warn("No archived data for " + job.getPVItem().getDisplayName());
+    }
+    
+    
+    private void updateTimeChangeListners(DateTime timeIndex, boolean mouseUp) {
+        DateTime starTime = new DateTime(model.getStartTime().toDate().getTime());
+        DateTime endTime = new DateTime(model.getEndTime().toDate().getTime());
+        UpdateTimeEvent updateTimeEvent = new UpdateTimeEvent(timeIndex, this, mouseUp, new Interval(starTime, endTime));
+        
+        for (ITimeChangeListener listener : timeChangeListener) {
+            listener.handleTimeIndexChanged(updateTimeEvent);
+        }
+    }
+    
+    private IGenericServiceListener<ITimeperiodUpdateListener> createTimeperiodUpdateServiceListener() {
+        return new IGenericServiceListener<ITimeperiodUpdateListener>() {
+            @Override
+            public void bindService(ITimeperiodUpdateListener service) {
+                timeperiodUpdateListener.add(service);
+            }
+            
+            @Override
+            public void unbindService(ITimeperiodUpdateListener service) {
+                timeperiodUpdateListener.remove(service);
+            }
+        };
+    }
+    
+    private IGenericServiceListener<ITimeChangeListener> createITimeChangeServiceListener() {
+        return new IGenericServiceListener<ITimeChangeListener>() {
+            @Override
+            public void bindService(ITimeChangeListener service) {
+                timeChangeListener.add(service);
+            }
+            
+            @Override
+            public void unbindService(ITimeChangeListener service) {
+                timeChangeListener.remove(service);
+            }
+        };
+    }
+    
+    private ITimeChangeListener createITimeChangeListener() {
+        return new ITimeChangeListener() {
+            
+            @Override
+            public void handleTimeIndexChanged(UpdateTimeEvent updateTimeEvent) {
+                if (updateTimeEvent.getEventSource() == Controller.this) {
+                    return;
+                }
+                plot.setTimeIndexLinePosition(updateTimeEvent.getTimeStamp());
+            }
+        };
     }
 }

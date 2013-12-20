@@ -185,4 +185,12 @@ public interface PlotListener
     /** Called when the user initializes all pvs with HOPR LOPR
      */
     public void initScaleRequested();
+    
+    /** Called when the user requests the synchronisation of the actual timeperiod with the history control (uses timeperiod of the plot).  */
+    public void syncTimeperiodWithHistoryControl();
+    
+    /** Called when the user requests to turn the index timeline on or off */
+    public void setIndexTimeline(boolean status);
+    
+    public void timeIndexPositionChanged(DateTime timeIndex, boolean mouseUp);
 }

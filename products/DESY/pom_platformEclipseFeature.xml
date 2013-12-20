@@ -31,8 +31,8 @@
     <!--
 	Features
 	-->
+<!--    <module>./updatesite/org.csstudio.desy.platform.eclipse.updatesite</module>-->
     <module>./features/org.csstudio.desy.platform.eclipse.feature</module>
-    <module>./updatesite/org.csstudio.desy.platform.eclipse.updatesite</module>
  
   </modules>
 	

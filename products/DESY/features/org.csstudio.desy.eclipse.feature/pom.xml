@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.csstudio</groupId>
+    <artifactId>org.csstudio.features-desy.parent</artifactId>
+    <version>BUILD-VERSION</version>
+  </parent>
+
+  <artifactId>org.csstudio.desy.eclipse.feature</artifactId>
+  <packaging>eclipse-feature</packaging>
+  <!--<version>0.8.0-SNAPSHOT</version>-->
+  <version>1.0.0.201312201100</version>
+  
+</project>

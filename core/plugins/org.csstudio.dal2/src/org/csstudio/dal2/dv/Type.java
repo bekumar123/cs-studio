@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.csstudio.domain.desy.epics.alarm.EpicsAlarmSeverity;
+import org.csstudio.domain.desy.epics.types.EpicsEnum;
 
 /**
  * Data type used to connect to a process variable
@@ -29,6 +30,7 @@ public class Type<T> {
 	public static final Type<EpicsAlarmSeverity> SEVERITY = new Type<EpicsAlarmSeverity>(
 			EpicsAlarmSeverity.class);
 	public static final Type<EnumType> ENUM = new Type<EnumType>(EnumType.class);
+	public static final Type<EpicsEnum> EPICS_ENUM = new Type<EpicsEnum>(EpicsEnum.class);
 
 	public static final Type<String> STRING = new Type<String>(String.class);
 	public static final Type<Double> DOUBLE = new Type<Double>(Double.class);

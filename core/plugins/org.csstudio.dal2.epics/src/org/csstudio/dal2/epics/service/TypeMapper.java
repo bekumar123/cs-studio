@@ -20,6 +20,7 @@ import java.util.Set;
 import org.csstudio.dal2.dv.EnumType;
 import org.csstudio.dal2.dv.Type;
 import org.csstudio.domain.desy.epics.alarm.EpicsAlarmSeverity;
+import org.csstudio.domain.desy.epics.types.EpicsEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,13 +155,33 @@ public abstract class TypeMapper<T> {
 						.forValue(enumValue));
 			}
 		});
-		registerMapper(new TypeMapper<EnumType>(Type.ENUM, DBRType.ENUM, true) {
+		registerMapper(new TypeMapper<EnumType>(Type.ENUM, DBRType.ENUM, false) {
 			@Override
 			public EnumType mapValue(DBR dbrValue) {
 				DBR_LABELS_Enum dbrEnum = (DBR_LABELS_Enum) dbrValue;
 				short enumValue = dbrEnum.getEnumValue()[0];
 				String name = dbrEnum.getLabels()[enumValue];
 				return EnumType.valueOf(name, enumValue);
+			}
+		});
+
+		registerMapper(new TypeMapper<EpicsEnum>(Type.EPICS_ENUM, DBRType.ENUM,
+				true) {
+			@Override
+			public EpicsEnum mapValue(DBR dbrValue) {
+				DBR_LABELS_Enum dbrEnum = (DBR_LABELS_Enum) dbrValue;
+				short enumValue = dbrEnum.getEnumValue()[0];
+				String[] labels = dbrEnum.getLabels();
+				if (labels != null) {
+					if (enumValue > 15) {
+						return EpicsEnum.createFromRaw((int) enumValue);
+					} else {
+						return EpicsEnum.createFromState(labels[enumValue],
+								(int) enumValue);
+					}
+				} else {
+					return EpicsEnum.createFromRaw((int) enumValue);
+				}
 			}
 		});
 
@@ -195,19 +216,21 @@ public abstract class TypeMapper<T> {
 			_dbr2mapper.put(dbrType, mapper);
 		}
 	}
-	
+
 	/**
 	 * Creates a type mapper wrapping the mapper of the native type
+	 * 
 	 * @param nativeTypeMapper
 	 * @return
 	 */
-	private static TypeMapper<Object> createWrapper(final TypeMapper<?> nativeTypeMapper) {
+	private static TypeMapper<Object> createWrapper(
+			final TypeMapper<?> nativeTypeMapper) {
 		return new TypeMapper<Object>(Type.NATIVE, DBRType.UNKNOWN, false) {
 			@Override
 			public Object mapValue(DBR dbrValue) {
 				return nativeTypeMapper.mapValue(dbrValue);
 			}
-			
+
 			@Override
 			public DBRType getDBRCtrlType() {
 				return nativeTypeMapper.getDBRCtrlType();

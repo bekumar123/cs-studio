@@ -75,6 +75,8 @@ public class DoubleValue extends BasePlantUnitValue implements
 		assert isValid(val) : "assert isValid(val)";
 		if (val instanceof Double) {
 			value = (Double) val;
+		} else if (val instanceof Integer) {
+			value = ((Integer) val).doubleValue();
 		} else if (val instanceof BasePlantUnitValue) {
 			BasePlantUnitValue baseVal = (BasePlantUnitValue) val;
 			setData(baseVal.getData());

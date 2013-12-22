@@ -12,7 +12,7 @@ import de.c1wps.geneal.desy.domain.plant.plantmaterials.values.IPlantUnitValue;
 import de.c1wps.geneal.desy.domain.plant.plantmaterials.values.StringValue;
 
 /**
- * This content enricher handles process variables that are only used to display the current time. 
+ * This content enricher handles process variables that are only used to display the current time. In the history mode it represents the current selected time.
  * 
  * @author Christian Mein
  *

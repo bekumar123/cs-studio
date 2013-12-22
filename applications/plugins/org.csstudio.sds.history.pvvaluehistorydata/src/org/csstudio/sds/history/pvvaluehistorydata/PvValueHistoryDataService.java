@@ -73,7 +73,7 @@ public class PvValueHistoryDataService implements IPvValueHistoryDataService {
 		TimeInstant starTimeInstant = TimeInstantBuilder.fromMillis(interval.getStartMillis());
 		TimeInstant endTimeInstant = TimeInstantBuilder.fromMillis(interval.getEndMillis());
 
-		Collection<IArchiveSample<Serializable, ISystemVariable<Serializable>>> readSamples = null;
+		Collection<IArchiveSample<Serializable, ISystemVariable<Serializable>>> readSamples = new ArrayList<>();
 
 		NavigableMap<DateTime, HistoryArchiveSample> samples = new TreeMap<>(DateTimeComparator.getInstance());
 
@@ -83,10 +83,6 @@ public class PvValueHistoryDataService implements IPvValueHistoryDataService {
 			// days
 		} catch (ArchiveServiceException e) {
 			LOG.debug(e.getMessage());
-		}
-
-		if (readSamples == null) {
-			readSamples = new ArrayList<IArchiveSample<Serializable, ISystemVariable<Serializable>>>();
 		}
 
 		for (IArchiveSample<Serializable, ISystemVariable<Serializable>> iArchiveSample : readSamples) {

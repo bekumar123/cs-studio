@@ -45,8 +45,6 @@ public class HistoryDataService implements IHistoryDataService, ITimeChangeListe
 
 	@Override
 	public void handleTimeIndexChanged(UpdateTimeEvent updateTimeEvent) {
-		LOG.info(">>> Change time to: " + TIME_FORMAT.print(updateTimeEvent.getTimeStamp()));
-		
 		if (updateTimeEvent.doUpdateData()) {
 			for (IPvUpdater pvUpdater : _allPvUpdater.values()) {
 				pvUpdater.handleTimeIndexChanged(updateTimeEvent);

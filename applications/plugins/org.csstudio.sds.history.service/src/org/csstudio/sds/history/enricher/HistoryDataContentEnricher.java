@@ -24,12 +24,14 @@ public class HistoryDataContentEnricher implements IHistoryDataContentEnricher {
 
 	private ProcessVariable _processVariable;
 
-	private Interval _interval; // TODO CME: should time interval be calculated from first and last element of the
-								// NavigableMap? Maybe yes, because the logic in this class could then be made simpler.
+	private Interval _cachedInterval;
 
 	private NavigableMap<DateTime, HistoryArchiveSample> _values;
 
-	private boolean _availableInCache;
+	/**
+	 * This variable indicates that this service has once tried to get the oldest value for the cached interval.
+	 */
+	private boolean _triedOldestValueRetrieval = false;
 
 	/**
 	 * Construct a new content enricher that handles data retrieval and caching for the given {@link ProcessVariable}.
@@ -49,7 +51,7 @@ public class HistoryDataContentEnricher implements IHistoryDataContentEnricher {
 	}
 
 	/**
-	 * @see IHistoryDataContentEnricher
+	 * {@inheritDoc}
 	 */
 	@Override
 	public ProcessVariable latestPvBefore(DateTime timeStamp, Interval interval) {
@@ -58,48 +60,32 @@ public class HistoryDataContentEnricher implements IHistoryDataContentEnricher {
 
 		ProcessVariable newPvCopy = _processVariable.copyDeep();
 		String csAddress = _processVariable.getControlSystemAddress();
-		HistoryArchiveSample value = null;
+		HistoryArchiveSample pvHistorySample = null;
 
 		if (isInCachedTimeInterval(timeStamp)) {
 			Entry<DateTime, HistoryArchiveSample> entry = _values.floorEntry(timeStamp);
 
 			if (entry != null) {
-				value = entry.getValue();
-			} else if (_availableInCache == true) {
-//				System.out.println(" +++++++++++++++++  dont do this repeatedly"); // TODO CME: remove
+				pvHistorySample = entry.getValue();
+			} else if (!_triedOldestValueRetrieval) {
 				HistoryArchiveSample latestValueBefore = _pvValueService.getLatestValueBefore(csAddress, timeStamp);
+				_triedOldestValueRetrieval=true;
 				if (latestValueBefore != null) {
-					_values.put(timeStamp, latestValueBefore);
-					value = latestValueBefore;
-					_availableInCache = true;
-				} else {
-					_availableInCache = false;
+					_values.put(latestValueBefore.getTimeStamp(), latestValueBefore);
+					pvHistorySample = latestValueBefore;
 				}
 			}
 		} else {
-			// IF interval == null
-			// value = _pvValueService.getLatestValueBefore(csAddress, timeStamp);
-
 			_values = _pvValueService.getSamples(csAddress, interval);
-			_interval = interval;
+			_cachedInterval = interval;
 
-			Entry<DateTime, HistoryArchiveSample> entry = _values.floorEntry(timeStamp);
-			if (entry != null) {
-				value = entry.getValue();
-			} else {
-				HistoryArchiveSample latestValueBefore = _pvValueService.getLatestValueBefore(csAddress, timeStamp);
-				if (latestValueBefore != null) {
-					_values.put(timeStamp, latestValueBefore);
-					value = latestValueBefore;
-					_availableInCache = true;
-				}
-			}
+			latestPvBefore(timeStamp, interval);
 		}
 
-		if (value != null) {
-			newPvCopy.setValue(value.getValue());
-			newPvCopy.setSeverityState(value.getSeverityState());
-			newPvCopy.setAlarmStatus(value.getPvAlarmState());
+		if (pvHistorySample != null) {
+			newPvCopy.setValue(pvHistorySample.getValue());
+			newPvCopy.setSeverityState(pvHistorySample.getSeverityState());
+			newPvCopy.setAlarmStatus(pvHistorySample.getPvAlarmState());
 			newPvCopy.setTimeStamp(timeStamp.toDate());
 			newPvCopy.setConnectionState(PVConnectionState.CONNECTED);
 		} else {
@@ -119,18 +105,18 @@ public class HistoryDataContentEnricher implements IHistoryDataContentEnricher {
 	 * @return true when timeStamp is in range of cached interval. False ohterwise.
 	 */
 	private boolean isInCachedTimeInterval(DateTime timeStamp) {
-		if (_values != null && _interval.contains(timeStamp)) {
+		if (_values != null && _cachedInterval.contains(timeStamp)) {
 			return true;
 		} else
 			return false;
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder result = new StringBuilder();
 		result.append(" Value enricher ");
 		result.append(_processVariable.getControlSystemAddress());
-		result.append(" Interval: ").append(_interval);
+		result.append(" Interval: ").append(_cachedInterval);
 		result.append(" Values: ").append(_values.size());
 
 		return result.toString();

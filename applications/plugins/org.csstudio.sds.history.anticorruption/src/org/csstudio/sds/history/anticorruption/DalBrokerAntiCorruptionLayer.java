@@ -99,7 +99,7 @@ public class DalBrokerAntiCorruptionLayer implements ISimpleDalBroker {
 	@Override
 	public synchronized void registerListener(final ConnectionParameters cparam, final ChannelListener listener) {
 		String remoteInfoName = cparam.getRemoteInfo().getRemoteName();
-		System.out.println("=== registerListener: " + remoteInfoName + " " + cparam.getDataType() + " " + cparam.getRemoteInfo().getCharacteristic());
+//		System.out.println("=== registerListener: " + remoteInfoName + " " + cparam.getDataType() + " " + cparam.getRemoteInfo().getCharacteristic());
 		//TODO CME: inspect dataflavor from cparam for more information (e.g. datatype) 
 
 		//TODO CME: review

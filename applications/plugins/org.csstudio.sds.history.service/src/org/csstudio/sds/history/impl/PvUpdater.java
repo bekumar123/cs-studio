@@ -60,7 +60,7 @@ public class PvUpdater implements IPvUpdater {
 	public void addPvChangeListener(IPvChangeListener pvChangeListener) {
 		assert pvChangeListener != null : "pvChangeListener != null";
 		// TODO CME: should the following also be checked by an if statement?
-		assert pvChangeListener.getProcessVariable().getControlSystemAddress().equals(_processVariable.getControlSystemAddress()) : "listner should have the same control system address";
+		assert pvChangeListener.getProcessVariable().getControlSystemAddress().equals(_processVariable.getControlSystemAddress()) : "listener should have the same control system address";
 
 		_pvChangeListener.add(pvChangeListener);
 		if (_lastProcessVariable != null) {

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <!--
+	PARENT
+  -->
+  <parent>
+    <groupId>org.csstudio</groupId>
+    <artifactId>master</artifactId>
+    <version>BUILD-VERSION</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <!--
+	ARTIFACT
+  -->
+  <groupId>org.csstudio</groupId>
+  <artifactId>parent</artifactId>
+  <packaging>pom</packaging>
+  <!--
+	DESCRIPTION
+  -->
+  <name>CSS</name>
+  <description>
+	CSS Feature eclipse platform for DESY
+  </description>
+  <url>http://www.desy.de</url>
+  <!--
+	MODULES
+  -->
+  <modules>
+  	<!--
+	Plug-ins (org.csstudio.desy.sds.feature)
+    -->
+	<!-- applications/plugins/ -->
+	<module>../../applications/plugins/org.csstudio.sds</module>
+	<module>../../applications/plugins/org.csstudio.sds.components</module>
+	<module>../../applications/plugins/org.csstudio.sds.components.epics</module>
+	<module>../../applications/plugins/org.csstudio.sds.components.ui</module>
+	<module>../../applications/plugins/org.csstudio.sds.importer</module>
+	<module>../../applications/plugins/org.csstudio.sds.importer.ui</module>
+	<module>../../applications/plugins/org.csstudio.sds.intro</module>
+	<module>../../applications/plugins/org.csstudio.sds.language.script</module>
+	<module>../../applications/plugins/org.csstudio.sds.language.script.ui</module>
+	<module>../../applications/plugins/org.csstudio.sds.samples</module>
+	<module>../../applications/plugins/org.csstudio.sds.service.pvvalidation.mkk</module>
+	<module>../../applications/plugins/org.csstudio.sds.settings.desy</module>
+	<module>../../applications/plugins/org.csstudio.sds.ui</module>
+	<module>../../applications/plugins/org.csstudio.utility.adlConverter</module>
+	<module>../../applications/plugins/org.csstudio.utility.displaybrowser</module><!-- ACHTUNG: Package-Name -->
+	<module>../../applications/plugins/org.csstudio.utility.quickstart</module>
+
+  <!--
+	Features
+	-->
+    <module>./features/org.csstudio.desy.sds.feature</module>
+  </modules>
+	
+	
+	
+</project>

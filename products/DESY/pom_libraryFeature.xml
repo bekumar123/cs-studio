@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <!--
+	PARENT
+  -->
+  <parent>
+    <groupId>org.csstudio</groupId>
+    <artifactId>master</artifactId>
+    <version>BUILD-VERSION</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <!--
+	ARTIFACT
+  -->
+  <groupId>org.csstudio</groupId>
+  <artifactId>parent</artifactId>
+  <packaging>pom</packaging>
+  <!--
+	DESCRIPTION
+  -->
+  <name>CSS</name>
+  <description>
+	CSS Feature eclipse platform for DESY
+  </description>
+  <url>http://www.desy.de</url>
+  <!--
+	MODULES
+  -->
+  <modules>
+	<!-- applications/plugins/ -->
+    <module>../../applications/plugins/org.csstudio.swt.xygraph</module>
+	<module>../../applications/plugins/org.csstudio.alarm.service</module>
+	<module>../../applications/plugins/org.csstudio.apputil</module>
+	<module>../../applications/plugins/org.csstudio.apputil.ui</module>
+	<module>../../applications/plugins/org.csstudio.archive.common.reader</module>
+	<module>../../applications/plugins/org.csstudio.archive.common.requesttype</module>
+	<module>../../applications/plugins/org.csstudio.archive.common.service</module>
+	<module>../../applications/plugins/org.csstudio.archive.common.service.mysqlimpl</module>
+	<module>../../applications/plugins/org.csstudio.archive.reader</module>
+	<module>../../applications/plugins/org.csstudio.archive.reader.archiverecord</module>
+	<module>../../applications/plugins/org.csstudio.archive.reader.channelarchiver</module>
+	<module>../../applications/plugins/org.csstudio.archive.vtype</module>
+	<module>../../applications/plugins/org.csstudio.archive.vtype.trendplotter</module>
+	<module>../../applications/plugins/org.csstudio.config.savevalue.service</module>
+	<module>../../applications/plugins/org.csstudio.domain.common</module>
+	<module>../../applications/plugins/org.csstudio.domain.desy</module>
+	<module>../../applications/plugins/org.csstudio.domain.desy.epics</module>
+	<module>../../applications/plugins/org.csstudio.domain.desy.softioc</module>
+	<module>../../applications/plugins/org.csstudio.domain.desy.ui</module>
+	<module>../../applications/plugins/org.csstudio.email</module>
+	<module>../../applications/plugins/org.csstudio.email.ui</module>
+	<module>../../applications/plugins/org.csstudio.logbook</module>
+	<module>../../applications/plugins/org.csstudio.persister</module>
+	<module>../../applications/plugins/org.csstudio.utility.httpd</module>
+	<module>../../applications/plugins/org.csstudio.utility.ldap.service</module>
+	<module>../../applications/plugins/org.csstudio.utility.ldap.service.impl</module>
+	<module>../../applications/plugins/org.csstudio.utility.ldap.treeconfiguration</module>
+	<module>../../applications/plugins/org.csstudio.utility.ldap.ui</module>
+	<module>../../applications/plugins/org.csstudio.utility.namespace.utility</module>
+	<module>../../applications/plugins/org.csstudio.utility.toolbox</module>
+	<module>../../applications/plugins/org.csstudio.utility.pv.ui</module>
+	<module>../../applications/plugins/org.csstudio.utility.screenshot</module>
+	<module>../../applications/plugins/org.csstudio.utility.treemodel</module>
+	<module>../../applications/plugins/org.remotercp.common</module>
+	<module>../../applications/plugins/org.remotercp.domain.authorization</module>
+	<module>../../applications/plugins/org.remotercp.service.connection</module>
+	<module>../../applications/plugins/org.remotercp.util</module>
+	<module>../../applications/plugins/</module>
+	<!-- core/plugins/ -->
+	<module>../../core/plugins/org.csstudio.dal.ui</module>
+	<module>../../core/plugins/org.csstudio.platform.libs.hibernate</module>
+	<module>../../core/plugins/org.csstudio.platform.simpledal</module>
+	<module>../../core/plugins/org.csstudio.utility.pv</module>
+	<module>../../core/plugins/org.csstudio.utility.pv.epics</module>
+	<module>../../core/plugins/org.csstudio.utility.pvmanager</module>
+	<module>../../core/plugins/org.epics.util</module>
+	<module>../../core/plugins/org.epics.vtype</module>
+	<module>../../core/plugins/</module>
+	<!-- products/DESY/plugins/ -->
+	<module>./plugins/de.desy.language.editor.core</module>
+	<module>./plugins/de.desy.language.editor.details</module>
+	<module>./plugins/de.desy.language.editor.ui</module>
+	<module>./plugins/de.desy.language.libraries</module>
+	<module>./plugins/</module>
+
+
+  <!--
+	Features
+	-->
+    <module>./features/org.csstudio.desy.library.feature</module>
+ 
+  </modules>
+	
+	
+	
+</project>

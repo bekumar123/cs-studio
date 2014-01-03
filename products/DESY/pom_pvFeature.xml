@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <!--
+	PARENT
+  -->
+  <parent>
+    <groupId>org.csstudio</groupId>
+    <artifactId>master</artifactId>
+    <version>BUILD-VERSION</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <!--
+	ARTIFACT
+  -->
+  <groupId>org.csstudio</groupId>
+  <artifactId>parent</artifactId>
+  <packaging>pom</packaging>
+  <!--
+	DESCRIPTION
+  -->
+  <name>CSS</name>
+  <description>
+	CSS Feature eclipse platform for DESY
+  </description>
+  <url>http://www.desy.de</url>
+  <!--
+	MODULES
+  -->
+  <modules>
+<!-- applications/plugins/ -->
+	<module>../../applications/plugins/org.csstudio.common.trendplotter</module>
+	<module>../../applications/plugins/org.csstudio.common.trendplotter.shell.fragment</module>
+	<module>../../applications/plugins/org.csstudio.diag.epics.pvtree</module>
+	<module>../NSLS2/plugins/org.csstudio.diag.epics.pvtree.intro</module>
+	<module>../../applications/plugins/org.csstudio.diag.probe</module>
+	<module>../../applications/plugins/org.csstudio.display.pvtable</module>
+	<module>../../applications/plugins/org.csstudio.utility.recordProperty</module>
+	<module>../../applications/plugins/org.csstudio.utility.sysmon</module>
+
+
+  <!--
+	Features
+	-->
+    <module>./features/org.csstudio.desy.pv.feature</module>
+  </modules>
+	
+	
+	
+</project>

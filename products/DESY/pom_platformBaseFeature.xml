@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <!--
+	PARENT
+  -->
+  <parent>
+    <groupId>org.csstudio</groupId>
+    <artifactId>master</artifactId>
+    <version>BUILD-VERSION</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <!--
+	ARTIFACT
+  -->
+  <groupId>org.csstudio</groupId>
+  <artifactId>parent</artifactId>
+  <packaging>pom</packaging>
+  <!--
+	DESCRIPTION
+  -->
+  <name>CSS</name>
+  <description>
+	CSS Feature eclipse platform for DESY
+  </description>
+  <url>http://www.desy.de</url>
+  <!--
+	MODULES
+  -->
+  <modules>
+	<!-- applications/plugins/ -->
+	<module>../../applications/plugins/org.csstudio.utility.product</module>	
+	<module>../../applications/plugins/org.csstudio.ui.menu.app</module>
+	<module>../../applications/plugins/org.csstudio.servicelocator</module>		
+	<module>../../applications/plugins/org.csstudio.desy.logging.ui</module>
+	<module>../../applications/plugins/org.csstudio.utility.jms</module>
+	<!-- core/plugins/ -->
+	<module>../../core/plugins/org.csstudio.auth</module>
+	<module>../../core/plugins/org.csstudio.auth.ui</module>
+	<module>../../core/plugins/org.csstudio.csdata</module>
+	<module>../../core/plugins/org.csstudio.dal</module>
+	<module>../../core/plugins/org.csstudio.dal.epics</module>
+	<module>../../core/plugins/org.csstudio.data</module>
+    <module>../../core/plugins/org.csstudio.platform.jaasAuthentication</module>
+    <module>../../core/plugins/org.csstudio.platform.jaasAuthentication.ui</module>
+    <module>../../core/plugins/org.csstudio.platform.ldapAuthorization</module>
+    <module>../../core/plugins/org.csstudio.platform.ldapAuthorization.ui</module>
+	<module>../../core/plugins/org.csstudio.platform.libs.easymock</module>
+	<module>../../core/plugins/org.csstudio.platform.libs.epics</module>
+	<module>../../core/plugins/org.csstudio.platform.libs.epics.ui</module>
+	<module>../../core/plugins/org.csstudio.platform.libs.jdbc</module>
+	<module>../../core/plugins/org.csstudio.platform.libs.jmock</module>
+	<module>../../core/plugins/org.csstudio.platform.libs.jms</module>
+	<module>../../core/plugins/org.csstudio.platform.utility.rdb</module>
+	<module>../../core/plugins/org.csstudio.startup</module>
+	<module>../../core/plugins/org.csstudio.workspace</module>
+	<module>../../core/plugins/org.csstudio.java</module>
+	<module>../../core/plugins/org.csstudio.ui.util</module>
+	<module>../../core/plugins/org.csstudio.ui.preferences</module>
+	<module>../../core/plugins/org.csstudio.openfile</module>
+	<module>../../core/plugins/org.csstudio.logging</module>
+	<module>../../core/plugins/org.csstudio.logging.ui</module>
+	<module>../../core/plugins/org.csstudio.ui.menu</module>
+	<module>../../core/plugins/org.csstudio.remote</module>
+	<module>../../core/plugins/org.csstudio.platform.utility.jms</module>
+	<module>../../core/plugins/org.csstudio.platform.utility.jms.ui</module>
+	<module>../../core/plugins/org.csstudio.platform.libs.epics.win32</module>
+	<!-- products/DESY/plugins/ -->
+	<module>./plugins/org.csstudio.desy.startuphelper</module>
+	<module>./plugins/org.csstudio.desy.css.product.log4j</module>	
+	<module>./plugins/org.csstudio.desy.product</module>
+
+  <!--
+	Features
+	-->
+    <module>./features/org.csstudio.desy.platform.base.feature</module>
+ 
+  </modules>
+	
+	
+	
+</project>

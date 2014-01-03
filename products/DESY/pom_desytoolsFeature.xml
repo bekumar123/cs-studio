@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <!--
+	PARENT
+  -->
+  <parent>
+    <groupId>org.csstudio</groupId>
+    <artifactId>master</artifactId>
+    <version>BUILD-VERSION</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <!--
+	ARTIFACT
+  -->
+  <groupId>org.csstudio</groupId>
+  <artifactId>parent</artifactId>
+  <packaging>pom</packaging>
+  <!--
+	DESCRIPTION
+  -->
+  <name>CSS</name>
+  <description>
+	CSS Feature eclipse platform for DESY
+  </description>
+  <url>http://www.desy.de</url>
+  <!--
+	MODULES
+  -->
+  <modules>
+<!-- applications/plugins/ -->
+	<!-- applications/plugins/ -->
+	<module>../../applications/plugins/org.csstudio.config.ioconfig.model</module>
+	<module>../../applications/plugins/org.csstudio.config.ioconfig.view</module>
+	<module>../../applications/plugins/org.csstudio.config.savevalue.ui</module>
+	<module>../../applications/plugins/org.csstudio.utility.documentViewer</module>
+	<module>../../applications/plugins/org.csstudio.utility.nameSpaceBrowser</module>
+	<module>../../applications/plugins/org.csstudio.utility.ldap.nameSpaceBrowser</module>
+	<module>../../applications/plugins/org.csstudio.utility.nameSpaceSearch</module>
+	<module>../../applications/plugins/org.csstudio.utility.screenshot.desy</module>
+	<module>../../applications/plugins/org.csstudio.utility.toolbox</module>
+	<module>../../applications/plugins/</module>
+	<module>./plugins/</module>
+
+  <!--
+	Features
+	-->
+    <module>./features/org.csstudio.desy.desytools.feature</module>
+  </modules>
+	
+	
+	
+</project>

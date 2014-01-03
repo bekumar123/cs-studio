@@ -21,19 +21,28 @@
   -->
   <name>CSS</name>
   <description>
-	CSS Eclipse Feature for DESY
+	CSS Feature eclipse platform for DESY
   </description>
   <url>http://www.desy.de</url>
   <!--
 	MODULES
   -->
   <modules>
-  
-  
-    <!--
+	<!-- products/DESY/plugins/ -->
+	<module>../../applications/plugins/org.csstudio.snl.intro</module>
+	<module>./plugins/de.desy.language.snl</module>
+	<module>./plugins/de.desy.language.snl.configuration.linux</module>
+	<module>./plugins/de.desy.language.snl.diagram</module>
+	<module>./plugins/de.desy.language.snl.diagram.ui</module>
+	<module>./plugins/de.desy.language.snl.ui</module>
+	<module>./plugins/</module>
+
+
+  <!--
 	Features
 	-->
-    <module>./features/org.csstudio.desy.eclipse.feature</module>
+    <module>./features/org.csstudio.desy.snl.feature</module>
+
  
   </modules>
 	

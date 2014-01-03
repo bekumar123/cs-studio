@@ -21,20 +21,26 @@
   -->
   <name>CSS</name>
   <description>
-	CSS Eclipse Feature for DESY
+	CSS Feature eclipse platform for DESY
   </description>
   <url>http://www.desy.de</url>
   <!--
 	MODULES
   -->
   <modules>
-  
-  
-    <!--
+<!-- applications/plugins/ -->
+   	<module>../../applications/plugins/org.csstudio.dct</module>
+   	<module>../../applications/plugins/org.csstudio.dct.desy</module>
+	<module>../../applications/plugins/org.csstudio.dct.intro</module>
+   	<module>../../applications/plugins/org.csstudio.dct.treemodelexporter</module>
+   	<module>../../applications/plugins/org.csstudio.dct.ui</module>
+   	<module>../../applications/plugins/org.csstudio.utility.epicsDataBaseCompare</module>
+
+
+  <!--
 	Features
 	-->
-    <module>./features/org.csstudio.desy.eclipse.feature</module>
- 
+    <module>./features/org.csstudio.desy.dct.feature</module>
   </modules>
 	
 	

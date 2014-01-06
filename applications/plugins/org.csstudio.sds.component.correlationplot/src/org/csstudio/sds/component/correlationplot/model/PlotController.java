@@ -1,7 +1,6 @@
 package org.csstudio.sds.component.correlationplot.model;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -52,7 +51,7 @@ public class PlotController {
 	
 	
 	public PlotController(Plot plot,
-			List<Polynomial> polynomials, FieldOfWork fieldOfWork,
+			List<Polynomial> polynomials, List<Polyline> polylines, FieldOfWork fieldOfWork,
 			double minDistance, int numberOfPoints, long waitTimeForSecondValue, long waitTime1,
 			long waitTime2, String warningTextNearUpperBound, String warningTextNearLowerBound, String warningTextOutOfBounds) {
 		this.plot = plot;
@@ -68,6 +67,7 @@ public class PlotController {
 
 		this.points = new ArrayList<PlotValue>(numberOfPoints);
 		this.plot.setPolynomials(polynomials);
+		this.plot.setPolylines(polylines);
 		
 		// At first, timers do nothing
 		this.timerTask1 = createEmptyTimerTask();
@@ -106,7 +106,7 @@ public class PlotController {
 	private void setFieldOfWork(FieldOfWork fieldOfWork, boolean plot) {
 		//TODO hier noch nach neuen warnings suchen?
 		this.fieldOfWork = fieldOfWork;
-		this.plot.setPolylines(Collections.singletonList(fieldOfWork.getFieldPolygon()));
+		this.plot.setFieldOfWork(fieldOfWork.getFieldPolygon());
 		this.plot.setMask(fieldOfWork.getFieldPolygon());
 		if (plot) {
 			plot();

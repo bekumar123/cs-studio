@@ -11,6 +11,7 @@ import org.csstudio.sds.component.correlationplot.model.FieldOfWork;
 import org.csstudio.sds.component.correlationplot.model.Plot;
 import org.csstudio.sds.component.correlationplot.model.PlotController;
 import org.csstudio.sds.component.correlationplot.model.PlotWarningListener;
+import org.csstudio.sds.component.correlationplot.model.Polyline;
 import org.csstudio.sds.component.correlationplot.model.Polynomial;
 import org.csstudio.sds.component.correlationplot.model.RGB;
 import org.csstudio.sds.component.correlationplot.ui.figure.CorrelationPlotFigure;
@@ -40,8 +41,10 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 		styleProvider = new DefaultPlotStyleProvider();
 		styleProvider.setPolynomialColor(convertColorToRGB(getModelColor(CorrelationPlotModel.PROP_POLYNOMIAL_LINE_COLOR)));
 		styleProvider.setPolynomialLineWidth(model.getPolynomialLineWidth());
-		styleProvider.setPolylineColor(convertColorToRGB(getModelColor(CorrelationPlotModel.PROP_POLYLINE_COLOR)));
-		styleProvider.setPolylineWidth(model.getPolylineWidth());
+		styleProvider.setFieldOfWorkLineColor(convertColorToRGB(getModelColor(CorrelationPlotModel.PROP_FIELD_OF_WORK_COLOR)));
+		styleProvider.setFieldOfWorkLineWidth(model.getFieldOfWorkLineWidth());
+		styleProvider.setPolylineColor(convertColorToRGB(getModelColor(CorrelationPlotModel.PROP_POLYLINE_LINE_COLOR)));
+		styleProvider.setPolylineWidth(model.getPolylineLineWidth());
 		styleProvider.setPlotValueSize(model.getPointSize());
 		styleProvider.setBrightness(model.getPointBrightness());
 		FontData warningTextFontData = getModelFont(CorrelationPlotModel.PROP_WARNING_TEXT_FONT).getFontData()[0];
@@ -59,7 +62,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 		CorrelationPlotFigure figure = new CorrelationPlotFigure(xAxis, yAxis, styleProvider);
 		
 		// create polynomial list
-		List<Polynomial> polynomials = new ArrayList<Polynomial>();
+		List<Polynomial> polynomials = new ArrayList<Polynomial>(10);
 		polynomials.add(new Polynomial(model.getPolynomial1()));
 		polynomials.add(new Polynomial(model.getPolynomial2()));
 		polynomials.add(new Polynomial(model.getPolynomial3()));
@@ -70,6 +73,19 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 		polynomials.add(new Polynomial(model.getPolynomial8()));
 		polynomials.add(new Polynomial(model.getPolynomial9()));
 		polynomials.add(new Polynomial(model.getPolynomial10()));
+
+		// create polyline list
+		List<Polyline> polylines = new ArrayList<Polyline>(10);
+		polylines.add(model.getPolyline1());
+		polylines.add(model.getPolyline2());
+		polylines.add(model.getPolyline3());
+		polylines.add(model.getPolyline4());
+		polylines.add(model.getPolyline5());
+		polylines.add(model.getPolyline6());
+		polylines.add(model.getPolyline7());
+		polylines.add(model.getPolyline8());
+		polylines.add(model.getPolyline9());
+		polylines.add(model.getPolyline10());
 		
 		// create field of work
 		FieldOfWork fieldOfWork = new FieldOfWork(model.getUpperPolyline(), model.getLowerPolyline());
@@ -86,7 +102,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 		String warningTextOutOfBounds = model.getWarningTextOutOfBounds();
 		
 		plotController = new PlotController(figure,
-				polynomials, fieldOfWork, minDistance, numberOfPoints,waitTimeForSecondValue, waitTime1, waitTime2, warningTextNearUpperBound, warningTextNearLowerBound, warningTextOutOfBounds);
+				polynomials, polylines, fieldOfWork, minDistance, numberOfPoints,waitTimeForSecondValue, waitTime1, waitTime2, warningTextNearUpperBound, warningTextNearLowerBound, warningTextOutOfBounds);
 		plotController.setWarningListener(new PlotWarningListener() {
 			@Override
 			public void onOutOfBounds() {
@@ -327,7 +343,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
 				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
-				plotController.setFieldOfWork(new FieldOfWork(model.getUpperPolyline(), model.getLowerPolyline()));
+				((Plot)refreshableFigure).setPolyline(0, model.getPolyline1());
 				return true;
 			}
 		});
@@ -336,20 +352,129 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
 				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
-				plotController.setFieldOfWork(new FieldOfWork(model.getUpperPolyline(), model.getLowerPolyline()));
+				((Plot)refreshableFigure).setPolyline(1, model.getPolyline2());
 				return true;
 			}
 		});
-		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYLINE_COLOR, new IWidgetPropertyChangeHandler() {
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYLINE_3, new IWidgetPropertyChangeHandler() {
 			@Override
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
-				styleProvider.setPolylineColor(convertColorToRGB(getModelColor(CorrelationPlotModel.PROP_POLYLINE_COLOR)));
+				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
+				((Plot)refreshableFigure).setPolyline(2, model.getPolyline3());
+				return true;
+			}
+		});
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYLINE_4, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
+				((Plot)refreshableFigure).setPolyline(3, model.getPolyline4());
+				return true;
+			}
+		});
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYLINE_5, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
+				((Plot)refreshableFigure).setPolyline(4, model.getPolyline5());
+				return true;
+			}
+		});
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYLINE_6, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
+				((Plot)refreshableFigure).setPolyline(5, model.getPolyline6());
+				return true;
+			}
+		});
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYLINE_7, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
+				((Plot)refreshableFigure).setPolyline(6, model.getPolyline7());
+				return true;
+			}
+		});
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYLINE_8, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
+				((Plot)refreshableFigure).setPolyline(7, model.getPolyline8());
+				return true;
+			}
+		});
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYLINE_9, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
+				((Plot)refreshableFigure).setPolyline(8, model.getPolyline9());
+				return true;
+			}
+		});
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYLINE_10, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
+				((Plot)refreshableFigure).setPolyline(9, model.getPolyline10());
+				return true;
+			}
+		});
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYLINE_LINE_COLOR, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				styleProvider.setPolylineColor(convertColorToRGB(getModelColor(CorrelationPlotModel.PROP_POLYLINE_LINE_COLOR)));
 				((Plot)refreshableFigure).onUpdatetedConfiguration();
 				return true;
 			}
 		});
-		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYLINE_WIDTH, new IWidgetPropertyChangeHandler() {
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYLINE_LINE_WIDTH, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				styleProvider.setPolylineWidth((Integer)newValue);
+				((Plot)refreshableFigure).onUpdatetedConfiguration();
+				return true;
+			}
+		});
+
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_FIELD_OF_WORK_UPPER, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
+				plotController.setFieldOfWork(new FieldOfWork(model.getUpperPolyline(), model.getLowerPolyline()));
+				return true;
+			}
+		});
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_FIELD_OF_WORK_LOWER, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
+				plotController.setFieldOfWork(new FieldOfWork(model.getUpperPolyline(), model.getLowerPolyline()));
+				return true;
+			}
+		});
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_FIELD_OF_WORK_COLOR, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				styleProvider.setPolylineColor(convertColorToRGB(getModelColor(CorrelationPlotModel.PROP_FIELD_OF_WORK_COLOR)));
+				((Plot)refreshableFigure).onUpdatetedConfiguration();
+				return true;
+			}
+		});
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_FIELD_OF_WORK_WIDTH, new IWidgetPropertyChangeHandler() {
 			@Override
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {

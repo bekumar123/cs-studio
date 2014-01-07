@@ -230,7 +230,7 @@ public class GSDModuleDBO extends DBClass implements Comparable<GSDModuleDBO>, I
 
     @Override
     @Transient
-    public GSDModuleDBO cloneNewVersion(ModuleNumber nextVersionedModuleNumber, ModuleVersionInfo moduleVersionInfo) {
+    public GSDModuleDBO cloneAsNewVersion(ModuleNumber nextVersionedModuleNumber, ModuleVersionInfo moduleVersionInfo) {
         
         Preconditions.checkArgument(nextVersionedModuleNumber.isVersioned(),
                 "nextVersionedModuleNumber must  be versioned");

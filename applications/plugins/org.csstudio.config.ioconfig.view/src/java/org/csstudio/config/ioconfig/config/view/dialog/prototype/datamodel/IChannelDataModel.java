@@ -1,4 +1,4 @@
-package org.csstudio.config.ioconfig.config.view.dialog.prototype.components;
+package org.csstudio.config.ioconfig.config.view.dialog.prototype.datamodel;
 
 import java.util.ArrayList;
 
@@ -7,7 +7,7 @@ import javax.annotation.Nonnull;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ModuleChannelPrototypeDBO;
 
-public interface ChannelDataModel {
+public interface IChannelDataModel {
 
     GSDModuleDBO getPrototypeModule();
 

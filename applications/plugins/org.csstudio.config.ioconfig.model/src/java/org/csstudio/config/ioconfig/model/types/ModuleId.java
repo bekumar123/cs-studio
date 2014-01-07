@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 
 import com.google.common.base.Preconditions;
 
+/*
+ * Value Object for the ddb_gsd_module.id .
+ */
 public class ModuleId {
     private final Integer value;
 

@@ -23,7 +23,6 @@
 package org.csstudio.config.ioconfig.editorparts;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
@@ -32,7 +31,7 @@ import javax.annotation.Nullable;
 
 import org.csstudio.config.ioconfig.config.component.CurrentUserParamDataComponent;
 import org.csstudio.config.ioconfig.config.component.IONamesComponent;
-import org.csstudio.config.ioconfig.config.component.ModifiedCallback;
+import org.csstudio.config.ioconfig.config.component.IModifiedCallback;
 import org.csstudio.config.ioconfig.config.component.ModuleSelectionListBox;
 import org.csstudio.config.ioconfig.config.view.helper.ConfigHelper;
 import org.csstudio.config.ioconfig.model.PersistenceException;
@@ -42,15 +41,14 @@ import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBOReadOnly;
 import org.csstudio.config.ioconfig.model.pbmodel.ModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdModuleModel2;
 import org.csstudio.config.ioconfig.model.types.GsdFileId;
-import org.csstudio.config.ioconfig.model.types.PrototypeList;
 import org.csstudio.config.ioconfig.model.types.ModuleNumber;
+import org.csstudio.config.ioconfig.model.types.PrototypeList;
 import org.csstudio.config.ioconfig.view.DeviceDatabaseErrorDialog;
 import org.csstudio.config.ioconfig.view.ProfiBusTreeView;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -84,7 +82,7 @@ public final class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
 
     private IONamesComponent ioNamesComponent;
 
-    private final class TextChangedCallback implements ModifiedCallback {
+    private final class TextChangedCallback implements IModifiedCallback {
         @Override
         public void modified(final String event, boolean modified) {
             Preconditions.checkNotNull(event, "event must not be null");
@@ -123,7 +121,6 @@ public final class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
     /**
      * @param head
      *            the tabItemName
-     * 
      */
     private void buildModule(@Nonnull final String head) {
         final Composite comp = getNewTabItem(head, 2);
@@ -218,6 +215,7 @@ public final class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
                     IStructuredSelection structuredSelection = (IStructuredSelection) event.getSelection();
                     final GSDModuleDBOReadOnly selectedModule = (GSDModuleDBOReadOnly) (structuredSelection
                             .getFirstElement());
+
                     selectedModuleNumber = Optional.of(selectedModule.getModuleNumber());
 
                     getNameWidget().setText(selectedModule.getModuleLabel().buildLabelWithoutModuleNumber());
@@ -432,7 +430,7 @@ public final class ModuleEditor extends AbstractGsdNodeEditor<ModuleDBO> {
     List<Integer> getPrmUserDataList() {
         return module.getConfigurationDataList();
     }
-
+ 
     /**
      * {@inheritDoc}
      */

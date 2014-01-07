@@ -2,18 +2,13 @@ package org.csstudio.config.ioconfig.config.view.dialog.prototype.components;
 
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
 import org.csstudio.config.ioconfig.config.component.IComponent;
 import org.csstudio.config.ioconfig.model.pbmodel.SlaveCfgData;
+import org.csstudio.config.ioconfig.model.types.SlaveCfgDataList;
 import org.csstudio.config.ioconfig.view.internal.localization.Messages;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
@@ -23,12 +18,12 @@ public class InfoAreaComponent implements IComponent {
 
     private final Composite infoDialogArea;
 
-    private List<SlaveCfgData> slaveCfgDataList;
+    private SlaveCfgDataList slaveCfgDataList;
 
     private Composite info;   
     private TabFolder tabFolder;
     
-    public InfoAreaComponent(final Composite infoDialogArea, final List<SlaveCfgData> slaveCfgDataList) {
+    public InfoAreaComponent(final Composite infoDialogArea, final SlaveCfgDataList slaveCfgDataList) {
         super();
         this.infoDialogArea = infoDialogArea;
         this.slaveCfgDataList = slaveCfgDataList;
@@ -48,7 +43,7 @@ public class InfoAreaComponent implements IComponent {
         refresh(slaveCfgDataList);
     }
     
-    public void refresh(final List<SlaveCfgData> slaveCfgDataList) {
+    public void refresh(final SlaveCfgDataList slaveCfgDataList) {
 
         this.slaveCfgDataList = slaveCfgDataList;
           

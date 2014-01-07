@@ -1,45 +1,37 @@
 package org.csstudio.config.ioconfig.model.types;
 
-import java.util.List;
+import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.IGsdModuleModel2Query;
 
-import org.csstudio.config.ioconfig.model.pbmodel.SlaveCfgData;
+import com.google.common.base.Preconditions;
 
+/*
+ * Encapsulate the most important data about a GSD-Module.
+ */
 public class ModuleInfo {
 
     private final ModuleNumber moduleNumber;
     
     private final ModuleName moduleName;
 
-    private final boolean hasInputs;
-
-    private final boolean hasOutputs;
-
-    private final boolean isWordSize;
-
-    private final List<SlaveCfgData> slaveCfgDataList;
+    private final SlaveCfgDataList slaveCfgDataList;
     
-    //@formatter:off
-    public ModuleInfo(final ModuleNumber moduleNumber, 
-            final ModuleName moduleName,
-            final boolean hasInputs, 
-            final boolean hasOutputs, 
-            final boolean isWordSize,
-            final List<SlaveCfgData> slaveCfgDataList) {
-            //@formatter:on
-        this.moduleNumber = moduleNumber;
-        this.moduleName = moduleName;
-        this.hasInputs = hasInputs;
-        this.hasOutputs = hasOutputs;
-        this.isWordSize = isWordSize;
-        this.slaveCfgDataList = slaveCfgDataList;
+    ModuleInfo (final IGsdModuleModel2Query gsdModuleModel2) {
+ 
+        Preconditions.checkNotNull(gsdModuleModel2, "gsdModuleModel2 must not be null");
+        
+        this.moduleNumber = ModuleNumber.moduleNumber(gsdModuleModel2.getModuleNumber()).get();
+        this.moduleName = new ModuleName(gsdModuleModel2.getName());
+                
+        slaveCfgDataList = new SlaveCfgDataList(gsdModuleModel2.getValue());
+        
     }
 
-    public List<SlaveCfgData> getSlaveCfgDataList() {
+    public SlaveCfgDataList getSlaveCfgDataList() {
         return slaveCfgDataList;
     }
 
     public boolean isWordSize() {
-        return isWordSize;
+        return slaveCfgDataList.isWordSize();
     }
 
     public ModuleNumber getModuleNumber() {
@@ -47,11 +39,11 @@ public class ModuleInfo {
     }
 
     public boolean isHasInputs() {
-        return hasInputs;
+        return slaveCfgDataList.isInput();
     }
 
     public boolean isHasOutputs() {
-        return hasOutputs;
+        return slaveCfgDataList.isOutput();
     }
 
     public ModuleName getModuleName() {

@@ -36,7 +36,7 @@ import javax.annotation.Nonnull;
  * @version $Revision: 1.7 $
  * @since 28.03.2011
  */
-public class GsdModuleModel2 extends AbstractGsdPropertyModel {
+public class GsdModuleModel2 extends AbstractGsdPropertyModel implements IGsdModuleModel2Query {
     
     private final String _name;
     private final List<Integer> _value;

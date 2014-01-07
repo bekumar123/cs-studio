@@ -1,17 +1,14 @@
-package org.csstudio.config.ioconfig.config.view.dialog.prototype.components;
+package org.csstudio.config.ioconfig.config.view.dialog.prototype.datamodel;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.csstudio.config.ioconfig.model.PersistenceException;
-import org.csstudio.config.ioconfig.model.hibernate.Repository;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBOReadOnly;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDataProvider;
 import org.csstudio.config.ioconfig.model.pbmodel.ModuleChannelPrototypeDBO;
-import org.csstudio.config.ioconfig.model.pbmodel.SlaveCfgData;
 import org.csstudio.config.ioconfig.model.types.ModuleInfo;
 import org.csstudio.config.ioconfig.model.types.ModuleLabel;
 import org.csstudio.config.ioconfig.model.types.ModuleName;
@@ -19,12 +16,13 @@ import org.csstudio.config.ioconfig.model.types.ModuleNumber;
 import org.csstudio.config.ioconfig.model.types.ModuleVersionInfo;
 import org.csstudio.config.ioconfig.model.types.ParsedModuleInfo;
 import org.csstudio.config.ioconfig.model.types.PrototypeList;
+import org.csstudio.config.ioconfig.model.types.SlaveCfgDataList;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
-public class ChannelConfigDialogDataModel implements ChannelDataModel {
+public class ChannelConfigDialogDataModel implements IChannelDataModel {
 
     private GSDModuleDataProvider selectedSlave;
     private final PrototypeList prototypeList;
@@ -38,8 +36,11 @@ public class ChannelConfigDialogDataModel implements ChannelDataModel {
 
     private boolean hasInputFields;
     private boolean hasOutputFields;
-    private boolean isWordSize = true;
+    private boolean isWordSize;
 
+    // Used to store the version info that has currently been changed.
+    // Needed since we want to assign the version data
+    // only if the entry is saved.
     private Optional<ModuleVersionInfo> editedModuleVersionInfo;
 
     //@formatter:off
@@ -142,20 +143,20 @@ public class ChannelConfigDialogDataModel implements ChannelDataModel {
         GSDModuleDBOReadOnly originGSDModuleDBO = prototypeList.getModule(moduleVersionInfo.getModuleNumber());
         
         //@formatter:off
-        GSDModuleDBO versionedGSDModuleDBO = originGSDModuleDBO.cloneNewVersion(
-                prototypeList.getNextVersionedModuleNumber(moduleVersionInfo.getModuleNumber()),
+        GSDModuleDBO versionedGSDModuleDBO = originGSDModuleDBO.cloneAsNewVersion(
+                prototypeList.createNextVersion(moduleVersionInfo.getModuleNumber()),
                 moduleVersionInfo);
                 //@formatter:on
         
-        Repository.saveOrUpdate(versionedGSDModuleDBO);        
         prototypeList.add(versionedGSDModuleDBO);
                 
+        // make sure that the Protoype instance knows about the new entry.
         selectedSlave.registerNewPrototype(versionedGSDModuleDBO);
         
         return versionedGSDModuleDBO;
     }
 
-    public List<SlaveCfgData> getSlaveCfgDataList() {
+    public SlaveCfgDataList getSlaveCfgDataList() {
         ModuleInfo moduleInfo = parsedModuleInfo.getModuleInfo(currentModuleNumber);
         return moduleInfo.getSlaveCfgDataList();
     }
@@ -189,7 +190,7 @@ public class ChannelConfigDialogDataModel implements ChannelDataModel {
     }
 
     private ModuleName getModuleName() {
-        return new ModuleName(Strings.nullToEmpty(prototypeList.getModuleName(getCurrentModuleNumber()).getValue()));
+        return prototypeList.getModuleName(getCurrentModuleNumber());
     }
 
     private void setEmptyChannelPrototypeName2Unused() {
@@ -232,6 +233,8 @@ public class ChannelConfigDialogDataModel implements ChannelDataModel {
             throw new IllegalStateException("Prototype must not be null");
         }
 
+        // Don't directly access the channel-data of the Prototype. This makes it easier
+        // to handle a cancel operation.
         if (prototype.getModuleChannelPrototypeNH() != null) {
             for (final ModuleChannelPrototypeDBO moduleChannelPrototype : prototype.getModuleChannelPrototypeNH()) {
                 if (moduleChannelPrototype.isInput()) {
@@ -249,7 +252,6 @@ public class ChannelConfigDialogDataModel implements ChannelDataModel {
         isWordSize = moduleInfo.isWordSize();
         
     }
-
 
     private void refreshFromRepository() throws PersistenceException {
         selectedSlave.refreshProtoype(getCurrentModuleNumber());

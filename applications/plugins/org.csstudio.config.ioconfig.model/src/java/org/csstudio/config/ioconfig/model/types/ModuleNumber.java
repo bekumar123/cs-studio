@@ -7,23 +7,10 @@ import com.google.common.base.Preconditions;
 public class ModuleNumber implements Comparable<ModuleNumber> {
 
     private final static int GAP = 1000000;
-    
+
     private final Integer value;
-            
-    private ModuleNumber(Integer value) {
-        Preconditions.checkNotNull(value, "value must not be null");
-        this.value = value;
-    }
 
     public static Optional<ModuleNumber> moduleNumber(Integer value) {
-        if ((value == null) || (value < 0)) {
-            return Optional.absent();
-        } else {
-            return Optional.of(new ModuleNumber(value));
-        }
-    }
-
-    public static Optional<ModuleNumber> moduleNumber(Integer value, String test) {
         if ((value == null) || (value < 0)) {
             return Optional.absent();
         } else {
@@ -34,7 +21,12 @@ public class ModuleNumber implements Comparable<ModuleNumber> {
     public static Optional<ModuleNumber> moduleNumberAbsent() {
         return Optional.absent();
     }
-    
+
+    private ModuleNumber(Integer value) {
+        Preconditions.checkNotNull(value, "value must not be null");
+        this.value = value;
+    }
+
     public Integer getValue() {
         return value;
     }
@@ -42,7 +34,6 @@ public class ModuleNumber implements Comparable<ModuleNumber> {
     public Integer getModuleNumberWithoutVersionInfo() {
         if (value > GAP) {
             int factor = value / GAP;
-            
             return value - (factor * GAP);
         } else {
             return value;
@@ -59,7 +50,7 @@ public class ModuleNumber implements Comparable<ModuleNumber> {
         }
         final ModuleNumber other = (ModuleNumber) obj;
 
-        return Objects.equal(this.value, other.value); 
+        return Objects.equal(this.value, other.value);
     }
 
     @Override
@@ -72,10 +63,6 @@ public class ModuleNumber implements Comparable<ModuleNumber> {
         return value.toString();
     }
 
-    private Double asDouble() {
-        return (getModuleNumberWithoutVersionInfo() * 1.0) + (0.001 * getVersion());
-    }
-    
     public int compareTo(ModuleNumber moduleNumber) {
         Double n1 = this.asDouble();
         if (moduleNumber != null) {
@@ -87,17 +74,30 @@ public class ModuleNumber implements Comparable<ModuleNumber> {
     public boolean isVersioned() {
         return getVersion() > 0;
     }
-    
-    public Integer getVersion() {
+
+    public boolean hasHigherVersionThan(ModuleNumber moduleNumber) {
+        return getVersion() > moduleNumber.getVersion();
+    }
+
+    // Encode the version info inside the module-number.
+    // An unversioned module-number has version 0
+    // the first versioned module-number has version 1.
+    // Example: module-number 1 => first version: 1000001
+    public ModuleNumber createNextVersion() {
+        return new ModuleNumber(getModuleNumberWithoutVersionInfo() + (GAP * (getVersion() + 1)));
+    }
+
+    // Needed for sorting.
+    private Double asDouble() {
+        return (getModuleNumberWithoutVersionInfo() * 1.0) + (0.001 * getVersion());
+    }
+
+    private Integer getVersion() {
         if (value < GAP) {
             return 0;
         } else {
             return value / GAP;
         }
-    }
-    
-    public ModuleNumber newVersion(int version) {
-        return new ModuleNumber(value + (GAP * version));
     }
 
 }

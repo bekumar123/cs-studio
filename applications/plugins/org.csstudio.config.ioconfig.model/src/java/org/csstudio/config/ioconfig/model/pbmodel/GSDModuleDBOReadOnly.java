@@ -16,6 +16,6 @@ public interface GSDModuleDBOReadOnly {
 
     ModuleLabel getModuleLabel();
 
-    GSDModuleDBO cloneNewVersion(ModuleNumber nextVersionedModuleNumber, ModuleVersionInfo moduleVersionInfo);
+    GSDModuleDBO cloneAsNewVersion(ModuleNumber nextVersionedModuleNumber, ModuleVersionInfo moduleVersionInfo);
     
 }

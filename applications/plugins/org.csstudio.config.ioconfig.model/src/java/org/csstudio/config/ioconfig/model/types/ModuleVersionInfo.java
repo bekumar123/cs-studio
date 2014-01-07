@@ -3,6 +3,11 @@ package org.csstudio.config.ioconfig.model.types;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
+/*
+ * Encapsulate version info about a Prototype.
+ * Only a Prototype that is versioned can have a versionTag or a versionNote.
+ * The versionTag is required if the Protoype is versioned.
+ */
 public class ModuleVersionInfo {
 
     private final ModuleNumber moduleNumber;

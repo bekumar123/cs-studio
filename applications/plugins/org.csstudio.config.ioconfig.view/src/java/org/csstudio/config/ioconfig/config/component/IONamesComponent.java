@@ -78,11 +78,11 @@ public class IONamesComponent implements IComponent {
         nameLabel.setText(text);
     }
 
-    public void addModifyCallbackIONames(ModifiedCallback callback) {
+    public void addModifyCallbackIONames(IModifiedCallback callback) {
         ioNamesText.addModifyListener(new SaveModifyListener("IONames", ioNamesText, callback));
     }
 
-    public void addModifyCallbackChannelDesc(ModifiedCallback callback) {
+    public void addModifyCallbackChannelDesc(IModifiedCallback callback) {
         channelsDescText.addModifyListener(new SaveModifyListener("ChannelsDesc", ioNamesText, callback));
     }
 
@@ -173,10 +173,10 @@ public class IONamesComponent implements IComponent {
 
         private final String event;
         private final Text modifiedText;
-        private final ModifiedCallback callback;
+        private final IModifiedCallback callback;
 
         public SaveModifyListener(@Nonnull final String event, @Nonnull final Text modifiedText,
-                ModifiedCallback callback) {
+                IModifiedCallback callback) {
             this.event = event;
             this.modifiedText = modifiedText;
             this.callback = callback;

@@ -47,7 +47,7 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 	
 	private ChannelFieldType _channelType;
 
-	private final AnyData _anyData;
+	private final AnyDataImpl _anyData;
 
 	private final MetaData _metaData;
 
@@ -241,7 +241,7 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 			pva = _processVariable.getAttributeByName(PvAttributeNames.MIN);
 			return pva != null ? pva.getValue() : null;
 		} else if (CharacteristicInfo.C_SEVERITY.getName().equals(name)) {
-			return _anyData.getSeverity(); // TODO CME: is this the right type
+			return _anyData.getPvSeverityAsLong();
 		} else {
 			LOG.error("no characteristic for '" + name + "' defined");
 			return null;

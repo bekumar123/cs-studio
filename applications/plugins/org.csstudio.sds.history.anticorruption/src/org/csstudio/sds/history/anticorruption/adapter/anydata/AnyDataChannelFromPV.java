@@ -293,7 +293,7 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 			if (_processVariable.hasValue()) {
 				return _processVariable.getValue().getStringValue();
 			}
-			LOG.error("no current String data available for " + _processVariable.getControlSystemAddress());
+			LOG.error("no data data available for type String " + _processVariable.getControlSystemAddress());
 			return "no Data";
 		}
 		
@@ -304,7 +304,7 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 			if (_processVariable.hasValue() && _processVariable.getValue().getData() instanceof Double) {
 				return (Double) _processVariable.getValue().getData();
 			} else {
-				LOG.error("no current double data available for " + _processVariable.getControlSystemAddress());
+				LOG.error("no data available for type double " + _processVariable.getControlSystemAddress());
 				return 0; // TODO CME: who is calling doubleValue() when the channel is marked that it has no data???
 			}
 		}
@@ -326,7 +326,7 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 			if (_processVariable.hasValue() && _processVariable.getValue().getData() instanceof Integer) {
 				return ((Integer) _processVariable.getValue().getData()).longValue();
 			} else {
-				LOG.error("no current data available for type long" + _processVariable.getControlSystemAddress());
+				LOG.error("no data available for type long " + _processVariable.getControlSystemAddress());
 				return 0;
 			}
 		}
@@ -377,7 +377,7 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 			if (_processVariable.hasValue() && _processVariable.getValue().getData() instanceof Number) {
 				return (Number) _processVariable.getValue().getData();
 			} else {
-				LOG.error("no current data for numberValue() available for " + _processVariable.getControlSystemAddress());
+				LOG.error("no data available for type Number " + _processVariable.getControlSystemAddress());
 				return null;
 			}
 			

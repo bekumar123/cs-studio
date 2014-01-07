@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="CSS" uid="csstudioDESY" id="org.csstudio.desy.product.product" application="org.csstudio.desy.product.application" version="1.5.6.201312091300" useFeatures="true" includeLaunchers="true">
+<product name="CSS" uid="csstudioDESY" id="org.csstudio.desy.product.product" application="org.csstudio.desy.product.application" version="1.5.6.201401071100" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/org.csstudio.desy.product/resources/css64x64.gif"/>
       <text>
-         Control System Studio 1.5.6_test1
+         Control System Studio 1.5.6_test2
 
 Copyright (c) 2012 Stiftung Deutsches Elektronen-Synchrotron,
 Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
@@ -176,11 +176,11 @@ HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
    <features>
       <feature id="org.csstudio.desy.platform.eclipse.feature" version="1.0.0.201212201100"/>
       <feature id="org.csstudio.desy.platform.eclipse.team.feature" version="1.0.0.201212201100"/>
-      <feature id="org.csstudio.desy.platform.base.feature" version="1.5.6.201312091300"/>
+      <feature id="org.csstudio.desy.platform.base.feature" version="1.5.6.201401071100"/>
       <feature id="org.csstudio.desy.platform.user.feature" version="1.0.0.201212201100"/>
       <feature id="org.csstudio.desy.library.feature" version="1.5.6.201312091300"/>
       <feature id="org.csstudio.desy.snl.feature" version="1.0.0.201212201100"/>
-      <feature id="org.csstudio.desy.sds.feature" version="1.5.6.201312091300"/>
+      <feature id="org.csstudio.desy.sds.feature" version="1.5.6.201401071100"/>
       <feature id="org.csstudio.desy.dct.feature" version="1.5.6.201312091300"/>
       <feature id="org.csstudio.desy.alarm.feature" version="1.5.6.201312091300"/>
       <feature id="org.csstudio.desy.pv.feature" version="1.5.6.201312091300"/>

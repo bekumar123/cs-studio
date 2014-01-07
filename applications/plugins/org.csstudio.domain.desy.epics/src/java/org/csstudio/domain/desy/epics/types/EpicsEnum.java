@@ -83,7 +83,7 @@ public final class EpicsEnum implements Serializable {
     public static final String RAW = "RAW";
 
     public static final Pattern EPICS_ENUM_STATE_REGEX =
-        Pattern.compile(STATE + "\\(([\\d+])\\)" + SEP + "([^\\s]+)");
+        Pattern.compile(STATE + "\\(([\\d+])\\)" + SEP + "(.*)");
     public static final Pattern EPICS_ENUM_RAW_REGEX =
         Pattern.compile(RAW + SEP + "([-+]?[0-9]*([eE][-+]?[0-9]+)?)");
 

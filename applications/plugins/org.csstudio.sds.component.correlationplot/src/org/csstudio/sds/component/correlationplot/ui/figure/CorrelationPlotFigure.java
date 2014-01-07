@@ -3,6 +3,7 @@ package org.csstudio.sds.component.correlationplot.ui.figure;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.csstudio.sds.component.correlationplot.model.Axis;
@@ -38,6 +39,7 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 	private AxisLayer axisLayer;
 	private PolynomialLayer polynomialLayer;
 	private PolylineLayer polylineLayer;
+	private PolylineLayer fieldOfWorkLayer;
 	private PlotValueLayer plotValueLayer;
 	private CachedBackgroundLayer cachedBackgroundLayer;
 	private MaskLayer maskLayer;
@@ -50,8 +52,9 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 		
 		polynomialLayer = new PolynomialLayer(xAxis, yAxis);
 		polylineLayer = new PolylineLayer(xAxis, yAxis);
+		fieldOfWorkLayer = new FieldOfWorkLayer(xAxis, yAxis);
 		maskLayer = new MaskLayer(xAxis, yAxis);
-		cachedBackgroundLayer = new CachedBackgroundLayer(polynomialLayer, polylineLayer, maskLayer, xAxis, yAxis);
+		cachedBackgroundLayer = new CachedBackgroundLayer(polynomialLayer, polylineLayer, fieldOfWorkLayer, maskLayer, xAxis, yAxis);
 		cachedBackgroundLayer.setEnabled(true);
 		add(cachedBackgroundLayer);
 		
@@ -120,6 +123,7 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 	public void setStyleProvider(PlotStyleProvider styleProvider) {
 		polynomialLayer.setStyleProvider(styleProvider);
 		polylineLayer.setStyleProvider(styleProvider);
+		fieldOfWorkLayer.setStyleProvider(styleProvider);
 		plotValueLayer.setStyleProvider(styleProvider);
 		axisLayer.setStyleProvider(styleProvider);
 	}
@@ -152,6 +156,20 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 	public void setPolylines(List<Polyline> polylines) {
 		cachedBackgroundLayer.clearCache();
 		polylineLayer.setPolyLines(polylines);
+		repaint();
+	}
+	
+	@Override
+	public void setPolyline(int index, Polyline polyline) {
+		cachedBackgroundLayer.clearCache();
+		polylineLayer.setPolyline(index, polyline);
+		repaint();
+	}
+	
+	@Override
+	public void setFieldOfWork(Polyline fieldOfWork) {
+		cachedBackgroundLayer.clearCache();
+		fieldOfWorkLayer.setPolyLines(Collections.singletonList(fieldOfWork));
 		repaint();
 	}
 	
@@ -216,7 +234,6 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 				graphics.setForegroundColor(swtColor);
 				graphics.setBackgroundColor(swtColor);
 				graphics.setLineWidth(styleProvider.getPolynomialLineWidth());
-//				graphics.setLineStyle(Graphics.LINE_DOT);
 			}
 			for (Polynomial polynomial : polynomials) {
 				if (polynomial.isDrawable()) {
@@ -234,14 +251,8 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 				double domainX = pixelXValues[pixelIndex];
 				double domainY = polynomial.getValueForX(domainX);
 
-				double smallerValue = Math.min(yAxis.getMinValue(),
-						yAxis.getMaxValue());
-				double largerValue = Math.max(yAxis.getMinValue(),
-						yAxis.getMaxValue());
-				if (domainY >= smallerValue && domainY <= largerValue) {
-					drawList.addPoint(xAxis.getMappingMinValue() + pixelIndex,
-							(int) Math.round(yAxis.getMappingValueFor(domainY)));
-				}
+				drawList.addPoint(xAxis.getMappingMinValue() + pixelIndex,
+						(int) Math.round(yAxis.getMappingValueFor(domainY)));
 			}
 			
 			graphics.drawPolyline(drawList);
@@ -357,6 +368,7 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 
 		private PolynomialLayer polynomialLayer;
 		private PolylineLayer polylineLayer;
+		private PolylineLayer fieldOfWorkLayer;
 		private Axis xAxis;
 		private Axis yAxis;
 		private Image cachedImage;
@@ -365,9 +377,10 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 		private MaskLayer maskLayer;
 
 		public CachedBackgroundLayer(PolynomialLayer polynomialLayer,
-				PolylineLayer polylineLayer, MaskLayer maskLayer, Axis xAxis, Axis yAxis) {
+				PolylineLayer polylineLayer, PolylineLayer fieldOfWorkLayer, MaskLayer maskLayer, Axis xAxis, Axis yAxis) {
 					this.polynomialLayer = polynomialLayer;
 					this.polylineLayer = polylineLayer;
+					this.fieldOfWorkLayer = fieldOfWorkLayer;
 					this.maskLayer = maskLayer;
 					this.xAxis = xAxis;
 					this.yAxis = yAxis;
@@ -396,8 +409,9 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 				imageGraphics.translate(-xAxis.getMappingMinValue(),
 						-yAxis.getMappingMaxValue());
 				polynomialLayer.paintFigure(imageGraphics);
-				maskLayer.paintFigure(imageGraphics);
 				polylineLayer.paintFigure(imageGraphics);
+				maskLayer.paintFigure(imageGraphics);
+				fieldOfWorkLayer.paintFigure(imageGraphics);
 				gc.dispose(); // TODO disposing in finally-Block
 			}
 			
@@ -409,25 +423,28 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 	
 		private final Axis xAxis;
 		private final Axis yAxis;
-		private List<Polyline> polyLines;
+		private List<Polyline> polylines;
 		private PlotStyleProvider styleProvider;
 	
 		public PolylineLayer(Axis xAxis, Axis yAxis) {
 			this.xAxis = xAxis;
 			this.yAxis = yAxis;
-			this.polyLines = new ArrayList<Polyline>();
+			this.polylines = new ArrayList<Polyline>();
 		}
 		
-		public void paintFigure(Graphics graphics) {
+		protected void configureStyle(Graphics graphics) {
 			if (styleProvider != null) {
 				RGB color = styleProvider.getPolylineColor();
 				Color swtColor = new Color(Display.getDefault(), color.getRed(), color.getGreen(), color.getBlue());
 				graphics.setForegroundColor(swtColor);
 				graphics.setBackgroundColor(swtColor);
 				graphics.setLineWidth(styleProvider.getPolylineWidth());
-//				graphics.setLineStyle(Graphics.LINE_DASHDOTDOT);
 			}
-			for (Polyline polyLine : polyLines) {
+		}
+		
+		public void paintFigure(Graphics graphics) {
+			configureStyle(graphics);
+			for (Polyline polyLine : polylines) {
 				paintPolyLine(polyLine, graphics);
 			}
 		}
@@ -446,12 +463,42 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 		}
 		
 		public void setPolyLines(List<Polyline> polyLines) {
-			this.polyLines = polyLines;
+			this.polylines = polyLines;
+		}
+		
+		public void setPolyline(int index, Polyline polyline) {
+			if (polylines.size() >= index) {
+				polylines.set(index, polyline);
+			}
+		}
+
+
+		
+		public PlotStyleProvider getStyleProvider() {
+			return styleProvider;
 		}
 	
 		public void setStyleProvider(PlotStyleProvider styleProvider) {
 			this.styleProvider = styleProvider;
 		}
+	}
+	
+	private static class FieldOfWorkLayer extends PolylineLayer {
+
+		public FieldOfWorkLayer(Axis xAxis, Axis yAxis) {
+			super(xAxis, yAxis);
+		}
+		
+		protected void configureStyle(Graphics graphics) {
+			if (getStyleProvider() != null) {
+				RGB color = getStyleProvider().getFieldOfWorkLineColor();
+				Color swtColor = new Color(Display.getDefault(), color.getRed(), color.getGreen(), color.getBlue());
+				graphics.setForegroundColor(swtColor);
+				graphics.setBackgroundColor(swtColor);
+				graphics.setLineWidth(getStyleProvider().getFieldOfWorkLineWidth());
+			}
+		}
+
 	}
 
 	private static class MaskLayer {

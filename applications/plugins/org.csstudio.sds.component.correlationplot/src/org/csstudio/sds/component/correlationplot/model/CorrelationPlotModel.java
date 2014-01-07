@@ -31,10 +31,22 @@ public class CorrelationPlotModel extends AbstractWidgetModel {
 	public static final String PROP_POLYNOMIAL_10 = "polynomial_10"; //$NON-NLS-1$
 	public static final String PROP_POLYNOMIAL_LINE_COLOR = "polynomial_line_color"; //$NON-NLS-1$
 	public static final String PROP_POLYNOMIAL_LINE_WIDTH = "polynomial_line_width"; //$NON-NLS-1$
-	public static final String PROP_POLYLINE_1 = "polyline1"; //$NON-NLS-1$
-	public static final String PROP_POLYLINE_2 = "polyline2"; //$NON-NLS-1$
-	public static final String PROP_POLYLINE_COLOR = "polyline_color"; //$NON-NLS-1$
-	public static final String PROP_POLYLINE_WIDTH = "polyline_width"; //$NON-NLS-1$
+	public static final String PROP_POLYLINE_1 = "polyline_1"; //$NON-NLS-1$
+	public static final String PROP_POLYLINE_2 = "polyline_2"; //$NON-NLS-1$
+	public static final String PROP_POLYLINE_3 = "polyline_3"; //$NON-NLS-1$
+	public static final String PROP_POLYLINE_4 = "polyline_4"; //$NON-NLS-1$
+	public static final String PROP_POLYLINE_5 = "polyline_5"; //$NON-NLS-1$
+	public static final String PROP_POLYLINE_6 = "polyline_6"; //$NON-NLS-1$
+	public static final String PROP_POLYLINE_7 = "polyline_7"; //$NON-NLS-1$
+	public static final String PROP_POLYLINE_8 = "polyline_8"; //$NON-NLS-1$
+	public static final String PROP_POLYLINE_9 = "polyline_9"; //$NON-NLS-1$
+	public static final String PROP_POLYLINE_10 = "polyline_10"; //$NON-NLS-1$
+	public static final String PROP_POLYLINE_LINE_COLOR = "polyline_line_color"; //$NON-NLS-1$
+	public static final String PROP_POLYLINE_LINE_WIDTH = "polyline_line_width"; //$NON-NLS-1$
+	public static final String PROP_FIELD_OF_WORK_UPPER = "field_of_work_upper"; //$NON-NLS-1$
+	public static final String PROP_FIELD_OF_WORK_LOWER = "field_of_work_lower"; //$NON-NLS-1$
+	public static final String PROP_FIELD_OF_WORK_COLOR = "field_of_work_color"; //$NON-NLS-1$
+	public static final String PROP_FIELD_OF_WORK_WIDTH = "field_of_work_width"; //$NON-NLS-1$
 	public static final String PROP_NUMBER_OF_POINTS = "number_of_points"; //$NON-NLS-1$
 	public static final String PROP_POINT_SIZE = "point_size"; //$NON-NLS-1$
 	public static final String PROP_POINT_BRIGHTNESS = "point_brightness"; //$NON-NLS-1$
@@ -89,21 +101,36 @@ public class CorrelationPlotModel extends AbstractWidgetModel {
 		// Linienfarbe (Linientyp, Liniendicke) zu den Kennlinien
 		addColorProperty(PROP_POLYNOMIAL_LINE_COLOR, "Polynomial line color", WidgetPropertyCategory.MISC, "#969696", false);
 		addIntegerProperty(PROP_POLYNOMIAL_LINE_WIDTH, "Polynomial line width", WidgetPropertyCategory.MISC, 1, 1, 10, false);
+
+		// Kennlinien (Polylines)
+		addDoubleArrayProperty(PROP_POLYLINE_1, "Polyline 1  (x;y coordinates)", WidgetPropertyCategory.MISC, new double[]{1.0, 0.0, 0.0, 1}, false);
+		addDoubleArrayProperty(PROP_POLYLINE_2, "Polyline 2  (x;y coordinates)", WidgetPropertyCategory.MISC, new double[]{2.0, 0.0, 0.0, 2.0}, false);
+		addDoubleArrayProperty(PROP_POLYLINE_3, "Polyline 3  (x;y coordinates)", WidgetPropertyCategory.MISC, new double[]{3.0, 0.0, 0.0, 3.0}, false);
+		addDoubleArrayProperty(PROP_POLYLINE_4, "Polyline 4  (x;y coordinates)", WidgetPropertyCategory.MISC, new double[]{4.0, 0.0, 0.0, 4.0}, false);
+		addDoubleArrayProperty(PROP_POLYLINE_5, "Polyline 5  (x;y coordinates)", WidgetPropertyCategory.MISC, new double[]{5.0, 0.0, 0.0, 5.0}, false);
+		addDoubleArrayProperty(PROP_POLYLINE_6, "Polyline 6  (x;y coordinates)", WidgetPropertyCategory.MISC, new double[]{6.0, 0.0, 0.0, 6.0}, false);
+		addDoubleArrayProperty(PROP_POLYLINE_7, "Polyline 7  (x;y coordinates)", WidgetPropertyCategory.MISC, new double[0], false);
+		addDoubleArrayProperty(PROP_POLYLINE_8, "Polyline 8  (x;y coordinates)", WidgetPropertyCategory.MISC, new double[0], false);
+		addDoubleArrayProperty(PROP_POLYLINE_9, "Polyline 9  (x;y coordinates)", WidgetPropertyCategory.MISC, new double[0], false);
+		addDoubleArrayProperty(PROP_POLYLINE_10,"Polyline 10 (x;y coordinates)", WidgetPropertyCategory.MISC, new double[0], false);
+		// Linienfarbe (Linientyp, Liniendicke) zu den Polyline-Kennlinien
+		addColorProperty(PROP_POLYLINE_LINE_COLOR, "Polyline line color", WidgetPropertyCategory.MISC, "#969696", false);
+		addIntegerProperty(PROP_POLYLINE_LINE_WIDTH, "Polyline line width", WidgetPropertyCategory.MISC, 1, 1, 10, false);
 				
 		// Arbeitsfeld: 2 Kantenzüge mit je 3-4 Punkten (Linienfarbe, Linientyp, Liniendicke), ggf. Polygon
 		// TODO Properties für zwei Linien fehlen noch
-		addDoubleArrayProperty(PROP_POLYLINE_1, "Field of work upper limit", WidgetPropertyCategory.MISC, new double[]{0.0, 0.0, 0.0, 2.0, 2.0, 8.0, 4.0, 4.0, 6.0, 15.0, 9.0, 10.0, 10.0, 10.0}, false);
-		addDoubleArrayProperty(PROP_POLYLINE_2, "Field of work lower limit", WidgetPropertyCategory.MISC, new double[]{0.0, 0.0, 1.5, 0.0, 5.0, 1.0, 10.0, 8.0, 10.0, 10.0}, false);
-		addColorProperty(PROP_POLYLINE_COLOR, "Field of work line color", WidgetPropertyCategory.MISC, "#ff7f00", false);
-		addIntegerProperty(PROP_POLYLINE_WIDTH, "Field of work line width", WidgetPropertyCategory.MISC, 1, 1, 10, false);
+		addDoubleArrayProperty(PROP_FIELD_OF_WORK_UPPER, "Field of work upper limit", WidgetPropertyCategory.MISC, new double[]{0.0, 0.0, 0.0, 2.0, 2.0, 8.0, 4.0, 4.0, 6.0, 15.0, 9.0, 10.0, 10.0, 10.0}, false);
+		addDoubleArrayProperty(PROP_FIELD_OF_WORK_LOWER, "Field of work lower limit", WidgetPropertyCategory.MISC, new double[]{0.0, 0.0, 1.5, 0.0, 5.0, 1.0, 10.0, 8.0, 10.0, 10.0}, false);
+		addColorProperty(PROP_FIELD_OF_WORK_COLOR, "Field of work line color", WidgetPropertyCategory.MISC, "#ff7f00", false);
+		addIntegerProperty(PROP_FIELD_OF_WORK_WIDTH, "Field of work line width", WidgetPropertyCategory.MISC, 1, 1, 10, false);
 		
 		// Anzahl der dargestellten Punkte, 1-100
 		addIntegerProperty(PROP_NUMBER_OF_POINTS, "Number of points", WidgetPropertyCategory.MISC, 100, 1, 100, false);
 		// Durchmesser eines Punktes
 		addIntegerProperty(PROP_POINT_SIZE, "Point size", WidgetPropertyCategory.MISC, 3, 1, 20, false);
-		// Helligkeitswert für den letzten Punkt
+		// Helligkeitswert f��r den letzten Punkt
 		addDoubleProperty(PROP_POINT_BRIGHTNESS, "Second point brightness", WidgetPropertyCategory.MISC, 0.4, 0.0, 1.0, false);
-		// Wartezeit 1 und Wartezeit 2 (größer als W1)
+		// Wartezeit 1 und Wartezeit 2 (gr����er als W1)
 		addIntegerProperty(PROP_WAITTIME_1, "Waittime 1", WidgetPropertyCategory.MISC, 5, 1, 1000, false);
 		addIntegerProperty(PROP_WAITTIME_2, "Waittime 2", WidgetPropertyCategory.MISC, 60, 2, 1000, false);
 		
@@ -197,30 +224,76 @@ public class CorrelationPlotModel extends AbstractWidgetModel {
 		return getColor(PROP_POLYNOMIAL_LINE_COLOR);
 	}
 	
-	public final Polyline getUpperPolyline() {
+	public final int getPolylineLineWidth() {
+		return getIntegerProperty(PROP_POLYLINE_LINE_WIDTH);
+	}
+	
+	public final String getPolylineLineColor() {
+		return getColor(PROP_POLYLINE_LINE_COLOR);
+	}
+	
+	public final Polyline getPolyline1() {
+		return convertDoublesToPolyLine(getDoubleArrayProperty(PROP_POLYLINE_1));
+	}
+	
+	public final Polyline getPolyline2() {
+		return convertDoublesToPolyLine(getDoubleArrayProperty(PROP_POLYLINE_2));
+	}
+	
+	public final Polyline getPolyline3() {
+		return convertDoublesToPolyLine(getDoubleArrayProperty(PROP_POLYLINE_3));
+	}
+	
+	public final Polyline getPolyline4() {
+		return convertDoublesToPolyLine(getDoubleArrayProperty(PROP_POLYLINE_4));
+	}
+	
+	public final Polyline getPolyline5() {
+		return convertDoublesToPolyLine(getDoubleArrayProperty(PROP_POLYLINE_5));
+	}
+	
+	public final Polyline getPolyline6() {
+		return convertDoublesToPolyLine(getDoubleArrayProperty(PROP_POLYLINE_6));
+	}
+	
+	public final Polyline getPolyline7() {
+		return convertDoublesToPolyLine(getDoubleArrayProperty(PROP_POLYLINE_7));
+	}
+	
+	public final Polyline getPolyline8() {
+		return convertDoublesToPolyLine(getDoubleArrayProperty(PROP_POLYLINE_8));
+	}
+	
+	public final Polyline getPolyline9() {
+		return convertDoublesToPolyLine(getDoubleArrayProperty(PROP_POLYLINE_9));
+	}
+
+	public final Polyline getPolyline10() {
+		return convertDoublesToPolyLine(getDoubleArrayProperty(PROP_POLYLINE_10));
+	}
+	
+	private Polyline convertDoublesToPolyLine(double... doubleArray) {
 		List<Coordinate2D> coordinates = new ArrayList<Coordinate2D>();
-		double[] arrayProperty = getDoubleArrayProperty(PROP_POLYLINE_1);
-		for (int i = 0; i < arrayProperty.length-1; i += 2) {
-			coordinates.add(new Coordinate2D(arrayProperty[i], arrayProperty[i+1]));
+		for (int i = 0; i < doubleArray.length-1; i += 2) {
+			coordinates.add(new Coordinate2D(doubleArray[i], doubleArray[i+1]));
 		}
 		return new Polyline(coordinates.toArray(new Coordinate2D[coordinates.size()]));
+	}
+	
+	public final Polyline getUpperPolyline() {
+		return convertDoublesToPolyLine(getDoubleArrayProperty(PROP_FIELD_OF_WORK_UPPER));
 	}
 	
 	public final Polyline getLowerPolyline() {
-		List<Coordinate2D> coordinates = new ArrayList<Coordinate2D>();
-		double[] arrayProperty = getDoubleArrayProperty(PROP_POLYLINE_2);
-		for (int i = 0; i < arrayProperty.length-1; i += 2) {
-			coordinates.add(new Coordinate2D(arrayProperty[i], arrayProperty[i+1]));
-		}
-		return new Polyline(coordinates.toArray(new Coordinate2D[coordinates.size()]));
+		return convertDoublesToPolyLine(getDoubleArrayProperty(PROP_FIELD_OF_WORK_LOWER));
 	}
 	
-	public final int getPolylineWidth() {
-		return getIntegerProperty(PROP_POLYLINE_WIDTH);
+	public final int getFieldOfWorkLineWidth() {
+		return getIntegerProperty(PROP_FIELD_OF_WORK_WIDTH);
 	}
 	
-	public final String getPolylineColor() {
-		return getColor(PROP_POLYLINE_COLOR);
+	public final String getFieldOfWorkColor() {
+		return getColor(PROP_FIELD_OF_WORK_COLOR);
 	}
 	
 	public final int getNumberOfPoints() {

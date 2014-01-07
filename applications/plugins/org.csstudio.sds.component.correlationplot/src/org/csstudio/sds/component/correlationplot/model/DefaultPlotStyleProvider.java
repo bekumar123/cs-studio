@@ -4,6 +4,8 @@ public class DefaultPlotStyleProvider implements PlotStyleProvider {
 	private double brightness = 0.8;
 	private RGB polynomialColor;
 	private int polynomialLineWidth;
+	private RGB fieldOfWorkLineColor;
+	private int fieldOfWorkWidth;
 	private RGB polylineColor;
 	private int polylineWidth;
 	private int plotValueSize;
@@ -15,7 +17,22 @@ public class DefaultPlotStyleProvider implements PlotStyleProvider {
 	private int numberOfPoints = 1;
 	private RGB backgroundColor = RGB.WHITE_COLOR;
 	private double brightnessDelta;;
+	
+	@Override
+	public LineStyle getPolynomialLineStyle() {
+		return LineStyle.DOTTED_LINE;
+	}
 
+	@Override
+	public LineStyle getFieldOfWorkLineStyle() {
+		return LineStyle.DASHED_LINE;
+	}
+	
+	@Override
+	public LineStyle getPolylineStyle() {
+		return LineStyle.SOLID_LINE;
+	}
+	
 	@Override
 	public int getPolynomialLineWidth() {
 		return polynomialLineWidth;
@@ -23,11 +40,6 @@ public class DefaultPlotStyleProvider implements PlotStyleProvider {
 	
 	public void setPolynomialLineWidth(int polynomialLineWidth) {
 		this.polynomialLineWidth = polynomialLineWidth;
-	}
-
-	@Override
-	public LineStyle getPolynomialLineStyle() {
-		return LineStyle.DOTTED_LINE;
 	}
 	
 	@Override
@@ -38,7 +50,7 @@ public class DefaultPlotStyleProvider implements PlotStyleProvider {
 	public void setPolynomialColor(RGB polynomialColor) {
 		this.polynomialColor = polynomialColor;
 	}
-
+	
 	@Override
 	public int getPolylineWidth() {
 		return polylineWidth;
@@ -49,10 +61,23 @@ public class DefaultPlotStyleProvider implements PlotStyleProvider {
 	}
 
 	@Override
-	public LineStyle getPolylineStyle() {
-		return LineStyle.DASHED_LINE;
+	public RGB getFieldOfWorkLineColor() {
+		return fieldOfWorkLineColor;
 	}
 	
+	public void setFieldOfWorkLineColor(RGB fieldOfWorkColor) {
+		this.fieldOfWorkLineColor = fieldOfWorkColor;
+	}
+	
+	@Override
+	public int getFieldOfWorkLineWidth() {
+		return fieldOfWorkWidth;
+	}
+
+	public void setFieldOfWorkLineWidth(Integer newValue) {
+		this.fieldOfWorkWidth = newValue;
+	}
+		
 	@Override
 	public RGB getPolylineColor() {
 		return polylineColor;

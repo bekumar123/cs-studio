@@ -14,6 +14,10 @@ public interface PlotStyleProvider {
 	int getPolynomialLineWidth();
 	LineStyle getPolynomialLineStyle();
 
+	RGB getFieldOfWorkLineColor();
+	int getFieldOfWorkLineWidth();
+	LineStyle getFieldOfWorkLineStyle();
+
 	RGB getPolylineColor();
 	int getPolylineWidth();
 	LineStyle getPolylineStyle();

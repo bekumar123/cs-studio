@@ -195,8 +195,11 @@ public final class DesyArchiveReaderFactory implements ArchiveReaderFactory {
             final IArchiveReaderFacade service = _provider.getReaderFacade();
             final Collection<IArchiveSample<Serializable, ISystemVariable<Serializable>>> samples =
              service.readSamples(name, s, e, findRequestType("RAW"));
+            final IArchiveSample lastSampleBefore = service.readLastSampleBefore(name, s);
+            return new DesyArchiveValueIterator(Iterables.concat(Collections.<IArchiveSample>singleton(lastSampleBefore), samples),
+                                                    name, s, e);
 
-          return new DesyArchiveValueIterator(samples, name, s, e);
+        //  return new DesyArchiveValueIterator(samples, name, s, e);
 
         }
 

@@ -143,10 +143,10 @@ public class PVSamples extends PlotSamples
         }
         final PlotSample last = getSample(raw-1);
         if (VTypeHelper.getSeverity(last.getValue())!=null) {
-            return raw;
+            return raw+1;
         }
         // Last sample is valid, so it should still apply 'now'
-        return raw+1;
+        return raw;
     }
 
     /** @return Size of the actual historic and liveSamples samples
@@ -344,5 +344,11 @@ public class PVSamples extends PlotSamples
             liveSamples.add(plotSample);
         }
         historicSamples.clear();
+    }
+    public String getMedl(){
+        return liveSamples.getDeadband()==null ? "":liveSamples.getDeadband().toString();
+    }
+    public String getAdel(){
+        return historicSamples.getDeadband()==null ? "":historicSamples.getDeadband().toString();
     }
 }

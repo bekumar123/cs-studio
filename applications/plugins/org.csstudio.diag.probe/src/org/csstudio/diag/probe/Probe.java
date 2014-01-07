@@ -868,7 +868,8 @@ public class Probe extends ViewPart implements PVListener, ISelectionProvider
     		return(Double.parseDouble(new_value));
     	}
     	if (value instanceof ILongValue) {
-    		return(Long.parseLong(new_value));
+    		return(Double.parseDouble(new_value));
+//    		return(Long.parseLong(new_value));
     	}
     	if (value instanceof IStringValue) {
     		return new_value;

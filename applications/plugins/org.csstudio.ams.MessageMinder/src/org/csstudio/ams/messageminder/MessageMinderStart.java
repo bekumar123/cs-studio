@@ -34,6 +34,7 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Enumeration;
+import org.csstudio.ams.AMS;
 import org.csstudio.ams.AmsActivator;
 import org.csstudio.ams.IRemotelyAccesible;
 import org.csstudio.ams.Log;
@@ -93,7 +94,7 @@ public final class MessageMinderStart implements IApplication, IRemotelyAccesibl
                                      MessageMinderPreferenceKey.P_DESCRIPTION,
                                      "I am a simple but happy application.",
                                      null);
-        appInfo = new ApplicationInfo("AmsMessageMinder", desc);
+        appInfo = new ApplicationInfo("AMS", AMS.AMS_MAIN_VERSION, "AmsMessageMinder", desc);
     }
 
     /**

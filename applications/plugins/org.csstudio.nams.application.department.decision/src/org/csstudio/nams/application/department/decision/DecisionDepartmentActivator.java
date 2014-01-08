@@ -41,6 +41,7 @@ import org.csstudio.nams.application.department.decision.management.Stop;
 import org.csstudio.nams.application.department.decision.office.decision.AlarmEntscheidungsBuero;
 import org.csstudio.nams.application.department.decision.remote.RemotelyStoppable;
 import org.csstudio.nams.application.department.decision.simplefilter.SimpleFilterWorker;
+import org.csstudio.nams.common.AMS;
 import org.csstudio.nams.common.IRemotelyAccesible;
 import org.csstudio.nams.common.activatorUtils.AbstractBundleActivator;
 import org.csstudio.nams.common.activatorUtils.OSGiBundleActivationMethod;
@@ -394,7 +395,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                                      "description",
                                      "I am a simple but happy application.",
                                      null);
-        appInfo = new ApplicationInfo("AmsDepartmentDecision", desc);
+        appInfo = new ApplicationInfo("AMS", AMS.AMS_MAIN_VERSION, "AmsDepartmentDecision", desc);
 
         XmppCredentials credentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
         xmppService = new XmppSessionHandler(bundleContext, credentials, true);

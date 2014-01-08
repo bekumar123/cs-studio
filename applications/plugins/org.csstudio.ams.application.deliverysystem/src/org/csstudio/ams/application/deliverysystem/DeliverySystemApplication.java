@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import org.csstudio.ams.AMS;
 import org.csstudio.ams.AmsActivator;
 import org.csstudio.ams.IRemotelyAccesible;
 import org.csstudio.ams.application.deliverysystem.internal.DeliverySystemPreference;
@@ -95,7 +96,7 @@ public class DeliverySystemApplication implements IApplication,
             RestartWorker.staticInject(this);
         }
         String desc = DeliverySystemPreference.DESCRIPTION.getValue();
-        appInfo = new ApplicationInfo("AmsDeliverySystem", desc);
+        appInfo = new ApplicationInfo("AMS", AMS.AMS_MAIN_VERSION, "AmsDeliverySystem", desc);
         String xmppServer = DeliverySystemPreference.XMPP_SERVER.getValue();
         String xmppUser = DeliverySystemPreference.XMPP_USER.getValue();
         String xmppPassword = DeliverySystemPreference.XMPP_PASSWORD.getValue();

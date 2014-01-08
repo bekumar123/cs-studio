@@ -36,6 +36,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.Topic;
 
+import org.csstudio.ams.AMS;
 import org.csstudio.ams.AmsActivator;
 import org.csstudio.ams.IRemotelyAccesible;
 import org.csstudio.ams.Log;
@@ -100,7 +101,7 @@ public class DistributorStart implements IApplication,
                                      DistributorPreferenceKey.P_DESCRIPTION,
                                      "",
                                      null);
-        appInfo = new ApplicationInfo("AmsDistributor", desc);
+        appInfo = new ApplicationInfo("AMS", AMS.AMS_MAIN_VERSION, "AmsDistributor", desc);
     }
 
     @Override

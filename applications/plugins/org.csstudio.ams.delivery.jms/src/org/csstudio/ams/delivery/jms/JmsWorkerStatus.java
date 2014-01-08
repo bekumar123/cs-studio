@@ -34,15 +34,15 @@ import org.csstudio.ams.delivery.status.IWorkerStatus;
  * @since 08.05.2012
  */
 public class JmsWorkerStatus implements IWorkerStatus, IJmsStatus {
-    
+
     private long jmsTimestamp;
     private long invalidateTime;
-    
+
       public JmsWorkerStatus(long maxTime) {
         jmsTimestamp = System.currentTimeMillis();
         invalidateTime = maxTime;
     }
-    
+
     @Override
     public synchronized void setJmsTimestamp(long time) {
         jmsTimestamp = time;
@@ -56,9 +56,11 @@ public class JmsWorkerStatus implements IWorkerStatus, IJmsStatus {
     @Override
     public synchronized boolean isOk() {
         boolean isOk = true;
-        long time = getJmsTimestamp() + invalidateTime;
-        if (System.currentTimeMillis() >= time) {
-            isOk = false;
+        if (invalidateTime > 0) {
+            final long time = getJmsTimestamp() + invalidateTime;
+            if (System.currentTimeMillis() >= time) {
+                isOk = false;
+            }
         }
         return isOk;
     }

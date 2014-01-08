@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2012 Stiftung Deutsches Elektronen-Synchrotron,
+ * Copyright (c) 2014 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -19,59 +19,23 @@
  * USAGE AND OTHER RIGHTS AND OBLIGATIONS IS INCLUDED WITH THE DISTRIBUTION OF THIS
  * PROJECT IN THE FILE LICENSE.HTML. IF THE LICENSE IS NOT INCLUDED YOU MAY FIND A COPY
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
- *
- * $Id: DesyKrykCodeTemplates.xml,v 1.7 2010/04/20 11:43:22 bknerr Exp $
  */
 
-package org.csstudio.ams.delivery.sms;
-
-import org.csstudio.ams.delivery.status.IDeviceStatus;
-import org.csstudio.ams.delivery.status.IWorkerStatus;
+package org.csstudio.nams.common;
 
 /**
  * @author mmoeller
- * @version 1.0
- * @since 23.05.2012
+ * @since 08.01.2014
  */
-public class SmsWorkerStatus implements IWorkerStatus, IDeviceStatus {
-
-    private long pollingTime;
-    private boolean smsSent;
-    private long maxPollingDiff;
-
-    public SmsWorkerStatus(long diff) {
-        // The default value has to be set to true!
-        smsSent = true;
-        pollingTime = System.currentTimeMillis();
-        maxPollingDiff = diff;
-    }
-
-    public synchronized void setSmsSent(boolean sent) {
-        smsSent = sent;
-    }
-
-    @Override
-    public synchronized void setLastPollingTime(long time) {
-        pollingTime = time;
-    }
-
-    @Override
-    public synchronized long getLastPollingTime() {
-        return pollingTime;
-    }
+public class AMS {
 
     /**
-     * {@inheritDoc}
+     * The AMS plugins may have different versions. This main version number is the superior
+     * version number for the AMS in its entirety.
      */
-    @Override
-    public boolean isOk() {
-        boolean isOk = true;
-        if (maxPollingDiff > 0) {
-            if (!smsSent) {
-                isOk = false;
-            }
-            isOk = System.currentTimeMillis() - pollingTime < maxPollingDiff;
-        }
-        return isOk;
+    public static final int AMS_MAIN_VERSION = 2;
+
+    private AMS() {
+        // Avoid instantiation
     }
 }

@@ -34,6 +34,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.Topic;
+import org.csstudio.ams.AMS;
 import org.csstudio.ams.AmsActivator;
 import org.csstudio.ams.IRemotelyAccesible;
 import org.csstudio.ams.Log;
@@ -49,6 +50,7 @@ import org.csstudio.headless.common.xmpp.XmppCredentials;
 import org.csstudio.headless.common.xmpp.XmppSessionException;
 import org.csstudio.headless.common.xmpp.XmppSessionHandler;
 import org.csstudio.utility.jms.IConnectionMonitor;
+import org.csstudio.utility.jms.JmsTool;
 import org.csstudio.utility.jms.TransportEvent;
 import org.csstudio.utility.jms.sharedconnection.ISharedConnectionHandle;
 import org.csstudio.utility.jms.sharedconnection.SharedJmsConnections;
@@ -95,7 +97,7 @@ public class DistributorStart implements IApplication,
                                      DistributorPreferenceKey.P_DESCRIPTION,
                                      "",
                                      null);
-        appInfo = new ApplicationInfo("AmsDistributor", desc);
+        appInfo = new ApplicationInfo("AMS", AMS.AMS_MAIN_VERSION, "AmsDistributor", desc);
     }
 
     @Override
@@ -218,8 +220,13 @@ public class DistributorStart implements IApplication,
                                  null)
             };
 
-            SharedJmsConnections.staticInjectPublisherUrlAndClientId(publisherUrl, "AmsDistributorPublisher");
-            SharedJmsConnections.staticInjectConsumerUrlAndClientId(consumerURLs[0], consumerURLs[1], "AmsDistributorConsumer");
+            SharedJmsConnections
+                 .staticInjectPublisherUrlAndClientId(publisherUrl,
+                                                     JmsTool.createUniqueClientId("AmsDistributorPublisher"));
+            SharedJmsConnections
+                 .staticInjectConsumerUrlAndClientId(consumerURLs[0],
+                                                     consumerURLs[1],
+                                                     JmsTool.createUniqueClientId("AmsDistributorConsumer"));
 
             final ISharedConnectionHandle publisherHandle = SharedJmsConnections.sharedSenderConnection();
             // Create a JMS sender connection

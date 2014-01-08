@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import org.csstudio.ams.AMS;
 import org.csstudio.ams.AmsActivator;
 import org.csstudio.ams.IRemotelyAccesible;
 import org.csstudio.ams.application.deliverysystem.internal.DeliverySystemPreference;
@@ -45,6 +46,7 @@ import org.csstudio.headless.common.util.StandardStreams;
 import org.csstudio.headless.common.xmpp.XmppCredentials;
 import org.csstudio.headless.common.xmpp.XmppSessionException;
 import org.csstudio.headless.common.xmpp.XmppSessionHandler;
+import org.csstudio.utility.jms.JmsTool;
 import org.csstudio.utility.jms.sharedconnection.SharedJmsConnections;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -94,7 +96,7 @@ public class DeliverySystemApplication implements IApplication,
             RestartWorker.staticInject(this);
         }
         String desc = DeliverySystemPreference.DESCRIPTION.getValue();
-        appInfo = new ApplicationInfo("AmsDeliverySystem", desc);
+        appInfo = new ApplicationInfo("AMS", AMS.AMS_MAIN_VERSION, "AmsDeliverySystem", desc);
         String xmppServer = DeliverySystemPreference.XMPP_SERVER.getValue();
         String xmppUser = DeliverySystemPreference.XMPP_USER.getValue();
         String xmppPassword = DeliverySystemPreference.XMPP_PASSWORD.getValue();
@@ -137,14 +139,17 @@ public class DeliverySystemApplication implements IApplication,
                                       null);
         LOG.debug("JMS Consumer URL 1: {}", url1);
         LOG.debug("JMS Consumer URL 2: {}", url2);
-        SharedJmsConnections.staticInjectConsumerUrlAndClientId(url1, url2, "AmsDeliverySystemConsumer");
+        SharedJmsConnections.staticInjectConsumerUrlAndClientId(url1,
+                                                                url2,
+                                                                JmsTool.createUniqueClientId("AmsDeliverySystemConsumer"));
 
         url1 = prefs.getString(AmsActivator.PLUGIN_ID,
                                AmsPreferenceKey.P_JMS_AMS_SENDER_PROVIDER_URL,
                                "tcp://localhost:62616",
                                null);
         LOG.debug("JMS Publisher URL: {}", url1);
-        SharedJmsConnections.staticInjectPublisherUrlAndClientId(url1, "AmsDeliverySystemPublisher");
+        SharedJmsConnections.staticInjectPublisherUrlAndClientId(url1,
+                                                                 JmsTool.createUniqueClientId("AmsDeliverySystemPublisher"));
 
         running = startDeliveryWorker();
 

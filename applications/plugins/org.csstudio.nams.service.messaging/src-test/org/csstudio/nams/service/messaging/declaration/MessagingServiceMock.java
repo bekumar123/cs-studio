@@ -3,9 +3,7 @@ package org.csstudio.nams.service.messaging.declaration;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
-
 import junit.framework.Assert;
-
 import org.csstudio.nams.service.messaging.exceptions.MessagingException;
 
 public class MessagingServiceMock implements MessagingService {
@@ -30,7 +28,8 @@ public class MessagingServiceMock implements MessagingService {
 		this.sessions = sessions;
 	}
 
-	public MessagingSession createNewMessagingSession(
+	@Override
+    public MessagingSession createNewMessagingSession(
 			final String environmentUniqueClientId, final String[] urls)
 			throws MessagingException, IllegalArgumentException {
 		Assert.assertTrue("An expected environmentUniqueClientId is used.",

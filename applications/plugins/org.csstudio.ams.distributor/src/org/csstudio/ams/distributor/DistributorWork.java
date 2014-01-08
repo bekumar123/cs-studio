@@ -72,6 +72,7 @@ import org.csstudio.ams.dbAccess.configdb.UserGroupUserTObject;
 import org.csstudio.ams.dbAccess.configdb.UserSynDAO;
 import org.csstudio.ams.dbAccess.configdb.UserTObject;
 import org.csstudio.ams.internal.AmsPreferenceKey;
+import org.csstudio.utility.jms.JmsTool;
 import org.csstudio.utility.jms.consumer.JmsRedundantConsumer;
 import org.csstudio.utility.jms.publisher.JmsMultiplePublisher;
 import org.csstudio.utility.jms.sharedconnection.SharedJmsConnections;
@@ -366,7 +367,7 @@ public class DistributorWork extends Thread implements AmsConstants,
 			extConnection = extFactory.createConnection();
 
 			// ADDED BY: Markus Moeller, 25.05.2007
-			extConnection.setClientID("DistributorWorkSenderExternal");
+			extConnection.setClientID(JmsTool.createUniqueClientId("DistributorWorkSenderExternal"));
 
 			extSession = extConnection.createSession(false,
 					Session.CLIENT_ACKNOWLEDGE);

@@ -45,6 +45,7 @@ import org.csstudio.ams.delivery.util.jms.JmsProperties;
 import org.csstudio.ams.delivery.util.jms.JmsSender;
 import org.csstudio.ams.internal.AmsPreferenceKey;
 import org.csstudio.platform.utility.jms.JmsSimpleProducer;
+import org.csstudio.utility.jms.JmsTool;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.slf4j.Logger;
@@ -272,11 +273,10 @@ public class SmsDeliveryDevice implements Runnable,
                                final String status,
                                final String value) {
 
-        final JmsSimpleProducer producer = new JmsSimpleProducer("SmsDeliveryDevice@"
-                                                           + Environment.getInstance().getHostName(),
-                                                           jmsProps.getJmsUrl(),
-                                                           jmsProps.getJmsFactoryClass(),
-                                                           jmsProps.getJmsTopic());
+        final JmsSimpleProducer producer = new JmsSimpleProducer(JmsTool.createUniqueClientId("SmsDeliveryDevice"),
+                                                                 jmsProps.getJmsUrl(),
+                                                                 jmsProps.getJmsFactoryClass(),
+                                                                 jmsProps.getJmsTopic());
 
         try {
 
@@ -476,7 +476,7 @@ public class SmsDeliveryDevice implements Runnable,
             }
         } catch(final Exception e) {
             LOG.error("Could not init modem: {}", e);
-            JmsSender sender = new JmsSender("SmsConnectorAlarmSender",
+            JmsSender sender = new JmsSender(JmsTool.createUniqueClientId("SmsConnectorAlarmSender"),
                                              prefs.getString(AmsActivator.PLUGIN_ID,
                                                              AmsPreferenceKey.P_JMS_AMS_SENDER_PROVIDER_URL,
                                                              "failover:(tcp://localhost:62616,tcp://localhost:64616)",

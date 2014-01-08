@@ -93,7 +93,7 @@ public class SynchronizeServiceImpl implements SynchronizeService {
 								PostfachArt.TOPIC);
 
 				producer.sendeSystemnachricht(new SyncronisationsAufforderungsSystemNachchricht());
-				
+
 				producer.tryToClose();
 				messagingSession.close();
 			} catch (Throwable t) {
@@ -107,7 +107,7 @@ public class SynchronizeServiceImpl implements SynchronizeService {
 			}
 
 			callback.wartetAufAntowrtDesHintergrundSystems();
-			
+
 			MessagingSession messagingSession = null;
 			Consumer consumer = null;
 			try {
@@ -156,7 +156,7 @@ public class SynchronizeServiceImpl implements SynchronizeService {
 					messagingSession.close();
 				}
 			}
-			
+
 			callback.synchronisationsDurchHintergrundsystemsErfolgreich();
 		} else {
 			callback.synchronisationAbgebrochen();

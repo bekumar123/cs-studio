@@ -1128,7 +1128,7 @@ public class DistributorWork extends Thread implements AmsConstants,
 				groupNum = Integer.parseInt(strGroupNum);
 				userNum = Integer.parseInt(strUserNum);
 				Log.log(Log.INFO,
-						"DistributorWork.responseMessage(): + groupNum="
+						"DistributorWork.responseMessage(): groupNum="
 								+ groupNum + ", userNum=" + userNum);
 				status = Short.parseShort(strStatus);
 			} catch (final NumberFormatException e) {

@@ -11,14 +11,14 @@ public interface Plot {
 
 	void setPolylines(List<Polyline> polylines);
 	void setPolyline(int index, Polyline polyline);
-	void setFieldOfWork(Polyline fieldOfWork);
+	void setFieldOfWorkPolygon(Polyline fieldOfWork);
 	void setPlotValues(Collection<PlotValue> plotValues);
 	void setWarning(String text);
 	
 	Axis getXAxis();
 	Axis getYAxis();
 
-	void onUpdatetedConfiguration();
+	void onUpdatedConfiguration();
 	
 	void setStyleProvider(PlotStyleProvider styleProvider);
 	void setMask(Polyline mask);

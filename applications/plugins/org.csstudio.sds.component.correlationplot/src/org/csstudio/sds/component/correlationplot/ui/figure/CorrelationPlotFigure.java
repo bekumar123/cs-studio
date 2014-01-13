@@ -1,5 +1,7 @@
 package org.csstudio.sds.component.correlationplot.ui.figure;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,12 +45,14 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 	private PlotValueLayer plotValueLayer;
 	private CachedBackgroundLayer cachedBackgroundLayer;
 	private MaskLayer maskLayer;
+	private final DecimalFormat axisDecimalFormat;
 	
 	public CorrelationPlotFigure(Axis xAxis, Axis yAxis, PlotStyleProvider styleProvider) {
 		super();
 		this.xAxis = xAxis;
 		this.yAxis = yAxis;
 		this.offset = new Point(20,20);
+		axisDecimalFormat = new DecimalFormat("0.########");
 		
 		polynomialLayer = new PolynomialLayer(xAxis, yAxis);
 		polylineLayer = new PolylineLayer(xAxis, yAxis);
@@ -62,7 +66,7 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 		plotValueLayer.setEnabled(true);
 		add(plotValueLayer);
 		
-		axisLayer = new AxisLayer(xAxis, yAxis);
+		axisLayer = new AxisLayer(xAxis, yAxis, axisDecimalFormat);
 		axisLayer.setEnabled(true);
 		add(axisLayer);
 		
@@ -78,45 +82,51 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 	
 	private void configureAxes() {
 		Rectangle clientArea = getClientArea();
-		
-		if (getFont() != null) {
+		TextUtilities textUtilities = new TextUtilities();
 
-			TextUtilities textUtilities = new TextUtilities();
+		if (getFont() != null) {
 			int xNameHeight = textUtilities.getStringExtents(xAxis.getName(),
 					getFont()).height();
-			int scaleValueMaxHeight = 0;
+			int xAxisLabelsMaxHeight = 0;
 
-			List<Double> scaleValues = xAxis.getScaleValues();
-			for (Double value : scaleValues) {
-				scaleValueMaxHeight = Math.max(
-						scaleValueMaxHeight,
-						textUtilities.getStringExtents(value.toString(),
+			
+			// Height of x axis is only dependent on maximum height of number values in font
+			for (int number = 0; number < 10; number++) {
+				xAxisLabelsMaxHeight = Math.max(
+						xAxisLabelsMaxHeight,
+						textUtilities.getStringExtents(Integer.toString(number),
 								getFont()).height());
 			}
+			offset.y = xNameHeight + xAxisLabelsMaxHeight + 5;
 
-			offset.y = xNameHeight + scaleValueMaxHeight + 5;
-
+			String xAxisMinValueString = axisDecimalFormat.format(xAxis.getMinValue().doubleValue());
+			String xAxisMaxValueString = axisDecimalFormat.format(xAxis.getMaxValue().doubleValue());
+			int xAxisLabelsMaxWidth = Math.max(
+					textUtilities.getStringExtents(xAxisMinValueString,getFont()).width(),
+					textUtilities.getStringExtents(xAxisMaxValueString,getFont()).width());
+			xAxis.setScaleValueWidth(xAxisLabelsMaxWidth + 20);
+		}
+		yAxis.setMappingMinValue(clientArea.height + clientArea.y - offset.y);
+		yAxis.setMappingMaxValue(clientArea.y);
+		
+		if (getFont() != null) {
 			int yNameHeight = textUtilities.getStringExtents(yAxis.getName(),
 					getFont()).height();
 			int scaleValueMaxWidth = 0;
 
-			scaleValues = yAxis.getScaleValues();
+			List<Double> scaleValues = yAxis.getScaleValues();
 			for (Double value : scaleValues) {
 				scaleValueMaxWidth = Math.max(
 						scaleValueMaxWidth,
-						textUtilities.getStringExtents(value.toString(),
+						textUtilities.getStringExtents(axisDecimalFormat.format(value),
 								getFont()).width());
 			}
-
-			offset.x = yNameHeight + scaleValueMaxWidth + 5;
+			offset.x = yNameHeight + scaleValueMaxWidth + 8;
+			yAxis.setScaleValueWidth(30);
 
 		}
-
 		xAxis.setMappingMinValue(clientArea.x + offset.x);
 		xAxis.setMappingMaxValue(clientArea.width + clientArea.x);
-		
-		yAxis.setMappingMinValue(clientArea.height + clientArea.y - offset.y);
-		yAxis.setMappingMaxValue(clientArea.y);
 	}
 	
 	@Override
@@ -167,16 +177,22 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 	}
 	
 	@Override
-	public void setFieldOfWork(Polyline fieldOfWork) {
+	public void setFieldOfWorkPolygon(Polyline fieldOfWork) {
 		cachedBackgroundLayer.clearCache();
-		fieldOfWorkLayer.setPolyLines(Collections.singletonList(fieldOfWork));
+		
+		List<Polyline> polylineList = (fieldOfWork != null) ? Collections.singletonList(fieldOfWork) : Collections.<Polyline>emptyList();
+		fieldOfWorkLayer.setPolyLines(polylineList);
+		
 		repaint();
 	}
 	
 	@Override
 	public void setMask(Polyline mask) {
 		cachedBackgroundLayer.clearCache();
-		maskLayer.setMaskPolygon(mask);
+		
+		Polyline theMask = mask != null ? mask : Polyline.EMPTY_POLYLINE;  
+		maskLayer.setMaskPolygon(theMask);
+		
 		repaint();
 	}
 
@@ -191,7 +207,7 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 	}
 
 	@Override
-	public void onUpdatetedConfiguration() {
+	public void onUpdatedConfiguration() {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -224,10 +240,7 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 		}
 		
 		public void paintFigure(Graphics graphics) {
-//			graphics.setAdvanced(true);
-//			graphics.setAntialias(SWT.ON);
-			
-			// styles für polynom setzen
+			// Styles für Polynom setzen
 			if (styleProvider != null) {
 				RGB color = styleProvider.getPolynomialColor();
 				Color swtColor = new Color(Display.getDefault(), color.getRed(), color.getGreen(), color.getBlue());
@@ -246,17 +259,25 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 			int numberOfPixels = Math.abs(xAxis.getMappingMaxValue() - xAxis.getMappingMinValue());
 			
 			PointList drawList = new PointList();
-			double[] pixelXValues = xAxis.getStepsForResolution(numberOfPixels);
+			BigDecimal[] pixelXValues = xAxis.getStepsForResolution(numberOfPixels);
 			for (int pixelIndex = 0; pixelIndex < pixelXValues.length; pixelIndex++) {
-				double domainX = pixelXValues[pixelIndex];
-				double domainY = polynomial.getValueForX(domainX);
-
+				BigDecimal domainX = pixelXValues[pixelIndex];
+				BigDecimal domainY = polynomial.getValueForX(domainX);
 				drawList.addPoint(xAxis.getMappingMinValue() + pixelIndex,
-						(int) Math.round(yAxis.getMappingValueFor(domainY)));
+						fixPlotYValue(yAxis.getMappingValueFor(domainY)));
 			}
-			
 			graphics.drawPolyline(drawList);
+		}
+		
+		private int fixPlotYValue(int yValue) {
+			int result = yValue;
 			
+			if (yValue < yAxis.getMappingMaxValue()) {
+				result = yAxis.getMappingMaxValue() - 10;
+			} else if (yValue > yAxis.getMappingMinValue()) {
+				result = yAxis.getMappingMinValue() + 10;
+			}
+			return result;
 		}
 		
 		public void setPolynomials(List<Polynomial> polynomials) {
@@ -280,10 +301,13 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 			private Axis xAxis;
 			private Axis yAxis;
 			private PlotStyleProvider styleProvider;
+
+			private DecimalFormat axisDecimalFormat;
 	
-			public AxisLayer(Axis xAxis, Axis yAxis) {
+			public AxisLayer(Axis xAxis, Axis yAxis, DecimalFormat axisDecimalFormat) {
 				this.xAxis = xAxis;
 				this.yAxis = yAxis;
+				this.axisDecimalFormat = axisDecimalFormat;
 			}
 	
 			@Override
@@ -297,9 +321,9 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 					graphics.setBackgroundColor(swtColor);
 				}
 				
-				Point origin = new Point((int)Math.round(xAxis.getMappingValueFor(xAxis.getMinValue())), (int)Math.round(yAxis.getMappingValueFor(yAxis.getMinValue())));
-				Point xTip = new Point((int)Math.round(xAxis.getMappingValueFor(xAxis.getMaxValue())), origin.y);
-				Point yTip = new Point(origin.x, (int)Math.round(yAxis.getMappingValueFor(yAxis.getMaxValue())));
+				Point origin = new Point(xAxis.getMappingValueFor(xAxis.getMinValue()), (int)Math.round(yAxis.getMappingValueFor(yAxis.getMinValue())));
+				Point xTip = new Point(xAxis.getMappingValueFor(xAxis.getMaxValue()), origin.y);
+				Point yTip = new Point(origin.x, yAxis.getMappingValueFor(yAxis.getMaxValue()));
 	
 				// x axis
 				graphics.drawLine(origin.x, origin.y, xTip.x, xTip.y);
@@ -331,16 +355,14 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 				graphics.rotate(90);
 				
 				//drawScales(graphics);
-				int originX = (int) Math.round(xAxis.getMappingValueFor(xAxis.getMinValue()));
-				int originY = (int) Math.round(yAxis.getMappingValueFor(yAxis.getMinValue()));
-				
-				DecimalFormat decimalFormat = new DecimalFormat("0.##");
+				int originX = xAxis.getMappingValueFor(xAxis.getMinValue());
+				int originY = yAxis.getMappingValueFor(yAxis.getMinValue());
 				
 				// x axis
 				List<Double> xScaleValues = xAxis.getScaleValues();
 				for(Double value : xScaleValues) {
-					int drawX = (int) Math.round(xAxis.getMappingValueFor(value));
-					String valueString  = decimalFormat.format(value);
+					int drawX = xAxis.getMappingValueFor(new BigDecimal(value, MathContext.DECIMAL128));
+					String valueString  = axisDecimalFormat.format(value);
 					graphics.drawLine(drawX, originY, drawX, originY + 5);
 					stringExtents = textUtilities.getStringExtents(valueString, getFont());
 					drawX -= (drawX + stringExtents.width > getClientArea().x + getClientArea().width) ? stringExtents.width : stringExtents.width / 2;
@@ -350,8 +372,8 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 				// y axis
 				List<Double> yScaleValues = yAxis.getScaleValues();
 				for(Double value : yScaleValues) {
-					int drawY = (int) Math.round(yAxis.getMappingValueFor(value));
-					String valueString  = decimalFormat.format(value);
+					int drawY = yAxis.getMappingValueFor(new BigDecimal(value, MathContext.DECIMAL128));
+					String valueString  = axisDecimalFormat.format(value);
 					graphics.drawLine(originX, drawY, originX - 5, drawY);
 					stringExtents = textUtilities.getStringExtents(valueString, getFont());
 					drawY -= (drawY - stringExtents.height < getClientArea().y) ? 0 : stringExtents.height / 2;
@@ -455,8 +477,8 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 	
 			for (int coordinateIndex = 0; coordinateIndex < coordinates.length; coordinateIndex++) {
 				Coordinate2D coordinate = coordinates[coordinateIndex];
-				drawArray[coordinateIndex * 2] = (int) Math.round(xAxis.getMappingValueFor(coordinate.getX()));
-				drawArray[coordinateIndex * 2 + 1] = (int) Math.round(yAxis.getMappingValueFor(coordinate.getY()));
+				drawArray[coordinateIndex * 2] = xAxis.getMappingValueFor(new BigDecimal(coordinate.getX()));
+				drawArray[coordinateIndex * 2 + 1] = yAxis.getMappingValueFor(new BigDecimal(coordinate.getY()));
 			}
 			
 			graphics.drawPolyline(drawArray);
@@ -518,28 +540,29 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 		}
 
 		public void paintFigure(Graphics graphics) {
-			Coordinate2D[] coordinates = maskPolygon.getCoordinates();
-			int[] drawArray = new int[coordinates.length * 2 + 10];
-	
-			drawArray[0] = xAxis.getMappingMinValue();
-			drawArray[1] = yAxis.getMappingMinValue();
-			drawArray[2] = xAxis.getMappingMaxValue();
-			drawArray[3] = yAxis.getMappingMinValue();
-			drawArray[4] = xAxis.getMappingMaxValue();
-			drawArray[5] = yAxis.getMappingMaxValue();
-			drawArray[6] = xAxis.getMappingMinValue();
-			drawArray[7] = yAxis.getMappingMaxValue();
-			drawArray[8] = xAxis.getMappingMinValue();
-			drawArray[9] = yAxis.getMappingMinValue();
-			
-			for (int coordinateIndex = 0; coordinateIndex < coordinates.length; coordinateIndex++) {
-				Coordinate2D coordinate = coordinates[coordinateIndex];
-				drawArray[coordinateIndex * 2 + 10] = (int) Math.round(xAxis.getMappingValueFor(coordinate.getX()));
-				drawArray[coordinateIndex * 2 + 11] = (int) Math.round(yAxis.getMappingValueFor(coordinate.getY()));
+			if(!maskPolygon.isEmpty()) {
+				Coordinate2D[] coordinates = maskPolygon.getCoordinates();
+				int[] drawArray = new int[coordinates.length * 2 + 10];
+		
+				drawArray[0] = xAxis.getMappingMinValue();
+				drawArray[1] = yAxis.getMappingMinValue();
+				drawArray[2] = xAxis.getMappingMaxValue();
+				drawArray[3] = yAxis.getMappingMinValue();
+				drawArray[4] = xAxis.getMappingMaxValue();
+				drawArray[5] = yAxis.getMappingMaxValue();
+				drawArray[6] = xAxis.getMappingMinValue();
+				drawArray[7] = yAxis.getMappingMaxValue();
+				drawArray[8] = xAxis.getMappingMinValue();
+				drawArray[9] = yAxis.getMappingMinValue();
+				
+				for (int coordinateIndex = 0; coordinateIndex < coordinates.length; coordinateIndex++) {
+					Coordinate2D coordinate = coordinates[coordinateIndex];
+					drawArray[coordinateIndex * 2 + 10] = xAxis.getMappingValueFor(new BigDecimal(coordinate.getX()));
+					drawArray[coordinateIndex * 2 + 11] = yAxis.getMappingValueFor(new BigDecimal(coordinate.getY()));
+				}
+				graphics.setBackgroundColor(backgroundColor);
+				graphics.fillPolygon(drawArray);			
 			}
-			
-			graphics.setBackgroundColor(backgroundColor);
-			graphics.fillPolygon(drawArray);			
 		}
 		
 		public void setMaskPolygon(Polyline maskPolygon) {
@@ -619,17 +642,19 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 		}
 	
 		private void paintPlotValue(Graphics graphics, PlotValue plotValue) {
+			int mappingValueForX = xAxis.getMappingValueFor(new BigDecimal(plotValue.getX()));
+			int mappingValueForY = yAxis.getMappingValueFor(new BigDecimal(plotValue.getY()));
 			switch (plotValue.getType()) {
 			case NORMAL:
-				paintNormal(graphics, (int) Math.round(xAxis.getMappingValueFor(plotValue.getX())), (int) Math.round(yAxis.getMappingValueFor(plotValue.getY())));
+				paintNormal(graphics, mappingValueForX, mappingValueForY);
 				break;
 	
 			case TIME_WARNING_1:
-				paintWarning1(graphics, (int) Math.round(xAxis.getMappingValueFor(plotValue.getX())), (int) Math.round(yAxis.getMappingValueFor(plotValue.getY())));
+				paintWarning1(graphics, mappingValueForX, mappingValueForY);
 				break;
 				
 			case TIME_WARNING_2:
-				paintWarning2(graphics, (int) Math.round(xAxis.getMappingValueFor(plotValue.getX())), (int) Math.round(yAxis.getMappingValueFor(plotValue.getY())));
+				paintWarning2(graphics, mappingValueForX, mappingValueForY);
 				break;
 				
 			default:

@@ -189,7 +189,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
 				xAxis.setName("" + newValue);
-				((Plot)refreshableFigure).onUpdatetedConfiguration();
+				((Plot)refreshableFigure).onUpdatedConfiguration();
 				return true;
 			}
 		});
@@ -198,7 +198,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
 				yAxis.setName("" + newValue);
-				((Plot)refreshableFigure).onUpdatetedConfiguration();
+				((Plot)refreshableFigure).onUpdatedConfiguration();
 				return true;
 			}
 		});
@@ -209,7 +209,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 					IFigure refreshableFigure) {
 				Double value = (Double) newValue;
 				xAxis.setMinValue(value);
-				((Plot)refreshableFigure).onUpdatetedConfiguration();
+				((Plot)refreshableFigure).onUpdatedConfiguration();
 				return true;
 			}
 		});
@@ -218,7 +218,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
 				xAxis.setMaxValue((Double) newValue);
-				((Plot)refreshableFigure).onUpdatetedConfiguration();
+				((Plot)refreshableFigure).onUpdatedConfiguration();
 				return true;
 			}
 		});
@@ -227,7 +227,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
 				yAxis.setMinValue((Double) newValue);
-				((Plot)refreshableFigure).onUpdatetedConfiguration();
+				((Plot)refreshableFigure).onUpdatedConfiguration();
 				return true;
 			}
 		});
@@ -236,7 +236,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
 				yAxis.setMaxValue((Double) newValue);
-				((Plot)refreshableFigure).onUpdatetedConfiguration();
+				((Plot)refreshableFigure).onUpdatedConfiguration();
 				return true;
 			}
 		});
@@ -325,7 +325,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
 				styleProvider.setPolynomialColor(convertColorToRGB(getModelColor(CorrelationPlotModel.PROP_POLYNOMIAL_LINE_COLOR)));
-				((Plot)refreshableFigure).onUpdatetedConfiguration();
+				((Plot)refreshableFigure).onUpdatedConfiguration();
 				return true;
 			}
 		});
@@ -334,7 +334,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
 				styleProvider.setPolynomialLineWidth((Integer)newValue);
-				((Plot)refreshableFigure).onUpdatetedConfiguration();
+				((Plot)refreshableFigure).onUpdatedConfiguration();
 				return true;
 			}
 		});
@@ -433,7 +433,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
 				styleProvider.setPolylineColor(convertColorToRGB(getModelColor(CorrelationPlotModel.PROP_POLYLINE_LINE_COLOR)));
-				((Plot)refreshableFigure).onUpdatetedConfiguration();
+				((Plot)refreshableFigure).onUpdatedConfiguration();
 				return true;
 			}
 		});
@@ -442,7 +442,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
 				styleProvider.setPolylineWidth((Integer)newValue);
-				((Plot)refreshableFigure).onUpdatetedConfiguration();
+				((Plot)refreshableFigure).onUpdatedConfiguration();
 				return true;
 			}
 		});
@@ -470,7 +470,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
 				styleProvider.setPolylineColor(convertColorToRGB(getModelColor(CorrelationPlotModel.PROP_FIELD_OF_WORK_COLOR)));
-				((Plot)refreshableFigure).onUpdatetedConfiguration();
+				((Plot)refreshableFigure).onUpdatedConfiguration();
 				return true;
 			}
 		});
@@ -479,7 +479,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
 				styleProvider.setPolylineWidth((Integer)newValue);
-				((Plot)refreshableFigure).onUpdatetedConfiguration();
+				((Plot)refreshableFigure).onUpdatedConfiguration();
 				return true;
 			}
 		});
@@ -497,7 +497,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
 				styleProvider.setPlotValueSize((Integer)newValue);
-				((Plot)refreshableFigure).onUpdatetedConfiguration();
+				((Plot)refreshableFigure).onUpdatedConfiguration();
 				return true;
 			}
 		});
@@ -506,7 +506,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
 				styleProvider.setBrightness((Double) newValue);
-				((Plot)refreshableFigure).onUpdatetedConfiguration();
+				((Plot)refreshableFigure).onUpdatedConfiguration();
 				return true;
 			}
 		});
@@ -569,7 +569,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
 				styleProvider.setWarningTextColor(convertColorToRGB(getModelColor(CorrelationPlotModel.PROP_WARNING_TEXT_COLOR)));
-				((Plot)refreshableFigure).onUpdatetedConfiguration();
+				((Plot)refreshableFigure).onUpdatedConfiguration();
 				return true;
 			}
 		});
@@ -582,7 +582,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 				int fontHeight = warningTextFontData.getHeight();
 				int fontStyle = warningTextFontData.getStyle();
 				styleProvider.setWarningTextFont(fontName, fontHeight, fontStyle);
-				((Plot)refreshableFigure).onUpdatetedConfiguration();
+				((Plot)refreshableFigure).onUpdatedConfiguration();
 				return true;
 			}
 		});
@@ -592,7 +592,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 					IFigure refreshableFigure) {
 				Coordinate2D warningPosition = styleProvider.getWarningTextPosition();
 				styleProvider.setWarningTextPosition(new Coordinate2D(((Integer) newValue).doubleValue(), warningPosition.getY()));
-				((Plot)refreshableFigure).onUpdatetedConfiguration();
+				((Plot)refreshableFigure).onUpdatedConfiguration();
 				return true;
 			}
 		});
@@ -602,7 +602,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 					IFigure refreshableFigure) {
 				Coordinate2D warningPosition = styleProvider.getWarningTextPosition();
 				styleProvider.setWarningTextPosition(new Coordinate2D(warningPosition.getX(), ((Integer) newValue).doubleValue()));
-				((Plot)refreshableFigure).onUpdatetedConfiguration();
+				((Plot)refreshableFigure).onUpdatedConfiguration();
 				return true;
 			}
 		});

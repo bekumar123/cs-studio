@@ -1,5 +1,8 @@
 package org.csstudio.sds.component.correlationplot.model;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,23 +10,30 @@ import java.util.List;
 public class Axis {
 
 	private String name;
-	private double minValue;
-	private double maxValue;
+	private BigDecimal minValue;
+	private BigDecimal maxValue;
 	
 	private int mappingMinValue;
 	private int mappingMaxValue;
+	private int scaleValueWidth;
 
 	public Axis(String name, double minValue, double maxValue) {
 		if (minValue == maxValue) {
 			throw new IllegalArgumentException("Min value: " + minValue + " can not be the same as Max value: " + maxValue);
 		}
 		this.name = name;
-		this.minValue = minValue;
-		this.maxValue = maxValue;
+		
+		this.minValue = new BigDecimal(minValue, MathContext.DECIMAL128);
+		this.maxValue = new BigDecimal(maxValue, MathContext.DECIMAL128);
 		this.mappingMinValue = 0;
 		this.mappingMaxValue = 0;
+		scaleValueWidth = 40;
 	}
 
+	public void setScaleValueWidth(int scaleValueWidth) {
+		this.scaleValueWidth = scaleValueWidth;
+	}
+	
 	public String getName() {
 		return name;
 	}
@@ -33,14 +43,14 @@ public class Axis {
 	}
 	
 	public boolean isValid() {
-		return getMinValue() != getMaxValue();
+		return !getMinValue().equals(getMaxValue());
 	}
 	
-	public double getMinValue() {
+	public BigDecimal getMinValue() {
 		return minValue;
 	}
 	
-	public double getMaxValue() {
+	public BigDecimal getMaxValue() {
 		return maxValue;
 	}
 	
@@ -65,48 +75,61 @@ public class Axis {
 		return name + " from " + getMinValue() + " to " + getMaxValue();
 	}
 
-	public double getMappingValueFor(double value) throws IllegalStateException {
+	public int getMappingValueFor(BigDecimal value) throws IllegalStateException {
 		if(!isValid()) {
 			throw new IllegalStateException("Axis range is not valid! Min value: " + getMinValue() + ", Max value: " + getMaxValue());
 		}
 		
-		double domainWidth = getMaxValue() - getMinValue();
-		double relativeValue = (value - getMinValue()) / domainWidth;
+		BigDecimal domainWidth = getMaxValue().subtract(getMinValue());
+		BigDecimal relativeValue = value.subtract(getMinValue()).divide(domainWidth, 20, RoundingMode.HALF_UP);
 		
-		double mappingWidth = mappingMaxValue - mappingMinValue;
+		BigDecimal mappingWidth = new BigDecimal(mappingMaxValue - mappingMinValue, MathContext.DECIMAL128);
 
-		double relativeMappedValue = relativeValue * mappingWidth;
-		return relativeMappedValue + mappingMinValue;
+		BigDecimal relativeMappedValue = relativeValue.multiply(mappingWidth).setScale(0, RoundingMode.HALF_UP).add(new BigDecimal(mappingMinValue));
+		return getValidIntValue(relativeMappedValue);
 	}
 	
-	public double[] getStepsForResolution(int resolution) {
-		double[] result = new double[resolution];
-		double stepValue = (getMaxValue() - getMinValue()) / resolution;
+	private int getValidIntValue(BigDecimal bigDecimal) {
+		if(bigDecimal.compareTo(new BigDecimal(Integer.MAX_VALUE - 10)) > 0) {
+			return Integer.MAX_VALUE - 10;
+		} else if(bigDecimal.compareTo(new BigDecimal(Integer.MIN_VALUE + 10)) < 0) {
+			return Integer.MIN_VALUE + 10;
+		} else {
+			return bigDecimal.intValue();
+		}
+	}
+	
+	public BigDecimal[] getStepsForResolution(int resolution) {
+		BigDecimal[] result = new BigDecimal[resolution];
+
+		BigDecimal resolutionDecimal = new BigDecimal(resolution);
+		
+		BigDecimal stepValue = getMaxValue().subtract(getMinValue()).divide(resolutionDecimal, 20, RoundingMode.HALF_UP);
 		for(int i = 0; i < resolution; i++) {
-			result[i] = getMinValue() + i * stepValue;
+			BigDecimal iDecimal = new BigDecimal(i);
+			result[i] = getMinValue().add(iDecimal.multiply(stepValue));
 		}
 		
 		return result;
 	}
 	
-	public static void main(String[] args) {
-		Axis axis = new Axis("test", 0, 100);
-		axis.setMappingMinValue(0);
-		axis.setMappingMaxValue(10);
-		
-		for(int index = (int) axis.getMinValue(); index <= axis.getMaxValue(); index++)
-		System.out.println("Mapping for " + index + ": " + axis.getMappingValueFor(index));
+	public void setMinValue(double minValue) {
+		setMinValue(new BigDecimal(minValue, MathContext.DECIMAL128));
 	}
 
-	public void setMinValue(double minValue) {
-		if (minValue == getMaxValue()) {
+	public void setMinValue(BigDecimal minValue) {
+		if (minValue.equals(getMaxValue())) {
 			throw new IllegalArgumentException("Min value: " + minValue + " can not be the same as Max value: " + getMaxValue());
 		}
 		this.minValue = minValue;
 	}
-
+	
 	public void setMaxValue(double maxValue) {
-		if (maxValue == getMinValue()) {
+		setMaxValue(new BigDecimal(maxValue, MathContext.DECIMAL128));
+	}
+
+	public void setMaxValue(BigDecimal maxValue) {
+		if (maxValue.equals(getMinValue())) {
 			throw new IllegalArgumentException("Max value: " + maxValue + " can not be the same as Min value: " + getMinValue());
 		}
 		this.maxValue = maxValue;
@@ -114,37 +137,48 @@ public class Axis {
 
 	public List<Double> getScaleValues() {
 		List<Double> result = new ArrayList<Double>();
-		
-		int numberOfValues = Math.abs((getMappingMaxValue() - getMappingMinValue()) / 40);
-		double step = Math.abs((getMaxValue() - getMinValue()) / numberOfValues);
-		double niceStep = 1;
-		if (step < 0.05) 		niceStep = Math.round(step*1000.)/1000.;
-		else if (step < 0.1)	niceStep = 0.1;
-		else if (step < 0.2)	niceStep = 0.2;
-		else if (step < 0.25)	niceStep = 0.25;
-		else if (step < 0.5)	niceStep = 0.5;
-		else if (step < 1)		niceStep = 1;
-		else if (step < 2)		niceStep = 2;
-		else if (step < 2.5)	niceStep = 2.5;
-		else if (step < 5)		niceStep = 5;
-		else if (step < 10)		niceStep = 10;
-		else if (step < 25)		niceStep = 25;
-		else if (step < 50)		niceStep = 50;
-		else if (step < 100)	niceStep = 100;
-		else if (step < 250)	niceStep = 250;
-		else if (step < 500)	niceStep = 500;
-		else if (step < 1000)	niceStep = 1000;
-		else 					niceStep = Math.round(step);
-		
-		double smallerValue = Math.min(getMinValue(), getMaxValue());
-		double largerValue = Math.max(getMinValue(), getMaxValue());
-		double index = smallerValue + Math.abs(smallerValue % niceStep);
-		result.add(getMinValue());
-		while (largerValue - index > -0.001) {
-			if (Math.abs(getMinValue() - index) > niceStep/2) {
-				result.add(index);
+		// minvalue is always a scale value
+		result.add(getMinValue().doubleValue());
+
+		int numberOfValues = Math
+				.abs((getMappingMaxValue() - getMappingMinValue()) / scaleValueWidth);
+		if (numberOfValues > 0) {
+			double step = getMaxValue().subtract(getMinValue()).abs().doubleValue() / numberOfValues;
+			double niceStep = 1;
+
+			int exponent = 0;
+			boolean niceStepFound = false;
+			while (!niceStepFound) {
+				double factor = Math.pow(10, exponent);
+
+				if (step < 5 * factor) {
+					exponent -= 1;
+				} else if (step < 10 * factor) {
+					niceStep = 10 * factor;
+					niceStepFound = true;
+				} else if (step < 20 * factor) {
+					niceStep = 20 * factor;
+					niceStepFound = true;
+				} else if (step < 25 * factor) {
+					niceStep = 25 * factor;
+					niceStepFound = true;
+				} else if (step < 50 * factor) {
+					niceStep = 50 * factor;
+					niceStepFound = true;
+				} else {
+					exponent += 1;
+				}
 			}
-			index += niceStep;
+			double smallerValue = getMinValue().min(getMaxValue()).doubleValue();
+			double largerValue = getMinValue().max(getMaxValue()).doubleValue();
+			double index = smallerValue - Math.abs(smallerValue % niceStep) + niceStep;
+
+			while (largerValue - index > -0.001) {
+				if (Math.abs(getMinValue().doubleValue() - index) >= niceStep / 3) {
+					result.add(index);
+				}
+				index += niceStep;
+			}
 		}
 		return result;
 	}

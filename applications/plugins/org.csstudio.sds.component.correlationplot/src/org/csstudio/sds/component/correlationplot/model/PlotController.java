@@ -106,8 +106,10 @@ public class PlotController {
 	private void setFieldOfWork(FieldOfWork fieldOfWork, boolean plot) {
 		//TODO hier noch nach neuen warnings suchen?
 		this.fieldOfWork = fieldOfWork;
-		this.plot.setFieldOfWork(fieldOfWork.getFieldPolygon());
-		this.plot.setMask(fieldOfWork.getFieldPolygon());
+		Polyline fieldPolygon = fieldOfWork.isValid() ? fieldOfWork.getFieldPolygon() : null;
+		this.plot.setFieldOfWorkPolygon(fieldPolygon);
+		this.plot.setMask(fieldPolygon);
+
 		if (plot) {
 			plot();
 		}
@@ -177,7 +179,12 @@ public class PlotController {
 		
 		PlotValue point = new PlotValue(actualXValue, actualYValue, Type.NORMAL);
 
-		if(!fieldOfWork.containsPoint(point)) {
+		if(!fieldOfWork.isValid()) {
+			plot.setWarning("");
+			warningListener.onNoWarning();
+		}
+		// point out of bounds
+		else if(!fieldOfWork.containsPoint(point)) {
 			plot.setWarning(warningTextOutOfBounds);
 			point.setAlarm(true);
 			if (warningListener != null) {
@@ -185,18 +192,21 @@ public class PlotController {
 			}
 		} else {
 			if (calculateMinDistance(point, fieldOfWork.getUpperLine()) < this.warningDistance) {
+				// point near upper bound
 				plot.setWarning(warningTextNearUpperBound);
 				point.setAlarm(true);
 				if (warningListener != null) {
 					warningListener.onNearUpperBound();
 				}
 			} else if (calculateMinDistance(point, fieldOfWork.getLowerLine()) < this.warningDistance) {
+				// point near lower bound
 				plot.setWarning(warningTextNearLowerBound);
 				point.setAlarm(true);
 				if (warningListener != null) {
 					warningListener.onNearLowerBound();
 				}
 			} else {
+				// point inside bounds
 				plot.setWarning("");
 				warningListener.onNoWarning();
 			}

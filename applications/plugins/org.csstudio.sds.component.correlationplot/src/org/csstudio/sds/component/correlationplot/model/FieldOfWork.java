@@ -15,7 +15,10 @@ public class FieldOfWork {
 		this.lowerLine = lowerLine;
 		
 		this.combinedLine = combinePolylines(upperLine, lowerLine);
-		
+	}
+	
+	public boolean isValid() {
+		return upperLine != null && lowerLine != null && !upperLine.isEmpty() && !lowerLine.isEmpty() && !upperLine.equals(lowerLine);
 	}
 
 	public Polyline getUpperLine() {

@@ -3,6 +3,9 @@ package org.csstudio.sds.component.correlationplot.model;
 import java.util.Arrays;
 
 public class Polyline {
+	
+	public static final Polyline EMPTY_POLYLINE = new Polyline();
+	
 	private Coordinate2D[] coordinates;
 
 	// Punkte
@@ -11,6 +14,10 @@ public class Polyline {
 	// Linientyp
 	public Polyline(Coordinate2D ... coordinates) {
 		this.coordinates = coordinates;
+	}
+	
+	public boolean isEmpty() {
+		return coordinates.length < 2;
 	}
 	
 	public Coordinate2D[] getCoordinates() {
@@ -59,5 +66,27 @@ public class Polyline {
 			resultArray = coordinates;
 		}
 		return new Polyline(resultArray);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(coordinates);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Polyline other = (Polyline) obj;
+		if (!Arrays.equals(coordinates, other.coordinates))
+			return false;
+		return true;
 	}
 }

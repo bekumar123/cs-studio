@@ -1,8 +1,11 @@
 package org.csstudio.sds.component.correlationplot.model;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+
 
 public class Polynomial {
-	private double[] coefficients;
+	private BigDecimal[] coefficients;
 
 	// Polynom
 	// Linienfarbe
@@ -10,19 +13,18 @@ public class Polynomial {
 	// Linientyp
 	
 	public Polynomial(double ... coefficients) {
-		this.coefficients = coefficients;
+		this.coefficients = new BigDecimal[coefficients.length];
+		for (int index = 0; index < coefficients.length; index++) {
+			this.coefficients[index] = new BigDecimal(coefficients[index], MathContext.DECIMAL128);
+		}
 	}
 	
-	public double[] getCoefficients() {
-		return coefficients;
-	}
-	
-	public double getValueForX(double x) {
-		double result = 0;
+	public BigDecimal getValueForX(BigDecimal x) {
+		BigDecimal result = new BigDecimal(0, MathContext.DECIMAL128);
 		
 		for (int polyIndex = 0; polyIndex < coefficients.length; polyIndex++) {
-			double xFactor = coefficients[polyIndex];
-			result += xFactor * Math.pow(x, polyIndex);
+			BigDecimal xFactor = coefficients[polyIndex];
+			result = result.add(x.pow(polyIndex).multiply(xFactor));
 		}
 		
 		return result;
@@ -36,7 +38,7 @@ public class Polynomial {
 	public String toString() {
 		StringBuilder buf = new StringBuilder();
 		for (int i = coefficients.length - 1; i >= 0; i--) {
-			if (coefficients[i] > 0) {
+			if (coefficients[i].doubleValue() > 0) {
 				buf.append(coefficients[i]);
 				if (i > 0) {
 					buf.append("x");

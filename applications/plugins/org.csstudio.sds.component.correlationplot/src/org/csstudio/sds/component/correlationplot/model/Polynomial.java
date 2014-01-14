@@ -6,6 +6,7 @@ import java.math.MathContext;
 
 public class Polynomial {
 	private BigDecimal[] coefficients;
+	private String name;
 
 	// Polynom
 	// Linienfarbe
@@ -13,12 +14,17 @@ public class Polynomial {
 	// Linientyp
 	
 	public Polynomial(double ... coefficients) {
+		this("", coefficients);
+	}
+	
+	public Polynomial(String name, double... coefficients) {
 		this.coefficients = new BigDecimal[coefficients.length];
 		for (int index = 0; index < coefficients.length; index++) {
 			this.coefficients[index] = new BigDecimal(coefficients[index], MathContext.DECIMAL128);
 		}
+		this.name  = name;
 	}
-	
+
 	public BigDecimal getValueForX(BigDecimal x) {
 		BigDecimal result = new BigDecimal(0, MathContext.DECIMAL128);
 		
@@ -32,6 +38,14 @@ public class Polynomial {
 	
 	public boolean isDrawable() {
 		return coefficients != null && coefficients.length > 0;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 	@Override

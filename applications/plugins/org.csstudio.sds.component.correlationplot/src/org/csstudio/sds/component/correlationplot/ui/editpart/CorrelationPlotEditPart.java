@@ -1,5 +1,6 @@
 package org.csstudio.sds.component.correlationplot.ui.editpart;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +42,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 		styleProvider = new DefaultPlotStyleProvider();
 		styleProvider.setPolynomialColor(convertColorToRGB(getModelColor(CorrelationPlotModel.PROP_POLYNOMIAL_LINE_COLOR)));
 		styleProvider.setPolynomialLineWidth(model.getPolynomialLineWidth());
+		styleProvider.setPolynomialLabelColor(convertColorToRGB(getModelColor(CorrelationPlotModel.PROP_POLYNOMIAL_LABEL_COLOR)));
 		styleProvider.setFieldOfWorkLineColor(convertColorToRGB(getModelColor(CorrelationPlotModel.PROP_FIELD_OF_WORK_COLOR)));
 		styleProvider.setFieldOfWorkLineWidth(model.getFieldOfWorkLineWidth());
 		styleProvider.setPolylineColor(convertColorToRGB(getModelColor(CorrelationPlotModel.PROP_POLYLINE_LINE_COLOR)));
@@ -63,16 +65,16 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 		
 		// create polynomial list
 		List<Polynomial> polynomials = new ArrayList<Polynomial>(10);
-		polynomials.add(new Polynomial(model.getPolynomial1()));
-		polynomials.add(new Polynomial(model.getPolynomial2()));
-		polynomials.add(new Polynomial(model.getPolynomial3()));
-		polynomials.add(new Polynomial(model.getPolynomial4()));
-		polynomials.add(new Polynomial(model.getPolynomial5()));
-		polynomials.add(new Polynomial(model.getPolynomial6()));
-		polynomials.add(new Polynomial(model.getPolynomial7()));
-		polynomials.add(new Polynomial(model.getPolynomial8()));
-		polynomials.add(new Polynomial(model.getPolynomial9()));
-		polynomials.add(new Polynomial(model.getPolynomial10()));
+		polynomials.add(new Polynomial(model.getPolynomialLabel1(), model.getPolynomial1()));
+		polynomials.add(new Polynomial(model.getPolynomialLabel2(), model.getPolynomial2()));
+		polynomials.add(new Polynomial(model.getPolynomialLabel3(), model.getPolynomial3()));
+		polynomials.add(new Polynomial(model.getPolynomialLabel4(), model.getPolynomial4()));
+		polynomials.add(new Polynomial(model.getPolynomialLabel5(), model.getPolynomial5()));
+		polynomials.add(new Polynomial(model.getPolynomialLabel6(), model.getPolynomial6()));
+		polynomials.add(new Polynomial(model.getPolynomialLabel7(), model.getPolynomial7()));
+		polynomials.add(new Polynomial(model.getPolynomialLabel8(), model.getPolynomial8()));
+		polynomials.add(new Polynomial(model.getPolynomialLabel9(), model.getPolynomial9()));
+		polynomials.add(new Polynomial(model.getPolynomialLabel10(), model.getPolynomial10()));
 
 		// create polyline list
 		List<Polyline> polylines = new ArrayList<Polyline>(10);
@@ -320,6 +322,86 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 				return true;
 			}
 		});
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYNOMIAL_1_LABEL, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				((Plot)refreshableFigure).setPolynomialName(0, (String) newValue);
+				return true;
+			}
+		});
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYNOMIAL_2_LABEL, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				((Plot)refreshableFigure).setPolynomialName(1, (String) newValue);
+				return true;
+			}
+		});
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYNOMIAL_3_LABEL, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				((Plot)refreshableFigure).setPolynomialName(2, (String) newValue);
+				return true;
+			}
+		});
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYNOMIAL_4_LABEL, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				((Plot)refreshableFigure).setPolynomialName(3, (String) newValue);
+				return true;
+			}
+		});
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYNOMIAL_5_LABEL, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				((Plot)refreshableFigure).setPolynomialName(4, (String) newValue);
+				return true;
+			}
+		});
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYNOMIAL_6_LABEL, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				((Plot)refreshableFigure).setPolynomialName(5, (String) newValue);
+				return true;
+			}
+		});
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYNOMIAL_7_LABEL, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				((Plot)refreshableFigure).setPolynomialName(6, (String) newValue);
+				return true;
+			}
+		});
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYNOMIAL_8_LABEL, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				((Plot)refreshableFigure).setPolynomialName(7, (String) newValue);
+				return true;
+			}
+		});
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYNOMIAL_9_LABEL, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				((Plot)refreshableFigure).setPolynomialName(8, (String) newValue);
+				return true;
+			}
+		});
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYNOMIAL_10_LABEL, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				((Plot)refreshableFigure).setPolynomialName(9, (String) newValue);
+				return true;
+			}
+		});
 		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYNOMIAL_LINE_COLOR, new IWidgetPropertyChangeHandler() {
 			@Override
 			public boolean handleChange(Object oldValue, Object newValue,
@@ -334,6 +416,15 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
 				styleProvider.setPolynomialLineWidth((Integer)newValue);
+				((Plot)refreshableFigure).onUpdatedConfiguration();
+				return true;
+			}
+		});
+		setPropertyChangeHandler(CorrelationPlotModel.PROP_POLYNOMIAL_LABEL_COLOR, new IWidgetPropertyChangeHandler() {
+			@Override
+			public boolean handleChange(Object oldValue, Object newValue,
+					IFigure refreshableFigure) {
+				styleProvider.setPolynomialLabelColor(convertColorToRGB(getModelColor(CorrelationPlotModel.PROP_POLYNOMIAL_LABEL_COLOR)));
 				((Plot)refreshableFigure).onUpdatedConfiguration();
 				return true;
 			}
@@ -591,7 +682,8 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
 				Coordinate2D warningPosition = styleProvider.getWarningTextPosition();
-				styleProvider.setWarningTextPosition(new Coordinate2D(((Integer) newValue).doubleValue(), warningPosition.getY()));
+				BigDecimal newDecimalValue = new BigDecimal(((Integer) newValue));
+				styleProvider.setWarningTextPosition(new Coordinate2D(newDecimalValue, warningPosition.getY()));
 				((Plot)refreshableFigure).onUpdatedConfiguration();
 				return true;
 			}
@@ -601,7 +693,8 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
 				Coordinate2D warningPosition = styleProvider.getWarningTextPosition();
-				styleProvider.setWarningTextPosition(new Coordinate2D(warningPosition.getX(), ((Integer) newValue).doubleValue()));
+				BigDecimal newDecimalValue = new BigDecimal(((Integer) newValue));
+				styleProvider.setWarningTextPosition(new Coordinate2D(warningPosition.getX(), newDecimalValue));
 				((Plot)refreshableFigure).onUpdatedConfiguration();
 				return true;
 			}

@@ -106,9 +106,13 @@ public class PlotController {
 	private void setFieldOfWork(FieldOfWork fieldOfWork, boolean plot) {
 		//TODO hier noch nach neuen warnings suchen?
 		this.fieldOfWork = fieldOfWork;
-		Polyline fieldPolygon = fieldOfWork.isValid() ? fieldOfWork.getFieldPolygon() : null;
-		this.plot.setFieldOfWorkPolygon(fieldPolygon);
-		this.plot.setMask(fieldPolygon);
+		
+		this.plot.setFieldOfWorkPolygon(fieldOfWork);
+		if(fieldOfWork.isValid()) {
+			this.plot.setMask(fieldOfWork.getFieldPolygon());
+		} else {
+			this.plot.setMask(null);
+		}
 
 		if (plot) {
 			plot();
@@ -191,14 +195,14 @@ public class PlotController {
 				warningListener.onOutOfBounds();
 			}
 		} else {
-			if (calculateMinDistance(point, fieldOfWork.getUpperLine()) < this.warningDistance) {
+			if (fieldOfWork.getUpperLine().calculateMinDistance(point) < this.warningDistance) {
 				// point near upper bound
 				plot.setWarning(warningTextNearUpperBound);
 				point.setAlarm(true);
 				if (warningListener != null) {
 					warningListener.onNearUpperBound();
 				}
-			} else if (calculateMinDistance(point, fieldOfWork.getLowerLine()) < this.warningDistance) {
+			} else if (fieldOfWork.getLowerLine().calculateMinDistance(point) < this.warningDistance) {
 				// point near lower bound
 				plot.setWarning(warningTextNearLowerBound);
 				point.setAlarm(true);
@@ -219,49 +223,49 @@ public class PlotController {
 		plot();
 	}
 
-	private double calculateMinDistance(Coordinate2D point, Polyline polyLine) {
-		Coordinate2D[] linePoints = polyLine.getCoordinates();
-		double result = Integer.MAX_VALUE;
-		
-		for(int index = 1; index < linePoints.length; index++) {
-			double distancePointToLine = distancePointToLine(point, linePoints[index - 1], linePoints[index]);
-			result = Math.min(distancePointToLine, result);
-		}
-		
-		return result;
-	}
-	
-	private double distancePointToLine(Coordinate2D point, Coordinate2D lineStart, Coordinate2D lineEnd) {
-		double result = Double.MAX_VALUE;
-		
-		Coordinate2D lineNormalizedToOrigin = new Coordinate2D(lineEnd.getX() - lineStart.getX(), lineEnd.getY() - lineStart.getY());
-		Coordinate2D pointNormalized = new Coordinate2D(point.getX() - lineStart.getX(), point.getY() - lineStart.getY());
-		double lineLength = Math.sqrt(Math.pow(lineNormalizedToOrigin.getX(),2) + Math.pow(lineNormalizedToOrigin.getY(),2));
-		
-		double pi2 = 2*Math.PI;
-		double lineAngle = (pi2 + Math.atan2(lineNormalizedToOrigin.getY(), lineNormalizedToOrigin.getX())) % pi2;
-
-		Coordinate2D pointRotated = rotate(pointNormalized, -lineAngle);
-		
-		// check if point is orthogonal to line (angle difference is less than PI/2)
-		if(pointRotated.getX() >= 0 && pointRotated.getX() <= lineLength) {
-			result = Math.abs(pointRotated.getY());
-		}
-		// else, use minimum distance to line ends
-		else {
-			double distance = Math.pow(pointNormalized.getX(), 2) + Math.pow(pointNormalized.getY(), 2);
-			distance = Math.min(distance, Math.pow(pointNormalized.getX() - lineNormalizedToOrigin.getX(), 2) + Math.pow(pointNormalized.getY() - lineNormalizedToOrigin.getY(), 2));
-			result = Math.sqrt(distance);
-		}
-		return result;
-	}
-	
-	private Coordinate2D rotate(Coordinate2D coordinate, double angle) {
-		double newX = Math.cos(angle) * coordinate.getX() - Math.sin(angle) * coordinate.getY();
-		double newY = Math.sin(angle) * coordinate.getX() + Math.cos(angle) * coordinate.getY();
-		
-		return new Coordinate2D(newX, newY);
-	}
+//	private double calculateMinDistance(Coordinate2D point, Polyline polyLine) {
+//		Coordinate2D[] linePoints = polyLine.getCoordinates();
+//		double result = Integer.MAX_VALUE;
+//		
+//		for(int index = 1; index < linePoints.length; index++) {
+//			double distancePointToLine = distancePointToLine(point, linePoints[index - 1], linePoints[index]);
+//			result = Math.min(distancePointToLine, result);
+//		}
+//		
+//		return result;
+//	}
+//	
+//	private double distancePointToLine(Coordinate2D point, Coordinate2D lineStart, Coordinate2D lineEnd) {
+//		double result = Double.MAX_VALUE;
+//		
+//		Coordinate2D lineNormalizedToOrigin = new Coordinate2D(lineEnd.getX() - lineStart.getX(), lineEnd.getY() - lineStart.getY());
+//		Coordinate2D pointNormalized = new Coordinate2D(point.getX() - lineStart.getX(), point.getY() - lineStart.getY());
+//		double lineLength = Math.sqrt(Math.pow(lineNormalizedToOrigin.getX(),2) + Math.pow(lineNormalizedToOrigin.getY(),2));
+//		
+//		double pi2 = 2*Math.PI;
+//		double lineAngle = (pi2 + Math.atan2(lineNormalizedToOrigin.getY(), lineNormalizedToOrigin.getX())) % pi2;
+//
+//		Coordinate2D pointRotated = rotate(pointNormalized, -lineAngle);
+//		
+//		// check if point is orthogonal to line (angle difference is less than PI/2)
+//		if(pointRotated.getX() >= 0 && pointRotated.getX() <= lineLength) {
+//			result = Math.abs(pointRotated.getY());
+//		}
+//		// else, use minimum distance to line ends
+//		else {
+//			double distance = Math.pow(pointNormalized.getX(), 2) + Math.pow(pointNormalized.getY(), 2);
+//			distance = Math.min(distance, Math.pow(pointNormalized.getX() - lineNormalizedToOrigin.getX(), 2) + Math.pow(pointNormalized.getY() - lineNormalizedToOrigin.getY(), 2));
+//			result = Math.sqrt(distance);
+//		}
+//		return result;
+//	}
+//	
+//	private Coordinate2D rotate(Coordinate2D coordinate, double angle) {
+//		double newX = Math.cos(angle) * coordinate.getX() - Math.sin(angle) * coordinate.getY();
+//		double newY = Math.sin(angle) * coordinate.getX() + Math.cos(angle) * coordinate.getY();
+//		
+//		return new Coordinate2D(newX, newY);
+//	}
 	
 
 	private void plot() {

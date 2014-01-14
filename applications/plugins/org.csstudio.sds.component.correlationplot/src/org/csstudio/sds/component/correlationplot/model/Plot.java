@@ -8,10 +8,11 @@ public interface Plot {
 
 	void setPolynomials(List<Polynomial> polynomials);
 	void setPolynomial(int index, Polynomial polynomial);
+	void setPolynomialName(int index, String polynomialName);
 
 	void setPolylines(List<Polyline> polylines);
 	void setPolyline(int index, Polyline polyline);
-	void setFieldOfWorkPolygon(Polyline fieldOfWork);
+	void setFieldOfWorkPolygon(FieldOfWork fieldOfWork);
 	void setPlotValues(Collection<PlotValue> plotValues);
 	void setWarning(String text);
 	

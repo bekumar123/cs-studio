@@ -99,12 +99,22 @@ public class Axis {
 		}
 	}
 	
+	public BigDecimal getStepLengthForResolution(int resolution) {
+		BigDecimal resolutionDecimal = new BigDecimal(resolution);
+		
+		return getMaxValue().subtract(getMinValue()).divide(resolutionDecimal, 20, RoundingMode.HALF_UP);
+	}
+	
+	/**
+	 * Returns the given number of domain values, distributed equally on the axis
+	 * @param resolution number of steps used to divide the axis 
+	 * @return an array of domain values, distributed equally on the axis
+	 */
 	public BigDecimal[] getStepsForResolution(int resolution) {
 		BigDecimal[] result = new BigDecimal[resolution];
 
-		BigDecimal resolutionDecimal = new BigDecimal(resolution);
+		BigDecimal stepValue = getStepLengthForResolution(resolution);
 		
-		BigDecimal stepValue = getMaxValue().subtract(getMinValue()).divide(resolutionDecimal, 20, RoundingMode.HALF_UP);
 		for(int i = 0; i < resolution; i++) {
 			BigDecimal iDecimal = new BigDecimal(i);
 			result[i] = getMinValue().add(iDecimal.multiply(stepValue));
@@ -185,5 +195,9 @@ public class Axis {
 
 	public int getMappingRange() {
 		return Math.abs(getMappingMaxValue()-getMappingMinValue());
+	}
+
+	public int getMappingResolution() {
+		return Math.abs(getMappingMaxValue() - getMappingMinValue());
 	}
 }

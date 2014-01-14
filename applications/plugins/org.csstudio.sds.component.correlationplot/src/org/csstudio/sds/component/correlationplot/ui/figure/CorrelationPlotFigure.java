@@ -15,6 +15,7 @@ import org.csstudio.sds.component.correlationplot.model.Plot;
 import org.csstudio.sds.component.correlationplot.model.PlotStyleProvider;
 import org.csstudio.sds.component.correlationplot.model.PlotValue;
 import org.csstudio.sds.component.correlationplot.model.Polyline;
+import org.csstudio.sds.component.correlationplot.model.Polyline.SpatialRelation;
 import org.csstudio.sds.component.correlationplot.model.Polynomial;
 import org.csstudio.sds.component.correlationplot.model.RGB;
 import org.eclipse.draw2d.FigureListener;
@@ -341,20 +342,20 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 			BigDecimal lastDomainXBeforeIntersection = null;
 			BigDecimal lastDomainYBeforeIntersection = null;
 			
-			boolean wasLastAbove = true;
+			SpatialRelation lastRelation = SpatialRelation.OUTSIDE;
 			BigDecimal[] pixelXValues = xAxis.getStepsForResolution(numberOfPixels);
 			for (int pixelIndex = 1; pixelIndex < pixelXValues.length; pixelIndex++) {
 				BigDecimal domainX = pixelXValues[pixelIndex];
 				BigDecimal domainY = polynomial.getValueForX(domainX);
-				boolean above = lowerFieldOfWorkLine.isAbove(new Coordinate2D(domainX.doubleValue(), domainY.doubleValue()));
-				if(wasLastAbove != above) {
+				SpatialRelation relation = lowerFieldOfWorkLine.getSpatialRelation(new Coordinate2D(domainX.doubleValue(), domainY.doubleValue()));
+				if(lastRelation != SpatialRelation.OUTSIDE && relation != SpatialRelation.OUTSIDE && lastRelation != relation) {
 					lastDomainXAfterIntersection = domainX;
 					lastDomainYAfterIntersection = domainY;
 					
 					lastDomainXBeforeIntersection = pixelXValues[pixelIndex - 1];
 					lastDomainYBeforeIntersection = polynomial.getValueForX(lastDomainXBeforeIntersection);
-					wasLastAbove = above;
 				}
+				lastRelation = relation;
 			}
 			
 			if(lastDomainXAfterIntersection != null) {
@@ -367,10 +368,7 @@ public class CorrelationPlotFigure extends LayeredPane implements Plot {
 					BigDecimal refinedDomainY = polynomial
 							.getValueForX(refinedDomainX);
 
-					boolean isAbove = lowerFieldOfWorkLine
-							.isAbove(new Coordinate2D(refinedDomainX
-									.doubleValue(), refinedDomainY
-									.doubleValue()));
+					boolean isAbove = lowerFieldOfWorkLine.getSpatialRelation(new Coordinate2D(refinedDomainX, refinedDomainY)) == SpatialRelation.ABOVE;
 					if (isAbove) {
 						lastDomainXBeforeIntersection = refinedDomainX;
 						lastDomainYBeforeIntersection = refinedDomainY;

@@ -8,6 +8,8 @@ import java.util.List;
 
 public class Polyline {
 	
+	public enum SpatialRelation { ABOVE, BELOW, OUTSIDE };
+	
 	public static final Polyline EMPTY_POLYLINE = new Polyline();
 	
 	private Coordinate2D[] coordinates;
@@ -59,16 +61,19 @@ public class Polyline {
 		return result;
 	}
 	
-	public boolean isAbove(Coordinate2D point) {
+	public SpatialRelation getSpatialRelation(Coordinate2D point) {
 		int lowerCount = 0;
 		List<BigDecimal> yValues = getYValuesForX(point.getX());
+		if(yValues.isEmpty()) {
+			return SpatialRelation.OUTSIDE;
+		}
 		for (BigDecimal yValue : yValues) {
 			if(yValue.compareTo(point.getY()) < 0) {
 				lowerCount += 1;
 			}
 		}
 		
-		return lowerCount % 2 == 1;
+		return lowerCount % 2 == 1 ? SpatialRelation.ABOVE : SpatialRelation.BELOW;
 	}
 	
 	public List<BigDecimal> getYValuesForX(BigDecimal x) {

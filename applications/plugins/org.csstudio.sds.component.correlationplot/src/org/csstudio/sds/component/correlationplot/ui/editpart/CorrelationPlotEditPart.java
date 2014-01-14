@@ -246,7 +246,8 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			@Override
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
-				((Plot)refreshableFigure).setPolynomial(0, new Polynomial((double[]) newValue));
+				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
+				((Plot)refreshableFigure).setPolynomial(0, new Polynomial(model.getPolynomialLabel1(), (double[]) newValue));
 				return true;
 			}
 		});
@@ -254,7 +255,8 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			@Override
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
-				((Plot)refreshableFigure).setPolynomial(1, new Polynomial((double[]) newValue));
+				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
+				((Plot)refreshableFigure).setPolynomial(1, new Polynomial(model.getPolynomialLabel2(), (double[]) newValue));
 				return true;
 			}
 		});
@@ -262,7 +264,8 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			@Override
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
-				((Plot)refreshableFigure).setPolynomial(2, new Polynomial((double[]) newValue));
+				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
+				((Plot)refreshableFigure).setPolynomial(2, new Polynomial(model.getPolynomialLabel3(), (double[]) newValue));
 				return true;
 			}
 		});
@@ -270,7 +273,8 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			@Override
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
-				((Plot)refreshableFigure).setPolynomial(3, new Polynomial((double[]) newValue));
+				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
+				((Plot)refreshableFigure).setPolynomial(3, new Polynomial(model.getPolynomialLabel4(), (double[]) newValue));
 				return true;
 			}
 		});
@@ -278,7 +282,8 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			@Override
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
-				((Plot)refreshableFigure).setPolynomial(4, new Polynomial((double[]) newValue));
+				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
+				((Plot)refreshableFigure).setPolynomial(4, new Polynomial(model.getPolynomialLabel5(), (double[]) newValue));
 				return true;
 			}
 		});
@@ -286,7 +291,8 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			@Override
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
-				((Plot)refreshableFigure).setPolynomial(5, new Polynomial((double[]) newValue));
+				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
+				((Plot)refreshableFigure).setPolynomial(5, new Polynomial(model.getPolynomialLabel6(), (double[]) newValue));
 				return true;
 			}
 		});
@@ -294,7 +300,8 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			@Override
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
-				((Plot)refreshableFigure).setPolynomial(6, new Polynomial((double[]) newValue));
+				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
+				((Plot)refreshableFigure).setPolynomial(6, new Polynomial(model.getPolynomialLabel7(), (double[]) newValue));
 				return true;
 			}
 		});
@@ -302,7 +309,8 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			@Override
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
-				((Plot)refreshableFigure).setPolynomial(7, new Polynomial((double[]) newValue));
+				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
+				((Plot)refreshableFigure).setPolynomial(7, new Polynomial(model.getPolynomialLabel8(), (double[]) newValue));
 				return true;
 			}
 		});
@@ -310,7 +318,8 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			@Override
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
-				((Plot)refreshableFigure).setPolynomial(8, new Polynomial((double[]) newValue));
+				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
+				((Plot)refreshableFigure).setPolynomial(8, new Polynomial(model.getPolynomialLabel9(), (double[]) newValue));
 				return true;
 			}
 		});
@@ -318,7 +327,8 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			@Override
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
-				((Plot)refreshableFigure).setPolynomial(9, new Polynomial((double[]) newValue));
+				CorrelationPlotModel model = (CorrelationPlotModel) getModel();
+				((Plot)refreshableFigure).setPolynomial(9, new Polynomial(model.getPolynomialLabel10(), (double[]) newValue));
 				return true;
 			}
 		});

@@ -46,7 +46,7 @@ public class Polyline {
 			if (((coordinates[indexLineEnd].getY().compareTo(testPoint.getY()) > 0) != (coordinates[indexLineStart].getY().compareTo(testPoint.getY()) > 0))
 					&& (testPoint.getX().compareTo((coordinates[indexLineStart].getX().subtract(coordinates[indexLineEnd].getX()))
 									.multiply(testPoint.getY().subtract(coordinates[indexLineEnd].getY()))
-									.divide(coordinates[indexLineStart].getY().subtract(coordinates[indexLineEnd].getY()))
+									.divide(coordinates[indexLineStart].getY().subtract(coordinates[indexLineEnd].getY()), 20, RoundingMode.HALF_UP)
 									.add(coordinates[indexLineEnd].getX()))) < 0) {
 //				&& (testPoint.getX() < (coordinates[indexLineStart].getX() - coordinates[indexLineEnd].getX()) * (testPoint.getY() - coordinates[indexLineEnd].getY())
 //						/ (coordinates[indexLineStart].getY() - coordinates[indexLineEnd].getY()) + coordinates[indexLineEnd].getX())) {

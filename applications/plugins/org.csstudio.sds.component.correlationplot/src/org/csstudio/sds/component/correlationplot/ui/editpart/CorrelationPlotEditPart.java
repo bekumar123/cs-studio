@@ -560,7 +560,7 @@ public class CorrelationPlotEditPart extends AbstractWidgetEditPart {
 			@Override
 			public boolean handleChange(Object oldValue, Object newValue,
 					IFigure refreshableFigure) {
-				styleProvider.setPolylineColor(convertColorToRGB(getModelColor(CorrelationPlotModel.PROP_FIELD_OF_WORK_COLOR)));
+				styleProvider.setFieldOfWorkLineColor(convertColorToRGB(getModelColor(CorrelationPlotModel.PROP_FIELD_OF_WORK_COLOR)));
 				((Plot)refreshableFigure).onUpdatedConfiguration();
 				return true;
 			}

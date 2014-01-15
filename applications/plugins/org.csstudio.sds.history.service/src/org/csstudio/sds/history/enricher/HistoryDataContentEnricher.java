@@ -13,7 +13,8 @@ import de.c1wps.geneal.desy.domain.plant.plantmaterials.PVConnectionState;
 import de.c1wps.geneal.desy.domain.plant.plantmaterials.ProcessVariable;
 
 /**
- * This class handles loading and caching of values for one concrete {@link ProcessVariable}.
+ * This class handles loading and caching of values for one concrete
+ * {@link ProcessVariable}.
  * 
  * @author Christian Mein
  * 
@@ -24,29 +25,36 @@ public class HistoryDataContentEnricher implements IHistoryDataContentEnricher {
 
 	private ProcessVariable _processVariable;
 
+	private String _pvAddress;
+
 	private Interval _cachedInterval;
 
 	private NavigableMap<DateTime, HistoryArchiveSample> _values;
 
 	/**
-	 * This variable indicates that this service has once tried to get the oldest value for the cached interval.
+	 * This variable indicates that this service has once tried to get the
+	 * oldest value for the cached interval.
 	 */
 	private boolean _triedOldestValueRetrieval = false;
 
 	/**
-	 * Construct a new content enricher that handles data retrieval and caching for the given {@link ProcessVariable}.
-	 * Uses the {@link IPvValueHistoryDataService} to get archived data.
+	 * Construct a new content enricher that handles data retrieval and caching
+	 * for the given {@link ProcessVariable}. Uses the
+	 * {@link IPvValueHistoryDataService} to get archived data.
 	 * 
 	 * @param pv
-	 *            {@link ProcessVariable} for which this content enricher is responsible for.
+	 *            {@link ProcessVariable} for which this content enricher is
+	 *            responsible for.
 	 * @param pvValueHistoryDataService
 	 *            service where to get the archived values from.
 	 */
-	public HistoryDataContentEnricher(ProcessVariable pv, IPvValueHistoryDataService pvValueHistoryDataService) {
+	public HistoryDataContentEnricher(ProcessVariable pv,
+			IPvValueHistoryDataService pvValueHistoryDataService) {
 		assert pv != null : "pv != null";
 		assert pvValueHistoryDataService != null : "pvValueHistoryDateService != null";
 
 		_processVariable = pv;
+		_pvAddress = pv.getControlSystemAddress();
 		_pvValueService = pvValueHistoryDataService;
 	}
 
@@ -59,27 +67,13 @@ public class HistoryDataContentEnricher implements IHistoryDataContentEnricher {
 		assert interval != null : "interval != null";
 
 		ProcessVariable newPvCopy = _processVariable.copyDeep();
-		String csAddress = _processVariable.getControlSystemAddress();
 		HistoryArchiveSample pvHistorySample = null;
 
 		if (isInCachedTimeInterval(timeStamp)) {
-			Entry<DateTime, HistoryArchiveSample> entry = _values.floorEntry(timeStamp);
-
-			if (entry != null) {
-				pvHistorySample = entry.getValue();
-			} else if (!_triedOldestValueRetrieval) {
-				HistoryArchiveSample latestValueBefore = _pvValueService.getLatestValueBefore(csAddress, timeStamp);
-				_triedOldestValueRetrieval=true;
-				if (latestValueBefore != null) {
-					_values.put(latestValueBefore.getTimeStamp(), latestValueBefore);
-					pvHistorySample = latestValueBefore;
-				}
-			}
+			pvHistorySample = getSampleFromCachedInterval(timeStamp);
 		} else {
-			_values = _pvValueService.getSamples(csAddress, interval);
-			_cachedInterval = interval;
-
-			latestPvBefore(timeStamp, interval);
+			loadSamplesFromService(interval);
+			pvHistorySample = getSampleFromCachedInterval(timeStamp);
 		}
 
 		if (pvHistorySample != null) {
@@ -96,13 +90,42 @@ public class HistoryDataContentEnricher implements IHistoryDataContentEnricher {
 		return newPvCopy;
 	}
 
+	private HistoryArchiveSample getSampleFromCachedInterval(DateTime timeStamp) {
+		Entry<DateTime, HistoryArchiveSample> entry = _values.floorEntry(timeStamp);
+		HistoryArchiveSample pvHistorySample = null;
+
+		if (entry != null) {
+			pvHistorySample = entry.getValue();
+		} else if (!_triedOldestValueRetrieval) {
+			pvHistorySample = loadOldestValueForCachedInterval();
+		}
+		return pvHistorySample;
+	}
+
+	private void loadSamplesFromService(Interval interval) {
+		_values = _pvValueService.getSamples(_pvAddress, interval);
+		_cachedInterval = interval;
+		_triedOldestValueRetrieval = false;
+	}
+
+	private HistoryArchiveSample loadOldestValueForCachedInterval() {
+		HistoryArchiveSample latestValueBefore = _pvValueService.getLatestValueBefore(_pvAddress, _cachedInterval.getStart());
+		if (latestValueBefore != null) {
+			_values.put(latestValueBefore.getTimeStamp(), latestValueBefore);
+		}
+		_triedOldestValueRetrieval = true;
+		return latestValueBefore;
+	}
+
 	/**
-	 * Returns true if the given timestamp is in the range of the cached time interval and there are cached values.
-	 * False otherwise. Please note that there may be a proper value in the archive even though this method returned
-	 * false (before the stored interval).
+	 * Returns true if the given timestamp is in the range of the cached time
+	 * interval and there are cached values. False otherwise. Please note that
+	 * there may be a proper value in the archive even though this method
+	 * returned false (before the stored interval).
 	 * 
 	 * @param timeStamp
-	 * @return true when timeStamp is in range of cached interval. False ohterwise.
+	 * @return true when timeStamp is in range of cached interval. False
+	 *         ohterwise.
 	 */
 	private boolean isInCachedTimeInterval(DateTime timeStamp) {
 		if (_values != null && _cachedInterval.contains(timeStamp)) {

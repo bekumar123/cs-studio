@@ -79,7 +79,7 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
     private volatile boolean needsMonitor;
     private volatile boolean largeArray = false;
     private boolean putCallback = false;
-    private boolean isConnected = false;
+    private  boolean isConnected = false;
     private boolean isFirst = true;
     private final static Pattern hasOptions = Pattern.compile(".* \\{.*\\}");
 
@@ -251,6 +251,7 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
             @Override
             public void connectionChanged(final ConnectionEvent ev) {
                 synchronized(DesyJCAChannelHandler.this) {
+
                     try {
 
                     	// needsMonitor =ev.isConnected();
@@ -296,7 +297,8 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
                     } catch (final Exception ex) {
                         reportExceptionToAllReadersAndWriters(ex);
                     }
-                }
+                	}
+
             }
         };;
 

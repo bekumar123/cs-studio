@@ -616,9 +616,9 @@ public class ArchiveView extends ViewPart {
                         messageBox.setText(Messages.ViewArchive_17);
                         messageBox.setMessage(Messages.ViewArchive_18
                                 + Math.abs(result.getMsgNumberToDelete() / 11)
-                                + Messages.ViewArchive_19
-                                + System.getProperty(Messages.ViewArchive_20)
-                                + Messages.ViewArchive_21);
+                                + Messages.ViewArchive_19);
+//                                + System.getProperty(Messages.ViewArchive_20)
+//                                + Messages.ViewArchive_21);
                         final int buttonID = messageBox.open();
                         switch (buttonID) {
                         case SWT.OK:

@@ -166,6 +166,7 @@ public class ArchiveDBAccess implements ILogMessageArchiveAccess {
      */
     private void deleteFromDB(final Set<String> messageIdsToDelete) throws Exception {
         _databaseConnection = _connectionHandler.getConnection();
+        LOG.debug("Start delete {} Messages from table message_content.", messageIdsToDelete.size());
         // Delete from table 'message_content'
         final PreparedStatement deleteFromMessageContent =
                 _databaseConnection
@@ -178,6 +179,7 @@ public class ArchiveDBAccess implements ILogMessageArchiveAccess {
         LOG.debug("Messages from table message_content deleted.");
 
         // Delete from table 'message'
+        LOG.debug("Start delete Messages from table message.");
         final PreparedStatement deleteFromMessage =
                 _databaseConnection.prepareStatement("delete from message m where m.id = ?");
         for (final String msgID : messageIdsToDelete) {
@@ -187,78 +189,78 @@ public class ArchiveDBAccess implements ILogMessageArchiveAccess {
 
         LOG.debug("Messages from table message deleted.");
 
-        PreparedStatement enableRowMovement =
-                _databaseConnection
-                        .prepareStatement("ALTER TABLE message_content ENABLE ROW MOVEMENT");
-        PreparedStatement shrinkMessageContentTable =
-                _databaseConnection
-                        .prepareStatement("ALTER TABLE message_content SHRINK SPACE CASCADE");
-        PreparedStatement disableRowMovement =
-                _databaseConnection
-                        .prepareStatement("ALTER TABLE message_content DISABLE ROW MOVEMENT");
-
-        enableRowMovement.execute();
-        shrinkMessageContentTable.execute();
-        disableRowMovement.execute();
-
-        if (disableRowMovement != null) {
-            try {
-                disableRowMovement.close();
-            } catch (final Exception e) {
-            }
-            disableRowMovement = null;
-        }
-        if (shrinkMessageContentTable != null) {
-            try {
-                shrinkMessageContentTable.close();
-            } catch (final Exception e) {
-            }
-            shrinkMessageContentTable = null;
-        }
-        if (enableRowMovement != null) {
-            try {
-                enableRowMovement.close();
-            } catch (final Exception e) {
-            }
-            enableRowMovement = null;
-        }
-
-        enableRowMovement =
-                _databaseConnection.prepareStatement("ALTER TABLE message ENABLE ROW MOVEMENT");
-        PreparedStatement shrinkMessageTable =
-                _databaseConnection.prepareStatement("ALTER TABLE message SHRINK SPACE CASCADE");
-        disableRowMovement =
-                _databaseConnection.prepareStatement("ALTER TABLE message DISABLE ROW MOVEMENT");
-
-        enableRowMovement.execute();
-        shrinkMessageTable.execute();
-        disableRowMovement.execute();
-
-        if (disableRowMovement != null) {
-            try {
-                disableRowMovement.close();
-            } catch (final Exception e) {
-            }
-            disableRowMovement = null;
-        }
-        if (shrinkMessageTable != null) {
-            try {
-                shrinkMessageTable.close();
-            } catch (final Exception e) {
-            }
-            shrinkMessageTable = null;
-        }
-        if (enableRowMovement != null) {
-            try {
-                enableRowMovement.close();
-            } catch (final Exception e) {
-            }
-            enableRowMovement = null;
-        }
+//        PreparedStatement enableRowMovement =
+//                _databaseConnection
+//                        .prepareStatement("ALTER TABLE message_content ENABLE ROW MOVEMENT");
+//        PreparedStatement shrinkMessageContentTable =
+//                _databaseConnection
+//                        .prepareStatement("ALTER TABLE message_content SHRINK SPACE CASCADE");
+//        PreparedStatement disableRowMovement =
+//                _databaseConnection
+//                        .prepareStatement("ALTER TABLE message_content DISABLE ROW MOVEMENT");
+//
+//        enableRowMovement.execute();
+//        shrinkMessageContentTable.execute();
+//        disableRowMovement.execute();
+//
+//        if (disableRowMovement != null) {
+//            try {
+//                disableRowMovement.close();
+//            } catch (final Exception e) {
+//            }
+//            disableRowMovement = null;
+//        }
+//        if (shrinkMessageContentTable != null) {
+//            try {
+//                shrinkMessageContentTable.close();
+//            } catch (final Exception e) {
+//            }
+//            shrinkMessageContentTable = null;
+//        }
+//        if (enableRowMovement != null) {
+//            try {
+//                enableRowMovement.close();
+//            } catch (final Exception e) {
+//            }
+//            enableRowMovement = null;
+//        }
+//
+//        enableRowMovement =
+//                _databaseConnection.prepareStatement("ALTER TABLE message ENABLE ROW MOVEMENT");
+//        PreparedStatement shrinkMessageTable =
+//                _databaseConnection.prepareStatement("ALTER TABLE message SHRINK SPACE CASCADE");
+//        disableRowMovement =
+//                _databaseConnection.prepareStatement("ALTER TABLE message DISABLE ROW MOVEMENT");
+//
+//        enableRowMovement.execute();
+//        shrinkMessageTable.execute();
+//        disableRowMovement.execute();
+//
+//        if (disableRowMovement != null) {
+//            try {
+//                disableRowMovement.close();
+//            } catch (final Exception e) {
+//            }
+//            disableRowMovement = null;
+//        }
+//        if (shrinkMessageTable != null) {
+//            try {
+//                shrinkMessageTable.close();
+//            } catch (final Exception e) {
+//            }
+//            shrinkMessageTable = null;
+//        }
+//        if (enableRowMovement != null) {
+//            try {
+//                enableRowMovement.close();
+//            } catch (final Exception e) {
+//            }
+//            enableRowMovement = null;
+//        }
 
         _databaseConnection.commit();
 
-        LOG.info("Messages from table message_content and message deleted and table space released.");
+        LOG.info("Messages from table message_content and message deleted (table space NOT released).");
     }
 
     /**
@@ -282,7 +284,13 @@ public class ArchiveDBAccess implements ILogMessageArchiveAccess {
             final ArrayList<ArrayList<FilterItem>> separatedFilterSettings =
                     filter.getSeparatedFilterSettings();
             ResultSet result = null;
-            final Integer maxRowNum = Integer.valueOf(_maxAnswerSize * 15);
+            Integer maxRowNum = Integer.valueOf(_maxAnswerSize * 15);
+            //jhatje (2014-01-10) TODO: Struktur ueberarbeiten. Nach Umbau vom SQLBuilder und Archive
+            //DBAccess wird eine Exception geworfen. maxRowNum muss wenn negativ auf -1 gesetzt werden,
+            //andernfalls wird eine Exception geworfen.
+            if(maxRowNum<0) {
+                maxRowNum=-1;
+            }
             _sqlBuilder = new SQLBuilder(new DBConnectionHandler());
             _sqlBuilder.setMaxRowNum(maxRowNum);
             LOG.debug("set maxRowNum to {}", maxRowNum);

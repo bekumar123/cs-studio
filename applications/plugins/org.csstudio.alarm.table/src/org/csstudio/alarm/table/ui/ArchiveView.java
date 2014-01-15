@@ -74,6 +74,7 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.views.IViewDescriptor;
 import org.eclipse.ui.views.IViewRegistry;
@@ -585,8 +586,12 @@ public class ArchiveView extends ViewPart {
                 Display.getDefault().syncExec(new Runnable() {
                     @Override
                     public void run() {
-                        final MessageBox messageBox = new MessageBox(Display
-                                .getDefault().getActiveShell(), SWT.OK
+                    	LOG.debug("export finished");
+                    	Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+                    	if (shell == null) {
+                    		LOG.warn("shell is NULL for message export popup");
+                    	}
+                        final MessageBox messageBox = new MessageBox(shell, SWT.OK
                                 | SWT.ICON_INFORMATION);
                         messageBox.setText(Messages.ViewArchive_26);
                         if (result.isMaxSize()) {
@@ -610,8 +615,12 @@ public class ArchiveView extends ViewPart {
                 Display.getDefault().syncExec(new Runnable() {
                     @Override
                     public void run() {
-                        final MessageBox messageBox = new MessageBox(Display
-                                .getDefault().getActiveShell(), SWT.OK
+                    	LOG.debug("message count finished");
+                    	Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+                    	if (shell == null) {
+                    		LOG.warn("shell is NULL for message count popup");
+                    	}
+                        final MessageBox messageBox = new MessageBox(shell, SWT.OK
                                 | SWT.CANCEL | SWT.ICON_WARNING);
                         messageBox.setText(Messages.ViewArchive_17);
                         messageBox.setMessage(Messages.ViewArchive_18
@@ -644,8 +653,12 @@ public class ArchiveView extends ViewPart {
                 Display.getDefault().syncExec(new Runnable() {
                     @Override
                     public void run() {
-                        final MessageBox messageBox = new MessageBox(Display
-                                .getDefault().getActiveShell(), SWT.OK
+                    	LOG.debug("delete messages finished");
+                    	Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+                    	if (shell == null) {
+                    		LOG.warn("shell is NULL for delete message popup");
+                    	}
+                        final MessageBox messageBox = new MessageBox(shell, SWT.OK
                                 | SWT.ICON_INFORMATION);
                         messageBox.setText(Messages.ViewArchive_24);
                         messageBox.setMessage(Messages.ViewArchive_25);
@@ -709,9 +722,11 @@ public class ArchiveView extends ViewPart {
                                     .split(";"); //$NON-NLS-1$
 
                             final BasicMessage jmsMessage = new BasicMessage(propertyNames);
-                            final String firstColumnName = _columnNames[0];
-                            jmsMessage.setProperty(firstColumnName,
-                                    Messages.LogViewArchive_NoMessageInDB);
+                            for (String columnName : _columnNames) {
+                            	String[] split = columnName.split("\\,");
+                            	jmsMessage.setProperty(split[0],
+                            			Messages.LogViewArchive_NoMessageInDB);
+							}
                             _jmsMessageList.addMessage(jmsMessage);
                         }
                     }

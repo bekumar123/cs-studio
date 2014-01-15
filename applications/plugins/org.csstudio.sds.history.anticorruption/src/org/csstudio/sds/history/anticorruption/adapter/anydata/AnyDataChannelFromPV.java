@@ -21,6 +21,7 @@ import org.csstudio.sds.history.anticorruption.adapter.ChannelFieldType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.c1wps.geneal.desy.domain.plant.plantmaterials.PVAlarmStatus;
 import de.c1wps.geneal.desy.domain.plant.plantmaterials.PVConnectionState;
 import de.c1wps.geneal.desy.domain.plant.plantmaterials.PVSeverityState;
 import de.c1wps.geneal.desy.domain.plant.plantmaterials.PlantUnitDataTypes;
@@ -242,6 +243,8 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 			return pva != null ? pva.getValue() : null;
 		} else if (CharacteristicInfo.C_SEVERITY.getName().equals(name)) {
 			return _anyData.getPvSeverityAsLong();
+		} else if (CharacteristicInfo.C_STATUS.getName().equals(name)) {
+			return _anyData.getPvStatusAsLong();
 		} else {
 			LOG.error("no characteristic for '" + name + "' defined");
 			return null;
@@ -270,8 +273,8 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 
 		@Override
 		public String getStatus() {
-			LOG.error("AnyDataChannelFromPV.AnyDataImpl.getStatus()");
-			return null;
+			LOG.trace("AnyDataChannelFromPV.AnyDataImpl.getStatus()");
+			return _processVariable.getAlarmStatus().name();
 		}
 
 		@Override
@@ -290,11 +293,19 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 		public String stringValue() {
 			LOG.trace("AnyDataChannelFromPV.AnyDataImpl.stringValue()");
 
-			if (_processVariable.hasValue()) {
-				return _processVariable.getValue().getStringValue();
+			switch (_channelType) {
+			case VAL:
+				if (_processVariable.hasValue()) {
+					return _processVariable.getValue().getStringValue();
+				} else return "no data";
+			case SEVR:
+				return _processVariable.getSeverityState().name();
+			case STAT:
+				return _processVariable.getAlarmStatus().name();
+			default:
+				LOG.error("no data data available for type String " + _processVariable.getControlSystemAddress());
+				return "no data";
 			}
-			LOG.error("no data data available for type String " + _processVariable.getControlSystemAddress());
-			return "no Data";
 		}
 		
 
@@ -317,6 +328,8 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 				return getPvValueAsLong();
 			case SEVR:
 				return getPvSeverityAsLong();
+			case STAT:
+				return getPvStatusAsLong();
 			default:
 				return getPvValueAsLong();
 			}
@@ -334,20 +347,18 @@ public class AnyDataChannelFromPV<T, Ts> extends NumericPropertyImplGenealStub<T
 		private long getPvSeverityAsLong() {
 			if (_processVariable.getSeverityState() != null) {
 				PVSeverityState severityState = _processVariable.getSeverityState();
-				switch (severityState) {
-				case OK:
-					return 0;
-				case MINOR:
-					return 1;
-				case MAJOR:
-					return 2;
-				case INVALID:
-					return 3;
-				default:
-					return 3;
-				}				
+				return severityState.getEpicsCode();		
 			} else {
-				return 3;
+				return PVSeverityState.INVALID.getEpicsCode();
+			}
+		}
+		
+		private long getPvStatusAsLong() {
+			if (_processVariable.getAlarmStatus() != null) {
+				PVAlarmStatus alarmStatus = _processVariable.getAlarmStatus();
+				return alarmStatus.getEpicsCode();
+			} else {
+				return PVAlarmStatus.UNKNOWN.getEpicsCode();
 			}
 		}
 

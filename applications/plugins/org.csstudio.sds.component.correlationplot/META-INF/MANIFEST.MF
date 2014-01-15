@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Correlation Plot SDS Widget
 Bundle-SymbolicName: org.csstudio.sds.component.correlationplot;singleton:=true
-Bundle-Version: 1.0.0.201401071400
+Bundle-Version: 1.0.0.201401151100
 Bundle-Activator: org.csstudio.sds.component.correlationplot.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,

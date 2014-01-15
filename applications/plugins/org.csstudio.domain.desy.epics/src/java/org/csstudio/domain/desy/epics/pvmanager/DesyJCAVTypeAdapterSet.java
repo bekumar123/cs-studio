@@ -24,7 +24,6 @@ import gov.aps.jca.dbr.DBR_TIME_Int;
 import gov.aps.jca.dbr.DBR_TIME_Short;
 import gov.aps.jca.dbr.DBR_TIME_String;
 import gov.aps.jca.dbr.GR;
-import gov.aps.jca.dbr.LABELS;
 import gov.aps.jca.dbr.STS;
 
 import java.util.Collections;
@@ -223,7 +222,10 @@ public class DesyJCAVTypeAdapterSet  implements DesyJCATypeAdapterSet {
                     @Override
                     @Nonnull
                     public EpicsMetaData createMetaData(@Nonnull final STS eMeta) {
-                        return EpicsMetaData.create(((LABELS) eMeta).getLabels());
+                    	 return EpicsMetaData.create(new EpicsAlarm(EpicsAlarmSeverity.valueOf(eMeta.getSeverity()),
+                                 EpicsAlarmStatus.valueOf(eMeta.getStatus())),
+                                 null, null, null,GR.EMPTYUNIT);
+                     //   return EpicsMetaData.create(((LABELS) eMeta).getLabels());
                     }
                 });
 		        newFactories.add(  new DesyJCATypeAdapter(EpicsEnum.class,
@@ -243,7 +245,10 @@ public class DesyJCAVTypeAdapterSet  implements DesyJCATypeAdapterSet {
                     @Override
                     @Nonnull
                     public EpicsMetaData createMetaData(@Nonnull final STS eMeta) {
-                        return EpicsMetaData.create(((LABELS) eMeta).getLabels());
+                    	 return EpicsMetaData.create(new EpicsAlarm(EpicsAlarmSeverity.valueOf(eMeta.getSeverity()),
+                                 EpicsAlarmStatus.valueOf(eMeta.getStatus())),
+                                 null, null, null,GR.EMPTYUNIT);
+                    ///    return EpicsMetaData.create(((LABELS) eMeta).getLabels());
                     }
                 });
                 converters = Collections.unmodifiableSet(newFactories);

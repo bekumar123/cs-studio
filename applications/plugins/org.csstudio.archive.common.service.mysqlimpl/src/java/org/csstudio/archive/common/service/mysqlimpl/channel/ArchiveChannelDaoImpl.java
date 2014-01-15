@@ -99,7 +99,7 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
 //wenhua use value in channel table
     private final String _selectChannelPrefix =
         "SELECT " + TAB + ".id, " + TAB + ".name, " + TAB + ".datatype, " + TAB + ".group_id, " + TAB + ".last_sample_time, " +
-                    TAB + ".enabled, " + TAB + ".display_high, " + TAB + ".display_low, " +
+                    TAB + ".enabled, " + TAB + ".display_high, " + TAB + ".display_low, " +  TAB + ".uv, "+
                  CS_TAB + ".id, " + CS_TAB + ".name, " + CS_TAB + ".type " +
                 "FROM " + getDatabaseName() + "." + TAB + ", " +
                           getDatabaseName() + "." + CS_TAB;
@@ -161,6 +161,8 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
         dispHi = Strings.isNullOrEmpty(dispHi) ? null : dispHi;
         String dispLo = result.getString(TAB + ".display_low");
         dispLo = Strings.isNullOrEmpty(dispLo) ? null : dispLo;
+        String uv = result.getString(TAB + ".uv");
+        uv = Strings.isNullOrEmpty(uv) ? null : uv;
 
         final ArchiveControlSystemId csId = new ArchiveControlSystemId(result.getLong(CS_TAB + ".id"));
         final String csName = result.getString(CS_TAB + ".name");
@@ -178,7 +180,7 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
                                                                   cs,
                                                                   isEnabled,
                                                                   dispLo,
-                                                                  dispHi);
+                                                                  dispHi,uv);
 
 
         _channelCacheByName.put(name, channel);

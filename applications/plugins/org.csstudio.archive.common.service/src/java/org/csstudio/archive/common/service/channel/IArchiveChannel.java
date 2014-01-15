@@ -50,6 +50,10 @@ public interface IArchiveChannel extends IIdentifiable<ArchiveChannelId> {
     @CheckForNull
     String getDataType();
 
+    @CheckForNull
+    String getUv();
+
+
     @Nonnull
     IArchiveControlSystem getControlSystem();
 

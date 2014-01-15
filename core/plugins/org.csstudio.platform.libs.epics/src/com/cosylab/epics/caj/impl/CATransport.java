@@ -634,6 +634,14 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 					for (int tries = 0; /* tries <= TRIES */ ; tries++)
 					{ 
 					// send
+						//wenhua xu
+						//because the write returns zero, the socket send buffer is full, 
+						//so I set channel writable, register OP_WRITE and return to the select loop, 
+						//rather than waste time spinning until there is room again.
+						//The present technique starves the other channels of service and wastes CPU cycles.
+						//http://stackoverflow.com/questions/5906444/socketchannel-write-writing-problem  hat die genaue beschreibungen.
+						 context.getReactor().setInterestOps(channel, SelectionKey.OP_WRITE);
+			
 					/*int	bytesSent = */channel.write(buffer);
 						if (buffer.position() != buffer.limit())
 						{
@@ -655,13 +663,6 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 							} catch (InterruptedException e) {
 								// noop
 							}
-							//wenhua xu
-							//because the write returns zero, the socket send buffer is full, 
-							//so I set channel writable, register OP_WRITE and return to the select loop, 
-							//rather than waste time spinning until there is room again.
-							//The present technique starves the other channels of service and wastes CPU cycles.
-							//http://stackoverflow.com/questions/5906444/socketchannel-write-writing-problem  hat die genaue beschreibungen.
-							 context.getReactor().setInterestOps(channel, SelectionKey.OP_WRITE);
 							continue;
 						}
 						else
@@ -756,7 +757,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	    else
 	    {
 		    // enable SelectionKey.OP_WRITE via reactor (this will also enable OP_READ, but its OK)
-		    context.getReactor().setInterestOps(channel, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+		    context.getReactor().setInterestOps(channel, SelectionKey.OP_WRITE | SelectionKey.OP_READ );
 		    return true;
 	    }
     }
@@ -962,12 +963,12 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 		if (!probeResponsePending){
 		        	//taskId 
 		        	//beacon comet  and Probe response (state-of-health message) sent and wait response =false
-			        context.getLogger().warning("Task  "+taskID+" ist time out, timeout=45000"+"\nBeacon arrival, run again.   Probe response (state-of-health message) sent and wait response ="+probeResponsePending);
+			      //  context.getLogger().warning("Task  "+taskID+" ist time out, timeout=45000"+"\nBeacon arrival, run again.   Probe response (state-of-health message) sent and wait response ="+probeResponsePending);
 			    	rescheduleTimer(connectionTimeout);
 			}else
 			{
 				   //beacon comet  and Probe response (state-of-health message) sent and wait response =true nothing todo
-				    context.getLogger().warning("Task  "+taskID+" ist time out, timeout=45000"+"\nBeacon arrival, do nothing.  Probe response (state-of-health message) sent and wait response ="+probeResponsePending);	
+				 //   context.getLogger().warning("Task  "+taskID+" ist time out, timeout=45000"+"\nBeacon arrival, do nothing.  Probe response (state-of-health message) sent and wait response ="+probeResponsePending);	
 				    
 			}
 	}
@@ -1010,22 +1011,22 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 			{
 				//flag for Probe response (state-of-health message) sent and waiting for response.
 				//flag for Probe response (state-of-health message) did not respond - timeout.
-				context.getLogger().finest("Response timeout and Probe response (state-of-health message) sent and wait response ="+ probeResponsePending+"\nResponse timeout and Probe response (state-of-health message) did not respond - timeout ="+probeTimeoutDetected);
+			//	context.getLogger().finest("Response timeout and Probe response (state-of-health message) sent and wait response ="+ probeResponsePending+"\nResponse timeout and Probe response (state-of-health message) did not respond - timeout ="+probeTimeoutDetected);
 				probeTimeoutDetected = true;
 				//Acutely flag for Probe response (state-of-health message) did not respond - timeout.
-				context.getLogger().finest("Set Response timeout and Probe response (state-of-health message) did not respond - timeout ="+probeTimeoutDetected);
+			//	context.getLogger().finest("Set Response timeout and Probe response (state-of-health message) did not respond - timeout ="+probeTimeoutDetected);
 				unresponsiveTransport();
 				//socketAddress 
-				context.getLogger().warning("Disconnected with "+ socketAddress.getHostName());
+			//	context.getLogger().warning("Disconnected with "+ socketAddress.getHostName());
 				//taskID
-				context.getLogger().finest("Task  "+taskID+" ist time out, timeout="+timeToRun);
+			//	context.getLogger().finest("Task  "+taskID+" ist time out, timeout="+timeToRun);
 	    		}
 			else
 			{  	//taskID
-				context.getLogger().finest("Task  "+taskID+" ist time out, timeout="+timeToRun);
+				//context.getLogger().finest("Task  "+taskID+" ist time out, timeout="+timeToRun);
 				//flag for Probe response (state-of-health message) sent and waiting for response.
 				//flag for Probe response (state-of-health message) did not respond - timeout.
-				context.getLogger().finest("Response timeout and Probe response (state-of-health message) sent and response ="+ probeResponsePending+"\nResponse timeout and Probe response (state-of-health message) did not respond - timeout ="+probeTimeoutDetected);
+			//	context.getLogger().finest("Response timeout and Probe response (state-of-health message) sent and response ="+ probeResponsePending+"\nResponse timeout and Probe response (state-of-health message) did not respond - timeout ="+probeTimeoutDetected);
 				sendEcho();
 			}
 		}
@@ -1044,15 +1045,15 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 				{
 					//flag for Probe response (state-of-health message) sent and waiting for response. echoNotify of IOC
 					//flag for Probe response (state-of-health message) did not respond - timeout. echoNotify of IOC
-					context.getLogger().finest("Response  echoNotify : Response timeout and Probe response (state-of-health message) sent and response ="+ probeResponsePending + " from  " + socketAddress.getHostName());
-					context.getLogger().finest("Response  echoNotify : Response timeout and Probe response (state-of-health message) did not respond - timeout ="+probeTimeoutDetected+ " from  " + socketAddress.getHostName());
+				//	context.getLogger().finest("Response  echoNotify : Response timeout and Probe response (state-of-health message) sent and response ="+ probeResponsePending + " from  " + socketAddress.getHostName());
+				//	context.getLogger().finest("Response  echoNotify : Response timeout and Probe response (state-of-health message) did not respond - timeout ="+probeTimeoutDetected+ " from  " + socketAddress.getHostName());
 					// try again
 					sendEcho();
 				}
 				else
 				{   
 					//flag for Probe response (state-of-health message) sent and waiting for response. echoNotify of IOC
-					context.getLogger().finest("Response  echoNotify : Response timeout and Probe response (state-of-health message) sent and response ="+ probeResponsePending + " from  " + socketAddress.getHostName());
+				//	context.getLogger().finest("Response  echoNotify : Response timeout and Probe response (state-of-health message) sent and response ="+ probeResponsePending + " from  " + socketAddress.getHostName());
 					// transport is responsive
 					probeTimeoutDetected = false;
 					probeResponsePending = false;
@@ -1075,7 +1076,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 			{	
 				new EchoRequest(this).submit();
 				//create new request to IOC
-				context.getLogger().warning("new EchoRequest(this)  to " + socketAddress.getHostName());
+			//	context.getLogger().warning("new EchoRequest(this)  to " + socketAddress.getHostName());
 			}
 			catch (IOException ex)
 			{
@@ -1084,7 +1085,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 			}
 			rescheduleTimer(CAConstants.CA_ECHO_TIMEOUT);
 			//echorequest timeout
-			context.getLogger().finest("rescheduleTimer 5000  ");
+		//	context.getLogger().finest("rescheduleTimer 5000  ");
 		
 		}
 	}
@@ -1105,7 +1106,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 				clients = new TransportClient[owners.size()];
 				owners.keySet().toArray(clients);
 			}
-			context.getLogger().finest(Thread.currentThread().toString()+ "  responsiveTransport() wtih " + socketAddress.getHostName());
+		//	context.getLogger().finest(Thread.currentThread().toString()+ "  responsiveTransport() wtih " + socketAddress.getHostName());
 			
 			// NOTE: not perfect, but holding a lock on owners
 			// and calling external method leads to deadlocks
@@ -1160,7 +1161,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 				owners.keySet().toArray(clients);
 			}
 		
-				context.getLogger().finest(Thread.currentThread().toString()+ "  unresponsiveTransport() wtih " + socketAddress.getHostName());
+			//	context.getLogger().finest(Thread.currentThread().toString()+ "  unresponsiveTransport() wtih " + socketAddress.getHostName());
 						
 			// NOTE: not perfect, but holding a lock on owners
 			// and calling external method leads to deadlocks

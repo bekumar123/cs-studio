@@ -40,10 +40,10 @@ public class AlarmHandler {
 	 */
 	private String _logLevel = "info";
 	private Double deadband = 5.0;
-	private Double highAbsoluteLimit = 1000.0;
+	private Double highAbsoluteLimit = 100000.0;
 	private boolean highAbsoluteLimitIsActive = false;
 	private StoredData highAbsoluteLimitLastAlarm = null;
-	private Double highRelativeLimit = 1000.0;
+	private Double highRelativeLimit = 10000.0;
 	private boolean highRelativeLimitIsActive = false;
 	private StoredData highRelativeLimitLastAlarm = null;
 	private String descriptor	= null;
@@ -89,7 +89,7 @@ public class AlarmHandler {
 			    
 			    Object[] logArgs = new Object[] {getApplication(), getDescriptor(), value, collector.getInfo()};
 
-				LOG.warn("{0} : {1} above absolute High limit! Value: {2} Info: {3}", logArgs);
+				LOG.warn( getApplication()+" : "+getDescriptor()+" above absolute High limit! Value: "+value.toString()+" Info:"+collector.getInfo());
 				setHighAbsoluteLimitIsActive(true);
 			}			
 		} else {

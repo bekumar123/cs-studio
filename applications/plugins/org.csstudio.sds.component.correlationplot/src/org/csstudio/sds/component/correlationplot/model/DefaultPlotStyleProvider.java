@@ -16,7 +16,8 @@ public class DefaultPlotStyleProvider implements PlotStyleProvider {
 	private Coordinate2D warningTextPosition;
 	private int numberOfPoints = 1;
 	private RGB backgroundColor = RGB.WHITE_COLOR;
-	private double brightnessDelta;;
+	private double brightnessDelta;
+	private RGB polynomialLabelColor;;
 	
 	@Override
 	public LineStyle getPolynomialLineStyle() {
@@ -170,5 +171,14 @@ public class DefaultPlotStyleProvider implements PlotStyleProvider {
 	public void setNumberOfPoints(Integer numberOfPoints) {
 		this.numberOfPoints = numberOfPoints;
 		brightnessDelta = brightness / numberOfPoints;
+	}
+
+	@Override
+	public RGB getPolynomialLabelColor() {
+		return polynomialLabelColor;
+	}
+	
+	public void setPolynomialLabelColor(RGB polynomialLabelColor) {
+		this.polynomialLabelColor = polynomialLabelColor;
 	}
 }

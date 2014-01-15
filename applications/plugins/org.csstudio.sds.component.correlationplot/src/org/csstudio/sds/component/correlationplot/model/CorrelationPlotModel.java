@@ -31,6 +31,17 @@ public class CorrelationPlotModel extends AbstractWidgetModel {
 	public static final String PROP_POLYNOMIAL_10 = "polynomial_10"; //$NON-NLS-1$
 	public static final String PROP_POLYNOMIAL_LINE_COLOR = "polynomial_line_color"; //$NON-NLS-1$
 	public static final String PROP_POLYNOMIAL_LINE_WIDTH = "polynomial_line_width"; //$NON-NLS-1$
+	public static final String PROP_POLYNOMIAL_1_LABEL = "polynomial_1_label"; //$NON-NLS-1$
+	public static final String PROP_POLYNOMIAL_2_LABEL = "polynomial_2_label"; //$NON-NLS-1$
+	public static final String PROP_POLYNOMIAL_3_LABEL = "polynomial_3_label"; //$NON-NLS-1$
+	public static final String PROP_POLYNOMIAL_4_LABEL = "polynomial_4_label"; //$NON-NLS-1$
+	public static final String PROP_POLYNOMIAL_5_LABEL = "polynomial_5_label"; //$NON-NLS-1$
+	public static final String PROP_POLYNOMIAL_6_LABEL = "polynomial_6_label"; //$NON-NLS-1$
+	public static final String PROP_POLYNOMIAL_7_LABEL = "polynomial_7_label"; //$NON-NLS-1$
+	public static final String PROP_POLYNOMIAL_8_LABEL = "polynomial_8_label"; //$NON-NLS-1$
+	public static final String PROP_POLYNOMIAL_9_LABEL = "polynomial_9_label"; //$NON-NLS-1$
+	public static final String PROP_POLYNOMIAL_10_LABEL = "polynomial_10_label"; //$NON-NLS-1$
+	public static final String PROP_POLYNOMIAL_LABEL_COLOR = "polynomial_label_color"; //$NON-NLS-1$
 	public static final String PROP_POLYLINE_1 = "polyline_1"; //$NON-NLS-1$
 	public static final String PROP_POLYLINE_2 = "polyline_2"; //$NON-NLS-1$
 	public static final String PROP_POLYLINE_3 = "polyline_3"; //$NON-NLS-1$
@@ -89,19 +100,30 @@ public class CorrelationPlotModel extends AbstractWidgetModel {
 		// Kennlinien (Polynome), bis zu 10, als Polynom 4. Grades, bis zu 5 Koeffizienten
 		// TODO Standard Werte??
 		addDoubleArrayProperty(PROP_POLYNOMIAL_1, "Polynomial 1  (coefficients)", WidgetPropertyCategory.MISC, new double[]{-1.0, 0.0, 0.6, -0.125}, false);
+		addStringProperty(PROP_POLYNOMIAL_1_LABEL, "Polynomial 1 Label", WidgetPropertyCategory.MISC, "Polynomial 1", false);
 		addDoubleArrayProperty(PROP_POLYNOMIAL_2, "Polynomial 2  (coefficients)", WidgetPropertyCategory.MISC, new double[]{1.0, 0.0, 0.5, -0.1}, false);
+		addStringProperty(PROP_POLYNOMIAL_2_LABEL, "Polynomial 2 Label", WidgetPropertyCategory.MISC, "Polynomial 2", false);
 		addDoubleArrayProperty(PROP_POLYNOMIAL_3, "Polynomial 3  (coefficients)", WidgetPropertyCategory.MISC, new double[]{3.0, 0.0, 0.4, -0.075}, false);
+		addStringProperty(PROP_POLYNOMIAL_3_LABEL, "Polynomial 3 Label", WidgetPropertyCategory.MISC, "Polynomial 3", false);
 		addDoubleArrayProperty(PROP_POLYNOMIAL_4, "Polynomial 4  (coefficients)", WidgetPropertyCategory.MISC, new double[]{5.0, 0.0, 0.3, -0.05}, false);
+		addStringProperty(PROP_POLYNOMIAL_4_LABEL, "Polynomial 4 Label", WidgetPropertyCategory.MISC, "Polynomial 4", false);
 		addDoubleArrayProperty(PROP_POLYNOMIAL_5, "Polynomial 5  (coefficients)", WidgetPropertyCategory.MISC, new double[]{7.0, 0.0, 0.2, -0.025}, false);
+		addStringProperty(PROP_POLYNOMIAL_5_LABEL, "Polynomial 5 Label", WidgetPropertyCategory.MISC, "Polynomial 5", false);
 		addDoubleArrayProperty(PROP_POLYNOMIAL_6, "Polynomial 6  (coefficients)", WidgetPropertyCategory.MISC, new double[]{9.0, 0.0, 0.1, -0.01}, false);
+		addStringProperty(PROP_POLYNOMIAL_6_LABEL, "Polynomial 6 Label", WidgetPropertyCategory.MISC, "Polynomial 6", false);
 		addDoubleArrayProperty(PROP_POLYNOMIAL_7, "Polynomial 7  (coefficients)", WidgetPropertyCategory.MISC, new double[0], false);
+		addStringProperty(PROP_POLYNOMIAL_7_LABEL, "Polynomial 7 Label", WidgetPropertyCategory.MISC, "", false);
 		addDoubleArrayProperty(PROP_POLYNOMIAL_8, "Polynomial 8  (coefficients)", WidgetPropertyCategory.MISC, new double[0], false);
+		addStringProperty(PROP_POLYNOMIAL_8_LABEL, "Polynomial 8 Label", WidgetPropertyCategory.MISC, "", false);
 		addDoubleArrayProperty(PROP_POLYNOMIAL_9, "Polynomial 9  (coefficients)", WidgetPropertyCategory.MISC, new double[0], false);
+		addStringProperty(PROP_POLYNOMIAL_9_LABEL, "Polynomial 9 Label", WidgetPropertyCategory.MISC, "", false);
 		addDoubleArrayProperty(PROP_POLYNOMIAL_10,"Polynomial 10 (coefficients)", WidgetPropertyCategory.MISC, new double[0], false);
+		addStringProperty(PROP_POLYNOMIAL_10_LABEL, "Polynomial 10 Label", WidgetPropertyCategory.MISC, "", false);
 		// Linienfarbe (Linientyp, Liniendicke) zu den Kennlinien
 		addColorProperty(PROP_POLYNOMIAL_LINE_COLOR, "Polynomial line color", WidgetPropertyCategory.MISC, "#969696", false);
 		addIntegerProperty(PROP_POLYNOMIAL_LINE_WIDTH, "Polynomial line width", WidgetPropertyCategory.MISC, 1, 1, 10, false);
-
+		addColorProperty(PROP_POLYNOMIAL_LABEL_COLOR, "Polynomial label color", WidgetPropertyCategory.MISC, "#0d50ee", false);
+		
 		// Kennlinien (Polylines)
 		addDoubleArrayProperty(PROP_POLYLINE_1, "Polyline 1  (x;y coordinates)", WidgetPropertyCategory.MISC, new double[]{1.0, 0.0, 0.0, 1}, false);
 		addDoubleArrayProperty(PROP_POLYLINE_2, "Polyline 2  (x;y coordinates)", WidgetPropertyCategory.MISC, new double[]{2.0, 0.0, 0.0, 2.0}, false);
@@ -215,6 +237,46 @@ public class CorrelationPlotModel extends AbstractWidgetModel {
 	public final double[] getPolynomial10() {
 		return getDoubleArrayProperty(PROP_POLYNOMIAL_10);
 	}
+
+	public final String getPolynomialLabel1() {
+		return getStringProperty(PROP_POLYNOMIAL_1_LABEL);
+	}
+	
+	public final String getPolynomialLabel2() {
+		return getStringProperty(PROP_POLYNOMIAL_2_LABEL);
+	}
+	
+	public final String getPolynomialLabel3() {
+		return getStringProperty(PROP_POLYNOMIAL_3_LABEL);
+	}
+	
+	public final String getPolynomialLabel4() {
+		return getStringProperty(PROP_POLYNOMIAL_4_LABEL);
+	}
+	
+	public final String getPolynomialLabel5() {
+		return getStringProperty(PROP_POLYNOMIAL_5_LABEL);
+	}
+	
+	public final String getPolynomialLabel6() {
+		return getStringProperty(PROP_POLYNOMIAL_6_LABEL);
+	}
+	
+	public final String getPolynomialLabel7() {
+		return getStringProperty(PROP_POLYNOMIAL_7_LABEL);
+	}
+	
+	public final String getPolynomialLabel8() {
+		return getStringProperty(PROP_POLYNOMIAL_8_LABEL);
+	}
+	
+	public final String getPolynomialLabel9() {
+		return getStringProperty(PROP_POLYNOMIAL_9_LABEL);
+	}
+	
+	public final String getPolynomialLabel10() {
+		return getStringProperty(PROP_POLYNOMIAL_10_LABEL);
+	}
 	
 	public final int getPolynomialLineWidth() {
 		return getIntegerProperty(PROP_POLYNOMIAL_LINE_WIDTH);
@@ -222,6 +284,10 @@ public class CorrelationPlotModel extends AbstractWidgetModel {
 	
 	public final String getPolynomialLineColor() {
 		return getColor(PROP_POLYNOMIAL_LINE_COLOR);
+	}
+	
+	public final String getPolynomialLabelColor() {
+		return getColor(PROP_POLYNOMIAL_LABEL_COLOR);
 	}
 	
 	public final int getPolylineLineWidth() {

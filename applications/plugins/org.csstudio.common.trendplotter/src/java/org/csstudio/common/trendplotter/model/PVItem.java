@@ -500,7 +500,7 @@ public class PVItem extends ModelItem implements PVListener {
         // In 'monitor' mode, add to live sample buffer
         if (_period <= 0) {
             samples.addLiveSample(current_value);
-            LOG.trace(pv.getName() + " : " + samples.getLiveSampleSize() + " live samples");
+//            LOG.trace(pv.getName() + " : " + samples.getLiveSampleSize() + " live samples");
         }
     }
 
@@ -687,19 +687,20 @@ public class PVItem extends ModelItem implements PVListener {
         _minMaxFromFile = minMaxFromFile;
     }
 
-    /**
-     * 
-     */
-    public void moveHistoricSamplesToLiveSamples() {
-        samples.moveHistoricSamplesToLiveSamples();
-    }
-
     public Double getDisplayHighFromRecord() {
         return displayHighFromRecord;
     }
 
     public Double getDisplayLowFromRecord() {
         return displayLowFromRecord;
+    }
+
+    /**
+     * History samples will only be added. Without compression the performance
+     * of the plotter gets worse.
+     */
+    public void compressHistorySamples() {
+        samples.compressHistorySamples();
     }
 
 }

@@ -93,9 +93,7 @@ public class ArchiveRepository
         final String prefix = url.substring(0, delim);
 
         // Locate implementation for that prefix
-        System.out.println("ArchiveRepository.getArchiveReader()  start ArchiveReaderFactory create "+System.currentTimeMillis());
         final ArchiveReaderFactory factory = reader_factories.get(prefix);
-        System.out.println("ArchiveRepository.getArchiveReader()  end ArchiveReaderFactory create "+System.currentTimeMillis());
         if (factory == null)
             throw new Exception("Unkown archive reader URL " + url);
         return factory.getArchiveReader(url);

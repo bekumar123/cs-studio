@@ -132,7 +132,7 @@ public class ArchiveConnectionHandler {
             if (connection != null) {
                 final DatabaseMetaData meta = connection.getMetaData();
                 if (meta != null) {
-                    LOG.debug("MySQL connection:\n{} {}", meta.getDatabaseProductName(), meta.getDatabaseProductVersion());
+//                    LOG.debug("MySQL connection:\n{} {}", meta.getDatabaseProductName(), meta.getDatabaseProductVersion());
                 } else {
                     LOG.debug("No meta data for MySQL connection");
                 }

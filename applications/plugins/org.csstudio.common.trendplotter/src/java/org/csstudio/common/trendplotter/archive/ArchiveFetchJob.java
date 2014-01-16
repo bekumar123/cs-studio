@@ -109,11 +109,12 @@ public class ArchiveFetchJob extends Job
         @Override
         public void run()
         {
-            LOG.info("start archive fetch ");
             final long start_ms = System.currentTimeMillis();
             Timestamp _end = end;
             final int bins = Preferences.getPlotBins();
             final ArchiveDataSource archives[] = item.getArchiveDataSources();
+            item.compressHistorySamples();
+            LOG.info("start archive fetch with {} data sources", archives.length);
             for (int i=0; i<archives.length && !cancelled; ++i)
             {
                 final ArchiveDataSource archive = archives[i];
@@ -133,27 +134,23 @@ public class ArchiveFetchJob extends Job
                 {
                     long beginTime=System.currentTimeMillis();
                     synchronized (this)
-                    {  LOG.info("start reader create");
+                    {  
                         reader = ArchiveRepository.getInstance().getArchiveReader(url);
-                       LOG.info("end reader create");
+                        LOG.info("start reader {}", reader.getURL());
                     }
-//                    TODO (jhatje): implement vType
                     ValueIterator value_iter = null;
                     RequestType currentRequestType = item.getRequestType();
                     if(url.contains("sql")) _end=end;
                     if(_end.getSec()<start.getSec()) continue;
                 
-                    LOG.info("start value_iter create");
                     if (currentRequestType == RequestType.RAW) {
                         value_iter = reader.getRawValues(archive.getKey(), item.getName(), start, _end);
                     }
                     else {
                         value_iter = reader.getOptimizedValues(archive.getKey(), item.getName(), start, _end, bins);
                     }
-                    LOG.info("end value_iter create");
                     // Get samples into array
                     ArrayList<VType> result = new ArrayList<VType>();
-                    LOG.info("start result create");
                     while (value_iter.hasNext()) {
                         final VType next = value_iter.next();
                      //   LOG.trace(url + " - val: " + next.toString() );
@@ -165,12 +162,8 @@ public class ArchiveFetchJob extends Job
                                 result.add(next);
                         }
                     }
-                    LOG.info("end result create");
-                    LOG.info(result.size() + " samples from source " + url);
-                    LOG.info("read samples from source {} in {} millis" ,url,System.currentTimeMillis()-beginTime);
-                    LOG.info("start Merge Sample ");
+                    LOG.info("read {} samples from source {} in {} millis", result.size(),url ,System.currentTimeMillis()-beginTime);
                     item.mergeArchivedSamples(reader, result, currentRequestType);
-                    LOG.info("end Merge Sample ");
                     if (cancelled) {
                         break;
                     }

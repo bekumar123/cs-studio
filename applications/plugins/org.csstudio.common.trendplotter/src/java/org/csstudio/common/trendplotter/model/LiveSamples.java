@@ -10,6 +10,8 @@ package org.csstudio.common.trendplotter.model;
 import javax.annotation.CheckForNull;
 
 import org.csstudio.domain.common.collection.LimitedArrayCircularQueue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Buffer for 'live' samples, i.e. those not originating from
@@ -25,10 +27,14 @@ public class LiveSamples extends PlotSamples {
     /** Waveform index */
     private int waveform_index = 0;
     
+    @SuppressWarnings("unused")
+    private static final Logger LOG = LoggerFactory.getLogger(LiveSamples.class);
+    
     /**
      * Constructor.
      */
     public LiveSamples(final int capacity) {
+        LOG.trace("Constructor live sample with capacity {}", capacity);
         _samples = new LimitedArrayCircularQueue<PlotSample>(capacity);
 
     }

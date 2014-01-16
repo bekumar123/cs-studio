@@ -631,16 +631,10 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 						context.getLogger().warning("[Parted] Sending (part " + part + "/" + parts + ") " + (buffer.limit()-buffer.position()) + " bytes to " + socketAddress + ".");
 					}
 					final int TRIES = 10;
+				
 					for (int tries = 0; /* tries <= TRIES */ ; tries++)
 					{ 
-					// send
-						//wenhua xu
-						//because the write returns zero, the socket send buffer is full, 
-						//so I set channel writable, register OP_WRITE and return to the select loop, 
-						//rather than waste time spinning until there is room again.
-						//The present technique starves the other channels of service and wastes CPU cycles.
-						//http://stackoverflow.com/questions/5906444/socketchannel-write-writing-problem  hat die genaue beschreibungen.
-						 context.getReactor().setInterestOps(channel, SelectionKey.OP_WRITE);
+					
 			
 					/*int	bytesSent = */channel.write(buffer);
 						if (buffer.position() != buffer.limit())
@@ -663,6 +657,14 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 							} catch (InterruptedException e) {
 								// noop
 							}
+							// send
+							//wenhua xu
+							//because the write returns zero, the socket send buffer is full, 
+							//so I set channel writable, register OP_WRITE and return to the select loop, 
+							//rather than waste time spinning until there is room again.
+							//The present technique starves the other channels of service and wastes CPU cycles.
+							//http://stackoverflow.com/questions/5906444/socketchannel-write-writing-problem  hat die genaue beschreibungen.
+							 context.getReactor().setInterestOps(channel, SelectionKey.OP_WRITE);
 							continue;
 						}
 						else

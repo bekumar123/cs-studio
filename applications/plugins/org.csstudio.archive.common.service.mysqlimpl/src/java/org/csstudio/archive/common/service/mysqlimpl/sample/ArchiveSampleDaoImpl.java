@@ -54,7 +54,6 @@ import org.csstudio.archive.common.service.sample.ArchiveSample;
 import org.csstudio.archive.common.service.sample.IArchiveSample;
 import org.csstudio.archive.common.service.sample.SampleMinMaxAggregator;
 import org.csstudio.archive.common.service.util.ArchiveTypeConversionSupport;
-import org.csstudio.domain.common.statistic.ArchiveSampleBatchQueueCollector;
 import org.csstudio.domain.desy.epics.alarm.EpicsAlarm;
 import org.csstudio.domain.desy.epics.typesupport.EpicsSystemVariableSupport;
 import org.csstudio.domain.desy.system.ControlSystem;
@@ -178,7 +177,8 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         try {
             minuteSamples = generatePerMinuteSamples(s, _reducedDataMapForMinutes);
             if (minuteSamples.size() > 0) {
-                ArchiveSampleBatchQueueCollector.getInstance().getArchiveSample_mBatchQueueApplication().setValue(getEngineMgr().submitToBatch(minuteSamples));
+                getEngineMgr().submitToBatch(minuteSamples);
+               // ArchiveSampleBatchQueueCollector.getInstance().getArchiveSample_mBatchQueueApplication().setValue(getEngineMgr().submitToBatch(minuteSamples));
             }
         } catch (final TypeSupportException e1) {
             e1.printStackTrace();
@@ -187,7 +187,8 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         try {
             final List<HourReducedDataSample> hourSamples = generatePerHourSamples(minuteSamples, _reducedDataMapForHours);
             if (hourSamples.size() > 0) {
-                ArchiveSampleBatchQueueCollector.getInstance().getArchiveSample_hBatchQueueApplication().setValue(getEngineMgr().submitToBatch(hourSamples));
+                getEngineMgr().submitToBatch(hourSamples);
+               // ArchiveSampleBatchQueueCollector.getInstance().getArchiveSample_hBatchQueueApplication().setValue(getEngineMgr().submitToBatch(hourSamples));
            }
         } catch (final TypeSupportException e) {
              e.printStackTrace();

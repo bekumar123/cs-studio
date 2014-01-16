@@ -635,45 +635,44 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 					for (int tries = 0; /* tries <= TRIES */ ; tries++)
 					{ 
 					
-			
-					/*int	bytesSent = */channel.write(buffer);
-						if (buffer.position() != buffer.limit())
-						{
-							if (tries >= TRIES)
-							{
-								try{
-									channel.socket().getOutputStream().flush();
-									}catch(IOException e){
-										e.printStackTrace();
-									}
-								context.getLogger().warning("Failed to send message to " + socketAddress + " - buffer full, will retry.");
-								// send
-								//wenhua xu
-								//because the write returns zero, the socket send buffer is full, 
-								//so I set channel writable, register OP_WRITE and return to the select loop, 
-								//rather than waste time spinning until there is room again.
-								//The present technique starves the other channels of service and wastes CPU cycles.
-								//http://stackoverflow.com/questions/5906444/socketchannel-write-writing-problem  hat die genaue beschreibungen.
-								
-								 context.getReactor().setInterestOps(channel, SelectionKey.OP_WRITE);
-								 channel.write(buffer);
-								continue;
-						    }
-							
-							// flush & wait for a while...
-							context.getLogger().warning("Send buffer full for " + socketAddress + ", waiting...");
-							try{
+						try{
 							channel.socket().getOutputStream().flush();
 							}catch(IOException e){
 								e.printStackTrace();
 							}
+						/*int	bytesSent = */channel.write(buffer);
+				    	if (buffer.position() != buffer.limit())
+						{
+							if (tries >= TRIES)
+							{
+								context.getLogger().warning("Failed to send message to " + socketAddress + " - buffer full, will retry.");
+							}
+							
+							// flush & wait for a while...
+							context.getLogger().warning("Send buffer full for " + socketAddress + ", waiting...");
+							try{
+								channel.socket().getOutputStream().flush();
+								}catch(IOException e){
+									e.printStackTrace();
+								}
 							try {
 								Thread.sleep(Math.min(15000,10+tries*100));
 							} catch (InterruptedException e) {
 								// noop
 							}
-						
-							continue;
+							// send
+							//wenhua xu
+							//because the write returns zero, the socket send buffer is full, 
+							//so I set channel writable, register OP_WRITE and return to the select loop, 
+							//rather than waste time spinning until there is room again.
+							//The present technique starves the other channels of service and wastes CPU cycles.
+							//http://stackoverflow.com/questions/5906444/socketchannel-write-writing-problem  hat die genaue beschreibungen.
+						      context.getReactor().setInterestOps(channel,  SelectionKey.OP_WRITE |  SelectionKey.OP_READ );	
+						  	/*int	bytesSent = */channel.write(buffer);
+						 	if (buffer.position() == buffer.limit())
+							{
+						 		break;
+							}else continue;
 						}
 						else
 							break;
@@ -767,7 +766,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	    else
 	    {
 		    // enable SelectionKey.OP_WRITE via reactor (this will also enable OP_READ, but its OK)
-		    context.getReactor().setInterestOps(channel, SelectionKey.OP_WRITE | SelectionKey.OP_READ );
+	 	   context.getReactor().setInterestOps(channel,  SelectionKey.OP_WRITE |  SelectionKey.OP_READ );	
 		    return true;
 	    }
     }

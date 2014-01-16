@@ -148,7 +148,7 @@
          </action>
          <action
                class="org.csstudio.dct.ui.editor.outline.internal.ExportToDbFileAction"
-               icon="icons/save_all.png"
+               icon="icons/db_export.png"
                id="ExportToDbFile"
                label="Export to db file"
                menubarPath="add.ext">
@@ -156,14 +156,14 @@
          <action
                class="org.csstudio.dct.ui.editor.outline.internal.EnableElements"
                enablesFor="1"
-               icon="icons/ledlightgreen.png"
+               icon="icons/enable_records.png"
                id="EnableElements"
                label="Enable all Records"
                menubarPath="add.ext">
          </action>
          <action
                class="org.csstudio.dct.ui.editor.outline.internal.DisableElements"
-               icon="icons/ledred.png"
+               icon="icons/disable_records.png"
                id="DisableElements"
                label="Disable all Records"
                menubarPath="add.ext">

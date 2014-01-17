@@ -38,6 +38,7 @@ import org.csstudio.headless.common.util.ApplicationInfo;
 import org.csstudio.headless.common.xmpp.XmppCredentials;
 import org.csstudio.headless.common.xmpp.XmppSessionException;
 import org.csstudio.headless.common.xmpp.XmppSessionHandler;
+import org.csstudio.utility.jms.JmsTool;
 import org.csstudio.utility.jms.sharedconnection.SharedJmsConnections;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -79,9 +80,13 @@ public class CommandServerApplication implements IApplication,
         XmppCredentials cred = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
         xmppSession = new XmppSessionHandler(ServerActivator.getContext(), cred);
         String[] jmsUrls = CommandServerPreferences.JMS_CONSUMER_URLS.getValue().split(",");
-        SharedJmsConnections.staticInjectConsumerUrlAndClientId(jmsUrls[0], jmsUrls[1], "ServerCommandConsumer");
-        SharedJmsConnections.staticInjectPublisherUrlAndClientId(CommandServerPreferences.JMS_PUBLISHER_URL.getValue(),
-                                                                 "ServerCommandPublisher");
+        SharedJmsConnections
+               .staticInjectConsumerUrlAndClientId(jmsUrls[0],
+                                                   jmsUrls[1],
+                                                   JmsTool.createUniqueClientId("ServerCommandConsumer"));
+        SharedJmsConnections
+               .staticInjectPublisherUrlAndClientId(CommandServerPreferences.JMS_PUBLISHER_URL.getValue(),
+                                                    JmsTool.createUniqueClientId("ServerCommandPublisher"));
         msgAcceptor = new MessageAcceptor(CommandServerPreferences.JMS_TOPIC.getValue());
         msgAcceptor.setListener(this);
         cmdExecutor = new CommandExecutor();
@@ -97,7 +102,10 @@ public class CommandServerApplication implements IApplication,
 	@Override
     public Object start(IApplicationContext context) throws Exception {
 
-	    //String command = "{exec(DIR=E:/var/CommandApplication;REDIRECT=yes): java.exe -jar CommandApplication.jar SIGINT 2134}     {exec(DIR=E:/Scratch/SimpleApplication): SimpleApplication.exe -m \"Moin, Moin\"}";
+	    /*
+	    {exec(DIR=E:/var/CommandApplication;REDIRECT=yes): java.exe -jar CommandApplication.jar SIGINT 2134}     {exec(DIR=E:/Scratch/SimpleApplication): SimpleApplication.exe -m \"Moin, Moin\"}";
+         exec(DIR=E:/var/CommandApplication;REDIRECT=yes): java.exe -jar CommandApplication.jar SIGINT 2134
+         */
 
 	    StopCmd.staticInject(this);
 	    InfoCmd.staticInject(this);
@@ -118,7 +126,11 @@ public class CommandServerApplication implements IApplication,
                 } catch (InterruptedException e) {
                     LOG.warn("I've been interrupted.");
                 }
-                LOG.info("Number of messages: " + commandMsg.size());
+                LOG.info("Number of commands: " + commandMsg.size());
+                while (!commandMsg.isEmpty()) {
+                    CommandMessage msg = commandMsg.poll();
+                    cmdExecutor.executeCommand(msg.getCommandLine());
+                }
             }
         }
 

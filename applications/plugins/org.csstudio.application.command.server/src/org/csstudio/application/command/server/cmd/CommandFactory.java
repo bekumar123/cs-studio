@@ -1,5 +1,5 @@
 
-package org.csstudio.application.command.server.service;
+package org.csstudio.application.command.server.cmd;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -54,7 +54,6 @@ public class CommandFactory {
 				while (scanner.hasNext()) {
 					p.add(index++, scanner.findInLine(pattern));
 				}
-				cmd.setParameters(p);
 			} catch (Exception e) {
 				cmd = new UnknownCommand();
 			}

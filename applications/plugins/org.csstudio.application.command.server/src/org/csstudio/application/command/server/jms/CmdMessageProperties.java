@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2013 Stiftung Deutsches Elektronen-Synchrotron,
+ * Copyright (c) 2014 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -23,42 +23,12 @@
 
 package org.csstudio.application.command.server.jms;
 
-import java.util.Map;
-
 /**
  * @author mmoeller
- * @since 18.06.2013
+ * @since 15.01.2014
  */
-public class CommandMessage {
-
-    private String cmdLine;
-
-    /**
-     * The property COMMAND or NAME may contain the command line.
-     *
-     * @param msgContent
-     */
-    public CommandMessage(Map<String, String> msgContent) {
-        cmdLine = "";
-        if (msgContent != null) {
-            if (msgContent.containsKey(CmdMessageProperties.TYPE.toString())) {
-                String value = msgContent.get(CmdMessageProperties.TYPE.toString()).trim();
-                if (value.compareToIgnoreCase("command") == 0) {
-                    if (msgContent.containsKey(CmdMessageProperties.COMMAND.toString())) {
-                        cmdLine = msgContent.get(CmdMessageProperties.COMMAND.toString()).trim();
-                    } else if (msgContent.containsKey(CmdMessageProperties.NAME.toString())) {
-                        cmdLine = msgContent.get(CmdMessageProperties.NAME.toString()).trim();
-                    }
-                }
-            }
-        }
-    }
-
-    public boolean isCommandMessage() {
-        return !cmdLine.isEmpty();
-    }
-
-    public String getCommandLine() {
-        return cmdLine;
-    }
+public enum CmdMessageProperties {
+    TYPE,
+    COMMAND,
+    NAME;
 }

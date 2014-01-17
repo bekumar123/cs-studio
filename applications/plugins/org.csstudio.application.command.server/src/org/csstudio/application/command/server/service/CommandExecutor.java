@@ -23,20 +23,24 @@
 
 package org.csstudio.application.command.server.service;
 
-import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
-import java.util.regex.Pattern;
+import org.csstudio.application.command.server.cmd.AbstractCommand;
+import org.csstudio.application.command.server.cmd.CommandLineParser;
+import org.csstudio.application.command.server.cmd.CommandType;
+import org.csstudio.application.command.server.cmd.ExecCommand;
+import org.csstudio.application.command.server.cmd.UnknownCommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author mmoeller
  * @since 18.06.2013
  */
 public class CommandExecutor {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CommandExecutor.class);
 
     private Map<CommandType, Class<? extends AbstractCommand>> commandMap =
             new HashMap<CommandType, Class<? extends AbstractCommand>>();
@@ -47,64 +51,40 @@ public class CommandExecutor {
     public CommandExecutor() {
         commandMap.put(CommandType.UNKNOWN, UnknownCommand.class);
         commandMap.put(CommandType.EXEC, ExecCommand.class);
-        description = new StringBuffer();
+        description = new StringBuffer("\n");
         Iterator<CommandType> iter = commandMap.keySet().iterator();
+        int index = 1;
         while (iter.hasNext()) {
             CommandType key = iter.next();
             try {
                 AbstractCommand command = commandMap.get(key).newInstance();
-                description.append(command.getCommandDescription());
+                if (command.getClass() != UnknownCommand.class) {
+                    description.append("\nCommand #" + index++ + "\n");
+                    description.append(command.getCommandDescription());
+                }
             } catch (Exception e) {
-                description.append("Command description not available!");
+                description.append("\nCommand description not available!\n");
             }
         }
     }
 
     public CommandResult executeCommand(String cmdStr) {
-        AbstractCommand command = parseCommand(cmdStr);
-        CommandResult cmdResult = command.execute();
-        command.clear();
-        command = null;
-        return cmdResult;
-    }
-
-    private AbstractCommand parseCommand(String cmdStr) {
-        CommandType commandType = CommandType.UNKNOWN;
-        AbstractCommand cmd = null;
-        try {
-            cmd = commandMap.get(commandType).newInstance();
-        } catch (Exception e) {
-            cmd = new UnknownCommand();
-        }
-        if (cmdStr == null) {
-            return cmd;
-        }
-        if (cmdStr.trim().isEmpty()) {
-            return cmd;
-        }
-        String rawCommand = cmdStr.trim();
-        while (rawCommand.indexOf("  ") > -1) {
-            rawCommand = rawCommand.replaceAll("  ", " ");
-        }
-        String[] cmdParts = rawCommand.split(" ");
-        if (cmdParts.length > 0) {
-            commandType = CommandType.getCommandTypeByName(cmdParts[0]);
+        String cmdName = CommandLineParser.parseCommandName(cmdStr);
+        CommandType commandType = CommandType.getCommandTypeByName(cmdName);
+        CommandResult cmdResult = null;
+        if (commandType != CommandType.UNKNOWN) {
             try {
-                cmd = commandMap.get(commandType).newInstance();
-                List<String> p = new ArrayList<String>();
-                Scanner scanner = new Scanner(new StringReader(rawCommand.replace(cmdParts[0], "")));
-                Pattern pattern = Pattern.compile("[^\"\\s]+|\"(\\\\.|[^\\\\\"])*\"");
-                int index = 0;
-                while (scanner.hasNext()) {
-                    p.add(index++, scanner.findInLine(pattern));
-                }
-                cmd.setParameters(p);
+                AbstractCommand command = commandMap.get(commandType).newInstance();
+                cmdResult = command.execute(cmdStr);
             } catch (Exception e) {
-                cmd = new UnknownCommand();
+                LOG.error("[*** {} ***]: {}", e.getClass().getSimpleName(), e.getMessage());
             }
 
         }
-        return cmd;
+        if (cmdResult == null) {
+            cmdResult = new CommandResult(0, "");
+        }
+        return cmdResult;
     }
 
     public String getCommandDescription() {

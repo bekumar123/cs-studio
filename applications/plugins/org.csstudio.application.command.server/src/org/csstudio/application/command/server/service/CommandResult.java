@@ -3,6 +3,8 @@ package org.csstudio.application.command.server.service;
 
 public class CommandResult {
 
+    public static final int COMMAND_ERROR = -1000;
+
 	private int resultNumber;
 
 	private String resultDescription;
@@ -19,7 +21,11 @@ public class CommandResult {
 	@Override
 	public String toString() {
 		StringBuffer result = new StringBuffer("CommandResult {");
-		result.append(resultNumber + "," + resultDescription);
+		if (resultNumber == COMMAND_ERROR) {
+            result.append("COMMAND_ERROR," + resultDescription);
+        } else {
+            result.append(resultNumber + "," + resultDescription);
+        }
 		result.append("}");
 		return result.toString();
 	}

@@ -117,7 +117,7 @@ public class MessageAcceptor extends Thread implements MessageListener {
                 LOG.debug(mapMsg.toString());
             }
             CommandMessage cmdMessage = createCommandMessage(mapMsg);
-            if (listener != null) {
+            if (listener != null && cmdMessage.isCommandMessage()) {
                 listener.onCommandMessage(cmdMessage);
             }
         }

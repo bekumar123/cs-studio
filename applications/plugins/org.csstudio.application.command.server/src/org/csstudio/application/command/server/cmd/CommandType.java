@@ -1,5 +1,5 @@
 
-package org.csstudio.application.command.server.service;
+package org.csstudio.application.command.server.cmd;
 
 /**
  * Represents the type of a command and defines its behaviour.

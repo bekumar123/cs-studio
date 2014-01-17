@@ -1,6 +1,6 @@
 package org.csstudio.dct.ui.editor.tables.editingsupport;
 
-import org.csstudio.dct.ui.editor.RecordFieldTableRowAdapter;
+import org.csstudio.dct.ui.editor.rowadapter.RecordFieldTableRowAdapter;
 import org.eclipse.gef.commands.CommandStack;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;

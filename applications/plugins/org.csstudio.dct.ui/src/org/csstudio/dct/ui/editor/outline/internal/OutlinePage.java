@@ -10,6 +10,11 @@ import org.csstudio.dct.model.IInstance;
 import org.csstudio.dct.model.IProject;
 import org.csstudio.dct.model.IPrototype;
 import org.csstudio.dct.model.IRecord;
+import org.csstudio.dct.ui.editor.outline.internal.draganddrop.AbstractDnDHandler;
+import org.csstudio.dct.ui.editor.outline.internal.draganddrop.FolderDndHandler;
+import org.csstudio.dct.ui.editor.outline.internal.draganddrop.InstanceDndHandler;
+import org.csstudio.dct.ui.editor.outline.internal.draganddrop.PrototypeDndHandler;
+import org.csstudio.dct.ui.editor.outline.internal.draganddrop.RecordDndHandler;
 import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.commands.CommandStack;
 import org.eclipse.gef.commands.CommandStackListener;
@@ -269,7 +274,7 @@ public final class OutlinePage extends ContentOutlinePage implements CommandStac
         final IStructuredSelection sel = (IStructuredSelection) event.getSelection();
 
         if (sel != null && sel.getFirstElement() != null) {
-            // FIXME: Mach Probleme beim DnD - vielleicht lässt sich auf das
+            // FIXME: Mach Probleme beim DnD - vielleicht lï¿½sst sich auf das
             // Ausklappen verzichten!?
             // viewer.setExpandedState(sel.getFirstElement(), true);
             // viewer.refresh(sel.getFirstElement(), false);

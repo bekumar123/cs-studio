@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.csstudio.dct.model.IContainer;
+import org.csstudio.dct.model.IDisabledRecordCounter;
 import org.csstudio.dct.model.IFolder;
 import org.csstudio.dct.model.IInstance;
 import org.csstudio.dct.model.IPrototype;
@@ -204,15 +205,15 @@ public final class Prototype extends AbstractContainer implements IPrototype {
         IFolder folder = container.getParentFolder();
         return folder.getRootFolder();
     }
-    
+
     private IContainer getFirstContainerWithParentFolder() {
         IContainer container = getContainer();
         while ((container != null) && (container.getParentFolder() == null)) {
             container = container.getContainer();
-        }        
+        }
         return container;
     }
-   
+
     public String toString() {
         // @formatter::off
         return com.google.common.base.Objects.toStringHelper(this).add("name", this.getName()).add("id", this.getId())

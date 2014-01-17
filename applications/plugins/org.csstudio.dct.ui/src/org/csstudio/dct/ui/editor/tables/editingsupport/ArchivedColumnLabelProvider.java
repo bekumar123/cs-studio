@@ -1,7 +1,7 @@
 package org.csstudio.dct.ui.editor.tables.editingsupport;
 
 import org.csstudio.dct.ui.Activator;
-import org.csstudio.dct.ui.editor.RecordFieldTableRowAdapter;
+import org.csstudio.dct.ui.editor.rowadapter.RecordFieldTableRowAdapter;
 import org.csstudio.ui.util.CustomMediaFactory;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.graphics.Image;

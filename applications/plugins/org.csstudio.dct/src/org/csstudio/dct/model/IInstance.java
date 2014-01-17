@@ -8,7 +8,7 @@ import java.util.List;
  * @author Sven Wende
  * 
  */
-public interface IInstance extends IContainer, IRootFolder {
+public interface IInstance extends IContainer, IRootFolder, IDisabledRecordCounter {
 
     /**
      * Returns the prototype this instances is derived from.
@@ -29,8 +29,18 @@ public interface IInstance extends IContainer, IRootFolder {
      */
     boolean isFromLibrary();
 
+    /**
+     * Set the protoype folder that this instance gets it's protoype from.
+     * 
+     * @param prototypeFolder
+     */
     void setPrototypeFolder(String prototypeFolder);
 
+    /**
+     * Returns the protoype folder that this instance gets it's protoype from.
+     * 
+     * @return prototypeFolder
+     */
     public String getPrototypeFolder();
 
 }

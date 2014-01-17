@@ -1,5 +1,6 @@
 package org.csstudio.dct.ui.editor;
 
+import org.csstudio.dct.ui.editor.action.AbstractDctEditorAction;
 import org.eclipse.gef.commands.CommandStack;
 import org.eclipse.gef.commands.CommandStackEvent;
 import org.eclipse.gef.commands.CommandStackEventListener;

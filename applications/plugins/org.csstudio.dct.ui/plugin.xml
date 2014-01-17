@@ -16,7 +16,7 @@
          point="org.eclipse.core.runtime.adapters">
       <factory
             adaptableType="org.csstudio.dct.model.IElement"
-            class="org.csstudio.dct.ui.workbenchintegration.ModelAdapterFactory">
+            class="org.csstudio.dct.ui.workbenchintegration.adapter.ModelAdapterFactory">
          <adapter
                type="org.eclipse.ui.model.IWorkbenchAdapter">
          </adapter>
@@ -29,7 +29,7 @@
       </factory>
       <factory
             adaptableType="org.csstudio.dct.metamodel.IRecordDefinition"
-            class="org.csstudio.dct.ui.workbenchintegration.ModelAdapterFactory">
+            class="org.csstudio.dct.ui.workbenchintegration.adapter.ModelAdapterFactory">
          <adapter
                type="org.eclipse.ui.model.IWorkbenchAdapter">
          </adapter>
@@ -44,7 +44,7 @@
             id="css.dct.outline.popup"
             targetID="css.dct.outline">
          <action
-               class="org.csstudio.dct.ui.editor.outline.internal.AddRecordAction"
+               class="org.csstudio.dct.ui.editor.outline.internal.action.AddRecordAction"
                enablesFor="1"
                icon="icons/record.png"
                id="AddRecordAction"
@@ -57,7 +57,7 @@
             </enablement>
          </action>
          <action
-               class="org.csstudio.dct.ui.editor.outline.internal.AddPrototypeAction"
+               class="org.csstudio.dct.ui.editor.outline.internal.action.AddPrototypeAction"
                enablesFor="1"
                icon="icons/prototype.png"
                id="AddPrototypeAction"
@@ -70,7 +70,7 @@
             </enablement>
          </action>
          <action
-               class="org.csstudio.dct.ui.editor.outline.internal.AddInstanceAction"
+               class="org.csstudio.dct.ui.editor.outline.internal.action.AddInstanceAction"
                enablesFor="1"
                icon="icons/instance.png"
                id="AddInstanceAction"
@@ -88,7 +88,7 @@
             </enablement>
          </action>
          <action
-               class="org.csstudio.dct.ui.editor.outline.internal.RemoveAction"
+               class="org.csstudio.dct.ui.editor.outline.internal.action.RemoveAction"
                icon="icons/delete.png"
                id="RemoveRecordAction"
                label="Remove"
@@ -100,7 +100,7 @@
             </enablement>
          </action>
          <action
-               class="org.csstudio.dct.ui.editor.outline.internal.AddFolderAction"
+               class="org.csstudio.dct.ui.editor.outline.internal.action.AddFolderAction"
                enablesFor="1"
                icon="icons/folder.png"
                id="AddFolderAction"
@@ -113,7 +113,7 @@
             </enablement>
          </action>
          <action
-               class="org.csstudio.dct.ui.editor.outline.internal.CopyElementAction"
+               class="org.csstudio.dct.ui.editor.outline.internal.action.CopyElementAction"
                enablesFor="+"
                icon="icons/copy.gif"
                id="CopyElementAction"
@@ -121,7 +121,7 @@
                menubarPath="add.ext">
          </action>
          <action
-               class="org.csstudio.dct.ui.editor.outline.internal.PasteElementAction"
+               class="org.csstudio.dct.ui.editor.outline.internal.action.PasteElementAction"
                enablesFor="1"
                icon="icons/paste.gif"
                id="PasteElementAction"
@@ -129,7 +129,7 @@
                menubarPath="add.ext">
          </action>
          <action
-               class="org.csstudio.dct.ui.editor.outline.internal.OpenGraphicsAction"
+               class="org.csstudio.dct.ui.editor.outline.internal.action.OpenGraphicsAction"
                enablesFor="1"
                icon="icons/prototype.png"
                id="OpenGraphicsAction"
@@ -147,14 +147,14 @@
             </enablement>
          </action>
          <action
-               class="org.csstudio.dct.ui.editor.outline.internal.ExportToDbFileAction"
+               class="org.csstudio.dct.ui.editor.outline.internal.action.ExportToDbFileAction"
                icon="icons/save_all.png"
                id="ExportToDbFile"
                label="Export to db file"
                menubarPath="add.ext">
          </action>
          <action
-               class="org.csstudio.dct.ui.editor.outline.internal.EnableElements"
+               class="org.csstudio.dct.ui.editor.outline.internal.action.EnableElements"
                enablesFor="1"
                icon="icons/ledlightgreen.png"
                id="EnableElements"
@@ -162,7 +162,7 @@
                menubarPath="add.ext">
          </action>
          <action
-               class="org.csstudio.dct.ui.editor.outline.internal.DisableElements"
+               class="org.csstudio.dct.ui.editor.outline.internal.action.DisableElements"
                icon="icons/ledred.png"
                id="DisableElements"
                label="Disable all Records"
@@ -176,7 +176,7 @@
             id="DctEditor.Contributions"
             targetID="org.csstudio.dct.ui.DctEditor">
          <action
-               class="org.csstudio.dct.ui.editor.UndoAction"
+               class="org.csstudio.dct.ui.editor.action.UndoAction"
                icon="icons/undo.png"
                id="org.csstudio.dct.ui.editor.UndoAction"
                label="Undo"
@@ -184,7 +184,7 @@
                toolbarPath="add.ext">
          </action>
          <action
-               class="org.csstudio.dct.ui.editor.RedoAction"
+               class="org.csstudio.dct.ui.editor.action.RedoAction"
                icon="icons/redo.png"
                id="org.csstudio.dct.ui.editor.RedoAction"
                label="Redo"
@@ -227,7 +227,7 @@
             id="css.dct.outline.actions"
             targetID="org.eclipse.ui.views.ContentOutline">
          <action
-               class="org.csstudio.dct.ui.editor.outline.internal.CollapseAllAction"
+               class="org.csstudio.dct.ui.editor.outline.internal.action.CollapseAllAction"
                icon="icons/collapseall.gif"
                id="org.csstudio.dct.ui.editor.outline.internal.CollapseAllAction"
                label="Collapse All"
@@ -235,7 +235,7 @@
                toolbarPath="add.ext">
          </action>
          <action
-               class="org.csstudio.dct.ui.editor.outline.internal.ExpandAllAction"
+               class="org.csstudio.dct.ui.editor.outline.internal.action.ExpandAllAction"
                icon="icons/expandall.gif"
                id="org.csstudio.dct.ui.editor.outline.internal.ExpandAllAction"
                label="Expand All"

@@ -52,7 +52,9 @@ public class ArchiveConnectionHandler {
     static final Logger LOG = LoggerFactory.getLogger(ArchiveConnectionHandler.class);
     static final Logger WORKER_LOG = LoggerFactory.getLogger(PersistDataWorker.class);
 
-    private static final String ARCHIVE_CONNECTION_EXCEPTION_MSG = "Archive connection could not be established";
+    private static final String ARCHIVE_CONNECTION_EXCEPTION_MSG =
+        "Archive connection could not be established";
+
 
     /**
      * The datasource that specifies the connections.
@@ -65,7 +67,8 @@ public class ArchiveConnectionHandler {
     /**
      * Each thread owns a connection, some of which may not close it.
      */
-    private final ThreadLocal<Connection> _archiveConnection = new ThreadLocal<Connection>();
+    private final ThreadLocal<Connection> _archiveConnection =
+        new ThreadLocal<Connection>();
 
     /**
      * Constructor.
@@ -90,15 +93,13 @@ public class ArchiveConnectionHandler {
         final String databaseName = prefs.getDatabaseName();
         _dataBaseName = databaseName;
         final String user = prefs.getUser();
-        LOG.info("DB preferences - hosts: " + hosts + "; DB Name: " + databaseName + " ; User: "
-                + user + "; port: " + port);
-
+        LOG.info("DB preferences - hosts: " + hosts + "; DB Name: " + databaseName + " ; User: " + user + "; port: " + port);
         ds.setServerName(hosts);
         ds.setPort(port);
         ds.setDatabaseName(databaseName);
         ds.setUser(user);
         ds.setPassword(prefs.getPassword());
-        ds.setMaxAllowedPacket(prefs.getMaxAllowedPacketSizeInKB() * 1024);
+        ds.setMaxAllowedPacket(prefs.getMaxAllowedPacketSizeInKB()*1024);
         ds.setUseTimezone(true);
 
         ds.setRewriteBatchedStatements(true);
@@ -112,6 +113,7 @@ public class ArchiveConnectionHandler {
         ds.setRoundRobinLoadBalance(true);
 
         ds.setDefaultFetchSize(10000);
+
 
         return ds;
     }
@@ -175,9 +177,7 @@ public class ArchiveConnectionHandler {
             if (connection != null) {
                 final DatabaseMetaData meta = connection.getMetaData();
                 if (meta != null) {
-                    LOG.debug("MySQL connection:\n{} {}",
-                              meta.getDatabaseProductName(),
-                              meta.getDatabaseProductVersion());
+                    LOG.debug("MySQL connection:\n{} {}", meta.getDatabaseProductName(), meta.getDatabaseProductVersion());
                 } else {
                     LOG.debug("No meta data for MySQL connection");
                 }
@@ -185,7 +185,7 @@ public class ArchiveConnectionHandler {
                 connection.setAutoCommit(true);
             }
         } catch (final Exception e) {
-            throw new ArchiveConnectionException(ARCHIVE_CONNECTION_EXCEPTION_MSG, e);
+             throw new ArchiveConnectionException(ARCHIVE_CONNECTION_EXCEPTION_MSG, e);
         }
         if (connection == null /*|| Strings.isNullOrEmpty(_dataSource.getDatabaseName())*/) {
             throw new ArchiveConnectionException("Connection could not be established or database name is not set.",
@@ -205,6 +205,7 @@ public class ArchiveConnectionHandler {
             _archiveConnection.set(null);
         }
     }
+
 
     /**
      * Creates a new connection.
@@ -237,10 +238,9 @@ public class ArchiveConnectionHandler {
                 _archiveConnection.set(createConnection());
             }
         } catch (final SQLException e) {
-            LOG.warn("Thread current 'permanent' connection has been closed. A new one for this {} is created",
-                     Thread.currentThread().getName());
+            LOG.warn("Thread current 'permanent' connection has been closed. A new one for this {} is created", Thread.currentThread().getName());
         }
-        return _archiveConnection.get();
+        return  _archiveConnection.get();
 
     }
 
@@ -250,3 +250,4 @@ public class ArchiveConnectionHandler {
         //        return _dataSource.getDatabaseName(); //TODO CME: remove when pooled datasource is permanently used.
     }
 }
+

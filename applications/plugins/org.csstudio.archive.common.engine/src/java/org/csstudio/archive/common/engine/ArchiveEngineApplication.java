@@ -120,7 +120,10 @@ public class ArchiveEngineApplication implements IApplication {
         if (!getSettings(args)) {
             return EXIT_OK;
         }
-
+        /**
+         * @author wxu
+         * set caContext variable value
+         */
         final String jcaThreadName=provider.getPreferencesService().getCaContextValue();
         final DesyJCADataSource dataSource = configureJCADataSources(jcaThreadName);
 
@@ -171,6 +174,10 @@ public class ArchiveEngineApplication implements IApplication {
 
     @SuppressWarnings("rawtypes")
     @Nonnull
+    /**
+     * @author wxu
+     * set caContext variable value
+     */
     private DesyJCADataSource configureJCADataSources(final String jcaThreadName) {
         LOG.info("Configure JCA Datasource and setup PVManager.");
         LOG.info("Configure JCA Datasource and Load JCALibrary {}",jcaThreadName);
@@ -180,6 +187,10 @@ public class ArchiveEngineApplication implements IApplication {
         TypeSupport.addTypeSupport(new NotificationSupport<EpicsSystemVariable>(EpicsSystemVariable.class) {
             @Override
             @Nonnull
+            /**
+             * @author wxu
+             * update wan oldValue!=newValue
+             */
             public Notification<EpicsSystemVariable> prepareNotification(@CheckForNull final EpicsSystemVariable oldValue,
                                                                          @CheckForNull final EpicsSystemVariable newValue) {
                 if (oldValue != null && newValue != null) {
@@ -189,8 +200,9 @@ public class ArchiveEngineApplication implements IApplication {
                     return new Notification<EpicsSystemVariable>(false, newValue);
                 } else if (oldValue == null && newValue == null) {
                     return new Notification<EpicsSystemVariable>(false, null);
+                } else {
+                    return new Notification<EpicsSystemVariable>(true, newValue);
                 }
-                return new Notification<EpicsSystemVariable>(true, newValue);
             }
         });
         return dataSource;

@@ -82,7 +82,9 @@ class ImportResultResponse extends AbstractChannelResponse {
         }
         html.closeTable();
     }
-
+    /* wenhua xu
+    error msg output 
+  */
     public static void setResult(final List<EpicsChannelName> configureChannelsFromFile,final String error_msgs) {
         _error_msgs="";
         _configureChannelsFromFile = configureChannelsFromFile;

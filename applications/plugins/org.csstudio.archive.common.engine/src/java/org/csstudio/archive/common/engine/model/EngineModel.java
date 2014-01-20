@@ -73,6 +73,9 @@ public final class EngineModel {
     private TimeInstant _startTime;
 
     private final long _writePeriodInMS;
+    /* wenhua xu
+    _regGroupId
+   */
     private final int _regGroupId;;
     private final long _heartBeatPeriodInMS;
 
@@ -92,7 +95,9 @@ public final class EngineModel {
 
         _groupMap = new MapMaker().concurrencyLevel(2).makeMap();
         _channelMap = new MapMaker().concurrencyLevel(2).makeMap();
-
+        /* wenhua xu
+        init variable value
+       */
         _writePeriodInMS = 1000 * provider.getPreferencesService().getWritePeriodInS();
         _heartBeatPeriodInMS = 1000 * provider.getPreferencesService().getHeartBeatPeriodInS();
         _regGroupId = provider.getPreferencesService().getRegGroupId().intValue();
@@ -180,11 +185,9 @@ public final class EngineModel {
      */
     public void start() throws EngineModelException {
         if (getState() != EngineState.CONFIGURED) {
-            LOG.warn("Engine has not been configured before start.");
             throw new IllegalStateException("Engine has not been configured before start.", null);
         }
         if (_engine == null) {
-            LOG.warn("Engine model is null although in state ");
             throw new IllegalStateException("Engine model is null although in state " + EngineState.CONFIGURED.name(), null);
         }
         _startTime = TimeInstantBuilder.fromNow();
@@ -222,14 +225,15 @@ public final class EngineModel {
             final IArchiveEngineFacade facade = provider.getEngineFacade();
 
             final IArchiveEngineStatus engineStatus =
-                                                      facade.getLatestEngineStatusInformation(engine.getId(),
-                                                                                              TimeInstantBuilder.fromNow());
+                facade.getLatestEngineStatusInformation(engine.getId(),
+                                                        TimeInstantBuilder.fromNow());
 
             if (isNotFirstStart(engineStatus) && wasNotGracefullyShutdown(engineStatus)) {
                 facade.writeEngineStatusInformation(engine.getId(),
                                                     EngineMonitorStatus.OFF,
                                                     engine.getLastAliveTime(),
                                                     "Ungraceful shutdown");
+
                 checkAndUpdateChannelsStatus(facade, engine, channels);
             }
             facade.writeEngineStatusInformation(engine.getId(),
@@ -408,7 +412,9 @@ public final class EngineModel {
                                                                                                         _provider);
 
             for (final IArchiveChannelGroup groupCfg : groups) {
-
+            	  /* wenhua xu
+                   _regGroupId
+                  */
                 if (_regGroupId > 0 && groupCfg.getId().intValue() == _regGroupId) {
                     final ArchiveGroup group = addGroup(groupCfg);
                     EngineModelConfigurator.configureGroup(_provider, group, _channelMap, _dataSource);

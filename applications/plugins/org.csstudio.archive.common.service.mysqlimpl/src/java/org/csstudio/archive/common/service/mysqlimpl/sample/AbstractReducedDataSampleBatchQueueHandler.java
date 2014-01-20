@@ -53,6 +53,10 @@ import com.google.common.collect.Collections2;
  * @param <T> the type of the entity used to fill the statement's batch
  */
 public abstract class AbstractReducedDataSampleBatchQueueHandler<T extends AbstractReducedDataSample> extends BatchQueueHandlerSupport<T> {
+     /**
+     *@author wenhua
+     *add new feld 
+    */
     protected static final String VALUES_WILDCARD = "(?, ?, ?, ?, ?,?,?,?)";
 
     /**
@@ -67,6 +71,10 @@ public abstract class AbstractReducedDataSampleBatchQueueHandler<T extends Abstr
     @Nonnull
     protected static String createSqlStatementString(@Nonnull final String database,
                                                      @Nonnull final String table) {
+   /**
+     *@author wenhua
+     *add new feld 
+    */
         final String sql =
                 "INSERT IGNORE INTO " + database + "." + table +
                 " (" + Joiner.on(",").join(COLUMN_CHANNEL_ID, COLUMN_TIME, COLUMN_AVG, COLUMN_MIN, COLUMN_MAX, COLUMN_STATUS,COLUMN_SERVERTY,COLUMN_COUNT) +
@@ -97,6 +105,9 @@ public abstract class AbstractReducedDataSampleBatchQueueHandler<T extends Abstr
     }
 
     /**
+     * {@inheritDoc}
+     */
+     /**wenhua neue spalt in DB
      * {@inheritDoc}
      */
     @Override

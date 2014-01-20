@@ -82,7 +82,7 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
     private  boolean isConnected = false;
     private boolean isFirst = true;
     private final static Pattern hasOptions = Pattern.compile(".* \\{.*\\}");
-
+    private static ConnectionState channelConnectionState=ConnectionState.NEVER_CONNECTED;
     public DesyJCAChannelHandler(final String channelName, final DesyJCADataSource jcaDataSource) {
         super(channelName);
         this.desyJcaDataSource = jcaDataSource;
@@ -121,6 +121,7 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
                 channel = desyJcaDataSource.getContext().createChannel(getChannelName(), connectionListener, (short) (Channel.PRIORITY_MIN + 1));
 	    }
             needsMonitor = true;
+        //    channelConnectionState=channel.getConnectionState();
         } catch (final CAException ex) {
             throw new RuntimeException("JCA Connection failed", ex);
         }
@@ -262,22 +263,14 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
                       //      channel.getContext().attachCurrentThread();
                     	   //testen um deadlock
                            //connectionState=channel.getConnectionState();
+                        isConnected=ev.isConnected();
 
                    		 if(isFirst) {
                    			 isFirst=false;
                    		 } else {
-                   			 if( isConnected!=ev.isConnected()) {
-
-								LOG.info("Channel {} with " + channel.getHostName() +" is {},",channel.getName(), ev.isConnected()? " Connected ": "disconnected");
-
-							} else {
-								LOG.info("Channel {} with " + channel.getHostName() +" is still {},",channel.getName(), ev.isConnected()? " Connected ": "disconnected");
-
+								LOG.info("Channel {} with " + channel.getHostName() +" is {},",channel.getName(), isConnected? " Connected ": "disconnected");
+						    	//	LOG.info("Host    {} is {},",channel.getHostName(), isConnected? " Connected ": "disconnected");
 							}
-									//	LOG.info("Host    {} is {},",channel.getHostName(), isConnected? " Connected ": "disconnected");
-
-							}
-                        isConnected=ev.isConnected();
                         // Check whether the channel is large and was opened
                         // as large. Reconnect if does not match
                         if (ev.isConnected() && channel.getElementCount() >= LARGE_ARRAY && !largeArray) {
@@ -292,7 +285,7 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
                         if (ev.isConnected()) {
                             setup(channel);
                         }
-
+                        channelConnectionState=channel.getConnectionState();
 
                     } catch (final Exception ex) {
                         reportExceptionToAllReadersAndWriters(ex);
@@ -347,17 +340,18 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
 
     @Override
     protected boolean isConnected(final Channel channel) {
-      //  return isChannelConnected(channel);
-    	return isConnected;
+        return isChannelConnected(channel);
+
+    //	return isConnected;
     }
 
    static boolean isChannelConnected(final Channel channel) {
-        return channel != null && channel.getConnectionState() == Channel.ConnectionState.CONNECTED;
+        return channel != null && channelConnectionState== Channel.ConnectionState.CONNECTED;
     }
    public  ConnectionState getConnectState(){
 	   synchronized(DesyJCAChannelHandler.this) {
 		   try{
-		   return channel.getConnectionState();
+		   return channelConnectionState;
 		   }catch(final IllegalStateException e){
 			  // e.printStackTrace();
 			   return null;
@@ -368,7 +362,7 @@ public class DesyJCAChannelHandler extends MultiplexedChannelHandler<Channel, De
     	 synchronized(DesyJCAChannelHandler.this) {
     		 if(channel != null ) {
     			    //testen um deadlock
-                 return channel.getConnectionState();
+                 return channelConnectionState;
 			}
   		   return null;
   	   }

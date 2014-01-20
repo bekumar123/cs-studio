@@ -54,9 +54,18 @@ public class ArchiveEnginePreferencesService {
             new ArchiveEnginePreference<String>("version", "0.0.1-beta");
         public static final ArchiveEnginePreference<String> HTTP_ADMIN_VALUE =
             new ArchiveEnginePreference<String>("httpAdmin", "");
+        /**
+         * @author wxu
+         * set caContext variable value
+         */
+
         public static final ArchiveEnginePreference<String> CA_CONTEXT_NAME =
                 new ArchiveEnginePreference<String>("caContext",
                                                     "");
+        /**
+         * @author wxu
+         * set queue size variable value
+         */
         public static final ArchiveEnginePreference<Integer> QUEUE_WARN_SIZE =
                 new ArchiveEnginePreference<Integer>("queueWarnSize",  Integer.valueOf(50000));
         public static final ArchiveEnginePreference<Integer> QUEUE_MAXI_SIZE =
@@ -117,6 +126,10 @@ public class ArchiveEnginePreferencesService {
     public String getHttpAdminValue() {
         return ArchiveEnginePreference.HTTP_ADMIN_VALUE.getValue();
     }
+    /**
+     * @author wxu
+     * set queue size variable value
+     */
     @Nonnull
     public Integer getQueueWarnSize() {
         return ArchiveEnginePreference.QUEUE_WARN_SIZE.getValue();
@@ -129,6 +142,10 @@ public class ArchiveEnginePreferencesService {
     public String getHttpAdminKey() {
         return ArchiveEnginePreference.HTTP_ADMIN_VALUE.getKeyAsString();
     }
+    /**
+     * @author wxu
+     * set caContext variable value
+     */
     public String getCaContextValue() {
         if ("CHANNEL_ACCESS_SERVER_JAVA".equalsIgnoreCase(ArchiveEnginePreference.CA_CONTEXT_NAME.getValue())) {
             return JCALibrary.CHANNEL_ACCESS_SERVER_JAVA;

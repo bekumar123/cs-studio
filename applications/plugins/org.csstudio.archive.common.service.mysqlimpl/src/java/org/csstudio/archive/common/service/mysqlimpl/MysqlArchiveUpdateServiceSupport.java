@@ -94,7 +94,8 @@ public class MysqlArchiveUpdateServiceSupport {
         return _channelDao.updateChannelDatatype(id, datatype);
     }
     @Nonnull
-    /**update channnel unit of vale
+    /**@author wxu
+     *update channnel unit of vale
      * @param id
      * @param unit
      */

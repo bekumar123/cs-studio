@@ -93,8 +93,8 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
         _handler = null;
     }
 
-    /**
-     * Constructor.
+    /**wenhua 
+     * Constructor with TypeSupport handler
      * @param connectionHandler
      * @param name
      * @param prefPeriodInMS
@@ -120,7 +120,10 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
     @Override
     public void measuredRun() {
         try {
-          //  LOG.info( " {}", Thread.currentThread().getId());
+          //  LOG.info( " {}", Thread.currentThread().getId());   
+           /**wenhua 
+            * call processBatchHandler()  handler
+            */
             processBatchHandler(_connectionHandler.getThreadLocalConnection(),(BatchQueueHandlerSupport) _handler, _rescueDataList);
 
         } catch (final Throwable t) {
@@ -135,14 +138,19 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
                                             @Nonnull final IBatchQueueHandlerProvider handlerProvider,
                                             @Nonnull final List<Object> rescueDataList) {
         final Collection<T> elements = Lists.newLinkedList();
-
+/**wenhua 
+   move code in 
+   handlerProcessBatchForStatement()
+*/
         for (final BatchQueueHandlerSupport<T> handler : handlerProvider.getHandlers()) {
             final BlockingQueue<T> queue = handler.getQueue();
             queue.drainTo(elements);
             handlerProcessBatchForStatement(connection, handler, rescueDataList, elements);
           }
     }
-
+/**wenhua 
+  stmt.executeBatch() for 1000 samples and other;
+*/
     protected <T> void processBatchForStatement(@Nonnull final BatchQueueHandlerSupport<T> handler,
                                                 @Nonnull final Collection<T> elements,
                                                 @Nonnull final PreparedStatement stmt,
@@ -211,10 +219,8 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
                                                     @Nonnull final PreparedStatement stmt,
                                                     @Nonnull final T element,
                                                     @Nonnull final List<T> rescueDataList) throws ArchiveDaoException {
-        rescueDataList.add(element);
-
-        handler.applyBatch(stmt, element);
-
+            rescueDataList.add(element);
+            handler.applyBatch(stmt, element);
     }
 
     @Nonnull
@@ -226,13 +232,8 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
         if (size >= minBatchSize) {
             try {
                 _watch.restart();
-                final int iii[] = stmt.executeBatch();
-                LOG.debug("{}", iii.length);
-
-                //  stmt.execute();
-                // stmt.executeUpdate();
-                LOG.debug("{}ms for {}x {}", new Object[] { _watch.getElapsedTimeInMillis(), size,
-                                                           handler.getHandlerType().getSimpleName() });
+                stmt.executeBatch();
+                LOG.info("{}ms for {}x {}", new Object[] {_watch.getElapsedTimeInMillis(), size, handler.getHandlerType().getSimpleName()});
             } finally {
                 rescueDataList.clear();
             }
@@ -240,6 +241,7 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
         }
         return false;
     }
+
 
     private <T> void handleThrowable(@Nonnull final Throwable t,
                                      @Nonnull final BatchQueueHandlerSupport<T> handler,
@@ -311,7 +313,7 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
         return _periodInMS;
     }
 
-   void rescueDataToFileSystem(@Nonnull final Iterable<String> statements) {
+    void rescueDataToFileSystem(@Nonnull final Iterable<String> statements) {
         final int noOfRescuedStmts = Iterables.size(statements);
         LOG.warn("Rescue statements: " + noOfRescuedStmts);
         int no = 0;
@@ -319,7 +321,7 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
             RESCUE_LOG.info(stmt);
             no++;
         }
-        if (no != 0) {
+        if(no != 0) {
             ArchiveNotifications.notify(NotificationType.PERSIST_DATA_FAILED, "#Rescued: " + no);
         }
     }
@@ -330,7 +332,8 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
     }
 
 
-    /**
+  /**wenhua 
+     * new method
      * @param connection
      * @param handlerProvider
      * @param rescueDataList
@@ -361,7 +364,10 @@ public class PersistDataWorker extends AbstractTimeMeasuredRunnable {
             }
 
     }
-    /**
+  
+
+  /**wenhua 
+     * new method
      * @param connection
      * @param handlerProvider
      * @param rescueDataList

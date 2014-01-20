@@ -64,6 +64,8 @@ public class ArchiveChannelStatusDaoImpl extends AbstractArchiveDao implements I
         "SELECT id, channel_id, connected, info, time FROM " +
         getDatabaseName() + "." + TAB +
         " WHERE channel_id=? AND time BETWEEN ? AND ? ORDER BY time DESC LIMIT 1";
+    
+    //wenhua stmt for lastChannelstatus
     private final String _selectLatestChannelStatusStmtWithNoneTime =
             "SELECT id, channel_id, connected, info, time FROM " +
             getDatabaseName() + "." + TAB +
@@ -169,7 +171,7 @@ public class ArchiveChannelStatusDaoImpl extends AbstractArchiveDao implements I
         return DeleteResult.failed("Channel status removal failed for id '" + id.intValue() + "'");
     }
 
-//return lastChannelstatus
+//wenhua return lastChannelstatus
     /**
      * {@inheritDoc}
      */
@@ -198,6 +200,8 @@ public class ArchiveChannelStatusDaoImpl extends AbstractArchiveDao implements I
                 } catch (final SQLException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
+                }finally {
+                    closeSqlResources(rs, stmt, conn, _selectLatestChannelStatusStmtWithNoneTime);
                 }
 
         return null;

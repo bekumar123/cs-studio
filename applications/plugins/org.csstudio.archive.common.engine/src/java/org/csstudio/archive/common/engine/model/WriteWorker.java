@@ -77,6 +77,9 @@ final class WriteWorker extends AbstractTimeMeasuredRunnable {
                        @Nonnull final String name,
                        @Nonnull final Collection<ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> channels,
                        final long periodInMS,
+                       /* wenhua xu
+                       model
+                      */
                        @Nonnull final EngineModel model) {
         _provider = provider;
         _name = name;
@@ -149,7 +152,9 @@ final class WriteWorker extends AbstractTimeMeasuredRunnable {
             ArchiveEngineSampleRescuer.with(samples).rescue();
             return 0;
         }
-        // when there's a service, the service impl handles the rescue of data
+        /* wenhua xu
+            * when there's a service, the service impl handles the rescue of data
+            */
         final int size = service.writeSamples(samples);
         if (size >provider.getPreferencesService().getQueueWarnSize() ) {
             if (!hasWarnung) {

@@ -71,6 +71,10 @@ public class AddChannelResponse extends AbstractChannelResponse {
      * {@inheritDoc}
      */
     @Override
+    /**
+     * @author wxu
+     * channel import with more than 1 channels
+     */
     protected void fillResponse(@Nonnull final HttpServletRequest req, @Nonnull final HttpServletResponse resp) throws Exception {
         final String names = req.getParameter(PARAM_NAME);
         if (names == null) {
@@ -125,7 +129,10 @@ public class AddChannelResponse extends AbstractChannelResponse {
     public static String urlTo(@Nonnull final String name) {
         return new Url(baseUrl()).with(PARAM_NAME, name).url();
     }
-
+    /**
+     * @author wxu
+     * create channel name list 
+     */
     private List<EpicsChannelName> createEpicsNames(@Nonnull final HttpServletResponse resp,
                                                     @Nonnull final String groupName,
                                                     @Nonnull final String names) throws Exception {
@@ -181,7 +188,4 @@ public class AddChannelResponse extends AbstractChannelResponse {
 
     }
 
-    private void addChannel(final EpicsChannelName channelName, final String groupName) throws EngineModelException {
-        getModel().configureNewChannel(channelName, groupName, null, null, null);
-    }
 }

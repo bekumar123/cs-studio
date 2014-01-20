@@ -79,6 +79,9 @@ final class ShutdownWorkerThread extends Thread {
                                   "SHUTDOWN Worker",
                                   Integer.valueOf(0),
                                   _handlerProvider);
+   /**wenhua 
+      * call method for run SamplsPersistDataWorker
+  */
         final SamplsPersistDataWorker sWorker =
                 new SamplsPersistDataWorker(_connectionHandler,
                                       "SHUTDOWN SampleWorker",
@@ -110,6 +113,9 @@ final class ShutdownWorkerThread extends Thread {
             worker.rescueDataToFileSystem(statements);
         }
     }
+     /**wenhua 
+      * new method 
+   */
     private <T> void rescueStatementsOfAllHandlers1(@Nonnull final SamplsPersistDataWorker worker) {
         final Collection<T> elements = Lists.newLinkedList();
         for (final BatchQueueHandlerSupport<T> handler : _handlerProvider.getHandlers()) {

@@ -82,6 +82,10 @@ import com.google.inject.Inject;
  * @since 11.11.2010
  */
 public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchiveSampleDao {
+      /**
+    *@author wenhua
+    *neue LOG
+    */
     private static final Logger LOG = LoggerFactory.getLogger(ArchiveSampleDaoImpl.class);
 
     public static final String TAB_SAMPLE = "sample";
@@ -92,11 +96,15 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
     public static final String COLUMN_TIME = "time";
     public static final String COLUMN_CHANNEL_ID = "channel_id";
     public static final String COLUMN_VALUE = "value";
-    public static final String COLUMN_STATUS = "status";
-    public static final String COLUMN_SERVERTY = "serverty";
     public static final String COLUMN_AVG = "avg_val";
     public static final String COLUMN_MIN = "min_val";
     public static final String COLUMN_MAX = "max_val";
+          /**
+    *@author wenhua
+    *neue feld
+    */
+    public static final String COLUMN_STATUS = "status";
+    public static final String COLUMN_SERVERTY = "serverty";
     public static final String  COLUMN_COUNT="count";
 
     private static final String ARCH_TABLE_PLACEHOLDER = "<arch.table>";
@@ -126,6 +134,10 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             .concurrencyLevel(2).weakKeys().makeMap();
 
     private final IArchiveChannelDao _channelDao;
+    /**
+    *@author wenhua
+    *neue map for serverty and status
+    */
     private static Map<Integer, String> _statusmap = new MapMaker().makeMap();
     private static Map<Integer, String> _servertymap = new MapMaker().makeMap();
 
@@ -198,6 +210,8 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
     }
 
     @Nonnull
+       /**wenhua Status serverty count in HourSample berechnen
+       */
     private List<HourReducedDataSample> generatePerHourSamples(@Nonnull final Collection<? extends AbstractReducedDataSample> samples,
                                                                @Nonnull final ConcurrentMap<ArchiveChannelId, SampleMinMaxAggregator> aggregatorMap) throws ArchiveDaoException {
 
@@ -227,7 +241,8 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         }
         return hourSamples;
     }
-
+  /**wenhua Status serverty count in HourSample berechnen
+       */
     private void processHourSampleOnTimeCondition(@Nonnull final List<HourReducedDataSample> hourSamples,
                                                   @Nonnull final ArchiveChannelId channelId,
                                                   @Nonnull final Double newValue,
@@ -245,7 +260,8 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             agg.reset();
         }
     }
-
+  /**wenhua Status serverty count in MinuteSample berechnen
+       */
     @Nonnull
     private <V extends Serializable, T extends ISystemVariable<V>> List<MinuteReducedDataSample> generatePerMinuteSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples,
                                                                                                                           @Nonnull final ConcurrentMap<ArchiveChannelId, SampleMinMaxAggregator> aggregatorMap) throws TypeSupportException,
@@ -296,7 +312,9 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         return minuteSamples;
 
     }
-
+     /**wenhua
+       *create new MinuteSample with Status serverty count
+       */
     private void processMinuteSampleOnTimeCondition(@Nonnull final List<MinuteReducedDataSample> minuteSamples,
                                                     @Nonnull final Double newValue,
                                                     @Nonnull final ArchiveChannelId channelId,
@@ -634,7 +652,10 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         }
         return false;
     }
-
+      /**
+    *@author wenhua
+    *look for status id
+    */
     private int getStatusId(@Nonnull final String name) {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -679,7 +700,10 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         return id;
 
     }
-
+      /**
+    *@author wenhua
+    *look for Serverty id
+    */
     private int getServertyId(@Nonnull final String name) {
         Connection conn = null;
         PreparedStatement stmt = null;

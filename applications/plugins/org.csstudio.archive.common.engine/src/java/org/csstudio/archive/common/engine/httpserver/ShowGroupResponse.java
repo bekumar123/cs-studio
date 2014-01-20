@@ -156,13 +156,6 @@ class ShowGroupResponse extends AbstractGroupResponse {
                  */
                 final ConnectionState state=channel.getConnectState();
                 final String connState = state!=null? ConnectionState.CONNECTED.equals(state)?   state.getName() : HTMLWriter.makeRedText( state.getName()): HTMLWriter.makeRedText("UNKNOWN");
-                final String cajDirectconnState ;
-                final String isChannelConnected ;
-                if( state!=null){
-                cajDirectconnState = ConnectionState.CONNECTED.equals(state) && channel.isConnected()?   state.getName() : !ConnectionState.CONNECTED.equals(state) && !channel.isConnected() ?  HTMLWriter.makeRedText(  state.getName()) : HTMLWriter.makeRedText( channel.getCAJDirectConnectState().getName());
-                isChannelConnected = ConnectionState.CONNECTED.equals(state) && channel.isConnected()?   Messages.HTTP_YES  : !ConnectionState.CONNECTED.equals(state) && !channel.isConnected() ?  HTMLWriter.makeRedText(  Messages.HTTP_NO) : channel.isChannelConnected() ? Messages.HTTP_YES :
-                    HTMLWriter.makeRedText(Messages.HTTP_NO);;
-                 }
                 final String curVal = limitLength(getValueAsString(mostRecentSample), MAX_VALUE_DISPLAY);
 
                 final String curValTimestamp =

@@ -23,7 +23,7 @@
 
 
 /**resc.
- * @author claus
+ * @author wxu
  *
  */
 public class ArchiveSampleBatchQueueCollector {

@@ -85,6 +85,10 @@ abstract class AbstractResponse extends HttpServlet {
 
     /** {@inheritDoc} */
     @Override
+    /**
+     * @author wxu
+     * function for http upload method
+     */
     protected void doPost(@Nonnull final HttpServletRequest req, @Nonnull final HttpServletResponse resp) throws ServletException,
                                                                                                          IOException {
         try {

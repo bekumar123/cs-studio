@@ -33,7 +33,6 @@ import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
 import org.csstudio.domain.desy.system.ISystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
-import org.epics.pvmanager.ChannelHandler;
 import org.epics.pvmanager.PVManager;
 import org.epics.pvmanager.PVReader;
 import org.epics.util.time.TimeDuration;
@@ -144,14 +143,6 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
         return "MONITOR (on change)";
     }
 
-    /** @return <code>true</code> if connected */
-    public boolean isConnected() {
-        if (_source != null) {
-            final ChannelHandler channelHandler = _source.getChannels().get(_name);
-            return channelHandler != null && channelHandler.isConnected();
-        }
-        return false;
-    }
 
     /** @return <code>true</code> if connected */
     public boolean isStarted() {
@@ -351,12 +342,22 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
     public ConnectionState getCAJDirectConnectState(){
         try{
           final DesyJCAChannelHandler channelHandler = (DesyJCAChannelHandler)_source.getChannels().get(_name);
-          return channelHandler.getCAJDirectConnectState();
+          return channelHandler.getConnectState();
         }catch(final NullPointerException e){
           return null;
         }
   }
-
+    /* wenhua xu
+     * channel
+     * @return <code>true</code> if connected
+     */
+    public boolean isConnected() {
+        if (_source != null) {
+            final DesyJCAChannelHandler channelHandler = (DesyJCAChannelHandler)_source.getChannels().get(_name);
+            return channelHandler != null && channelHandler.isConnected();
+        }
+        return false;
+    }
 
     public Short getPrecision() {
         return _precision;

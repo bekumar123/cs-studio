@@ -141,7 +141,7 @@ public class ArchiveConnectionHandler {
                 connection.setAutoCommit(true);
             }
         } catch (final Exception e) {
-             throw new ArchiveConnectionException(ARCHIVE_CONNECTION_EXCEPTION_MSG, e);
+            throw new ArchiveConnectionException(ARCHIVE_CONNECTION_EXCEPTION_MSG, e);
         }
         if (connection == null || Strings.isNullOrEmpty(_dataSource.getDatabaseName())) {
             throw new ArchiveConnectionException("Connection could not be established or database name is not set.", null);

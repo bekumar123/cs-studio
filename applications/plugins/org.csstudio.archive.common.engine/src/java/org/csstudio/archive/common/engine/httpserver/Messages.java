@@ -18,6 +18,9 @@ public final class Messages {
     public static final String HTTP_ACTION = "Action";
     public static final String HTTP_AVG_WRITE = "Average Write";
     public static final String HTTP_CHANNEL = "Channel";
+    /* wenhua xu
+    *  new String item
+    */
     public static final String HTTP_CHANNEL_DATATYPE = "Datatype";
     public static final String HTTP_CHANNEL_DISPLAYLOW = "Displalow";
     public static final String HTTP_CHANNEL_DISPLAYHIGH = "Displayhigh";

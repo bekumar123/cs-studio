@@ -108,7 +108,7 @@ public interface IArchiveEngineFacade {
      * {@link org.csstudio.archive.common.service.sample.ArchiveMultiScalarSample} or
      * {@link org.csstudio.archive.common.service.sample.ArchiveSample}, since these are treated
      * differently within the service.
-     * return samplescount in cache back
+     * wxu:  return samplescount in cache back
      * @param samples the samples to be archived with their channel id
      * @return true, if the samples have been persisted
      * @throws ArchiveServiceException

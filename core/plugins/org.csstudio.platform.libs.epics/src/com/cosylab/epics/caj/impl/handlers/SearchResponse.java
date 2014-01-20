@@ -64,6 +64,7 @@ public class SearchResponse extends AbstractCAJResponseHandler {
 		}
 			
 		// read rest of the playload (needed for UDP)
+		if(payloadStart + payloadSize>response[0].limit())response[0].limit(payloadStart + payloadSize);
 		response[0].position(payloadStart + payloadSize);
 		
 		// signed short conversion -> signed int 

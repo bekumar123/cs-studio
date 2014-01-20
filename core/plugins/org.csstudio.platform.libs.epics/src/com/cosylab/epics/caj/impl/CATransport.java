@@ -635,11 +635,6 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 					for (int tries = 0; /* tries <= TRIES */ ; tries++)
 					{ 
 					
-						try{
-							channel.socket().getOutputStream().flush();
-							}catch(IOException e){
-								e.printStackTrace();
-							}
 						/*int	bytesSent = */channel.write(buffer);
 				    	if (buffer.position() != buffer.limit())
 						{
@@ -846,7 +841,9 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	public void flushInternalBuffer(ByteBuffer buf)
 	{
 		try{	
-			send(buf);
+		    // enable SelectionKey.OP_WRITE via reactor (this will also enable OP_READ, but its OK)
+		 	   context.getReactor().setInterestOps(channel,  SelectionKey.OP_WRITE |  SelectionKey.OP_READ );	
+		    	send(buf);
 		}
 		catch (IOException ioex)
 		{
@@ -876,8 +873,9 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 		
 			   socketBufferForRequst=message;
 			   synchronized (socketBufferForRequst){
-			   spawnFlushing(flushBufferTask);
-			//    send(message);
+			//   spawnFlushing(flushBufferTask);
+				 flushInternalBuffer(socketBufferForRequst);
+			//   send(message);
 			}
 			}else
 	      	{

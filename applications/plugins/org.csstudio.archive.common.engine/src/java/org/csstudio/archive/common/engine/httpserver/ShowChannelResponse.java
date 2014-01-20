@@ -50,7 +50,9 @@ class ShowChannelResponse extends AbstractChannelResponse {
 
         // HTML table similar to group's list of channels
         final HTMLWriter html = new HTMLWriter(resp, "Archive Engine Channel",name.toString());
-
+        /* wenhua xu
+        move method createChannelTable in orther class  
+        */
      //   createChannelTable(channel, html);
 
         html.close();

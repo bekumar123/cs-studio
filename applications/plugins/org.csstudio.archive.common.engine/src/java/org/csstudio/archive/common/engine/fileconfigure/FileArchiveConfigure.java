@@ -27,9 +27,13 @@ public class FileArchiveConfigure {
         _model = model;
     }
 /*
-*configurien channelList from inputstrem 
-*for managementresponse upload of local file with POST 
+*configurien channelList from inputstrem
+*for managementresponse upload of local file with POST
 */
+    /**
+     * @author wxu
+     * function for http upload method
+     */
     public List<EpicsChannelName> configureChannelsFromFile(final ServletInputStream in) {
 
         final List<EpicsChannelName> channelList = new ArrayList<EpicsChannelName>();
@@ -146,9 +150,13 @@ public class FileArchiveConfigure {
         return channelList;
     }
     /*
-*configurien channelList from inputstrem 
-*for managementresponse upload of local file with GET 
+*configurien channelList from inputstrem
+*for managementresponse upload of local file with GET
 */
+    /**
+     * @author wxu
+     * function for import channel from local file system
+     */
     public List<EpicsChannelName> configureChannelsFromFile(final String fileName) {
         if(fileName==null ||fileName.isEmpty() || fileName.length()<10) {
             return configureChannelsFromFile();
@@ -226,7 +234,6 @@ public class FileArchiveConfigure {
     }
 
     private void addChannel(final EpicsChannelName channelName, final String groupName) throws EngineModelException {
-        System.out.println("channel name: " + channelName.toString() + "  group: " + groupName);
         _model.configureNewChannel(channelName, groupName, null, null, null);
     }
 

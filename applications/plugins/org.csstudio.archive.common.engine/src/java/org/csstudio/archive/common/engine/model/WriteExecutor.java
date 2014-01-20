@@ -67,6 +67,9 @@ public class WriteExecutor {
     public WriteExecutor(@Nonnull final IServiceProvider provider,
                          @Nonnull final ArchiveEngineId engineId,
                          @Nonnull final Collection<ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> collection,
+                         /* wenhua xu
+                         model uebergeben
+                        */
                          @Nonnull final EngineModel model) {
         _provider = provider;
         _engineId = engineId;
@@ -111,6 +114,9 @@ public class WriteExecutor {
         */
          WriteWorker writeWorker=null;
        for (final ArchiveGroup g : _model.getGroups()) {
+    	   /* wenhua xu
+    	    write sample for group
+    	   */
             if(  g.getChannels().size()>0){
             writeWorker =
                                             new WriteWorker(provider,

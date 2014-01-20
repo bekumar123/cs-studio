@@ -62,7 +62,10 @@ import com.google.common.collect.Collections2;
 public class ArchiveSampleBatchQueueHandler extends BatchQueueHandlerSupport<ArchiveSample> {
 
     static final Logger LOG = LoggerFactory.getLogger(ArchiveSampleBatchQueueHandler.class);
-
+   /**
+    *@author wenhua 
+    *neue feld  in stmt
+    */
     private static final String VALUES_WILDCARD = "(?, ?, ?, ?, ?)";
 
     /**
@@ -76,6 +79,10 @@ public class ArchiveSampleBatchQueueHandler extends BatchQueueHandlerSupport<Arc
     }
 
     @Nonnull
+      /**
+    *@author wenhua 
+    *neue feld  in stmt
+    */
     private static String createSqlStatement(@Nonnull final String databaseName) {
         return "INSERT IGNORE INTO " + databaseName + "." + TAB_SAMPLE + " " +
                 "(" + Joiner.on(",").join(COLUMN_CHANNEL_ID, COLUMN_TIME, COLUMN_VALUE,COLUMN_STATUS,COLUMN_SERVERTY)+ ") " +
@@ -88,6 +95,10 @@ public class ArchiveSampleBatchQueueHandler extends BatchQueueHandlerSupport<Arc
      */
     @Override
     @Nonnull
+      /**
+    *@author wenhua 
+    *neue feld  in stmt
+    */
     public void fillStatement(@Nonnull final PreparedStatement stmt,
                               @Nonnull final ArchiveSample type) throws SQLException, ArchiveDaoException {
         stmt.setInt(1, type.getChannelId().intValue());

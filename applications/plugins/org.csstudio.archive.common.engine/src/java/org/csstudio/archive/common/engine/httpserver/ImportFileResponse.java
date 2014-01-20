@@ -37,6 +37,7 @@ import org.csstudio.domain.desy.epics.name.EpicsChannelName;
  *
  * @author wenhua xu
  * @since 30.09.2013
+ * channel in file import for http upload function
  */
 public class ImportFileResponse extends AbstractResponse {
 

@@ -107,7 +107,9 @@ public abstract class DesyArchivePVManagerListener<V extends Serializable,
         try {
             // TODO (bknerr) : ask Gabriele whether it is a good choice to separate the value
             // update callback from the calling/value providing instance
-
+        	 /* wenhua xu
+             * sysVars is null,do nothing 
+             */
             final List<EpicsSystemVariable> sysVars = (List<EpicsSystemVariable>) _reader.getValue();
             if(sysVars==null || sysVars.isEmpty()) {
                 return;
@@ -154,11 +156,16 @@ public abstract class DesyArchivePVManagerListener<V extends Serializable,
         final EpicsMetaData metaData = pv.getMetaData();
         if (metaData != null) {
             handleMetaDataInfo(id, metaData);
+            /* wenhua xu
+             * set Precision 
+             */
             _buffer.setPrecision(metaData.getPrecision());
         }
 
-
-    // unit of channel value update
+        /* wenhua xu
+         * unit of channel value update
+         */
+   
         final IArchiveEngineFacade service = provider.getEngineFacade();
         service.writeChannelUnitInfo(id, pv.getMetaData().getUnit());
     }
@@ -170,7 +177,9 @@ public abstract class DesyArchivePVManagerListener<V extends Serializable,
 
 
         final String actualTypeFromData = ArchiveTypeConversionSupport.createArchiveTypeStringFromData(data);
-
+        /* wenhua xu
+         * _datatype of channel update
+         */
         if (_datatype == null || _datatype.isEmpty()) {
             _datatype = actualTypeFromData;
             final IArchiveEngineFacade service = provider.getEngineFacade();

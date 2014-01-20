@@ -96,7 +96,7 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
         new MapMaker().concurrencyLevel(2).weakKeys().makeMap();
     private final Map<ArchiveChannelId, IArchiveChannel> _channelCacheById =
         new MapMaker().concurrencyLevel(2).weakKeys().makeMap();
-//wenhua use value in channel table
+//wenhua use unit value in channel table
     private final String _selectChannelPrefix =
         "SELECT " + TAB + ".id, " + TAB + ".name, " + TAB + ".datatype, " + TAB + ".group_id, " + TAB + ".last_sample_time, " +
                     TAB + ".enabled, " + TAB + ".display_high, " + TAB + ".display_low, " +  TAB + ".uv, "+
@@ -150,6 +150,7 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
         final String name = result.getString(TAB + ".name");
         final String datatype = result.getString(TAB + ".datatype");
         final long groupId = result.getLong(TAB + ".group_id");
+         //wenhua use last_sample_time in channel table
         final long lastSampleTime = result.getLong(TAB + ".last_sample_time");
 
         final TimeInstant time = lastSampleTime > 0L ?

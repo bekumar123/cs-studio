@@ -46,6 +46,7 @@ public final class EpicsMetaData {
      * Null object/flyweight pattern (there are a lot of channels in which states array is empty for
      * enum types or display ranges, or alarms are not present.
      */
+  
     public static final EpicsMetaData EMPTY_DATA =
         new EpicsMetaData(EpicsAlarm.UNKNOWN, null, null, null,null);
 
@@ -53,6 +54,11 @@ public final class EpicsMetaData {
     private final IControlLimits<? extends Comparable<?>> _ctrlLimits;
     private final Short _precision;
     private final EpicsAlarm _alarm;
+       /**
+      * author wxu 
+      * channel value unit
+      * instead of this data bag.
+      */
     private final String _unit;
     private final ImmutableList<EpicsEnum> _states;
 
@@ -73,7 +79,10 @@ public final class EpicsMetaData {
 
     /**
      * Constructor.
-     */
+      * author wxu 
+      * channel value unit
+      * instead of this data bag.
+      */
     private EpicsMetaData(@CheckForNull final EpicsAlarm alarm,
                           @Nullable final EpicsGraphicsData<? extends Comparable<?>> gr,
                           @Nullable final IControlLimits<? extends Comparable<?>> ctrl,
@@ -99,7 +108,11 @@ public final class EpicsMetaData {
         }
         return new EpicsMetaData(states);
     }
-
+   /**
+      * author wxu 
+      * channel value unit
+      * instead of this data bag.
+      */
     @Nonnull
     public static EpicsMetaData create(@Nullable final EpicsAlarm alarm,
                                        @Nullable final EpicsGraphicsData<? extends Comparable<?>> gr,
@@ -179,6 +192,11 @@ public final class EpicsMetaData {
         }
         return EpicsEnum.createFromRaw(index);
     }
+       /**
+      * author wxu 
+      * channel value unit
+      * instead of this data bag.
+      */
 
 	public String getUnit() {
 		return _unit;

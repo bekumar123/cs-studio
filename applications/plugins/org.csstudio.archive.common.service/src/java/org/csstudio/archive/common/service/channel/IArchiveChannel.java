@@ -49,7 +49,10 @@ public interface IArchiveChannel extends IIdentifiable<ArchiveChannelId> {
 
     @CheckForNull
     String getDataType();
-
+/**
+ * @author wxu
+ * new column for channel table
+ */
     @CheckForNull
     String getUv();
 

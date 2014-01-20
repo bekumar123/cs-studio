@@ -48,7 +48,7 @@ public class PVSamples extends PlotSamples
 
     /** Live samples. Should start after end of historic samples */
     private final LiveSamples liveSamples;
-
+    
     boolean show_deadband = false;
 
     
@@ -62,7 +62,7 @@ public class PVSamples extends PlotSamples
 //        final int liveSampleBufferSize = Preferences.getLiveSampleBufferSize(); // 5000
 //        final int uncompressedSamples = Preferences.getUncompressedLiveSampleSize();
 //        final int securityCompressedSamples = Preferences.getSecurityCompressedLiveSampleSize();
-        liveSamples = new LiveSamples(500);
+        liveSamples = new LiveSamples(2500, prov);
 //        liveSamples = new LiveSamples(Preferences.getLiveSampleBufferSize());
         historicSamples = new HistoricSamples(request_type, prov);
     }

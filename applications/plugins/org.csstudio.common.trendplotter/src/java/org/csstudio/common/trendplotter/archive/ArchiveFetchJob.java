@@ -113,7 +113,7 @@ public class ArchiveFetchJob extends Job
             Timestamp _end = end;
             final int bins = Preferences.getPlotBins();
             final ArchiveDataSource archives[] = item.getArchiveDataSources();
-            item.compressHistorySamples();
+            item.modifySamplesBeforeFetch();
             LOG.info("start archive fetch with {} data sources", archives.length);
             for (int i=0; i<archives.length && !cancelled; ++i)
             {

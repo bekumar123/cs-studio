@@ -61,7 +61,7 @@ public class CompressedLiveSamples extends LiveSamples {
                                  final int cap,
                                  final int securityCap,
                                  @Nullable final IIntervalProvider prov) {
-        super(cap);
+        super(cap, prov);
         _securityCap=securityCap;
         _compressor = c;
         _intervalPovider = prov;
@@ -78,17 +78,17 @@ public class CompressedLiveSamples extends LiveSamples {
     protected synchronized void add(@Nonnull final PlotSample sample) {
         super.add(sample);
         newSamples++;
-        if (isCompressionDue(_samples)) {
-            newSamples=0;
-            LOG.info("Samples size before Compress:  {}",_samples.size());
-            final Interval interval = _intervalPovider.getTimeInterval();
-            if (interval != null) {
-                   _samples = compress(_samples, interval);
-             LOG.info("Samples Compressed Timewindow interval: start {},  end   {}", interval.getStart(), interval.getEnd());
-                }
-             LOG.info("Samples Compressed: new samples  {},  capacity       {}", _samples.size(), getCapacity());
-             LOG.info("Samples Compressed: live sample {},   SecuritySmples {} ",_compressor.getNoUncompressed(),_securityCap);
-       }
+//        if (isCompressionDue(_samples)) {
+//            newSamples=0;
+//            LOG.info("Samples size before Compress:  {}",_samples.size());
+//            final Interval interval = _intervalPovider.getTimeInterval();
+//            if (interval != null) {
+//                   _samples = compress(_samples, interval);
+//             LOG.info("Samples Compressed Timewindow interval: start {},  end   {}", interval.getStart(), interval.getEnd());
+//                }
+//             LOG.info("Samples Compressed: new samples  {},  capacity       {}", _samples.size(), getCapacity());
+//             LOG.info("Samples Compressed: live sample {},   SecuritySmples {} ",_compressor.getNoUncompressed(),_securityCap);
+//       }
     }
 
     private boolean isCompressionDue(@Nonnull final LimitedArrayCircularQueue<PlotSample> samples) {

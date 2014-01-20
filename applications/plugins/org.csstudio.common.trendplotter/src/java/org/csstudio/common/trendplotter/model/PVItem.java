@@ -119,26 +119,27 @@ public class PVItem extends ModelItem implements PVListener {
             @Override
             @CheckForNull
             public Interval getTimeInterval() {
-                final TimeInstant startTime = getModelStartTime();
-                final TimeInstant endTime = getModelEndTime();
-                if (startTime == null || endTime == null) {
-                    return null;
-                }
-                return new Interval(startTime.getInstant(), endTime.getInstant());
+                return null;
+//                final TimeInstant startTime = getModelStartTime();
+//                final TimeInstant endTime = getModelEndTime();
+//                if (startTime == null || endTime == null) {
+//                    return null;
+//                }
+//                return new Interval(startTime.getInstant(), endTime.getInstant());
             }
 
-            private TimeInstant getModelStartTime() {
+            public Timestamp getModelStartTime() {
                 final Model m = getModel();
                 if (model != null) {
-                    return BaseTypeConversionSupport.toTimeInstant1(m.getStartTime());
+                    return m.getStartTime();
                 }
                 return null;
             }
 
-            private TimeInstant getModelEndTime() {
+            public Timestamp getModelEndTime() {
                 final Model m = getModel();
                 if (model != null) {
-                    return BaseTypeConversionSupport.toTimeInstant1(m.getEndTime());
+                    return m.getEndTime();
                 }
                 return null;
             }
@@ -699,7 +700,7 @@ public class PVItem extends ModelItem implements PVListener {
      * History samples will only be added. Without compression the performance
      * of the plotter gets worse.
      */
-    public void compressHistorySamples() {
+    public void modifySamplesBeforeFetch() {
         samples.compressHistorySamples();
     }
 

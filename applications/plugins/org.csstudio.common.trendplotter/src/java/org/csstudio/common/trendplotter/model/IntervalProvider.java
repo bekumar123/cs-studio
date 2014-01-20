@@ -26,6 +26,7 @@ import javax.annotation.Nonnull;
 
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.typesupport.BaseTypeConversionSupport;
+import org.epics.util.time.Timestamp;
 import org.joda.time.Interval;
 
 /**
@@ -49,13 +50,20 @@ public class IntervalProvider implements IIntervalProvider {
     @Override
     @CheckForNull
     public Interval getTimeInterval() {
-        return new Interval(getModelStartTime().getInstant(),
-                            getModelEndTime().getInstant());
+        return null;
+//        new Interval(getModelStartTime().getInstant(),
+//                            getModelEndTime().getInstant());
     }
-    private TimeInstant getModelStartTime() {
-        return BaseTypeConversionSupport.toTimeInstant1(_model.getStartTime());
+
+    @Override
+    public Timestamp getModelStartTime() {
+        // TODO Auto-generated method stub
+        return null;
     }
-    private TimeInstant getModelEndTime() {
-        return BaseTypeConversionSupport.toTimeInstant1(_model.getEndTime());
+
+    @Override
+    public Timestamp getModelEndTime() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

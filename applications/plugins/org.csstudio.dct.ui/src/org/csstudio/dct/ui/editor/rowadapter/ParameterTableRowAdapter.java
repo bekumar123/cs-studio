@@ -1,8 +1,10 @@
 package org.csstudio.dct.ui.editor.rowadapter;
 
+import org.csstudio.dct.model.IPrototype;
 import org.csstudio.dct.model.commands.GenericCommand;
 import org.csstudio.dct.model.internal.Parameter;
 import org.csstudio.dct.ui.Activator;
+import org.csstudio.dct.ui.editor.proposal.GenericContentProposingTextCellEditor;
 import org.csstudio.ui.util.CustomMediaFactory;
 import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.commands.CommandStack;
@@ -18,14 +20,17 @@ import org.eclipse.swt.widgets.Composite;
  */
 public final class ParameterTableRowAdapter extends AbstractTableRowAdapter<Parameter> {
 
+    private final IPrototype prototype;
+    
     /**
      * Constructor.
      * 
      * @param parameter
      *            a parameter
      */
-    public ParameterTableRowAdapter(Parameter parameter) {
+    public ParameterTableRowAdapter(final IPrototype prototype, final Parameter parameter) {
         super(parameter);
+        this.prototype = prototype;
     }
 
     /**
@@ -81,6 +86,15 @@ public final class ParameterTableRowAdapter extends AbstractTableRowAdapter<Para
         return comand;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected CellEditor doGetValueCellEditor(Parameter parameter, Composite parent) {
+        CellEditor result = new GenericContentProposingTextCellEditor(parent, prototype);
+        return result;
+    }
+    
     protected Command doSetDescriptione(final Parameter parameter, final Object value) {
         Command comand = new GenericCommand(new Runnable() {
             public void run() {

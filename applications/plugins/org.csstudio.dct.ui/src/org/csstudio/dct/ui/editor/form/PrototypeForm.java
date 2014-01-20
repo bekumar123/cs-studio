@@ -269,7 +269,7 @@ public final class PrototypeForm extends AbstractForm<IPrototype> {
         // prepare input for parameter table
         List<ITableRow> rowsForParameters = new ArrayList<ITableRow>();
         for (Parameter p : prototype.getParameters()) {
-            rowsForParameters.add(new ParameterTableRowAdapter(p));
+            rowsForParameters.add(new ParameterTableRowAdapter(prototype,p));
         }
         parameterTable.setInput(rowsForParameters);
         copyButton.setEnabled(!rowsForParameters.isEmpty());

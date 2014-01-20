@@ -34,13 +34,14 @@ import org.csstudio.config.ioconfig.config.component.ModuleSelectionListBox;
 import org.csstudio.config.ioconfig.config.component.WatchableValue;
 import org.csstudio.config.ioconfig.config.dialogs.LongRunningOperation;
 import org.csstudio.config.ioconfig.config.view.IHasDocumentableObject;
-import org.csstudio.config.ioconfig.config.view.dialog.prototype.components.ChannelConfigDialogDataModel;
 import org.csstudio.config.ioconfig.config.view.dialog.prototype.components.InfoAreaComponent;
 import org.csstudio.config.ioconfig.config.view.dialog.prototype.components.PrototypeVersionDialog;
 import org.csstudio.config.ioconfig.config.view.dialog.prototype.components.table.ChannelTableComponent;
+import org.csstudio.config.ioconfig.config.view.dialog.prototype.datamodel.ChannelConfigDialogDataModel;
 import org.csstudio.config.ioconfig.config.view.helper.DocumentationManageView;
 import org.csstudio.config.ioconfig.model.IDocumentable;
 import org.csstudio.config.ioconfig.model.PersistenceException;
+import org.csstudio.config.ioconfig.model.hibernate.Repository;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ModuleChannelPrototypeDBO;
 import org.csstudio.config.ioconfig.model.types.ModuleLabel;
@@ -107,13 +108,13 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
             @Nullable final Shell parentShell, 
             @NotNull final ChannelConfigDialogDataModel channelConfigDialogDataModel) {
             //@formatter:on    
-        
+
         super(parentShell);
         setShellStyle(SWT.APPLICATION_MODAL | SWT.TITLE | SWT.BORDER);
-        
-        this.channelConfigDialogDataModel = channelConfigDialogDataModel;                         
+
+        this.channelConfigDialogDataModel = channelConfigDialogDataModel;
         dirty = new WatchableValue<Boolean>();
-        
+
         dirty.addListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
@@ -121,7 +122,7 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
                     return;
                 }
                 final Boolean dirty = (Boolean) evt.getNewValue();
-                updateShellTitle(dirty);                
+                updateShellTitle(dirty);
                 Display.getCurrent().asyncExec(new Runnable() {
                     @Override
                     public void run() {
@@ -216,6 +217,7 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
             public void widgetSelected(SelectionEvent e) {
                 createNewVersionOnCLick();
             }
+
             @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
@@ -230,6 +232,7 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
             public void widgetSelected(SelectionEvent e) {
                 editVersionInfoOnClick();
             }
+
             @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
@@ -288,6 +291,7 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
             public void widgetSelected(SelectionEvent e) {
                 executeSave();
             }
+
             @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
@@ -299,7 +303,7 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
             public void widgetSelected(SelectionEvent e) {
                 if (dirty.getValue()) {
                     askForSave();
-                }                
+                }
                 ChannelConfigDialog.this.close();
             }
 
@@ -313,11 +317,11 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
     }
 
     private GSDModuleDBO newlyCreatedVersionedPrototype;
-    
+
     private void createNewVersionOnCLick() {
 
         newlyCreatedVersionedPrototype = null;
-        
+
         //@formatter:off
         final PrototypeVersionDialog newVersionDialog = new PrototypeVersionDialog(
                 Display.getCurrent().getActiveShell(),
@@ -329,15 +333,14 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
             if (!newVersionDialog.getModuleVersionInfo().isPresent()) {
                 throw new IllegalStateException("No VersionInfo available.");
             }
-            
+
             Runnable runInNewThread = new Runnable() {
                 @Override
                 public void run() {
-                    try {                        
-                        //@formatter:off
-                        newlyCreatedVersionedPrototype = channelConfigDialogDataModel.createNewVersion(
-                                newVersionDialog.getModuleVersionInfo().get());
-                                //@formatter:on
+                    try {
+                        newlyCreatedVersionedPrototype = channelConfigDialogDataModel.createNewVersion(newVersionDialog
+                                .getModuleVersionInfo().get());
+                        Repository.saveOrUpdate(newlyCreatedVersionedPrototype);
                     } catch (PersistenceException e) {
                         e.printStackTrace();
                     }
@@ -358,14 +361,14 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
             LongRunningOperation.run(runInNewThread, Optional.of(runInUiThread));
 
         }
-        
+
     }
-    
+
     private void editVersionInfoOnClick() {
-        
+
         ModuleVersionInfo moduleVersionInfo = channelConfigDialogDataModel.getModuleVersionInfo();
-        
-         //@formatter:off
+
+        //@formatter:off
         final PrototypeVersionDialog editVersionDialog = new PrototypeVersionDialog(
                 Display.getCurrent().getActiveShell(),
                 moduleVersionInfo);
@@ -374,20 +377,20 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
         if (editVersionDialog.open() == Dialog.OK) {
 
             final Optional<ModuleVersionInfo> updatedModuleVersionInfo = editVersionDialog.getModuleVersionInfo();
-            
+
             if (!editVersionDialog.getModuleVersionInfo().isPresent()) {
                 throw new IllegalStateException("No VersionInfo available.");
             }
 
             channelConfigDialogDataModel.updateModuleVersionInfo(updatedModuleVersionInfo.get());
             moduleSelectionListBox.refresh();
-           
+
             dirty.setValue(true);
 
         }
-        
+
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -458,9 +461,9 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
                 gridComposite, 
                 channelConfigDialogDataModel.getPrototypeList(),
                 channelConfigDialogDataModel.getParsedModuleInfo(),
-                ModuleNumber.moduleNumber(channelConfigDialogDataModel.getCurrentModuleNumber().getValue()));
+                Optional.of(channelConfigDialogDataModel.getCurrentModuleNumber()));
                 //@formatter:on
-
+        
         moduleSelectionListBox.buildComponent();
 
         moduleSelectionListBox.addSelectionChangedListener(new ISelectionChangedListener() {
@@ -505,7 +508,7 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
 
                 infoAreaComponent.refresh(channelConfigDialogDataModel.getSlaveCfgDataList());
                 documentationManageView.refresh();
-                
+
                 updateGuiStateFromDataModel();
 
             }
@@ -581,7 +584,7 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
         updateShellTitle(dirty.getValue());
 
     }
-    
+
     private void executeSave() {
         inputTable.closeAllCellEditors();
         outputTable.closeAllCellEditors();
@@ -623,7 +626,7 @@ public final class ChannelConfigDialog extends Dialog implements IHasDocumentabl
             @Override
             public void run() {
                 ModuleLabel moduleLabel = channelConfigDialogDataModel.getModuleLabel();
-                String title =  Messages.ChannelConfigDialog_Module + moduleLabel.buildLabelWithoutModuleNumber();
+                String title = Messages.ChannelConfigDialog_Module + moduleLabel.buildLabelWithoutModuleNumber();
                 if (getShell() != null) {
                     if ((isDirty != null) && isDirty) {
                         getShell().setText(title + "*");

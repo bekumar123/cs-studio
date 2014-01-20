@@ -929,7 +929,7 @@ public abstract class AbstractGsdNodeEditor<T extends AbstractNodeSharedImpl<?, 
         bitData = bitData.shiftLeftToBit(new BitPos(minBit));
         
         if (bitRange.needsTwoBytes()) {
-            // BigEndian Order => first HighByte then LowByte
+            // BigEndian Order => first HighByte than LowByte
             setPrmUserData(byteIndex, bitData.getHighByte().getValue(), !indexVisited(byteIndex));
             setPrmUserData(byteIndex + 1, bitData.getLowByte().getValue(), !indexVisited(byteIndex + 1));
         } else {

@@ -128,10 +128,10 @@ public final class FieldFunctionService implements IFieldFunctionService {
 		// .. special treatment if we are resolving an alias
 		if (isAlias) {
 			if (!aliases.containsKey(input)) {
-				throw new AliasResolutionException("Variable \"" + input + "\" cannot be resolved.");
+				throw new AliasResolutionException("Variable '" + input + "' cannot be resolved.");
 			} else {
 				if (markerList.contains(input)) {
-					throw new AliasResolutionException("Variable \"" + input + "\" contains an endless loop.");
+					throw new AliasResolutionException("Variable '" + input + "' contains an endless loop.");
 				} else {
 					result = aliases.get(input);
 					markerList.add(input);
@@ -220,7 +220,7 @@ public final class FieldFunctionService implements IFieldFunctionService {
 		assert function != null;
 
 		if (functions.containsKey(name)) {
-			throw new IllegalArgumentException("Only 1 function can be registered for name \"" + name + "\"");
+			throw new IllegalArgumentException("Only 1 function can be registered for name '" + name + "'");
 		}
 
 		functions.put(name, function);

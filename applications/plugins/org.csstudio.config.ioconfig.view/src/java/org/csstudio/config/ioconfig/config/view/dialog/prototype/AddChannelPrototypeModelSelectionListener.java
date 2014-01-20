@@ -6,7 +6,7 @@ import java.util.Date;
 import javax.annotation.Nonnull;
 
 import org.csstudio.config.ioconfig.config.component.IRefreshable;
-import org.csstudio.config.ioconfig.config.view.dialog.prototype.components.ChannelDataModel;
+import org.csstudio.config.ioconfig.config.view.dialog.prototype.datamodel.IChannelDataModel;
 import org.csstudio.config.ioconfig.editorparts.AbstractNodeEditor;
 import org.csstudio.config.ioconfig.model.pbmodel.DataType;
 import org.csstudio.config.ioconfig.model.pbmodel.ModuleChannelPrototypeDBO;
@@ -18,14 +18,14 @@ final class AddChannelPrototypeModelSelectionListener implements SelectionListen
     private final static boolean IS_INPUT = true;
     
     private final ISelectedTab parentDialog;
-    private final ChannelDataModel channelConfigDialogDataModel;
+    private final IChannelDataModel channelConfigDialogDataModel;
     private final IRefreshable outputTable;
     private final IRefreshable inputTable;
 
     //@formatter:off
     public AddChannelPrototypeModelSelectionListener(
             @Nonnull final ISelectedTab parentDialog,
-            @Nonnull final ChannelDataModel channelConfigDialogDataModel,
+            @Nonnull final IChannelDataModel channelConfigDialogDataModel,
             @Nonnull final IRefreshable outputTable, 
             @Nonnull final IRefreshable inputTable) {
             //@formatter:on

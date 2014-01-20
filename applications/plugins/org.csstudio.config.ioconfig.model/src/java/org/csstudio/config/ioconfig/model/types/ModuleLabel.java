@@ -2,6 +2,9 @@ package org.csstudio.config.ioconfig.model.types;
 
 import com.google.common.base.Optional;
 
+/*
+ * Build a displayable description for a module.
+ */
 public class ModuleLabel {
 
     private final ModuleNumber moduleNumber;

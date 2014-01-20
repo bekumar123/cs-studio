@@ -6,10 +6,9 @@ import javax.annotation.Nullable;
 import org.csstudio.config.ioconfig.config.component.labelprovider.ModuleListLabelProvider;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBOReadOnly;
 import org.csstudio.config.ioconfig.model.types.ModuleLabel;
-import org.csstudio.config.ioconfig.model.types.PrototypeList;
-import org.csstudio.config.ioconfig.model.types.ModuleName;
 import org.csstudio.config.ioconfig.model.types.ModuleNumber;
 import org.csstudio.config.ioconfig.model.types.ParsedModuleInfo;
+import org.csstudio.config.ioconfig.model.types.PrototypeList;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -92,15 +91,14 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
                 //@formatter:on
 
         if (selectedModuleNumber.isPresent()) {
-            Object[] elements = new Object[] { prototypeList.getModule(selectedModuleNumber.get()) };
-            tableViewerModuleList.setSelection(new StructuredSelection(elements));
+            select(selectedModuleNumber.get());
             if (moduleSelectionListBoxConfigurator.isAutoFilter()) {
                 ModuleLabel moduleLabel = prototypeList.getModuleLabel(selectedModuleNumber.get());
                 filter.setText(moduleLabel.buildLabelWithoutModuleNumber());
             }
         }
-        
-        setTypListFilter(filter);
+
+        setModuleListFilter(filter);
         tableViewerModuleList.setInput(prototypeList);
 
         tableViewerModuleList.getTable().showSelection();
@@ -124,6 +122,7 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
 
     public void addSelectionChangedListener(ISelectionChangedListener selectionChangedListener) {
         if (tableViewerModuleList == null) {
+            // UI Component is not ready, but remember the listener object.
             this.selectionChangedListener = Optional.of(selectionChangedListener);
         } else {
             if (moduleSelectionListBoxConfigurator.isReadOnly()) {
@@ -137,16 +136,22 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
         return selectedModuleNumber;
     }
 
+    /**
+     * Select the given module number in the listbox.
+     */
     public void select(final ModuleNumber moduleNumber) {
-        
+
         Preconditions.checkNotNull(moduleNumber, "moduleNumber must not be null");
-        
+
         GSDModuleDBOReadOnly gsdModuleDBOReadOnly = prototypeList.getModule(moduleNumber);
         if (gsdModuleDBOReadOnly != null) {
             tableViewerModuleList.setSelection(new StructuredSelection(gsdModuleDBOReadOnly), true);
         }
     }
 
+    /**
+     * Select the first entry in the listbox.
+     */
     public void selectFirstRow() {
         tableViewerModuleList.getTable().select(0);
     }
@@ -167,12 +172,22 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
         return filter;
     }
 
-    private void setTypListFilter(@Nonnull final Text filter) {
+    private void setModuleListFilter(@Nonnull final Text filter) {
 
         if (filter == null) {
             return;
         }
 
+        addModuleNameFilter(filter);
+
+        if (moduleSelectionListBoxConfigurator.isIgnoreModulesWithoutPrototype()) {
+            // only display modules with channel configuration
+            addHasConfiguredPrototypesFilter(filter);
+        }
+
+    }
+
+    private void addModuleNameFilter(@Nonnull final Text filter) {
         tableViewerModuleList.addFilter(new ViewerFilter() {
             @Override
             public boolean select(@Nullable final Viewer viewer, @Nullable final Object parentElement,
@@ -187,23 +202,20 @@ public class ModuleSelectionListBox implements IComponent, IModuleNumberProvider
                 return false;
             }
         });
+    }
 
-        if (moduleSelectionListBoxConfigurator.isIgnoreModulesWithoutPrototype()) {
-
-            // only display modules with channel configuration
-            tableViewerModuleList.addFilter(new ViewerFilter() {
-                @Override
-                public boolean select(@Nullable final Viewer viewer, @Nullable final Object parentElement,
-                        @Nullable final Object element) {
-                    if (element instanceof GSDModuleDBOReadOnly) {
-                        final GSDModuleDBOReadOnly gsdModuleDbo = (GSDModuleDBOReadOnly) element;
-                        return prototypeList.hasChannelConfiguration(gsdModuleDbo.getModuleNumber());
-                    }
-                    return true;
+    private void addHasConfiguredPrototypesFilter(@Nonnull final Text filter) {
+        tableViewerModuleList.addFilter(new ViewerFilter() {
+            @Override
+            public boolean select(@Nullable final Viewer viewer, @Nullable final Object parentElement,
+                    @Nullable final Object element) {
+                if (element instanceof GSDModuleDBOReadOnly) {
+                    final GSDModuleDBOReadOnly gsdModuleDbo = (GSDModuleDBOReadOnly) element;
+                    return prototypeList.hasChannelConfiguration(gsdModuleDbo.getModuleNumber());
                 }
-            });
-        }
-
+                return true;
+            }
+        });
     }
 
     /**

@@ -14,6 +14,7 @@ import java.util.Stack;
 import java.util.UUID;
 
 import org.csstudio.dct.model.IContainer;
+import org.csstudio.dct.model.IDisabledRecordCounter;
 import org.csstudio.dct.model.IFolder;
 import org.csstudio.dct.model.IFolderMember;
 import org.csstudio.dct.model.IInstance;
@@ -201,7 +202,7 @@ public abstract class AbstractContainer extends AbstractPropertyContainer implem
     public final @Immutable
     List<IRecord> getRecords() {
         List<IRecord> result = new ArrayList<IRecord>();
-        for (int i=0; i < records.size(); i++) {
+        for (int i = 0; i < records.size(); i++) {
             if (records.get(i) != null) {
                 result.add(records.get(i));
             }
@@ -337,6 +338,24 @@ public abstract class AbstractContainer extends AbstractPropertyContainer implem
         return stack;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public int countDisabledRecords() {
+        int count = 0;
+        List<IInstance> instances = getInstances();
+        for (IInstance instance : instances) {
+            count += instance.countDisabledRecords();
+        }
+        List<IRecord> records = getRecords();
+        for (IRecord record : records) {
+            if ((record.getDisabled() != null) && (record.getDisabled())) {
+                count++;
+            }
+        }
+        return count;
+    }
+    
     /**
      * {@inheritDoc}
      */

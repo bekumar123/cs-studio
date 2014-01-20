@@ -61,7 +61,6 @@ public final class Repository {
      * Default Constructor
      */
     private Repository() {
-//        _REPOSITORY = new HibernateRepository(null);
     }
 
     /**

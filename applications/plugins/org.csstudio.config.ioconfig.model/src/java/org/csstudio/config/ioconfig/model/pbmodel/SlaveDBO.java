@@ -264,6 +264,11 @@ public class SlaveDBO extends AbstractNodeSharedImpl<MasterDBO, ModuleDBO> imple
         return _groupIdent;
     }
 
+    @Transient
+    public boolean hasGSDFile() {
+        return _gsdFile != null;
+    }
+
     /** @return the GSDFile. */
 
     @ManyToOne(fetch = FetchType.EAGER)

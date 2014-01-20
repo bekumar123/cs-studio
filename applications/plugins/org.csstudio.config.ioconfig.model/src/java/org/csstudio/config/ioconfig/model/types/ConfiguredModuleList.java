@@ -4,6 +4,10 @@ import java.util.List;
 
 import com.google.common.base.Preconditions;
 
+/*
+ * A ConfiguredModuleList contains the ModuleIDs from those protoypes that are already configured.
+ * A configured module is a module that has channel names.
+ */
 public class ConfiguredModuleList {
 
     private final List<ModuleId> protoTypeList;

@@ -9,6 +9,7 @@ public class ModuleName {
     public ModuleName(final String value) {
         
         Preconditions.checkNotNull(value, "value must not be null");
+        Preconditions.checkArgument(!value.isEmpty());
         
         this.value = value;
     }

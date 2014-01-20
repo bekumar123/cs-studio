@@ -6,7 +6,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 import org.csstudio.config.ioconfig.config.component.ISelectableAndRefreshable;
-import org.csstudio.config.ioconfig.config.view.dialog.prototype.components.ChannelDataModel;
+import org.csstudio.config.ioconfig.config.view.dialog.prototype.datamodel.IChannelDataModel;
 import org.csstudio.config.ioconfig.model.DBClass;
 import org.csstudio.config.ioconfig.model.PersistenceException;
 import org.csstudio.config.ioconfig.model.hibernate.Repository;
@@ -21,7 +21,7 @@ import org.eclipse.swt.events.SelectionListener;
 final class RemoveChannelPrototypeModelSelectionListener implements SelectionListener {
 
     private final ISelectedTab parentDialog;
-    private final ChannelDataModel channelConfigDialogDataModel;
+    private final IChannelDataModel channelConfigDialogDataModel;
     private final ISelectableAndRefreshable inputTable;
     private final ISelectableAndRefreshable outputTable;
     private final List<DBClass> removedNodes = new ArrayList<DBClass>();
@@ -29,7 +29,7 @@ final class RemoveChannelPrototypeModelSelectionListener implements SelectionLis
     //@formatter:off
     public RemoveChannelPrototypeModelSelectionListener(
             @Nonnull final ISelectedTab parentDialog,
-            @Nonnull final ChannelDataModel channelConfigDialogDataModel,
+            @Nonnull final IChannelDataModel channelConfigDialogDataModel,
             @Nonnull final ISelectableAndRefreshable outputTable, 
             @Nonnull final ISelectableAndRefreshable inputTable) {
             //@formatter:on

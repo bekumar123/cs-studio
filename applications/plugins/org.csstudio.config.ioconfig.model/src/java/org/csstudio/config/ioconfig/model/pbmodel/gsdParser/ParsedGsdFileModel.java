@@ -80,8 +80,8 @@ public class ParsedGsdFileModel extends AbstractGsdPropertyModel implements Seri
     }
     
     @Nonnull
-    public Map<Integer, GsdModuleModel2> getModuleMap() {
-        return _gsdModuleModelMap;
+    public Map<Integer, IGsdModuleModel2Query> getModuleMap() {
+        return new HashMap<Integer, IGsdModuleModel2Query>(_gsdModuleModelMap);
     }
     
     @Nonnull

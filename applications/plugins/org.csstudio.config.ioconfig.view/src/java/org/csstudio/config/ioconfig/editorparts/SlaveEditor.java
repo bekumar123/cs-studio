@@ -24,12 +24,9 @@ package org.csstudio.config.ioconfig.editorparts;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Formatter;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.CheckForNull;
@@ -42,11 +39,9 @@ import org.csstudio.config.ioconfig.config.view.helper.ProfibusHelper;
 import org.csstudio.config.ioconfig.model.AbstractNodeSharedImpl;
 import org.csstudio.config.ioconfig.model.DocumentDBO;
 import org.csstudio.config.ioconfig.model.PersistenceException;
-import org.csstudio.config.ioconfig.model.hibernate.Repository;
 import org.csstudio.config.ioconfig.model.pbmodel.ChannelDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ChannelStructureDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.GSDFileDBO;
-import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.Ranges;
 import org.csstudio.config.ioconfig.model.pbmodel.SlaveDBO;
@@ -431,12 +426,16 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
      */
     @Override
     public void doSave(@Nullable final IProgressMonitor monitor) {
+        
         super.doSave(monitor);
+        
         final Text nameWidget = getNameWidget();
+        
         if (nameWidget != null) {
             _slave.setName(nameWidget.getText());
             nameWidget.setData(nameWidget.getText());
         }
+        
         final Short stationAddress = (Short) ((StructuredSelection) _indexCombo.getSelection())
         .getFirstElement();
 
@@ -474,12 +473,9 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
             // Document
             final Set<DocumentDBO> docs = getDocumentationManageView().getDocuments();
             _slave.setDocuments(docs);
-     
-           // createPrototypes(_gsdFile, _gsdFile.getParsedGsdFileModel().getModuleMap());
-            
+                 
             _slave.update();
-            
-            
+                   
             save();
             
         } catch (final PersistenceException e1) {
@@ -488,19 +484,6 @@ public class SlaveEditor extends AbstractGsdNodeEditor<SlaveDBO> {
         } catch (final IOException e2) {
             DeviceDatabaseErrorDialog.open(null, "Can't save Slave.GSD File read error", e2);
             LOG.error("Can't save Slave.GSD File read error", e2);
-        }
-    }
-
-    private void createPrototypes(GSDFileDBO gsdFile, Map<Integer, GsdModuleModel2> moduleMap) throws PersistenceException {
-        for (Entry<Integer, GsdModuleModel2> entry : moduleMap.entrySet()) {
-            GSDModuleDBO gsdModuleDBO = new GSDModuleDBO();
-            gsdModuleDBO.setCreatedBy("Roger");
-            gsdModuleDBO.setCreatedOn(new Date());
-            gsdModuleDBO.setName(entry.getValue().getName());
-            gsdModuleDBO.setModuleId(entry.getKey());
-            gsdModuleDBO.setGSDFile(gsdFile);
-            System.out.println(gsdModuleDBO);
-            Repository.saveOrUpdate(gsdModuleDBO);
         }
     }
     

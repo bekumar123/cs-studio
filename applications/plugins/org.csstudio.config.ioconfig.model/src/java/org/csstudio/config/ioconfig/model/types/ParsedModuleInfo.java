@@ -6,68 +6,44 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.csstudio.config.ioconfig.model.pbmodel.SlaveCfgData;
-import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.GsdModuleModel2;
+import org.csstudio.config.ioconfig.model.pbmodel.gsdParser.IGsdModuleModel2Query;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 
 public class ParsedModuleInfo {
-    
-    private final Map<Integer, GsdModuleModel2> moduleInfo;
 
-    public ParsedModuleInfo(final Map<Integer, GsdModuleModel2> moduleInfo) {
-        
+    private final Map<Integer, IGsdModuleModel2Query> moduleInfo;
+
+    private final List<ModuleInfo> infos;
+
+    public ParsedModuleInfo(final Map<Integer, IGsdModuleModel2Query> moduleInfo) {
+
         Preconditions.checkNotNull(moduleInfo, "moduleInfo must not be null");
         Preconditions.checkArgument(moduleInfo.size() > 0, "size must be > 0");
-        
-        this.moduleInfo = new HashMap<Integer, GsdModuleModel2>(moduleInfo);
-    }
-    
-    public List<ModuleInfo> getModuleInfo() {
-        List<ModuleInfo> infos = new ArrayList<ModuleInfo>();
-        for (Entry<Integer, GsdModuleModel2> gsdModuleModel2 : moduleInfo.entrySet()) {
-            infos.add(createModuleInfo(gsdModuleModel2.getValue()));            
+
+        this.moduleInfo = new HashMap<Integer, IGsdModuleModel2Query>(moduleInfo);
+
+        infos = new ArrayList<ModuleInfo>();
+        for (Entry<Integer, IGsdModuleModel2Query> gsdModuleModel2 : moduleInfo.entrySet()) {
+            infos.add(new ModuleInfo(gsdModuleModel2.getValue()));
         }
-        return infos;
+
     }
-    
+
+    public List<ModuleInfo> getModuleInfo() {
+        return ImmutableList.copyOf(infos);
+    }
+
     public ModuleInfo getModuleInfo(final ModuleNumber moduleNumber) {
-        
+
         Preconditions.checkNotNull(moduleNumber, "moduleNumber must not be null");
 
-        return createModuleInfo(moduleInfo.get(moduleNumber.getModuleNumberWithoutVersionInfo()));            
-    }
-    
-    private ModuleInfo createModuleInfo(final GsdModuleModel2 gsdModuleModel2) {
-        
-        Preconditions.checkNotNull(gsdModuleModel2, "gsdModuleModel2 must not be null");
-        
-        boolean input = false;
-        boolean output = false;
-        boolean isWordSize = true;
-        
-        final SlaveCfgDataBuilder slaveCfgDataFactory = new SlaveCfgDataBuilder(gsdModuleModel2.getValue());
-        for (final SlaveCfgData slaveCfgData : slaveCfgDataFactory.getSlaveCfgDataList()) {
-            
-            if (slaveCfgData.isWordSize()) {
-                isWordSize &= true;
-            } else {
-                isWordSize &= false;
-            }
-
-            input |= slaveCfgData.isInput();
-            output |= slaveCfgData.isOutput();
+        if (!moduleInfo.containsKey(moduleNumber.getModuleNumberWithoutVersionInfo())) {
+            throw new IllegalStateException("no module for number " + moduleNumber.toString());
         }
-   
-        //@formatter:off
-        return new ModuleInfo(
-                ModuleNumber.moduleNumber(gsdModuleModel2.getModuleNumber()).get(),
-                new ModuleName(gsdModuleModel2.getName()),
-                input,
-                output,
-                isWordSize,
-                slaveCfgDataFactory.getSlaveCfgDataList());
-                //@formatter:on
 
+        return new ModuleInfo(moduleInfo.get(moduleNumber.getModuleNumberWithoutVersionInfo()));
     }
+
 }

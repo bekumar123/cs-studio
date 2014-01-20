@@ -1,6 +1,7 @@
 package org.csstudio.config.ioconfig.model.types;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 
 public class ValueRange {
 
@@ -9,7 +10,7 @@ public class ValueRange {
     private final Integer maxValue;
 
     public ValueRange(Integer minValue, Integer maxValue) {
-        super();
+        Preconditions.checkArgument(minValue <= maxValue, "minValue must not be greater than maxValue");
         this.minValue = minValue;
         this.maxValue = maxValue;
     }
@@ -22,8 +23,14 @@ public class ValueRange {
         return maxValue;
     }
 
-    public static Optional<ValueRange> createFromTextDescription(String rangeDescription) {
-        Optional<Integer> hyphenPos = getHyphenPos(rangeDescription);
+    /*
+     * Convert a string like 1-190 or -20-127 to a ValueRange object.
+     */
+    public static Optional<ValueRange> createFromTextDescription(final String rangeDescription) {
+        
+        Preconditions.checkNotNull(rangeDescription, "rangeDescription must not be null");
+        
+        Optional<Integer> hyphenPos = ValueRange.getHyphenPos(rangeDescription);
         if (hyphenPos.isPresent()) {
             String min = rangeDescription.substring(0, hyphenPos.get()).trim();
             String max = rangeDescription.substring(hyphenPos.get() + 1).trim();
@@ -33,10 +40,10 @@ public class ValueRange {
         }
     }
 
-    private static Optional<Integer> getHyphenPos(String dataTypeParameter) {
-        for (int i = 1; i < dataTypeParameter.length() - 1; i++) {
-            char charBefore = dataTypeParameter.charAt(i - 1);
-            char currentChar = dataTypeParameter.charAt(i);
+    private static Optional<Integer> getHyphenPos(final String rangeDescription) {
+        for (int i = 1; i < rangeDescription.length() - 1; i++) {
+            char charBefore = rangeDescription.charAt(i - 1);
+            char currentChar = rangeDescription.charAt(i);
             if ((currentChar == '-') && (Character.isDigit(charBefore))) {
                 return Optional.of(i);
             }

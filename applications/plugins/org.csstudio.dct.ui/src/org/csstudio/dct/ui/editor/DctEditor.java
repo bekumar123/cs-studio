@@ -26,6 +26,11 @@ import org.csstudio.dct.model.internal.ProjectFactory;
 import org.csstudio.dct.model.visitors.ProblemVisitor;
 import org.csstudio.dct.model.visitors.ProblemVisitor.MarkableError;
 import org.csstudio.dct.model.visitors.SearchVisitor;
+import org.csstudio.dct.ui.editor.form.FolderForm;
+import org.csstudio.dct.ui.editor.form.InstanceForm;
+import org.csstudio.dct.ui.editor.form.ProjectForm;
+import org.csstudio.dct.ui.editor.form.PrototypeForm;
+import org.csstudio.dct.ui.editor.form.RecordForm;
 import org.csstudio.dct.ui.editor.highlighter.EpicsDBSyntaxHighlighterImpl;
 import org.csstudio.dct.ui.editor.highlighter.IEpicsDBSyntaxHighlighter;
 import org.csstudio.dct.ui.editor.outline.internal.OutlinePage;
@@ -414,6 +419,8 @@ public final class DctEditor extends MultiPageEditorPart implements CommandStack
             if (index > -1) {
                 final int pos = offset + index;
                 dbFilePreviewText.setSelection(pos, pos + criteria.length());
+                int currentLine = dbFilePreviewText.getLineAtOffset(dbFilePreviewText.getCaretOffset()) + 1;
+                dbFilePreviewText.setTopIndex(currentLine - 15);
                 found = true;
             } else if (startFromCaret) {
                 found = searchAndMarkInPreview(criteria, false, caseSensitiv);

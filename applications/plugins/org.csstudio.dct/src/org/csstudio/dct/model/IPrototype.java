@@ -10,7 +10,7 @@ import org.csstudio.dct.model.internal.Parameter;
  * @author Sven Wende
  * 
  */
-public interface IPrototype extends IContainer, IRootFolder {
+public interface IPrototype extends IContainer, IRootFolder, IDisabledRecordCounter {
 
     /**
      * Returns all parameters defined by the prototype.

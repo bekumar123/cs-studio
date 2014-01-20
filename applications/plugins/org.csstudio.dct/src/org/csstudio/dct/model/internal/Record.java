@@ -160,8 +160,6 @@ public final class Record extends AbstractPropertyContainer implements IRecord {
             result.putAll(top.getFields());
         }
 
-        // result.put("HOPR", "12");
-
         return result;
     }
 

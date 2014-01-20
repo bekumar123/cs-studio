@@ -33,7 +33,7 @@ import org.csstudio.config.ioconfig.commands.CallNewFacilityEditor;
 import org.csstudio.config.ioconfig.commands.CallNewSiblingNodeEditor;
 import org.csstudio.config.ioconfig.config.dialogs.LongRunningOperation;
 import org.csstudio.config.ioconfig.config.view.dialog.prototype.ChannelConfigDialog;
-import org.csstudio.config.ioconfig.config.view.dialog.prototype.components.ChannelConfigDialogDataModel;
+import org.csstudio.config.ioconfig.config.view.dialog.prototype.datamodel.ChannelConfigDialogDataModel;
 import org.csstudio.config.ioconfig.config.view.helper.ProfibusHelper;
 import org.csstudio.config.ioconfig.editorparts.AbstractNodeEditor;
 import org.csstudio.config.ioconfig.model.AbstractNodeSharedImpl;
@@ -43,6 +43,7 @@ import org.csstudio.config.ioconfig.model.IocDBO;
 import org.csstudio.config.ioconfig.model.NamedDBClass;
 import org.csstudio.config.ioconfig.model.PersistenceException;
 import org.csstudio.config.ioconfig.model.hibernate.Repository;
+import org.csstudio.config.ioconfig.model.pbmodel.GSDModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.MasterDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ModuleDBO;
 import org.csstudio.config.ioconfig.model.pbmodel.ProfibusSubnetDBO;
@@ -129,7 +130,7 @@ public class ProfiBusTreeView extends Composite implements ILoader {
      * The ProfiBus Tree View.
      */
     private static TreeViewer _viewer;
-    
+
     /**
      * The parent Composite for the Node Config Composite.
      */
@@ -232,8 +233,7 @@ public class ProfiBusTreeView extends Composite implements ILoader {
     public ProfiBusTreeView(@Nonnull final Composite parent, final int style, @Nonnull final IViewSite site) {
 
         super(parent, style);
-        
-        
+
         new InstanceScope().getNode(IOConfigActivator.PLUGIN_ID).addPreferenceChangeListener(
                 new HibernateDBPreferenceChangeListener(getViewer(), this));
         _site = site;
@@ -328,7 +328,7 @@ public class ProfiBusTreeView extends Composite implements ILoader {
     public static void select(Object object) {
         ProfiBusTreeView._viewer.setSelection(new StructuredSelection(object));
     }
-    
+
     /**
      * Add a new Facility to the tree root.
      * 
@@ -638,7 +638,9 @@ public class ProfiBusTreeView extends Composite implements ILoader {
      * Generate a Action that opens the 'Manage Prototypes' view.
      */
     private void makeOpenManageProtypeEditorAction() {
+
         _openManageProtypeEditorAction = new Action() {
+
             @Override
             public void run() {
                 if (getSelectedNodes().getFirstElement() instanceof SlaveDBO) {
@@ -649,17 +651,22 @@ public class ProfiBusTreeView extends Composite implements ILoader {
                         @Override
                         public void run() {
                             try {
-                                
+
                                 prototypeList = selectedSlave.retrievePrototypeList();
-                                
+
+                                // check if there a modules in the GSD-FIle that have no entries
+                                // in ddb_GSD_Module.
                                 //@formatter:off
-                                prototypeList.addMissingModules(
+                                List<GSDModuleDBO> missingModules = prototypeList.createMissingModules(
                                         selectedSlave.getParsedModuleInfo(),
                                         selectedSlave.getGSDFile());
                                         //@formatter:on
-                                
-                                if (prototypeList.hasAddedMissingModules()) {
-                                    prototypeList.sort();
+
+                                if (!missingModules.isEmpty()) {
+                                    for (GSDModuleDBO gsdModuleDBO : missingModules) {
+                                        prototypeList.add(gsdModuleDBO);
+                                        Repository.saveOrUpdate(gsdModuleDBO);
+                                    }
                                     Repository.refresh(selectedSlave.getGSDFile());
                                 }
 
@@ -669,7 +676,7 @@ public class ProfiBusTreeView extends Composite implements ILoader {
                         }
                     };
 
-                    LongRunningOperation.run(runInNewThread, Optional.<Runnable>absent());
+                    LongRunningOperation.run(runInNewThread, Optional.<Runnable> absent());
 
                     //@formatter:off
                     ChannelConfigDialog channelConfigDialog = new ChannelConfigDialog(
@@ -680,18 +687,20 @@ public class ProfiBusTreeView extends Composite implements ILoader {
                                     prototypeList,
                                     selectedSlave.getParsedModuleInfo()));
                             //@formatter:on
-                    
+
                     channelConfigDialog.open();
-                    
+
                     getTreeViewer().refresh();
 
                 }
             }
         };
+
         _openManageProtypeEditorAction.setText("Open Prototypes view");
         _openManageProtypeEditorAction.setToolTipText("Open Prototypes manager");
         _openManageProtypeEditorAction.setAccelerator('o');
         _openManageProtypeEditorAction.setImageDescriptor(getSharedImageDescriptor(ISharedImages.IMG_TOOL_NEW_WIZARD));
+
     }
 
     /**
@@ -896,9 +905,11 @@ public class ProfiBusTreeView extends Composite implements ILoader {
             } else if (selectedNode instanceof MasterDBO) {
                 setContributionActions("New Slave", MasterDBO.class, SlaveDBO.class, manager);
             } else if (selectedNode instanceof SlaveDBO) {
+                SlaveDBO selectedSlave = (SlaveDBO) selectedNode;
                 _newNodeAction.setText("Add new " + SlaveDBO.class.getSimpleName());
                 manager.add(_newNodeAction);
                 manager.add(_openManageProtypeEditorAction);
+                _openManageProtypeEditorAction.setEnabled(selectedSlave.hasGSDFile());
                 setContributionActions("New Module", SlaveDBO.class, ModuleDBO.class, manager);
             } else if (selectedNode instanceof ModuleDBO) {
                 fillModuleContextMenu(manager);

@@ -1,5 +1,6 @@
 package org.csstudio.dct.ui.editor.outline.internal;
 
+import java.net.URL;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,12 +11,20 @@ import org.csstudio.dct.model.IInstance;
 import org.csstudio.dct.model.IProject;
 import org.csstudio.dct.model.IPrototype;
 import org.csstudio.dct.model.IRecord;
+import org.csstudio.dct.ui.Activator;
+import org.csstudio.dct.ui.editor.outline.internal.draganddrop.AbstractDnDHandler;
+import org.csstudio.dct.ui.editor.outline.internal.draganddrop.FolderDndHandler;
+import org.csstudio.dct.ui.editor.outline.internal.draganddrop.InstanceDndHandler;
+import org.csstudio.dct.ui.editor.outline.internal.draganddrop.PrototypeDndHandler;
+import org.csstudio.dct.ui.editor.outline.internal.draganddrop.RecordDndHandler;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.commands.CommandStack;
 import org.eclipse.gef.commands.CommandStackListener;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -29,10 +38,12 @@ import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.internal.util.BundleUtility;
 import org.eclipse.ui.model.WorkbenchAdapter;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
+import org.osgi.framework.Bundle;
 
 /**
  * An outline page implementation that displays a {@link IProject} in the
@@ -102,6 +113,14 @@ public final class OutlinePage extends ContentOutlinePage implements CommandStac
         menuManager.add(new Separator("add.ext"));
         menuManager.add(new Separator("remove.ext"));
         menuManager.add(new Action("Refresh Outline") {
+        	
+        	@SuppressWarnings("restriction")
+			@Override
+        	public ImageDescriptor getImageDescriptor() {
+        		Bundle bundle = Platform.getBundle(Activator.PLUGIN_ID);
+        		URL fullPathString = BundleUtility.find(bundle, "icons/refresh_icon.gif");
+        		return ImageDescriptor.createFromURL(fullPathString);
+        	}
             @Override
             public void run() {
                 viewer.refresh();
@@ -269,7 +288,7 @@ public final class OutlinePage extends ContentOutlinePage implements CommandStac
         final IStructuredSelection sel = (IStructuredSelection) event.getSelection();
 
         if (sel != null && sel.getFirstElement() != null) {
-            // FIXME: Mach Probleme beim DnD - vielleicht lässt sich auf das
+            // FIXME: Mach Probleme beim DnD - vielleicht lï¿½sst sich auf das
             // Ausklappen verzichten!?
             // viewer.setExpandedState(sel.getFirstElement(), true);
             // viewer.refresh(sel.getFirstElement(), false);

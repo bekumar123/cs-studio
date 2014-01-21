@@ -14,6 +14,7 @@
 
 package com.cosylab.epics.caj.impl;
 
+import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Context;
 import gov.aps.jca.event.ContextExceptionListener;
@@ -634,24 +635,34 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 				
 					for (int tries = 0; /* tries <= TRIES */ ; tries++)
 					{ 
-					
+					   
+					    synchronized (channel){
+					      if(channel.isConnected())
 						/*int	bytesSent = */channel.write(buffer);
+					   	}
 				    	if (buffer.position() != buffer.limit())
 						{
 							if (tries >= TRIES)
 							{
 								context.getLogger().warning("Failed to send message to " + socketAddress + " - buffer full, will retry.");
 							}
-							
+						
 							// flush & wait for a while...
 							context.getLogger().warning("Send buffer full for " + socketAddress + ", waiting...");
 							try{
 								channel.socket().getOutputStream().flush();
+								context.attachCurrentThread();
 								}catch(IOException e){
+									e.printStackTrace();
+								} catch (IllegalStateException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								} catch (CAException e) {
+									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}
 							try {
-								Thread.sleep(Math.min(15000,10+tries*100));
+								Thread.sleep(Math.min(15000,1000+tries*100));
 							} catch (InterruptedException e) {
 								// noop
 							}
@@ -842,7 +853,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	{
 		try{	
 		    // enable SelectionKey.OP_WRITE via reactor (this will also enable OP_READ, but its OK)
-		 	   context.getReactor().setInterestOps(channel,  SelectionKey.OP_WRITE |  SelectionKey.OP_READ );	
+		 	//   context.getReactor().setInterestOps(channel,  SelectionKey.OP_WRITE |  SelectionKey.OP_READ );	
 		    	send(buf);
 		}
 		catch (IOException ioex)
@@ -854,8 +865,10 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 		finally
 		{
 			    // possible race condition check
-				if (!closed && buf.position()!=buf.limit())
-				    spawnFlushing(flushBufferTask);
+			
+				//		send(buf);
+				
+				//    spawnFlushing(flushBufferTask);
     	}
 	}
 	/**
@@ -870,13 +883,9 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	
 		// send or enqueue
 		if (requestMessage.getPriority() == Request.SEND_IMMEDIATELY_PRIORITY){
-		
-			   socketBufferForRequst=message;
-			   synchronized (socketBufferForRequst){
-			//   spawnFlushing(flushBufferTask);
-				 flushInternalBuffer(socketBufferForRequst);
-			//   send(message);
-			}
+	
+			   send(message);
+			
 			}else
 	      	{
 			message.flip();
@@ -1015,6 +1024,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 				probeTimeoutDetected = true;
 				//Acutely flag for Probe response (state-of-health message) did not respond - timeout.
 			//	context.getLogger().finest("Set Response timeout and Probe response (state-of-health message) did not respond - timeout ="+probeTimeoutDetected);
+				if(!channel.isConnected())
 				unresponsiveTransport();
 				//socketAddress 
 			//	context.getLogger().warning("Disconnected with "+ socketAddress.getHostName());

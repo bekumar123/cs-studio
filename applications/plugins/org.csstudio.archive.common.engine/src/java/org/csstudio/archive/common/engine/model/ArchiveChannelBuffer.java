@@ -348,8 +348,13 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
         }
   }
     /* wenhua xu
+<<<<<<< HEAD
      * channel
      * @return <code>true</code> if connected
+=======
+     * channel 
+     * @return <code>true</code> if connected 
+>>>>>>> refs/remotes/origin/archive_ohne_pvm
      */
     public boolean isConnected() {
         if (_source != null) {

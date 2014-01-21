@@ -46,6 +46,8 @@ public class ArchiveChannel implements IArchiveChannel {
 
     private final String _dataType;
 
+    private final String _uv;
+
     private final TimeInstant _latestTimestamp;
 
     private final IArchiveControlSystem _system;
@@ -61,7 +63,8 @@ public class ArchiveChannel implements IArchiveChannel {
                           @Nonnull final ArchiveChannelGroupId grpId,
                           @Nullable final TimeInstant ltstTimestamp,
                           @Nonnull final IArchiveControlSystem system,
-                          final boolean isEnabled) {
+                          final boolean isEnabled,
+                          @Nullable final String uv) {
         _id = id;
         _name = name;
         _groupId = grpId;
@@ -69,6 +72,7 @@ public class ArchiveChannel implements IArchiveChannel {
         _latestTimestamp = ltstTimestamp;
         _system = system;
         _isEnabled = isEnabled;
+        _uv=uv;
     }
 
     /**
@@ -138,5 +142,9 @@ public class ArchiveChannel implements IArchiveChannel {
     @Override
     public boolean isEnabled() {
         return _isEnabled;
+    }
+
+    public String getUv() {
+        return _uv;
     }
 }

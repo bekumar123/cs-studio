@@ -84,7 +84,6 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
 
     public static final String TAB = "channel";
     private static final String CS_TAB = ArchiveControlSystemDaoImpl.TAB;
-    private static final String LST_TAB = "last_sample";
 
     private static final String EXC_MSG = "Channel table access failed.";
 
@@ -97,16 +96,14 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
         new MapMaker().concurrencyLevel(2).weakKeys().makeMap();
     private final Map<ArchiveChannelId, IArchiveChannel> _channelCacheById =
         new MapMaker().concurrencyLevel(2).weakKeys().makeMap();
-
+//wenhua use value in channel table
     private final String _selectChannelPrefix =
-        "SELECT " + TAB + ".id, " + TAB + ".name, " + TAB + ".datatype, " + TAB + ".group_id, " + LST_TAB + ".time, " +
-                    TAB + ".enabled, " + TAB + ".display_high, " + TAB + ".display_low, " +
+        "SELECT " + TAB + ".id, " + TAB + ".name, " + TAB + ".datatype, " + TAB + ".group_id, " + TAB + ".last_sample_time, " +
+                    TAB + ".enabled, " + TAB + ".display_high, " + TAB + ".display_low, " +  TAB + ".uv, "+
                  CS_TAB + ".id, " + CS_TAB + ".name, " + CS_TAB + ".type " +
                 "FROM " + getDatabaseName() + "." + TAB + ", " +
-                          getDatabaseName() + "." + CS_TAB + ", " +
-                          getDatabaseName() + "." + LST_TAB;
-    private final String _selectChannelSuffix = " AND " + TAB + ".control_system_id=" + CS_TAB + ".id" +
-                                                " AND " + TAB + ".id=" + LST_TAB + ".channel_id";
+                          getDatabaseName() + "." + CS_TAB;
+    private final String _selectChannelSuffix = " AND " + TAB + ".control_system_id=" + CS_TAB + ".id" ;
 
     // FIXME (bknerr) : refactor into CRUD command objects with cmd factories
     // TODO (bknerr) : parameterize the database schema name via dao call
@@ -124,8 +121,11 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
                                              " WHERE name=?";
     private final String _updateChannelEnabledStmt = "UPDATE " + getDatabaseName() + "." + TAB +
                                                      " SET enabled=? WHERE name=?";
+    //wenhua write unit of value for channel in DB
     private final String _updateChannelDatatypeStmt = "UPDATE " + getDatabaseName() + "." + TAB +
-                                                      " SET datatype=? WHERE id=?";
+                                                " SET datatype=? WHERE id=?";
+    private final String _updateChannelUnitStmt = "UPDATE " + getDatabaseName() + "." + TAB +
+            " SET uv=? WHERE id=?";
 
     /**
      * Constructor.
@@ -150,7 +150,7 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
         final String name = result.getString(TAB + ".name");
         final String datatype = result.getString(TAB + ".datatype");
         final long groupId = result.getLong(TAB + ".group_id");
-        final long lastSampleTime = result.getLong(LST_TAB + ".time");
+        final long lastSampleTime = result.getLong(TAB + ".last_sample_time");
 
         final TimeInstant time = lastSampleTime > 0L ?
                                  TimeInstantBuilder.fromNanos(lastSampleTime) :
@@ -161,6 +161,8 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
         dispHi = Strings.isNullOrEmpty(dispHi) ? null : dispHi;
         String dispLo = result.getString(TAB + ".display_low");
         dispLo = Strings.isNullOrEmpty(dispLo) ? null : dispLo;
+        String uv = result.getString(TAB + ".uv");
+        uv = Strings.isNullOrEmpty(uv) ? null : uv;
 
         final ArchiveControlSystemId csId = new ArchiveControlSystemId(result.getLong(CS_TAB + ".id"));
         final String csName = result.getString(CS_TAB + ".name");
@@ -178,7 +180,7 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
                                                                   cs,
                                                                   isEnabled,
                                                                   dispLo,
-                                                                  dispHi);
+                                                                  dispHi,uv);
 
 
         _channelCacheByName.put(name, channel);
@@ -586,5 +588,29 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
         }
         return UpdateResult.failed("Channel '" + id.asString() + "' has not been updated, doesn't it exist?");
     }
-
+    /**    //wenhua write unit of value for channel in DB
+     * {@inheritDoc}
+     */
+    @Override
+    @Nonnull
+    public UpdateResult updateChannelUnit(@Nonnull final ArchiveChannelId id,
+                                              @Nonnull final String unit) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = createConnection();
+            stmt = conn.prepareStatement(_updateChannelUnitStmt);
+            stmt.setString(1, unit);
+            stmt.setInt(2, id.intValue());
+            final int updated = stmt.executeUpdate();
+            if (updated == 1) {
+                return UpdateResult.succeeded("Update of Unit for channel '" + id.asString() + "' succeeded.");
+            }
+        } catch (final Exception e) {
+            return UpdateResult.failed("Update of Unit for channel '" + id.asString() + "' failed:\n" + e.getMessage());
+        } finally {
+            closeSqlResources(null, stmt, conn, _deleteChannelStmt);
+        }
+        return UpdateResult.failed("Channel '" + id.asString() + "' has not been updated, doesn't it exist?");
+    }
 }

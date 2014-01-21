@@ -50,7 +50,7 @@ public interface IArchiveSampleDao {
      * @throws ArchiveSampleDaoException
      */
     <V extends Serializable, T extends ISystemVariable<V>>
-    void createSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveDaoException;
+    int createSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveDaoException;
 
 
     /**

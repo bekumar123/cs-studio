@@ -33,6 +33,20 @@ import org.csstudio.domain.desy.time.TimeInstant;
  * @since 21.07.2011
  */
 class HourReducedDataSample extends AbstractReducedDataSample {
+    /**wenhua neue Spalt
+     * Constructor.
+     */
+    public HourReducedDataSample(@Nonnull final ArchiveChannelId id,
+                                 @Nonnull final TimeInstant timestamp,
+                                 @Nonnull final Double avg,
+                                 @Nonnull final Double min,
+                                 @Nonnull final Double max,
+                                 @Nonnull final int status,
+                                 @Nonnull final int severty,
+                                 @Nonnull final int count) {
+        super(id, timestamp, avg, min, max,status,severty,count);
+    }
+    
     /**
      * Constructor.
      */

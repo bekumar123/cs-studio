@@ -31,6 +31,7 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import org.csstudio.archive.common.service.ArchiveConnectionException;
 import org.csstudio.archive.common.service.channel.ArchiveChannelId;
 import org.csstudio.archive.common.service.channelstatus.ArchiveChannelStatus;
 import org.csstudio.archive.common.service.channelstatus.ArchiveChannelStatusId;
@@ -63,6 +64,10 @@ public class ArchiveChannelStatusDaoImpl extends AbstractArchiveDao implements I
         "SELECT id, channel_id, connected, info, time FROM " +
         getDatabaseName() + "." + TAB +
         " WHERE channel_id=? AND time BETWEEN ? AND ? ORDER BY time DESC LIMIT 1";
+    private final String _selectLatestChannelStatusStmtWithNoneTime =
+            "SELECT id, channel_id, connected, info, time FROM " +
+            getDatabaseName() + "." + TAB +
+            " WHERE channel_id=? ORDER BY time DESC LIMIT 1";
     private final String _deleteFromChannelStatusStmt =
         "DELETE FROM " + getDatabaseName() + "." + TAB + " WHERE channel_id=?";
 
@@ -100,19 +105,19 @@ public class ArchiveChannelStatusDaoImpl extends AbstractArchiveDao implements I
         try {
             conn = createConnection();
             stmt = conn.prepareStatement(_selectLatestChannelStatusStmt);
-
+            int index=0;
             final List<IArchiveChannelStatus> resultList = Lists.newArrayListWithExpectedSize(ids.size());
             for (final ArchiveChannelId id : ids) {
-                stmt.setInt(1, id.intValue()); // channel_id=?
+                 stmt.setInt(1, id.intValue()); // channel_id=?
                 stmt.setLong(2, start.getNanos()); // time between ?
                 stmt.setLong(3, end.getNanos()); // and ?
-
+                index++;
                 rs = stmt.executeQuery();
                 if (rs.next()) {
                     resultList.add(createChannelStatusFromResult(rs));
                 }
-            }
-            return resultList;
+              }
+               return resultList;
         } catch (final Exception e) {
             handleExceptions(EXC_MSG, e);
         } finally {
@@ -159,8 +164,44 @@ public class ArchiveChannelStatusDaoImpl extends AbstractArchiveDao implements I
         } catch (final Exception e) {
             handleExceptions(EXC_MSG, e);
         } finally {
-            closeSqlResources(null, stmt, conn, _selectLatestChannelStatusStmt);
+            closeSqlResources(null, stmt, conn, _deleteFromChannelStatusStmt);
         }
         return DeleteResult.failed("Channel status removal failed for id '" + id.intValue() + "'");
+    }
+
+//return lastChannelstatus
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Nonnull
+    public IArchiveChannelStatus retrieveLatestStatusByChannelId(@Nonnull final ArchiveChannelId id) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+            try {
+                conn = createConnection();
+
+                stmt = conn.prepareStatement(_selectLatestChannelStatusStmtWithNoneTime);
+
+                stmt.setInt(1, id.intValue());
+
+                rs = stmt.executeQuery();
+
+                if (rs.next()) {
+                      return  createChannelStatusFromResult(rs);
+                    }
+                }catch (final ArchiveConnectionException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (final SQLException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } finally {
+            closeSqlResources(null, stmt, conn, _selectLatestChannelStatusStmtWithNoneTime);
+        }
+
+        return null;
     }
 }

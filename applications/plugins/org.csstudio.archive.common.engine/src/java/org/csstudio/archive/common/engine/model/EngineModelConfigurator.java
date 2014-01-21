@@ -203,7 +203,7 @@ public final class EngineModelConfigurator {
                                                                   cs,
                                                                   true,
                                                                   low,
-                                                                  high);
+                                                                  high,null);
 
             final IArchiveChannel failureCfg = provider.getEngineFacade().createChannel(channel);
             if (failureCfg != null) {
@@ -212,7 +212,7 @@ public final class EngineModelConfigurator {
             final IArchiveChannel cfg =
                 provider.getEngineFacade().getChannelByName(epicsName.toString());
             if (cfg != null) {
-                final ArchiveChannelBuffer<?, ?> channelBuffer =
+                final ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>> channelBuffer =
                     createAndAddArchiveChannelBuffer(provider, cfg, channelMap, dataSource);
                 group.add(channelBuffer);
 

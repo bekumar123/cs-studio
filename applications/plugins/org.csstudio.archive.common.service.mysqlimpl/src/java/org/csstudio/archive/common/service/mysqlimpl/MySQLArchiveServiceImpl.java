@@ -109,8 +109,9 @@ public class MySQLArchiveServiceImpl implements IArchiveEngineFacade, IArchiveRe
      * {@inheritDoc}
      */
     @Override
+    // wenhua return Queue size
     public <V extends Serializable, T extends ISystemVariable<V>>
-    boolean writeSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveServiceException {
+    int writeSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveServiceException {
         return _createSupport.createSamples(samples);
     }
 
@@ -195,7 +196,14 @@ public class MySQLArchiveServiceImpl implements IArchiveEngineFacade, IArchiveRe
                                          @Nonnull final String datatype) throws ArchiveServiceException {
         _updateSupport.updateChannelDataType(id, datatype);
     }
-
+    /** wenhua update unit of vlaue in db
+     * {@inheritDoc}
+     */
+    @Override
+    public void writeChannelUnitInfo(@Nonnull final ArchiveChannelId id,
+                                        @Nonnull final String unit) throws ArchiveServiceException {
+        _updateSupport.updateChannelUnit(id, unit);
+    }
 
     /**
      * {@inheritDoc}
@@ -207,7 +215,15 @@ public class MySQLArchiveServiceImpl implements IArchiveEngineFacade, IArchiveRe
                                                                  throws ArchiveServiceException {
         return _retrievalSupport.retrieveLatestEngineStatusInformation(id, latestAliveTime);
     }
-
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @CheckForNull
+    public IArchiveChannelStatus getLatestChannelStatusById(@Nonnull final ArchiveChannelId id)
+                                                                 throws ArchiveServiceException {
+        return _retrievalSupport.retrieveLatestChannelStatusById(id);
+    }
     /**
      * {@inheritDoc}
      */

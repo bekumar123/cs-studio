@@ -108,13 +108,13 @@ public interface IArchiveEngineFacade {
      * {@link org.csstudio.archive.common.service.sample.ArchiveMultiScalarSample} or
      * {@link org.csstudio.archive.common.service.sample.ArchiveSample}, since these are treated
      * differently within the service.
-     *
+     * return samplescount in cache back
      * @param samples the samples to be archived with their channel id
      * @return true, if the samples have been persisted
      * @throws ArchiveServiceException
      */
     <V extends Serializable, T extends ISystemVariable<V>>
-    boolean writeSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples)
+    int writeSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples)
                          throws ArchiveServiceException;
 
 
@@ -161,7 +161,14 @@ public interface IArchiveEngineFacade {
      */
     void writeChannelDataTypeInfo(@Nonnull final ArchiveChannelId id,
                                   @Nonnull final String datatype) throws ArchiveServiceException;
-
+    /**
+     * wenhua Xu
+     *Writes the channel unit information.
+     * @param id
+     * @param datatype
+     */
+    void writeChannelUnitInfo(@Nonnull final ArchiveChannelId id,
+                                 @Nonnull final String unit) throws ArchiveServiceException;
     /**
      * Updates the time information for the given archive engine.
      * @param engineId
@@ -230,4 +237,7 @@ public interface IArchiveEngineFacade {
 
     @Nonnull
     UpdateResult setEnableChannelFlag(@Nonnull final String name, final boolean isEnabled);
+    @Nonnull
+    IArchiveChannelStatus getLatestChannelStatusById(ArchiveChannelId id) throws ArchiveServiceException;
+
 }

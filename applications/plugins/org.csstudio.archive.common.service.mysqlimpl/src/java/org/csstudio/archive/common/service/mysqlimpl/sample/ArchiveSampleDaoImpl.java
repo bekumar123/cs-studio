@@ -66,6 +66,8 @@ import org.csstudio.domain.desy.typesupport.TypeSupportException;
 import org.joda.time.Duration;
 import org.joda.time.Hours;
 import org.joda.time.Minutes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -80,11 +82,13 @@ import com.google.inject.Inject;
  * @since 11.11.2010
  */
 public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchiveSampleDao {
+    private static final Logger LOG = LoggerFactory.getLogger(ArchiveSampleDaoImpl.class);
 
     public static final String TAB_SAMPLE = "sample";
     public static final String TAB_SAMPLE_M = "sample_m";
     public static final String TAB_SAMPLE_H = "sample_h";
     public static final String TAB_SAMPLE_BLOB = "sample_blob";
+
     public static final String COLUMN_TIME = "time";
     public static final String COLUMN_CHANNEL_ID = "channel_id";
     public static final String COLUMN_VALUE = "value";
@@ -93,6 +97,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
     public static final String COLUMN_AVG = "avg_val";
     public static final String COLUMN_MIN = "min_val";
     public static final String COLUMN_MAX = "max_val";
+    public static final String  COLUMN_COUNT="count";
 
     private static final String ARCH_TABLE_PLACEHOLDER = "<arch.table>";
     private static final String RETRIEVAL_FAILED = "Sample retrieval from archive failed.";
@@ -152,7 +157,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
      * {@inheritDoc}
      */
     @Override
-    public <V extends Serializable, T extends ISystemVariable<V>> void createSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveDaoException {
+    public <V extends Serializable, T extends ISystemVariable<V>> int createSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveDaoException {
 
         try {
             getEngineMgr().submitToBatch(samples);
@@ -161,7 +166,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                                                                             generatePerMinuteSamples(samples,
                                                                                                      _reducedDataMapForMinutes);
             if (minuteSamples.isEmpty()) {
-                return;
+                return 0;
             }
             getEngineMgr().submitToBatch(minuteSamples);
 
@@ -169,9 +174,11 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                                                                           generatePerHourSamples(minuteSamples,
                                                                                                  _reducedDataMapForHours);
             if (hourSamples.isEmpty()) {
-                return;
+                return 0;
             }
             getEngineMgr().submitToBatch(hourSamples);
+
+            return 0;
         } catch (final TypeSupportException e) {
             throw new ArchiveDaoException("Type support for sample type could not be found.", e);
         }

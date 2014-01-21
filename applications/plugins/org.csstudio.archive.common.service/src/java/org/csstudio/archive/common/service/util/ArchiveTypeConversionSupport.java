@@ -317,10 +317,11 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
                                          @Nonnull final IArchiveControlSystem cs,
                                          final boolean enabled,
                                          @CheckForNull final String low,
-                                         @CheckForNull final String high) throws TypeSupportException {
+                                         @CheckForNull final String high,  @CheckForNull final String uv ) throws TypeSupportException {
         // CHECKSTYLE ON : ParameterNumber
-
+//wenhua checken datatype.isEmpty()
         if (datatype != null && !datatype.isEmpty()) {
+
             final Class<T> clazz = (Class<T>) createTypeClassFromArchiveString(datatype);
             if (!ArchiveTypeConversionSupport.isDataTypeSerializableCollection(clazz) &&
                 !Strings.isNullOrEmpty(low) &&
@@ -333,7 +334,7 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
                                                 cs,
                                                 enabled,
                                                 (Comparable) fromArchiveString(clazz, low),
-                                                (Comparable) fromArchiveString(clazz, high));
+                                                (Comparable) fromArchiveString(clazz, high),uv);
             }
         }
         return new ArchiveChannel(id,
@@ -342,7 +343,7 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
                                   archiveChannelGroupId,
                                   time,
                                   cs,
-                                  enabled);
+                                  enabled,uv);
     }
 
     protected static <T> void checkInputVsOutputSize(@Nonnull final Iterable<String> strings,

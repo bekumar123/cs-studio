@@ -44,7 +44,7 @@ public abstract class AbstractTypeSupport<T> extends TypeSupport<T> {
     }
 
     @Nonnull
-    protected static <T> TypeSupport<T> findTypeSupportForOrThrowTSE(@SuppressWarnings("rawtypes") @Nonnull final Class<? extends TypeSupport> family,
+    public static <T> TypeSupport<T> findTypeSupportForOrThrowTSE(@SuppressWarnings("rawtypes") @Nonnull final Class<? extends TypeSupport> family,
                                                                      @Nonnull final Class<T> type)
                                                                      throws TypeSupportException {
         if (!isTypeSupported(family, type)) {

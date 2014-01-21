@@ -80,15 +80,16 @@ public class MysqlArchiveCreationServiceSupport {
         _channelGroupDao = channelGroupDao;
         _channelStatusDao = channelStatusDao;
     }
-
+// wenhua return Queue size
     <V extends Serializable, T extends ISystemVariable<V>>
-    boolean createSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveServiceException {
+    int createSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveServiceException {
         try {
-            _sampleDao.createSamples(samples);
+         return   _sampleDao.createSamples(samples);
         } catch (final ArchiveDaoException e) {
+
             throw new ArchiveServiceException("Creation of samples failed.", e);
         }
-        return true;
+
     }
 
     public void createChannelStatusInfo(@Nonnull final ArchiveChannelId id,

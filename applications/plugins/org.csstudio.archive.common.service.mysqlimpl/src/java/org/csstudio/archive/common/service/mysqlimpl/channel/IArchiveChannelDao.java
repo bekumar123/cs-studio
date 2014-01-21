@@ -108,4 +108,8 @@ public interface IArchiveChannelDao {
     @Nonnull
     UpdateResult updateChannelDatatype(@Nonnull final ArchiveChannelId id,
                                        @Nonnull final String datatype);
+    @Nonnull
+        //wenhua update unit of value for channel in DB    
+    UpdateResult updateChannelUnit(@Nonnull final ArchiveChannelId id,
+                                       @Nonnull final String unit);
 }

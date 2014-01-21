@@ -842,7 +842,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	{
 		try{	
 		    // enable SelectionKey.OP_WRITE via reactor (this will also enable OP_READ, but its OK)
-		 	   context.getReactor().setInterestOps(channel,  SelectionKey.OP_WRITE |  SelectionKey.OP_READ );	
+		 	//   context.getReactor().setInterestOps(channel,  SelectionKey.OP_WRITE |  SelectionKey.OP_READ );	
 		    	send(buf);
 		}
 		catch (IOException ioex)
@@ -855,7 +855,14 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 		{
 			    // possible race condition check
 				if (!closed && buf.position()!=buf.limit())
-				    spawnFlushing(flushBufferTask);
+					try {
+					    context.getReactor().setInterestOps(channel,  SelectionKey.OP_WRITE |  SelectionKey.OP_READ );	
+						send(buf);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				//    spawnFlushing(flushBufferTask);
     	}
 	}
 	/**

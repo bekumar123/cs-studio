@@ -865,10 +865,7 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 		finally
 		{
 			    // possible race condition check
-			
-				//		send(buf);
-				
-				//    spawnFlushing(flushBufferTask);
+			     spawnFlushing(flushBufferTask);
     	}
 	}
 	/**

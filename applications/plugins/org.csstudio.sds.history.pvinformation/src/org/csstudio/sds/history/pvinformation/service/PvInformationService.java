@@ -11,6 +11,7 @@ import de.c1wps.geneal.desy.domain.plant.plantmaterials.ProcessVariable;
 import de.c1wps.geneal.desy.domain.plant.plantmaterials.ProcessVariableAttribute;
 import de.c1wps.geneal.desy.domain.plant.plantmaterials.PvAttributeNames;
 import de.c1wps.geneal.desy.domain.plant.plantmaterials.values.DoubleValue;
+import de.c1wps.geneal.desy.domain.plant.plantmaterials.values.StringValue;
 
 public class PvInformationService implements IPvInformationService {
 
@@ -24,22 +25,30 @@ public class PvInformationService implements IPvInformationService {
 		if (_archiveReader != null) {
 			try {
 				IArchiveChannel archiveChannel = _archiveReader.getChannelByName(controlSystemAddress);
-				if (archiveChannel != null && archiveChannel.getDisplayLimits() != null) {
+				if (archiveChannel != null) {
 					Limits<?> displayLimits = archiveChannel.getDisplayLimits();
+					if (displayLimits != null) {
+						Object high = displayLimits.getHigh();
+						Object low = displayLimits.getLow();
 
-					Object high = displayLimits.getHigh();
-					Object low = displayLimits.getLow();
+						// TODO CME: type check for display limits
+						ProcessVariableAttribute displayHigh = new ProcessVariableAttribute(new PlantUnitId(), PvAttributeNames.MAX,
+								"display high", new DoubleValue(high));
+						newPv.addAttribute(displayHigh);
 
-					// TODO CME: type check for display limits
-					ProcessVariableAttribute displayHigh = new ProcessVariableAttribute(new PlantUnitId(), PvAttributeNames.MAX, "display high",
-							new DoubleValue(high));
-					newPv.addAttribute(displayHigh);
+						ProcessVariableAttribute displayLow = new ProcessVariableAttribute(new PlantUnitId(), PvAttributeNames.MIN,
+								"display low", new DoubleValue(low));
+						newPv.addAttribute(displayLow);
+					}
 
-					ProcessVariableAttribute displayLow = new ProcessVariableAttribute(new PlantUnitId(), PvAttributeNames.MIN, "display low", new DoubleValue(
-							low));
-					newPv.addAttribute(displayLow);
+					String unit = archiveChannel.getUv();
+					if (unit != null) {
+						ProcessVariableAttribute unitAttr = new ProcessVariableAttribute(new PlantUnitId(), PvAttributeNames.UNIT, "unit",
+								new StringValue(unit));
+						newPv.addAttribute(unitAttr);
+					}
 				}
-				
+
 			} catch (ArchiveServiceException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

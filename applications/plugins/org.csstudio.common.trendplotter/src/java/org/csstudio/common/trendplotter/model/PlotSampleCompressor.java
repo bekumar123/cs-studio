@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 public class PlotSampleCompressor {
 
-    private static final int COMPRESSION_INTERVALS = 10;
+    private static final int COMPRESSION_INTERVALS = 1000;
     private static final int TOTAL_SAMPLE_THRESHOLD = 10000;
     private List<PlotSample> _samples;
     private IIntervalProvider _prov;
@@ -27,9 +27,10 @@ public class PlotSampleCompressor {
     }
 
     public void compressSamples() {
-        TimeDuration interval = getCompressionIntervalLength();
+        LOG.debug("Timestamp {}", System.currentTimeMillis());
         _firstVisibleSampleIndex = firstVisibleSampleIndex();
         _lastVisibleSampleIndex = lastVisibleSampleIndex();
+        TimeDuration interval = getCompressionIntervalLength();
         LOG.debug("first visible sample index {}, time {}", _firstVisibleSampleIndex, _samples.get(_firstVisibleSampleIndex).getTime().toDate().toString());
         LOG.debug("last visible sample index {}, time {}", _lastVisibleSampleIndex, _samples.get(_lastVisibleSampleIndex).getTime().toDate().toString());
         LOG.debug("compression interval {}", interval.getSec());
@@ -39,16 +40,7 @@ public class PlotSampleCompressor {
         if (_samples.size() > TOTAL_SAMPLE_THRESHOLD) {
             removeSamplesNotVisible();
         }
-//        LOG.trace("sample size {}", _samples.size());
-//        long lowerSec = (long) (sampleTimeRange.getLower()/1000.0);
-//        Timestamp lower = Timestamp.of(lowerSec, 0);
-//        Date dateLower = lower.toDate();
-//        long upperSec = (long) (sampleTimeRange.getUpper()/1000.0);
-//        Timestamp upper = Timestamp.of(upperSec, 0);
-//        Date dateUpper = upper.toDate();
-//        LOG.trace("range lower {}, upper {}", dateLower.toString(), dateUpper.toString());
-//        LOG.trace("range time axis lower {}, upper {}", _prov.getModelStartTime().toDate().toString(), _prov.getModelEndTime().toDate().toString());
-//        sampleTimeRange.getUpper();
+        LOG.debug("Timestamp {}", System.currentTimeMillis());
     }
 
     private void removeSamplesNotVisible() {
@@ -57,45 +49,35 @@ public class PlotSampleCompressor {
                 _samples.remove(i);
             }
         }
+        //Do not delete the last not visible sample otherwise the trend starts with an empty
+        //space until the first visible sample.
         if (_firstVisibleSampleIndex > 0) {
-           _samples.subList(0, _firstVisibleSampleIndex-1).clear(); 
+           _samples.subList(0, _firstVisibleSampleIndex-2).clear(); 
         }
         
     }
 
     private void checkAndCleanupIntervals(TimeDuration interval) {
-        Timestamp intervalEnd = _samples.get(_firstVisibleSampleIndex).getTime().plus(interval);
         int sampleIndex = _firstVisibleSampleIndex;
+        Timestamp intervalEnd = _prov.getModelStartTime().plus(interval);
+//        Timestamp intervalEnd = _samples.get(sampleIndex).getTime().plus(interval);
         List<PlotSample> samplesToDelete = new ArrayList<>();
-        while (sampleIndex < _samples.size()) {
-//            //The next interval for compression can start with the next sample. (If it starts at the end
-//            //of the last interval there can be intervals with no samples)
-//            Timestamp intervalEnd = _samples.get(sampleIndex).getTime().plus(interval);
-            intervalEnd = intervalEnd.plus(interval);
-            if (intervalEnd.compareTo(_samples.get(_lastVisibleSampleIndex).getTime()) >= 0) {
-                LOG.trace("end Interval");
-                intervalEnd = _samples.get(_lastVisibleSampleIndex).getTime();
-                sampleIndex = findSamplesToDeleteAndMoveIndex(samplesToDelete, intervalEnd, sampleIndex);
-                break;
-            }
-            LOG.trace("sample index {}, Compression Interval End {}, sec {}", sampleIndex, intervalEnd.toDate().toString(), intervalEnd.getSec());
+        while (sampleIndex < _lastVisibleSampleIndex) {
             sampleIndex = findSamplesToDeleteAndMoveIndex(samplesToDelete, intervalEnd, sampleIndex);
-            if (sampleIndex > _lastVisibleSampleIndex) {
-                break;
-            }
-            sampleIndex++;
+            LOG.trace("sample index {}, Compression Interval End {}, # delete {}", sampleIndex, intervalEnd.toDate().toString(), samplesToDelete.size());
+            intervalEnd = intervalEnd.plus(interval);
         }
         _samples.removeAll(samplesToDelete);
+        LOG.trace("sample size after deletion {}", _samples.size());
     }
     
 
     private int findSamplesToDeleteAndMoveIndex(List<PlotSample> samplesToDelete, Timestamp intervalEnd, int sampleIndex) {
         PlotSample plotSample = _samples.get(sampleIndex);
+        samplesToDelete.add(plotSample);
         PlotSample highestValue = plotSample;
         PlotSample lowestValue = plotSample;
-        boolean firstValueIsHighest = true;
-        boolean firstValueIsLowest = true;
-        boolean highestLowestSameValue = true;
+//        LOG.trace("sind {}, ps y {}, hs y {}, ls y {}", sampleIndex, plotSample.getYValue(), highestValue.getYValue(), lowestValue.getYValue());
         while (plotSample.getTime().compareTo(intervalEnd) != 1) {
             sampleIndex++;
             if (sampleIndex > _lastVisibleSampleIndex) {
@@ -103,23 +85,16 @@ public class PlotSampleCompressor {
             }
             plotSample = _samples.get(sampleIndex);
             if (plotSample.getYValue() > highestValue.getYValue()) {
-                LOG.trace("samples index {}, highest", sampleIndex);
-                if (highestLowestSameValue == false) {
-                    samplesToDelete.add(highestValue);
-                }
-                highestLowestSameValue = false;
                 highestValue = plotSample;
             }
             if (plotSample.getYValue() < lowestValue.getYValue()) {
-                LOG.trace("samples index {}, lowest", sampleIndex);
-                if (highestLowestSameValue == false) {
-                    samplesToDelete.add(lowestValue);
-                }
-                highestLowestSameValue = false;
                 lowestValue = plotSample;
             }
+//            LOG.trace("sind {}-{}, ps y {}, hs y {}, ls y {}", sampleIndex, plotSample.getTime().toDate(), plotSample.getYValue(), highestValue.getYValue(), lowestValue.getYValue());
+            samplesToDelete.add(plotSample);
         }
-        LOG.trace("sample.size {}, samples index {}, size samples to delete {}", _samples.size(), sampleIndex, samplesToDelete.size());
+        samplesToDelete.remove(lowestValue);
+        samplesToDelete.remove(highestValue);
         return sampleIndex;
     }
 

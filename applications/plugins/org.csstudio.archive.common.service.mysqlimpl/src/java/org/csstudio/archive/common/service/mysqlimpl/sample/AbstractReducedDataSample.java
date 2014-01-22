@@ -39,12 +39,17 @@ abstract class AbstractReducedDataSample {
     private final Double _avg;
     private final Double _min;
     private final Double _max;
-   //wenhua
-    private int _status;
-    private int _severty;
-    private int _count;
+    /**
+     *@author wenhua
+     *add new parametter 
+    */
+    private final int _status;
+    private final int _severty;
+    private final int _count;
 
     /**
+     *@author wenhua
+     *add new parametter 
      * Constructor.
      */
     protected AbstractReducedDataSample(@Nonnull final ArchiveChannelId id,
@@ -61,11 +66,15 @@ abstract class AbstractReducedDataSample {
         _avg = avg;
         _min = min;
         _max = max;
+            /**
+     *@author wenhua
+     *add new parametter 
+    */
         _status=status;
         _severty=severty;
         _count=count;
     }
-    
+
     /**
      * Constructor.
      */
@@ -79,8 +88,11 @@ abstract class AbstractReducedDataSample {
         _avg = avg;
         _min = min;
         _max = max;
+        _status = 0;
+        _severty = 0;
+        _count = 0;
     }
-    
+
     @Nonnull
     protected ArchiveChannelId getChannelId() {
         return _channelId;
@@ -101,6 +113,10 @@ abstract class AbstractReducedDataSample {
     public Double getMax() {
         return _max;
     }
+    /**
+     *@author wenhua
+     *add new get() method 
+    */
     @Nonnull
     public int getStatus() {
         return _status;

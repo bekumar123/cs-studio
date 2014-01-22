@@ -54,8 +54,6 @@ import org.csstudio.archive.common.service.sample.IArchiveSample;
 import org.csstudio.domain.desy.system.ISystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.types.Limits;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
@@ -69,8 +67,6 @@ import com.google.inject.Inject;
  * @since 28.09.2011
  */
 public class MysqlArchiveRetrievalServiceSupport {
-
-    static final Logger LOG = LoggerFactory.getLogger(MysqlArchiveRetrievalServiceSupport.class);
 
     /**
      * Injected by GUICE construction.
@@ -264,7 +260,7 @@ public class MysqlArchiveRetrievalServiceSupport {
         }
     }
     @Nonnull
-    /**
+    /**@author wxu
      * @param id
      * @return
      */

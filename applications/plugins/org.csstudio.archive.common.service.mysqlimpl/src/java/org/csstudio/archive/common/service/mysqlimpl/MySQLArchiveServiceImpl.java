@@ -196,7 +196,7 @@ public class MySQLArchiveServiceImpl implements IArchiveEngineFacade, IArchiveRe
                                          @Nonnull final String datatype) throws ArchiveServiceException {
         _updateSupport.updateChannelDataType(id, datatype);
     }
-    /** wenhua update unit of vlaue in db
+    /** wenhua write unit of vlaue in db
      * {@inheritDoc}
      */
     @Override

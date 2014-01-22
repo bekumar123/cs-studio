@@ -48,6 +48,7 @@ public interface IArchiveSampleDao {
      * Inserts the collection of sample objects into the db.
      * @param samples the sample objects
      * @throws ArchiveSampleDaoException
+     * @author wenhua return int value
      */
     <V extends Serializable, T extends ISystemVariable<V>>
     int createSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveDaoException;

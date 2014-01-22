@@ -179,6 +179,7 @@ public class MySQLArchivePreferenceService {
     public Integer getPort() {
         return MySQLArchiveServicePreference.PORT.getValue();
     }
+    // wenhua get Queue maxima size
     @Nonnull
     public Integer getQueueMaxiSize() {
         return MySQLArchiveServicePreference.QUEUE_MAXI_SIZE.getValue();

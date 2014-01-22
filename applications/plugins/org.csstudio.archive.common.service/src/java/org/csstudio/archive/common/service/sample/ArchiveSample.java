@@ -52,7 +52,10 @@ public class ArchiveSample<V extends Serializable,
     private final T _sysVar;
     private final IAlarm _alarm;
     private final String _requestType;
-    //wenhua serverty und status als int wert
+    /**
+ * @author wxu
+ * serverty und status als int wert
+ */
     private Integer servertyIndex;
     private Integer statusIndex;
 
@@ -118,6 +121,10 @@ public class ArchiveSample<V extends Serializable,
     public IAlarm getAlarm() {
         return _alarm;
     }
+    /**
+ * @author wxu
+ * serverty und status als int wert
+ */
     
     public String getRequestType() {
         return _requestType;

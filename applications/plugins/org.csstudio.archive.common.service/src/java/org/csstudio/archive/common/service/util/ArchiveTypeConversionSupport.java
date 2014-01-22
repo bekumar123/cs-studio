@@ -319,7 +319,11 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
                                          @CheckForNull final String low,
                                          @CheckForNull final String high,  @CheckForNull final String uv ) throws TypeSupportException {
         // CHECKSTYLE ON : ParameterNumber
-//wenhua checken datatype.isEmpty()
+       //wenhua checken datatype.isEmpty()
+               /**
+ * @author wxu
+ *  Statistic for count in minute and stunde
+ */
         if (datatype != null && !datatype.isEmpty()) {
 
             final Class<T> clazz = (Class<T>) createTypeClassFromArchiveString(datatype);

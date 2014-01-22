@@ -36,7 +36,8 @@ import javax.annotation.Nonnull;
  */
 public class MinuteReducedDataSampleBatchQueueHandler extends
                                                      AbstractReducedDataSampleBatchQueueHandler<MinuteReducedDataSample> {
-     /**
+
+    /**
      * Constructor.
      */
     public MinuteReducedDataSampleBatchQueueHandler(@Nonnull final String database) {
@@ -49,7 +50,4 @@ public class MinuteReducedDataSampleBatchQueueHandler extends
     private static String createMinuteSqlStatementString(@Nonnull final String database) {
         return createSqlStatementString(database, TAB_SAMPLE_M);
     }
-
-
-
 }

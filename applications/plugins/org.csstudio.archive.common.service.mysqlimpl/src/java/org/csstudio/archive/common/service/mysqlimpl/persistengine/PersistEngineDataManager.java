@@ -53,6 +53,11 @@ import com.google.inject.Inject;
  * @since Feb 26, 2011
  */
 public class PersistEngineDataManager {
+
+
+  /**wenhua 
+     * new LOG for this class
+  */
     private static final Logger LOG = LoggerFactory.getLogger(PersistEngineDataManager.class);
     // TODO (bknerr) : number of threads?
     // get no of cpus and expected no of archive engines, and available archive connections
@@ -68,6 +73,10 @@ public class PersistEngineDataManager {
     //jhatje 22.2.12: back to previous thread number
     //    private final ScheduledThreadPoolExecutor _executor =
     //            (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1);
+    
+  /**wenhua 
+     * new Executor for SamplesPersistDataWorker class
+  */
     private final ScheduledThreadPoolExecutor _writeSamplesExecutor = (ScheduledThreadPoolExecutor) Executors
             .newScheduledThreadPool(10);
     /**
@@ -150,6 +159,9 @@ public class PersistEngineDataManager {
           }
       }
     */
+   /**wenhua 
+     * new method for PersistDataWorker  with handler for ChannelGroup
+  */
     @SuppressWarnings("rawtypes")
     private void submitNewPersistDataWorker(@Nonnull final ScheduledThreadPoolExecutor executor,
                                             @Nonnull final ArchiveConnectionHandler connectionHandler,
@@ -277,7 +289,9 @@ public class PersistEngineDataManager {
     public void shutdown() {
         _executor.shutdown();
     }
-
+  /**wenhua 
+     * PersistDataWorker  with handler for ChannelGroup
+  */
     @SuppressWarnings("rawtypes")
     public int submitToBatch(@Nonnull final Collection<?> entries) throws TypeSupportException {
 

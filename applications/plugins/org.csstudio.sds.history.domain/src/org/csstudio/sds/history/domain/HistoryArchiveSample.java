@@ -28,6 +28,8 @@ public class HistoryArchiveSample {
 		
 		assert timeStamp != null;
 		assert value != null;
+		assert severityState != null;
+		assert alarmStatus != null;
 		
 		HistoryArchiveSample result = new HistoryArchiveSample();
 		result._timeStamp = timeStamp;
@@ -45,7 +47,7 @@ public class HistoryArchiveSample {
 		HistoryArchiveSample result = new HistoryArchiveSample();
 		result._timeStamp = timeStamp;
 		result._value = value;
-		result._severityState = PVSeverityState.INVALID;
+		result._severityState = PVSeverityState.UNKNOWN;
 		result._alarmStatus = PVAlarmStatus.UNKNOWN;
 		
 		return result;

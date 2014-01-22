@@ -51,8 +51,10 @@ public class PvValueHistoryDataService implements IPvValueHistoryDataService {
 
 		try {
 			lastSample = _archiveReaderFacade.readLastSampleBefore(csAddress, timeInstant);
-			// TODO CME: Discuss: This gets the latest sample from the archive. Even though it can be very old and thus
-			// not representing the proper value for the given time. For example when the archive is missing samples for
+			// TODO CME: Discuss: This gets the latest sample from the archive.
+			// Even though it can be very old and thus
+			// not representing the proper value for the given time. For example
+			// when the archive is missing samples for
 			// a time period.
 		} catch (ArchiveServiceException e) {
 			LOG.debug(e.getMessage());
@@ -61,9 +63,7 @@ public class PvValueHistoryDataService implements IPvValueHistoryDataService {
 		if (lastSample != null) {
 			return createHistorySample(lastSample);
 		} else {
-			if (lastSample == null) {
-				LOG.warn("no sample for channel " + csAddress + " and time " + time.toString(ISODateTimeFormat.dateHourMinuteSecond()));
-			}
+			LOG.warn("no sample for channel " + csAddress + " and time " + time.toString(ISODateTimeFormat.dateHourMinuteSecond()));
 			return null;
 		}
 	}
@@ -79,7 +79,8 @@ public class PvValueHistoryDataService implements IPvValueHistoryDataService {
 
 		try {
 			readSamples = _archiveReaderFacade.readSamples(csAddress, starTimeInstant, endTimeInstant);
-			// CME: the mysql service uses minutes values when duration > 1 day and uses hour values when duration > 45
+			// CME: the mysql service uses minutes values when duration > 1 day
+			// and uses hour values when duration > 45
 			// days
 		} catch (ArchiveServiceException e) {
 			LOG.debug(e.getMessage());
@@ -99,24 +100,40 @@ public class PvValueHistoryDataService implements IPvValueHistoryDataService {
 		TimeInstant timestamp = archiveSample.getSystemVariable().getTimestamp();
 		DateTime timeStamp = new DateTime(timestamp.getMillis());
 
-		IPlantUnitValue<?> plantValue = getPvValueFromArchiveSample(archiveSample);
+		IPlantUnitValue<?> plantValue = getValueFromArchiveSample(archiveSample);
+		PVSeverityState severityState = getSeverityStateFromArchiveSample(archiveSample);
+		PVAlarmStatus alarmStatus = getAlarmStatusFromArchiveSample(archiveSample);
 
-		HistoryArchiveSample historySample = HistoryArchiveSample.createHistoryArchiveSample(timeStamp, plantValue);
-
-		if (archiveSample instanceof ArchiveSample<?, ?>) {
-			ArchiveSample<?,?> aSample = (ArchiveSample<?,?>) archiveSample;
-			EpicsAlarm alarm = (EpicsAlarm) aSample.getAlarm();
-
-			PVAlarmStatus alarmStatus = PVAlarmStatus.valueOf(alarm.getStatus().name()); 
-			PVSeverityState severityState = PVSeverityState.parseEpicsAlarmSeverity(alarm.getSeverity().name());
-
-			historySample.setPVSeverityState(severityState);
-			historySample.setPvAlarmState(alarmStatus);
-		}
+		HistoryArchiveSample historySample = HistoryArchiveSample.createHistoryArchiveSample(timeStamp, plantValue, severityState,
+				alarmStatus);
 
 		return historySample;
 	}
-	
+
+	private PVSeverityState getSeverityStateFromArchiveSample(IArchiveSample<Serializable, ISystemVariable<Serializable>> archiveSample) {
+		if (archiveSample instanceof ArchiveSample<?, ?>) {
+			ArchiveSample<?, ?> aSample = (ArchiveSample<?, ?>) archiveSample;
+
+			if (aSample.getAlarm() instanceof EpicsAlarm) {
+				EpicsAlarm alarm = (EpicsAlarm) aSample.getAlarm();
+				return PVSeverityState.parseEpicsAlarmSeverity(alarm.getSeverity().name());
+			}
+		}
+		return PVSeverityState.UNKNOWN;
+	}
+
+	private PVAlarmStatus getAlarmStatusFromArchiveSample(IArchiveSample<Serializable, ISystemVariable<Serializable>> archiveSample) {
+		if (archiveSample instanceof ArchiveSample<?, ?>) {
+			ArchiveSample<?, ?> aSample = (ArchiveSample<?, ?>) archiveSample;
+
+			if (aSample.getAlarm() instanceof EpicsAlarm) {
+				EpicsAlarm alarm = (EpicsAlarm) aSample.getAlarm();
+				return PVAlarmStatus.valueOf(alarm.getStatus().name());
+			}
+		}
+		return PVAlarmStatus.UNKNOWN;
+	}
+
 	public void bindArchiveReaderFacade(IArchiveReaderFacade archiveReader) {
 		_archiveReaderFacade = archiveReader;
 	}
@@ -124,11 +141,11 @@ public class PvValueHistoryDataService implements IPvValueHistoryDataService {
 	public void unbindArchiveReaderFacade(IArchiveReaderFacade archiveReader) {
 		_archiveReaderFacade = null;
 	}
-	
-	private IPlantUnitValue<?> getPvValueFromArchiveSample(IArchiveSample<Serializable, ISystemVariable<Serializable>> archiveSample) {
+
+	private IPlantUnitValue<?> getValueFromArchiveSample(IArchiveSample<Serializable, ISystemVariable<Serializable>> archiveSample) {
 		Object value = archiveSample.getValue();
 		IPlantUnitValue<?> plantValue = null;
-		
+
 		if (value instanceof Double) {
 			plantValue = new DoubleValue((Double) archiveSample.getValue());
 		} else if (value instanceof Integer) {
@@ -138,10 +155,12 @@ public class PvValueHistoryDataService implements IPvValueHistoryDataService {
 		} else if (value instanceof EpicsEnum) {
 			EpicsEnum epicsEnumState = (EpicsEnum) value;
 			plantValue = new EnumValue(epicsEnumState.getStateIndex(), epicsEnumState.getState());
-		}
-		else {
-			LOG.error("no type defined for retrieved value from archive sample. Archive type: " + archiveSample.getValue().getClass().getName());
-			System.out.println("archive sample class: " + archiveSample.getValue().getClass().getName()); // TODO CME: remove
+		} else {
+			LOG.error("no type defined for retrieved value from archive sample. Archive type: "
+					+ archiveSample.getValue().getClass().getName());
+			System.out.println("archive sample class: " + archiveSample.getValue().getClass().getName()); // TODO
+																											// CME:
+																											// remove
 		}
 		return plantValue;
 	}

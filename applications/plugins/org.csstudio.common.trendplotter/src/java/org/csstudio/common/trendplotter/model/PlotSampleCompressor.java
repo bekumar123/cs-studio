@@ -3,7 +3,6 @@ package org.csstudio.common.trendplotter.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.csstudio.swt.xygraph.linearscale.Range;
 import org.epics.util.time.TimeDuration;
 import org.epics.util.time.Timestamp;
 import org.slf4j.Logger;
@@ -21,15 +20,21 @@ public class PlotSampleCompressor {
     private int _firstVisibleSampleIndex;
     private int _lastVisibleSampleIndex;
 
-    public PlotSampleCompressor(List<PlotSample> samples, IIntervalProvider prov) {
-        _samples = samples;
+    public PlotSampleCompressor(IIntervalProvider prov) {
         _prov = prov;
     }
 
-    public void compressSamples() {
+    public void compressSamples(List<PlotSample> samples) {
+        _samples = samples;
         LOG.debug("Timestamp {}", System.currentTimeMillis());
         _firstVisibleSampleIndex = firstVisibleSampleIndex();
         _lastVisibleSampleIndex = lastVisibleSampleIndex();
+        LOG.debug("first overall sample {}", samples.get(0).getTime().toDate());
+        LOG.debug("last overall sample {}", samples.get(samples.size()-1).getTime().toDate());
+        //Samples are not visible->compression not necessary
+        if (_lastVisibleSampleIndex==-1 || _firstVisibleSampleIndex==-1) {
+            return;
+        }
         TimeDuration interval = getCompressionIntervalLength();
         LOG.debug("first visible sample index {}, time {}", _firstVisibleSampleIndex, _samples.get(_firstVisibleSampleIndex).getTime().toDate().toString());
         LOG.debug("last visible sample index {}, time {}", _lastVisibleSampleIndex, _samples.get(_lastVisibleSampleIndex).getTime().toDate().toString());
@@ -67,6 +72,7 @@ public class PlotSampleCompressor {
             LOG.trace("sample index {}, Compression Interval End {}, # delete {}", sampleIndex, intervalEnd.toDate().toString(), samplesToDelete.size());
             intervalEnd = intervalEnd.plus(interval);
         }
+        LOG.debug("# samples deleted {}", samplesToDelete.size());
         _samples.removeAll(samplesToDelete);
         LOG.trace("sample size after deletion {}", _samples.size());
     }
@@ -90,7 +96,7 @@ public class PlotSampleCompressor {
             if (plotSample.getYValue() < lowestValue.getYValue()) {
                 lowestValue = plotSample;
             }
-//            LOG.trace("sind {}-{}, ps y {}, hs y {}, ls y {}", sampleIndex, plotSample.getTime().toDate(), plotSample.getYValue(), highestValue.getYValue(), lowestValue.getYValue());
+            LOG.trace("sind {}-{}, ps y {}, hs y {}, ls y {}", sampleIndex, plotSample.getTime().toDate(), plotSample.getYValue(), highestValue.getYValue(), lowestValue.getYValue());
             samplesToDelete.add(plotSample);
         }
         samplesToDelete.remove(lowestValue);
@@ -116,6 +122,7 @@ public class PlotSampleCompressor {
         Timestamp modelStartTime = _prov.getModelStartTime();
         for (int i=0; i<_samples.size(); i++) {
             Timestamp time = _samples.get(i).getTime();
+//            LOG.debug("start time {}, sample time {}", modelStartTime.toDate(), time.toDate());
             if (time.compareTo(modelStartTime) == 1) {
                 return i;
             };

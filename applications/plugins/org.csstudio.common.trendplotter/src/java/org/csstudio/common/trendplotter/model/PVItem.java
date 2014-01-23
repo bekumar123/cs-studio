@@ -696,12 +696,18 @@ public class PVItem extends ModelItem implements PVListener {
         return displayLowFromRecord;
     }
 
-    /**
-     * History samples will only be added. Without compression the performance
-     * of the plotter gets worse.
-     */
-    public void modifySamplesBeforeFetch() {
-        samples.compressHistorySamples();
+//    /**
+//     * History samples will only be added. Without compression the performance
+//     * of the plotter gets worse.
+//     */
+//    public void modifySamplesBeforeFetch() {
+//        samples.compressHistorySamples();
+//    }
+
+    public void fetchCompleted() {
+        if (request_type != RequestType.RAW) {
+            samples.compressHistorySamples();
+        }
     }
 
 }

@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  */
 public class LiveSamples extends PlotSamples {
 
-private static final int NEW_SAMPLE_THRESHOLD = 30;
+private static final int NEW_SAMPLE_THRESHOLD = 300;
 
     //    protected LimitedArrayCircularQueue<PlotSample> _samples;
     protected List<PlotSample> _samples;
@@ -55,7 +55,7 @@ private static final int NEW_SAMPLE_THRESHOLD = 30;
         _prov = prov;
         LOG.trace("Constructor live sample with capacity {}", capacity);
         _samples = new ArrayList<PlotSample>();
-        _compressor = new PlotSampleCompressor(_samples, prov);
+        _compressor = new PlotSampleCompressor(prov);
     }
 
     /** @param index Waveform index to show */
@@ -95,7 +95,7 @@ private static final int NEW_SAMPLE_THRESHOLD = 30;
         if(_newSampleNumber > NEW_SAMPLE_THRESHOLD) {
             LOG.debug("start compression, {} new samples added", _newSampleNumber);
             _newSampleNumber = 0;
-            _compressor.compressSamples();
+            _compressor.compressSamples(_samples);
         }
         have_new_samples = true;
     }

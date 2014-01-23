@@ -161,7 +161,9 @@ public class PVSamples extends PlotSamples
     synchronized public PlotSample getSample(final int index)
     {
         final int raw_count = getRawSize();
-
+        if (raw_count<index) {
+            LOG.debug("getSample index {}, raw size {}", index, raw_count);
+        }
         if (index < raw_count) {
             return getRawSample(index);
         }
@@ -179,8 +181,10 @@ public class PVSamples extends PlotSamples
     {
         final int num_old = historicSamples.getSize();
         if (index < num_old) {
+//            LOG.debug("get hist samples index {}, num old {}", index, num_old);
             return historicSamples.getSample(index);
         }
+//        LOG.debug("get live samples index {}, num old {}", index, num_old);
         return liveSamples.getSample(index - num_old);
     }
 
@@ -258,8 +262,8 @@ public class PVSamples extends PlotSamples
                                                       ArchiveServiceException
     {
         historicSamples.mergeArchivedData(channel_name, reader, requestType, result);
-        LOG.trace("add hist sample, # live {}, # visib hist {}, # all hist {}", getLiveSampleSize(), 
-                  historicSamples.getSize(), historicSamples.getAllSamples().size());
+        LOG.trace("add hist sample, # live {}, # visib hist {}", getLiveSampleSize(), 
+                  historicSamples.getSize());
     }
 
     /** Add another 'liveSamples' sample
@@ -339,10 +343,6 @@ public class PVSamples extends PlotSamples
     }
 
     public void compressHistorySamples() {
-        //Each new request will be added to archive samples. To avoid bad performance delete
-        //all old samples. TODO: implement better concept.
-        if(historicSamples.getAllSamples().size() > 2000) {
-            historicSamples.clear();
-        }
+        historicSamples.compress();
     }
 }

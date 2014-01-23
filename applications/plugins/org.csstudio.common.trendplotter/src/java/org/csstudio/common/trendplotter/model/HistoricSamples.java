@@ -85,6 +85,8 @@ public class HistoricSamples extends PlotSamples
 
     private final IIntervalProvider _prov;
 
+    private PlotSampleCompressor _compressor;
+
     /**
      * Constructor.
      * @param prov 
@@ -98,6 +100,7 @@ public class HistoricSamples extends PlotSamples
             sample_map.put(type, new PlotSample[0]);
         }
         updateRequestType(request_type);
+        _compressor = new PlotSampleCompressor(prov);
     }
 
 
@@ -142,11 +145,16 @@ public class HistoricSamples extends PlotSamples
     @Override
     synchronized public PlotSample getSample(final int i)
     {  
+        try {
         if (i >= visible_size) {
             throw new IndexOutOfBoundsException("Index " + i + " exceeds visible size " + visible_size);
         }
         
         return sample_map.get(request_type)[i];
+        
+        } catch (Exception e) {
+            return sample_map.get(request_type)[0];
+        }
     }
 
     /** {@inheritDoc} */
@@ -235,26 +243,6 @@ public class HistoricSamples extends PlotSamples
         }
         return samplesWithoutNA.toArray(new PlotSample[0]);
     }
-
-
-    /**
-     * Simple strategy to determine a good compression rate.
-     * The 'perfect' window length is the displayed time interval divided by the capacity (that
-     * has been already diminished by the number of permanently uncompressed samples).
-     * And the last modification is due to that we expect two samples per window, min and max.
-     *
-     * @param cap the capacity for compressed samples (cap - uncompressed)
-     * @param intvlMS the length of the interval wherein the compressed samples shall be displayed
-     * @param the buffer reserve not considered for the window calculation
-     * @return
-     */
-    @Nonnull
-    private Long[] determinePerfectWindowForCompressedSamples(final int cap,
-                                                              final Interval intvl) {
-        final long windowLengthMS = (int) ((intvl.getEndMillis() - intvl.getStartMillis()) / cap); // perfect
-        return new Long[] {windowLengthMS*4}; // double - and don't forget - min and max are 2 samples per window
-    }
-
 
     /**
      * In case the service is present, ADEL info can be retrieved otherwise not
@@ -381,22 +369,6 @@ public class HistoricSamples extends PlotSamples
         return allSamples;
     }
 
-    /**
-     * @return 
-     * 
-     */
-    public ArrayList<PlotSample> getAllSamples() {
-        ArrayList<PlotSample> historicSampleList = new ArrayList<PlotSample>(); 
-        Set<RequestType> keySet = sample_map.keySet();
-        for (RequestType requestType : keySet) {
-            PlotSample[] plotSamples = sample_map.get(requestType);
-            if (plotSamples!=null && plotSamples.length>0) {
-                historicSampleList.addAll(Arrays.asList(plotSamples));
-            }
-        }
-        return historicSampleList;
-    }
-    
     /** @param index Waveform index to show */
     public synchronized void setWaveformIndex(int index)
     {
@@ -408,6 +380,23 @@ public class HistoricSamples extends PlotSamples
             for (PlotSample sample: samples) {
                 sample.setWaveformIndex(waveform_index);
             }
+        }
+    }
+
+
+    synchronized public void compress() {
+        if (request_type != RequestType.RAW) {
+            
+            PlotSample[] plotSamples = sample_map.get(request_type);
+//            for (PlotSample plotSample : plotSamples) {
+//                LOG.debug("time {}", plotSample.getTime().getSec());
+//            }
+            LOG.debug("hist samples size {}", plotSamples.length);
+            ArrayList<PlotSample> samples = new ArrayList<PlotSample>(Arrays.asList(sample_map.get(request_type)));
+            _compressor.compressSamples(samples);
+            sample_map.put(request_type, samples.toArray(new PlotSample[0]));
+            computeVisibleSize(sample_map.get(request_type));
+            LOG.debug("hist samples size {}", sample_map.get(request_type).length);
         }
     }
 }

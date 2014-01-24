@@ -119,26 +119,21 @@ public class PVItem extends ModelItem implements PVListener {
             @Override
             @CheckForNull
             public Interval getTimeInterval() {
-                final TimeInstant startTime = getModelStartTime();
-                final TimeInstant endTime = getModelEndTime();
-                if (startTime == null || endTime == null) {
-                    return null;
-                }
-                return new Interval(startTime.getInstant(), endTime.getInstant());
+                return null;
             }
 
-            private TimeInstant getModelStartTime() {
+            public Timestamp getModelStartTime() {
                 final Model m = getModel();
                 if (model != null) {
-                    return BaseTypeConversionSupport.toTimeInstant1(m.getStartTime());
+                    return m.getStartTime();
                 }
                 return null;
             }
 
-            private TimeInstant getModelEndTime() {
+            public Timestamp getModelEndTime() {
                 final Model m = getModel();
                 if (model != null) {
-                    return BaseTypeConversionSupport.toTimeInstant1(m.getEndTime());
+                    return m.getEndTime();
                 }
                 return null;
             }
@@ -500,7 +495,6 @@ public class PVItem extends ModelItem implements PVListener {
         // In 'monitor' mode, add to live sample buffer
         if (_period <= 0) {
             samples.addLiveSample(current_value);
-            LOG.trace(pv.getName() + " : " + samples.getLiveSampleSize() + " live samples");
         }
     }
 
@@ -687,19 +681,18 @@ public class PVItem extends ModelItem implements PVListener {
         _minMaxFromFile = minMaxFromFile;
     }
 
-    /**
-     * 
-     */
-    public void moveHistoricSamplesToLiveSamples() {
-        samples.moveHistoricSamplesToLiveSamples();
-    }
-
     public Double getDisplayHighFromRecord() {
         return displayHighFromRecord;
     }
 
     public Double getDisplayLowFromRecord() {
         return displayLowFromRecord;
+    }
+
+    public void fetchCompleted() {
+        if (request_type != RequestType.RAW) {
+            samples.compressHistorySamples();
+        }
     }
 
 }

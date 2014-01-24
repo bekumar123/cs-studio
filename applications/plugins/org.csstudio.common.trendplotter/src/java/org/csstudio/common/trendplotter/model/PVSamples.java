@@ -47,8 +47,8 @@ public class PVSamples extends PlotSamples
     private final HistoricSamples historicSamples;
 
     /** Live samples. Should start after end of historic samples */
-    private final CompressedLiveSamples liveSamples;
-
+    private final LiveSamples liveSamples;
+    
     boolean show_deadband = false;
 
     
@@ -59,15 +59,8 @@ public class PVSamples extends PlotSamples
                      @Nullable final IIntervalProvider prov) {
         updateRequestType(request_type);
 
-        final int liveSampleBufferSize = Preferences.getLiveSampleBufferSize(); // 5000
-        final int uncompressedSamples = Preferences.getUncompressedLiveSampleSize();
-        final int securityCompressedSamples = Preferences.getSecurityCompressedLiveSampleSize();
-        liveSamples = new CompressedLiveSamples(new LiveSamplesCompressor(uncompressedSamples),
-                                                liveSampleBufferSize,
-                                                securityCompressedSamples,
-                                                prov);
-        liveSamples.setDynamicCompression(true);
-        historicSamples = new HistoricSamples(request_type, prov, new LiveSamplesCompressor(0));
+        liveSamples = new LiveSamples(2500, prov);
+        historicSamples = new HistoricSamples(request_type, prov);
     }
     /**
      * Constructor.
@@ -261,6 +254,8 @@ public class PVSamples extends PlotSamples
                                                       ArchiveServiceException
     {
         historicSamples.mergeArchivedData(channel_name, reader, requestType, result);
+        LOG.trace("add hist sample, # live {}, # visib hist {}", getLiveSampleSize(), 
+                  historicSamples.getSize());
     }
 
     /** Add another 'liveSamples' sample
@@ -280,7 +275,7 @@ public class PVSamples extends PlotSamples
      */
     synchronized public void addLiveSample(final PlotSample sample)
     {
-       
+
         liveSamples.add(sample);
         // History ends before the start of 'liveSamples' samples.
         // Adding a liveSamples sample might have moved the ring buffer,
@@ -331,24 +326,14 @@ public class PVSamples extends PlotSamples
         return liveSamples.getSize();
     }
 
-    public void invalidateHistoricSamples() {
-        historicSamples.invalidateHistoricSamples();
-    }
-    
-    /**
-     * 
-     */
-    public void moveHistoricSamplesToLiveSamples() {
-        List<PlotSample> allHistoricSamples = historicSamples.getAllSamples();
-        for (PlotSample plotSample : allHistoricSamples) {
-            liveSamples.add(plotSample);
-        }
-        historicSamples.clear();
-    }
     public String getMedl(){
         return liveSamples.getDeadband()==null ? "":liveSamples.getDeadband().toString();
     }
     public String getAdel(){
         return historicSamples.getDeadband()==null ? "":historicSamples.getDeadband().toString();
+    }
+
+    public void compressHistorySamples() {
+        historicSamples.compress();
     }
 }

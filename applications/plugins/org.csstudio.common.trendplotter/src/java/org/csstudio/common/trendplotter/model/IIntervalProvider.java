@@ -23,6 +23,7 @@ package org.csstudio.common.trendplotter.model;
 
 import javax.annotation.Nonnull;
 
+import org.epics.util.time.Timestamp;
 import org.joda.time.Interval;
 
 /**
@@ -35,4 +36,9 @@ public interface IIntervalProvider {
 
     @Nonnull
     Interval getTimeInterval();
+
+    Timestamp getModelStartTime();
+
+    Timestamp getModelEndTime();
+    
 }

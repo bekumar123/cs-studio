@@ -145,16 +145,11 @@ public class HistoricSamples extends PlotSamples
     @Override
     synchronized public PlotSample getSample(final int i)
     {  
-        try {
         if (i >= visible_size) {
             throw new IndexOutOfBoundsException("Index " + i + " exceeds visible size " + visible_size);
         }
         
         return sample_map.get(request_type)[i];
-        
-        } catch (Exception e) {
-            return sample_map.get(request_type)[0];
-        }
     }
 
     /** {@inheritDoc} */
@@ -200,35 +195,12 @@ public class HistoricSamples extends PlotSamples
         final PlotSample[] merged_result = PlotSampleMerger.merge(ext_samples, new_samples);
 
         sample_map.put(requestType, merged_result);
-//        if (Preferences.getCompressHistSamples()) {
-//            compressSamples();
-//        }
             
         computeVisibleSize(merged_result);
         updateRequestType(requestType);
 
         have_new_samples = true;
     }
-
-//    private void compressSamples() {
-//        LOG.info("start compressSamples()");
-//        final int histBuffer = Preferences.getHistSampleBuffer();
-//        final Long[] windowsMS = determinePerfectWindowForCompressedSamples(histBuffer,
-//                                                                            _prov.getTimeInterval());
-//        _liveSamplesCompressor.setCompressionWindows(windowsMS);
-//    
-//        
-//        PlotSample[] plotSamples = sample_map.get(RequestType.OPTIMIZED);
-//        LimitedArrayCircularQueue<PlotSample> samples = new LimitedArrayCircularQueue<PlotSample>(plotSamples.length);
-//        samples.addAll(Arrays.asList(plotSamples));
-//        LimitedArrayCircularQueue<PlotSample> transform = _liveSamplesCompressor.transform(samples, plotSamples);
-//        PlotSample[] array = transform.toArray(new PlotSample[0]);
-//        if (transform.size()==plotSamples.length) {
-//            return;
-//        }
-//        sample_map.put(RequestType.OPTIMIZED, removeNotConnectedValues(array));
-//        LOG.info("start compressSamples()");
-//    }
     
     /**
      * @param array
@@ -386,11 +358,7 @@ public class HistoricSamples extends PlotSamples
 
     synchronized public void compress() {
         if (request_type != RequestType.RAW) {
-            
             PlotSample[] plotSamples = sample_map.get(request_type);
-//            for (PlotSample plotSample : plotSamples) {
-//                LOG.debug("time {}", plotSample.getTime().getSec());
-//            }
             LOG.debug("hist samples size {}", plotSamples.length);
             ArrayList<PlotSample> samples = new ArrayList<PlotSample>(Arrays.asList(sample_map.get(request_type)));
             _compressor.compressSamples(samples);

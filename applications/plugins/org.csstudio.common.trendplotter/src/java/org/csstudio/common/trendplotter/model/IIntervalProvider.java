@@ -41,5 +41,4 @@ public interface IIntervalProvider {
 
     Timestamp getModelEndTime();
     
-    
 }

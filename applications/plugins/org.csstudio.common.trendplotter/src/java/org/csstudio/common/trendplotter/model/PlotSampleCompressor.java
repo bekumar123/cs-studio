@@ -26,26 +26,22 @@ public class PlotSampleCompressor {
 
     public void compressSamples(List<PlotSample> samples) {
         _samples = samples;
-        LOG.debug("Timestamp {}", System.currentTimeMillis());
+        LOG.debug("Begin Compression milli sec {}", System.currentTimeMillis());
         _firstVisibleSampleIndex = firstVisibleSampleIndex();
         _lastVisibleSampleIndex = lastVisibleSampleIndex();
-        LOG.debug("first overall sample {}", samples.get(0).getTime().toDate());
-        LOG.debug("last overall sample {}", samples.get(samples.size()-1).getTime().toDate());
         //Samples are not visible->compression not necessary
         if (_lastVisibleSampleIndex==-1 || _firstVisibleSampleIndex==-1) {
             return;
         }
         TimeDuration interval = getCompressionIntervalLength();
-        LOG.debug("first visible sample index {}, time {}", _firstVisibleSampleIndex, _samples.get(_firstVisibleSampleIndex).getTime().toDate().toString());
-        LOG.debug("last visible sample index {}, time {}", _lastVisibleSampleIndex, _samples.get(_lastVisibleSampleIndex).getTime().toDate().toString());
-        LOG.debug("compression interval {}", interval.getSec());
+        //LOG.debug("first visible sample index {}, time {}", _firstVisibleSampleIndex, _samples.get(_firstVisibleSampleIndex).getTime().toDate().toString());
         if ((_firstVisibleSampleIndex > 0) || (_lastVisibleSampleIndex > 0)) {
             checkAndCleanupIntervals(interval);
         }
         if (_samples.size() > TOTAL_SAMPLE_THRESHOLD) {
             removeSamplesNotVisible();
         }
-        LOG.debug("Timestamp {}", System.currentTimeMillis());
+        LOG.debug("End Compression milli sec {}", System.currentTimeMillis());
     }
 
     private void removeSamplesNotVisible() {
@@ -65,16 +61,13 @@ public class PlotSampleCompressor {
     private void checkAndCleanupIntervals(TimeDuration interval) {
         int sampleIndex = _firstVisibleSampleIndex;
         Timestamp intervalEnd = _prov.getModelStartTime().plus(interval);
-//        Timestamp intervalEnd = _samples.get(sampleIndex).getTime().plus(interval);
         List<PlotSample> samplesToDelete = new ArrayList<>();
         while (sampleIndex < _lastVisibleSampleIndex) {
             sampleIndex = findSamplesToDeleteAndMoveIndex(samplesToDelete, intervalEnd, sampleIndex);
-            LOG.trace("sample index {}, Compression Interval End {}, # delete {}", sampleIndex, intervalEnd.toDate().toString(), samplesToDelete.size());
             intervalEnd = intervalEnd.plus(interval);
         }
         LOG.debug("# samples deleted {}", samplesToDelete.size());
         _samples.removeAll(samplesToDelete);
-        LOG.trace("sample size after deletion {}", _samples.size());
     }
     
 
@@ -83,7 +76,6 @@ public class PlotSampleCompressor {
         samplesToDelete.add(plotSample);
         PlotSample highestValue = plotSample;
         PlotSample lowestValue = plotSample;
-//        LOG.trace("sind {}, ps y {}, hs y {}, ls y {}", sampleIndex, plotSample.getYValue(), highestValue.getYValue(), lowestValue.getYValue());
         while (plotSample.getTime().compareTo(intervalEnd) != 1) {
             sampleIndex++;
             if (sampleIndex > _lastVisibleSampleIndex) {
@@ -96,7 +88,6 @@ public class PlotSampleCompressor {
             if (plotSample.getYValue() < lowestValue.getYValue()) {
                 lowestValue = plotSample;
             }
-            LOG.trace("sind {}-{}, ps y {}, hs y {}, ls y {}", sampleIndex, plotSample.getTime().toDate(), plotSample.getYValue(), highestValue.getYValue(), lowestValue.getYValue());
             samplesToDelete.add(plotSample);
         }
         samplesToDelete.remove(lowestValue);
@@ -110,7 +101,7 @@ public class PlotSampleCompressor {
             Timestamp time = _samples.get(i).getTime();
             if (time.compareTo(modelEndTime) == -1) {
                 return i;
-            };
+            }
         }
         return -1;
     }
@@ -122,10 +113,9 @@ public class PlotSampleCompressor {
         Timestamp modelStartTime = _prov.getModelStartTime();
         for (int i=0; i<_samples.size(); i++) {
             Timestamp time = _samples.get(i).getTime();
-//            LOG.debug("start time {}, sample time {}", modelStartTime.toDate(), time.toDate());
             if (time.compareTo(modelStartTime) == 1) {
                 return i;
-            };
+            }
         }
         return -1;
     }

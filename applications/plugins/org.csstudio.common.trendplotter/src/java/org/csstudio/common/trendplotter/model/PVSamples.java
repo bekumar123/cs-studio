@@ -59,11 +59,7 @@ public class PVSamples extends PlotSamples
                      @Nullable final IIntervalProvider prov) {
         updateRequestType(request_type);
 
-//        final int liveSampleBufferSize = Preferences.getLiveSampleBufferSize(); // 5000
-//        final int uncompressedSamples = Preferences.getUncompressedLiveSampleSize();
-//        final int securityCompressedSamples = Preferences.getSecurityCompressedLiveSampleSize();
         liveSamples = new LiveSamples(2500, prov);
-//        liveSamples = new LiveSamples(Preferences.getLiveSampleBufferSize());
         historicSamples = new HistoricSamples(request_type, prov);
     }
     /**
@@ -161,9 +157,7 @@ public class PVSamples extends PlotSamples
     synchronized public PlotSample getSample(final int index)
     {
         final int raw_count = getRawSize();
-        if (raw_count<index) {
-            LOG.debug("getSample index {}, raw size {}", index, raw_count);
-        }
+
         if (index < raw_count) {
             return getRawSample(index);
         }
@@ -181,10 +175,8 @@ public class PVSamples extends PlotSamples
     {
         final int num_old = historicSamples.getSize();
         if (index < num_old) {
-//            LOG.debug("get hist samples index {}, num old {}", index, num_old);
             return historicSamples.getSample(index);
         }
-//        LOG.debug("get live samples index {}, num old {}", index, num_old);
         return liveSamples.getSample(index - num_old);
     }
 
@@ -283,8 +275,7 @@ public class PVSamples extends PlotSamples
      */
     synchronized public void addLiveSample(final PlotSample sample)
     {
-//        LOG.trace("add live sample, # live {}, # visib hist {}, # all hist {}", getLiveSampleSize(), 
-//                  historicSamples.getSize(), historicSamples.getAllSamples().size());
+
         liveSamples.add(sample);
         // History ends before the start of 'liveSamples' samples.
         // Adding a liveSamples sample might have moved the ring buffer,

@@ -191,7 +191,6 @@ public class ArchiveFetchJob extends Job
                listener.fetchCompleted(ArchiveFetchJob.this);
           
             }
-            LOG.info("FetchJob() {} in {} millis", item.getName(),System.currentTimeMillis()-start_ms);
             Activator.getLogger().log(Level.FINE, "Ended {0}", ArchiveFetchJob.this); //$NON-NLS-1$
             done = true;
         }

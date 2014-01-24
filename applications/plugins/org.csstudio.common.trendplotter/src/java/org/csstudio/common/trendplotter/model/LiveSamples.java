@@ -30,7 +30,6 @@ public class LiveSamples extends PlotSamples {
 
 private static final int NEW_SAMPLE_THRESHOLD = 300;
 
-    //    protected LimitedArrayCircularQueue<PlotSample> _samples;
     protected List<PlotSample> _samples;
 
     /** Waveform index */
@@ -53,7 +52,6 @@ private static final int NEW_SAMPLE_THRESHOLD = 300;
      */
     public LiveSamples(final int capacity, IIntervalProvider prov) {
         _prov = prov;
-        LOG.trace("Constructor live sample with capacity {}", capacity);
         _samples = new ArrayList<PlotSample>();
         _compressor = new PlotSampleCompressor(prov);
     }

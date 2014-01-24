@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?><target name="css-desy-tp" sequenceNumber="6">
+<locations>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.csstudio.desy.targetplatform.feature.feature.group" version="1.0.0.201401231159"/>
+<repository location="http://eclipse.desy.de/css/DesyTargetPlatform"/>
+</location>
+</locations>
+</target>

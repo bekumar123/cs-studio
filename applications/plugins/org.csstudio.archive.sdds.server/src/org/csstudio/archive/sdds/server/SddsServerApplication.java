@@ -122,7 +122,7 @@ public class SddsServerApplication implements IApplication,
             signalHandler.activateIntSignal();
             signalHandler.activateTermSignal();
         } catch (final SignalException e) {
-            LOG.warn("Cannot create the signal handler. The application ignore any signal.");
+            LOG.warn("Cannot create the signal handler. The application ignores any signal.");
         }
 
         StopMgmtCommand.injectStaticObject(this);

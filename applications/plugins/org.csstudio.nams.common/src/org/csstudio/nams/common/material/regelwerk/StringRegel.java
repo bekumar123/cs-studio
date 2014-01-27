@@ -1,7 +1,7 @@
 package org.csstudio.nams.common.material.regelwerk;
 
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
-import org.csstudio.nams.common.material.AlarmNachricht;
+import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.service.logging.declaration.ILogger;
 
 public class StringRegel implements Regel {
@@ -18,14 +18,15 @@ public class StringRegel implements Regel {
 		this.compareString = compareString;
 		this.errorLogger = errorLogger;
 		this.regelComparator = new StringRegelComparator(operator, true);
+		this.regelComparator.setComparedString(compareString);
 	}
 
 	@Override
-	public boolean pruefeNachricht(AlarmNachricht nachricht) {
+	public boolean pruefeNachricht(AlarmMessage nachricht) {
 		boolean result = false;
 		
 		try {
-			result = regelComparator.compare(nachricht.getValueFor(messageKey), compareString);
+			result = regelComparator.compare(nachricht.getValueFor(messageKey));
 		} catch (final Exception e) {
             if(this.errorLogger != null) {
                 this.errorLogger.logErrorMessage(this,
@@ -38,7 +39,7 @@ public class StringRegel implements Regel {
 	}
 	
 	@Override
-	public boolean pruefeNachricht(AlarmNachricht nachricht, AlarmNachricht vergleichsNachricht) {
+	public boolean pruefeNachricht(AlarmMessage nachricht, AlarmMessage vergleichsNachricht) {
 		return this.pruefeNachricht(nachricht);
 	}
 

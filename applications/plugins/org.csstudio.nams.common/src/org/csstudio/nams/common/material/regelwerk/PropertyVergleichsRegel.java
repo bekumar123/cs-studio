@@ -1,7 +1,7 @@
 package org.csstudio.nams.common.material.regelwerk;
 
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
-import org.csstudio.nams.common.material.AlarmNachricht;
+import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.service.logging.declaration.ILogger;
 
 public class PropertyVergleichsRegel implements Regel {
@@ -20,20 +20,21 @@ public class PropertyVergleichsRegel implements Regel {
 
 
 	@Override
-	public boolean pruefeNachricht(AlarmNachricht nachricht) {
+	public boolean pruefeNachricht(AlarmMessage nachricht) {
 		// TODO fz: Exception?
 		return false;
 	}
 
 	@Override
-	public boolean pruefeNachricht(AlarmNachricht nachricht, AlarmNachricht vergleichsNachricht) {
+	public boolean pruefeNachricht(AlarmMessage nachricht, AlarmMessage vergleichsNachricht) {
 		boolean result = false;
 		
 		final String value = nachricht.getValueFor(this.messageKey);
 		final String vergleichsNachrichtValue = vergleichsNachricht.getValueFor(this.messageKey);
 
 		try {
-			result = regelComparator.compare(value, vergleichsNachrichtValue);
+			regelComparator.setComparedString(vergleichsNachrichtValue);
+			result = regelComparator.compare(value);
 		} catch (final Exception e) {
             if(this.errorLogger != null) {
                 this.errorLogger.logErrorMessage(this,

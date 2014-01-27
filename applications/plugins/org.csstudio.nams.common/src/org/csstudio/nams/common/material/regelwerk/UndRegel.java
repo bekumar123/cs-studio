@@ -2,7 +2,7 @@ package org.csstudio.nams.common.material.regelwerk;
 
 import java.util.List;
 
-import org.csstudio.nams.common.material.AlarmNachricht;
+import org.csstudio.nams.common.material.AlarmMessage;
 
 public class UndRegel implements Regel {
 
@@ -13,7 +13,7 @@ public class UndRegel implements Regel {
 	}
 	
 	@Override
-	public boolean pruefeNachricht(AlarmNachricht nachricht) {
+	public boolean pruefeNachricht(AlarmMessage nachricht) {
 		boolean result = regeln.size() > 0;
 		for (Regel regel : this.regeln) {
 			boolean regelErgebnis = regel.pruefeNachricht(nachricht);
@@ -27,7 +27,7 @@ public class UndRegel implements Regel {
 	}
 
 	@Override
-	public boolean pruefeNachricht(AlarmNachricht nachricht, AlarmNachricht vergleichsNachricht) {
+	public boolean pruefeNachricht(AlarmMessage nachricht, AlarmMessage vergleichsNachricht) {
 		boolean result = regeln.size() > 0;
 		for (Regel regel : this.regeln) {
 			boolean regelErgebnis = regel.pruefeNachricht(nachricht, vergleichsNachricht);

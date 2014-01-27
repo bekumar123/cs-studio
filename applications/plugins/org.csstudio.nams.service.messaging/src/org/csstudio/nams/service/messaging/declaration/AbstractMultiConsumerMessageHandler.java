@@ -54,7 +54,7 @@ public abstract class AbstractMultiConsumerMessageHandler implements
 					}
 				}
 			};
-			executionService.executeAsynchronsly(
+			executionService.executeAsynchronously(
 					MultiConsumerMessageThreads.CONSUMER_THREAD,
 					stepByStepProcessor);
 			this.processors.add(stepByStepProcessor);
@@ -72,7 +72,7 @@ public abstract class AbstractMultiConsumerMessageHandler implements
 				}
 			}
 		};
-		executionService.executeAsynchronsly(
+		executionService.executeAsynchronously(
 				MultiConsumerMessageThreads.HANDLER_THREAD,
 				this.masterProcessor);
 		this.processors.add(this.masterProcessor);

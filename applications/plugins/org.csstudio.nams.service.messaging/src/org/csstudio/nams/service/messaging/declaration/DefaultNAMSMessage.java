@@ -2,7 +2,7 @@
 package org.csstudio.nams.service.messaging.declaration;
 
 import org.csstudio.nams.common.contract.Contract;
-import org.csstudio.nams.common.material.AlarmNachricht;
+import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.common.material.SystemNachricht;
 import org.csstudio.nams.service.messaging.exceptions.MessagingException;
 
@@ -15,7 +15,7 @@ public class DefaultNAMSMessage implements NAMSMessage {
 	private final SystemNachricht sysNachricht;
 	private final AcknowledgeHandler ackHandler;
 
-	private final AlarmNachricht alarmNachricht;
+	private final AlarmMessage alarmNachricht;
 
 	/**
 	 * Nachrichten, die nicht von NAMS verarbeitbar sind.
@@ -27,7 +27,7 @@ public class DefaultNAMSMessage implements NAMSMessage {
 		this.sysNachricht = null;
 	}
 
-	public DefaultNAMSMessage(final AlarmNachricht alarmNachricht,
+	public DefaultNAMSMessage(final AlarmMessage alarmNachricht,
 			final AcknowledgeHandler ackHandler) {
 		Contract.requireNotNull("ackHandler", ackHandler);
 		Contract.requireNotNull("alarmNachricht", alarmNachricht);
@@ -55,7 +55,7 @@ public class DefaultNAMSMessage implements NAMSMessage {
 	}
 
 	@Override
-    public final AlarmNachricht alsAlarmnachricht() {
+    public final AlarmMessage alsAlarmnachricht() {
 		Contract.require(this.enthaeltAlarmnachricht(),
 				"enthaeltAlarmnachricht()");
 		return this.alarmNachricht;

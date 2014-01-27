@@ -6,7 +6,7 @@ import java.util.Map;
 import junit.framework.Assert;
 
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
-import org.csstudio.nams.common.material.AlarmNachricht;
+import org.csstudio.nams.common.material.AlarmMessage;
 import org.junit.Test;
 
 public class PropertyVergleichsRegelTest {
@@ -20,17 +20,17 @@ public class PropertyVergleichsRegelTest {
 		
 		Map<MessageKeyEnum, String> map1 = new HashMap<MessageKeyEnum, String>();
 		map1.put(messageKey, "5");
-		AlarmNachricht ersteAlarmNachricht = new AlarmNachricht(map1);
+		AlarmMessage ersteAlarmNachricht = new AlarmMessage(map1);
 
 		Map<MessageKeyEnum, String> map2 = new HashMap<MessageKeyEnum, String>();
 		map2.put(messageKey, "5");
-		AlarmNachricht zweiteAlarmNachricht = new AlarmNachricht(map2);
+		AlarmMessage zweiteAlarmNachricht = new AlarmMessage(map2);
 		
 		Assert.assertFalse(vergleichsRegel.pruefeNachricht(zweiteAlarmNachricht, ersteAlarmNachricht));
 
 		map2 = new HashMap<MessageKeyEnum, String>();
 		map2.put(messageKey, "6");
-		zweiteAlarmNachricht = new AlarmNachricht(map2);
+		zweiteAlarmNachricht = new AlarmMessage(map2);
 		
 		Assert.assertTrue(vergleichsRegel.pruefeNachricht(zweiteAlarmNachricht, ersteAlarmNachricht));
 	}

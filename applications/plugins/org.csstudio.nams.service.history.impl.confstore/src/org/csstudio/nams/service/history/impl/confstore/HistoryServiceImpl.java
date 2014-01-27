@@ -3,8 +3,8 @@ package org.csstudio.nams.service.history.impl.confstore;
 
 import java.util.Date;
 
-import org.csstudio.nams.common.decision.Vorgangsmappe;
-import org.csstudio.nams.common.material.AlarmNachricht;
+import org.csstudio.nams.common.decision.MessageCasefile;
+import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.common.material.Regelwerkskennung;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.HistoryDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.LocalStoreConfigurationService;
@@ -63,9 +63,9 @@ public class HistoryServiceImpl implements HistoryService {
 	}
 
 	@Override
-    public void logTimeOutForTimeBased(final Vorgangsmappe vorgangsmappe) {
+    public void logTimeOutForTimeBased(final MessageCasefile vorgangsmappe) {
 		final Regelwerkskennung regelwerkId = vorgangsmappe.getBearbeitetMitRegelWerk();
-		final AlarmNachricht alarmNachricht = vorgangsmappe
+		final AlarmMessage alarmNachricht = vorgangsmappe
 				.getAlarmNachricht();
 
 		final HistoryDTO historyDTO = new HistoryDTO();

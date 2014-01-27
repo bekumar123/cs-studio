@@ -1,6 +1,5 @@
-
 /* 
- * Copyright (c) 2008 C1 WPS mbH, 
+ * Copyright (c) 2011 C1 WPS mbH, 
  * HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS. 
@@ -26,9 +25,8 @@
 
 package org.csstudio.nams.common.decision;
 
-import org.csstudio.nams.common.wam.Behaelter;
+public interface ObservableInbox<T extends Document> extends Inbox<T> {
 
-@Behaelter
-public interface Ausgangskorb<T extends Ablagefaehig> extends Ablagekorb<T> {
-    // Nothing here
+	public void setObserver(InboxObserver beobachter);
+	
 }

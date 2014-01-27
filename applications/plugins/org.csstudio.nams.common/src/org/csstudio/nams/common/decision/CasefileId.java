@@ -8,7 +8,7 @@ import org.csstudio.nams.common.contract.Contract;
 import org.csstudio.nams.common.wam.Fachwert;
 
 @Fachwert
-public final class Vorgangsmappenkennung {
+public final class CasefileId {
 
 	private static long zaehler = 0;
 
@@ -16,27 +16,27 @@ public final class Vorgangsmappenkennung {
 	 * FIXME Dieses Verhalten in eine Factory auslagern, FW wieder per valueOf
 	 * mit entsprechenden Parametern!
 	 */
-	public static Vorgangsmappenkennung createNew(final InetAddress hostAdress,
+	public static CasefileId createNew(final InetAddress hostAdress,
 			final Date time) {
-		Vorgangsmappenkennung.zaehler += 1;
-		return new Vorgangsmappenkennung(hostAdress.getHostAddress(), time
-				.getTime(), Vorgangsmappenkennung.zaehler, null);
+		CasefileId.zaehler += 1;
+		return new CasefileId(hostAdress.getHostAddress(), time
+				.getTime(), CasefileId.zaehler, null);
 	}
 
 	@Deprecated
-	public static Vorgangsmappenkennung valueOf(final InetAddress hostAdress,
+	public static CasefileId valueOf(final InetAddress hostAdress,
 			final Date time) {
 		Contract.require(hostAdress != null, "hostAdress!=null");
 		Contract.require(time != null, "time!=null");
-		return new Vorgangsmappenkennung(hostAdress.getHostAddress(), time
+		return new CasefileId(hostAdress.getHostAddress(), time
 				.getTime(), null);
 	}
 
-	public static Vorgangsmappenkennung valueOf(
-			final Vorgangsmappenkennung kennung, final String ergaenzung) {
+	public static CasefileId valueOf(
+			final CasefileId kennung, final String ergaenzung) {
 		Contract.require(!kennung.hatErgaenzung(), "!kennung.hatErgaenzung()");
 		// zaehler += 1;
-		return new Vorgangsmappenkennung(kennung.hostAdress, kennung.timeInMS,
+		return new CasefileId(kennung.hostAdress, kennung.timeInMS,
 				kennung.counter, ergaenzung);
 	}
 
@@ -53,7 +53,7 @@ public final class Vorgangsmappenkennung {
 	@Deprecated
 	private final long counter;
 
-	private Vorgangsmappenkennung(final String address, final long timeMS,
+	private CasefileId(final String address, final long timeMS,
 			final long cnt, final String e) {
 		this.hostAdress = address;
 		this.timeInMS = timeMS;
@@ -61,7 +61,7 @@ public final class Vorgangsmappenkennung {
 		this.ergaenzung = e;
 	}
 
-	private Vorgangsmappenkennung(final String hostAdress, final long timeInMS,
+	private CasefileId(final String hostAdress, final long timeInMS,
 			final String ergaenzung) {
 		this.hostAdress = hostAdress;
 		this.timeInMS = timeInMS;
@@ -77,10 +77,10 @@ public final class Vorgangsmappenkennung {
 		if (obj == null) {
 			return false;
 		}
-		if (!(obj instanceof Vorgangsmappenkennung)) {
+		if (!(obj instanceof CasefileId)) {
 			return false;
 		}
-		final Vorgangsmappenkennung other = (Vorgangsmappenkennung) obj;
+		final CasefileId other = (CasefileId) obj;
 		if (this.ergaenzung == null) {
 			if (other.ergaenzung != null) {
 				return false;

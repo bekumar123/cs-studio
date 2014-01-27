@@ -1,6 +1,6 @@
 
 /* 
- * Copyright (c) 2011 C1 WPS mbH, 
+ * Copyright (c) 2008 C1 WPS mbH, 
  * HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS. 
@@ -26,55 +26,23 @@
 
 package org.csstudio.nams.common.decision;
 
-import java.util.Iterator;
-import java.util.concurrent.LinkedBlockingQueue;
+import org.csstudio.nams.common.wam.Behaelter;
 
-import org.csstudio.nams.common.wam.Material;
-
-@Material
-public class StandardAblagekorb<T extends Ablagefaehig> implements
-		Eingangskorb<T>, Ausgangskorb<T>, Zwischenablagekorb<T> {
-	private final LinkedBlockingQueue<T> inhalt;
-
-	public StandardAblagekorb() {
-		this.inhalt = new LinkedBlockingQueue<T>();
-	}
-
-	/**
-	 * Legt eine neues Dokument in den Korb.
-	 * 
-	 * @param dokument
-	 *            Das neue Dokuement,
-	 * @throws InterruptedException
-	 */
-	@Override
-    public void ablegen(final T dokument) throws InterruptedException {
-		this.inhalt.put(dokument);
-	}
-
+@Behaelter
+public interface Inbox<T extends Document> extends Box<T> {
 	/**
 	 * Entnimmt den ältesten Eingang aus diesem Korb. Achtung:
 	 * <ol>
 	 * <li>Der entnommene Eingang ist anschließend nicht mehr enthalten!</li>
 	 * <ol>
-	 * <li>Dieses Operation blockiert bis ein dokument verfügbar ist!</li>
+	 * <li>Dieses Operation blockiert bis ein Dokument verfügbar ist!</li>
 	 * </ol>
 	 * 
 	 * @throws InterruptedException
 	 *             Falls der Thread beim warten auf ein Element unterbrochen
 	 *             wird.
 	 */
-	@Override
-    public T entnehmeAeltestenEingang() throws InterruptedException {
-		return this.inhalt.take();
-	}
-
-	public boolean istEnthalten(final T element) {
-		return this.inhalt.contains(element);
-	}
-
-	@Override
-    public Iterator<T> iterator() {
-		return this.inhalt.iterator();
-	}
+	T takeDocument() throws InterruptedException;
+	
+	int documentCount();
 }

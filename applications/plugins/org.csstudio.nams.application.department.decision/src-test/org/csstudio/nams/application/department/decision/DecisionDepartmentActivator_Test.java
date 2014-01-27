@@ -8,8 +8,8 @@ import java.util.Map;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.csstudio.nams.common.material.SyncronisationsAufforderungsSystemNachchricht;
-import org.csstudio.nams.common.material.SyncronisationsBestaetigungSystemNachricht;
+import org.csstudio.nams.common.material.SynchronisationsAufforderungsSystemNachchricht;
+import org.csstudio.nams.common.material.SynchronisationsBestaetigungSystemNachricht;
 import org.csstudio.nams.common.material.SystemNachricht;
 import org.csstudio.nams.common.material.regelwerk.Regelwerk;
 import org.csstudio.nams.common.service.ExecutionServiceMock;
@@ -105,7 +105,7 @@ public class DecisionDepartmentActivator_Test extends TestCase {
         this.syncronisationBestaetigungAcknowledged = false;
         this.amsCommandConsumerMock
         .mockSetNextToBeDelivered(new DefaultNAMSMessage(
-                                                         new SyncronisationsBestaetigungSystemNachricht(),
+                                                         new SynchronisationsBestaetigungSystemNachricht(),
                                                          new AcknowledgeHandler() {
                                                              public void acknowledge() throws Throwable {
                                                                  DecisionDepartmentActivator_Test.this.syncronisationBestaetigungAcknowledged = true;
@@ -241,7 +241,7 @@ public class DecisionDepartmentActivator_Test extends TestCase {
             @Override
             public void sendeSystemnachricht(final SystemNachricht nachricht) {
                 Assert
-                .assertTrue((nachricht instanceof SyncronisationsAufforderungsSystemNachchricht));
+                .assertTrue((nachricht instanceof SynchronisationsAufforderungsSystemNachchricht));
             }
 
             @Override

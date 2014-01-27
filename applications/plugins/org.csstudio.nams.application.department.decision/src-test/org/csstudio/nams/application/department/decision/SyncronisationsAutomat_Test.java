@@ -6,9 +6,9 @@ import java.util.Queue;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.csstudio.nams.common.decision.Vorgangsmappe;
-import org.csstudio.nams.common.material.SyncronisationsAufforderungsSystemNachchricht;
-import org.csstudio.nams.common.material.SyncronisationsBestaetigungSystemNachricht;
+import org.csstudio.nams.common.decision.MessageCasefile;
+import org.csstudio.nams.common.material.SynchronisationsAufforderungsSystemNachchricht;
+import org.csstudio.nams.common.material.SynchronisationsBestaetigungSystemNachricht;
 import org.csstudio.nams.common.material.SystemNachricht;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.Configuration;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterConfiguration;
@@ -75,7 +75,7 @@ public class SyncronisationsAutomat_Test extends TestCase {
 				SyncronisationsAutomat_Test.this.zuletzGesendeteNachricht = systemNachricht;
 			}
 
-			public void sendeVorgangsmappe(final Vorgangsmappe vorgangsmappe) {
+			public void sendeVorgangsmappe(final MessageCasefile vorgangsmappe) {
 				Assert.fail("should not be called");
 			}
 
@@ -132,17 +132,17 @@ public class SyncronisationsAutomat_Test extends TestCase {
 
 		this.ackHandlerCallCount = 0;
 		this.neuZuEmpfangedeNachrichten.add(new DefaultNAMSMessage(
-				new SyncronisationsAufforderungsSystemNachchricht(), handler));
+				new SynchronisationsAufforderungsSystemNachchricht(), handler));
 		this.neuZuEmpfangedeNachrichten.add(new DefaultNAMSMessage(
-				new SyncronisationsAufforderungsSystemNachchricht(), handler));
+				new SynchronisationsAufforderungsSystemNachchricht(), handler));
 		this.neuZuEmpfangedeNachrichten.add(new DefaultNAMSMessage(
-				new SyncronisationsBestaetigungSystemNachricht(), handler));
+				new SynchronisationsBestaetigungSystemNachricht(), handler));
 
 		this.nextToBeDelivered = new ReplicationStateDTO();
 		this.nextToBeDelivered
 				.setReplicationState(ReplicationState.FLAGVALUE_SYNCH_IDLE);
 
-		SyncronisationsAutomat.syncronisationUeberDistributorAusfueren(
+		SynchronisationsAutomat.synchronisationUeberDistributorAusfueren(
 				this.amsAusgangsProducer, this.amsCommandConsumer,
 				new LocalStoreConfigurationService() {
 
@@ -210,7 +210,7 @@ public class SyncronisationsAutomat_Test extends TestCase {
 
 					}
 
-					public void logTimeOutForTimeBased(final Vorgangsmappe v) {
+					public void logTimeOutForTimeBased(final MessageCasefile v) {
 						Assert.fail("unexpected method call!");
 					}
 
@@ -218,7 +218,7 @@ public class SyncronisationsAutomat_Test extends TestCase {
 
 		Assert.assertNotNull(this.zuletzGesendeteNachricht);
 		Assert
-				.assertTrue(this.zuletzGesendeteNachricht instanceof SyncronisationsAufforderungsSystemNachchricht);
+				.assertTrue(this.zuletzGesendeteNachricht instanceof SynchronisationsAufforderungsSystemNachchricht);
 		Assert.assertEquals("Alle Nachrichten wurden acknowledged.", 3,
 				this.ackHandlerCallCount);
 		Assert.assertEquals(

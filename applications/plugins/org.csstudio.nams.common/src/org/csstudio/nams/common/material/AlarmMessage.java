@@ -39,7 +39,7 @@ import org.csstudio.nams.common.wam.Material;
  * Eine Alarmnachricht einer Maschine.
  */
 @Material
-public class AlarmNachricht implements Cloneable {
+public class AlarmMessage implements Cloneable {
 	private String nachricht;
 	private final Date zeitFuerToString;
 	private final Map<MessageKeyEnum, String> content;
@@ -47,11 +47,11 @@ public class AlarmNachricht implements Cloneable {
 	private final static Map<String, String> emptyContent = Collections.emptyMap();
 
 	
-	public AlarmNachricht(final Map<MessageKeyEnum, String> map) {
+	public AlarmMessage(final Map<MessageKeyEnum, String> map) {
 		this(map, emptyContent);
 	}
 
-	public AlarmNachricht(Map<MessageKeyEnum, String> map,
+	public AlarmMessage(Map<MessageKeyEnum, String> map,
 			Map<String, String> unknownMap) {
 		this.unknownContent = unknownMap;
 		this.content = map;
@@ -60,7 +60,7 @@ public class AlarmNachricht implements Cloneable {
 	}
 
 	@Deprecated
-	public AlarmNachricht(final String nachricht) {
+	public AlarmMessage(final String nachricht) {
 		Contract.requireNotNull("nachricht", nachricht);
 		this.nachricht = nachricht;
 		this.zeitFuerToString = new Date();
@@ -69,7 +69,7 @@ public class AlarmNachricht implements Cloneable {
 		this.unknownContent = emptyContent;
 	}
 
-	private AlarmNachricht(final String nachricht, final Date zeitFuerToString,
+	private AlarmMessage(final String nachricht, final Date zeitFuerToString,
 			final Map<MessageKeyEnum, String> content, Map<String, String> unknownContent) {
 		this.nachricht = nachricht;
 		this.zeitFuerToString = zeitFuerToString;
@@ -79,8 +79,8 @@ public class AlarmNachricht implements Cloneable {
 
 
 	@Override
-	public AlarmNachricht clone() {
-		return new AlarmNachricht(this.nachricht, this.zeitFuerToString,
+	public AlarmMessage clone() {
+		return new AlarmMessage(this.nachricht, this.zeitFuerToString,
 				this.content, this.unknownContent);
 	}
 
@@ -95,7 +95,7 @@ public class AlarmNachricht implements Cloneable {
 		if (this.getClass() != obj.getClass()) {
 			return false;
 		}
-		final AlarmNachricht other = (AlarmNachricht) obj;
+		final AlarmMessage other = (AlarmMessage) obj;
 		if (this.content == null) {
 			if (other.content != null) {
 				return false;

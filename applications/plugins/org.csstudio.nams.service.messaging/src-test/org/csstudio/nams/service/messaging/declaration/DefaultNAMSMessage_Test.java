@@ -2,9 +2,9 @@ package org.csstudio.nams.service.messaging.declaration;
 
 import junit.framework.Assert;
 
-import org.csstudio.nams.common.material.AlarmNachricht;
-import org.csstudio.nams.common.material.SyncronisationsAufforderungsSystemNachchricht;
-import org.csstudio.nams.common.material.SyncronisationsBestaetigungSystemNachricht;
+import org.csstudio.nams.common.material.AlarmMessage;
+import org.csstudio.nams.common.material.SynchronisationsAufforderungsSystemNachchricht;
+import org.csstudio.nams.common.material.SynchronisationsBestaetigungSystemNachricht;
 import org.csstudio.nams.common.material.SystemNachricht;
 import org.csstudio.nams.common.testutils.AbstractTestObject;
 import org.csstudio.nams.service.messaging.declaration.DefaultNAMSMessage.AcknowledgeHandler;
@@ -31,7 +31,7 @@ public class DefaultNAMSMessage_Test extends
 	public void testStdImplementation() {
 		// Bestaetigungsnachricht erstellen
 		NAMSMessage msg = new DefaultNAMSMessage(
-				new SyncronisationsBestaetigungSystemNachricht(),
+				new SynchronisationsBestaetigungSystemNachricht(),
 				new AcknowledgeHandler() {
 					public void acknowledge() throws Throwable {
 						DefaultNAMSMessage_Test.this.acknowledged = true;
@@ -41,12 +41,12 @@ public class DefaultNAMSMessage_Test extends
 		Assert.assertTrue(msg.enthaeltSystemnachricht());
 		Assert.assertFalse(msg.enthaeltAlarmnachricht());
 		SystemNachricht systemNachricht = msg.alsSystemachricht();
-		Assert.assertTrue(systemNachricht.istSyncronisationsBestaetigung());
-		Assert.assertFalse(systemNachricht.istSyncronisationsAufforderung());
+		Assert.assertTrue(systemNachricht.istSynchronisationsBestaetigung());
+		Assert.assertFalse(systemNachricht.istSynchronisationsAufforderung());
 
 		// Aufforderungsnachricht erstellen
 		msg = new DefaultNAMSMessage(
-				new SyncronisationsAufforderungsSystemNachchricht(),
+				new SynchronisationsAufforderungsSystemNachchricht(),
 				new AcknowledgeHandler() {
 					public void acknowledge() throws Throwable {
 						DefaultNAMSMessage_Test.this.acknowledged = true;
@@ -56,8 +56,8 @@ public class DefaultNAMSMessage_Test extends
 		Assert.assertTrue(msg.enthaeltSystemnachricht());
 		Assert.assertFalse(msg.enthaeltAlarmnachricht());
 		systemNachricht = msg.alsSystemachricht();
-		Assert.assertFalse(systemNachricht.istSyncronisationsBestaetigung());
-		Assert.assertTrue(systemNachricht.istSyncronisationsAufforderung());
+		Assert.assertFalse(systemNachricht.istSynchronisationsBestaetigung());
+		Assert.assertTrue(systemNachricht.istSynchronisationsAufforderung());
 	}
 
 	@Override
@@ -84,12 +84,12 @@ public class DefaultNAMSMessage_Test extends
 					}
 				});
 		result[1] = new DefaultNAMSMessage(
-				new SyncronisationsAufforderungsSystemNachchricht(),
+				new SynchronisationsAufforderungsSystemNachchricht(),
 				new DefaultNAMSMessage.AcknowledgeHandler() {
 					public void acknowledge() throws Throwable {
 					}
 				});
-		result[2] = new DefaultNAMSMessage(new AlarmNachricht("Test"),
+		result[2] = new DefaultNAMSMessage(new AlarmMessage("Test"),
 				new DefaultNAMSMessage.AcknowledgeHandler() {
 					public void acknowledge() throws Throwable {
 					}

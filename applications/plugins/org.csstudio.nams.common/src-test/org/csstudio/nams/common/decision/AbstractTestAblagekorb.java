@@ -5,18 +5,18 @@ import junit.framework.Assert;
 import org.csstudio.nams.common.testutils.AbstractTestObject;
 import org.junit.Test;
 
-abstract public class AbstractTestAblagekorb<T extends Ablagefaehig, KT>
+abstract public class AbstractTestAblagekorb<T extends Document, KT>
 		extends AbstractTestObject<KT> {
 	@Test(timeout = 2000)
 	public void testAblegen() throws InterruptedException {
-		final Ablagekorb<T> eingangskorb = this.gibNeuesExemplar();
+		final Box<T> eingangskorb = this.gibNeuesExemplar();
 
 		final T object1 = this.gibNeuesAblagefaehigesExemplar();
 		final T object2 = this.gibNeuesAblagefaehigesExemplar();
 
 		// Objects ablegen:
-		eingangskorb.ablegen(object1);
-		eingangskorb.ablegen(object2);
+		eingangskorb.put(object1);
+		eingangskorb.put(object2);
 
 		// Objects in richtiger Reihenfolge abholbar?
 		Assert.assertTrue("Das zu erst hineingelegte ist enthalten", this
@@ -27,7 +27,7 @@ abstract public class AbstractTestAblagekorb<T extends Ablagefaehig, KT>
 
 	protected abstract T gibNeuesAblagefaehigesExemplar();
 
-	protected abstract Ablagekorb<T> gibNeuesExemplar();
+	protected abstract Box<T> gibNeuesExemplar();
 
-	protected abstract boolean pruefeObEnthalten(Ablagekorb<T> korb, T element);
+	protected abstract boolean pruefeObEnthalten(Box<T> korb, T element);
 }

@@ -10,53 +10,53 @@ import java.util.Timer;
 import junit.framework.Assert;
 
 import org.csstudio.nams.common.DefaultExecutionService;
-import org.csstudio.nams.common.decision.Ablagefaehig;
-import org.csstudio.nams.common.decision.Eingangskorb;
-import org.csstudio.nams.common.decision.StandardAblagekorb;
-import org.csstudio.nams.common.decision.Vorgangsmappenkennung;
-import org.csstudio.nams.common.fachwert.Millisekunden;
+import org.csstudio.nams.common.decision.Document;
+import org.csstudio.nams.common.decision.Inbox;
+import org.csstudio.nams.common.decision.DefaultDocumentBox;
+import org.csstudio.nams.common.decision.CasefileId;
+import org.csstudio.nams.common.fachwert.Milliseconds;
 import org.csstudio.nams.common.testutils.AbstractTestObject;
 import org.junit.Test;
 
 public class TerminAssistenz_Test extends
-		AbstractTestObject<TerminAssistenz> {
+		AbstractTestObject<TimebasedFilterNotifier> {
 
 	@Test
 	public void testArbeit() throws InterruptedException {
-		final TerminAssistenz terminassistenz = this
+		final TimebasedFilterNotifier terminassistenz = this
 				.getNewInstanceOfClassUnderTest();
 		Assert.assertFalse("terminassistenz.istAmArbeiten()", terminassistenz
-				.istAmArbeiten());
-		terminassistenz.beginneArbeit();
+				.isWorking());
+		terminassistenz.startWorking();
 		Assert.assertTrue("terminassistenz.istAmArbeiten()", terminassistenz
-				.istAmArbeiten());
-		terminassistenz.beendeArbeit();
+				.isWorking());
+		terminassistenz.stopWorking();
 		Thread.sleep(100);
 		Assert.assertFalse("terminassistenz.istAmArbeiten()", terminassistenz
-				.istAmArbeiten());
+				.isWorking());
 	}
 
 	@Test
 	public void testAssistenz() throws UnknownHostException,
 			InterruptedException {
-		final Eingangskorb<Terminnotiz> assistenzEingangskorb = new StandardAblagekorb<Terminnotiz>();
-		final StandardAblagekorb<Ablagefaehig> sachbearbeitersKorb = new StandardAblagekorb<Ablagefaehig>();
-		final Map<String, Eingangskorb<Ablagefaehig>> sachbearbeiterKoerbe = new HashMap<String, Eingangskorb<Ablagefaehig>>();
+		final Inbox<Terminnotiz> assistenzEingangskorb = new DefaultDocumentBox<Terminnotiz>();
+		final DefaultDocumentBox<Document> sachbearbeitersKorb = new DefaultDocumentBox<Document>();
+		final Map<String, Inbox<Document>> sachbearbeiterKoerbe = new HashMap<String, Inbox<Document>>();
 		sachbearbeiterKoerbe.put("test", sachbearbeitersKorb);
 		final Timer timer = new Timer("TerminAssistenz");
 
 		final Terminnotiz terminnotiz = Terminnotiz.valueOf(
-				Vorgangsmappenkennung.valueOf(InetAddress
+				CasefileId.valueOf(InetAddress
 						.getByAddress(new byte[] { 127, 0, 0, 1 }),
-						new Date(42)), Millisekunden.valueOf(42), "test");
+						new Date(42)), Milliseconds.valueOf(42), "test");
 
-		final TerminAssistenz assistenz = new TerminAssistenz(
+		final TimebasedFilterNotifier assistenz = new TimebasedFilterNotifier(
 				new DefaultExecutionService(), assistenzEingangskorb,
 				sachbearbeiterKoerbe, timer);
 
-		assistenz.beginneArbeit();
+		assistenz.startWorking();
 
-		assistenzEingangskorb.ablegen(terminnotiz);
+		assistenzEingangskorb.put(terminnotiz);
 
 		// Warte bis der Bearbeiter fertig sein müsste...
 		for (int zaehler = 0; zaehler < 3000; zaehler += 10) {
@@ -66,10 +66,10 @@ public class TerminAssistenz_Test extends
 			Thread.sleep(10);
 		}
 
-		assistenz.beendeArbeit();
+		assistenz.stopWorking();
 
-		final Ablagefaehig ausDemKorb = sachbearbeitersKorb
-				.entnehmeAeltestenEingang();
+		final Document ausDemKorb = sachbearbeitersKorb
+				.takeDocument();
 		Assert.assertNotNull(ausDemKorb);
 		Assert.assertEquals(terminnotiz, ausDemKorb);
 		Assert.assertTrue(terminnotiz == ausDemKorb);
@@ -78,11 +78,11 @@ public class TerminAssistenz_Test extends
 	}
 
 	@Override
-	protected TerminAssistenz getNewInstanceOfClassUnderTest() {
-		final Eingangskorb<Terminnotiz> korb = new StandardAblagekorb<Terminnotiz>();
-		final Map<String, Eingangskorb<Ablagefaehig>> sachbearbeiterKoerbe = new HashMap<String, Eingangskorb<Ablagefaehig>>();
-		sachbearbeiterKoerbe.put("test", new StandardAblagekorb<Ablagefaehig>());
-		return new TerminAssistenz(new DefaultExecutionService(), korb,
+	protected TimebasedFilterNotifier getNewInstanceOfClassUnderTest() {
+		final Inbox<Terminnotiz> korb = new DefaultDocumentBox<Terminnotiz>();
+		final Map<String, Inbox<Document>> sachbearbeiterKoerbe = new HashMap<String, Inbox<Document>>();
+		sachbearbeiterKoerbe.put("test", new DefaultDocumentBox<Document>());
+		return new TimebasedFilterNotifier(new DefaultExecutionService(), korb,
 				sachbearbeiterKoerbe, new Timer("TerminAssistenz"));
 	}
 
@@ -92,8 +92,8 @@ public class TerminAssistenz_Test extends
 	}
 
 	@Override
-	protected TerminAssistenz[] getThreeDiffrentNewInstanceOfClassUnderTest() {
-		return new TerminAssistenz[] { this.getNewInstanceOfClassUnderTest(),
+	protected TimebasedFilterNotifier[] getThreeDiffrentNewInstanceOfClassUnderTest() {
+		return new TimebasedFilterNotifier[] { this.getNewInstanceOfClassUnderTest(),
 				this.getNewInstanceOfClassUnderTest(),
 				this.getNewInstanceOfClassUnderTest() };
 	}

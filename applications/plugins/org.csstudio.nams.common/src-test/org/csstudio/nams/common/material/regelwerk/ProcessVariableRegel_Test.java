@@ -3,7 +3,7 @@ package org.csstudio.nams.common.material.regelwerk;
 import junit.framework.Assert;
 
 import org.csstudio.dal.simple.RemoteInfo;
-import org.csstudio.nams.common.material.AlarmNachricht;
+import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.common.testutils.AbstractTestObject;
 import org.csstudio.nams.service.logging.declaration.ILogger;
 import org.csstudio.platform.model.pvs.ControlSystemEnum;
@@ -34,28 +34,28 @@ public class ProcessVariableRegel_Test extends
 				suggestedProcessVariableType, compValue, logger);
 
 		// Without connection:
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// Now all with connection...
 		this._connectionServiceMock
 				.sendNewConnectionState(ConnectionState.CONNECTED);
 
 		// Without any current value:
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// With a not matching value:
 		this._connectionServiceMock.sendNewValue(new Double(4.0));
-		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		this._connectionServiceMock.sendNewValue(new Double(5.1));
-		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// With matching value:
 		this._connectionServiceMock.sendNewValue(new Double(5.0));
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		this._connectionServiceMock.sendNewValue(new Double(5.0000001));
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 	}
 
 	@Test
@@ -73,25 +73,25 @@ public class ProcessVariableRegel_Test extends
 				suggestedProcessVariableType, compValue, logger);
 
 		// Without connection:
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// Now all with connection...
 		this._connectionServiceMock
 				.sendNewConnectionState(ConnectionState.CONNECTED);
 
 		// Without any current value:
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// With a not matching value:
 		this._connectionServiceMock.sendNewValue(new Double(6.0));
-		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		this._connectionServiceMock.sendNewValue(new Double(5.0));
-		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// With matching value:
 		this._connectionServiceMock.sendNewValue(new Double(4.9));
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 	}
 
 	@Test
@@ -107,25 +107,25 @@ public class ProcessVariableRegel_Test extends
 				suggestedProcessVariableType, compValue, logger);
 
 		// Without connection:
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// Now all with connection...
 		this._connectionServiceMock
 				.sendNewConnectionState(ConnectionState.CONNECTED);
 
 		// Without any current value:
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// With a not matching value:
 		this._connectionServiceMock.sendNewValue(new Double(4.0));
-		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		this._connectionServiceMock.sendNewValue(new Double(5.0));
-		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// With matching value:
 		this._connectionServiceMock.sendNewValue(new Double(6.1));
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 	}
 
 	@Test
@@ -142,25 +142,25 @@ public class ProcessVariableRegel_Test extends
 				suggestedProcessVariableType, compValue, logger);
 
 		// Without connection:
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// Now all with connection...
 		this._connectionServiceMock
 				.sendNewConnectionState(ConnectionState.CONNECTED);
 
 		// Without any current value:
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// With a not matching value:
 		this._connectionServiceMock.sendNewValue(new Double(6.0));
-		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		this._connectionServiceMock.sendNewValue(new Double(5.0));
-		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// With matching value:
 		this._connectionServiceMock.sendNewValue(new Double(4.9));
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 	}
 
 	@Test
@@ -176,28 +176,28 @@ public class ProcessVariableRegel_Test extends
 				suggestedProcessVariableType, compValue, logger);
 
 		// Without connection:
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// Now all with connection...
 		this._connectionServiceMock
 				.sendNewConnectionState(ConnectionState.CONNECTED);
 
 		// Without any current value:
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// With a not matching value:
 		this._connectionServiceMock.sendNewValue(new Double(5.0));
-		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		this._connectionServiceMock.sendNewValue(new Double(5.000001));
-		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// With matching value:
 		this._connectionServiceMock.sendNewValue(new Double(4.9));
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		this._connectionServiceMock.sendNewValue(new Double(5.1));
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 	}
 
 	@Test
@@ -213,28 +213,28 @@ public class ProcessVariableRegel_Test extends
 				suggestedProcessVariableType, compValue, logger);
 
 		// Without connection:
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// Now all with connection...
 		this._connectionServiceMock
 				.sendNewConnectionState(ConnectionState.CONNECTED);
 
 		// Without any current value:
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// With a not matching value:
 		this._connectionServiceMock.sendNewValue(new Long(4));
-		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		this._connectionServiceMock.sendNewValue(new Long(6));
-		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		this._connectionServiceMock.sendNewValue(new Long(50));
-		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// With matching value:
 		this._connectionServiceMock.sendNewValue(new Long(5));
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 	}
 
 	@Test
@@ -250,25 +250,25 @@ public class ProcessVariableRegel_Test extends
 				suggestedProcessVariableType, compValue, logger);
 
 		// Without connection:
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// Now all with connection...
 		this._connectionServiceMock
 				.sendNewConnectionState(ConnectionState.CONNECTED);
 
 		// Without any current value:
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// With a not matching value:
 		this._connectionServiceMock.sendNewValue(new Long(4));
-		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		this._connectionServiceMock.sendNewValue(new Long(5));
-		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// With matching value:
 		this._connectionServiceMock.sendNewValue(new Long(6));
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 	}
 
 	@Test
@@ -285,25 +285,25 @@ public class ProcessVariableRegel_Test extends
 				suggestedProcessVariableType, compValue, logger);
 
 		// Without connection:
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// Now all with connection...
 		this._connectionServiceMock
 				.sendNewConnectionState(ConnectionState.CONNECTED);
 
 		// Without any current value:
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// With a not matching value:
 		this._connectionServiceMock.sendNewValue(new Long(6));
-		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		this._connectionServiceMock.sendNewValue(new Long(5));
-		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// With matching value:
 		this._connectionServiceMock.sendNewValue(new Long(4));
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 	}
 
 	@Test
@@ -319,28 +319,28 @@ public class ProcessVariableRegel_Test extends
 				suggestedProcessVariableType, compValue, logger);
 
 		// Without connection:
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// Now all with connection...
 		this._connectionServiceMock
 				.sendNewConnectionState(ConnectionState.CONNECTED);
 
 		// Without any current value:
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// With a not matching value:
 		this._connectionServiceMock.sendNewValue(new Long(5));
-		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// With matching value:
 		this._connectionServiceMock.sendNewValue(new Long(4));
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		this._connectionServiceMock.sendNewValue(new Long(6));
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		this._connectionServiceMock.sendNewValue(new Long(50));
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 	}
 
 	@Test
@@ -356,22 +356,22 @@ public class ProcessVariableRegel_Test extends
 				suggestedProcessVariableType, compValue, logger);
 
 		// Without connection:
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// Now all with connection...
 		this._connectionServiceMock
 				.sendNewConnectionState(ConnectionState.CONNECTED);
 
 		// Without any current value:
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// With a not matching value:
 		this._connectionServiceMock.sendNewValue("NotFoo");
-		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// With matching value:
 		this._connectionServiceMock.sendNewValue("Foo");
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 	}
 
 	@Test
@@ -387,22 +387,22 @@ public class ProcessVariableRegel_Test extends
 				suggestedProcessVariableType, compValue, logger);
 
 		// Without connection:
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// Now all with connection...
 		this._connectionServiceMock
 				.sendNewConnectionState(ConnectionState.CONNECTED);
 
 		// Without any current value:
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// With a not matching value:
 		this._connectionServiceMock.sendNewValue("Foo");
-		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertFalse(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 
 		// With matching value:
 		this._connectionServiceMock.sendNewValue("NotFoo");
-		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmNachricht("Nachricht")));
+		Assert.assertTrue(pvRegel.pruefeNachricht(new AlarmMessage("Nachricht")));
 	}
 
 	ConnectionServiceMock createPVServiceMock() {

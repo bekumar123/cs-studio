@@ -6,18 +6,18 @@ import org.csstudio.nams.common.testutils.AbstractTestObject;
 import org.junit.Test;
 
 /**
- * CUT: {@link AlarmNachricht}.
+ * CUT: {@link AlarmMessage}.
  */
 public class AlarmNachricht_Test extends
-		AbstractTestObject<AlarmNachricht> {
+		AbstractTestObject<AlarmMessage> {
 
 	@Test
 	public void testInitialize() {
 		final String message = "Hallo Welt!";
 
-		final AlarmNachricht alarmNachricht = new AlarmNachricht(message);
-		final AlarmNachricht gleicheAlarmNachricht = new AlarmNachricht(message);
-		final AlarmNachricht ungleicheAlarmNachricht = new AlarmNachricht(
+		final AlarmMessage alarmNachricht = new AlarmMessage(message);
+		final AlarmMessage gleicheAlarmNachricht = new AlarmMessage(message);
+		final AlarmMessage ungleicheAlarmNachricht = new AlarmMessage(
 				"Doof!");
 
 		Assert.assertEquals(message, alarmNachricht.gibNachrichtenText());
@@ -30,17 +30,17 @@ public class AlarmNachricht_Test extends
 	public void testLocalClone() {
 		final String message = "Hallo Welt!";
 
-		final AlarmNachricht alarmNachricht = new AlarmNachricht(message);
+		final AlarmMessage alarmNachricht = new AlarmMessage(message);
 
-		final AlarmNachricht alarmNachrichtKlon = alarmNachricht.clone();
+		final AlarmMessage alarmNachrichtKlon = alarmNachricht.clone();
 
 		Assert.assertFalse(alarmNachricht == alarmNachrichtKlon);
 		Assert.assertEquals(alarmNachricht, alarmNachrichtKlon);
 	}
 
 	@Override
-	protected AlarmNachricht getNewInstanceOfClassUnderTest() {
-		return new AlarmNachricht("Test-Nachricht");
+	protected AlarmMessage getNewInstanceOfClassUnderTest() {
+		return new AlarmMessage("Test-Nachricht");
 	}
 
 	@Override
@@ -49,9 +49,9 @@ public class AlarmNachricht_Test extends
 	}
 
 	@Override
-	protected AlarmNachricht[] getThreeDiffrentNewInstanceOfClassUnderTest() {
-		return new AlarmNachricht[] { new AlarmNachricht("Test-Nachricht 1"),
-				new AlarmNachricht("Test-Nachricht 2"),
-				new AlarmNachricht("Test-Nachricht 3") };
+	protected AlarmMessage[] getThreeDiffrentNewInstanceOfClassUnderTest() {
+		return new AlarmMessage[] { new AlarmMessage("Test-Nachricht 1"),
+				new AlarmMessage("Test-Nachricht 2"),
+				new AlarmMessage("Test-Nachricht 3") };
 	}
 }

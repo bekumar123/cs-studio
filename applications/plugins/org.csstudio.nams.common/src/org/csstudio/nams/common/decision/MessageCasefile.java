@@ -26,22 +26,22 @@
 package org.csstudio.nams.common.decision;
 
 import org.csstudio.nams.common.contract.Contract;
-import org.csstudio.nams.common.material.AlarmNachricht;
+import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.common.material.Regelwerkskennung;
 import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 import org.csstudio.nams.common.wam.Material;
 
 @Material
-public class Vorgangsmappe implements Ablagefaehig {
+public class MessageCasefile implements Document {
 
-	private final AlarmNachricht alarmNachricht;
-	private final Vorgangsmappenkennung kennung;
-	private Vorgangsmappenkennung abgeschlossenDurchMappenkennung;
+	private final AlarmMessage alarmNachricht;
+	private final CasefileId kennung;
+	private CasefileId abgeschlossenDurchMappenkennung;
 	private boolean abgeschlossenDurchTimeOut = false;
 	private WeiteresVersandVorgehen weiteresVersandVorgehen;
 	private Regelwerkskennung bearbeitetMitRegelWerk;
 
-	public Vorgangsmappe(final Vorgangsmappenkennung kennung, final AlarmNachricht nachricht) {
+	public MessageCasefile(final CasefileId kennung, final AlarmMessage nachricht) {
 		Contract.requireNotNull("nachricht", nachricht);
 
 		this.alarmNachricht = nachricht;
@@ -74,7 +74,7 @@ public class Vorgangsmappe implements Ablagefaehig {
 		if (!this.getClass().isAssignableFrom(obj.getClass())) {
 			return false;
 		}
-		final Vorgangsmappe other = (Vorgangsmappe) obj;
+		final MessageCasefile other = (MessageCasefile) obj;
 		if (!this.alarmNachricht.equals(other.alarmNachricht)) {
 			return false;
 		}
@@ -92,8 +92,8 @@ public class Vorgangsmappe implements Ablagefaehig {
 		return result;
 	}
 
-	public Vorgangsmappe erstelleKopieFuer(final String bearbeiter) {
-		return new Vorgangsmappe(Vorgangsmappenkennung.valueOf(this.kennung, bearbeiter), this.alarmNachricht.clone());
+	public MessageCasefile erstelleKopieFuer(final String bearbeiter) {
+		return new MessageCasefile(CasefileId.valueOf(this.kennung, bearbeiter), this.alarmNachricht.clone());
 	}
 	
 	public WeiteresVersandVorgehen getWeiteresVersandVorgehen() {
@@ -104,15 +104,15 @@ public class Vorgangsmappe implements Ablagefaehig {
 		this.weiteresVersandVorgehen = weiteresVersandVorgehen;
 	}
 
-	public Vorgangsmappenkennung gibAbschliessendeMappenkennung() {
+	public CasefileId gibAbschliessendeMappenkennung() {
 		return this.abgeschlossenDurchMappenkennung;
 	}
 
-	public AlarmNachricht getAlarmNachricht() {
+	public AlarmMessage getAlarmNachricht() {
 		return this.alarmNachricht;
 	}
 
-	public Vorgangsmappenkennung gibMappenkennung() {
+	public CasefileId gibMappenkennung() {
 		return this.kennung;
 	}
 
@@ -124,7 +124,7 @@ public class Vorgangsmappe implements Ablagefaehig {
 		return this.abgeschlossenDurchTimeOut;
 	}
 
-	public void pruefungAbgeschlossenDurch(final Vorgangsmappenkennung mappenkennung) {
+	public void pruefungAbgeschlossenDurch(final CasefileId mappenkennung) {
 		this.abgeschlossenDurchMappenkennung = mappenkennung;
 	}
 

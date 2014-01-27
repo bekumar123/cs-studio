@@ -26,13 +26,13 @@
 
 package org.csstudio.nams.application.department.decision.office.decision;
 
-import org.csstudio.nams.common.decision.Ablagefaehig;
-import org.csstudio.nams.common.decision.Eingangskorb;
+import org.csstudio.nams.common.decision.Document;
+import org.csstudio.nams.common.decision.Inbox;
 import org.csstudio.nams.common.service.StepByStepProcessor;
 
 /**
  * Ein Arbeits-Processor, der sequentiell Dokumente aus einem Eingangskorb einen
- * {@link DokumentenBearbeiter} zureicht.
+ * {@link DocumentHandler} zureicht.
  * 
  * @param <T>
  *            Der Typ der Dokumente, die dieser Bearbeiter sequentiell
@@ -43,22 +43,20 @@ import org.csstudio.nams.common.service.StepByStepProcessor;
  *         href="mailto:mz@c1-wps.de">Matthias Zeimer</a>
  * @version 0.2, 01.07.2008
  */
-class DokumentVerbraucherArbeiter<T extends Ablagefaehig> extends
+class InboxReader<T extends Document> extends
 		StepByStepProcessor {
-	private final Eingangskorb<T> eingangskorbNeuerAlarmVorgaenge;
-	private final DokumentenBearbeiter<T> vorgangsmappenBearbeiter;
+	private final Inbox<T> inbox;
+	private final DocumentHandler<T> documentHandler;
 
-	public DokumentVerbraucherArbeiter(
-			final DokumentenBearbeiter<T> vorgangsmappenBearbeiter,
-			final Eingangskorb<T> eingangskorbNeuerAlarmVorgaenge) {
-		this.vorgangsmappenBearbeiter = vorgangsmappenBearbeiter;
-		this.eingangskorbNeuerAlarmVorgaenge = eingangskorbNeuerAlarmVorgaenge;
+	public InboxReader(
+			final DocumentHandler<T> documentHandler,
+			final Inbox<T> inbox) {
+		this.documentHandler = documentHandler;
+		this.inbox = inbox;
 	}
 
 	@Override
 	protected void doRunOneSingleStep() throws Throwable, InterruptedException {
-		this.vorgangsmappenBearbeiter
-				.bearbeiteVorgang(this.eingangskorbNeuerAlarmVorgaenge
-						.entnehmeAeltestenEingang());
+		this.documentHandler.handleDocument(this.inbox.takeDocument()); // Blocking until document gets returned from inbox
 	}
 }

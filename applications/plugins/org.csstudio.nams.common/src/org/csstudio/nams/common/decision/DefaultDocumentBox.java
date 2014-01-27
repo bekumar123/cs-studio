@@ -1,6 +1,6 @@
 
 /* 
- * Copyright (c) 2008 C1 WPS mbH, 
+ * Copyright (c) 2011 C1 WPS mbH, 
  * HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS. 
@@ -26,9 +26,60 @@
 
 package org.csstudio.nams.common.decision;
 
+import java.util.Iterator;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import org.csstudio.nams.common.wam.Material;
 
 @Material
-public interface Ablagefaehig {
-    // Nothing here
+public class DefaultDocumentBox<T extends Document> implements
+		Inbox<T>, Outbox<T>, Clipboard<T> {
+	private final LinkedBlockingQueue<T> inhalt;
+
+	public DefaultDocumentBox() {
+		this.inhalt = new LinkedBlockingQueue<T>();
+	}
+
+	/**
+	 * Legt eine neues Dokument in den Korb.
+	 * 
+	 * @param dokument
+	 *            Das neue Dokuement,
+	 * @throws InterruptedException
+	 */
+	@Override
+    public void put(final T dokument) throws InterruptedException {
+		this.inhalt.put(dokument);
+	}
+
+	/**
+	 * Entnimmt den ältesten Eingang aus diesem Korb. Achtung:
+	 * <ol>
+	 * <li>Der entnommene Eingang ist anschließend nicht mehr enthalten!</li>
+	 * <ol>
+	 * <li>Dieses Operation blockiert bis ein dokument verfügbar ist!</li>
+	 * </ol>
+	 * 
+	 * @throws InterruptedException
+	 *             Falls der Thread beim warten auf ein Element unterbrochen
+	 *             wird.
+	 */
+	@Override
+    public T takeDocument() throws InterruptedException {
+		return this.inhalt.take();
+	}
+
+	public boolean istEnthalten(final T element) {
+		return this.inhalt.contains(element);
+	}
+
+	@Override
+    public Iterator<T> iterator() {
+		return this.inhalt.iterator();
+	}
+
+	@Override
+	public int documentCount() {
+		return inhalt.size();
+	}
 }

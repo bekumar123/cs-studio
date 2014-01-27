@@ -3,7 +3,7 @@ package org.csstudio.nams.common.material.regelwerk;
 import java.math.BigDecimal;
 
 import org.csstudio.dal.Timestamp;
-import org.csstudio.nams.common.material.AlarmNachricht;
+import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.service.logging.declaration.ILogger;
 import org.csstudio.platform.model.pvs.IProcessVariableAddress;
 import org.csstudio.platform.model.pvs.ValueType;
@@ -57,7 +57,7 @@ public class ProcessVariableRegel implements Regel {
 	}
 
 	@Override
-	public boolean pruefeNachricht(AlarmNachricht nachricht) {
+	public boolean pruefeNachricht(AlarmMessage nachricht) {
 		boolean result = false;
 
 		if (this._processVariableChangeListener.isConnected()) {
@@ -157,7 +157,7 @@ public class ProcessVariableRegel implements Regel {
 	}
 	
 	@Override
-	public boolean pruefeNachricht(AlarmNachricht nachricht, AlarmNachricht vergleichsNachricht) {
+	public boolean pruefeNachricht(AlarmMessage nachricht, AlarmMessage vergleichsNachricht) {
 		return this.pruefeNachricht(nachricht);
 	}
 

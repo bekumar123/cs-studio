@@ -1,6 +1,6 @@
 package org.csstudio.nams.service.messaging.declaration;
 
-import org.csstudio.nams.common.decision.Vorgangsmappe;
+import org.csstudio.nams.common.decision.MessageCasefile;
 import org.csstudio.nams.common.material.SystemNachricht;
 import org.junit.Assert;
 
@@ -15,7 +15,7 @@ public class ProducerMock implements Producer {
 		Assert.fail("unexpected call of method.");
 	}
 
-	public void sendeVorgangsmappe(final Vorgangsmappe vorgangsmappe) {
+	public void sendeVorgangsmappe(final MessageCasefile vorgangsmappe) {
 		Assert.fail("unexpected call of method.");
 	}
 

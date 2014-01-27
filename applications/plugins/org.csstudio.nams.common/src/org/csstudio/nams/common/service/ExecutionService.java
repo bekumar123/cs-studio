@@ -25,7 +25,7 @@ public interface ExecutionService {
 	 *            Das Runnable, welches ausgeführt werden soll.
 	 * @require hasGroupRegistered(groupId)
 	 */
-	public <GT extends Enum<?> & ThreadType> void executeAsynchronsly(
+	public <GT extends Enum<?> & ThreadType> void executeAsynchronously(
 			GT groupId, StepByStepProcessor runnable);
 
 	/**

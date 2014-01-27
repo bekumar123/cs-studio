@@ -15,9 +15,9 @@ import javax.jms.Session;
 import javax.jms.Topic;
 
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
-import org.csstudio.nams.common.material.AlarmNachricht;
-import org.csstudio.nams.common.material.SyncronisationsAufforderungsSystemNachchricht;
-import org.csstudio.nams.common.material.SyncronisationsBestaetigungSystemNachricht;
+import org.csstudio.nams.common.material.AlarmMessage;
+import org.csstudio.nams.common.material.SynchronisationsAufforderungsSystemNachchricht;
+import org.csstudio.nams.common.material.SynchronisationsBestaetigungSystemNachricht;
 import org.csstudio.nams.service.logging.declaration.ILogger;
 import org.csstudio.nams.service.messaging.declaration.Consumer;
 import org.csstudio.nams.service.messaging.declaration.DefaultNAMSMessage;
@@ -224,7 +224,7 @@ class JMSConsumer implements Consumer {
 
 					if (MessageKeyUtil.istSynchronisationAuforderung(map)) {
 						result = new DefaultNAMSMessage(
-								new SyncronisationsAufforderungsSystemNachchricht(),
+								new SynchronisationsAufforderungsSystemNachchricht(),
 								ackHandler) {
 							@Override
 							public String toString() {
@@ -235,7 +235,7 @@ class JMSConsumer implements Consumer {
 					} else if (MessageKeyUtil
 							.istSynchronisationBestaetigung(map)) {
 						result = new DefaultNAMSMessage(
-								new SyncronisationsBestaetigungSystemNachricht(),
+								new SynchronisationsBestaetigungSystemNachricht(),
 								ackHandler) {
 							@Override
 							public String toString() {
@@ -246,7 +246,7 @@ class JMSConsumer implements Consumer {
 					} else {
 						// Alarmnachricht
 						result = new DefaultNAMSMessage(
-								new AlarmNachricht(map, unknownMap), ackHandler) {
+								new AlarmMessage(map, unknownMap), ackHandler) {
 							@Override
 							public String toString() {
 								return "Alarmnachricht: JMS-Message: "

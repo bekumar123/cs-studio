@@ -6,8 +6,8 @@ import java.util.Date;
 
 import junit.framework.Assert;
 
-import org.csstudio.nams.common.decision.Vorgangsmappenkennung;
-import org.csstudio.nams.common.fachwert.Millisekunden;
+import org.csstudio.nams.common.decision.CasefileId;
+import org.csstudio.nams.common.fachwert.Milliseconds;
 import org.csstudio.nams.common.testutils.AbstractTestValue;
 import org.junit.Test;
 
@@ -16,21 +16,14 @@ public class Terminnotiz_Test extends AbstractTestValue<Terminnotiz> {
 	@Test
 	public void testCheckContract() throws Throwable {
 		try {
-			Terminnotiz.valueOf(null, Millisekunden.valueOf(100), "Horst");
+			Terminnotiz.valueOf(null, Milliseconds.valueOf(100), 1);
 			Assert.fail();
 		} catch (final AssertionError ae) {
 		}
 		try {
-			Terminnotiz.valueOf(Vorgangsmappenkennung.valueOf(InetAddress
+			Terminnotiz.valueOf(CasefileId.valueOf(InetAddress
 					.getByAddress(new byte[] { 127, 0, 0, 1 }), new Date(42)),
-					null, "Horst");
-			Assert.fail();
-		} catch (final AssertionError ae) {
-		}
-		try {
-			Terminnotiz.valueOf(Vorgangsmappenkennung.valueOf(InetAddress
-					.getByAddress(new byte[] { 127, 0, 0, 1 }), new Date(42)),
-					Millisekunden.valueOf(100), null);
+					null, 1);
 			Assert.fail();
 		} catch (final AssertionError ae) {
 		}
@@ -38,67 +31,66 @@ public class Terminnotiz_Test extends AbstractTestValue<Terminnotiz> {
 
 	@Test
 	public void testEqualsJetztAberRichtig() {
-		Vorgangsmappenkennung vorgangsmappenkennung1 = null;
-		Vorgangsmappenkennung vorgangsmappenkennung2 = null;
+		CasefileId vorgangsmappenkennung1 = null;
+		CasefileId vorgangsmappenkennung2 = null;
 		try {
-			vorgangsmappenkennung1 = Vorgangsmappenkennung.valueOf(InetAddress
+			vorgangsmappenkennung1 = CasefileId.valueOf(InetAddress
 					.getByAddress(new byte[] { 127, 0, 0, 1 }), new Date(42));
-			vorgangsmappenkennung2 = Vorgangsmappenkennung.valueOf(InetAddress
+			vorgangsmappenkennung2 = CasefileId.valueOf(InetAddress
 					.getByAddress(new byte[] { 127, 0, 0, 2 }), new Date(23));
 		} catch (final UnknownHostException e) {
 			Assert.fail(e.getMessage());
 		}
 
 		final Terminnotiz vergleichsTerminnotiz = Terminnotiz.valueOf(
-				vorgangsmappenkennung1, Millisekunden.valueOf(5),
-				"Harry Hirsch");
+				vorgangsmappenkennung1, Milliseconds.valueOf(5),
+				2);
 		Terminnotiz terminnotiz1 = Terminnotiz.valueOf(vorgangsmappenkennung1,
-				Millisekunden.valueOf(5), "Harry Hirsch");
+				Milliseconds.valueOf(5), 2);
 
 		Assert.assertEquals(vergleichsTerminnotiz, terminnotiz1);
 
 		terminnotiz1 = Terminnotiz.valueOf(vorgangsmappenkennung1,
-				Millisekunden.valueOf(5), "Mata Pfahl");
+				Milliseconds.valueOf(5), 3);
 		Assert.assertFalse(vergleichsTerminnotiz.equals(terminnotiz1));
 
 		terminnotiz1 = Terminnotiz.valueOf(vorgangsmappenkennung1,
-				Millisekunden.valueOf(10), "Harry Hirsch");
+				Milliseconds.valueOf(10), 2);
 		Assert.assertFalse(vergleichsTerminnotiz.equals(terminnotiz1));
 
 		terminnotiz1 = Terminnotiz.valueOf(vorgangsmappenkennung2,
-				Millisekunden.valueOf(5), "Harry Hirsch");
+				Milliseconds.valueOf(5), 2);
 		Assert.assertFalse(vergleichsTerminnotiz.equals(terminnotiz1));
 	}
 
 	@Override
 	protected Terminnotiz doGetAValueOfTypeUnderTest() throws Throwable {
-		Vorgangsmappenkennung vorgangsmappenkennung = null;
-		vorgangsmappenkennung = Vorgangsmappenkennung.valueOf(InetAddress
+		CasefileId vorgangsmappenkennung = null;
+		vorgangsmappenkennung = CasefileId.valueOf(InetAddress
 				.getByAddress(new byte[] { 127, 0, 0, 1 }), new Date(42));
-		final Millisekunden millisekunden = Millisekunden.valueOf(42);
-		final String nameDesSachbearbeiters = "Horst Senkel";
+		final Milliseconds millisekunden = Milliseconds.valueOf(42);
 		return Terminnotiz.valueOf(vorgangsmappenkennung, millisekunden,
-				nameDesSachbearbeiters);
+				4);
 	}
 
 	@Override
 	protected Terminnotiz[] doGetDifferentInstancesOfTypeUnderTest()
 			throws Throwable {
-		Vorgangsmappenkennung vorgangsmappenkennung1 = null;
-		Vorgangsmappenkennung vorgangsmappenkennung2 = null;
-		vorgangsmappenkennung1 = Vorgangsmappenkennung.valueOf(InetAddress
+		CasefileId vorgangsmappenkennung1 = null;
+		CasefileId vorgangsmappenkennung2 = null;
+		vorgangsmappenkennung1 = CasefileId.valueOf(InetAddress
 				.getByAddress(new byte[] { 127, 0, 0, 1 }), new Date(42));
-		vorgangsmappenkennung2 = Vorgangsmappenkennung.valueOf(InetAddress
+		vorgangsmappenkennung2 = CasefileId.valueOf(InetAddress
 				.getByAddress(new byte[] { 127, 0, 0, 2 }), new Date(23));
-		Millisekunden millisekunden = Millisekunden.valueOf(42);
+		Milliseconds millisekunden = Milliseconds.valueOf(42);
 		final Terminnotiz terminnotiz1 = Terminnotiz.valueOf(
-				vorgangsmappenkennung1, millisekunden, "1");
-		millisekunden = Millisekunden.valueOf(23);
+				vorgangsmappenkennung1, millisekunden, 5);
+		millisekunden = Milliseconds.valueOf(23);
 		final Terminnotiz terminnotiz2 = Terminnotiz.valueOf(
-				vorgangsmappenkennung2, millisekunden, "2");
-		millisekunden = Millisekunden.valueOf(666);
+				vorgangsmappenkennung2, millisekunden, 6);
+		millisekunden = Milliseconds.valueOf(666);
 		final Terminnotiz terminnotiz3 = Terminnotiz.valueOf(
-				vorgangsmappenkennung2, millisekunden, "3");
+				vorgangsmappenkennung2, millisekunden, 7);
 
 		return new Terminnotiz[] { terminnotiz1, terminnotiz2, terminnotiz3 };
 	}

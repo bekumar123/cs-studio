@@ -1,7 +1,7 @@
 
 package org.csstudio.nams.service.messaging.declaration;
 
-import org.csstudio.nams.common.decision.Vorgangsmappe;
+import org.csstudio.nams.common.decision.MessageCasefile;
 import org.csstudio.nams.common.material.SystemNachricht;
 import org.csstudio.nams.service.messaging.exceptions.MessagingException;
 
@@ -21,12 +21,12 @@ public interface Producer {
 			throws MessagingException;
 
 	/**
-	 * Send a {@link Vorgangsmappe}
+	 * Send a {@link MessageCasefile}
 	 * 
 	 * @throws MessagingException
 	 *             If an send-error/exception occurred.
 	 */
-	public void sendeVorgangsmappe(Vorgangsmappe vorgangsmappe)
+	public void sendeVorgangsmappe(MessageCasefile vorgangsmappe)
 			throws MessagingException;
 
 	/**

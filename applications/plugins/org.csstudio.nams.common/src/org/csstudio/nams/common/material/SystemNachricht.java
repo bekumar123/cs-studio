@@ -21,13 +21,13 @@ public interface SystemNachricht {
 	// "map.containsKey(MSGPROP_COMMAND)");
 	// }
 
-	public boolean istSyncronisationsAufforderung();
+	public boolean istSynchronisationsAufforderung();
 
 	// {
 	// return map.get(MSGPROP_COMMAND).equals(MSGVALUE_TCMD_RELOAD_CFG_START);
 	// }
 
-	public boolean istSyncronisationsBestaetigung();
+	public boolean istSynchronisationsBestaetigung();
 	// {
 	// return map.get(MSGPROP_COMMAND).equals(MSGVALUE_TCMD_RELOAD_CFG_END);
 	// }

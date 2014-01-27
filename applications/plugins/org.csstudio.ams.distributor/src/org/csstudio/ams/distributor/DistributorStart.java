@@ -234,7 +234,7 @@ public class DistributorStart implements IApplication,
                                                          AmsPreferenceKey.P_JMS_AMS_TOPIC_COMMAND,
                                                          "",
                                                          null);
-
+            Log.log(Log.INFO, "COMMAND TOPIC NAME FOR ConfigurationSynchronizer: " + commandTopicName);
             final Topic commandTopic = commandSenderSession.createTopic(commandTopicName);
             final MessageProducer commandMessageProducer = commandSenderSession.createProducer(commandTopic);
 

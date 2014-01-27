@@ -15,7 +15,7 @@ import org.csstudio.nams.common.service.ThreadType;
 public class DefaultExecutionService implements ExecutionService {
 
 	@Override
-    public <GT extends Enum<?> & ThreadType> void executeAsynchronsly(
+    public <GT extends Enum<?> & ThreadType> void executeAsynchronously(
 			final GT groupId, final StepByStepProcessor runnable) {
 		// TODO ThreadGroup anlegen!
 		new Thread(runnable, groupId.name()).start();

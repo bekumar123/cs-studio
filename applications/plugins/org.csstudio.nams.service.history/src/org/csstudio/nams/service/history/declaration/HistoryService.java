@@ -1,7 +1,7 @@
 
 package org.csstudio.nams.service.history.declaration;
 
-import org.csstudio.nams.common.decision.Vorgangsmappe;
+import org.csstudio.nams.common.decision.MessageCasefile;
 
 public interface HistoryService {
 	public void logReceivedReplicationDoneMessage()
@@ -10,6 +10,6 @@ public interface HistoryService {
 	public void logReceivedStartReplicationMessage()
 			throws HistoryStorageException;
 
-	public void logTimeOutForTimeBased(Vorgangsmappe vorgangsmappe)
+	public void logTimeOutForTimeBased(MessageCasefile vorgangsmappe)
 			throws HistoryStorageException;
 }

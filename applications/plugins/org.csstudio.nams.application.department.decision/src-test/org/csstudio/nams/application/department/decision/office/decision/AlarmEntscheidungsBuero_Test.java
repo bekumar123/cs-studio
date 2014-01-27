@@ -10,12 +10,12 @@ import junit.framework.TestCase;
 
 import org.csstudio.nams.common.DefaultExecutionService;
 import org.csstudio.nams.common.decision.Arbeitsfaehig;
-import org.csstudio.nams.common.decision.Eingangskorb;
-import org.csstudio.nams.common.decision.StandardAblagekorb;
-import org.csstudio.nams.common.decision.Vorgangsmappe;
-import org.csstudio.nams.common.decision.Vorgangsmappenkennung;
-import org.csstudio.nams.common.fachwert.Millisekunden;
-import org.csstudio.nams.common.material.AlarmNachricht;
+import org.csstudio.nams.common.decision.Inbox;
+import org.csstudio.nams.common.decision.DefaultDocumentBox;
+import org.csstudio.nams.common.decision.MessageCasefile;
+import org.csstudio.nams.common.decision.CasefileId;
+import org.csstudio.nams.common.fachwert.Milliseconds;
+import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.common.material.Regelwerkskennung;
 import org.csstudio.nams.common.material.regelwerk.DefaultRegelwerk;
 import org.csstudio.nams.common.material.regelwerk.Regel;
@@ -36,24 +36,24 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 					new Regel() {
 						// Impl hier egal!
 						@Override
-						public boolean pruefeNachricht(AlarmNachricht nachricht) {
+						public boolean pruefeNachricht(AlarmMessage nachricht) {
 							// TODO Auto-generated method stub
 							return false;
 						}
 						@Override
 						public boolean pruefeNachricht(
-								AlarmNachricht nachricht,
-								AlarmNachricht vergleichsNachricht) {
+								AlarmMessage nachricht,
+								AlarmMessage vergleichsNachricht) {
 							// TODO Auto-generated method stub
 							return false;
 						}
 					});
 		}
 
-		final AlarmEntscheidungsBuero buero = new AlarmEntscheidungsBuero(
+		final DecisionDepartment buero = new DecisionDepartment(
 				new DefaultExecutionService(), regelwerke,
-				new StandardAblagekorb<Vorgangsmappe>(),
-				new StandardAblagekorb<Vorgangsmappe>(), 10);
+				new DefaultDocumentBox<MessageCasefile>(),
+				new DefaultDocumentBox<MessageCasefile>(), 10);
 
 		Assert.assertNotNull(buero.gibAbteilungsleiterFuerTest());
 		Assert.assertNotNull(buero.gibAssistenzFuerTest());
@@ -64,13 +64,13 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 				listOfSachbearbeiter.size() == ANZAHL_REGELWERKE);
 
 		Assert.assertTrue("buero.getAbteilungsleiter().istAmArbeiten()", buero
-				.gibAbteilungsleiterFuerTest().istAmArbeiten());
+				.gibAbteilungsleiterFuerTest().isWorking());
 		Assert.assertTrue("buero.getAssistenz().istAmArbeiten()", buero
-				.gibAssistenzFuerTest().istAmArbeiten());
+				.gibAssistenzFuerTest().isWorking());
 		for (final Arbeitsfaehig bearbeiter : listOfSachbearbeiter) {
 			Assert.assertTrue(
 					"buero.getListOfSachbearbeiter().istAmArbeiten()",
-					bearbeiter.istAmArbeiten());
+					bearbeiter.isWorking());
 		}
 	}
 
@@ -78,12 +78,12 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 			UnknownHostException {
 		final Regel regel = new Regel() {
 						@Override
-			public boolean pruefeNachricht(AlarmNachricht nachricht) {
+			public boolean pruefeNachricht(AlarmMessage nachricht) {
 				return true;
 			}
 			@Override
-			public boolean pruefeNachricht(AlarmNachricht nachricht,
-					AlarmNachricht vergleichsNachricht) {
+			public boolean pruefeNachricht(AlarmMessage nachricht,
+					AlarmMessage vergleichsNachricht) {
 				Assert.fail();
 				return false;
 			}
@@ -91,13 +91,13 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 		
 		final Regel regel2 = new Regel() {
 			@Override
-			public boolean pruefeNachricht(AlarmNachricht nachricht) {
+			public boolean pruefeNachricht(AlarmMessage nachricht) {
 				return false;
 			}
 
 			@Override
-			public boolean pruefeNachricht(AlarmNachricht nachricht,
-					AlarmNachricht vergleichsNachricht) {
+			public boolean pruefeNachricht(AlarmMessage nachricht,
+					AlarmMessage vergleichsNachricht) {
 				Assert.fail();
 				return false;
 			}
@@ -112,33 +112,33 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 		final Regelwerk regelwerk2 = new DefaultRegelwerk(regelwerkskennung2,
 				regel2);
 
-		final AlarmEntscheidungsBuero buero = new AlarmEntscheidungsBuero(
+		final DecisionDepartment buero = new DecisionDepartment(
 				new DefaultExecutionService(), new Regelwerk[] { regelwerk,
 						regelwerk2 },
-				new StandardAblagekorb<Vorgangsmappe>(),
-				new StandardAblagekorb<Vorgangsmappe>(), 1);
+				new DefaultDocumentBox<MessageCasefile>(),
+				new DefaultDocumentBox<MessageCasefile>(), 1);
 		
-		final Eingangskorb<Vorgangsmappe> alarmVorgangEingangskorb = buero
+		final Inbox<MessageCasefile> alarmVorgangEingangskorb = buero
 				.gibAlarmVorgangEingangskorb();
-		final StandardAblagekorb<Vorgangsmappe> alarmVorgangAusgangskorb = (StandardAblagekorb<Vorgangsmappe>) buero
+		final DefaultDocumentBox<MessageCasefile> alarmVorgangAusgangskorb = (DefaultDocumentBox<MessageCasefile>) buero
 				.gibAlarmVorgangAusgangskorb();
 
-		final Vorgangsmappenkennung vorgangsmappenkennung = Vorgangsmappenkennung
+		final CasefileId vorgangsmappenkennung = CasefileId
 				.createNew(InetAddress.getLocalHost(), new Date());
-		final AlarmNachricht alarmNachricht = new AlarmNachricht(
+		final AlarmMessage alarmNachricht = new AlarmMessage(
 				"test nachricht");
-		final Vorgangsmappe vorgangsmappe = new Vorgangsmappe(
+		final MessageCasefile vorgangsmappe = new MessageCasefile(
 				vorgangsmappenkennung, alarmNachricht);
-		alarmVorgangEingangskorb.ablegen(vorgangsmappe);
+		alarmVorgangEingangskorb.put(vorgangsmappe);
 
-		Vorgangsmappe aelteste = alarmVorgangAusgangskorb
-				.entnehmeAeltestenEingang();
+		MessageCasefile aelteste = alarmVorgangAusgangskorb
+				.takeDocument();
 
 		Assert.assertEquals(alarmNachricht, aelteste.getAlarmNachricht());
 		Assert.assertTrue(aelteste.getWeiteresVersandVorgehen() == WeiteresVersandVorgehen.VERSENDEN);
 		Assert.assertTrue(aelteste.getBearbeitetMitRegelWerk() == regelwerk.getRegelwerksKennung());
 
-		aelteste = alarmVorgangAusgangskorb.entnehmeAeltestenEingang();
+		aelteste = alarmVorgangAusgangskorb.takeDocument();
 
 		Assert.assertEquals(alarmNachricht, aelteste.getAlarmNachricht());
 		Assert.assertTrue(aelteste.getWeiteresVersandVorgehen() == WeiteresVersandVorgehen.NICHT_VERSENDEN);
@@ -149,73 +149,73 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 	public void testTimeBasedAufhebenBeiTimeout() throws Throwable {
 		Regel startRegel = new Regel() {
 			@Override
-			public boolean pruefeNachricht(AlarmNachricht nachricht,
-					AlarmNachricht vergleichsNachricht) {
+			public boolean pruefeNachricht(AlarmMessage nachricht,
+					AlarmMessage vergleichsNachricht) {
 				Assert.fail();
 				return false;
 			}
 			@Override
-			public boolean pruefeNachricht(AlarmNachricht nachricht) {
+			public boolean pruefeNachricht(AlarmMessage nachricht) {
 				return nachricht.gibNachrichtenText().equals("START");
 			}
 		};
 		Regel stopRegel = new Regel() {
 			@Override
-			public boolean pruefeNachricht(AlarmNachricht nachricht,
-					AlarmNachricht vergleichsNachricht) {
+			public boolean pruefeNachricht(AlarmMessage nachricht,
+					AlarmMessage vergleichsNachricht) {
 				return pruefeNachricht(nachricht);
 			}
 			@Override
-			public boolean pruefeNachricht(AlarmNachricht nachricht) {
+			public boolean pruefeNachricht(AlarmMessage nachricht) {
 				return nachricht.gibNachrichtenText().equals("STOP");
 			}
 		};
-		TimebasedRegelwerk timebasedRegelwerk = new TimebasedRegelwerk(Regelwerkskennung.valueOf(), startRegel, stopRegel, Millisekunden.valueOf(100), TimeoutType.SENDE_BEI_STOP_REGEL);
+		TimebasedRegelwerk timebasedRegelwerk = new TimebasedRegelwerk(Regelwerkskennung.valueOf(), startRegel, stopRegel, Milliseconds.valueOf(100), TimeoutType.SENDE_BEI_STOP_REGEL);
 
-		final AlarmEntscheidungsBuero buero = new AlarmEntscheidungsBuero(
+		final DecisionDepartment buero = new DecisionDepartment(
 				new DefaultExecutionService(), new Regelwerk[] { timebasedRegelwerk },
-				new StandardAblagekorb<Vorgangsmappe>(),
-				new StandardAblagekorb<Vorgangsmappe>(), 1);
-		final Eingangskorb<Vorgangsmappe> alarmVorgangEingangskorb = buero
+				new DefaultDocumentBox<MessageCasefile>(),
+				new DefaultDocumentBox<MessageCasefile>(), 1);
+		final Inbox<MessageCasefile> alarmVorgangEingangskorb = buero
 				.gibAlarmVorgangEingangskorb();
-		final StandardAblagekorb<Vorgangsmappe> alarmVorgangAusgangskorb = (StandardAblagekorb<Vorgangsmappe>) buero
+		final DefaultDocumentBox<MessageCasefile> alarmVorgangAusgangskorb = (DefaultDocumentBox<MessageCasefile>) buero
 				.gibAlarmVorgangAusgangskorb();
 
 		// Un-Passende 1
-		Vorgangsmappenkennung vorgangsmappenkennung = Vorgangsmappenkennung
+		CasefileId vorgangsmappenkennung = CasefileId
 				.createNew(InetAddress.getLocalHost(), new Date());
-		AlarmNachricht alarmNachricht = new AlarmNachricht("XXO");
-		Vorgangsmappe vorgangsmappe = new Vorgangsmappe(
+		AlarmMessage alarmNachricht = new AlarmMessage("XXO");
+		MessageCasefile vorgangsmappe = new MessageCasefile(
 				vorgangsmappenkennung, alarmNachricht);
-		alarmVorgangEingangskorb.ablegen(vorgangsmappe);
+		alarmVorgangEingangskorb.put(vorgangsmappe);
 
 		// Passende 1
-		Vorgangsmappenkennung vorgangsmappenkennung2 = Vorgangsmappenkennung
+		CasefileId vorgangsmappenkennung2 = CasefileId
 				.createNew(InetAddress.getLocalHost(), new Date());
-		AlarmNachricht alarmNachricht2 = new AlarmNachricht("START");
-		Vorgangsmappe vorgangsmappe2 = new Vorgangsmappe(
+		AlarmMessage alarmNachricht2 = new AlarmMessage("START");
+		MessageCasefile vorgangsmappe2 = new MessageCasefile(
 				vorgangsmappenkennung2, alarmNachricht2);
-		alarmVorgangEingangskorb.ablegen(vorgangsmappe2);
+		alarmVorgangEingangskorb.put(vorgangsmappe2);
 
 		// Un-Passende 1
-		Vorgangsmappenkennung vorgangsmappenkennung3 = Vorgangsmappenkennung
+		CasefileId vorgangsmappenkennung3 = CasefileId
 				.createNew(InetAddress.getLocalHost(), new Date());
-		AlarmNachricht alarmNachricht3 = new AlarmNachricht("Baeh!");
-		Vorgangsmappe vorgangsmappe3 = new Vorgangsmappe(
+		AlarmMessage alarmNachricht3 = new AlarmMessage("Baeh!");
+		MessageCasefile vorgangsmappe3 = new MessageCasefile(
 				vorgangsmappenkennung3, alarmNachricht3);
-		alarmVorgangEingangskorb.ablegen(vorgangsmappe3);
+		alarmVorgangEingangskorb.put(vorgangsmappe3);
 
 		// Passende Bestaetigung1
-		Vorgangsmappenkennung vorgangsmappenkennung4 = Vorgangsmappenkennung
+		CasefileId vorgangsmappenkennung4 = CasefileId
 				.createNew(InetAddress.getLocalHost(), new Date());
-		AlarmNachricht alarmNachricht4 = new AlarmNachricht("STOP");
-		Vorgangsmappe vorgangsmappe4 = new Vorgangsmappe(
+		AlarmMessage alarmNachricht4 = new AlarmMessage("STOP");
+		MessageCasefile vorgangsmappe4 = new MessageCasefile(
 				vorgangsmappenkennung4, alarmNachricht4);
-		alarmVorgangEingangskorb.ablegen(vorgangsmappe4);
+		alarmVorgangEingangskorb.put(vorgangsmappe4);
 
 		// Pruefen 1
-		Vorgangsmappe aelteste = alarmVorgangAusgangskorb
-				.entnehmeAeltestenEingang();
+		MessageCasefile aelteste = alarmVorgangAusgangskorb
+				.takeDocument();
 
 		Assert.assertNotNull(aelteste);
 		Assert.assertEquals("XXO", aelteste
@@ -224,7 +224,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aelteste.getWeiteresVersandVorgehen());
 
 		// Pruefen 3
-		aelteste = alarmVorgangAusgangskorb.entnehmeAeltestenEingang();
+		aelteste = alarmVorgangAusgangskorb.takeDocument();
 
 		Assert.assertNotNull(aelteste);
 		Assert.assertEquals("Baeh!", aelteste
@@ -233,7 +233,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aelteste.getWeiteresVersandVorgehen());
 
 		// Nachricht 2
-		aelteste = alarmVorgangAusgangskorb.entnehmeAeltestenEingang();
+		aelteste = alarmVorgangAusgangskorb.takeDocument();
 		
 		Assert.assertNotNull(aelteste);
 		Assert.assertEquals("START", aelteste
@@ -242,8 +242,8 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 		Assert.assertEquals(WeiteresVersandVorgehen.VERSENDEN, aelteste.getWeiteresVersandVorgehen());
 
 		// Pruefen 4
-		Vorgangsmappe vorgangsmappe5 = alarmVorgangAusgangskorb
-				.entnehmeAeltestenEingang();
+		MessageCasefile vorgangsmappe5 = alarmVorgangAusgangskorb
+				.takeDocument();
 
 		Assert.assertNotNull(vorgangsmappe5);
 		Assert.assertEquals("STOP", vorgangsmappe5
@@ -259,41 +259,41 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 		
 
 		// Un-Passende 1
-		vorgangsmappenkennung = Vorgangsmappenkennung
+		vorgangsmappenkennung = CasefileId
 				.createNew(InetAddress.getLocalHost(), new Date());
-		alarmNachricht = new AlarmNachricht("XXO");
-		vorgangsmappe = new Vorgangsmappe(
+		alarmNachricht = new AlarmMessage("XXO");
+		vorgangsmappe = new MessageCasefile(
 				vorgangsmappenkennung, alarmNachricht);
-		alarmVorgangEingangskorb.ablegen(vorgangsmappe);
+		alarmVorgangEingangskorb.put(vorgangsmappe);
 
 		// Passende 1
-		vorgangsmappenkennung2 = Vorgangsmappenkennung
+		vorgangsmappenkennung2 = CasefileId
 				.createNew(InetAddress.getLocalHost(), new Date());
-		alarmNachricht2 = new AlarmNachricht("START");
-		vorgangsmappe2 = new Vorgangsmappe(
+		alarmNachricht2 = new AlarmMessage("START");
+		vorgangsmappe2 = new MessageCasefile(
 				vorgangsmappenkennung2, alarmNachricht2);
-		alarmVorgangEingangskorb.ablegen(vorgangsmappe2);
+		alarmVorgangEingangskorb.put(vorgangsmappe2);
 
 		// Un-Passende 1
-		vorgangsmappenkennung3 = Vorgangsmappenkennung
+		vorgangsmappenkennung3 = CasefileId
 				.createNew(InetAddress.getLocalHost(), new Date());
-		alarmNachricht3 = new AlarmNachricht("Baeh!");
-		vorgangsmappe3 = new Vorgangsmappe(
+		alarmNachricht3 = new AlarmMessage("Baeh!");
+		vorgangsmappe3 = new MessageCasefile(
 				vorgangsmappenkennung3, alarmNachricht3);
-		alarmVorgangEingangskorb.ablegen(vorgangsmappe3);
+		alarmVorgangEingangskorb.put(vorgangsmappe3);
 
 		// Passende Bestaetigung1
 		Thread.sleep(150);
-		vorgangsmappenkennung4 = Vorgangsmappenkennung
+		vorgangsmappenkennung4 = CasefileId
 				.createNew(InetAddress.getLocalHost(), new Date());
-		alarmNachricht4 = new AlarmNachricht("STOP");
-		vorgangsmappe4 = new Vorgangsmappe(
+		alarmNachricht4 = new AlarmMessage("STOP");
+		vorgangsmappe4 = new MessageCasefile(
 				vorgangsmappenkennung4, alarmNachricht4);
-		alarmVorgangEingangskorb.ablegen(vorgangsmappe4);
+		alarmVorgangEingangskorb.put(vorgangsmappe4);
 
 		// Pruefen 1
 		aelteste = alarmVorgangAusgangskorb
-				.entnehmeAeltestenEingang();
+				.takeDocument();
 
 		Assert.assertNotNull(aelteste);
 		Assert.assertEquals("XXO", aelteste
@@ -302,7 +302,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aelteste.getWeiteresVersandVorgehen());
 
 		// Pruefen 3
-		aelteste = alarmVorgangAusgangskorb.entnehmeAeltestenEingang();
+		aelteste = alarmVorgangAusgangskorb.takeDocument();
 
 		Assert.assertNotNull(aelteste);
 		Assert.assertEquals("Baeh!", aelteste
@@ -311,7 +311,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aelteste.getWeiteresVersandVorgehen());
 
 		// Nachricht 2
-		aelteste = alarmVorgangAusgangskorb.entnehmeAeltestenEingang();
+		aelteste = alarmVorgangAusgangskorb.takeDocument();
 		
 		Assert.assertNotNull(aelteste);
 		Assert.assertEquals("START", aelteste
@@ -321,7 +321,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 
 		// Pruefen 4
 		vorgangsmappe5 = alarmVorgangAusgangskorb
-				.entnehmeAeltestenEingang();
+				.takeDocument();
 
 		Assert.assertNotNull(vorgangsmappe5);
 		Assert.assertEquals("STOP", vorgangsmappe5
@@ -335,73 +335,73 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 	public void testTimeBasedAusloesenBeiTimeout() throws Throwable {
 		Regel startRegel = new Regel() {
 			@Override
-			public boolean pruefeNachricht(AlarmNachricht nachricht,
-					AlarmNachricht vergleichsNachricht) {
+			public boolean pruefeNachricht(AlarmMessage nachricht,
+					AlarmMessage vergleichsNachricht) {
 				Assert.fail();
 				return false;
 			}
 			@Override
-			public boolean pruefeNachricht(AlarmNachricht nachricht) {
+			public boolean pruefeNachricht(AlarmMessage nachricht) {
 				return nachricht.gibNachrichtenText().equals("START");
 			}
 		};
 		Regel stopRegel = new Regel() {
 			@Override
-			public boolean pruefeNachricht(AlarmNachricht nachricht,
-					AlarmNachricht vergleichsNachricht) {
+			public boolean pruefeNachricht(AlarmMessage nachricht,
+					AlarmMessage vergleichsNachricht) {
 				return pruefeNachricht(nachricht);
 			}
 			@Override
-			public boolean pruefeNachricht(AlarmNachricht nachricht) {
+			public boolean pruefeNachricht(AlarmMessage nachricht) {
 				return nachricht.gibNachrichtenText().equals("STOP");
 			}
 		};
-		TimebasedRegelwerk timebasedRegelwerk = new TimebasedRegelwerk(Regelwerkskennung.valueOf(), startRegel, stopRegel, Millisekunden.valueOf(100), TimeoutType.SENDE_BEI_TIMEOUT);
+		TimebasedRegelwerk timebasedRegelwerk = new TimebasedRegelwerk(Regelwerkskennung.valueOf(), startRegel, stopRegel, Milliseconds.valueOf(100), TimeoutType.SENDE_BEI_TIMEOUT);
 
-		final AlarmEntscheidungsBuero buero = new AlarmEntscheidungsBuero(
+		final DecisionDepartment buero = new DecisionDepartment(
 				new DefaultExecutionService(), new Regelwerk[] { timebasedRegelwerk },
-				new StandardAblagekorb<Vorgangsmappe>(),
-				new StandardAblagekorb<Vorgangsmappe>(), 1);
-		final Eingangskorb<Vorgangsmappe> alarmVorgangEingangskorb = buero
+				new DefaultDocumentBox<MessageCasefile>(),
+				new DefaultDocumentBox<MessageCasefile>(), 1);
+		final Inbox<MessageCasefile> alarmVorgangEingangskorb = buero
 				.gibAlarmVorgangEingangskorb();
-		final StandardAblagekorb<Vorgangsmappe> alarmVorgangAusgangskorb = (StandardAblagekorb<Vorgangsmappe>) buero
+		final DefaultDocumentBox<MessageCasefile> alarmVorgangAusgangskorb = (DefaultDocumentBox<MessageCasefile>) buero
 				.gibAlarmVorgangAusgangskorb();
 
 		// Un-Passende 1
-		Vorgangsmappenkennung vorgangsmappenkennung = Vorgangsmappenkennung
+		CasefileId vorgangsmappenkennung = CasefileId
 				.createNew(InetAddress.getLocalHost(), new Date());
-		AlarmNachricht alarmNachricht = new AlarmNachricht("XXO");
-		Vorgangsmappe vorgangsmappe = new Vorgangsmappe(
+		AlarmMessage alarmNachricht = new AlarmMessage("XXO");
+		MessageCasefile vorgangsmappe = new MessageCasefile(
 				vorgangsmappenkennung, alarmNachricht);
-		alarmVorgangEingangskorb.ablegen(vorgangsmappe);
+		alarmVorgangEingangskorb.put(vorgangsmappe);
 
 		// Passende 1
-		Vorgangsmappenkennung vorgangsmappenkennung2 = Vorgangsmappenkennung
+		CasefileId vorgangsmappenkennung2 = CasefileId
 				.createNew(InetAddress.getLocalHost(), new Date());
-		AlarmNachricht alarmNachricht2 = new AlarmNachricht("START");
-		Vorgangsmappe vorgangsmappe2 = new Vorgangsmappe(
+		AlarmMessage alarmNachricht2 = new AlarmMessage("START");
+		MessageCasefile vorgangsmappe2 = new MessageCasefile(
 				vorgangsmappenkennung2, alarmNachricht2);
-		alarmVorgangEingangskorb.ablegen(vorgangsmappe2);
+		alarmVorgangEingangskorb.put(vorgangsmappe2);
 
 		// Un-Passende 1
-		Vorgangsmappenkennung vorgangsmappenkennung3 = Vorgangsmappenkennung
+		CasefileId vorgangsmappenkennung3 = CasefileId
 				.createNew(InetAddress.getLocalHost(), new Date());
-		AlarmNachricht alarmNachricht3 = new AlarmNachricht("Baeh!");
-		Vorgangsmappe vorgangsmappe3 = new Vorgangsmappe(
+		AlarmMessage alarmNachricht3 = new AlarmMessage("Baeh!");
+		MessageCasefile vorgangsmappe3 = new MessageCasefile(
 				vorgangsmappenkennung3, alarmNachricht3);
-		alarmVorgangEingangskorb.ablegen(vorgangsmappe3);
+		alarmVorgangEingangskorb.put(vorgangsmappe3);
 
 		// Passende Bestaetigung1
-		Vorgangsmappenkennung vorgangsmappenkennung4 = Vorgangsmappenkennung
+		CasefileId vorgangsmappenkennung4 = CasefileId
 				.createNew(InetAddress.getLocalHost(), new Date());
-		AlarmNachricht alarmNachricht4 = new AlarmNachricht("STOP");
-		Vorgangsmappe vorgangsmappe4 = new Vorgangsmappe(
+		AlarmMessage alarmNachricht4 = new AlarmMessage("STOP");
+		MessageCasefile vorgangsmappe4 = new MessageCasefile(
 				vorgangsmappenkennung4, alarmNachricht4);
-		alarmVorgangEingangskorb.ablegen(vorgangsmappe4);
+		alarmVorgangEingangskorb.put(vorgangsmappe4);
 
 		// Pruefen 1
-		Vorgangsmappe aelteste = alarmVorgangAusgangskorb
-				.entnehmeAeltestenEingang();
+		MessageCasefile aelteste = alarmVorgangAusgangskorb
+				.takeDocument();
 
 		Assert.assertNotNull(aelteste);
 		Assert.assertEquals("XXO", aelteste
@@ -410,7 +410,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aelteste.getWeiteresVersandVorgehen());
 
 		// Pruefen 3
-		aelteste = alarmVorgangAusgangskorb.entnehmeAeltestenEingang();
+		aelteste = alarmVorgangAusgangskorb.takeDocument();
 
 		Assert.assertNotNull(aelteste);
 		Assert.assertEquals("Baeh!", aelteste
@@ -419,7 +419,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aelteste.getWeiteresVersandVorgehen());
 
 		// Nachricht 2
-		aelteste = alarmVorgangAusgangskorb.entnehmeAeltestenEingang();
+		aelteste = alarmVorgangAusgangskorb.takeDocument();
 		
 		Assert.assertNotNull(aelteste);
 		Assert.assertEquals("START", aelteste
@@ -428,8 +428,8 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aelteste.getWeiteresVersandVorgehen());
 
 		// Pruefen 4
-		Vorgangsmappe vorgangsmappe5 = alarmVorgangAusgangskorb
-				.entnehmeAeltestenEingang();
+		MessageCasefile vorgangsmappe5 = alarmVorgangAusgangskorb
+				.takeDocument();
 
 		Assert.assertNotNull(vorgangsmappe5);
 		Assert.assertEquals("STOP", vorgangsmappe5
@@ -445,41 +445,41 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 		
 
 		// Un-Passende 1
-		vorgangsmappenkennung = Vorgangsmappenkennung
+		vorgangsmappenkennung = CasefileId
 				.createNew(InetAddress.getLocalHost(), new Date());
-		alarmNachricht = new AlarmNachricht("XXO");
-		vorgangsmappe = new Vorgangsmappe(
+		alarmNachricht = new AlarmMessage("XXO");
+		vorgangsmappe = new MessageCasefile(
 				vorgangsmappenkennung, alarmNachricht);
-		alarmVorgangEingangskorb.ablegen(vorgangsmappe);
+		alarmVorgangEingangskorb.put(vorgangsmappe);
 
 		// Passende 1
-		vorgangsmappenkennung2 = Vorgangsmappenkennung
+		vorgangsmappenkennung2 = CasefileId
 				.createNew(InetAddress.getLocalHost(), new Date());
-		alarmNachricht2 = new AlarmNachricht("START");
-		vorgangsmappe2 = new Vorgangsmappe(
+		alarmNachricht2 = new AlarmMessage("START");
+		vorgangsmappe2 = new MessageCasefile(
 				vorgangsmappenkennung2, alarmNachricht2);
-		alarmVorgangEingangskorb.ablegen(vorgangsmappe2);
+		alarmVorgangEingangskorb.put(vorgangsmappe2);
 
 		// Un-Passende 1
-		vorgangsmappenkennung3 = Vorgangsmappenkennung
+		vorgangsmappenkennung3 = CasefileId
 				.createNew(InetAddress.getLocalHost(), new Date());
-		alarmNachricht3 = new AlarmNachricht("Baeh!");
-		vorgangsmappe3 = new Vorgangsmappe(
+		alarmNachricht3 = new AlarmMessage("Baeh!");
+		vorgangsmappe3 = new MessageCasefile(
 				vorgangsmappenkennung3, alarmNachricht3);
-		alarmVorgangEingangskorb.ablegen(vorgangsmappe3);
+		alarmVorgangEingangskorb.put(vorgangsmappe3);
 
 		// Passende Bestaetigung1
 		Thread.sleep(150);
-		vorgangsmappenkennung4 = Vorgangsmappenkennung
+		vorgangsmappenkennung4 = CasefileId
 				.createNew(InetAddress.getLocalHost(), new Date());
-		alarmNachricht4 = new AlarmNachricht("STOP");
-		vorgangsmappe4 = new Vorgangsmappe(
+		alarmNachricht4 = new AlarmMessage("STOP");
+		vorgangsmappe4 = new MessageCasefile(
 				vorgangsmappenkennung4, alarmNachricht4);
-		alarmVorgangEingangskorb.ablegen(vorgangsmappe4);
+		alarmVorgangEingangskorb.put(vorgangsmappe4);
 
 		// Pruefen 1
 		aelteste = alarmVorgangAusgangskorb
-				.entnehmeAeltestenEingang();
+				.takeDocument();
 
 		Assert.assertNotNull(aelteste);
 		Assert.assertEquals("XXO", aelteste
@@ -488,7 +488,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aelteste.getWeiteresVersandVorgehen());
 
 		// Pruefen 3
-		aelteste = alarmVorgangAusgangskorb.entnehmeAeltestenEingang();
+		aelteste = alarmVorgangAusgangskorb.takeDocument();
 
 		Assert.assertNotNull(aelteste);
 		Assert.assertEquals("Baeh!", aelteste
@@ -497,7 +497,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aelteste.getWeiteresVersandVorgehen());
 
 		// Nachricht 2
-		aelteste = alarmVorgangAusgangskorb.entnehmeAeltestenEingang();
+		aelteste = alarmVorgangAusgangskorb.takeDocument();
 		
 		Assert.assertNotNull(aelteste);
 		Assert.assertEquals("START", aelteste
@@ -507,7 +507,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 
 		// Pruefen 4
 		vorgangsmappe5 = alarmVorgangAusgangskorb
-				.entnehmeAeltestenEingang();
+				.takeDocument();
 
 		Assert.assertNotNull(vorgangsmappe5);
 		Assert.assertEquals("STOP", vorgangsmappe5

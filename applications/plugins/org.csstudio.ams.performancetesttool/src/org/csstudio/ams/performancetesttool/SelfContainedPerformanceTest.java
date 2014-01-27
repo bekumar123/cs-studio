@@ -2,26 +2,31 @@ package org.csstudio.ams.performancetesttool;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
-import org.csstudio.nams.application.department.decision.office.decision.AlarmEntscheidungsBuero;
+import org.csstudio.nams.application.department.decision.office.decision.DecisionDepartment;
 import org.csstudio.nams.common.DefaultExecutionService;
-import org.csstudio.nams.common.decision.Eingangskorb;
-import org.csstudio.nams.common.decision.StandardAblagekorb;
-import org.csstudio.nams.common.decision.Vorgangsmappe;
-import org.csstudio.nams.common.decision.Vorgangsmappenkennung;
+import org.csstudio.nams.common.decision.Inbox;
+import org.csstudio.nams.common.decision.DefaultDocumentBox;
+import org.csstudio.nams.common.decision.MessageCasefile;
+import org.csstudio.nams.common.decision.CasefileId;
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
-import org.csstudio.nams.common.material.AlarmNachricht;
+import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.common.material.Regelwerkskennung;
 import org.csstudio.nams.common.material.regelwerk.DefaultRegelwerk;
+import org.csstudio.nams.common.material.regelwerk.OderRegel;
 import org.csstudio.nams.common.material.regelwerk.Regel;
 import org.csstudio.nams.common.material.regelwerk.Regelwerk;
 import org.csstudio.nams.common.material.regelwerk.StringRegel;
 import org.csstudio.nams.common.material.regelwerk.StringRegelOperator;
 import org.csstudio.nams.common.material.regelwerk.UndRegel;
 import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
+import org.csstudio.nams.service.logging.declaration.ILogger;
+import org.csstudio.nams.service.logging.impl.LoggerImpl;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -45,25 +50,26 @@ public class SelfContainedPerformanceTest {
 	public void run() throws UnknownHostException, InterruptedException {
 		printConfig();
 		messageCounter = 0;
-		final Eingangskorb<Vorgangsmappe> alarmVorgangEingangskorb = new StandardAblagekorb<Vorgangsmappe>();
-		final StandardAblagekorb<Vorgangsmappe> alarmVorgangAusgangskorb = new StandardAblagekorb<Vorgangsmappe>();
+		final Inbox<MessageCasefile> alarmVorgangEingangskorb = new DefaultDocumentBox<MessageCasefile>();
+		final DefaultDocumentBox<MessageCasefile> alarmVorgangAusgangskorb = new DefaultDocumentBox<MessageCasefile>();
+		ILogger logger = new LoggerImpl();
 		
-		AlarmEntscheidungsBuero alarmEntscheidungsBuero = new AlarmEntscheidungsBuero(new DefaultExecutionService(), 
+		DecisionDepartment alarmEntscheidungsBuero = new DecisionDepartment(new DefaultExecutionService(), 
 																erzeugeRegelwerke(arguments.ruleCount), 
 																alarmVorgangEingangskorb, 
 																alarmVorgangAusgangskorb, 
-																arguments.threads);
+																arguments.threads, logger);
 		
-		final Vorgangsmappe[] vorgangsmappen = erzeugeVorgangsmappen(arguments.messageCount);
+		final MessageCasefile[] vorgangsmappen = erzeugeVorgangsmappen(arguments.messageCount);
 		
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				for (int index = 0; index < vorgangsmappen.length; index++) {
 					try {
-						Vorgangsmappe vorgangsmappe = vorgangsmappen[index];
+						MessageCasefile vorgangsmappe = vorgangsmappen[index];
 						erzeugungsZeiten[index] = System.currentTimeMillis();
-						alarmVorgangEingangskorb.ablegen(vorgangsmappe);
+						alarmVorgangEingangskorb.put(vorgangsmappe);
 						if (arguments.rate > 0) {
 							Thread.sleep(1000 / arguments.rate);
 						}
@@ -78,7 +84,7 @@ public class SelfContainedPerformanceTest {
 		}).start();
 		System.out.println("\nReceiving messages");
 		while(messageCounter<arguments.messageCount) {
-			Vorgangsmappe vorgangsmappe = alarmVorgangAusgangskorb.entnehmeAeltestenEingang();
+			MessageCasefile vorgangsmappe = alarmVorgangAusgangskorb.takeDocument();
 			WeiteresVersandVorgehen gesamtErgebnis = vorgangsmappe.getWeiteresVersandVorgehen();
 			if (gesamtErgebnis.equals(WeiteresVersandVorgehen.VERSENDEN)) {
 				empfangsZeiten[messageCounter] = System.currentTimeMillis();
@@ -93,26 +99,26 @@ public class SelfContainedPerformanceTest {
 	}
 
 	
-	private Vorgangsmappe[] erzeugeVorgangsmappen(int anzahlAnMappen) throws UnknownHostException {
-		Vorgangsmappe[] result = new Vorgangsmappe[anzahlAnMappen];
+	private MessageCasefile[] erzeugeVorgangsmappen(int anzahlAnMappen) throws UnknownHostException {
+		MessageCasefile[] result = new MessageCasefile[anzahlAnMappen];
 		for(int index = 0; index < anzahlAnMappen; index++) {
 			HashMap<MessageKeyEnum, String> mapMessage = new HashMap<MessageKeyEnum, String>(1);
 			mapMessage.put(MessageKeyEnum.NAME, "TEST");
-			result[index] = new Vorgangsmappe(Vorgangsmappenkennung.createNew(InetAddress.getLocalHost(), new Date()), new AlarmNachricht(mapMessage));
+			result[index] = new MessageCasefile(CasefileId.createNew(InetAddress.getLocalHost(), new Date()), new AlarmMessage(mapMessage));
 		}
 		return result;
 	}
 	
-	private Regelwerk[] erzeugeRegelwerke(int anzahlAnRegelwerken) {
+	private List<Regelwerk> erzeugeRegelwerke(int anzahlAnRegelwerken) {
 		assert anzahlAnRegelwerken >= 1;
-		Regelwerk[] result = new Regelwerk[anzahlAnRegelwerken];
+		List<Regelwerk> result = new ArrayList<Regelwerk>(anzahlAnRegelwerken);
 		for(int index = 0; index < anzahlAnRegelwerken; index++) {
 			Regel stringRegel1 = new StringRegel(StringRegelOperator.OPERATOR_TEXT_EQUAL, MessageKeyEnum.SEVERITY, "Sehr hoch", null);
 			Regel stringRegel2 = new StringRegel(StringRegelOperator.OPERATOR_NUMERIC_GT, MessageKeyEnum.EVENTTIME, "" + System.currentTimeMillis(), null);
-			Regel undRegel = new UndRegel(Arrays.asList(stringRegel1, stringRegel2));
-			result[index] = new DefaultRegelwerk(Regelwerkskennung.valueOf("Regel"+index), undRegel);
+			Regel oderRegel = new OderRegel(Arrays.asList(stringRegel2, stringRegel1));
+			result.add(new DefaultRegelwerk(Regelwerkskennung.valueOf(index), oderRegel));
 		}
-		result[anzahlAnRegelwerken-1] = new DefaultRegelwerk(Regelwerkskennung.valueOf("Regel0"), new StringRegel(StringRegelOperator.OPERATOR_TEXT_EQUAL, MessageKeyEnum.NAME, "TEST", null));
+		result.set(anzahlAnRegelwerken-1, new DefaultRegelwerk(Regelwerkskennung.valueOf(anzahlAnRegelwerken-1), new StringRegel(StringRegelOperator.OPERATOR_TEXT_EQUAL, MessageKeyEnum.NAME, "TEST", null)));
 		return result;
 	}
 	
@@ -129,7 +135,7 @@ public class SelfContainedPerformanceTest {
 		System.out.println("Max latency: "+maxLatency + " ms");
 		System.out.println("Min latency: "+minLatency + " ms");
 		System.out.println("Average latency: "+latencySum/empfangsZeiten.length + " ms");
-		System.out.println("Average number of messages/second: "+1000.0/(1.0*(empfangsZeiten[empfangsZeiten.length-1]-erzeugungsZeiten[0])/empfangsZeiten.length));
+		System.out.println("Average number of messages/second: " + 1000.0/(1.0*(empfangsZeiten[empfangsZeiten.length-1]-erzeugungsZeiten[0])/empfangsZeiten.length));
 	}
 
 	private void printProgressBar() {

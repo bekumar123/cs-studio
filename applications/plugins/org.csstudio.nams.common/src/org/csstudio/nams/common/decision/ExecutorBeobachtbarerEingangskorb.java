@@ -29,16 +29,16 @@ import java.util.concurrent.Executor;
 
 import org.csstudio.nams.common.SerialExecutor;
 
-public class ExecutorBeobachtbarerEingangskorb<T extends Ablagefaehig> extends StandardAblagekorb<T> implements BeobachtbarerEingangskorb<T> {
+public class ExecutorBeobachtbarerEingangskorb<T extends Document> extends DefaultDocumentBox<T> implements ObservableInbox<T> {
 
 	private final SerialExecutor executor;
-	private EingangskorbBeobachter beobachter;
+	private InboxObserver beobachter;
 
 	private final Runnable runnable = new Runnable() {
 		@Override
 		public void run() {
 			if (beobachter != null) {
-				beobachter.neuerEingang();
+				beobachter.onNewDocument();
 			}
 		}
 	};
@@ -47,8 +47,8 @@ public class ExecutorBeobachtbarerEingangskorb<T extends Ablagefaehig> extends S
 		this.executor = new SerialExecutor(executor);
 	}
 	
-	public void ablegen(T dokument) throws InterruptedException {		
-		super.ablegen(dokument);
+	public void put(T dokument) throws InterruptedException {		
+		super.put(dokument);
 		
 		if (beobachter != null) {
 			executor.execute(runnable);
@@ -57,7 +57,12 @@ public class ExecutorBeobachtbarerEingangskorb<T extends Ablagefaehig> extends S
 	};
 	
 	@Override
-	public void setBeobachter(EingangskorbBeobachter beobachter) {
+	public void setObserver(InboxObserver beobachter) {
 		this.beobachter = beobachter;
+	}
+	
+	@Override
+	public int documentCount() {
+		return executor.getQueueSize();
 	}
 }

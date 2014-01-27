@@ -7,17 +7,17 @@ public class Regelwerkskennung_Test extends
 		AbstractTestValue<Regelwerkskennung> {
 	@Test
 	public void testErzeugen() {
-		Regelwerkskennung.valueOf();
+		Regelwerkskennung.valueOf(10);
 	}
 
 	@Override
 	protected Regelwerkskennung doGetAValueOfTypeUnderTest() {
-		return Regelwerkskennung.valueOf();
+		return Regelwerkskennung.valueOf(1);
 	}
 
 	@Override
 	protected Regelwerkskennung[] doGetDifferentInstancesOfTypeUnderTest() {
-		return new Regelwerkskennung[] { Regelwerkskennung.valueOf(),
-				Regelwerkskennung.valueOf(), Regelwerkskennung.valueOf() };
+		return new Regelwerkskennung[] { Regelwerkskennung.valueOf(1),
+				Regelwerkskennung.valueOf(2), Regelwerkskennung.valueOf(3) };
 	}
 }

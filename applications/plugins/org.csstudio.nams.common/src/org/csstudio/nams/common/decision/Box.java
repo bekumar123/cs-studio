@@ -24,27 +24,18 @@
  * {@link http://www.eclipse.org/org/documents/epl-v10.html}.
  */
 
-package org.csstudio.nams.application.department.decision.office.decision;
+package org.csstudio.nams.common.decision;
 
-import org.csstudio.nams.common.decision.Ablagefaehig;
-import org.csstudio.nams.common.decision.Ablagekorb;
+import org.csstudio.nams.common.wam.Behaelter;
 
-/**
- * Ein Dokumentenbearbeiter bearbeitet Dokumente die in der Regel zuvor in einem
- * {@link Ablagekorb} platziert waren. Siehe hierzu auch
- * {@link DokumentVerbraucherArbeiter}.
- * 
- * @param <T>
- *            Der Typ der Dokumente, die dieser Bearbeiter bearbeiten kann.
- * 
- * @author <a href="mailto:tr@c1-wps.de">Tobias Rathjen</a>, <a
- *         href="mailto:gs@c1-wps.de">Goesta Steen</a>, <a
- *         href="mailto:mz@c1-wps.de">Matthias Zeimer</a>
- * @version 0.1, 31.03.2008
- */
-interface DokumentenBearbeiter<T extends Ablagefaehig> {
+@Behaelter
+public interface Box<T extends Document> {
 
-	void bearbeiteVorgang(T entnehmeAeltestenEingang)
-			throws InterruptedException;
-
+	/**
+	 * Legt eine neues Dokument in den Korb.
+	 * 
+	 * @param dokument
+	 *            Das neue Dokuement,
+	 */
+	void put(T dokument) throws InterruptedException;
 }

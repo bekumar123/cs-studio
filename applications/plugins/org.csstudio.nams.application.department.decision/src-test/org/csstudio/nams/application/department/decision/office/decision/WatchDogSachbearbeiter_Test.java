@@ -14,11 +14,11 @@ import java.util.TimerTask;
 import java.util.concurrent.Executor;
 
 import org.csstudio.nams.common.decision.ExecutorBeobachtbarerEingangskorb;
-import org.csstudio.nams.common.decision.StandardAblagekorb;
-import org.csstudio.nams.common.decision.Vorgangsmappe;
-import org.csstudio.nams.common.decision.Vorgangsmappenkennung;
-import org.csstudio.nams.common.fachwert.Millisekunden;
-import org.csstudio.nams.common.material.AlarmNachricht;
+import org.csstudio.nams.common.decision.DefaultDocumentBox;
+import org.csstudio.nams.common.decision.MessageCasefile;
+import org.csstudio.nams.common.decision.CasefileId;
+import org.csstudio.nams.common.fachwert.Milliseconds;
+import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.common.material.Regelwerkskennung;
 import org.csstudio.nams.common.material.regelwerk.Regel;
 import org.csstudio.nams.common.material.regelwerk.WatchDogRegelwerk;
@@ -31,8 +31,8 @@ public class WatchDogSachbearbeiter_Test {
 
 	
 	private static final int DELAY = 10;
-	private StandardAblagekorb<Vorgangsmappe> ausgangskorb;
-	private ExecutorBeobachtbarerEingangskorb<Vorgangsmappe> eingangskorb;
+	private DefaultDocumentBox<MessageCasefile> ausgangskorb;
+	private ExecutorBeobachtbarerEingangskorb<MessageCasefile> eingangskorb;
 	private TestRegel regel;
 	private Regelwerkskennung regelwerksKennung;
 	private TestTimer timer;
@@ -48,13 +48,13 @@ public class WatchDogSachbearbeiter_Test {
 		private boolean result = false;
 
 		@Override
-		public boolean pruefeNachricht(AlarmNachricht nachricht) {
+		public boolean pruefeNachricht(AlarmMessage nachricht) {
 			return result;
 		}
 
 		@Override
-		public boolean pruefeNachricht(AlarmNachricht nachricht,
-				AlarmNachricht vergleichsNachricht) {
+		public boolean pruefeNachricht(AlarmMessage nachricht,
+				AlarmMessage vergleichsNachricht) {
 			return result;
 		}
 		
@@ -90,8 +90,8 @@ public class WatchDogSachbearbeiter_Test {
 	@SuppressWarnings("deprecation")
 	@Before
 	public void setUp() throws Exception {
-		ausgangskorb = new StandardAblagekorb<Vorgangsmappe>();
-		eingangskorb = new ExecutorBeobachtbarerEingangskorb<Vorgangsmappe>(new DirectExecutor());
+		ausgangskorb = new DefaultDocumentBox<MessageCasefile>();
+		eingangskorb = new ExecutorBeobachtbarerEingangskorb<MessageCasefile>(new DirectExecutor());
 		regelwerksKennung = Regelwerkskennung.valueOf();
 		regel = new TestRegel();
 		timer = new TestTimer();
@@ -102,28 +102,28 @@ public class WatchDogSachbearbeiter_Test {
 		
 	}
 
-	private WatchDogSachbearbeiter erzeugeSachbearbeiter() {
-		return new WatchDogSachbearbeiter(eingangskorb,ausgangskorb, new WatchDogRegelwerk(regelwerksKennung, regel, Millisekunden.valueOf(DELAY)), timer);
+	private WatchDogFilterWorker erzeugeSachbearbeiter() {
+		return new WatchDogFilterWorker(eingangskorb,ausgangskorb, new WatchDogRegelwerk(regelwerksKennung, regel, Milliseconds.valueOf(DELAY)), timer);
 	}
 
 	@Test
 	public void testBeginneArbeit() {
-		WatchDogSachbearbeiter sachbearbeiter = erzeugeSachbearbeiter();
+		WatchDogFilterWorker sachbearbeiter = erzeugeSachbearbeiter();
 		
-		assertFalse(sachbearbeiter.istAmArbeiten());
-		sachbearbeiter.beginneArbeit();
-		assertTrue(sachbearbeiter.istAmArbeiten());
-		sachbearbeiter.beendeArbeit();
-		assertFalse(sachbearbeiter.istAmArbeiten());
+		assertFalse(sachbearbeiter.isWorking());
+		sachbearbeiter.startWorking();
+		assertTrue(sachbearbeiter.isWorking());
+		sachbearbeiter.stopWorking();
+		assertFalse(sachbearbeiter.isWorking());
 	}
 
 	@SuppressWarnings("deprecation")
 	@Test(timeout=1000)
 	public void testHandleNachricht() throws UnknownHostException, InterruptedException {
-		WatchDogSachbearbeiter sachbearbeiter = erzeugeSachbearbeiter();
+		WatchDogFilterWorker sachbearbeiter = erzeugeSachbearbeiter();
 		// timer setzen bei beginn des WachtDog
 		assertNull(timer.getLastScheduledTask());
-		sachbearbeiter.beginneArbeit();
+		sachbearbeiter.startWorking();
 		assertNotNull(timer.getLastScheduledTask());
 		assertEquals(DELAY, timer.getLastScheduledDelay());
 
@@ -133,20 +133,20 @@ public class WatchDogSachbearbeiter_Test {
 		task.run();
 		assertNull("Nach ablauf des timers darf kein neuer gestartet werden", timer.getLastScheduledTask());
 		
-		Vorgangsmappe aeltesterEingang = ausgangskorb.entnehmeAeltestenEingang();
+		MessageCasefile aeltesterEingang = ausgangskorb.takeDocument();
 		assertEquals(WeiteresVersandVorgehen.VERSENDEN, aeltesterEingang.getWeiteresVersandVorgehen());
 		assertEquals(regelwerksKennung, aeltesterEingang.getBearbeitetMitRegelWerk());
 		assertTrue(aeltesterEingang.istAbgeschlossen());
 		assertFalse(aeltesterEingang.istAbgeschlossenDurchTimeOut());
 		
 		// WatchDog startet timer neu bei eingang von gültiger Nachricht
-		Vorgangsmappe vorgangsmappe = new Vorgangsmappe(Vorgangsmappenkennung.createNew(InetAddress.getLocalHost(), new Date()), new AlarmNachricht("XXX"));
+		MessageCasefile vorgangsmappe = new MessageCasefile(CasefileId.createNew(InetAddress.getLocalHost(), new Date()), new AlarmMessage("XXX"));
 		regel.setResult(true);
-		eingangskorb.ablegen(vorgangsmappe);
+		eingangskorb.put(vorgangsmappe);
 		assertNotNull(timer.getLastScheduledTask());
 		assertEquals(DELAY, timer.getLastScheduledDelay());
 		
-		aeltesterEingang = ausgangskorb.entnehmeAeltestenEingang();
+		aeltesterEingang = ausgangskorb.takeDocument();
 		
 		assertEquals(vorgangsmappe, aeltesterEingang);
 		assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aeltesterEingang.getWeiteresVersandVorgehen());
@@ -156,13 +156,13 @@ public class WatchDogSachbearbeiter_Test {
 		
 		timer.reset();
 		// WatchDog startet timer neu bei eingang von gültiger Nachricht
-		vorgangsmappe = new Vorgangsmappe(Vorgangsmappenkennung.createNew(InetAddress.getLocalHost(), new Date()), new AlarmNachricht("XXX"));
+		vorgangsmappe = new MessageCasefile(CasefileId.createNew(InetAddress.getLocalHost(), new Date()), new AlarmMessage("XXX"));
 		regel.setResult(true);
-		eingangskorb.ablegen(vorgangsmappe);
+		eingangskorb.put(vorgangsmappe);
 		assertNotNull(timer.getLastScheduledTask());
 		assertEquals(DELAY, timer.getLastScheduledDelay());
 		
-		aeltesterEingang = ausgangskorb.entnehmeAeltestenEingang();
+		aeltesterEingang = ausgangskorb.takeDocument();
 		
 		assertEquals(vorgangsmappe, aeltesterEingang);
 		assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aeltesterEingang.getWeiteresVersandVorgehen());
@@ -172,12 +172,12 @@ public class WatchDogSachbearbeiter_Test {
 		
 		timer.reset();
 		// WatchDog startet timer nicht neu bei eingang von ungültiger Nachricht
-		vorgangsmappe = new Vorgangsmappe(Vorgangsmappenkennung.createNew(InetAddress.getLocalHost(), new Date()), new AlarmNachricht("XXX"));
+		vorgangsmappe = new MessageCasefile(CasefileId.createNew(InetAddress.getLocalHost(), new Date()), new AlarmMessage("XXX"));
 		regel.setResult(false);
-		eingangskorb.ablegen(vorgangsmappe);
+		eingangskorb.put(vorgangsmappe);
 		assertNull(timer.getLastScheduledTask());
 		
-		aeltesterEingang = ausgangskorb.entnehmeAeltestenEingang();
+		aeltesterEingang = ausgangskorb.takeDocument();
 		
 		assertEquals(vorgangsmappe, aeltesterEingang);
 		assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aeltesterEingang.getWeiteresVersandVorgehen());

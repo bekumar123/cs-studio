@@ -7,7 +7,7 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
-import org.csstudio.nams.common.fachwert.Millisekunden;
+import org.csstudio.nams.common.fachwert.Milliseconds;
 import org.csstudio.nams.common.material.regelwerk.StringRegelOperator;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.FilterConditionDTO;
 
@@ -141,8 +141,8 @@ public class TimeBasedFilterConditionDTO extends FilterConditionDTO {
 		return TimeBasedType.valueOf(this.sTimeBehavior);
 	}
 
-	public Millisekunden getTimePeriod() {
-		return Millisekunden.valueOf(this.sTimePeriod * 1000);
+	public Milliseconds getTimePeriod() {
+		return Milliseconds.valueOf(this.sTimePeriod * 1000);
 	}
 
 	@Override
@@ -204,8 +204,8 @@ public class TimeBasedFilterConditionDTO extends FilterConditionDTO {
 		this.sTimeBehavior = timeBasedType.asShort();
 	}
 
-	public void setTimePeriod(final Millisekunden millisekunden) {
-		this.sTimePeriod = (short) (millisekunden.alsLongVonMillisekunden() / 1000);
+	public void setTimePeriod(final Milliseconds millisekunden) {
+		this.sTimePeriod = (short) (millisekunden.getMilliseconds() / 1000);
 	}
 
 	@SuppressWarnings("unused")

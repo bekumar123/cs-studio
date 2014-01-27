@@ -8,10 +8,10 @@ import java.util.Date;
 import java.util.concurrent.Executor;
 
 import org.csstudio.nams.common.decision.ExecutorBeobachtbarerEingangskorb;
-import org.csstudio.nams.common.decision.StandardAblagekorb;
-import org.csstudio.nams.common.decision.Vorgangsmappe;
-import org.csstudio.nams.common.decision.Vorgangsmappenkennung;
-import org.csstudio.nams.common.material.AlarmNachricht;
+import org.csstudio.nams.common.decision.DefaultDocumentBox;
+import org.csstudio.nams.common.decision.MessageCasefile;
+import org.csstudio.nams.common.decision.CasefileId;
+import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.common.material.Regelwerkskennung;
 import org.csstudio.nams.common.material.regelwerk.DefaultRegelwerk;
 import org.csstudio.nams.common.material.regelwerk.Regel;
@@ -23,8 +23,8 @@ import org.junit.Test;
 public class DefaultSachbearbeiter_Test {
 
 	
-	private StandardAblagekorb<Vorgangsmappe> ausgangskorb;
-	private ExecutorBeobachtbarerEingangskorb<Vorgangsmappe> eingangskorb;
+	private DefaultDocumentBox<MessageCasefile> ausgangskorb;
+	private ExecutorBeobachtbarerEingangskorb<MessageCasefile> eingangskorb;
 	private TestRegel regel;
 	private Regelwerkskennung regelwerksKennung;
 
@@ -39,13 +39,13 @@ public class DefaultSachbearbeiter_Test {
 		private boolean result = false;
 
 		@Override
-		public boolean pruefeNachricht(AlarmNachricht nachricht) {
+		public boolean pruefeNachricht(AlarmMessage nachricht) {
 			return result;
 		}
 
 		@Override
-		public boolean pruefeNachricht(AlarmNachricht nachricht,
-				AlarmNachricht vergleichsNachricht) {
+		public boolean pruefeNachricht(AlarmMessage nachricht,
+				AlarmMessage vergleichsNachricht) {
 			return result;
 		}
 		
@@ -57,8 +57,8 @@ public class DefaultSachbearbeiter_Test {
 	@SuppressWarnings("deprecation")
 	@Before
 	public void setUp() throws Exception {
-		ausgangskorb = new StandardAblagekorb<Vorgangsmappe>();
-		eingangskorb = new ExecutorBeobachtbarerEingangskorb<Vorgangsmappe>(new DirectExecutor());
+		ausgangskorb = new DefaultDocumentBox<MessageCasefile>();
+		eingangskorb = new ExecutorBeobachtbarerEingangskorb<MessageCasefile>(new DirectExecutor());
 		regelwerksKennung = Regelwerkskennung.valueOf();
 		regel = new TestRegel();
 	}
@@ -68,33 +68,33 @@ public class DefaultSachbearbeiter_Test {
 		
 	}
 
-	private DefaultSachbearbeiter erzeugeSachbearbeiter() {
-		return new DefaultSachbearbeiter(eingangskorb,ausgangskorb, new DefaultRegelwerk(regelwerksKennung, regel));
+	private DefaultFilterWorker erzeugeSachbearbeiter() {
+		return new DefaultFilterWorker(eingangskorb,ausgangskorb, new DefaultRegelwerk(regelwerksKennung, regel));
 	}
 
 	@Test
 	public void testBeginneArbeit() {
-		DefaultSachbearbeiter sachbearbeiter = erzeugeSachbearbeiter();
+		DefaultFilterWorker sachbearbeiter = erzeugeSachbearbeiter();
 		
-		assertFalse(sachbearbeiter.istAmArbeiten());
-		sachbearbeiter.beginneArbeit();
-		assertTrue(sachbearbeiter.istAmArbeiten());
-		sachbearbeiter.beendeArbeit();
-		assertFalse(sachbearbeiter.istAmArbeiten());
+		assertFalse(sachbearbeiter.isWorking());
+		sachbearbeiter.startWorking();
+		assertTrue(sachbearbeiter.isWorking());
+		sachbearbeiter.stopWorking();
+		assertFalse(sachbearbeiter.isWorking());
 	}
 
 	@SuppressWarnings("deprecation")
 	@Test(timeout=1000)
 	public void testHandleNachricht() throws UnknownHostException, InterruptedException {
-		DefaultSachbearbeiter sachbearbeiter = erzeugeSachbearbeiter();
-		sachbearbeiter.beginneArbeit();
+		DefaultFilterWorker sachbearbeiter = erzeugeSachbearbeiter();
+		sachbearbeiter.startWorking();
 		
-		Vorgangsmappe vorgangsmappe = new Vorgangsmappe(Vorgangsmappenkennung.createNew(InetAddress.getLocalHost(), new Date()), new AlarmNachricht("XXX"));
+		MessageCasefile vorgangsmappe = new MessageCasefile(CasefileId.createNew(InetAddress.getLocalHost(), new Date()), new AlarmMessage("XXX"));
 		
 		regel.setResult(false);
 		
-		eingangskorb.ablegen(vorgangsmappe);
-		Vorgangsmappe aeltesterEingang = ausgangskorb.entnehmeAeltestenEingang();
+		eingangskorb.put(vorgangsmappe);
+		MessageCasefile aeltesterEingang = ausgangskorb.takeDocument();
 		
 		assertEquals(vorgangsmappe, aeltesterEingang);
 		assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aeltesterEingang.getWeiteresVersandVorgehen());
@@ -102,12 +102,12 @@ public class DefaultSachbearbeiter_Test {
 		assertTrue(aeltesterEingang.istAbgeschlossen());
 		assertFalse(aeltesterEingang.istAbgeschlossenDurchTimeOut());
 		
-		vorgangsmappe = new Vorgangsmappe(Vorgangsmappenkennung.createNew(InetAddress.getLocalHost(), new Date()), new AlarmNachricht("XXX"));
+		vorgangsmappe = new MessageCasefile(CasefileId.createNew(InetAddress.getLocalHost(), new Date()), new AlarmMessage("XXX"));
 		
 		regel.setResult(true);
 		
-		eingangskorb.ablegen(vorgangsmappe);
-		aeltesterEingang = ausgangskorb.entnehmeAeltestenEingang();
+		eingangskorb.put(vorgangsmappe);
+		aeltesterEingang = ausgangskorb.takeDocument();
 		
 		assertEquals(vorgangsmappe, aeltesterEingang);
 		assertEquals(WeiteresVersandVorgehen.VERSENDEN, aeltesterEingang.getWeiteresVersandVorgehen());

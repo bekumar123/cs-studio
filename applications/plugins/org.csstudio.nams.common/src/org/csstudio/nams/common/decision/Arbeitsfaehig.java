@@ -13,17 +13,17 @@ public interface Arbeitsfaehig {
 	/**
 	 * Beendet die Arbeit.
 	 */
-	public void beendeArbeit();
+	public void stopWorking();
 
 	/**
 	 * Beginnt mit der Arbeit.
 	 */
-	public void beginneArbeit();
+	public void startWorking();
 
 	/**
 	 * Ist gerade am arbeiten
 	 * 
 	 * @return True or False
 	 */
-	public boolean istAmArbeiten();
+	public boolean isWorking();
 }

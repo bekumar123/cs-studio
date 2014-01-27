@@ -10,7 +10,7 @@ import org.csstudio.nams.common.testutils.AbstractTestValue;
 import org.junit.Test;
 
 public class Vorgangsmappenkennung_Test extends
-		AbstractTestValue<Vorgangsmappenkennung> {
+		AbstractTestValue<CasefileId> {
 
 	@Test
 	public void testContractValueOf() throws Throwable {
@@ -19,14 +19,14 @@ public class Vorgangsmappenkennung_Test extends
 		final Date time1 = new Date(123456);
 
 		try {
-			Vorgangsmappenkennung.valueOf(null, time1);
+			CasefileId.valueOf(null, time1);
 			Assert.fail();
 		} catch (final AssertionError ae) {
 			// Ok!
 		}
 
 		try {
-			Vorgangsmappenkennung.valueOf(hostAdress, null);
+			CasefileId.valueOf(hostAdress, null);
 			Assert.fail();
 		} catch (final AssertionError ae) {
 			// Ok!
@@ -44,13 +44,13 @@ public class Vorgangsmappenkennung_Test extends
 		Assert.assertNotNull(hostAdress);
 		Assert.assertNotNull(hostAdress2);
 
-		final Vorgangsmappenkennung kennung1 = Vorgangsmappenkennung.valueOf(
+		final CasefileId kennung1 = CasefileId.valueOf(
 				hostAdress, time1);
-		final Vorgangsmappenkennung kennung2 = Vorgangsmappenkennung.valueOf(
+		final CasefileId kennung2 = CasefileId.valueOf(
 				hostAdress, time1);
 		Assert.assertEquals(kennung1, kennung2);
 
-		final Vorgangsmappenkennung kennung3 = Vorgangsmappenkennung.valueOf(
+		final CasefileId kennung3 = CasefileId.valueOf(
 				hostAdress, time2);
 
 		Assert.assertNotNull(kennung1);
@@ -58,22 +58,22 @@ public class Vorgangsmappenkennung_Test extends
 		Assert.assertFalse("kennung1.equals(kennung3)", kennung1
 				.equals(kennung3));
 
-		final Vorgangsmappenkennung kennung4 = Vorgangsmappenkennung.valueOf(
+		final CasefileId kennung4 = CasefileId.valueOf(
 				hostAdress2, time1);
 
 		Assert.assertFalse(kennung1.equals(kennung4));
 
-		final Vorgangsmappenkennung kennung5 = Vorgangsmappenkennung.valueOf(
+		final CasefileId kennung5 = CasefileId.valueOf(
 				kennung1, "Horst Seidel");
 		Assert.assertFalse("kennung1.equals(kennung5)", kennung1
 				.equals(kennung5));
-		final Vorgangsmappenkennung kennung6 = Vorgangsmappenkennung.valueOf(
+		final CasefileId kennung6 = CasefileId.valueOf(
 				kennung1, "Harry Hirsch");
 		Assert.assertFalse("kennung1.equals(kennung6)", kennung1
 				.equals(kennung6));
 		Assert.assertFalse("kennung5.equals(kennung6)", kennung5
 				.equals(kennung6));
-		final Vorgangsmappenkennung kennung7 = Vorgangsmappenkennung.valueOf(
+		final CasefileId kennung7 = CasefileId.valueOf(
 				kennung2, "Horst Seidel");
 		Assert.assertTrue("kennung5.equals(kennung7)", kennung5
 				.equals(kennung7));
@@ -81,11 +81,11 @@ public class Vorgangsmappenkennung_Test extends
 
 	@Test
 	public final void testHashCode2() throws Throwable {
-		final Vorgangsmappenkennung x = this.getAValueOfTypeUnderTest();
-		final Vorgangsmappenkennung y = this.getAValueOfTypeUnderTest();
-		final Vorgangsmappenkennung z = Vorgangsmappenkennung.valueOf(x,
+		final CasefileId x = this.getAValueOfTypeUnderTest();
+		final CasefileId y = this.getAValueOfTypeUnderTest();
+		final CasefileId z = CasefileId.valueOf(x,
 				"Horst Seidel");
-		final Vorgangsmappenkennung a = Vorgangsmappenkennung.valueOf(y,
+		final CasefileId a = CasefileId.valueOf(y,
 				"Horst Seidel");
 
 		Assert
@@ -132,9 +132,9 @@ public class Vorgangsmappenkennung_Test extends
 		final InetAddress hostAdress = InetAddress.getByAddress(new byte[] {
 				127, 0, 0, 1 });
 		final Date time1 = new Date(123456);
-		final Vorgangsmappenkennung ohneErgaenzung = Vorgangsmappenkennung
+		final CasefileId ohneErgaenzung = CasefileId
 				.valueOf(hostAdress, time1);
-		final Vorgangsmappenkennung mitErgaenzung = Vorgangsmappenkennung
+		final CasefileId mitErgaenzung = CasefileId
 				.valueOf(ohneErgaenzung, "Horst Seidel");
 
 		Assert.assertNotNull(ohneErgaenzung);
@@ -152,19 +152,19 @@ public class Vorgangsmappenkennung_Test extends
 		final Date time = new Date(123456);
 		Assert.assertNotNull(hostAdress);
 
-		final Vorgangsmappenkennung kennung = Vorgangsmappenkennung.valueOf(
+		final CasefileId kennung = CasefileId.valueOf(
 				hostAdress, time);
 		Assert.assertNotNull(kennung);
 		Assert.assertFalse(kennung.hatErgaenzung());
 
-		final Vorgangsmappenkennung neueKennungBasierendAufAlter = Vorgangsmappenkennung
+		final CasefileId neueKennungBasierendAufAlter = CasefileId
 				.valueOf(kennung, "Horst Senkel"); // "12345@127.0.0.1 / Horst
 		// Senkel"
 		Assert.assertNotNull(neueKennungBasierendAufAlter);
 		Assert.assertTrue(neueKennungBasierendAufAlter.hatErgaenzung());
 
 		try {
-			Vorgangsmappenkennung.valueOf(neueKennungBasierendAufAlter,
+			CasefileId.valueOf(neueKennungBasierendAufAlter,
 					"Horst Senkel");
 			Assert.fail("Vertragsbruch wurde erwartet...");
 		} catch (final Throwable t) {
@@ -173,7 +173,7 @@ public class Vorgangsmappenkennung_Test extends
 	}
 
 	@Override
-	protected Vorgangsmappenkennung doGetAValueOfTypeUnderTest() {
+	protected CasefileId doGetAValueOfTypeUnderTest() {
 
 		InetAddress hostAdress = null;
 		try {
@@ -184,11 +184,11 @@ public class Vorgangsmappenkennung_Test extends
 		Assert.assertNotNull(hostAdress);
 
 		final Date time = new Date(123456);
-		return Vorgangsmappenkennung.valueOf(hostAdress, time);
+		return CasefileId.valueOf(hostAdress, time);
 	}
 
 	@Override
-	protected Vorgangsmappenkennung[] doGetDifferentInstancesOfTypeUnderTest() {
+	protected CasefileId[] doGetDifferentInstancesOfTypeUnderTest() {
 		InetAddress hostAdress = null;
 		try {
 			hostAdress = InetAddress.getByAddress(new byte[] { 127, 0, 0, 1 });
@@ -201,9 +201,9 @@ public class Vorgangsmappenkennung_Test extends
 		final Date time2 = new Date(123457);
 		final Date time3 = new Date(123458);
 
-		return new Vorgangsmappenkennung[] {
-				Vorgangsmappenkennung.valueOf(hostAdress, time1),
-				Vorgangsmappenkennung.valueOf(hostAdress, time2),
-				Vorgangsmappenkennung.valueOf(hostAdress, time3) };
+		return new CasefileId[] {
+				CasefileId.valueOf(hostAdress, time1),
+				CasefileId.valueOf(hostAdress, time2),
+				CasefileId.valueOf(hostAdress, time3) };
 	}
 }

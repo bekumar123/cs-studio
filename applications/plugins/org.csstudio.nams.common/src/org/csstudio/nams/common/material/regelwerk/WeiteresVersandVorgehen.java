@@ -26,13 +26,13 @@
 
 package org.csstudio.nams.common.material.regelwerk;
 
-import org.csstudio.nams.common.decision.Vorgangsmappe;
-import org.csstudio.nams.common.material.AlarmNachricht;
+import org.csstudio.nams.common.decision.MessageCasefile;
+import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.common.wam.Fachwert;
 
 /**
  * Eine Aufzaehlung von möglichen weiteren Vorgehen bezüglich des Versandes der
- * {@link AlarmNachricht} in einer {@link Vorgangsmappe}.
+ * {@link AlarmMessage} in einer {@link MessageCasefile}.
  * 
  * 
  * @author <a href="mailto:tr@c1-wps.de">Tobias Rathjen</a>, <a

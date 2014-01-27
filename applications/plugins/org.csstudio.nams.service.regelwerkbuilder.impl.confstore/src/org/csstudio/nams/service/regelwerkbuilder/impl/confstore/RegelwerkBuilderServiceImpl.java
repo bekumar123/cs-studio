@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
-import org.csstudio.nams.common.fachwert.Millisekunden;
+import org.csstudio.nams.common.fachwert.Milliseconds;
 import org.csstudio.nams.common.material.Regelwerkskennung;
 import org.csstudio.nams.common.material.regelwerk.DefaultRegelwerk;
 import org.csstudio.nams.common.material.regelwerk.NichtRegel;
@@ -73,7 +73,7 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 			// we do assume, that the first level filtercondition are conjugated
 			for (final FilterDTO filterDTO : listOfFilters) {
 				Regelwerk regelwerk = null;
-				Regelwerkskennung regelwerkskennung = Regelwerkskennung.valueOf(filterDTO.getIFilterID(), filterDTO.getName());
+				Regelwerkskennung regelwerkskennung = Regelwerkskennung.valueOf(filterDTO.getIFilterID());
 
 				if (filterDTO instanceof DefaultFilterDTO) {
 					final List<FilterConditionDTO> filterConditions = ((DefaultFilterDTO) filterDTO).getFilterConditions();
@@ -97,12 +97,12 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 					Regel startRegel = createRegel(timeBasedFilterDTO.getStartFilterCondition());
 					Regel stopRegel = createRegel(timeBasedFilterDTO.getStopFilterCondition());
 					TimeoutType timeoutType = (timeBasedFilterDTO.isSendOnTimeout()) ? TimeoutType.SENDE_BEI_TIMEOUT : TimeoutType.SENDE_BEI_STOP_REGEL;
-					regelwerk = new TimebasedRegelwerk(regelwerkskennung, startRegel, stopRegel, Millisekunden.valueOf(timeBasedFilterDTO
+					regelwerk = new TimebasedRegelwerk(regelwerkskennung, startRegel, stopRegel, Milliseconds.valueOf(timeBasedFilterDTO
 							.getTimeout() * 1000), timeoutType); 
 				} else if (filterDTO instanceof WatchDogFilterDTO) {
 					WatchDogFilterDTO watchDogFilterDTO = (WatchDogFilterDTO) filterDTO;
 					Regel rootRegel = createRegel(watchDogFilterDTO.getFilterCondition());
-					regelwerk = new WatchDogRegelwerk(regelwerkskennung, rootRegel, Millisekunden.valueOf(watchDogFilterDTO.getTimeout() * 1000));
+					regelwerk = new WatchDogRegelwerk(regelwerkskennung, rootRegel, Milliseconds.valueOf(watchDogFilterDTO.getTimeout() * 1000));
 				}
 				results.add(regelwerk);
 			}

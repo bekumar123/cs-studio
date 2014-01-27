@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) C1 WPS mbH, HAMBURG, GERMANY. All Rights Reserved.
  *
@@ -25,7 +24,7 @@
 
 package org.csstudio.nams.application.department.decision;
 
-import org.csstudio.nams.common.material.SyncronisationsAufforderungsSystemNachchricht;
+import org.csstudio.nams.common.material.SynchronisationsAufforderungsSystemNachchricht;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.LocalStoreConfigurationService;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.ReplicationStateDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.ReplicationStateDTO.ReplicationState;
@@ -35,7 +34,6 @@ import org.csstudio.nams.service.configurationaccess.localstore.declaration.exce
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.exceptions.UnknownConfigurationElementError;
 import org.csstudio.nams.service.history.declaration.HistoryService;
 import org.csstudio.nams.service.messaging.declaration.Consumer;
-import org.csstudio.nams.service.messaging.declaration.NAMSMessage;
 import org.csstudio.nams.service.messaging.declaration.Producer;
 import org.csstudio.nams.service.messaging.exceptions.MessagingException;
 
@@ -47,26 +45,24 @@ import org.csstudio.nams.service.messaging.exceptions.MessagingException;
  * <ol>
  * <li>empfangen einer SyncAufforderung auf externem Command Topic</li>
  * <li>schreiben des ReplicationStates</li>
- * <li>senden der Aufforderung an den Distributor ueber das "normale" Ausgangskorb Topic</li>
+ * <li>senden der Aufforderung an den Distributor ueber das "normale"
+ * Ausgangskorb Topic</li>
  * <li>warten auf SyncBestaetigung auf internem Command Topic</li>
  * <li>schreiben eines History Eintrages</li>
  * </ol>
  * 
- * Wichtig:
- * internes und externen Command Topic muessen unterschiedlich sein.
+ * Wichtig: internes und externen Command Topic muessen unterschiedlich sein.
  */
-public class SyncronisationsAutomat {
+public class SynchronisationsAutomat {
 
-	private static volatile boolean macheweiter;
 	private static Thread workingThread;
 	private static volatile boolean isRunning;
 	private static boolean canceled;
 
 	public static void cancel() {
-		SyncronisationsAutomat.macheweiter = false;
-		SyncronisationsAutomat.workingThread.interrupt();
-		SyncronisationsAutomat.canceled = true;
-		while (SyncronisationsAutomat.isRunning()) {
+		SynchronisationsAutomat.workingThread.interrupt();
+		SynchronisationsAutomat.canceled = true;
+		while (SynchronisationsAutomat.isRunning()) {
 			Thread.yield();
 		}
 	}
@@ -79,11 +75,11 @@ public class SyncronisationsAutomat {
 	 * @return true is canceled.
 	 */
 	public static boolean hasBeenCanceled() {
-		return SyncronisationsAutomat.canceled;
+		return SynchronisationsAutomat.canceled;
 	}
 
 	public static boolean isRunning() {
-		return SyncronisationsAutomat.isRunning;
+		return SynchronisationsAutomat.isRunning;
 	}
 
 	/**
@@ -97,69 +93,25 @@ public class SyncronisationsAutomat {
 	 * @param localStoreConfigurationService
 	 * @throws MessagingException
 	 * 
-	 * FIXME Database-Flags setzen mit LocalStoreConfigurationServie (TEST!!).
-	 * (gs) Wird doch gemacht, oder?!?!
+	 *             FIXME Database-Flags setzen mit LocalStoreConfigurationServie
+	 *             (TEST!!). (gs) Wird doch gemacht, oder?!?!
 	 * 
 	 * @throws InconsistentConfigurationException
 	 * @throws StorageException
 	 * @throws StorageError
 	 * @throws UnknownConfigurationElementError
 	 */
-	public static void syncronisationUeberDistributorAusfueren(
-			final Producer producer,
-			final Consumer consumer,
-			final LocalStoreConfigurationService localStoreConfigurationService,
-			final HistoryService historyService) throws MessagingException,
-			StorageError, StorageException, InconsistentConfigurationException,
-			UnknownConfigurationElementError {
+	public static void synchronisationUeberDistributorAusfueren(final Producer producer, final Consumer consumer,
+			final LocalStoreConfigurationService localStoreConfigurationService, final HistoryService historyService) throws MessagingException,
+			StorageError, StorageException, InconsistentConfigurationException, UnknownConfigurationElementError {
 
-		/**
-		 * Wenn der ReplicationState gerade auf einem Zustand des Distributors
-		 * ist keine neue Aufforderung an ihn zum synchronisieren senden
-		 */
-		final ReplicationStateDTO stateDTO = localStoreConfigurationService
-				.getCurrentReplicationState();
-		final ReplicationState replicationState = stateDTO
-				.getReplicationState();
-		if ((replicationState != ReplicationState.FLAGVALUE_SYNCH_DIST_RPL)
-				&& (replicationState != ReplicationState.FLAGVALUE_SYNCH_DIST_NOTIFY_FMR)) {
-			stateDTO
-					.setReplicationState(ReplicationState.FLAGVALUE_SYNCH_FMR_TO_DIST_SENDED);
-			localStoreConfigurationService
-					.saveCurrentReplicationState(stateDTO);
+		final ReplicationStateDTO stateDTO = localStoreConfigurationService.getCurrentReplicationState();
+		final ReplicationState replicationState = stateDTO.getReplicationState();
+		if ((replicationState != ReplicationState.FLAGVALUE_SYNCH_DIST_RPL) && (replicationState != ReplicationState.FLAGVALUE_SYNCH_DIST_NOTIFY_FMR)) {
+			stateDTO.setReplicationState(ReplicationState.FLAGVALUE_SYNCH_FMR_TO_DIST_SENDED);
+			localStoreConfigurationService.saveCurrentReplicationState(stateDTO);
 		}
-		
-		// Muss immer gesendet werden da kurz aufeinander folgende Synchronizationsaufforderungen
-		// dazu fuehren koennen, dass der ReplicationState vom Distributor noch nicht geaendert wurde.
-		producer.sendeSystemnachricht(new SyncronisationsAufforderungsSystemNachchricht());
 
-		SyncronisationsAutomat.macheweiter = true;
-		SyncronisationsAutomat.workingThread = Thread.currentThread();
-		SyncronisationsAutomat.canceled = false;
-		SyncronisationsAutomat.isRunning = true;
-		while (SyncronisationsAutomat.macheweiter) {
-			try {
-				final NAMSMessage receiveMessage = consumer.receiveMessage();
-
-				if (receiveMessage.enthaeltSystemnachricht()) {
-					if (receiveMessage.alsSystemachricht()
-							.istSyncronisationsBestaetigung()) {
-						SyncronisationsAutomat.macheweiter = false;
-						historyService.logReceivedReplicationDoneMessage();
-					}
-				}
-				// Alle Arten von Nachrichten acknowledgen
-				receiveMessage.acknowledge();
-			} catch (final MessagingException e) {
-				// TODO Prüfen ob nötig.
-				if (e.getCause() instanceof InterruptedException) {
-					SyncronisationsAutomat.canceled = true;
-				}
-				throw e;
-			} catch (final InterruptedException is) {
-				SyncronisationsAutomat.canceled = true;
-			}
-		}
-		SyncronisationsAutomat.isRunning = false;
+		producer.sendeSystemnachricht(new SynchronisationsAufforderungsSystemNachchricht());
 	}
 }

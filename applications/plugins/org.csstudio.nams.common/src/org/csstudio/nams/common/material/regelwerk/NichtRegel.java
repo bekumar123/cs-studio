@@ -1,6 +1,6 @@
 package org.csstudio.nams.common.material.regelwerk;
 
-import org.csstudio.nams.common.material.AlarmNachricht;
+import org.csstudio.nams.common.material.AlarmMessage;
 
 public class NichtRegel implements Regel {
 	
@@ -11,12 +11,12 @@ public class NichtRegel implements Regel {
 	}
 
 	@Override
-	public boolean pruefeNachricht(AlarmNachricht nachricht) {
+	public boolean pruefeNachricht(AlarmMessage nachricht) {
 		return !childRegel.pruefeNachricht(nachricht);
 	}
 
 	@Override
-	public boolean pruefeNachricht(AlarmNachricht nachricht, AlarmNachricht vergleichsNachricht) {
+	public boolean pruefeNachricht(AlarmMessage nachricht, AlarmMessage vergleichsNachricht) {
 		return !childRegel.pruefeNachricht(nachricht, vergleichsNachricht);
 	}
 

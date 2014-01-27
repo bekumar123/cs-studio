@@ -25,106 +25,69 @@
 package org.csstudio.nams.application.department.decision.office.decision;
 
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 import junit.framework.Assert;
 
 import org.csstudio.nams.common.DefaultExecutionService;
-import org.csstudio.nams.common.decision.Ablagefaehig;
-import org.csstudio.nams.common.decision.Eingangskorb;
-import org.csstudio.nams.common.decision.StandardAblagekorb;
-import org.csstudio.nams.common.decision.Vorgangsmappe;
-import org.csstudio.nams.common.decision.Vorgangsmappenkennung;
-import org.csstudio.nams.common.material.AlarmNachricht;
+import org.csstudio.nams.common.decision.Document;
+import org.csstudio.nams.common.decision.Inbox;
+import org.csstudio.nams.common.decision.DefaultDocumentBox;
+import org.csstudio.nams.common.decision.MessageCasefile;
+import org.csstudio.nams.common.decision.CasefileId;
+import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.common.testutils.AbstractTestObject;
+import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.junit.Test;
 
 public class Abteilungsleiter_Test extends
-		AbstractTestObject<Abteilungsleiter> {
+		AbstractTestObject<ThreadedMessageDispatcher> {
 
 	protected volatile int anzahlDerSachbearbeiterDieEineMappeErhaltenHaben;
-	protected Throwable testFailed;
+	protected Throwable testFailedError;
 
 	@SuppressWarnings("unchecked")
 	@Test(timeout = 4000)
 	public void testAbteilungsleiter() throws Throwable {
-		final Vorgangsmappe vorgangsmappe = new Vorgangsmappe(
-				Vorgangsmappenkennung.valueOf(InetAddress
+		final MessageCasefile vorgangsmappe = new MessageCasefile(
+				CasefileId.valueOf(InetAddress
 						.getByAddress(new byte[] { 127, 0, 0, 1 }), new Date(
-						123)), new AlarmNachricht("Test-Nachricht"));
+						123)), new AlarmMessage("Test-Nachricht"));
 		this.anzahlDerSachbearbeiterDieEineMappeErhaltenHaben = 0;
 
-		final Eingangskorb<Vorgangsmappe> eingangskorb = EasyMock
-				.createMock(Eingangskorb.class);
-		EasyMock.expect(eingangskorb.entnehmeAeltestenEingang()).andReturn(
+		final Inbox<MessageCasefile> eingangskorb = EasyMock
+				.createMock(Inbox.class);
+		EasyMock.expect(eingangskorb.takeDocument()).andReturn(
 				vorgangsmappe).times(1).andStubAnswer(
-				new IAnswer<Vorgangsmappe>() {
-					public Vorgangsmappe answer() throws Throwable {
+				new IAnswer<MessageCasefile>() {
+					public MessageCasefile answer() throws Throwable {
 						Thread.sleep(Integer.MAX_VALUE);
 						Assert.fail();
 						return null;
 					}
 				});
-
-		final Eingangskorb<Vorgangsmappe> sachbearbeiter1 = new Eingangskorb<Vorgangsmappe>() {
-			public void ablegen(Vorgangsmappe dokument) {
-				try {
-					Assert.assertNotSame("Vorgangsmappen nicht identisch",
-							vorgangsmappe, dokument);
-					Assert.assertFalse("Vorgangsmappen nicht gleich",
-							vorgangsmappe.equals(dokument));
-
-					Assert
-							.assertNotSame(
-									"Vorgangsmappen.Alarmnachricht nicht identisch",
-									vorgangsmappe
-											.getAlarmNachricht(),
-									dokument
-											.getAlarmNachricht());
-					Assert
-							.assertEquals(
-									"Vorgangsmappen.Alarmnachrichten bleiben in diesem Büro gleich",
-									vorgangsmappe
-											.getAlarmNachricht(),
-									dokument
-											.getAlarmNachricht());
-
-					Abteilungsleiter_Test.this.anzahlDerSachbearbeiterDieEineMappeErhaltenHaben++;
-				} catch (Throwable t) {
-					Abteilungsleiter_Test.this.testFailed = t;
-				}
-			}
-
-			public Vorgangsmappe entnehmeAeltestenEingang()
-					throws InterruptedException {
-				Assert.fail("not to be called!");
-				return null;
-			}
-		};
-		final Eingangskorb<Vorgangsmappe> sachbearbeiter2 = sachbearbeiter1; // Da
-		// die
-		// Exemplare
-		// nicht
-		// unterschieden werden, ist dieses
-		// derzeit möglich!
+		
+		
+		Inbox<Document> korbMock = EasyMock.createMock(Inbox.class);
+		Capture<Document> ablegenArguments = new Capture<Document>();
+		korbMock.put(EasyMock.<Document> capture(ablegenArguments));
+		EasyMock.expectLastCall().once();
+		EasyMock.replay(korbMock);
+		
+		final Inbox<Document> sachbearbeiterkorb1 = createEingangskorbMock(vorgangsmappe);
+		// Da die Exemplare nicht unterschieden werden, ist dieses derzeit möglich!
+		final Inbox<Document> sachbearbeiterkorb2 = createEingangskorbMock(vorgangsmappe); 
 
 		EasyMock.replay(eingangskorb);
-		this.testFailed = null;
+		this.testFailedError = null;
 
-		final List sachbearbeiterkoerbe = new ArrayList<Eingangskorb<Ablagefaehig>>();
-		sachbearbeiterkoerbe.add(sachbearbeiter1);
-		sachbearbeiterkoerbe.add(sachbearbeiter2);
-		final Abteilungsleiter abteilungsleiter = new Abteilungsleiter(
-				new DefaultExecutionService(), eingangskorb,
-				sachbearbeiterkoerbe);
+		final ThreadedMessageDispatcher abteilungsleiter = new ThreadedMessageDispatcher(
+				new DefaultExecutionService(), eingangskorb);
+		abteilungsleiter.addWorkerInbox(korbMock);
 
-		abteilungsleiter.beginneArbeit();
+		abteilungsleiter.startWorking();
 
 		// Der Mock simuliert jetzt folgendes:
 		// eingangskorb.ablegen(vorgangsmappe);
@@ -137,35 +100,82 @@ public class Abteilungsleiter_Test extends
 			Thread.sleep(10);
 		}
 
-		abteilungsleiter.beendeArbeit();
+		abteilungsleiter.stopWorking();
 
-		if (this.testFailed != null) {
-			throw this.testFailed;
+		if (this.testFailedError != null) {
+			throw this.testFailedError;
 		}
 		EasyMock.verify(eingangskorb);
+		
+		EasyMock.verify(korbMock);
+		MessageCasefile dokument = (MessageCasefile) ablegenArguments.getValue();
+		Assert.assertNotSame("Vorgangsmappen nicht identisch",
+				vorgangsmappe, dokument);
+		Assert.assertFalse("Vorgangsmappen nicht gleich",
+				vorgangsmappe.equals(dokument));
+
+		Assert.assertNotSame("Vorgangsmappen.Alarmnachricht nicht identisch",
+						vorgangsmappe.getAlarmNachricht(),
+						dokument.getAlarmNachricht());
+		Assert.assertEquals("Vorgangsmappen.Alarmnachrichten bleiben in diesem Büro gleich",
+						vorgangsmappe.getAlarmNachricht(),
+						dokument.getAlarmNachricht());
+		
+		
+
+	}
+
+	private Inbox<Document> createEingangskorbMock(final MessageCasefile vorgangsmappe) {
+		return new Inbox<Document>() {
+			public void put(Document ablagefaehig) {
+				try {
+					MessageCasefile dokument = (MessageCasefile) ablagefaehig;
+					Assert.assertNotSame("Vorgangsmappen nicht identisch",
+							vorgangsmappe, dokument);
+					Assert.assertFalse("Vorgangsmappen nicht gleich",
+							vorgangsmappe.equals(dokument));
+
+					Assert.assertNotSame("Vorgangsmappen.Alarmnachricht nicht identisch",
+									vorgangsmappe.getAlarmNachricht(),
+									dokument.getAlarmNachricht());
+					Assert.assertEquals("Vorgangsmappen.Alarmnachrichten bleiben in diesem Büro gleich",
+									vorgangsmappe.getAlarmNachricht(),
+									dokument.getAlarmNachricht());
+
+					Abteilungsleiter_Test.this.anzahlDerSachbearbeiterDieEineMappeErhaltenHaben++;
+				} catch (Throwable throwable) {
+					Abteilungsleiter_Test.this.testFailedError = throwable;
+				}
+			}
+
+			public MessageCasefile take()
+					throws InterruptedException {
+				Assert.fail("not to be called!");
+				return null;
+			}
+		};
 	}
 
 	@Test
 	public void testArbeit() throws InterruptedException {
-		final Abteilungsleiter abteilungsleiter = this
+		final ThreadedMessageDispatcher abteilungsleiter = this
 				.getNewInstanceOfClassUnderTest();
 		Assert.assertFalse("abteilungsleiter.istAmArbeiten()", abteilungsleiter
-				.istAmArbeiten());
-		abteilungsleiter.beginneArbeit();
+				.isWorking());
+		abteilungsleiter.startWorking();
 		Assert.assertTrue("abteilungsleiter.istAmArbeiten()", abteilungsleiter
-				.istAmArbeiten());
-		abteilungsleiter.beendeArbeit();
+				.isWorking());
+		abteilungsleiter.stopWorking();
 		Thread.sleep(100);
 		Assert.assertFalse("abteilungsleiter.istAmArbeiten()", abteilungsleiter
-				.istAmArbeiten());
+				.isWorking());
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected Abteilungsleiter getNewInstanceOfClassUnderTest() {
-		return new Abteilungsleiter(new DefaultExecutionService(),
-				new StandardAblagekorb<Vorgangsmappe>(),
-				Collections.EMPTY_LIST);
+	protected ThreadedMessageDispatcher getNewInstanceOfClassUnderTest() {
+		return new ThreadedMessageDispatcher(new DefaultExecutionService(),
+				new DefaultDocumentBox<MessageCasefile>());
 	}
 
 	@Override
@@ -175,17 +185,14 @@ public class Abteilungsleiter_Test extends
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected Abteilungsleiter[] getThreeDiffrentNewInstanceOfClassUnderTest() {
-		return new Abteilungsleiter[] {
-				new Abteilungsleiter(new DefaultExecutionService(),
-						new StandardAblagekorb<Vorgangsmappe>(),
-						Collections.EMPTY_LIST),
-				new Abteilungsleiter(new DefaultExecutionService(),
-						new StandardAblagekorb<Vorgangsmappe>(),
-						Collections.EMPTY_LIST),
-				new Abteilungsleiter(new DefaultExecutionService(),
-						new StandardAblagekorb<Vorgangsmappe>(),
-						Collections.EMPTY_LIST) };
+	protected ThreadedMessageDispatcher[] getThreeDiffrentNewInstanceOfClassUnderTest() {
+		return new ThreadedMessageDispatcher[] {
+				new ThreadedMessageDispatcher(new DefaultExecutionService(),
+						new DefaultDocumentBox<MessageCasefile>()),
+				new ThreadedMessageDispatcher(new DefaultExecutionService(),
+						new DefaultDocumentBox<MessageCasefile>()),
+				new ThreadedMessageDispatcher(new DefaultExecutionService(),
+						new DefaultDocumentBox<MessageCasefile>()) };
 	}
 
 }

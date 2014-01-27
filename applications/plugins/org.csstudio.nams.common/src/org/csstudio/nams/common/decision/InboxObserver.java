@@ -25,8 +25,8 @@
 
 package org.csstudio.nams.common.decision;
 
-public interface EingangskorbBeobachter {
+public interface InboxObserver {
 
-	public void neuerEingang();
+	public void onNewDocument();
 	
 }

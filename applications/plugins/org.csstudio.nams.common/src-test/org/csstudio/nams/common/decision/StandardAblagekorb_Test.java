@@ -8,23 +8,23 @@ import org.junit.Test;
 
 public class StandardAblagekorb_Test
 		extends
-		AbstractTestAblagekorb<AblagefaehigesObject, StandardAblagekorb<AblagefaehigesObject>> {
+		AbstractTestAblagekorb<AblagefaehigesObject, DefaultDocumentBox<AblagefaehigesObject>> {
 
 	volatile int fertigeConsumer = 0;
-	volatile private StandardAblagekorb<Ablagefaehig> korb;
+	volatile private DefaultDocumentBox<Document> korb;
 
 	@Test
 	public void testIterator() throws InterruptedException {
-		final StandardAblagekorb<Ablagefaehig> korb = new StandardAblagekorb<Ablagefaehig>();
+		final DefaultDocumentBox<Document> korb = new DefaultDocumentBox<Document>();
 
-		korb.ablegen(new AblagefaehigesObject());
-		korb.ablegen(new AblagefaehigesObject());
-		korb.ablegen(new AblagefaehigesObject());
+		korb.put(new AblagefaehigesObject());
+		korb.put(new AblagefaehigesObject());
+		korb.put(new AblagefaehigesObject());
 
-		final Iterator<Ablagefaehig> iterator = korb.iterator();
+		final Iterator<Document> iterator = korb.iterator();
 		int anzahl = 0;
 		while (iterator.hasNext()) {
-			final Ablagefaehig ablagefaehig = iterator.next();
+			final Document ablagefaehig = iterator.next();
 			Assert.assertNotNull(ablagefaehig);
 			iterator.remove();
 			anzahl++;
@@ -32,7 +32,7 @@ public class StandardAblagekorb_Test
 		Assert.assertEquals(3, anzahl);
 		anzahl = 0;
 		while (iterator.hasNext()) {
-			final Ablagefaehig ablagefaehig = iterator.next();
+			final Document ablagefaehig = iterator.next();
 			Assert.assertNotNull(ablagefaehig);
 			anzahl++;
 		}
@@ -41,14 +41,14 @@ public class StandardAblagekorb_Test
 
 	@Test
 	public void testIteratorNebenlaeufig() throws InterruptedException {
-		final StandardAblagekorb<Ablagefaehig> korb = new StandardAblagekorb<Ablagefaehig>();
+		final DefaultDocumentBox<Document> korb = new DefaultDocumentBox<Document>();
 
 		class Producer implements Runnable {
 			public void run() {
 				int i = 0;
 				while (i < 1000) {
 					try {
-						korb.ablegen(new AblagefaehigesObject());
+						korb.put(new AblagefaehigesObject());
 					} catch (final InterruptedException ex) {
 						Assert.fail();
 					}
@@ -65,10 +65,10 @@ public class StandardAblagekorb_Test
 				} catch (final InterruptedException e) {
 					Assert.fail(e.getMessage());
 				}
-				final Iterator<Ablagefaehig> iterator = korb.iterator();
+				final Iterator<Document> iterator = korb.iterator();
 				int anzahl = 0;
 				while (iterator.hasNext()) {
-					final Ablagefaehig ablagefaehig = iterator.next();
+					final Document ablagefaehig = iterator.next();
 					Assert.assertNotNull(ablagefaehig);
 					iterator.remove();
 					anzahl++;
@@ -84,8 +84,8 @@ public class StandardAblagekorb_Test
 
 	@Test(timeout = 4000)
 	public void testMassigAblegenUndEntnehmen() {
-		this.korb = new StandardAblagekorb<Ablagefaehig>();
-		final StandardAblagekorb<Ablagefaehig> korb2 = new StandardAblagekorb<Ablagefaehig>();
+		this.korb = new DefaultDocumentBox<Document>();
+		final DefaultDocumentBox<Document> korb2 = new DefaultDocumentBox<Document>();
 
 		class Producer implements Runnable {
 			public void run() {
@@ -93,7 +93,7 @@ public class StandardAblagekorb_Test
 				while (i < 100) {
 					try {
 						StandardAblagekorb_Test.this.korb
-								.ablegen(new AblagefaehigesObject());
+								.put(new AblagefaehigesObject());
 						// System.out.println("Producer.run()");
 					} catch (final InterruptedException ex) {
 						Assert.fail();
@@ -113,10 +113,10 @@ public class StandardAblagekorb_Test
 			public void run() {
 				int i = 0;
 				while (i < 100) {
-					Ablagefaehig eingang = null;
+					Document eingang = null;
 					try {
 						eingang = StandardAblagekorb_Test.this.korb
-								.entnehmeAeltestenEingang();
+								.takeDocument();
 						// System.out.println("Consumer1.run()" + name);
 					} catch (final InterruptedException ex) {
 					}
@@ -124,7 +124,7 @@ public class StandardAblagekorb_Test
 					Assert.assertNotNull(eingang);
 
 					try {
-						korb2.ablegen(eingang);
+						korb2.put(eingang);
 					} catch (final InterruptedException ex) {
 					}
 
@@ -145,8 +145,8 @@ public class StandardAblagekorb_Test
 				try {
 					int i = 0;
 					while (i < 100) {
-						Ablagefaehig eingang = null;
-						eingang = korb2.entnehmeAeltestenEingang();
+						Document eingang = null;
+						eingang = korb2.takeDocument();
 						Assert.assertNotNull(eingang);
 						// System.out.println("Consumer2.run(): " + name);
 
@@ -183,8 +183,8 @@ public class StandardAblagekorb_Test
 	}
 
 	@Override
-	protected StandardAblagekorb<AblagefaehigesObject> getNewInstanceOfClassUnderTest() {
-		return new StandardAblagekorb<AblagefaehigesObject>();
+	protected DefaultDocumentBox<AblagefaehigesObject> getNewInstanceOfClassUnderTest() {
+		return new DefaultDocumentBox<AblagefaehigesObject>();
 	}
 
 	@Override
@@ -194,12 +194,12 @@ public class StandardAblagekorb_Test
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected StandardAblagekorb<AblagefaehigesObject>[] getThreeDiffrentNewInstanceOfClassUnderTest() {
+	protected DefaultDocumentBox<AblagefaehigesObject>[] getThreeDiffrentNewInstanceOfClassUnderTest() {
 		// TODO Auto-generated method stub
-		return new StandardAblagekorb[] {
-				new StandardAblagekorb<AblagefaehigesObject>(),
-				new StandardAblagekorb<AblagefaehigesObject>(),
-				new StandardAblagekorb<AblagefaehigesObject>() };
+		return new DefaultDocumentBox[] {
+				new DefaultDocumentBox<AblagefaehigesObject>(),
+				new DefaultDocumentBox<AblagefaehigesObject>(),
+				new DefaultDocumentBox<AblagefaehigesObject>() };
 	}
 
 	@Override
@@ -208,16 +208,16 @@ public class StandardAblagekorb_Test
 	}
 
 	@Override
-	protected Ablagekorb<AblagefaehigesObject> gibNeuesExemplar() {
-		return new StandardAblagekorb<AblagefaehigesObject>();
+	protected Box<AblagefaehigesObject> gibNeuesExemplar() {
+		return new DefaultDocumentBox<AblagefaehigesObject>();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	protected boolean pruefeObEnthalten(
-			final Ablagekorb<AblagefaehigesObject> korb,
+			final Box<AblagefaehigesObject> korb,
 			final AblagefaehigesObject element) {
-		return ((StandardAblagekorb) korb).istEnthalten(element);
+		return ((DefaultDocumentBox) korb).istEnthalten(element);
 	}
 
 }

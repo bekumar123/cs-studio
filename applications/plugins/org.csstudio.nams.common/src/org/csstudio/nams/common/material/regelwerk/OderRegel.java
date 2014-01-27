@@ -2,7 +2,7 @@ package org.csstudio.nams.common.material.regelwerk;
 
 import java.util.List;
 
-import org.csstudio.nams.common.material.AlarmNachricht;
+import org.csstudio.nams.common.material.AlarmMessage;
 
 public class OderRegel implements Regel {
 
@@ -13,7 +13,7 @@ public class OderRegel implements Regel {
 	}
 	
 	@Override
-	public boolean pruefeNachricht(AlarmNachricht nachricht) {
+	public boolean pruefeNachricht(AlarmMessage nachricht) {
 		boolean result = false;
 		
 		for (Regel regel : this.regeln) {
@@ -28,7 +28,7 @@ public class OderRegel implements Regel {
 	}
 
 	@Override
-	public boolean pruefeNachricht(AlarmNachricht nachricht, AlarmNachricht vergleichsNachricht) {
+	public boolean pruefeNachricht(AlarmMessage nachricht, AlarmMessage vergleichsNachricht) {
 		boolean result = false;
 		
 		for (Regel regel : this.regeln) {

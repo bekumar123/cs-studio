@@ -33,7 +33,7 @@ import org.csstudio.nams.common.wam.Fachwert;
  * Repräsentiert Millisekunden als Fachwert.
  */
 @Fachwert
-public final class Millisekunden {
+public final class Milliseconds {
 
 	/**
 	 * Liefert die Millisekunden, die durch einen long repraesentiert werden.
@@ -41,23 +41,23 @@ public final class Millisekunden {
 	 * @param value
 	 *            Ein positiver long-Wert.
 	 */
-	public static Millisekunden valueOf(final long value) {
+	public static Milliseconds valueOf(final long value) {
 		Contract.require(value >= 0, "value >= 0");
-		return new Millisekunden(value);
+		return new Milliseconds(value);
 	}
 
 	private final long value;
 
-	private Millisekunden(final long v) {
+	private Milliseconds(final long v) {
 		this.value = v;
 	}
 
-	public long alsLongVonMillisekunden() {
+	public long getMilliseconds() {
 		return this.value;
 	}
 
-	public Millisekunden differenz(final Millisekunden millisekunden) {
-		return Millisekunden
+	public Milliseconds differenz(final Milliseconds millisekunden) {
+		return Milliseconds
 				.valueOf(Math.abs(millisekunden.value - this.value));
 	}
 
@@ -72,7 +72,7 @@ public final class Millisekunden {
 		if (this.getClass() != obj.getClass()) {
 			return false;
 		}
-		final Millisekunden other = (Millisekunden) obj;
+		final Milliseconds other = (Milliseconds) obj;
 		if (this.value != other.value) {
 			return false;
 		}
@@ -87,11 +87,11 @@ public final class Millisekunden {
 		return result;
 	}
 
-	public boolean istGroesser(final Millisekunden millisekunden) {
+	public boolean istGroesser(final Milliseconds millisekunden) {
 		return millisekunden.value < this.value;
 	}
 
-	public boolean istKleiner(final Millisekunden millisekunden) {
+	public boolean istKleiner(final Milliseconds millisekunden) {
 		return millisekunden.value > this.value;
 	}
 

@@ -10,14 +10,26 @@ import java.util.regex.Pattern;
 		private final StringRegelOperator stringRegelOperator;
 		private final boolean useWildcards;
 		private final SimpleDateFormat amsDateFormat;
+		private String comparedString;
+		private Pattern wildcardPattern;
 		
 		public StringRegelComparator(StringRegelOperator operator, boolean useWildcards) {
 			stringRegelOperator = operator;
 			this.useWildcards = useWildcards;
 			this.amsDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+			setComparedString("");
 		}
 		
-		public boolean compare(String string1, String string2) throws Exception {
+		public void setComparedString(String comparedString) {
+			this.comparedString = comparedString;
+			if(useWildcards && stringRegelOperator == StringRegelOperator.OPERATOR_TEXT_EQUAL) {
+				wildcardPattern = Pattern.compile(
+						wildcardToRegex(comparedString),
+						Pattern.CASE_INSENSITIVE);
+			}
+		}
+		
+		public boolean compare(String string1) throws Exception {
 			boolean result = false;
 
 
@@ -26,55 +38,55 @@ import java.util.regex.Pattern;
 				    // text compare
 				    case OPERATOR_TEXT_EQUAL:
 				    	if(useWildcards) {
-				    		result = this.wildcardStringCompare(string1, string2);
+				    		result = this.wildcardStringCompare(string1, comparedString);
 				    	} else {
-				    		result = string1.equalsIgnoreCase(string2);
+				    		result = string1.equalsIgnoreCase(comparedString);
 				    	}
 				        break;
 				    case OPERATOR_TEXT_NOT_EQUAL:
 				        result = !this.wildcardStringCompare(string1,
-						string2);
+						comparedString);
 				        break;
 
 		            // numeric compare
 		            case OPERATOR_NUMERIC_LT:
 		                if (!string1.isEmpty()) {
-		                    result = this.numericCompare(string1, string2) < 0;
+		                    result = this.numericCompare(string1, comparedString) < 0;
 		                } else {
 		                    result = false;
 		                }
 		                break;
 		            case OPERATOR_NUMERIC_LT_EQUAL:
 		                if (!string1.isEmpty()) {
-		                    result = this.numericCompare(string1, string2) <= 0;
+		                    result = this.numericCompare(string1, comparedString) <= 0;
 		                } else {
 		                    result = false;
 		                }
 		                break;
 		            case OPERATOR_NUMERIC_EQUAL:
 		                if (!string1.isEmpty()) {
-		                    result = this.numericCompare(string1, string2) == 0;
+		                    result = this.numericCompare(string1, comparedString) == 0;
 		                } else {
 		                    result = false;
 		                }
 		                break;
 		            case OPERATOR_NUMERIC_GT_EQUAL:
 		                if (!string1.isEmpty()) {
-		                    result = this.numericCompare(string1, string2) >= 0;
+		                    result = this.numericCompare(string1, comparedString) >= 0;
 		                } else {
 		                    result = false;
 		                }
 		                break;
 		            case OPERATOR_NUMERIC_GT:
 		                if (!string1.isEmpty()) {
-		                    result = this.numericCompare(string1, string2) > 0;
+		                    result = this.numericCompare(string1, comparedString) > 0;
 		                } else {
 		                    result = false;
 		                }
 		                break;
 		            case OPERATOR_NUMERIC_NOT_EQUAL:
 		                if (!string1.isEmpty()) {
-		                    result = this.numericCompare(string1, string2) != 0;
+		                    result = this.numericCompare(string1, comparedString) != 0;
 		                } else {
 		                    result = false;
 		                }
@@ -82,22 +94,22 @@ import java.util.regex.Pattern;
 
 	    			// time compare
 	    			case OPERATOR_TIME_BEFORE:
-	    				result = this.timeCompare(string1, string2) < 0;
+	    				result = this.timeCompare(string1, comparedString) < 0;
 	    				break;
 	    			case OPERATOR_TIME_BEFORE_EQUAL:
-	    				result = this.timeCompare(string1, string2) <= 0;
+	    				result = this.timeCompare(string1, comparedString) <= 0;
 	    				break;
 	    			case OPERATOR_TIME_EQUAL:
-	    				result = this.timeCompare(string1, string2) == 0;
+	    				result = this.timeCompare(string1, comparedString) == 0;
 	    				break;
 	    			case OPERATOR_TIME_AFTER_EQUAL:
-	    				result = this.timeCompare(string1, string2) >= 0;
+	    				result = this.timeCompare(string1, comparedString) >= 0;
 	    				break;
 	    			case OPERATOR_TIME_AFTER:
-	    				result = this.timeCompare(string1, string2) > 0;
+	    				result = this.timeCompare(string1, comparedString) > 0;
 	    				break;
 	    			case OPERATOR_TIME_NOT_EQUAL:
-	    				result = this.timeCompare(string1, string2) != 0;
+	    				result = this.timeCompare(string1, comparedString) != 0;
 	    				break;
 			}
 
@@ -142,9 +154,7 @@ import java.util.regex.Pattern;
 		private boolean wildcardStringCompare(final String value,
 				final String wildcardStr) {
 			try {
-				return Pattern.compile(
-						wildcardToRegex(wildcardStr),
-						Pattern.CASE_INSENSITIVE).matcher(value).matches();
+				return wildcardPattern.matcher(value).matches();
 			} catch (final Exception e) {
 				// TODO handle Exception
 				return true;

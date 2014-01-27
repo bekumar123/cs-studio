@@ -21,7 +21,7 @@ public class ExecutionServiceMock implements ExecutionService {
 
 	private final Map<Enum<?>, List<StepByStepProcessor>> allStepByStepProcessors = new HashMap<Enum<?>, List<StepByStepProcessor>>();
 
-	public <GT extends Enum<?> & ThreadType> void executeAsynchronsly(
+	public <GT extends Enum<?> & ThreadType> void executeAsynchronously(
 			final GT groupId, final StepByStepProcessor runnable) {
 		// System.out.println("ExecutionServiceMock.executeAsynchronsly():
 		// "+groupId+ ", time: "+System.nanoTime()+", all:

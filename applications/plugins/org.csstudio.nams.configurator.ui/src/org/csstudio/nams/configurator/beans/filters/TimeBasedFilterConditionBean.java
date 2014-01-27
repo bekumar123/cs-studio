@@ -2,7 +2,7 @@
 package org.csstudio.nams.configurator.beans.filters;
 
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
-import org.csstudio.nams.common.fachwert.Millisekunden;
+import org.csstudio.nams.common.fachwert.Milliseconds;
 import org.csstudio.nams.common.material.regelwerk.StringRegelOperator;
 import org.csstudio.nams.configurator.beans.AbstractConfigurationBean;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.TimeBasedType;
@@ -23,7 +23,7 @@ public class TimeBasedFilterConditionBean extends
 	private StringRegelOperator confirmOperator = StringRegelOperator.OPERATOR_TEXT_EQUAL;
 
 	private String confirmCompValue = ""; //$NON-NLS-1$
-	private Millisekunden timePeriodDomainValue = Millisekunden.valueOf(0);
+	private Milliseconds timePeriodDomainValue = Milliseconds.valueOf(0);
 
 	private TimeBasedType timeBehavior = TimeBasedType.TIMEBEHAVIOR_TIMEOUT_THEN_ALARM;
 
@@ -140,7 +140,7 @@ public class TimeBasedFilterConditionBean extends
 		return this.timeBehavior;
 	}
 
-	public Millisekunden getTimePeriod() {
+	public Milliseconds getTimePeriod() {
 		return this.timePeriodDomainValue;
 	}
 
@@ -238,15 +238,15 @@ public class TimeBasedFilterConditionBean extends
 				oldValue, timeBasedType);
 	}
 
-	public void setTimePeriod(final Millisekunden millisekunden) {
-		Millisekunden oldValue = this.timePeriodDomainValue;
+	public void setTimePeriod(final Milliseconds millisekunden) {
+		Milliseconds oldValue = this.timePeriodDomainValue;
 		if (oldValue == null) {
-			oldValue = Millisekunden.valueOf(0);
+			oldValue = Milliseconds.valueOf(0);
 		}
 		this.timePeriodDomainValue = millisekunden;
 		this.pcs.firePropertyChange(PropertyNames.timePeriod.name(), oldValue
-				.alsLongVonMillisekunden(), millisekunden
-				.alsLongVonMillisekunden());
+				.getMilliseconds(), millisekunden
+				.getMilliseconds());
 	}
 
 	@Override

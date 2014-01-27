@@ -12,9 +12,9 @@ import javax.jms.MapMessage;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
-import org.csstudio.nams.common.decision.Vorgangsmappe;
+import org.csstudio.nams.common.decision.MessageCasefile;
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
-import org.csstudio.nams.common.material.AlarmNachricht;
+import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.common.material.Regelwerkskennung;
 import org.csstudio.nams.common.material.SystemNachricht;
 import org.csstudio.nams.service.logging.declaration.ILogger;
@@ -76,7 +76,7 @@ public class JMSProducer implements Producer {
     public void sendeSystemnachricht(final SystemNachricht systemNachricht)
 			throws MessagingException {
 		try {
-			if (systemNachricht.istSyncronisationsAufforderung()) {
+			if (systemNachricht.istSynchronisationsAufforderung()) {
 				for (int i = 0; i < this._sessions.length; i++) {
 					final MapMessage mapMessage = this._sessions[i]
 							.createMapMessage();
@@ -86,7 +86,7 @@ public class JMSProducer implements Producer {
 					mapMessage.setJMSDeliveryMode(DeliveryMode.PERSISTENT);
 					this.producers[i].send(mapMessage);
 				}
-			} else if (systemNachricht.istSyncronisationsBestaetigung()) {
+			} else if (systemNachricht.istSynchronisationsBestaetigung()) {
 				for (int i = 0; i < this._sessions.length; i++) {
 					final MapMessage mapMessage = this._sessions[i]
 							.createMapMessage();
@@ -109,10 +109,10 @@ public class JMSProducer implements Producer {
 	}
 
 	@Override
-    public void sendeVorgangsmappe(final Vorgangsmappe vorgangsmappe)
+    public void sendeVorgangsmappe(final MessageCasefile vorgangsmappe)
 			throws MessagingException {
 		final Regelwerkskennung regelwerkskennung = vorgangsmappe.getBearbeitetMitRegelWerk();
-		final AlarmNachricht alarmNachricht = vorgangsmappe.getAlarmNachricht();
+		final AlarmMessage alarmNachricht = vorgangsmappe.getAlarmNachricht();
 		final Map<MessageKeyEnum, String> contentMap = alarmNachricht
 				.getContentMap();
 		final Map<String, String> unknownContentMap = alarmNachricht

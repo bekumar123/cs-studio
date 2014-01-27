@@ -13,7 +13,7 @@ public class ThreadTypesOfDecisionDepartment_Test extends
 
 	@Override
 	protected ThreadTypesOfDecisionDepartment getNewInstanceOfClassUnderTest() {
-		return ThreadTypesOfDecisionDepartment.ABTEILUNGSLEITER;
+		return ThreadTypesOfDecisionDepartment.THREADED_MESSAGE_DISPATCHER;
 	}
 
 	@Override
@@ -25,7 +25,7 @@ public class ThreadTypesOfDecisionDepartment_Test extends
 	protected ThreadTypesOfDecisionDepartment[] getThreeDiffrentNewInstanceOfClassUnderTest() {
 		return new ThreadTypesOfDecisionDepartment[] {
 				ThreadTypesOfDecisionDepartment.AUSGANGSKORBBEARBEITER,
-				ThreadTypesOfDecisionDepartment.SACHBEARBEITER,
+				ThreadTypesOfDecisionDepartment.FILTER_WORKER,
 				ThreadTypesOfDecisionDepartment.TERMINASSISTENZ };
 	}
 

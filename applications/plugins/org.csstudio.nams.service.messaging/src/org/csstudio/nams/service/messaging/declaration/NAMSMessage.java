@@ -1,7 +1,7 @@
 
 package org.csstudio.nams.service.messaging.declaration;
 
-import org.csstudio.nams.common.material.AlarmNachricht;
+import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.common.material.SystemNachricht;
 import org.csstudio.nams.service.messaging.exceptions.MessagingException;
 
@@ -32,7 +32,7 @@ public interface NAMSMessage {
 	 */
 	public void acknowledge() throws MessagingException;
 
-	public AlarmNachricht alsAlarmnachricht();
+	public AlarmMessage alsAlarmnachricht();
 
 	public SystemNachricht alsSystemachricht();
 

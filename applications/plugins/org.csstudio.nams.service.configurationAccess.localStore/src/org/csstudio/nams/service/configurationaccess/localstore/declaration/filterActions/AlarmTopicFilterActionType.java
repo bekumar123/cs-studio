@@ -6,7 +6,7 @@
 package org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions;
 
 public enum AlarmTopicFilterActionType implements FilterActionType {
-	TOPIC(10, "Nachricht an Topic");
+	TOPIC(10, "Nachricht an Topic"), TOPIC_EXTENDED(11, "Erweiterte Nachricht an Topic");
 
 	private final int _id;
 	private final String _description;

@@ -10,14 +10,15 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
-import org.csstudio.nams.common.material.regelwerk.NichtVersandRegel;
-import org.csstudio.nams.common.material.regelwerk.OderVersandRegel;
+import org.csstudio.nams.common.material.regelwerk.NichtRegel;
+import org.csstudio.nams.common.material.regelwerk.OderRegel;
+import org.csstudio.nams.common.material.regelwerk.Regel;
 import org.csstudio.nams.common.material.regelwerk.Regelwerk;
 import org.csstudio.nams.common.material.regelwerk.StringRegel;
 import org.csstudio.nams.common.material.regelwerk.StringRegelOperator;
-import org.csstudio.nams.common.material.regelwerk.UndVersandRegel;
-import org.csstudio.nams.common.material.regelwerk.VersandRegel;
+import org.csstudio.nams.common.material.regelwerk.UndRegel;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.Configuration;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.DefaultFilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterConfiguration;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.HistoryDTO;
@@ -30,8 +31,8 @@ import org.csstudio.nams.service.configurationaccess.localstore.declaration.exce
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.exceptions.StorageException;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.exceptions.UnknownConfigurationElementError;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.FilterConditionDTO;
-import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.JunctorConditionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.JunctorCondForFilterTreeDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.JunctorConditionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.NegationCondForFilterTreeDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.StrgArFiltCondCompValDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.StrgArFiltCondCompValDTOPK;
@@ -69,8 +70,8 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		localStoreConfigurationServiceFilterDTOs = new ArrayList<FilterDTO>();
 		RegelwerkBuilderServiceImpl.staticInject(createMockLocalStoreConfigurationService());
 		
-		childRegel = new StringRegel(StringRegelOperator.OPERATOR_TEXT_EQUAL, MessageKeyEnum.HOST, "gnarf");
-		childRegel2 = new StringRegel(StringRegelOperator.OPERATOR_TEXT_EQUAL, MessageKeyEnum.HOST, "gnarf2");
+		childRegel = new StringRegel(StringRegelOperator.OPERATOR_TEXT_EQUAL, MessageKeyEnum.HOST, "gnarf", null);
+		childRegel2 = new StringRegel(StringRegelOperator.OPERATOR_TEXT_EQUAL, MessageKeyEnum.HOST, "gnarf2", null);
 
 		childDTO = new StringFilterConditionDTO();
 		childDTO.setOperatorEnum(StringRegelOperator.OPERATOR_TEXT_EQUAL);
@@ -86,7 +87,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 	@Test
 	public void testBuildStringCondition() {
 		assertEquals(childRegel, regelwerkBuilderService
-				.createVersandRegel(childDTO));
+				.createRegel(childDTO));
 	}
 
 	@Test
@@ -111,15 +112,15 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 
 		arrayDTO.setCompareValues(arrayList);
 
-		VersandRegel[] regeln = new VersandRegel[2];
-		regeln[0] = new StringRegel(StringRegelOperator.OPERATOR_TEXT_EQUAL,
-				MessageKeyEnum.HOST, "gnarf");
-		regeln[1] = new StringRegel(StringRegelOperator.OPERATOR_TEXT_EQUAL,
-				MessageKeyEnum.HOST, "gnarf2");
-		VersandRegel zielRegel = new OderVersandRegel(regeln);
+		List<Regel> regeln = new ArrayList<Regel>(2);
+		regeln.add(new StringRegel(StringRegelOperator.OPERATOR_TEXT_EQUAL,
+				MessageKeyEnum.HOST, "gnarf", null));
+		regeln.add(new StringRegel(StringRegelOperator.OPERATOR_TEXT_EQUAL,
+				MessageKeyEnum.HOST, "gnarf2", null));
+		Regel zielRegel = new OderRegel(regeln);
 
 		assertEquals(zielRegel, regelwerkBuilderService
-				.createVersandRegel(arrayDTO));
+				.createRegel(arrayDTO));
 	}
 
 	@Test
@@ -134,14 +135,14 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		childDTO2.setCompValue("gnarf2");
 		junctorDTO.setSecondFilterCondition(childDTO2);
 
-		VersandRegel[] regeln = new VersandRegel[2];
-		regeln[0] = childRegel;
-		regeln[1] = new StringRegel(StringRegelOperator.OPERATOR_TEXT_EQUAL,
-				MessageKeyEnum.HOST, "gnarf2");
-		VersandRegel zielRegel = new OderVersandRegel(regeln);
+		List<Regel> regeln = new ArrayList<Regel>(2);
+		regeln.add(childRegel);
+		regeln.add(new StringRegel(StringRegelOperator.OPERATOR_TEXT_EQUAL,
+				MessageKeyEnum.HOST, "gnarf2", null));
+		Regel zielRegel = new OderRegel(regeln);
 
 		assertEquals(zielRegel, regelwerkBuilderService
-				.createVersandRegel(junctorDTO));
+				.createRegel(junctorDTO));
 	}
 
 	@Test
@@ -151,22 +152,22 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		junctorDTO.setFirstFilterCondition(childDTO);
 		junctorDTO.setSecondFilterCondition(childDTO2);
 
-		VersandRegel[] regeln = new VersandRegel[2];
-		regeln[0] = childRegel;
-		regeln[1] = childRegel2;
-		VersandRegel zielRegel = new UndVersandRegel(regeln);
+		List<Regel> regeln = new ArrayList<Regel>(2);
+		regeln.add(childRegel);
+		regeln.add(childRegel2);
+		Regel zielRegel = new UndRegel(regeln);
 
 		assertEquals(zielRegel, regelwerkBuilderService
-				.createVersandRegel(junctorDTO));
+				.createRegel(junctorDTO));
 	}
 
 	@Test
 	public void testBuildJunctorCondtionTreeNegation() {
 		NegationCondForFilterTreeDTO negationDTO = new NegationCondForFilterTreeDTO();
 		negationDTO.setNegatedFilterCondition(childDTO);
-		VersandRegel zielRegel = new NichtVersandRegel(childRegel);
+		Regel zielRegel = new NichtRegel(childRegel);
 		assertEquals(zielRegel, regelwerkBuilderService
-				.createVersandRegel(negationDTO));
+				.createRegel(negationDTO));
 	}
 
 	@Test
@@ -178,12 +179,12 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		childConditions.add(childDTO2);
 		junctorDTO.setOperands(childConditions);
 		
-		VersandRegel[] regeln = new VersandRegel[2];
-		regeln[0] = childRegel;
-		regeln[1] = childRegel2;
-		VersandRegel zielRegel = new UndVersandRegel(regeln);
+		List<Regel> regeln = new ArrayList<Regel>(2);
+		regeln.add(childRegel);
+		regeln.add(childRegel2);
+		Regel zielRegel = new UndRegel(regeln);
 		
-		assertEquals(zielRegel, regelwerkBuilderService.createVersandRegel(junctorDTO));
+		assertEquals(zielRegel, regelwerkBuilderService.createRegel(junctorDTO));
 	}
 
 	@Test
@@ -195,33 +196,33 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		childConditions.add(childDTO2);
 		junctorDTO.setOperands(childConditions);
 		
-		VersandRegel[] regeln = new VersandRegel[2];
-		regeln[0] = childRegel;
-		regeln[1] = childRegel2;
-		VersandRegel zielRegel = new OderVersandRegel(regeln);
+		List<Regel> regeln = new ArrayList<Regel>(2);
+		regeln.add(childRegel);
+		regeln.add(childRegel2);
+		Regel zielRegel = new OderRegel(regeln);
 		
-		assertEquals(zielRegel, regelwerkBuilderService.createVersandRegel(junctorDTO));
+		assertEquals(zielRegel, regelwerkBuilderService.createRegel(junctorDTO));
 	}
 	
 	@Test
 	public void testGibKomplexeRegelwerke() throws RegelwerksBuilderException {
-		FilterDTO complexStringFilterDTO = new FilterDTO();
+		DefaultFilterDTO complexStringFilterDTO = new DefaultFilterDTO();
 		complexStringFilterDTO.setFilterConditions(Arrays.asList((FilterConditionDTO)childDTO, childDTO2));
 		
 		localStoreConfigurationServiceFilterDTOs.add(complexStringFilterDTO);
 
-		List<Regelwerk> komplexeRegelwerke = regelwerkBuilderService.gibKomplexeRegelwerke();
+		List<Regelwerk> komplexeRegelwerke = regelwerkBuilderService.gibAlleRegelwerke();
 		assertEquals(1, komplexeRegelwerke.size());
 
-		FilterDTO simpleStringFilterDTO = new FilterDTO();
+		DefaultFilterDTO simpleStringFilterDTO = new DefaultFilterDTO();
 		simpleStringFilterDTO.setFilterConditions(Arrays.asList((FilterConditionDTO)childDTO2));
 		
 		localStoreConfigurationServiceFilterDTOs.add(simpleStringFilterDTO);
 
-		komplexeRegelwerke = regelwerkBuilderService.gibKomplexeRegelwerke();
-		assertEquals(1, komplexeRegelwerke.size());
+		komplexeRegelwerke = regelwerkBuilderService.gibAlleRegelwerke();
+		assertEquals(2, komplexeRegelwerke.size());
 		
-		FilterDTO stringFilterDtoWrongOperator = new FilterDTO();
+		DefaultFilterDTO stringFilterDtoWrongOperator = new DefaultFilterDTO();
 		StringFilterConditionDTO stringFilterCondition = new StringFilterConditionDTO();
 		stringFilterCondition.setOperatorEnum(StringRegelOperator.OPERATOR_NUMERIC_EQUAL);
 		stringFilterCondition.setKeyValue(MessageKeyEnum.ACK_TIME);
@@ -230,10 +231,9 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		
 		localStoreConfigurationServiceFilterDTOs.add(stringFilterDtoWrongOperator);
 		
-		assertEquals(2, regelwerkBuilderService.gibKomplexeRegelwerke().size());
 		assertEquals(3, regelwerkBuilderService.gibAlleRegelwerke().size());
 
-		FilterDTO otherFilterDtoWrongOperator = new FilterDTO();
+		DefaultFilterDTO otherFilterDtoWrongOperator = new DefaultFilterDTO();
 		
 		StringArFilterConditionDTO arrayDTO = new StringArFilterConditionDTO();
 		arrayDTO.setKeyValue(MessageKeyEnum.HOST);
@@ -259,7 +259,6 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		
 		localStoreConfigurationServiceFilterDTOs.add(otherFilterDtoWrongOperator);
 		
-		assertEquals(3, regelwerkBuilderService.gibKomplexeRegelwerke().size());
 		assertEquals(4, regelwerkBuilderService.gibAlleRegelwerke().size());
 	}
 

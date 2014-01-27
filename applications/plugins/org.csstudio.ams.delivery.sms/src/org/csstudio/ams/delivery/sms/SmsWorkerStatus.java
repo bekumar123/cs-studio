@@ -38,23 +38,23 @@ public class SmsWorkerStatus implements IWorkerStatus, IDeviceStatus {
     private long pollingTime;
     private boolean smsSent;
     private long maxPollingDiff;
-    
+
     public SmsWorkerStatus(long diff) {
         // The default value has to be set to true!
         smsSent = true;
         pollingTime = System.currentTimeMillis();
         maxPollingDiff = diff;
     }
-    
+
     public synchronized void setSmsSent(boolean sent) {
         smsSent = sent;
     }
-    
+
     @Override
     public synchronized void setLastPollingTime(long time) {
         pollingTime = time;
     }
-    
+
     @Override
     public synchronized long getLastPollingTime() {
         return pollingTime;
@@ -65,9 +65,13 @@ public class SmsWorkerStatus implements IWorkerStatus, IDeviceStatus {
      */
     @Override
     public boolean isOk() {
-        if (!smsSent) {
-            return false;
+        boolean isOk = true;
+        if (maxPollingDiff > 0) {
+            if (!smsSent) {
+                isOk = false;
+            }
+            isOk = System.currentTimeMillis() - pollingTime < maxPollingDiff;
         }
-        return ((System.currentTimeMillis() - pollingTime) < maxPollingDiff);
+        return isOk;
     }
 }

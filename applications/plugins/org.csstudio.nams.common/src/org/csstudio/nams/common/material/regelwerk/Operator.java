@@ -1,5 +1,6 @@
 package org.csstudio.nams.common.material.regelwerk;
 
+
 /**
  * Operators supported by this filter-condition. For example used by a
  * PV-Condition.

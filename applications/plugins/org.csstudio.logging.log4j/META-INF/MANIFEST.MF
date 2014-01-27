@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Log4j Utility
 Bundle-SymbolicName: org.csstudio.logging.log4j
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.0.201401271200
 Bundle-Activator: org.csstudio.logging.log4j.Activator
 Bundle-Vendor: Markus Moeller <markus.moeller@desy.de>
 Require-Bundle: org.eclipse.core.runtime,

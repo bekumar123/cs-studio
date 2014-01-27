@@ -2,6 +2,7 @@ package org.csstudio.ams.performancetesttool;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -14,12 +15,12 @@ import org.csstudio.nams.common.decision.Vorgangsmappenkennung;
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
 import org.csstudio.nams.common.material.AlarmNachricht;
 import org.csstudio.nams.common.material.Regelwerkskennung;
+import org.csstudio.nams.common.material.regelwerk.DefaultRegelwerk;
+import org.csstudio.nams.common.material.regelwerk.Regel;
 import org.csstudio.nams.common.material.regelwerk.Regelwerk;
-import org.csstudio.nams.common.material.regelwerk.StandardRegelwerk;
 import org.csstudio.nams.common.material.regelwerk.StringRegel;
 import org.csstudio.nams.common.material.regelwerk.StringRegelOperator;
-import org.csstudio.nams.common.material.regelwerk.UndVersandRegel;
-import org.csstudio.nams.common.material.regelwerk.VersandRegel;
+import org.csstudio.nams.common.material.regelwerk.UndRegel;
 import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 
 import com.beust.jcommander.JCommander;
@@ -78,7 +79,7 @@ public class SelfContainedPerformanceTest {
 		System.out.println("\nReceiving messages");
 		while(messageCounter<arguments.messageCount) {
 			Vorgangsmappe vorgangsmappe = alarmVorgangAusgangskorb.entnehmeAeltestenEingang();
-			WeiteresVersandVorgehen gesamtErgebnis = vorgangsmappe.gibPruefliste().gesamtErgebnis();
+			WeiteresVersandVorgehen gesamtErgebnis = vorgangsmappe.getWeiteresVersandVorgehen();
 			if (gesamtErgebnis.equals(WeiteresVersandVorgehen.VERSENDEN)) {
 				empfangsZeiten[messageCounter] = System.currentTimeMillis();
 				messageCounter += 1;
@@ -106,12 +107,12 @@ public class SelfContainedPerformanceTest {
 		assert anzahlAnRegelwerken >= 1;
 		Regelwerk[] result = new Regelwerk[anzahlAnRegelwerken];
 		for(int index = 0; index < anzahlAnRegelwerken; index++) {
-			StringRegel stringRegel1 = new StringRegel(StringRegelOperator.OPERATOR_TEXT_EQUAL, MessageKeyEnum.SEVERITY, "Sehr hoch");
-			StringRegel stringRegel2 = new StringRegel(StringRegelOperator.OPERATOR_NUMERIC_GT, MessageKeyEnum.EVENTTIME, "" + System.currentTimeMillis());
-			VersandRegel undRegel = new UndVersandRegel(new VersandRegel[] { stringRegel1, stringRegel2 });
-			result[index] = new StandardRegelwerk(Regelwerkskennung.valueOf("Regel"+index), undRegel);
+			Regel stringRegel1 = new StringRegel(StringRegelOperator.OPERATOR_TEXT_EQUAL, MessageKeyEnum.SEVERITY, "Sehr hoch", null);
+			Regel stringRegel2 = new StringRegel(StringRegelOperator.OPERATOR_NUMERIC_GT, MessageKeyEnum.EVENTTIME, "" + System.currentTimeMillis(), null);
+			Regel undRegel = new UndRegel(Arrays.asList(stringRegel1, stringRegel2));
+			result[index] = new DefaultRegelwerk(Regelwerkskennung.valueOf("Regel"+index), undRegel);
 		}
-		result[anzahlAnRegelwerken-1] = new StandardRegelwerk(Regelwerkskennung.valueOf("Regel0"), new StringRegel(StringRegelOperator.OPERATOR_TEXT_EQUAL, MessageKeyEnum.NAME, "TEST"));
+		result[anzahlAnRegelwerken-1] = new DefaultRegelwerk(Regelwerkskennung.valueOf("Regel0"), new StringRegel(StringRegelOperator.OPERATOR_TEXT_EQUAL, MessageKeyEnum.NAME, "TEST", null));
 		return result;
 	}
 	

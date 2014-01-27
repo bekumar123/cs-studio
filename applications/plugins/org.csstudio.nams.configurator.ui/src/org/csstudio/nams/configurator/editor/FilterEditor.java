@@ -6,12 +6,14 @@ import java.util.Iterator;
 import org.csstudio.nams.common.fachwert.RubrikTypeEnum;
 import org.csstudio.nams.configurator.Messages;
 import org.csstudio.nams.configurator.actions.BeanToEditorId;
+import org.csstudio.nams.configurator.beans.AbstractConfigurationBean;
 import org.csstudio.nams.configurator.beans.AlarmTopicFilterAction;
 import org.csstudio.nams.configurator.beans.AlarmbearbeiterBean;
 import org.csstudio.nams.configurator.beans.AlarmbearbeiterFilterAction;
 import org.csstudio.nams.configurator.beans.AlarmbearbeiterGruppenBean;
 import org.csstudio.nams.configurator.beans.AlarmbearbeitergruppenFilterAction;
 import org.csstudio.nams.configurator.beans.AlarmtopicBean;
+import org.csstudio.nams.configurator.beans.DefaultFilterBean;
 import org.csstudio.nams.configurator.beans.FilterAction;
 import org.csstudio.nams.configurator.beans.FilterBean;
 import org.csstudio.nams.configurator.beans.FilterbedingungBean;
@@ -20,6 +22,7 @@ import org.csstudio.nams.configurator.beans.IReceiverBean;
 import org.csstudio.nams.configurator.beans.MessageTemplateBean;
 import org.csstudio.nams.configurator.beans.filters.JunctorConditionForFilterTreeBean;
 import org.csstudio.nams.configurator.beans.filters.NotConditionForFilterTreeBean;
+import org.csstudio.nams.configurator.beans.filters.PropertyCompareConditionBean;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.JunctorConditionType;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.FilterActionType;
 import org.eclipse.core.databinding.DataBindingContext;
@@ -75,7 +78,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 
-public class FilterEditor extends AbstractEditor<FilterBean> {
+public class FilterEditor extends AbstractEditor<DefaultFilterBean> {
 
 	private class NewJunctorAction extends Action implements
 			ISelectionChangedListener {
@@ -200,7 +203,7 @@ public class FilterEditor extends AbstractEditor<FilterBean> {
 		return FilterEditor.EDITOR_ID;
 	}
 
-	private final FilterTreeContentProvider filterTreeContentProvider = new FilterTreeContentProvider();
+	private final DefaultFilterTreeContentProvider filterTreeContentProvider = new DefaultFilterTreeContentProvider();
 	private Text _idTextEntry;
 	private Text _nameTextEntry;
 	private Combo _rubrikComboEntry;
@@ -584,9 +587,9 @@ public class FilterEditor extends AbstractEditor<FilterBean> {
 
 			@Override
 			protected boolean canEdit(final Object element) {
-				if (element instanceof AlarmTopicFilterAction) {
-					return false;
-				}
+//				if (element instanceof AlarmTopicFilterAction) {
+//					return false;
+//				}
 				return true;
 			}
 
@@ -825,7 +828,10 @@ public class FilterEditor extends AbstractEditor<FilterBean> {
 							final IStructuredSelection selection = (IStructuredSelection) LocalSelectionTransfer
 									.getTransfer().getSelection();
 							if (selection.getFirstElement() instanceof FilterbedingungBean) {
-								result = true;
+								AbstractConfigurationBean<?> filterSpecificBean = ((FilterbedingungBean) selection.getFirstElement()).getFilterSpecificBean();
+								if (!(filterSpecificBean instanceof PropertyCompareConditionBean)) {
+									result = true;
+								}
 							}
 						}
 						return result;

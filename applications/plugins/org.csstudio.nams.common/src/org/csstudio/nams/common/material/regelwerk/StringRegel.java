@@ -1,222 +1,45 @@
-
-/**
- * 
- */
-
 package org.csstudio.nams.common.material.regelwerk;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
-import org.csstudio.nams.common.fachwert.Millisekunden;
 import org.csstudio.nams.common.material.AlarmNachricht;
 import org.csstudio.nams.service.logging.declaration.ILogger;
 
-/**
- * @author Goesta Steen
- * 
- */
-public class StringRegel implements VersandRegel {
+public class StringRegel implements Regel {
 
-	private static ILogger logger;
-
-	public static void staticInject(final ILogger o) {
-		StringRegel.logger = o;
-	}
-
-	private final StringRegelOperator operator;
 	private final String compareString;
-
 	private final MessageKeyEnum messageKey;
 
-	private final SimpleDateFormat amsDateFormat; 
+	private StringRegelComparator regelComparator; 
+	private final ILogger errorLogger;
 	
 	public StringRegel(final StringRegelOperator operator,
-			final MessageKeyEnum messageKey, final String compareString) {
-		this.operator = operator;
+			final MessageKeyEnum messageKey, final String compareString, ILogger errorLogger) {
 		this.messageKey = messageKey;
 		this.compareString = compareString;
-		this.amsDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+		this.errorLogger = errorLogger;
+		this.regelComparator = new StringRegelComparator(operator, true);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.c1wps.desy.ams.allgemeines.regelwerk.VersandRegel#pruefeNachrichtAufBestaetigungsUndAufhebungsNachricht(de.c1wps.desy.ams.allgemeines.AlarmNachricht,
-	 *      de.c1wps.desy.ams.allgemeines.regelwerk.Pruefliste)
-	 */
 	@Override
-    public void pruefeNachrichtAufBestaetigungsUndAufhebungsNachricht(
-			final AlarmNachricht nachricht, final Pruefliste bisherigesErgebnis) {
-		// nothing to do here
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.c1wps.desy.ams.allgemeines.regelwerk.VersandRegel#pruefeNachrichtAufTimeOuts(de.c1wps.desy.ams.allgemeines.regelwerk.Pruefliste,
-	 *      de.c1wps.desy.ams.allgemeines.Millisekunden)
-	 */
-	@Override
-    public Millisekunden pruefeNachrichtAufTimeOuts(
-			final Pruefliste bisherigesErgebnis,
-			final Millisekunden verstricheneZeitSeitErsterPruefung) {
-		// nothing to do here
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see de.c1wps.desy.ams.allgemeines.regelwerk.VersandRegel#pruefeNachrichtErstmalig(de.c1wps.desy.ams.allgemeines.AlarmNachricht,
-	 *      de.c1wps.desy.ams.allgemeines.regelwerk.Pruefliste)
-	 */
-	@Override
-    public Millisekunden pruefeNachrichtErstmalig(
-			final AlarmNachricht nachricht, final Pruefliste ergebnisListe) {
-
-		boolean istGueltig = false;
-
-		// TODO hier muss noch der richtige Schlüssel gewählt werden
-		final String value = nachricht.getValueFor(this.messageKey);
-
+	public boolean pruefeNachricht(AlarmNachricht nachricht) {
+		boolean result = false;
+		
 		try {
-			switch (this.operator) {
-			
-			    // text compare
-			    case OPERATOR_TEXT_EQUAL:
-			        istGueltig = this.wildcardStringCompare(value,
-					this.compareString);
-			        break;
-			    case OPERATOR_TEXT_NOT_EQUAL:
-			        istGueltig = !this.wildcardStringCompare(value,
-					this.compareString);
-			        break;
-
-	            // numeric compare
-	            case OPERATOR_NUMERIC_LT:
-	                if (!value.isEmpty()) {
-	                    istGueltig = this.numericCompare(value, this.compareString) < 0;
-	                } else {
-	                    istGueltig = false;
-	                }
-	                break;
-	            case OPERATOR_NUMERIC_LT_EQUAL:
-	                if (!value.isEmpty()) {
-	                    istGueltig = this.numericCompare(value, this.compareString) <= 0;
-	                } else {
-	                    istGueltig = false;
-	                }
-	                break;
-	            case OPERATOR_NUMERIC_EQUAL:
-	                if (!value.isEmpty()) {
-	                    istGueltig = this.numericCompare(value, this.compareString) == 0;
-	                } else {
-	                    istGueltig = false;
-	                }
-	                break;
-	            case OPERATOR_NUMERIC_GT_EQUAL:
-	                if (!value.isEmpty()) {
-	                    istGueltig = this.numericCompare(value, this.compareString) >= 0;
-	                } else {
-	                    istGueltig = false;
-	                }
-	                break;
-	            case OPERATOR_NUMERIC_GT:
-	                if (!value.isEmpty()) {
-	                    istGueltig = this.numericCompare(value, this.compareString) > 0;
-	                } else {
-	                    istGueltig = false;
-	                }
-	                break;
-	            case OPERATOR_NUMERIC_NOT_EQUAL:
-	                if (!value.isEmpty()) {
-	                    istGueltig = this.numericCompare(value, this.compareString) != 0;
-	                } else {
-	                    istGueltig = false;
-	                }
-	                break;
-
-    			// time compare
-    			case OPERATOR_TIME_BEFORE:
-    				istGueltig = this.timeCompare(value, this.compareString) < 0;
-    				break;
-    			case OPERATOR_TIME_BEFORE_EQUAL:
-    				istGueltig = this.timeCompare(value, this.compareString) <= 0;
-    				break;
-    			case OPERATOR_TIME_EQUAL:
-    				istGueltig = this.timeCompare(value, this.compareString) == 0;
-    				break;
-    			case OPERATOR_TIME_AFTER_EQUAL:
-    				istGueltig = this.timeCompare(value, this.compareString) >= 0;
-    				break;
-    			case OPERATOR_TIME_AFTER:
-    				istGueltig = this.timeCompare(value, this.compareString) > 0;
-    				break;
-    			case OPERATOR_TIME_NOT_EQUAL:
-    				istGueltig = this.timeCompare(value, this.compareString) != 0;
-    				break;
-			}
+			result = regelComparator.compare(nachricht.getValueFor(messageKey), compareString);
 		} catch (final Exception e) {
-            if(StringRegel.logger != null) {
-                StringRegel.logger.logErrorMessage(this,
+            if(this.errorLogger != null) {
+                this.errorLogger.logErrorMessage(this,
                         "An error occured during parsing of : " + nachricht);
             }
-			istGueltig = true;
+			result = true;
 		}
 
-		if (istGueltig) {
-			ergebnisListe.setzeErgebnisFuerRegelFallsVeraendert(this,
-					RegelErgebnis.ZUTREFFEND);
-		} else {
-			ergebnisListe.setzeErgebnisFuerRegelFallsVeraendert(this,
-					RegelErgebnis.NICHT_ZUTREFFEND);
-		}
-		return null;
+		return result;
 	}
-
+	
 	@Override
-	public String toString() {
-		final StringBuilder stringBuilder = new StringBuilder("StringRegel: ");
-		stringBuilder.append("messageKey: ");
-		stringBuilder.append(this.messageKey);
-		stringBuilder.append(" operator: ");
-		stringBuilder.append(this.operator);
-		stringBuilder.append(" compareString: ");
-		stringBuilder.append(this.compareString);
-		return stringBuilder.toString();
-	}
-
-	private int numericCompare(final String value, final String compare)
-			throws NumberFormatException {
-		final double dVal = Double.parseDouble(value);
-		final double dCompVal = Double.parseDouble(compare);
-
-		return Double.compare(dVal, dCompVal);
-	}
-
-	private int timeCompare(final String value, final String compare)
-			throws ParseException {
-//		final Date dateValue = DateFormat.getDateInstance(DateFormat.SHORT,
-//				Locale.US).parse(value);
-//		final Date dateCompValue = DateFormat.getDateInstance(DateFormat.SHORT,
-//				Locale.US).parse(compare);
-
-	    final Date dateValue = amsDateFormat.parse(value);
-	    final Date dateCompValue = amsDateFormat.parse(compare);
-
-		return dateValue.compareTo(dateCompValue);
-	}
-
-	private boolean wildcardStringCompare(final String value,
-			final String wildcardString2) {
-		try {
-			return WildcardStringCompare.compare(value, wildcardString2);
-		} catch (final Exception e) {
-			// TODO handle Exception
-			return true;
-		}
+	public boolean pruefeNachricht(AlarmNachricht nachricht, AlarmNachricht vergleichsNachricht) {
+		return this.pruefeNachricht(nachricht);
 	}
 
 	@Override
@@ -228,7 +51,7 @@ public class StringRegel implements VersandRegel {
 		result = prime * result
 				+ ((messageKey == null) ? 0 : messageKey.hashCode());
 		result = prime * result
-				+ ((operator == null) ? 0 : operator.hashCode());
+				+ ((regelComparator == null) ? 0 : regelComparator.hashCode());
 		return result;
 	}
 
@@ -240,22 +63,22 @@ public class StringRegel implements VersandRegel {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		final StringRegel other = (StringRegel) obj;
+		StringRegel other = (StringRegel) obj;
 		if (compareString == null) {
 			if (other.compareString != null)
 				return false;
 		} else if (!compareString.equals(other.compareString))
 			return false;
-		if (messageKey == null) {
-			if (other.messageKey != null)
-				return false;
-		} else if (!messageKey.equals(other.messageKey))
+		if (messageKey != other.messageKey)
 			return false;
-		if (operator == null) {
-			if (other.operator != null)
+		if (regelComparator == null) {
+			if (other.regelComparator != null)
 				return false;
-		} else if (!operator.equals(other.operator))
+		} else if (!regelComparator.equals(other.regelComparator))
 			return false;
 		return true;
 	}
+
+
+	
 }

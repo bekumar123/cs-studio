@@ -111,10 +111,8 @@ public class JMSProducer implements Producer {
 	@Override
     public void sendeVorgangsmappe(final Vorgangsmappe vorgangsmappe)
 			throws MessagingException {
-		final Regelwerkskennung regelwerkskennung = vorgangsmappe
-				.gibPruefliste().gibRegelwerkskennung();
-		final AlarmNachricht alarmNachricht = vorgangsmappe
-				.gibAusloesendeAlarmNachrichtDiesesVorganges();
+		final Regelwerkskennung regelwerkskennung = vorgangsmappe.getBearbeitetMitRegelWerk();
+		final AlarmNachricht alarmNachricht = vorgangsmappe.getAlarmNachricht();
 		final Map<MessageKeyEnum, String> contentMap = alarmNachricht
 				.getContentMap();
 		final Map<String, String> unknownContentMap = alarmNachricht
@@ -138,9 +136,13 @@ public class JMSProducer implements Producer {
 							.getValue());
 				}
 
-				mapMessage.setString(MessageKeyEnum.AMS_FILTERID
+				if(regelwerkskennung != null) {
+					mapMessage.setString(MessageKeyEnum.AMS_FILTERID
 						.getStringValue(), Integer.toString(regelwerkskennung
 						.getRegelwerksId()));
+				} else {
+					_logger.logErrorMessage(this, "the message to be sent has not been assigned a valid filter id. (Message: " + vorgangsmappe.getAlarmNachricht() + ")");
+				}
 
 				mapMessage.setJMSDeliveryMode(DeliveryMode.PERSISTENT);
 				this.producers[i].send(mapMessage);

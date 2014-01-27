@@ -20,7 +20,7 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 
-public class AlarmtopicEditor extends AbstractEditor<FilterBean> {
+public class AlarmtopicEditor extends AbstractEditor<AlarmtopicBean> {
 
 	private static final String EDITOR_ID = "org.csstudio.nams.configurator.editor.AlarmtopicEditor"; //$NON-NLS-1$
 

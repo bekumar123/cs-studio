@@ -20,56 +20,68 @@ import org.csstudio.nams.configurator.beans.AlarmbearbeiterFilterAction;
 import org.csstudio.nams.configurator.beans.AlarmbearbeiterGruppenBean;
 import org.csstudio.nams.configurator.beans.AlarmbearbeitergruppenFilterAction;
 import org.csstudio.nams.configurator.beans.AlarmtopicBean;
+import org.csstudio.nams.configurator.beans.DefaultFilterBean;
 import org.csstudio.nams.configurator.beans.FilterAction;
 import org.csstudio.nams.configurator.beans.FilterBean;
 import org.csstudio.nams.configurator.beans.FilterbedingungBean;
 import org.csstudio.nams.configurator.beans.IConfigurationBean;
 import org.csstudio.nams.configurator.beans.IReceiverBean;
+import org.csstudio.nams.configurator.beans.MessageExtensionBean;
 import org.csstudio.nams.configurator.beans.MessageTemplateBean;
+import org.csstudio.nams.configurator.beans.TimebasedFilterBean;
 import org.csstudio.nams.configurator.beans.User2GroupBean;
+import org.csstudio.nams.configurator.beans.WatchDogFilterBean;
 import org.csstudio.nams.configurator.beans.filters.FilterConditionAddOnBean;
 import org.csstudio.nams.configurator.beans.filters.JunctorConditionBean;
 import org.csstudio.nams.configurator.beans.filters.JunctorConditionForFilterTreeBean;
 import org.csstudio.nams.configurator.beans.filters.NotConditionForFilterTreeBean;
 import org.csstudio.nams.configurator.beans.filters.PVFilterConditionBean;
+import org.csstudio.nams.configurator.beans.filters.PropertyCompareConditionBean;
 import org.csstudio.nams.configurator.beans.filters.StringArrayFilterConditionBean;
 import org.csstudio.nams.configurator.beans.filters.StringFilterConditionBean;
 import org.csstudio.nams.configurator.beans.filters.TimeBasedFilterConditionBean;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.AlarmbearbeiterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.AlarmbearbeiterGruppenDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.Configuration;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.DefaultFilterDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.ExtendedMessagePvDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.LocalStoreConfigurationService;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.NewAMSConfigurationElementDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.TimeBasedFilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.TopicDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.WatchDogFilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.exceptions.InconsistentConfigurationException;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.exceptions.StorageError;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.exceptions.StorageException;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AbstAlarmbFilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AbstAlarmbGruppenFilterActionDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AbstTopicFilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmTopicFilterActionType;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmbEmailFilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmbFilterActionType;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmbGruppenEmailBestFilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmbGruppenEmailFilterActionDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmbGruppenFilterActionType;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmbGruppenSMSBestFilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmbGruppenSMSFilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmbGruppenVMailBestFilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmbGruppenVMailFilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmbSMSFilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmbVoiceMailFilterActionDTO;
-import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.AlarmbGruppenFilterActionType;
+import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.ExtendedTopicFilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.FilterActionType;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.filterActions.TopicFilterActionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.DefaultFilterTextDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.FilterConditionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.RubrikDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.User2UserGroupDTO;
-import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.JunctorConditionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.JunctorCondForFilterTreeDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.JunctorConditionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.NegationCondForFilterTreeDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.ProcessVarFiltCondDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.PropertyCompareFilterConditionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.StrgArFiltCondCompValDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.StrgArFiltCondCompValDTOPK;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.StringArFilterConditionDTO;
@@ -101,6 +113,7 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 	private Collection<RubrikDTO> rubrikDTOs = new LinkedList<RubrikDTO>();
 
 	private MessageTemplateBean[] messageTemplateBeans;
+	private Map<Integer, MessageExtensionBean> extendedMessages = new HashMap<Integer, MessageExtensionBean>();
 
 	public ConfigurationBeanServiceImpl() {
 		if (ConfigurationBeanServiceImpl._previosInstance != null) {
@@ -133,6 +146,9 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 			}
 			if (bean instanceof FilterbedingungBean) {
 				this.deleteFilterbedingungBean((FilterbedingungBean) bean);
+			}
+			if (bean instanceof MessageExtensionBean) {
+				this.deleteMessageExtensionBean((MessageExtensionBean) bean);
 			}
 			this.loadConfiguration();
 			this.notifyDeleteListeners(bean);
@@ -215,6 +231,12 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 	}
 
 	@Override
+	public MessageExtensionBean[] getMessageExtensionBeans() {
+		Collection<MessageExtensionBean> values = extendedMessages.values();
+		return values.toArray(new MessageExtensionBean[values.size()]);
+	}
+
+	@Override
     public MessageTemplateBean[] getMessageTemplates() {
 		return this.messageTemplateBeans;
 	}
@@ -277,6 +299,9 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 		if (bean instanceof FilterbedingungBean) {
 			return (T) this.saveFilterbedingungBean((FilterbedingungBean) bean);
 		}
+		if (bean instanceof MessageExtensionBean) {
+			return (T) this.saveMessageExtensionBean((MessageExtensionBean) bean);
+		}
 		throw new RuntimeException("Failed saving unsupported bean " //$NON-NLS-1$
 				+ bean.getClass());
 	}
@@ -335,24 +360,46 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 		bean.setUsers(list);
 		return bean;
 	}
-
+	
 	FilterBean DTO2Bean(final FilterDTO filterDTO)
 			throws InconsistentConfigurationException {
-		final FilterBean bean = new FilterBean();
+		final FilterBean bean;
+		if(filterDTO instanceof DefaultFilterDTO) {
+			bean = new DefaultFilterBean();
+			final List<FilterbedingungBean> conditions = ((DefaultFilterBean) bean).getConditions();
+			conditions.clear();
+			for (final FilterConditionDTO condition : ((DefaultFilterDTO) filterDTO)
+					.getFilterConditions()) {
+				final int filterConditionID = condition.getIFilterConditionID();
+				final FilterbedingungBean filterbedingungBean = this.filterbedingungBeans
+						.get(filterConditionID);
+				conditions.add(filterbedingungBean);
+			}
+			((DefaultFilterBean) bean).setConditions(conditions);
+		} else if (filterDTO instanceof TimeBasedFilterDTO) {
+			// TODO
+			TimeBasedFilterDTO timeBasedFilterDTO = (TimeBasedFilterDTO)filterDTO;
+			
+			bean = new TimebasedFilterBean();
+			((TimebasedFilterBean)bean).setTimeout(timeBasedFilterDTO.getTimeout());
+			((TimebasedFilterBean)bean).setSendOnTimeout(timeBasedFilterDTO.isSendOnTimeout());
+			FilterbedingungBean startFilterbedingungBean = DTO2Bean(timeBasedFilterDTO.getStartFilterCondition());
+			((TimebasedFilterBean)bean).setStartRootCondition((JunctorConditionForFilterTreeBean) startFilterbedingungBean);
+			FilterbedingungBean stopFilterbedingungBean = DTO2Bean(timeBasedFilterDTO.getStopFilterCondition());
+			((TimebasedFilterBean)bean).setStopRootCondition((JunctorConditionForFilterTreeBean) stopFilterbedingungBean);
+		} else {
+			WatchDogFilterDTO watchDogFilterDTO = (WatchDogFilterDTO) filterDTO;
+			
+			bean = new WatchDogFilterBean();
+			((WatchDogFilterBean)bean).setTimeout(watchDogFilterDTO.getTimeout());
+			((WatchDogFilterBean)bean).setRootCondition((JunctorConditionForFilterTreeBean) DTO2Bean(watchDogFilterDTO.getFilterCondition()));
+			//TODO implement !!!
+		}
+		
 		bean.setDefaultMessage(filterDTO.getDefaultMessage());
 		bean.setFilterID(filterDTO.getIFilterID());
 		bean.setName(filterDTO.getName());
 
-		final List<FilterbedingungBean> conditions = bean.getConditions();
-		conditions.clear();
-		for (final FilterConditionDTO condition : filterDTO
-				.getFilterConditions()) {
-			final int filterConditionID = condition.getIFilterConditionID();
-			final FilterbedingungBean filterbedingungBean = this.filterbedingungBeans
-					.get(filterConditionID);
-			conditions.add(filterbedingungBean);
-		}
-		bean.setConditions(conditions);
 		bean.setRubrikName(this.getRubrikNameForId(filterDTO.getIGroupRef()));
 		final List<FilterActionDTO> filterActions = filterDTO
 				.getFilterActions();
@@ -372,10 +419,10 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 								.get(((AbstAlarmbGruppenFilterActionDTO) filterActionDTO)
 										.getReceiver().getUserGroupId()));
 				filterAction = alarmbearbeitergruppenFilterAction;
-			} else if (filterActionDTO instanceof TopicFilterActionDTO) {
+			} else if (filterActionDTO instanceof AbstTopicFilterActionDTO) {
 				final AlarmTopicFilterAction alarmTopicFilterAction = new AlarmTopicFilterAction();
 				alarmTopicFilterAction.setReceiver(this.alarmtopicBeans
-						.get(((TopicFilterActionDTO) filterActionDTO)
+						.get(((AbstTopicFilterActionDTO) filterActionDTO)
 								.getReceiver().getId()));
 				filterAction = alarmTopicFilterAction;
 			} else {
@@ -390,6 +437,7 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 			bean.addFilterAction(filterAction);
 		}
 
+
 		return bean;
 	}
 
@@ -401,6 +449,16 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 		bean.setTopicName(dto.getTopicName());
 		bean.setRubrikName(this.getRubrikNameForId(dto.getGroupRef())); // GUI-Group
 		// = Rubrik
+		return bean;
+	}
+	
+	private MessageExtensionBean DTO2Bean(final ExtendedMessagePvDTO dto) {
+		final MessageExtensionBean bean = new MessageExtensionBean();
+		bean.setID(dto.getId());
+		bean.setPvName(dto.getPvName());
+		bean.setMessageExtensions(dto.getMessageExtensions());
+		bean.setRubrikName(getRubrikNameForId(dto.getGroupRef()));
+		
 		return bean;
 	}
 
@@ -578,6 +636,27 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 		}
 	}
 
+	private void deleteMessageExtensionBean(final MessageExtensionBean bean)
+			throws InconsistentConfigurationException, StorageError,
+			StorageException {
+		ExtendedMessagePvDTO dto = null;
+		for (final ExtendedMessagePvDTO potentialdto : this.entireConfiguration
+				.gibAlleExtendedMessages()) {
+			if (potentialdto.getId() == bean.getID()) {
+				dto = potentialdto;
+				break;
+			}
+		}
+		if (dto != null) {
+			this.configurationService.deleteDTO(dto);
+			this.extendedMessages.remove(dto.getId());
+			ConfigurationBeanServiceImpl._logger.logInfoMessage(this,
+					"ConfigurationBeanServiceImpl.delete() " //$NON-NLS-1$
+					+ "Message Extension #" + dto.getId() + " (" //$NON-NLS-1$
+					+ dto.getPvName() + ")");
+		}
+	}
+	
 	private FilterbedingungBean DTO2Bean(
 			final FilterConditionDTO filterCondtionDTO) {
 		FilterbedingungBean bean = new FilterbedingungBean();
@@ -641,6 +720,13 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 					.setOperator(((StringFilterConditionDTO) filterCondtionDTO)
 							.getOperatorEnum());
 			filterSpecificBean = stringFilterConditionBean;
+		} else if (filterCondtionDTO instanceof PropertyCompareFilterConditionDTO) {
+			final PropertyCompareConditionBean propertyCompareFilterConditionBean = new PropertyCompareConditionBean();
+			propertyCompareFilterConditionBean.setRubrikName(""); //$NON-NLS-1$
+			propertyCompareFilterConditionBean.setMessageKeyValue(((PropertyCompareFilterConditionDTO) filterCondtionDTO)
+					.getMessageKeyValueEnum());
+			propertyCompareFilterConditionBean.setOperator(((PropertyCompareFilterConditionDTO) filterCondtionDTO).getOperatorEnum());
+			filterSpecificBean = propertyCompareFilterConditionBean;
 		} else if (filterCondtionDTO instanceof TimeBasedFilterConditionDTO) {
 			final TimeBasedFilterConditionBean timeBasedConditionBean = new TimeBasedFilterConditionBean();
 			timeBasedConditionBean.setRubrikName(""); //$NON-NLS-1$
@@ -732,6 +818,18 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 		for (final FilterDTO potentialdto : this.entireConfiguration
 				.gibAlleFilter()) {
 			if (potentialdto.getIFilterID() == bean.getID()) {
+				dto = potentialdto;
+				break;
+			}
+		}
+		return dto;
+	}
+	
+	private ExtendedMessagePvDTO findDTO4Bean(final MessageExtensionBean bean) {
+		ExtendedMessagePvDTO dto = null;
+		for (final ExtendedMessagePvDTO potentialdto : this.entireConfiguration
+				.gibAlleExtendedMessages()) {
+			if (potentialdto.getId() == bean.getID()) {
 				dto = potentialdto;
 				break;
 			}
@@ -873,6 +971,17 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 				throw new RuntimeException("Couldn't load the Configuration"); //$NON-NLS-1$
 			}
 			this.rubrikDTOs = this.entireConfiguration.gibAlleRubriken();
+			
+			Collection<ExtendedMessagePvDTO> extendedMessageDTOs = this.entireConfiguration.gibAlleExtendedMessages();
+			for (ExtendedMessagePvDTO extendedMessagePvDTO : extendedMessageDTOs) {
+				MessageExtensionBean messageBean = DTO2Bean(extendedMessagePvDTO);
+				MessageExtensionBean oldBean = extendedMessages.get(extendedMessagePvDTO.getId());
+				if(oldBean != null) {
+					oldBean.updateState(messageBean);
+				} else {
+					extendedMessages.put(extendedMessagePvDTO.getId(), messageBean);
+				}
+			}
 
 			final Collection<AlarmbearbeiterDTO> alarmbearbeiter = this.entireConfiguration
 					.gibAlleAlarmbearbeiter();
@@ -944,7 +1053,8 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 			final Collection<FilterDTO> filters = this.entireConfiguration
 					.gibAlleFilter();
 			for (final FilterDTO filter : filters) {
-				final FilterBean bean = this.DTO2Bean(filter);
+				final FilterBean bean = this.DTO2Bean(filter);;
+
 				final FilterBean origBean = this.filterBeans.get(new Integer(
 						bean.getID()));
 				if (origBean != null) {
@@ -1022,6 +1132,29 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 		return resultBean;
 	}
 
+	private MessageExtensionBean saveMessageExtensionBean(
+			final MessageExtensionBean bean) throws StorageError,
+			StorageException, InconsistentConfigurationException {
+		boolean inserted = false;
+		ExtendedMessagePvDTO dto = this.findDTO4Bean(bean);
+		if (dto == null) {
+			dto = new ExtendedMessagePvDTO();
+			inserted = true;
+		}
+		dto.setPvName(bean.getPvName());
+		dto.setGroupRef(this.getRubrikIDForName(bean.getRubrikName(),
+				RubrikTypeEnum.FACILITY));
+		dto.setMessageExtensions(bean.getMessageExtensions());
+		
+		this.configurationService.saveDTO(dto);
+		this.loadConfiguration();
+		
+		final MessageExtensionBean resultBean = this.extendedMessages.get(dto.getId());
+		
+		this.insertOrUpdateNotification(resultBean, inserted);
+		return resultBean;
+	}
+	
 	private AlarmbearbeiterGruppenBean saveAlarmbearbeiterGruppenBean(
 			final AlarmbearbeiterGruppenBean bean) throws StorageError,
 			StorageException, InconsistentConfigurationException {
@@ -1092,28 +1225,71 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 		return resultBean;
 	}
 
+	// FIXME: Sauberes auftrennen der Bean je nach konkretem Filtertyp
 	private FilterBean saveFilterBean(final FilterBean bean)
 			throws InconsistentConfigurationException, StorageError,
 			StorageException {
 		boolean inserted = false;
 
 		FilterDTO dto = this.findDTO4Bean(bean);
-		if (dto == null) {
-			dto = new FilterDTO();
-			inserted = true;
+		if(bean instanceof DefaultFilterBean) {
+			if (dto == null) {
+				dto = new DefaultFilterDTO();
+				inserted = true;
+			} else {
+				this.removeJunctorConditionForFilterTreeBeans(((DefaultFilterDTO) dto)
+						.getFilterConditions());
+			}
+			
+			// FIXME: DIESMAL ABER WIRKLICH! GS & FZ 16.07.2013 (falls vergessen: nächste Zeile wieder einkommentieren)
+			final List<FilterConditionDTO> list = this.createFilterConditionDTOListForFilter(((DefaultFilterBean) bean).getConditions());
+			((DefaultFilterDTO) dto).setFilterConditions(list);
+		} else if (bean instanceof TimebasedFilterBean) {
+			if(dto == null) {
+				dto = new TimeBasedFilterDTO();
+				inserted = true;
+			} else {
+				// TODO: Handle start / stop condition for timebased filter if necessary
+				JunctorCondForFilterTreeDTO startFilterCondition = ((TimeBasedFilterDTO) dto).getStartFilterCondition();
+				this.removeJunctorConditionForFilterTreeBeans(startFilterCondition.getOperands());
+				
+				JunctorCondForFilterTreeDTO stopFilterCondition = ((TimeBasedFilterDTO) dto).getStopFilterCondition();
+				this.removeJunctorConditionForFilterTreeBeans(stopFilterCondition.getOperands());
+			}
+			TimebasedFilterBean timeBasedBean = (TimebasedFilterBean) bean;
+			TimeBasedFilterDTO timeBasedFilterDTO = (TimeBasedFilterDTO)dto;
+			
+			timeBasedFilterDTO.setTimeout(timeBasedBean.getTimeout());
+			timeBasedFilterDTO.setSendOnTimeout(timeBasedBean.isSendOnTimeout());
+
+			final List<FilterConditionDTO> startOperandsList = this.createFilterConditionDTOListForFilter(timeBasedBean.getStartRootCondition().getOperands());
+			timeBasedFilterDTO.getStartFilterCondition().setOperands(new HashSet<FilterConditionDTO>(startOperandsList));
+			configurationService.saveDTO(timeBasedFilterDTO.getStartFilterCondition());
+			
+			final List<FilterConditionDTO> stopOperandsList = this.createFilterConditionDTOListForFilter(timeBasedBean.getStopRootCondition().getOperands());
+			timeBasedFilterDTO.getStopFilterCondition().setOperands(new HashSet<FilterConditionDTO>(stopOperandsList));
+			configurationService.saveDTO(timeBasedFilterDTO.getStopFilterCondition());
 		} else {
-			this.removeJunctorConditionForFilterTreeBeans(dto
-					.getFilterConditions());
+			if(dto == null) {
+				dto = new WatchDogFilterDTO();
+				inserted = true;
+			} else {
+				JunctorCondForFilterTreeDTO filterCondition = ((WatchDogFilterDTO) dto).getFilterCondition();
+				this.removeJunctorConditionForFilterTreeBeans(filterCondition.getOperands());
+			}
+			WatchDogFilterBean watchDogFilterBean = (WatchDogFilterBean) bean;
+			WatchDogFilterDTO watchDogFilterDTO = (WatchDogFilterDTO) dto;
+			
+			watchDogFilterDTO.setTimeout(watchDogFilterBean.getTimeout());
+
+			final List<FilterConditionDTO> startOperandsList = this.createFilterConditionDTOListForFilter(watchDogFilterBean.getRootCondition().getOperands());
+			watchDogFilterDTO.getFilterCondition().setOperands(new HashSet<FilterConditionDTO>(startOperandsList));
+			configurationService.saveDTO(watchDogFilterDTO.getFilterCondition());
 		}
+		
 		dto.setDefaultMessage(bean.getDefaultMessage());
 
-		final List<FilterConditionDTO> list = this
-				.createFilterConditionDTOListForFilter(bean.getConditions());
-
-		dto.setFilterConditions(list);
-
 		List<FilterActionDTO> filterActionDTOs = dto.getFilterActions();
-
 		List<FilterActionDTO> newActionDTOs = new ArrayList<FilterActionDTO>(
 				bean.getActions().size());
 		List<FilterAction> actions = bean.getActions();
@@ -1158,34 +1334,42 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 				newActionDTOs.add(actiondto);
 			} else if (filterActionType instanceof AlarmbGruppenFilterActionType) {
 				AlarmbGruppenFilterActionType type = (AlarmbGruppenFilterActionType) filterActionType;
-				AbstAlarmbGruppenFilterActionDTO actiondto = null;
+				AbstAlarmbGruppenFilterActionDTO actionDto = null;
 				switch (type) {
 				case EMAIL:
-					actiondto = new AlarmbGruppenEmailFilterActionDTO();
+					actionDto = new AlarmbGruppenEmailFilterActionDTO();
 					break;
 				case EMAIL_Best:
-					actiondto = new AlarmbGruppenEmailBestFilterActionDTO();
+					actionDto = new AlarmbGruppenEmailBestFilterActionDTO();
 					break;
 				case SMS:
-					actiondto = new AlarmbGruppenSMSFilterActionDTO();
+					actionDto = new AlarmbGruppenSMSFilterActionDTO();
 					break;
 				case SMS_Best:
-					actiondto = new AlarmbGruppenSMSBestFilterActionDTO();
+					actionDto = new AlarmbGruppenSMSBestFilterActionDTO();
 					break;
 				case VMAIL:
-					actiondto = new AlarmbGruppenVMailFilterActionDTO();
+					actionDto = new AlarmbGruppenVMailFilterActionDTO();
 					break;
 				case VMAIL_Best:
-					actiondto = new AlarmbGruppenVMailBestFilterActionDTO();
+					actionDto = new AlarmbGruppenVMailBestFilterActionDTO();
 					break;
 				}
-				actiondto
+				actionDto
 						.setReceiver(findDTO4Bean((AlarmbearbeiterGruppenBean) filterAction
 								.getReceiver()));
-				actiondto.setMessage(filterAction.getMessage());
-				newActionDTOs.add(actiondto);
+				actionDto.setMessage(filterAction.getMessage());
+				newActionDTOs.add(actionDto);
 			} else if (filterActionType instanceof AlarmTopicFilterActionType) {
-				TopicFilterActionDTO actiondto = new TopicFilterActionDTO();
+				AbstTopicFilterActionDTO actiondto = null;
+				switch ((AlarmTopicFilterActionType) filterActionType) {
+				case TOPIC:
+					actiondto = new TopicFilterActionDTO();
+					break;
+				case TOPIC_EXTENDED:
+					actiondto = new ExtendedTopicFilterActionDTO();
+					break;
+				}
 				actiondto
 						.setReceiver(findDTO4Bean((AlarmtopicBean) filterAction
 								.getReceiver()));
@@ -1297,6 +1481,25 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 
 			// result to be saved with configurationService
 			filterConditionDTO = stringFilterConditionDTO;
+		} else if (PropertyCompareConditionBean.class.equals(beanClass)) {
+			final PropertyCompareConditionBean specificBean = (PropertyCompareConditionBean) bean
+					.getFilterSpecificBean();
+			
+			PropertyCompareFilterConditionDTO propertyCompareFilterConditionDTO = null;
+			final FilterConditionDTO dto4Bean = this.findDTO4Bean(bean);
+			if ((dto4Bean != null)
+					&& (dto4Bean instanceof PropertyCompareFilterConditionDTO)) {
+				propertyCompareFilterConditionDTO = (PropertyCompareFilterConditionDTO) dto4Bean;
+			} else {
+				propertyCompareFilterConditionDTO = new PropertyCompareFilterConditionDTO();
+				inserted = true;
+			}
+			
+			propertyCompareFilterConditionDTO.setMessageKeyValue(specificBean.getMessageKeyValue());
+			propertyCompareFilterConditionDTO.setOperatorEnum(specificBean.getOperator());
+			
+			// result to be saved with configurationService
+			filterConditionDTO = propertyCompareFilterConditionDTO;
 		} else if (StringArrayFilterConditionBean.class.equals(beanClass)) {
 			final StringArrayFilterConditionBean specificBean = (StringArrayFilterConditionBean) bean
 					.getFilterSpecificBean();
@@ -1449,9 +1652,20 @@ public class ConfigurationBeanServiceImpl implements ConfigurationBeanService {
 
 			Collection<FilterBean> filters = this.filterBeans.values();
 			for (FilterBean filterBean : filters) {
-				List<FilterbedingungBean> conditions = filterBean
-						.getConditions();
+				List<FilterbedingungBean> conditions = Collections.emptyList();
+				if (filterBean instanceof DefaultFilterBean) {
+					conditions = ((DefaultFilterBean) filterBean)
+							.getConditions();
 
+				} else if (filterBean instanceof TimebasedFilterBean) {
+					conditions = new ArrayList<FilterbedingungBean>();
+					conditions.add(((TimebasedFilterBean) filterBean)
+							.getStartRootCondition());
+					conditions.add(((TimebasedFilterBean) filterBean)
+							.getStopRootCondition());
+				} else if (filterBean instanceof WatchDogFilterBean) {
+					conditions = Collections.singletonList((FilterbedingungBean)((WatchDogFilterBean) filterBean).getRootCondition());
+				}
 				if (isReferencedBySubCondition(bean, conditions)) {
 					return false;
 				}

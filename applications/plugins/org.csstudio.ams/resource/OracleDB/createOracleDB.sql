@@ -8,12 +8,12 @@ create table AMS_User
 	iGroupRef		NUMBER(11) default -1 NOT NULL, /* FK AMS_Groups.iGroupId				*/
 	cUserName 		VARCHAR2(128),
 	cEmail 			VARCHAR2(128),			/* für MAIL 						*/
-	cMobilePhone		VARCHAR2(64),			/* für SMS 						*/
+	cMobilePhone	VARCHAR2(64),			/* für SMS 						*/
 	cPhone			VARCHAR2(64),			/* für VM 						*/
 	cStatusCode		VARCHAR2(32),			/* Identifz. für Remote An- und Abmelden 		*/
-	cConfirmCode		VARCHAR2(32),			/* Bestätigungscode der Antwort 			*/
-	sActive			NUMBER(6),			/* 0 - Inactive, 1 - Active				*/
-	sPreferredAlarmingTypeRR	NUMBER(6),		/* ReplyRequired: 1 - SMS, 2 - VM, 3 - MAIL 		*/
+	cConfirmCode	VARCHAR2(32),			/* Bestätigungscode der Antwort 			*/
+	sActive			NUMBER(6),				/* 0 - Inactive, 1 - Active				*/
+	sPreferredAlarmingTypeRR	NUMBER(6),	/* ReplyRequired: 1 - SMS, 2 - VM, 3 - MAIL 		*/
 	/*sPreferredAlarmingType	NUMBER(6),		Without Reply: 1 - SMS, 2 - VM, 3 - MAIL 		*/
 	PRIMARY KEY (iUserId)						
 );
@@ -118,7 +118,8 @@ create table AMS_FilterCond_Conj_Common
 (
 	iFilterConditionRef			NUMBER(11) NOT NULL,
 	iFirstFilterConditionRef	NUMBER(11) NOT NULL,
-	iSecondFilterConditionRef   NUMBER(11) NOT NULL
+	iSecondFilterConditionRef   NUMBER(11) NOT NULL,
+	iOperand					NUMBER(6)
 );
 
 drop table AMS_Filter;
@@ -128,7 +129,38 @@ create table AMS_Filter
 	iGroupRef		NUMBER(11) default -1 NOT NULL, /*FK AMS_Groups.iGroupId				*/
 	cName			VARCHAR2(128),
 	cDefaultMessage		VARCHAR2(1024),			/* Default Msg mit Platzhalter, wenn in Aktion keine Msg */
+	cFilterType		VARCHAR2(100) DEFAULT 'default' NOT NULL,
 	PRIMARY KEY (iFilterID)
+);
+
+drop table AMS_FILTER_TIMEBASED;
+CREATE TABLE  AMS_FILTER_TIMEBASED 
+(	
+   	iFilterRef NUMBER(11,0) NOT NULL ENABLE, 
+	iTimeout NUMBER(11,0) NOT NULL ENABLE, 
+	iStartFilterConditionRef NUMBER(11,0) DEFAULT -1 NOT NULL ENABLE, 
+	iStopFilterConditionRef NUMBER(11,0) DEFAULT -1 NOT NULL ENABLE, 
+	iSendOnTimeout NUMBER(1,0) DEFAULT 1 NOT NULL ENABLE, 
+	 CONSTRAINT "AMS_FILTER_TIMEBASED_PK" PRIMARY KEY ("IFILTERREF") ENABLE, 
+	 CONSTRAINT "AMS_FILTER_TIMEBASED_FK" FOREIGN KEY ("IFILTERREF")
+	  REFERENCES  "AMS_FILTER" ("IFILTERID") ON DELETE CASCADE ENABLE, 
+	 CONSTRAINT "AMS_FILTER_TIMEBASED_FK3" FOREIGN KEY ("ISTOPFILTERCONDITIONREF")
+	  REFERENCES  "AMS_FILTERCOND_JUNCTION" ("IFILTERCONDITIONREF") ENABLE, 
+	 CONSTRAINT "AMS_FILTER_TIMEBASED_FK2" FOREIGN KEY ("ISTARTFILTERCONDITIONREF")
+	  REFERENCES  "AMS_FILTERCOND_JUNCTION" ("IFILTERCONDITIONREF") ENABLE
+);
+
+drop table AMS_FILTER_WATCHDOG;
+CREATE TABLE AMS_FILTER_WATCHDOG
+   (	
+   	IFILTERREF NUMBER(11,0) NOT NULL ENABLE, 
+	ITIMEOUT NUMBER(11,0) NOT NULL ENABLE, 
+	IFILTERCONDITIONREF NUMBER(11,0) DEFAULT -1 NOT NULL ENABLE, 
+	 CONSTRAINT "AMS_FILTER_WATCHDOG_PK" PRIMARY KEY ("IFILTERREF") ENABLE, 
+	 CONSTRAINT "AMS_FILTER_WATCHDOG_FK" FOREIGN KEY ("IFILTERREF")
+	  REFERENCES  "AMS_FILTER" ("IFILTERID") ON DELETE CASCADE ENABLE, 
+	 CONSTRAINT "AMS_FILTER_WATCHDOG_FK2" FOREIGN KEY ("IFILTERCONDITIONREF")
+	  REFERENCES  "AMS_FILTERCOND_JUNCTION" ("IFILTERCONDITIONREF") ENABLE
 );
 
 drop table AMS_Filter_FilterCondition;
@@ -138,6 +170,17 @@ create table AMS_Filter_FilterCondition
 	iFilterConditionRef	NUMBER(11),
 	iPos				NUMBER(11),
 	PRIMARY KEY (iFilterRef,iFilterConditionRef)
+);
+
+drop table AMS_FILTERCOND_PROPCOMPARE;
+CREATE TABLE AMS_FILTERCOND_PROPCOMPARE
+(	
+	IFILTERCONDITIONREF NUMBER(11,0) NOT NULL ENABLE, 
+	CMESSAGEKEYVALUE VARCHAR2(16) NOT NULL ENABLE, 
+	SOPERATOR NUMBER(11,0), 
+	 CONSTRAINT "AMS_FILTERCOND_PROPCOMPARE_PK" PRIMARY KEY ("IFILTERCONDITIONREF") ENABLE, 
+	 CONSTRAINT "AMS_FILTERCOND_PROPCOMPARE_FK" FOREIGN KEY ("IFILTERCONDITIONREF")
+	  REFERENCES  "AMS_FILTERCONDITION" ("IFILTERCONDITIONID") ON DELETE CASCADE ENABLE
 );
 
 drop table AMS_Topic;
@@ -350,7 +393,8 @@ create table AMS_FilterCond_Conj_Common_Syn
 (
 	iFilterConditionRef			NUMBER(11) NOT NULL,
 	iFirstFilterConditionRef	NUMBER(11) NOT NULL,
-	iSecondFilterConditionRef   NUMBER(11) NOT NULL
+	iSecondFilterConditionRef   NUMBER(11) NOT NULL,
+	iOperand					NUMBER(6) DEFAULT 0
 );
 
 drop table AMS_Filter_Syn;
@@ -360,7 +404,27 @@ create table AMS_Filter_Syn
 	iGroupRef		NUMBER(11) default -1 NOT NULL, /*FK AMS_Groups.iGroupId				*/
 	cName			VARCHAR2(128),
 	cDefaultMessage		VARCHAR2(1024),			/* Default Msg mit Platzhalter, wenn in Aktion keine Msg */
+	cFilterType		VARCHAR2(100) DEFAULT 'default' NOT NULL,
 	PRIMARY KEY (iFilterID)
+);
+
+
+drop table AMS_FILTER_TIMEBASED_SYN;
+CREATE TABLE  AMS_FILTER_TIMEBASED_SYN
+(	
+   	iFilterRef NUMBER(11,0) NOT NULL ENABLE, 
+	iTimeout NUMBER(11,0) NOT NULL ENABLE, 
+	iStartFilterConditionRef NUMBER(11,0) DEFAULT -1 NOT NULL ENABLE, 
+	iStopFilterConditionRef NUMBER(11,0) DEFAULT -1 NOT NULL ENABLE, 
+	iSendOnTimeout NUMBER(1,0) DEFAULT 1 NOT NULL ENABLE
+);
+
+drop table AMS_FILTER_WATCHDOG_SYN;
+CREATE TABLE AMS_FILTER_WATCHDOG_SYN
+   (	
+   	IFILTERREF NUMBER(11,0) NOT NULL ENABLE, 
+	ITIMEOUT NUMBER(11,0) NOT NULL ENABLE, 
+	IFILTERCONDITIONREF NUMBER(11,0) DEFAULT -1 NOT NULL ENABLE
 );
 
 drop table AMS_Filter_FilterCondition_Syn;
@@ -370,6 +434,14 @@ create table AMS_Filter_FilterCondition_Syn
 	iFilterConditionRef	NUMBER(11),
 	iPos			NUMBER(11),
 	PRIMARY KEY (iFilterRef,iFilterConditionRef)
+);
+
+drop table AMS_FILTERCOND_PROPCOMPARE_SYN;
+CREATE TABLE AMS_FILTERCOND_PROPCOMPARE_SYN
+(	
+	IFILTERCONDITIONREF NUMBER(11,0) NOT NULL ENABLE, 
+	CMESSAGEKEYVALUE VARCHAR2(16) NOT NULL ENABLE, 
+	SOPERATOR NUMBER(11,0)
 );
 
 drop table AMS_Topic_Syn;
@@ -433,6 +505,20 @@ create table AMS_UserGroup_Syn
 	iTimeOutSec		NUMBER(11),			/* Timeout pro Benachrichtigungsversuch 		*/
 	sActive			NUMBER(6),			/* 0 - Inactive, 1 - Active				*/
 	PRIMARY KEY (iUserGroupId)						
+);
+
+CREATE TABLE  AMS_MSG_EXTENSIONS
+(	
+	CPVNAME VARCHAR2(4000) NOT NULL, 
+	CMESSAGEKEY VARCHAR2(4000) NOT NULL, 
+	CMESSAGEVALUE VARCHAR2(4000) NOT NULL
+);
+
+CREATE TABLE  AMS_MSG_EXTENSIONS_SYN
+(	
+	CPVNAME VARCHAR2(4000) NOT NULL, 
+	CMESSAGEKEY VARCHAR2(4000) NOT NULL, 
+	CMESSAGEVALUE VARCHAR2(4000) NOT NULL
 );
 
 -- Init Oracle AMS --

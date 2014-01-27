@@ -3,25 +3,27 @@ package org.csstudio.nams.common.activatorUtils;
 import java.lang.reflect.Method;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.remotercp.common.tracker.GenericServiceTracker;
-import org.remotercp.common.tracker.IGenericServiceListener;
-import org.remotercp.service.connection.session.ISessionService;
 
 public abstract class AbstractBundleActivator implements BundleActivator {
 
     protected static AbstractBundleActivator instance;
 
-    protected GenericServiceTracker<ISessionService> _genericServiceTracker;
-    
+    protected static BundleContext bundleContext;
+
     public static AbstractBundleActivator getDefault() {
         return instance;
     }
-    
-	@Override
+
+    public static BundleContext getBundleContext() {
+        return bundleContext;
+    }
+
+    @Override
     final public void start(final BundleContext context) throws Exception {
-		
-	    instance = this;
-	    
+
+	    AbstractBundleActivator.instance = this;
+	    AbstractBundleActivator.bundleContext = context;
+
 	    final Method bundleStartMethod = AnnotatedActivatorUtils
 				.findAnnotatedMethod(this, OSGiBundleActivationMethod.class);
 
@@ -57,17 +59,12 @@ public abstract class AbstractBundleActivator implements BundleActivator {
 			}
 		}
 
-		// For XMPP login
-        _genericServiceTracker = new GenericServiceTracker<ISessionService>(
-                context, ISessionService.class);
-        _genericServiceTracker.open();
-
 		// INVOKE
 		final Object[] paramValues = AnnotatedActivatorUtils
 				.evaluateParamValues(context, requestedParams);
 		final Object result = bundleStartMethod.invoke(this, paramValues);
 
-		if ((result != null)
+		if (result != null
 				&& OSGiServiceOffers.class.isAssignableFrom(result.getClass())) {
 			final OSGiServiceOffers offers = (OSGiServiceOffers) result;
 			for (final Class<?> key : offers.keySet()) {
@@ -84,12 +81,12 @@ public abstract class AbstractBundleActivator implements BundleActivator {
 
 	@Override
     final public void stop(final BundleContext context) throws Exception {
-		final Method bundleSopMethod = AnnotatedActivatorUtils
+		final Method bundleStopMethod = AnnotatedActivatorUtils
 				.findAnnotatedMethod(this, OSGiBundleDeactivationMethod.class);
 
-		if (bundleSopMethod != null) {
+		if (bundleStopMethod != null) {
 			final RequestedParam[] requestedParams = AnnotatedActivatorUtils
-					.getAllRequestedMethodParams(bundleSopMethod);
+					.getAllRequestedMethodParams(bundleStopMethod);
 
 			// check is all requested params are valid...
 			for (final RequestedParam requestedParam : requestedParams) {
@@ -104,7 +101,7 @@ public abstract class AbstractBundleActivator implements BundleActivator {
 			}
 
 			// check if return value is void.
-			final Class<?> returnType = bundleSopMethod.getReturnType();
+			final Class<?> returnType = bundleStopMethod.getReturnType();
 			if (!Void.TYPE.isAssignableFrom(returnType)) {
 				throw new RuntimeException(
 						"Illegal return value of stop-method. "
@@ -115,12 +112,10 @@ public abstract class AbstractBundleActivator implements BundleActivator {
 			// INVOKE
 			final Object[] paramValues = AnnotatedActivatorUtils
 					.evaluateParamValues(context, requestedParams);
-			bundleSopMethod.invoke(this, paramValues);
+			bundleStopMethod.invoke(this, paramValues);
 		}
-	}
-	
-    public void addSessionServiceListener(
-                IGenericServiceListener<ISessionService> sessionServiceListener) {
-	              _genericServiceTracker.addServiceListener(sessionServiceListener);
+
+		AbstractBundleActivator.instance = null;
+	    AbstractBundleActivator.bundleContext = null;
 	}
 }

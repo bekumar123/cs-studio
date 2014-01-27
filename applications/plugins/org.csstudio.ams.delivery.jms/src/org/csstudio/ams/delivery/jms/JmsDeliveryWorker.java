@@ -49,19 +49,19 @@ import org.slf4j.LoggerFactory;
  * @since 23.02.2012
  */
 public class JmsDeliveryWorker extends AbstractDeliveryWorker implements IConnectionMonitor {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(JmsDeliveryActivator.class);
-    
+
     private JmsDevice jmsDevice;
-    
+
     private JmsWorkerStatus workerStatus;
-    
+
     private boolean running;
 
     public JmsDeliveryWorker() {
         workerName = this.getClass().getSimpleName();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -71,7 +71,7 @@ public class JmsDeliveryWorker extends AbstractDeliveryWorker implements IConnec
         LOG.info(workerName + " is running.");
 
         IPreferencesService prefs = Platform.getPreferencesService();
-        
+
         long maxReceivDiff = prefs.getLong(JmsDeliveryActivator.PLUGIN_ID,
                                            JmsDeliveryPreferenceKey.P_MAX_ALLOWED_RECEIVING_DIFF,
                                            300000L,
@@ -83,11 +83,11 @@ public class JmsDeliveryWorker extends AbstractDeliveryWorker implements IConnec
         // Create the JMS publisher
         ISharedConnectionHandle publisherHandle = null;
         Session publisherSession = null;
-        
+
         ISharedConnectionHandle[] consumerHandles = null;
         Session[] consumerSession = null;
         MessageConsumer[] consumer = null;
-        
+
         String consumerTopicName = prefs.getString(AmsActivator.PLUGIN_ID,
                                            AmsPreferenceKey.P_JMS_AMS_TOPIC_JMS_CONNECTOR,
                                            "T_AMS_CON_JMS",
@@ -101,7 +101,7 @@ public class JmsDeliveryWorker extends AbstractDeliveryWorker implements IConnec
             consumerHandles = SharedJmsConnections.sharedReceiverConnections();
             consumerSession = new Session[consumerHandles.length];
             consumer = new MessageConsumer[consumerHandles.length];
-            
+
             for (int i = 0; i < consumerHandles.length; i++) {
                 consumerHandles[i].addMonitor(this);
                 consumerSession[i] = consumerHandles[i].createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -118,7 +118,7 @@ public class JmsDeliveryWorker extends AbstractDeliveryWorker implements IConnec
             LOG.error("Leaving worker.");
             running = false;
         }
-        
+
         while (running) {
             synchronized (this) {
                 try {
@@ -128,11 +128,11 @@ public class JmsDeliveryWorker extends AbstractDeliveryWorker implements IConnec
                 }
             }
         }
-        
+
         if (jmsDevice != null) {
             jmsDevice.stopDevice();
         }
-        
+
         if (consumer != null) {
             for (MessageConsumer o : consumer) {
                 if (o != null) {
@@ -140,7 +140,7 @@ public class JmsDeliveryWorker extends AbstractDeliveryWorker implements IConnec
                 }
             }
         }
-        
+
         if (consumerSession != null) {
             for (Session o : consumerSession) {
                 if (o != null) {
@@ -156,18 +156,18 @@ public class JmsDeliveryWorker extends AbstractDeliveryWorker implements IConnec
                 }
             }
         }
-        
+
         if (publisherSession != null) {
             try {publisherSession.close();}catch(JMSException e){/* Ignore me */}
         }
-        
+
         if (publisherHandle != null) {
             publisherHandle.release();
         }
-        
+
         LOG.info("{} is leaving.", workerName);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -178,7 +178,7 @@ public class JmsDeliveryWorker extends AbstractDeliveryWorker implements IConnec
             this.notify();
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -199,5 +199,13 @@ public class JmsDeliveryWorker extends AbstractDeliveryWorker implements IConnec
     @Override
     public void onDisconnected(TransportEvent event) {
         LOG.warn("onDisconnected(): {}", event);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void drainTopic() {
+        // TODO Auto-generated method stub
     }
 }

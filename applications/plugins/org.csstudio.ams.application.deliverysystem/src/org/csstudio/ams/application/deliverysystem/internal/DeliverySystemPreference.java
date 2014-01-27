@@ -29,8 +29,8 @@ import org.csstudio.ams.application.deliverysystem.Activator;
 import org.csstudio.domain.desy.preferences.AbstractPreference;
 
 /**
- * TODO (mmoeller) : 
- * 
+ * TODO (mmoeller) :
+ *
  * @author mmoeller
  * @version 1.0
  * @since 19.12.2011
@@ -39,7 +39,7 @@ public class DeliverySystemPreference<T> extends AbstractPreference<T> {
 
     public static final DeliverySystemPreference<String> XMPP_SERVER =
             new DeliverySystemPreference<String>("xmppServer", "krynfs.desy.de");
-    
+
     public static final DeliverySystemPreference<String> XMPP_USER =
             new DeliverySystemPreference<String>("xmppUser", "ams-delivery-system");
 
@@ -60,6 +60,9 @@ public class DeliverySystemPreference<T> extends AbstractPreference<T> {
 
     public static final DeliverySystemPreference<Long> WORKER_STOP_TIMEOUT =
             new DeliverySystemPreference<Long>("workerStopTimeout", 6000L);
+
+    public static final DeliverySystemPreference<String> DESCRIPTION =
+            new DeliverySystemPreference<String>("description", "I am a simple but happy application.");
 
     private DeliverySystemPreference(final String keyAsString, final T defaultValue) {
         super(keyAsString, defaultValue);

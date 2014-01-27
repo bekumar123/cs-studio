@@ -25,6 +25,7 @@
 
 package org.csstudio.nams.application.department.decision.management;
 
+import org.csstudio.headless.common.management.CommandResultPrefix;
 import org.csstudio.nams.application.department.decision.remote.RemotelyStoppable;
 import org.csstudio.nams.service.logging.declaration.ILogger;
 import org.csstudio.remote.management.CommandParameters;
@@ -37,13 +38,16 @@ import org.csstudio.remote.management.IManagementCommand;
  * @since 22.03.2012
  */
 public class Restart implements IManagementCommand {
-    
-    private static String ACTION_LOGIN_FAILED = "ERROR: [3] - Possible hacking attempt: XMPP-remote-login: Authorization failed! (no details avail)"
-    + " [requested action: \"restarting\"]";
-    
-    private static String ACTION_LOGIN_SUCCEDED = "OK: [0] - Login succeded for user "
-    + "ams-department-decision"
-    + ", stopping has been initiated [requested action: \"restarting\"]";
+
+    private static String ACTION_LOGIN_FAILED =
+            CommandResultPrefix.getErrorPrefix(3)
+            + " Possible hacking attempt: XMPP-remote-login: Authorization failed! (no details avail)"
+            + " [requested action: \"restarting\"]";
+
+    private static String ACTION_LOGIN_SUCCEDED =
+            CommandResultPrefix.getOkPrefix()
+            + " Login succeded for user ams-department-decision,"
+            + " stopping has been initiated [requested action: \"restarting\"]";
 
     static final String ADMIN_PASSWORD = "admin4AMS";
 
@@ -51,9 +55,6 @@ public class Restart implements IManagementCommand {
 
     private static RemotelyStoppable thingToBeRestarted;
 
-    /**
-     * Constructor.
-     */
     public Restart() {
         if (Restart.logger == null) {
             throw new RuntimeException(
@@ -64,16 +65,16 @@ public class Restart implements IManagementCommand {
                     "Class has not been intialized. Expected call of staticInject(RemotelyStoppable) before instantation.");
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public CommandResult execute(CommandParameters parameters) {
-        
+
         String param = (String) parameters.get("Password");
         String password = thingToBeRestarted.getPassword();
-        
+
         if(password.length() > 0) {
             if(param.equals(password)) {
                 Restart.thingToBeRestarted.restartRemotly(Restart.logger);
@@ -85,11 +86,11 @@ public class Restart implements IManagementCommand {
             Restart.logger.logInfoMessage(this, Restart.ACTION_LOGIN_SUCCEDED);
             return CommandResult.createMessageResult(Restart.ACTION_LOGIN_SUCCEDED);
         }
-        
+
         Restart.logger.logWarningMessage(this, Restart.ACTION_LOGIN_FAILED);
         return CommandResult.createMessageResult(Restart.ACTION_LOGIN_FAILED);
     }
-    
+
     /**
      * Injection of logger. Note: This method have to be called before any
      * instance of this class is created!

@@ -1,245 +1,270 @@
--- NAMS --
+-- SQL-Skript zum Erzeugen der AMS-Datenbank in HSQLDB (In-Memory)
+-- Aktuelle Version vom 03.12.2013
+-- Änderungen von C1-WPS
 
-create table AMS_FilterCond_Junction
-(
-   iFilterConditionRef INT NOT NULL,
-   operator varchar(3) NOT NULL
-);
-
-create table AMS_FilterCond_FilterCond
+CREATE TABLE AMS_FilterCond_FilterCond 
 (
    iFilterConditionId INT NOT NULL,
    iFilterConditionRef INT NOT NULL
 );
 
-create table AMS_FilterCond_Negation
+CREATE TABLE AMS_FilterCond_Negation 
 (
    iFilterConditionRef INT NOT NULL,
    iNegatedFCRef INT NOT NULL
 );
 
--- AMS --
-
-create table AMS_User
+CREATE TABLE AMS_User 
 (
-	iUserId			INT NOT NULL,
-	iGroupRef		INT default -1 NOT NULL,
-	cUserName		VARCHAR(128),
-	cEmail			VARCHAR(128),
-	cMobilePhone	VARCHAR(64),
-	cPhone			VARCHAR(64),
-	cStatusCode		VARCHAR(32),
-	cConfirmCode	VARCHAR(32),
-	sActive			SMALLINT,
-	sPreferredAlarmingTypeRR	SMALLINT,
-	PRIMARY KEY (iUserId)
+    iUserId INT NOT NULL, 
+    iGroupRef INT DEFAULT -1 NOT NULL, 
+    cUserName VARCHAR(128), 
+    cEmail VARCHAR(128), 
+    CMOBILEPHONE VARCHAR(64), 
+    CPHONE VARCHAR(64), 
+    CSTATUSCODE VARCHAR(32), 
+    CCONFIRMCODE VARCHAR(32), 
+    SACTIVE SMALLINT, 
+    SPREFERREDALARMINGTYPERR SMALLINT, 
+    PRIMARY KEY (iUserId)
 );
 
-create table AMS_UserGroup
+CREATE TABLE AMS_UserGroup 
 (
-	iUserGroupId	INT NOT NULL,
-	iGroupRef		INT default -1 NOT NULL,
-	cUserGroupName	VARCHAR(128),
-	sMinGroupMember	SMALLINT,
-	iTimeOutSec		INT,
-	sActive			SMALLINT default 1,
-	PRIMARY KEY (iUserGroupId)
+    iUserGroupId INT NOT NULL, 
+    iGroupRef INT DEFAULT -1 NOT NULL, 
+    cUserGroupName VARCHAR(128), 
+    sMinGroupMember SMALLINT, 
+    iTimeOutSec INT, 
+    sActive SMALLINT, 
+    PRIMARY KEY (iUserGroupId)
 );
 
-create table AMS_UserGroup_User
+CREATE TABLE AMS_UserGroup_User 
 (
-	iUserGroupRef	INT NOT NULL,
-	iUserRef		INT NOT NULL,
-	iPos			INT NOT NULL,
-	sActive			SMALLINT,
-	cActiveReason	VARCHAR(128),
-	tTimeChange		BIGINT,
-	PRIMARY KEY(iUserGroupRef,iUserRef,iPos)
+    iUserGroupRef INT NOT NULL, 
+    iUserRef INT NOT NULL, 
+    iPos INT NOT NULL, 
+    sActive SMALLINT, 
+    cActiveReason VARCHAR(128), 
+    tTimeChange BIGINT, 
+    PRIMARY KEY (iUserGroupRef, iUserRef, iPos)
 );
 
-
-create table AMS_FilterConditionType
+CREATE TABLE AMS_FilterConditionType 
 (
-	iFilterConditionTypeID	INT,
-	cName			VARCHAR(128),
-	cClass			VARCHAR(256),
-	cClassUI		VARCHAR(256),
-	PRIMARY KEY(iFilterConditionTypeID)
+    iFilterConditionTypeID INT, 
+    cName VARCHAR(128), 
+    cClass VARCHAR(256), 
+    cClassUI VARCHAR(256), 
+    PRIMARY KEY (iFilterConditionTypeID)
 );
 
-create table AMS_FilterCondition
+CREATE TABLE AMS_FilterCondition 
 (
-	iFilterConditionID	INT NOT NULL,
-	iGroupRef		INT default -1 NOT NULL,
-	cName			VARCHAR(128),
-	cDesc			VARCHAR(256),
-	iFilterConditionTypeRef INT,
-	PRIMARY KEY(iFilterConditionID)
+    iFilterConditionID INT NOT NULL, 
+    iGroupRef INT DEFAULT -1 NOT NULL, 
+    cName VARCHAR(128), 
+    cDesc VARCHAR(256), 
+    iFilterConditionTypeRef INT, 
+    PRIMARY KEY (iFilterConditionID)
 );
 
-create table AMS_FilterCondition_String
+CREATE TABLE AMS_FilterCond_Junction
 (
-	iFilterConditionRef	INT NOT NULL,
-	cKeyValue		VARCHAR(16),
-	sOperator		SMALLINT,
-	cCompValue		VARCHAR(128)
+   iFilterConditionRef INT NOT NULL,
+   operator VARCHAR(3) NOT NULL
 );
 
-create table AMS_FilterCond_ArrStr
-(
-	iFilterConditionRef	INT NOT NULL,
-	cKeyValue		VARCHAR(16),
-	sOperator		SMALLINT
+CREATE TABLE AMS_FilterCondition_String 
+(   
+    iFilterConditionRef INT NOT NULL, 
+    cKeyValue VARCHAR(16), 
+    sOperator SMALLINT, 
+    cCompValue VARCHAR(128)
 );
 
-create table AMS_FilterCond_ArrStrVal
+CREATE TABLE AMS_FilterCond_ArrStr 
 (
-	iFilterConditionRef	INT NOT NULL,
-	cCompValue		VARCHAR(128)
+    iFilterConditionRef INT NOT NULL, 
+    cKeyValue VARCHAR(16), 
+    sOperator SMALLINT
 );
 
-create table AMS_FilterCond_TimeBased
-(
-	iFilterConditionRef	INT NOT NULL,
-	cStartKeyValue		VARCHAR(16),
-	sStartOperator		SMALLINT,
-	cStartCompValue		VARCHAR(128),
-	cConfirmKeyValue	VARCHAR(16),
-	sConfirmOperator	SMALLINT,
-	cConfirmCompValue	VARCHAR(128),
-	sTimePeriod			SMALLINT,
-	sTimeBehavior		SMALLINT
+CREATE TABLE AMS_FilterCond_ArrStrVal 
+(   
+    iFilterConditionRef INT NOT NULL, 
+    cCompValue VARCHAR(128)
 );
 
-create table AMS_FilterCond_TimeBasedItems
-(
-	iItemID			INT,
-	iFilterConditionRef	INT NOT NULL,
-	iFilterRef		INT NOT NULL,
-	cIdentifier		VARCHAR(128) NOT NULL,
-	sState			SMALLINT,
-	tStartTime		BIGINT,
-	tEndTime		BIGINT,
-	sTimeOutAction	SMALLINT,
-	iMessageRef		INT,
-	PRIMARY KEY(iItemID)
+CREATE TABLE AMS_FilterCond_TimeBased 
+(   
+    iFilterConditionRef INT NOT NULL, 
+    cStartKeyValue VARCHAR(16), 
+    sStartOperator SMALLINT, 
+    cStartCompValue VARCHAR(128), 
+    cConfirmKeyValue VARCHAR(16), 
+    sConfirmOperator SMALLINT, 
+    cConfirmCompValue VARCHAR(128), 
+    sTimePeriod SMALLINT, 
+    sTimeBehavior SMALLINT
 );
 
-create table AMS_FilterCondition_PV
+CREATE TABLE AMS_FilterCond_TimeBasedItems
 (
-	iFilterConditionRef	INT NOT NULL,
-	cPvChannelName		VARCHAR(128),
-	sSuggestedPvTypeId	SMALLINT,
-	sOperatorId			SMALLINT,
-	cCompValue			VARCHAR(128)
+    iItemID         INT,
+    iFilterConditionRef INT NOT NULL,
+    iFilterRef      INT NOT NULL,
+    cIdentifier     VARCHAR(128) NOT NULL,
+    sState          SMALLINT,
+    tStartTime      BIGINT,
+    tEndTime        BIGINT,
+    sTimeOutAction  SMALLINT,
+    iMessageRef     INT,
+    PRIMARY KEY(iItemID)
 );
 
-create table AMS_FilterCond_Conj_Common
+CREATE TABLE AMS_FilterCondition_PV 
 (
-	iFilterConditionRef			INT NOT NULL,
-	iFirstFilterConditionRef	INT NOT NULL,
-	iSecondFilterConditionRef   INT NOT NULL,
-	iOperand                    SMALLINT
+    iFilterConditionRef INT NOT NULL, 
+    cPvChannelName VARCHAR(128), 
+    sSuggestedPvTypeId SMALLINT, 
+    sOperatorId SMALLINT, 
+    cCompValue VARCHAR(128)
 );
 
-create table AMS_Filter
+CREATE TABLE AMS_FilterCond_Conj_Common 
 (
-	iFilterID		INT,
-	iGroupRef		INT default -1 NOT NULL,
-	cName			VARCHAR(128),
-	cDefaultMessage	VARCHAR(1024),
-	PRIMARY KEY (iFilterID)
+    iFilterConditionRef INT NOT NULL, 
+    iFirstFilterConditionRef INT NOT NULL, 
+    iSecondFilterConditionRef INT NOT NULL, 
+    iOperand SMALLINT
 );
 
-create table AMS_Filter_FilterCondition
+CREATE TABLE AMS_Filter 
 (
-	iFilterRef		INT,
-	iFilterConditionRef	INT,
-	iPos			INT,
-	PRIMARY KEY (iFilterRef,iFilterConditionRef)
+    iFilterID INT, 
+    iGroupRef INT DEFAULT -1 NOT NULL, 
+    cName VARCHAR(128), 
+    cDefaultMessage VARCHAR(1024), 
+    cFilterType VARCHAR(100) DEFAULT 'default' NOT NULL, 
+    PRIMARY KEY (iFilterID)
 );
 
-create table AMS_Topic
+CREATE TABLE AMS_Filter_Timebased 
 (
-	iTopicId 		INT NOT NULL,
-	iGroupRef		INT default -1 NOT NULL,
-	cTopicName 		VARCHAR(128),
-	cName	 		VARCHAR(128),
-	cDescription	VARCHAR(256),
-	PRIMARY KEY (iTopicId)						
+    iFilterRef INT NOT NULL, 
+    iTimeout INT NOT NULL, 
+    iStartFilterConditionRef INT DEFAULT -1 NOT NULL, 
+    iStopFilterConditionRef INT DEFAULT -1 NOT NULL, 
+    iSendOnTimeout INT DEFAULT 1 NOT NULL, 
+    PRIMARY KEY (iFilterRef)
 );
 
-create table AMS_FilterActionType
+CREATE TABLE AMS_Filter_Watchdog 
 (
-	iFilterActionTypeID	INT NOT NULL,
-	cName			VARCHAR(128),
-	iTopicRef		INT,
-	PRIMARY KEY(iFilterActionTypeID)
+    iFilterRef INT NOT NULL, 
+    iTimeout INT NOT NULL, 
+    iFilterConditionRef INT DEFAULT -1 NOT NULL, 
+    PRIMARY KEY (iFilterRef)
 );
 
-create table AMS_FilterAction
+CREATE TABLE AMS_Filter_FilterCondition 
 (
-	iFilterActionID			INT NOT NULL,
-	iFilterActionTypeRef	INT NOT NULL,
-	iReceiverRef			INT,
-	cMessage				VARCHAR(1024),
-	PRIMARY KEY(iFilterActionID)
+    iFilterRef INT, 
+    iFilterConditionRef INT, 
+    iPos INT, 
+    PRIMARY KEY (iFilterRef, iFilterConditionRef)
 );
 
-create table AMS_Filter_FilterAction
+CREATE TABLE AMS_TbFilter_FilterCond
 (
-	iFilterRef			INT NOT NULL,
-	iFilterActionRef	INT NOT NULL,
-	iPos				INT NOT NULL
+    iFilterRef INT NOT NULL,
+    iFilterConditionRef INT NOT NULL,
+    iTimebasedCondType INT NOT NULL
 );
 
-create table AMS_Message
+CREATE TABLE AMS_Topic 
 (
-	iMessageID		INTEGER GENERATED BY DEFAULT AS IDENTITY,
-	cProperty		VARCHAR(16),
-	cValue			VARCHAR(256)
+    iTopicId INT NOT NULL, 
+    iGroupRef INT DEFAULT -1 NOT NULL, 
+    cTopicName VARCHAR(128), 
+    cName VARCHAR(128), 
+    cDescription VARCHAR(256), 
+    PRIMARY KEY (iTopicId)
 );
 
-create table AMS_MessageChain
+CREATE TABLE AMS_FilterActionType 
 (
-	iMessageChainID		INT NOT NULL,
-	iMessageRef			INT NOT NULL,
-	iFilterRef			INT NOT NULL,
-	iFilterActionRef	INT NOT NULL,
-	iReceiverPos		INT NOT NULL,
-	tSendTime			BIGINT,
-	tNextActTime		BIGINT,
-	sChainState			SMALLINT,	
-	cReceiverAdress		VARCHAR(64),	
-	PRIMARY KEY(iMessageChainID)
+    iFilterActionTypeID INT NOT NULL, 
+    cName VARCHAR(128), 
+    iTopicRef INT, 
+    PRIMARY KEY (iFilterActionTypeID)
 );
 
-create table AMS_History
+CREATE TABLE AMS_FilterAction 
 (
-	iHistoryID		Integer GENERATED BY DEFAULT AS IDENTITY,
-	tTimeNew		BIGINT,
-	cType			VARCHAR(16),
-	cMsgHost		VARCHAR(64),
-	cMsgProc		VARCHAR(64),
-	cMsgName		VARCHAR(64),
-	cMsgEventTime	VARCHAR(32),
-	cDescription	VARCHAR(512),
-	cActionType		VARCHAR(16),	
-	iGroupRef		INT,
-	cGroupName		VARCHAR(64),
-	iReceiverPos	INT,
-	iUserRef 		INT,
-	cUserName 		VARCHAR(128),
-	cDestType		VARCHAR(16),	
-	cDestAdress		VARCHAR(128),
-	PRIMARY KEY(iHistoryID)
+    iFilterActionID INT NOT NULL, 
+    iFilterActionTypeRef INT NOT NULL, 
+    iReceiverRef INT, 
+    cMessage VARCHAR(1024), 
+    PRIMARY KEY (iFilterActionID)
 );
 
-create table AMS_Flag
+CREATE TABLE AMS_Filter_FilterAction 
 (
-	cFlagName		VARCHAR(32)	NOT NULL,
-	sFlagValue		SMALLINT	NOT NULL,
-	PRIMARY KEY(cFlagName)
+    iFilterRef INT NOT NULL, 
+    iFilterActionRef INT NOT NULL, 
+    iPos INT NOT NULL
 );
 
-insert into AMS_Flag (cFlagName, sFlagValue) values ('ReplicationState', 0);
+CREATE TABLE AMS_FilterCond_PropCompare 
+(
+    iFilterConditionRef INT NOT NULL, 
+    cMessageKeyValue VARCHAR(16) NOT NULL, 
+    sOperator INT, 
+    PRIMARY KEY (iFilterConditionRef)
+);
+
+CREATE TABLE AMS_Message
+(
+    iMessageID      INTEGER GENERATED BY DEFAULT AS IDENTITY,
+    cProperty       VARCHAR(16),
+    cValue          VARCHAR(256)
+);
+
+CREATE TABLE AMS_MessageChain
+(
+    iMessageChainID     INT NOT NULL,
+    iMessageRef         INT NOT NULL,
+    iFilterRef          INT NOT NULL,
+    iFilterActionRef    INT NOT NULL,
+    iReceiverPos        INT NOT NULL,
+    tSendTime           BIGINT,
+    tNextActTime        BIGINT,
+    sChainState         SMALLINT,   
+    cReceiverAdress     VARCHAR(64),    
+    PRIMARY KEY(iMessageChainID)
+);
+
+CREATE TABLE  AMS_Msg_Ext_Pvs 
+(
+    id BIGINT, 
+    iGroupRef BIGINT, 
+    cPVName VARCHAR(128), 
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE  AMS_Msg_Extensions
+(
+    idRef BIGINT, 
+    cMessageKey VARCHAR(4000), 
+    cMessageValue VARCHAR(4000)
+);
+
+CREATE TABLE AMS_Flag 
+(
+    CFLAGNAME VARCHAR(32) NOT NULL, 
+    SFLAGVALUE SMALLINT NOT NULL, 
+    PRIMARY KEY (CFLAGNAME)
+);

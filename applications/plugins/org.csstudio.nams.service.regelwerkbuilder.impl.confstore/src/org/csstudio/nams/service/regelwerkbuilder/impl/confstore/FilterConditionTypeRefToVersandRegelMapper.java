@@ -6,6 +6,7 @@ import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.fil
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.JunctorCondForFilterTreeDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.NegationCondForFilterTreeDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.ProcessVarFiltCondDTO;
+import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.PropertyCompareFilterConditionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.StringArFilterConditionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.StringFilterConditionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.TimeBasedFilterConditionDTO;
@@ -17,7 +18,8 @@ public enum FilterConditionTypeRefToVersandRegelMapper {
 	// TIMEBASED(2),
 	// STRING_ARRAY(3),
 	// PV(4),
-	// JUNCTOR(5);
+	// JUNCTOR(5)
+	// PROPERTY_COMPARE(6);
 
 	STRING(StringFilterConditionDTO.class), TIMEBASED(
 			TimeBasedFilterConditionDTO.class), STRING_ARRAY(
@@ -25,7 +27,7 @@ public enum FilterConditionTypeRefToVersandRegelMapper {
 			ProcessVarFiltCondDTO.class), JUNCTOR(
 			JunctorConditionDTO.class), JUNCTOR_FOR_TREE(
 			JunctorCondForFilterTreeDTO.class), NEGATION(
-			NegationCondForFilterTreeDTO.class);
+			NegationCondForFilterTreeDTO.class), PROPERTY_COMPARE(PropertyCompareFilterConditionDTO.class);
 
 	public static FilterConditionTypeRefToVersandRegelMapper valueOf(
 			final Class<? extends FilterConditionDTO> clazz) {

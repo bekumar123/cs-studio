@@ -108,6 +108,7 @@ public class TransactionProcessor {
 		@Override
         public void save(final NewAMSConfigurationElementDTO element)
 				throws Throwable {
+
 			this._session.saveOrUpdate(element);
 
 			if (element instanceof HasManuallyJoinedElements) {

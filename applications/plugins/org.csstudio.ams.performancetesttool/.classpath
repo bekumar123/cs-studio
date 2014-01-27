@@ -6,5 +6,6 @@
 	<classpathentry kind="lib" path="lib/jcommander-1.13.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.csstudio.nams.application.department.decision"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.csstudio.nams.common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.csstudio.nams.service.logging"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

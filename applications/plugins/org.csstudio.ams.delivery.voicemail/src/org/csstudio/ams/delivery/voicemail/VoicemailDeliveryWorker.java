@@ -26,6 +26,7 @@
 package org.csstudio.ams.delivery.voicemail;
 
 import java.util.List;
+
 import org.csstudio.ams.AmsActivator;
 import org.csstudio.ams.delivery.AbstractDeliveryWorker;
 import org.csstudio.ams.delivery.device.DeviceException;
@@ -34,6 +35,7 @@ import org.csstudio.ams.delivery.util.jms.JmsAsyncConsumer;
 import org.csstudio.ams.delivery.voicemail.isdn.VoicemailDevice;
 import org.csstudio.ams.internal.AmsPreferenceKey;
 import org.csstudio.platform.utility.jms.JmsSimpleProducer;
+import org.csstudio.utility.jms.JmsTool;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.slf4j.Logger;
@@ -45,21 +47,21 @@ import org.slf4j.LoggerFactory;
  * @since 07.02.2012
  */
 public class VoicemailDeliveryWorker extends AbstractDeliveryWorker {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(VoicemailDeliveryWorker.class);
-    
+
     /** The producer sends messages to topic T_AMS_CON_REPLY */
     private JmsSimpleProducer amsPublisherReply;
-    
+
     /** The consumer that listens to topic T_AMS_CONNECTOR_VOICEMAIL */
-    private JmsAsyncConsumer amsConsumer; 
-    
+    private JmsAsyncConsumer amsConsumer;
+
     private OutgoingVoicemailQueue messageQueue;
-    
+
     private VoicemailDevice device;
-    
+
     private VoicemailWorkerStatus workerStatus;
-    
+
     private boolean running;
 
     public VoicemailDeliveryWorker() {
@@ -76,13 +78,13 @@ public class VoicemailDeliveryWorker extends AbstractDeliveryWorker {
             }
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void run() {
-        
+
         LOG.info(workerName + " is running.");
 
         while(running) {
@@ -99,7 +101,7 @@ public class VoicemailDeliveryWorker extends AbstractDeliveryWorker {
                 // Get all messages and remove them
                 List<VoicemailAlarmMessage> outgoing = messageQueue.getCurrentContent();
                 LOG.info("Number of messages to send: " + outgoing.size());
-                
+
                 sent = device.sendMessages(outgoing);
                 if (sent < outgoing.size()) {
                     for (VoicemailAlarmMessage o : outgoing) {
@@ -111,7 +113,7 @@ public class VoicemailDeliveryWorker extends AbstractDeliveryWorker {
             }
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -122,7 +124,7 @@ public class VoicemailDeliveryWorker extends AbstractDeliveryWorker {
             this.notify();
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -130,17 +132,17 @@ public class VoicemailDeliveryWorker extends AbstractDeliveryWorker {
     public boolean isWorking() {
         return workerStatus.isOk();
     }
-    
+
     private boolean initJms() {
-        
+
         IPreferencesService prefs = Platform.getPreferencesService();
         boolean success = false;
-        
+
         boolean durable = prefs.getBoolean(AmsActivator.PLUGIN_ID,
                                        AmsPreferenceKey.P_JMS_AMS_CREATE_DURABLE,
                                        false,
                                        null);
-        
+
         String url = prefs.getString(AmsActivator.PLUGIN_ID,
                                      AmsPreferenceKey.P_JMS_AMS_PROVIDER_URL_1,
                                      "tcp://localhost:62616",
@@ -153,15 +155,18 @@ public class VoicemailDeliveryWorker extends AbstractDeliveryWorker {
                                               AmsPreferenceKey.P_JMS_AMS_CONNECTION_FACTORY_CLASS,
                                               "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
                                               null);
-        
-        amsPublisherReply = new JmsSimpleProducer("VoicemailConnectorWorkSenderInternal", url, factoryClass, topic);
+
+        amsPublisherReply = new JmsSimpleProducer(JmsTool.createUniqueClientId("VoicemailConnectorWorkSenderInternal"),
+                                                  url,
+                                                  factoryClass,
+                                                  topic);
         if (amsPublisherReply.isConnected() == false) {
             LOG.error("Could not create amsPublisherReply");
             return false;
         }
-        
+
         try {
-            
+
             String url1 = prefs.getString(AmsActivator.PLUGIN_ID,
                                           AmsPreferenceKey.P_JMS_AMS_PROVIDER_URL_1,
                                           "tcp://localhost:62616",
@@ -170,7 +175,8 @@ public class VoicemailDeliveryWorker extends AbstractDeliveryWorker {
                                           AmsPreferenceKey.P_JMS_AMS_PROVIDER_URL_2,
                                           "tcp://localhost:64616",
                                           null);
-            amsConsumer = new JmsAsyncConsumer("VoicemailConnectorWorkReceiverInternal", url1, url2);
+            amsConsumer = new JmsAsyncConsumer(JmsTool.createUniqueClientId("VoicemailConnectorWorkReceiverInternal"),
+                                               url1, url2);
             success = amsConsumer.createRedundantSubscriber(
                     "amsSubscriberVm",
                     prefs.getString(AmsActivator.PLUGIN_ID,
@@ -182,7 +188,7 @@ public class VoicemailDeliveryWorker extends AbstractDeliveryWorker {
                                     "SUB_AMS_CON_VOICEMAIL",
                                     null),
                     durable);
-            
+
             if(success == false) {
                 LOG.error("Could not create amsSubscriberVm");
             }
@@ -190,7 +196,16 @@ public class VoicemailDeliveryWorker extends AbstractDeliveryWorker {
         } catch(Exception e) {
             LOG.error("Could not init internal Jms: {}", e.getMessage());
         }
-        
+
         return success;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void drainTopic() {
+        // TODO Auto-generated method stub
+
     }
 }

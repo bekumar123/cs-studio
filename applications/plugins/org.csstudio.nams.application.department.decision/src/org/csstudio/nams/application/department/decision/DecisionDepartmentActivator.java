@@ -25,18 +25,24 @@
 
 package org.csstudio.nams.application.department.decision;
 
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.List;
 
 import org.csstudio.domain.common.statistic.Collector;
+import org.csstudio.headless.common.util.ApplicationInfo;
+import org.csstudio.headless.common.util.StandardStreams;
+import org.csstudio.headless.common.xmpp.XmppCredentials;
+import org.csstudio.headless.common.xmpp.XmppSessionException;
+import org.csstudio.headless.common.xmpp.XmppSessionHandler;
+import org.csstudio.nams.application.department.decision.management.InfoCmd;
 import org.csstudio.nams.application.department.decision.management.Restart;
 import org.csstudio.nams.application.department.decision.management.Stop;
 import org.csstudio.nams.application.department.decision.office.decision.AlarmEntscheidungsBuero;
 import org.csstudio.nams.application.department.decision.remote.RemotelyStoppable;
-import org.csstudio.nams.application.department.decision.simplefilter.SimpleFilterWorker;
+import org.csstudio.nams.common.AMS;
+import org.csstudio.nams.common.IRemotelyAccesible;
 import org.csstudio.nams.common.activatorUtils.AbstractBundleActivator;
 import org.csstudio.nams.common.activatorUtils.OSGiBundleActivationMethod;
 import org.csstudio.nams.common.activatorUtils.OSGiBundleDeactivationMethod;
@@ -75,8 +81,6 @@ import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.osgi.framework.BundleActivator;
-import org.remotercp.common.tracker.IGenericServiceListener;
-import org.remotercp.service.connection.session.ISessionService;
 
 /**
  * <p>
@@ -105,7 +109,7 @@ import org.remotercp.service.connection.session.ISessionService;
  * @version 0.2.0-2008-06-10 (MZ): Change to use {@link AbstractBundleActivator}.
  */
 public class DecisionDepartmentActivator extends AbstractBundleActivator
-        implements IApplication, RemotelyStoppable, IGenericServiceListener<ISessionService> {
+        implements IApplication, RemotelyStoppable, IRemotelyAccesible {
 
     private static final int DEFAULT_THREAD_COUNT = 10;
 
@@ -130,30 +134,22 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                 }
                 DecisionDepartmentActivator.logger.logDebugMessage(this,
                         "gesamtErgebnis: "
-                                + vorgangsmappe.gibPruefliste()
-                                        .gesamtErgebnis());
+                                + vorgangsmappe.getWeiteresVersandVorgehen());
 
-                if (vorgangsmappe.gibPruefliste().gesamtErgebnis() == WeiteresVersandVorgehen.VERSENDEN) {
-                    // Nachricht nicht anreichern. Wird im JMSProducer
-                    // gemacht
-                    // Versenden
+                if (vorgangsmappe.getWeiteresVersandVorgehen() == WeiteresVersandVorgehen.VERSENDEN) {
+                    // Nachricht nicht anreichern. Wird im JMSProducer gemacht
+                	// Versenden
                     DecisionDepartmentActivator.logger
-                            .logInfoMessage(
-                                    this,
-                                    "decission office ordered message to be send: \""
-                                            + vorgangsmappe
-                                                    .gibAusloesendeAlarmNachrichtDiesesVorganges()
-                                                    .toString()
+                            .logInfoMessage(this, "decission office ordered message to be send: \""
+                                            + vorgangsmappe.getAlarmNachricht().toString()
                                             + "\" [internal process id: "
-                                            + vorgangsmappe.gibMappenkennung()
-                                                    .toString() + "]");
-                    DecisionDepartmentActivator.this.amsAusgangsProducer
-                            .sendeVorgangsmappe(vorgangsmappe);
+                                            + vorgangsmappe.gibMappenkennung().toString() + "]");
+
+                    DecisionDepartmentActivator.this.amsAusgangsProducer.sendeVorgangsmappe(vorgangsmappe);
                 }
 
             } catch (final InterruptedException e) {
-                // wird zum stoppen benötigt.
-                // hier muss nichts unternommen werden
+                // wird zum stoppen benötigt. hier muss nichts unternommen werden
             }
         }
     }
@@ -193,74 +189,6 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
     private static LocalStoreConfigurationService localStoreConfigurationService;
 
     private static String managementPassword;
-    
-    /**
-     * Versucht via dem Distributor eine Synchronisation auszufürehn. Das
-     * Ergebnis gibt an, ob weitergearbeitet werden soll.
-     *
-     * @param instance
-     * @param logger
-     * @param amsAusgangsProducer
-     * @param amsCommandConsumer
-     * @param extComendProducer
-     * @param localStoreConfigurationService
-     * @return {@code true} bei Erfolg, {@false} sonst.
-     */
-    private static boolean versucheZuSynchronisieren(
-            final DecisionDepartmentActivator instance, final ILogger logger,
-            final Producer amsAusgangsProducer,
-            final Consumer amsCommandConsumer,
-            final LocalStoreConfigurationService localStoreConfigurationService) {
-        boolean result = false;
-        try {
-
-            logger
-                    .logInfoMessage(
-                            instance,
-                            "Decision department application orders distributor to synchronize configuration...");
-            SyncronisationsAutomat.syncronisationUeberDistributorAusfueren(
-                    amsAusgangsProducer, amsCommandConsumer,
-                    localStoreConfigurationService,
-                    DecisionDepartmentActivator.historyService);
-            if (!SyncronisationsAutomat.hasBeenCanceled()) {
-                // Abbruch bei Syncrinisation
-                result = true;
-            }
-        } catch (final Throwable messagingException) {
-            if (SyncronisationsAutomat.hasBeenCanceled()) {
-                // Abbruch bei Syncrinisation
-                logger
-                        .logInfoMessage(
-                                instance,
-                                "Decision department application was interrupted and requested to shut down during synchroisation of configuration.");
-                result = false;
-            } else {
-
-                logger.logFatalMessage(instance,
-                        "Exception while synchronizing configuration.",
-                        messagingException);
-                result = false;
-
-            }
-        }
-//        } catch (final StorageException storageException) {
-//            logger.logFatalMessage(instance,
-//                    "Exception while synchronizing configuration.",
-//                    storageException);
-//            result = false;
-//        } catch (final UnknownConfigurationElementError unknownConfigurationElementError) {
-//            logger.logFatalMessage(instance,
-//                    "Exception while synchronizing configuration.",
-//                    unknownConfigurationElementError);
-//            result = false;
-//        } catch (final InconsistentConfigurationException inconsistentConfiguration) {
-//            logger.logFatalMessage(instance,
-//                    "Exception while synchronizing configuration.",
-//                    inconsistentConfiguration);
-//            result = false;
-//        }
-        return result;
-    }
 
     /**
      * Indicates if the application instance should continue working. Unused in
@@ -272,7 +200,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
     private volatile boolean _continueWorking;
 
     private boolean restart;
-    
+
     /**
      * Referenz auf den Thread, welcher die JMS Nachrichten anfragt. Wird
      * genutzt um den Thread zu "interrupten". Wird nur von der Application
@@ -287,7 +215,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
      */
     // private Consumer extAlarmConsumer;
     private Consumer[] extAlarmConsumer;
-    
+
     /**
      * Consumer zum Lesen auf externer-Komando-Quelle.
      */
@@ -330,8 +258,10 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
 
     /** Class that collects statistic informations. Query it via XMPP. */
     private Collector ackMessages = null;
-    
-    private ISessionService xmppService;
+
+    private XmppSessionHandler xmppService;
+
+    private ApplicationInfo appInfo;
 
     /**
      * Indicating that application is in restart process caused bz syunchr.
@@ -339,21 +269,22 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
      */
     private static boolean _hasReceivedSynchronizationRequest;
 
-	private SimpleFilterWorker simpleFilterWorker;
-
     /**
      * Starts the bundle application instance. Second Step.
      *
      * @see IApplication#start(IApplicationContext)
      */
     @Override
-    public Object start(final IApplicationContext context)
-    {
+    public Object start(final IApplicationContext context) {
+
+        StandardStreams stdStreams = new StandardStreams("./log");
+        stdStreams.redirectStreams();
+
         restart = false;
-        
+
         Stop.staticInject(this);
         Stop.staticInject(logger);
-        
+
         Restart.staticInject(this);
         Restart.staticInject(logger);
 
@@ -377,16 +308,34 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                 .logInfoMessage(this,
                         "Decision department application is going to be initialized...");
 
-        // XMPP login
-        AbstractBundleActivator.getDefault().addSessionServiceListener(this);
-        
-        configureExecutionService();
+        IPreferencesService pref = Platform.getPreferencesService();
+        String xmppServer = pref.getString(DecisionDepartmentActivator.PLUGIN_ID, "xmppServer", "krynfs.desy.de", null);
+        String xmppUser = pref.getString(DecisionDepartmentActivator.PLUGIN_ID, "xmppUser", "anonymous", null);
+        String xmppPassword = pref.getString(DecisionDepartmentActivator.PLUGIN_ID, "xmppPassword", "anonymous", null);
 
+        String desc = pref.getString(DecisionDepartmentActivator.PLUGIN_ID,
+                                     "description",
+                                     "I am a simple but happy application.",
+                                     null);
+        appInfo = new ApplicationInfo("AMS", AMS.AMS_MAIN_VERSION, "AmsDepartmentDecision", desc);
+
+        XmppCredentials credentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
+        xmppService = new XmppSessionHandler(bundleContext, credentials, true);
+        InfoCmd.staticInject(this);
+        try {
+            xmppService.connect();
+        } catch (XmppSessionException e) {
+            DecisionDepartmentActivator.logger.logWarningMessage(this, e.getMessage());
+        }
+
+        configureExecutionService();
         createMessagingConsumer();
 
         if (this._continueWorking) {
             createMessagingProducer();
         }
+
+        context.applicationRunning();
 
         do {
             if (DecisionDepartmentActivator._hasReceivedSynchronizationRequest) {
@@ -444,9 +393,6 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
             if (this._continueWorking) {
                 createDecisionOffice();
             }
-            if (this._continueWorking) {
-            	createSimpleFilterWorker();
-            }
 
             if (this._continueWorking) {
                 performNormalWork();
@@ -460,46 +406,18 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                         "Decision department has stopped message processing and continue shutting down...");
 
         closeDecissionOffice();
-
         closeMessagingConnections();
 
-        if (xmppService != null) {
-            xmppService.disconnect();
-            DecisionDepartmentActivator.logger.logInfoMessage(this,
-                       "XMPP connection disconnected.");
-        }
+        xmppService.disconnect();
 
         DecisionDepartmentActivator.logger.logInfoMessage(this,
                 "Decision department application successfully shuted down.");
-        
+
         Integer exitCode = IApplication.EXIT_OK;
         if (this.restart) {
             exitCode = IApplication.EXIT_RESTART;
         }
         return exitCode;
-    }
-    
-    @Override
-    public void bindService(ISessionService sessionService) {
-        final IPreferencesService pref = Platform.getPreferencesService();
-        final String xmppServer = pref.getString(DecisionDepartmentActivator.PLUGIN_ID, "xmppServer", "krynfs.desy.de", null);
-        final String xmppUser = pref.getString(DecisionDepartmentActivator.PLUGIN_ID, "xmppUser", "anonymous", null);
-        final String xmppPassword = pref.getString(DecisionDepartmentActivator.PLUGIN_ID, "xmppPassword", "anonymous", null);
-        
-        try {
-            sessionService.connect(xmppUser, xmppPassword, xmppServer);
-            xmppService = sessionService;
-        } catch (Exception e) {
-            xmppService = null;
-            DecisionDepartmentActivator.logger
-            .logWarningMessage(this,
-                    "XMPP connection is not possible: " + e.getMessage());
-        }
-    }
-    
-    @Override
-    public void unbindService(ISessionService service) {
-        // Nothing to do here
     }
 
     private void closeMessagingConnections() {
@@ -507,23 +425,23 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
         DecisionDepartmentActivator.logger
                 .logInfoMessage(this,
                         "Decision department application is closing opened connections...");
-        if ((this.amsAusgangsProducer != null)
+        if (this.amsAusgangsProducer != null
                 && !this.amsAusgangsProducer.isClosed()) {
             this.amsAusgangsProducer.tryToClose();
         }
-        if ((this.amsCommandConsumer != null)
+        if (this.amsCommandConsumer != null
                 && !this.amsCommandConsumer.isClosed()) {
             this.amsCommandConsumer.close();
         }
-        if ((this.amsMessagingSessionForConsumer != null)
+        if (this.amsMessagingSessionForConsumer != null
                 && !this.amsMessagingSessionForConsumer.isClosed()) {
             this.amsMessagingSessionForConsumer.close();
         }
-        if ((this.amsMessagingSessionForProducer != null)
+        if (this.amsMessagingSessionForProducer != null
                 && !this.amsMessagingSessionForProducer.isClosed()) {
             this.amsMessagingSessionForProducer.close();
         }
-        
+
         for(Consumer c : extAlarmConsumer) {
             if (c != null) {
                 if(c.isClosed() == false) {
@@ -531,13 +449,13 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                 }
             }
         }
-        
-        if ((this.extCommandConsumer != null)
+
+        if (this.extCommandConsumer != null
                 && !this.extCommandConsumer.isClosed()) {
             this.extCommandConsumer.close();
         }
-        
-        if ((this.extMessagingSessionForConsumer != null)
+
+        if (this.extMessagingSessionForConsumer != null
                 && !this.extMessagingSessionForConsumer.isClosed()) {
             this.extMessagingSessionForConsumer.close();
         }
@@ -550,7 +468,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
         }
 
         // Warte auf Thread für Ausgangskorb-Bearbeitung
-        if ((this._ausgangskorbBearbeiter != null)
+        if (this._ausgangskorbBearbeiter != null
                 && this._ausgangskorbBearbeiter.isCurrentlyRunning()) {
             // FIXME Warte bis korb leer ist.
             this._ausgangskorbBearbeiter.stopWorking();
@@ -584,7 +502,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                             "Decision department application is creating decision office...");
 
             final List<Regelwerk> alleRegelwerke = DecisionDepartmentActivator.regelwerkBuilderService
-                    .gibKomplexeRegelwerke();
+                    .gibAlleRegelwerke();
 
             DecisionDepartmentActivator.logger.logDebugMessage(this,
                     "alleRegelwerke size: " + alleRegelwerke.size());
@@ -596,7 +514,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
             this.eingangskorbDesDecisionOffice = new StandardAblagekorb<Vorgangsmappe>();
             this.ausgangskorbDesDecisionOfficeUndEingangskorbDesPostOffice = new StandardAblagekorb<Vorgangsmappe>();
 
-            
+
             final IPreferencesService pref = Platform.getPreferencesService();
             int threadCount = pref.getInt(DecisionDepartmentActivator.PLUGIN_ID, PreferenceServiceConfigurationKeys.FILTER_THREAD_COUNT.getKey(), DEFAULT_THREAD_COUNT, null);
             this._alarmEntscheidungsBuero = new AlarmEntscheidungsBuero(
@@ -616,21 +534,6 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
         }
     }
 
-	private void createSimpleFilterWorker() {
-		try {
-			simpleFilterWorker = new SimpleFilterWorker(localStoreConfigurationService
-					.getEntireFilterConfiguration().gibAlleFilter(),
-					ausgangskorbDesDecisionOfficeUndEingangskorbDesPostOffice, DecisionDepartmentActivator.logger);
-		} catch (final Throwable e) {
-			DecisionDepartmentActivator.logger
-					.logFatalMessage(
-							this,
-							"Exception while initializing the alarm decision department.",
-							e);
-			this._continueWorking = false;
-		}
-	}
-
 	private void createMessagingProducer() {
         try {
 
@@ -645,8 +548,8 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                             + amsSenderProviderUrl);
             this.amsMessagingSessionForProducer = DecisionDepartmentActivator.messagingService
                     .createNewMessagingSession(
-                            preferenceService
-                                    .getString(PreferenceServiceJMSKeys.P_JMS_AMS_TSUB_DD_OUTBOX),
+                            JmsTool.createUniqueClientId(preferenceService
+                                    .getString(PreferenceServiceJMSKeys.P_JMS_AMS_TSUB_DD_OUTBOX)),
                             new String[] { amsSenderProviderUrl });
 
             final String amsAusgangsTopic = DecisionDepartmentActivator.preferenceService
@@ -688,8 +591,8 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
             // holen
             this.amsMessagingSessionForConsumer = DecisionDepartmentActivator.messagingService
                     .createNewMessagingSession(
-                            preferenceService
-                                    .getString(PreferenceServiceJMSKeys.P_JMS_AMS_TSUB_COMMAND_DECISSION_DEPARTMENT),
+                            JmsTool.createUniqueClientId(preferenceService
+                                    .getString(PreferenceServiceJMSKeys.P_JMS_AMS_TSUB_COMMAND_DECISSION_DEPARTMENT)),
                             new String[] { amsProvider1, amsProvider2 });
             final String extProvider1 = DecisionDepartmentActivator.preferenceService
                     .getString(PreferenceServiceJMSKeys.P_JMS_EXTERN_PROVIDER_URL_1);
@@ -703,8 +606,8 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                             + extProvider2);
             this.extMessagingSessionForConsumer = DecisionDepartmentActivator.messagingService
                     .createNewMessagingSession(
-                            preferenceService
-                                    .getString(PreferenceServiceJMSKeys.P_JMS_EXT_TSUB_ALARM),
+                            JmsTool.createUniqueClientId(preferenceService
+                                    .getString(PreferenceServiceJMSKeys.P_JMS_EXT_TSUB_ALARM)),
                             new String[] { extProvider1, extProvider2 });
 
             final String extAlarmTopic = DecisionDepartmentActivator.preferenceService
@@ -833,18 +736,18 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
 
         Stop.staticInject(DecisionDepartmentActivator.logger);
 
-        DecisionDepartmentActivator.logger.logInfoMessage(this, "plugin "
+        DecisionDepartmentActivator.logger.logInfoMessage(this, "Plugin "
                 + DecisionDepartmentActivator.PLUGIN_ID
                 + " started succesfully.");
     }
 
     /**
      * Stops the bundle application instance.Ppenultimate Step.
-     * 
+     *
      * FIXME: Diese Methode darf NICHT von der Anwendung selber aufgerufen werden.
      *        Sie wird vom Framework aufgerufen, wenn z.B. die Anwendung von Außen
      *        beendet werden soll oder das Framework herunterfährt.
-     *         
+     *
      * @see IApplication#start(IApplicationContext)
      */
     @Override
@@ -860,8 +763,8 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
     @OSGiBundleDeactivationMethod
     public void stopBundle(@OSGiService
     @Required
-    final ILogger logger) throws Exception {
-        logger.logInfoMessage(this, "Plugin "
+    final ILogger log) throws Exception {
+        log.logInfoMessage(this, "Plugin "
                 + DecisionDepartmentActivator.PLUGIN_ID
                 + " stopped succesfully.");
     }
@@ -913,16 +816,16 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
         //
         //};
 
-        final Consumer[] consumerArray = 
+        final Consumer[] consumerArray =
             new Consumer[this.extAlarmConsumer.length + 2];
-        
+
         consumerArray[0] = this.amsCommandConsumer;
         for(int i = 0;i < extAlarmConsumer.length;i++) {
             consumerArray[i + 1] = this.extAlarmConsumer[i];
         }
-        
+
         consumerArray[consumerArray.length - 1] = this.extCommandConsumer;
-        
+
         final MultiConsumersConsumer consumersConsumer = new MultiConsumersConsumer(
                 DecisionDepartmentActivator.logger, consumerArray,
                 DecisionDepartmentActivator.executionService);
@@ -942,7 +845,6 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
                                     Vorgangsmappenkennung.createNew(
                                     InetAddress.getLocalHost(),
                                     new Date()), message.alsAlarmnachricht()));
-                            simpleFilterWorker.bearbeiteAlarmnachricht(message.alsAlarmnachricht());
                         } catch (final UnknownHostException e) {
                             DecisionDepartmentActivator.logger.logFatalMessage(
                                     this, "Host unreachable", e);
@@ -1001,8 +903,8 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
      *
      */
     @Override
-    public synchronized void stopRemotely(final ILogger logger) {
-        
+    public synchronized void stopRemotely(final ILogger log) {
+
         DecisionDepartmentActivator.logger .logInfoMessage(this,
                 "Start to shut down decision department application on user request...");
         this._continueWorking = false;
@@ -1016,12 +918,12 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
 
         this._receiverThread.interrupt();
 
-        logger.logDebugMessage(this, "DecisionDepartmentActivator.stopRemotely(): After this.stop()");
+        log.logDebugMessage(this, "DecisionDepartmentActivator.stopRemotely(): After this.stop()");
     }
 
     @Override
-    public synchronized void restartRemotly(final ILogger logger) {
-        
+    public synchronized void restartRemotly(final ILogger log) {
+
         DecisionDepartmentActivator.logger .logInfoMessage(this,
                 "Begin to restart decision department application on user request...");
         this._continueWorking = false;
@@ -1035,7 +937,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
 
         this._receiverThread.interrupt();
 
-        logger.logDebugMessage(this, "DecisionDepartmentActivator.stopRemotely(): After this.stop()");
+        log.logDebugMessage(this, "DecisionDepartmentActivator.stopRemotely(): After this.stop()");
     }
 
     /**
@@ -1046,4 +948,80 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator
     public synchronized String getPassword() {
         return DecisionDepartmentActivator.managementPassword;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getInfo() {
+        return appInfo.toString();
+    }
+
+	/**
+	     * Versucht via dem Distributor eine Synchronisation auszufürehn. Das
+	     * Ergebnis gibt an, ob weitergearbeitet werden soll.
+	     *
+	     * @param instance
+	     * @param logger
+	     * @param amsAusgangsProducer
+	     * @param amsCommandConsumer
+	     * @param extComendProducer
+	     * @param localStoreConfigurationService
+	     * @return {@code true} bei Erfolg, {@false} sonst.
+	     */
+	    private static boolean versucheZuSynchronisieren(
+	            final DecisionDepartmentActivator instance, final ILogger logger,
+	            final Producer amsAusgangsProducer,
+	            final Consumer amsCommandConsumer,
+	            final LocalStoreConfigurationService localStoreConfigurationService) {
+	        boolean result = false;
+	        try {
+
+	            logger
+	                    .logInfoMessage(
+	                            instance,
+	                            "Decision department application orders distributor to synchronize configuration...");
+	            SyncronisationsAutomat.syncronisationUeberDistributorAusfueren(
+	                    amsAusgangsProducer, amsCommandConsumer,
+	                    localStoreConfigurationService,
+	                    DecisionDepartmentActivator.historyService);
+	            if (!SyncronisationsAutomat.hasBeenCanceled()) {
+	                // Abbruch bei Syncrinisation
+	                result = true;
+	            }
+	        } catch (final Throwable messagingException) {
+	            if (SyncronisationsAutomat.hasBeenCanceled()) {
+	                // Abbruch bei Syncrinisation
+	                logger
+	                        .logInfoMessage(
+	                                instance,
+	                                "Decision department application was interrupted and requested to shut down during synchroisation of configuration.");
+	                result = false;
+	            } else {
+
+	                logger.logFatalMessage(instance,
+	                        "Exception while synchronizing configuration.",
+	                        messagingException);
+	                result = false;
+
+	            }
+	        }
+	//        } catch (final StorageException storageException) {
+	//            logger.logFatalMessage(instance,
+	//                    "Exception while synchronizing configuration.",
+	//                    storageException);
+	//            result = false;
+	//        } catch (final UnknownConfigurationElementError unknownConfigurationElementError) {
+	//            logger.logFatalMessage(instance,
+	//                    "Exception while synchronizing configuration.",
+	//                    unknownConfigurationElementError);
+	//            result = false;
+	//        } catch (final InconsistentConfigurationException inconsistentConfiguration) {
+	//            logger.logFatalMessage(instance,
+	//                    "Exception while synchronizing configuration.",
+	//                    inconsistentConfiguration);
+	//            result = false;
+	//        }
+	        return result;
+	    }
 }

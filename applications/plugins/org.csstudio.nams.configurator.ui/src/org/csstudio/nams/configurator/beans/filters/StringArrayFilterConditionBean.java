@@ -1,8 +1,10 @@
 
 package org.csstudio.nams.configurator.beans.filters;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
 import org.csstudio.nams.common.material.regelwerk.StringRegelOperator;
 import org.csstudio.nams.configurator.beans.AbstractConfigurationBean;
@@ -96,7 +98,8 @@ public class StringArrayFilterConditionBean extends
 
 	public void setCompareValues(final List<String> compareValues) {
 		final List<String> oldValue = this.compareValues;
-		this.compareValues = compareValues;
+		this.compareValues = new LinkedList<String>(compareValues);
+		Collections.sort(this.compareValues);
 		this.pcs.firePropertyChange(PropertyNames.compareValues.name(),
 				oldValue, this.compareValues);
 	}

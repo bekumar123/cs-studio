@@ -36,6 +36,11 @@
                label="Password">
          </stringParameter>
       </command>
+      <command
+            class="org.csstudio.ams.messageminder.management.InfoCmd"
+            id="org.csstudio.ams.MessageMinder.management.InfoCmd"
+            label="Info">
+      </command>
    </extension>
    <extension
          id="AmsMessageMinderProduct"

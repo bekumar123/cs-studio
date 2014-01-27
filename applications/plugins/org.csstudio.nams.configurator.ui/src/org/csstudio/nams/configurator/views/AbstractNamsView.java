@@ -1,7 +1,9 @@
 
 package org.csstudio.nams.configurator.views;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
@@ -22,9 +24,10 @@ import org.csstudio.nams.service.configurationaccess.localstore.declaration.Loca
 import org.csstudio.nams.service.logging.declaration.ILogger;
 import org.csstudio.nams.service.preferenceservice.declaration.HoldsAPreferenceId;
 import org.csstudio.nams.service.preferenceservice.declaration.PreferenceService;
-import org.csstudio.nams.service.preferenceservice.declaration.PreferenceServiceDatabaseKeys;
 import org.csstudio.nams.service.preferenceservice.declaration.PreferenceService.PreferenceChangeListener;
+import org.csstudio.nams.service.preferenceservice.declaration.PreferenceServiceDatabaseKeys;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.TableViewer;
@@ -58,7 +61,7 @@ public abstract class AbstractNamsView extends ViewPart {
 	protected static ConfigurationBeanService _configurationBeanService;
 	private static PreferenceService _preferenceService;
 	private static ConfigurationServiceFactory _configurationServiceFactory;
-	private static ILogger _logger;
+	protected static ILogger _logger;
 	private static Semaphore semaphore = new Semaphore(1);
 
 	public static boolean isInitialized() {
@@ -132,36 +135,9 @@ public abstract class AbstractNamsView extends ViewPart {
 		this.getSite().registerContextMenu(menuManager, table);
 		this.getSite().setSelectionProvider(table);
 
-		menuManager.add(new Action() {
-			@Override
-			public String getText() {
-				return Messages.AbstractNamsView_new;
-			}
-
-			@Override
-			public void run() {
-				ConfigurationEditorInput editorInput;
-				try {
-					editorInput = new ConfigurationEditorInput(
-							AbstractNamsView.this.getBeanClass().newInstance());
-
-					final IWorkbenchPage activePage = PlatformUI.getWorkbench()
-							.getActiveWorkbenchWindow().getActivePage();
-					final String editorId = BeanToEditorId.getEnumForClass(
-							AbstractNamsView.this.getBeanClass()).getEditorId();
-
-					activePage.openEditor(editorInput, editorId);
-				} catch (final InstantiationException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (final IllegalAccessException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (final PartInitException e) {
-					e.printStackTrace();
-				}
-			}
-		});
+		for (IAction iAction : getMenuActions()) {
+			menuManager.add(iAction);
+		}
 
 		this.initDragAndDrop(this.filterableBeanList);
 
@@ -216,6 +192,41 @@ public abstract class AbstractNamsView extends ViewPart {
 			}
 
 		});
+	}
+	
+	protected List<IAction> getMenuActions() {
+		IAction action = new Action() {
+			@Override
+			public String getText() {
+				return Messages.AbstractNamsView_new;
+			}
+
+			@Override
+			public void run() {
+				ConfigurationEditorInput editorInput;
+				try {
+					editorInput = new ConfigurationEditorInput(
+							AbstractNamsView.this.getBeanClass().newInstance());
+
+					final IWorkbenchPage activePage = PlatformUI.getWorkbench()
+							.getActiveWorkbenchWindow().getActivePage();
+					final String editorId = BeanToEditorId.getEnumForClass(
+							AbstractNamsView.this.getBeanClass()).getEditorId();
+
+					activePage.openEditor(editorInput, editorId);
+				} catch (final InstantiationException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (final IllegalAccessException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (final PartInitException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		
+		return Collections.singletonList(action);
 	}
 
 	@Override

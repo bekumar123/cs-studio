@@ -32,11 +32,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Message;
-
 import org.csstudio.ams.AmsActivator;
 import org.csstudio.ams.AmsConstants;
 import org.csstudio.ams.Log;
@@ -51,13 +49,12 @@ import org.csstudio.domain.common.statistic.Collector;
 import org.csstudio.platform.utility.jms.JmsRedundantProducer;
 import org.csstudio.platform.utility.jms.JmsRedundantProducer.ProducerId;
 import org.csstudio.platform.utility.jms.JmsRedundantReceiver;
+import org.csstudio.utility.jms.JmsTool;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.preferences.DefaultScope;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 
 //import org.osgi.service.prefs.BackingStoreException;
@@ -70,83 +67,65 @@ import org.eclipse.core.runtime.preferences.IPreferencesService;
  */
 public class MessageGuardCommander extends Job {
 
-    private final class ThreadUpdateTopicMessageMap extends Job
-    {
-        private ThreadUpdateTopicMessageMap(final String name)
-        {
+    private final class ThreadUpdateTopicMessageMap extends Job {
+
+        protected ThreadUpdateTopicMessageMap(final String name) {
             super(name);
         }
 
 		@Override
-		protected IStatus run(final IProgressMonitor monitor)
-		{
-            while (_runUpdateTopicMessageMap)
-            {
-                try
-                {
+		protected IStatus run(final IProgressMonitor monitor) {
+
+		    while (isRunningUpdateTopicMessageMap()) {
+                try {
                     // update ones per hour
                     Thread.sleep(3600000);
-                }
-                catch(final InterruptedException e)
-                {
-                    Log.log(this, Log.WARN, e);
+                } catch(final InterruptedException e) {
+                    Log.log(this, Log.WARN, "I've been interrupted.");
                 }
 
                 Connection conDb = null;
 
-                try
-                {
+                try {
                     conDb = AmsConnectionFactory.getApplicationDB();
-                    if (conDb == null)
-                    {
+                    if (conDb == null) {
                         Log.log(this, Log.WARN, "Could not init application database");
-                    }
-                    else
-                    {
-                        final Set<String> keySet = _topicMessageMap.keySet();
+                    } else {
+                        final Set<String> keySet = getTopicMessageMap().keySet();
                         Boolean newValue;
 
-                        for(final String filterID : keySet)
-                        {
+                        for (final String filterID : keySet) {
                             newValue = null;
 
                             final FilterActionTObject[] actionTObject = FilterActionDAO.selectByFilter(conDb,
                                     Integer.parseInt(filterID));
 
-                            for(final FilterActionTObject o : actionTObject)
-                            {
-                                if(o.getFilterActionTypeRef() == AmsConstants.FILTERACTIONTYPE_TO_JMS)
-                                {
-                                    newValue = true;
+                            int counter = actionTObject.length > 0 ? actionTObject.length : -1;
+
+                            // Check all filter actions
+                            for (FilterActionTObject o : actionTObject) {
+                                if(o.getFilterActionTypeRef() != AmsConstants.FILTERACTIONTYPE_TO_JMS) {
                                     break;
                                 }
+                                counter--;
                             }
 
-                            newValue = (newValue == null) ? false : newValue;
-                            final Boolean oldValue = _topicMessageMap.get(filterID);
+                            newValue = counter == 0 ? true : false;
 
-                            if(newValue != oldValue)
-                            {
-                                _topicMessageMap.replace(filterID, newValue);
+                            Boolean oldValue = getTopicMessageMap().get(filterID);
+                            if(newValue != oldValue) {
+                                getTopicMessageMap().replace(filterID, newValue);
                             }
                         }
                     }
-                }
-                catch(final SQLException e)
-                {
-                    Log.log(this, Log.WARN,e);
-                }
-                finally
-                {
-                    if(conDb!=null)
-                    {
-                        try
-                        {
+                } catch(final SQLException e) {
+                    Log.log(this, Log.WARN, "[*** SQLException ***]: " + e.getMessage());
+                } finally {
+                    if(conDb!=null) {
+                        try {
                             conDb.close();
-                        }
-                        catch(final SQLException e)
-                        {
-                            Log.log(this, Log.WARN,e);
+                        } catch(final SQLException e) {
+                            Log.log(this, Log.WARN, "[*** SQLException ***]: Closing connection: " + e.getMessage());
                         }
                     }
                 }
@@ -202,26 +181,39 @@ public class MessageGuardCommander extends Job {
     private final String[] _keyWords;
     private final Collector _messageControlTimeCollector;
     private final Collector _messageDeleteTimeCollector;
-    private boolean _run = true;
+
+    private boolean useCacheDb;
+
+    private boolean _run;
 
     private final ConcurrentHashMap<String, Boolean> _topicMessageMap;
 
-    private boolean _runUpdateTopicMessageMap = true;
+    private boolean _runUpdateTopicMessageMap;
 
     /**
      * @param name
      *            The name of this Job.
      */
-    public MessageGuardCommander(final String name) {
+    public MessageGuardCommander(String name, boolean useCacheDb) {
         super(name);
+        _run = true;
+        _runUpdateTopicMessageMap = true;
         _topicMessageMap = new ConcurrentHashMap<String, Boolean>();
-        final IEclipsePreferences storeAct = new DefaultScope().getNode(MessageMinderActivator.PLUGIN_ID);
-
+        IPreferencesService pref = Platform.getPreferencesService();
         connect();
-        _time2Clean = storeAct.getLong(MessageMinderPreferenceKey.P_LONG_TIME2CLEAN, 20); // sec
-        _toOldTime = storeAct.getLong(MessageMinderPreferenceKey.P_LONG_TO_OLD_TIME, 60);
-        _keyWords = storeAct.get(MessageMinderPreferenceKey.P_STRING_KEY_WORDS,
-                "HOST,FACILITY,AMS-FILTERID").split(",");
+        _time2Clean = pref.getLong(MessageMinderActivator.PLUGIN_ID,
+                                   MessageMinderPreferenceKey.P_LONG_TIME2CLEAN,
+                                   20,
+                                   null); // sec
+        _toOldTime = pref.getLong(MessageMinderActivator.PLUGIN_ID,
+                                  MessageMinderPreferenceKey.P_LONG_TO_OLD_TIME,
+                                  60,
+                                  null);
+        String temp = pref.getString(MessageMinderActivator.PLUGIN_ID,
+                                     MessageMinderPreferenceKey.P_STRING_KEY_WORDS,
+                                     "HOST,FACILITY,AMS-FILTERID",
+                                     null);
+        _keyWords = temp.split(",");
         _lastClean = TimestampFactory.now();
         _messageMap = new HashMap<MessageKey, MessageTimeList>();
 
@@ -239,13 +231,11 @@ public class MessageGuardCommander extends Job {
         _messageControlTimeCollector.setDescriptor("Time to Control a Message [ns]");
         _messageControlTimeCollector.setContinuousPrint(true);
 
+        this.useCacheDb = useCacheDb;
     }
 
-    /**
-     *
-     */
     private void connect() {
-        
+
         final IPreferencesService storeAct = Platform.getPreferencesService();
         final boolean durable = storeAct.getBoolean(AmsActivator.PLUGIN_ID,
                                                    AmsPreferenceKey.P_JMS_AMS_CREATE_DURABLE,
@@ -270,14 +260,22 @@ public class MessageGuardCommander extends Job {
 
         // --- JMS Receiver Connect---
         // _amsReceiver = new
-        // JmsRedundantReceiver("AmsMassageMinderWorkReceiverInternal",
+        // JmsRedundantReceiver("AmsMessageMinderWorkReceiverInternal",
         // storeAct.get(org.csstudio.ams.internal.SampleService.P_JMS_AMS_PROVIDER_URL_1,""),
         // storeAct.get(SampleService.P_JMS_AMS_PROVIDER_URL_2,""));
-        _amsReceiver = new JmsRedundantReceiver("AmsMassageMinderWorkReceiverInternal", storeAct
-                .getString(AmsActivator.PLUGIN_ID, AmsPreferenceKey.P_JMS_AMS_PROVIDER_URL_1, "NONE", null), storeAct
-                .getString(AmsActivator.PLUGIN_ID, AmsPreferenceKey.P_JMS_AMS_PROVIDER_URL_2, "NONE", null));
+        String url1 =  storeAct.getString(AmsActivator.PLUGIN_ID,
+                                          AmsPreferenceKey.P_JMS_AMS_PROVIDER_URL_1,
+                                          "tcp://localhost:61616",
+                                          null);
+        String url2 = storeAct.getString(AmsActivator.PLUGIN_ID,
+                                         AmsPreferenceKey.P_JMS_AMS_PROVIDER_URL_2,
+                                         "tcp://localhost:64616",
+                                         null);
+        _amsReceiver = new JmsRedundantReceiver(JmsTool.createUniqueClientId("AmsMessageMinderWorkReceiverInternal"),
+                                                url1,
+                                                url2);
         if (!_amsReceiver.isConnected()) {
-            Log.log(this, Log.FATAL, "could not create amsReceiver");
+            Log.log(this, Log.FATAL, "Could not create amsReceiver");
         }
 
         final boolean result = _amsReceiver.createRedundantSubscriber("amsSubscriberMessageMinder",
@@ -285,17 +283,19 @@ public class MessageGuardCommander extends Job {
                         .getString(AmsActivator.PLUGIN_ID, AmsPreferenceKey.P_JMS_AMS_TSUB_MESSAGEMINDER, "NONE", null), durable);
 
         if (!result) {
-            Log.log(this, Log.FATAL, "could not create amsSubscriberMessageMinder");
+            Log.log(this, Log.FATAL, "Could not create amsSubscriberMessageMinder");
         }
 
         // --- JMS Producer Connect ---
         final String[] urls = new String[] { storeAct
                 .getString(AmsActivator.PLUGIN_ID, AmsPreferenceKey.P_JMS_AMS_SENDER_PROVIDER_URL, "NONE", null) };
-        _amsProducer = new JmsRedundantProducer("AmsMassageMinderWorkProducerInternal", urls);
+        _amsProducer = new JmsRedundantProducer(JmsTool.createUniqueClientId("AmsMessageMinderWorkProducerInternal"),
+                                                urls);
         // TODO: remove debug settings
-        _producerID = _amsProducer.createProducer(storeAct.getString(AmsActivator.PLUGIN_ID, AmsPreferenceKey.P_JMS_AMS_TOPIC_DISTRIBUTOR, "NONE", null));
-//        _producerID = _amsProducer.createProducer("MESSAGE_MINDER_TEST");
-        // _producerID = _amsProducer.createProducer("T_HELGE_TEST_OUT");
+        _producerID = _amsProducer.createProducer(storeAct.getString(AmsActivator.PLUGIN_ID,
+                                                                     AmsPreferenceKey.P_JMS_AMS_TOPIC_DISTRIBUTOR,
+                                                                     "NONE",
+                                                                     null));
 
         // --- Derby DB Connect ---
         // initApplicationDb();
@@ -306,7 +306,8 @@ public class MessageGuardCommander extends Job {
      */
     @Override
     protected IStatus run(final IProgressMonitor monitor) {
-        final ThreadUpdateTopicMessageMap updateTopicMessageMap = new ThreadUpdateTopicMessageMap("UpdateTopicMessageMap");
+        final ThreadUpdateTopicMessageMap updateTopicMessageMap
+                                   = new ThreadUpdateTopicMessageMap("UpdateTopicMessageMap");
         updateTopicMessageMap.schedule();
 //        updateTopicMessageMap.run(monitor);
 		patrol();
@@ -325,7 +326,7 @@ public class MessageGuardCommander extends Job {
         while (_run) {
             now = TimestampFactory.now();
 
-            while (null != (message = _amsReceiver.receive("amsSubscriberMessageMinder"))) {// receiveNoWait
+            while (null != (message = _amsReceiver.receive("amsSubscriberMessageMinder"))) {
                 // has a bug
                 // with
                 // acknowledging
@@ -349,11 +350,9 @@ public class MessageGuardCommander extends Job {
             }
             try {
                 Thread.sleep(200);
-            } catch (final InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            } catch (InterruptedException e) {
+                Log.log(this, Log.WARN, "I've been interrupted.");
             }
-
         }
     }
 
@@ -367,17 +366,17 @@ public class MessageGuardCommander extends Job {
         if (message instanceof MapMessage) {
             final MapMessage mapMessage = (MapMessage) message;
             try {
-                Log.log(this, Log.INFO, "name: " + mapMessage.getString("NAME"));
+                Log.log(this, Log.INFO, "Name: " + mapMessage.getString("NAME"));
                 final String command = mapMessage.getString(AMS_COMMAND_KEY_NAME);
-                if ((command != null)
+                if (command != null
                         && (command.equals(MSGVALUE_TCMD_RELOAD_CFG_START) || command
                                 .equals(MSGVALUE_TCMD_RELOAD_CFG_END))) {
                     send(message);
                     return;
                 }
-                // is Action id related to topic.
+                // Is Action id related to topic.
                 final String filterID = mapMessage.getString(AmsConstants.MSGPROP_FILTERID);
-                if (isTopicAction(filterID)) {
+                if (hasOnlyTopicAction(filterID)) {
                     send(message);
                     return;
                 }
@@ -399,25 +398,84 @@ public class MessageGuardCommander extends Job {
                     return;
                 }
             } catch (final JMSException e) {
-                e.printStackTrace();
+                Log.log(this, Log.ERROR, "[*** JMSException ***]: " + e.getMessage());
             }
         }
     }
 
-    private boolean isTopicAction(final String filterID)
-    {
-        if ((filterID != null) && (filterID.trim().length() > 0))
-        {
+    private boolean hasOnlyTopicAction(String filterID) {
+        if (filterID == null) {
+            return false;
+        }
+        boolean hasOnlyTopicAction = false;
+        if (!filterID.trim().isEmpty()) {
             Connection conDb = null;
-            try
-            {
+            try {
                 Boolean topicMsg = _topicMessageMap.get(filterID);
-                if (topicMsg == null)
-                {
-                    conDb = AmsConnectionFactory.getApplicationDB();
-                    if (conDb == null)
-                    {
-                        Log.log(this, Log.FATAL, "could not init application database");
+                if (topicMsg == null) {
+                    if (useCacheDb) {
+                        conDb = AmsConnectionFactory.getMemoryCacheDB();
+                    } else {
+                        conDb = AmsConnectionFactory.getApplicationDB();
+                    }
+                    if (conDb == null) {
+                        Log.log(this, Log.FATAL, "Could not init application database");
+                        return false;
+                    }
+
+                    final FilterActionTObject[] actionTObject = FilterActionDAO.selectByFilter(conDb, Integer
+                            .parseInt(filterID));
+
+                    int counter = actionTObject.length > 0 ? actionTObject.length : -1;
+
+                    // Check all filter actions
+                    for (FilterActionTObject o : actionTObject) {
+                        if(o.getFilterActionTypeRef() != AmsConstants.FILTERACTIONTYPE_TO_JMS) {
+                            break;
+                        }
+                        counter--;
+                    }
+
+                    topicMsg = counter == 0 ? true : false;
+                    _topicMessageMap.putIfAbsent(filterID, topicMsg);
+                }
+
+                hasOnlyTopicAction = topicMsg.booleanValue();
+            } catch(final Exception e) {
+                Log.log(this, Log.FATAL, "Could not init application database");
+            } finally {
+                if (conDb != null) {
+                    try {
+                        conDb.close();
+                    } catch(final SQLException e) {
+                        Log.log(this, Log.WARN, e);
+                    }
+                }
+            }
+        }
+        return hasOnlyTopicAction;
+    }
+
+    @SuppressWarnings("unused")
+    private boolean isTopicAction(final String filterID) {
+
+        if (filterID == null) {
+            return false;
+        }
+
+        boolean isTopicAction = false;
+        if (!filterID.trim().isEmpty()) {
+            Connection conDb = null;
+            try {
+                Boolean topicMsg = _topicMessageMap.get(filterID);
+                if (topicMsg == null) {
+                    if (useCacheDb) {
+                        conDb = AmsConnectionFactory.getMemoryCacheDB();
+                    } else {
+                        conDb = AmsConnectionFactory.getApplicationDB();
+                    }
+                    if (conDb == null) {
+                        Log.log(this, Log.FATAL, "Could not init application database");
                         return false;
                     }
 
@@ -425,43 +483,33 @@ public class MessageGuardCommander extends Job {
                             .parseInt(filterID));
 
                     // Check all filter actions
-                    for(final FilterActionTObject o : actionTObject)
-                    {
-                        if(o.getFilterActionTypeRef() == AmsConstants.FILTERACTIONTYPE_TO_JMS)
-                        {
+                    for(final FilterActionTObject o : actionTObject) {
+                        if(o.getFilterActionTypeRef() == AmsConstants.FILTERACTIONTYPE_TO_JMS) {
                             topicMsg = true;
                             break;
                         }
                     }
 
-                    topicMsg = (topicMsg == null) ? false : topicMsg;
+                    topicMsg = topicMsg == null ? false : topicMsg;
 
                     _topicMessageMap.putIfAbsent(filterID, topicMsg);
                 }
 
-                return topicMsg.booleanValue();
-            }
-            catch(final Exception e)
-            {
-                Log.log(this, Log.FATAL, "could not init application database");
-            }
-            finally
-            {
-                if (conDb != null)
-                {
-                    try
-                    {
+                isTopicAction = topicMsg.booleanValue();
+            } catch(final Exception e) {
+                Log.log(this, Log.FATAL, "Could not init application database");
+            } finally {
+                if (conDb != null) {
+                    try {
                         conDb.close();
-                    }
-                    catch(final SQLException e)
-                    {
+                    } catch(final SQLException e) {
                         Log.log(this, Log.WARN, e);
                     }
                 }
             }
         }
 
-        return false;
+        return isTopicAction;
     }
 
     /**
@@ -528,18 +576,26 @@ public class MessageGuardCommander extends Job {
      * @return
      */
     private boolean acknowledge(final Message msg) {
+        boolean success = false;
         try {
             msg.acknowledge();
-            return true;
+            success = true;
         } catch (final Exception e) {
-            Log.log(this, Log.FATAL, "could not acknowledge", e);
+            Log.log(this, Log.FATAL, "Could not acknowledge JMS message: " + e.getMessage());
         }
-
-        return false;
+        return success;
     }
 
     public synchronized void setRun(final boolean run) {
         _run = run;
+    }
+
+    public synchronized boolean isRunningUpdateTopicMessageMap() {
+        return _runUpdateTopicMessageMap;
+    }
+
+    public synchronized ConcurrentHashMap<String, Boolean> getTopicMessageMap() {
+        return _topicMessageMap;
     }
 
     @Override

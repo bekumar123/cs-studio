@@ -36,5 +36,6 @@ public interface RemotelyManageable {
     Collection<String> listDeliveryWorker();
     void stopDeliveryWorker();
     void restartDeliveryWorker();
+    void drainTopic(String topicId);
     void setRestart(boolean restartApplication);
 }

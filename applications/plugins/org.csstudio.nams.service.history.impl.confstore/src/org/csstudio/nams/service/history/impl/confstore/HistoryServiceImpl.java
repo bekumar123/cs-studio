@@ -64,10 +64,9 @@ public class HistoryServiceImpl implements HistoryService {
 
 	@Override
     public void logTimeOutForTimeBased(final Vorgangsmappe vorgangsmappe) {
-		final Regelwerkskennung regelwerkId = vorgangsmappe.gibPruefliste()
-				.gibRegelwerkskennung();
+		final Regelwerkskennung regelwerkId = vorgangsmappe.getBearbeitetMitRegelWerk();
 		final AlarmNachricht alarmNachricht = vorgangsmappe
-				.gibAusloesendeAlarmNachrichtDiesesVorganges();
+				.getAlarmNachricht();
 
 		final HistoryDTO historyDTO = new HistoryDTO();
 		historyDTO.setTTimeNewAsDate(new Date());

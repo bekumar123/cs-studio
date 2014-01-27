@@ -23,8 +23,8 @@
 
 package org.csstudio.ams.dbAccess;
 
-
 import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import oracle.jdbc.driver.OracleDriver;
@@ -37,18 +37,15 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.hsqldb.jdbcDriver;
-import com.mysql.jdbc.Driver;
 
 public class AmsConnectionFactory {
 
     public static Connection getConfigurationDB(ConfigDbProperties prop) throws SQLException {
-        
+
         if(prop.getDbType().toUpperCase().indexOf("ORACLE") > -1) {
-            DriverManager.registerDriver(new OracleDriver());
+            AmsConnectionFactory.registerDriver(new OracleDriver(), prop.getDbUrl());
         } else if(prop.getDbType().toUpperCase().indexOf("HSQL") > -1) {
-            DriverManager.registerDriver(new jdbcDriver());
-        } else if(prop.getDbType().toUpperCase().indexOf("MYSQL") > -1) {
-            DriverManager.registerDriver(new Driver());
+            AmsConnectionFactory.registerDriver(new jdbcDriver(), prop.getDbUrl());
         }
 
         Log.log(Log.INFO, "try getConfigurationDB for DB " + prop.getDbType());
@@ -59,7 +56,7 @@ public class AmsConnectionFactory {
     }
 
     public static Connection getConfigurationDB() throws SQLException {
-        
+
         final IPreferenceStore store = AmsActivator.getDefault().getPreferenceStore();
         final String dbType = store.getString(AmsPreferenceKey.P_CONFIG_DATABASE_TYPE);
         final String dbCon = store.getString(AmsPreferenceKey.P_CONFIG_DATABASE_CONNECTION);
@@ -67,11 +64,9 @@ public class AmsConnectionFactory {
         final String pwd = store.getString(AmsPreferenceKey.P_CONFIG_DATABASE_PASSWORD);
 
         if(dbType.toUpperCase().indexOf("ORACLE") > -1) {
-            DriverManager.registerDriver(new OracleDriver());
+            AmsConnectionFactory.registerDriver(new OracleDriver(), dbCon);
         } else if(dbType.toUpperCase().indexOf("HSQL") > -1) {
-            DriverManager.registerDriver(new jdbcDriver());
-        } else if(dbType.toUpperCase().indexOf("MYSQL") > -1) {
-            DriverManager.registerDriver(new Driver());
+            AmsConnectionFactory.registerDriver(new jdbcDriver(), dbCon);
         }
 
         Log.log(Log.INFO, "try getConfigurationDB for DB " + dbType);
@@ -82,17 +77,16 @@ public class AmsConnectionFactory {
     }
 
     public static Connection getApplicationDB() throws SQLException {
-        
+
         final IPreferenceStore store = AmsActivator.getDefault().getPreferenceStore();
         String dbType = store.getString(AmsPreferenceKey.P_APP_DATABASE_TYPE);
         if(StringUtil.isBlank(dbType)) {
             dbType = "DERBY";
         }
-        
+
+        String dbUrl = store.getString(AmsPreferenceKey.P_APP_DATABASE_CONNECTION);
         if(dbType.toUpperCase().indexOf("DERBY") > -1) {
-            DriverManager.registerDriver(new ClientDriver());
-        } else if(dbType.toUpperCase().indexOf("MYSQL") > -1) {
-            DriverManager.registerDriver(new Driver());
+            AmsConnectionFactory.registerDriver(new ClientDriver(), dbUrl);
         }
 
         String user = store.getString(AmsPreferenceKey.P_APP_DATABASE_USER);
@@ -105,27 +99,28 @@ public class AmsConnectionFactory {
             pwd = null;
         }
 
-        return DriverManager.getConnection(store.getString(AmsPreferenceKey.P_APP_DATABASE_CONNECTION),
-                user,
-                pwd);
+        return DriverManager.getConnection(dbUrl, user, pwd);
     }
 
     public static Connection getMemoryCacheDB() throws SQLException {
-        
+
         final IPreferencesService prefs = Platform.getPreferencesService();
         String dbType = prefs.getString(AmsActivator.PLUGIN_ID,
                                         AmsPreferenceKey.P_CACHE_DATABASE_TYPE,
                                         "HSQLDB",
                                         null);
-        
-        if(dbType.toUpperCase().indexOf("HSQLDB") > -1) {
-            DriverManager.registerDriver(new jdbcDriver());
-        }
-        
+
         String dbUrl = prefs.getString(AmsActivator.PLUGIN_ID,
                                        AmsPreferenceKey.P_CACHE_DATABASE_CONNECTION,
                                        "jdbc:hsqldb:mem:memConfigDB",
                                        null);
+
+        if(dbType.toUpperCase().indexOf("HSQLDB") > -1) {
+            DriverManager.registerDriver(new jdbcDriver());
+        } else if (dbType.compareToIgnoreCase("Derby") == 0) {
+            AmsConnectionFactory.registerDriver(new ClientDriver(), dbUrl);
+        }
+
 
         String dbUser = prefs.getString(AmsActivator.PLUGIN_ID,
                                         AmsPreferenceKey.P_CACHE_DATABASE_USER,
@@ -139,7 +134,7 @@ public class AmsConnectionFactory {
 
         return DriverManager.getConnection(dbUrl, dbUser, dbPassword);
     }
-    
+
     public static void closeConnection(final Connection conDb) {
         try {
             if (conDb != null) {
@@ -147,6 +142,26 @@ public class AmsConnectionFactory {
             }
         } catch(final Exception ex) {
             Log.log(Log.WARN, "Cannot close database connection. ", ex);
+        }
+    }
+
+    private static void registerDriver(Driver driver, String url) {
+        try {
+            Driver askedDriver = DriverManager.getDriver(url);
+            if (askedDriver == null) {
+                DriverManager.registerDriver(driver);
+                Log.log(Log.INFO, "Driver "
+                                  + driver.getClass().getName()
+                                  + " has been registered for URL "
+                                  + url);
+            } else {
+                Log.log(Log.INFO, "Driver "
+                                  + driver.getClass().getName()
+                                  + " has already been registered for URL "
+                                  + url);
+            }
+        } catch (SQLException e) {
+            Log.log(Log.WARN, "getDriver(): " + e.getMessage());
         }
     }
 }

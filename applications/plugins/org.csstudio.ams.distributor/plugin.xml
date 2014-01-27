@@ -28,6 +28,11 @@
                label="Password">
          </stringParameter>
       </command>
+      <command
+            class="org.csstudio.ams.distributor.management.InfoCmd"
+            id="org.csstudio.ams.distributor.management.InfoCmd"
+            label="Info">
+      </command>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">

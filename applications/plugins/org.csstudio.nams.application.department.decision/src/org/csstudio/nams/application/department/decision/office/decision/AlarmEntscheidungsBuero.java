@@ -1,4 +1,3 @@
-
 /* 
  * Copyright (c) 2008 C1 WPS mbH, 
  * HAMBURG, GERMANY.
@@ -26,7 +25,7 @@
 
 package org.csstudio.nams.application.department.decision.office.decision;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,13 +35,17 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import org.csstudio.nams.common.decision.Ablagefaehig;
+import org.csstudio.nams.common.decision.Arbeitsfaehig;
 import org.csstudio.nams.common.decision.Ausgangskorb;
 import org.csstudio.nams.common.decision.BeobachtbarerEingangskorb;
 import org.csstudio.nams.common.decision.Eingangskorb;
 import org.csstudio.nams.common.decision.ExecutorBeobachtbarerEingangskorb;
 import org.csstudio.nams.common.decision.StandardAblagekorb;
 import org.csstudio.nams.common.decision.Vorgangsmappe;
+import org.csstudio.nams.common.material.regelwerk.DefaultRegelwerk;
 import org.csstudio.nams.common.material.regelwerk.Regelwerk;
+import org.csstudio.nams.common.material.regelwerk.TimebasedRegelwerk;
+import org.csstudio.nams.common.material.regelwerk.WatchDogRegelwerk;
 import org.csstudio.nams.common.service.ExecutionService;
 import org.csstudio.nams.common.wam.Arbeitsumgebung;
 
@@ -61,7 +64,7 @@ public class AlarmEntscheidungsBuero {
 
 	private final TerminAssistenz _assistenz;
 	private final Abteilungsleiter _abteilungsleiter;
-	private final List<Sachbearbeiter> _sachbearbeiterList;
+	private final List<Arbeitsfaehig> _sachbearbeiterList;
 
 	/**
 	 * Legt ein neues Alarmbuero an. Es wird zugesichert, das nur hier
@@ -70,52 +73,55 @@ public class AlarmEntscheidungsBuero {
 	 * 
 	 * TODO Logger-Service hinzufuegen/reinreichen um das Logging testbar zu
 	 * machen, da dieses wichtig fuer Nachweiszwecke ist.
-	 * @param filterThreadCount TODO
+	 * 
+	 * @param filterThreadCount
+	 *            TODO
 	 * @param historyService
 	 */
-	public AlarmEntscheidungsBuero(final ExecutionService executionService,
-			final Regelwerk[] regelwerke,
-			final Eingangskorb<Vorgangsmappe> alarmVorgangEingangskorb,
-			final Ausgangskorb<Vorgangsmappe> alarmVorgangAusgangskorb, 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public AlarmEntscheidungsBuero(final ExecutionService executionService, final Regelwerk[] regelwerke,
+			final Eingangskorb<Vorgangsmappe> alarmVorgangEingangskorb, final Ausgangskorb<Vorgangsmappe> alarmVorgangAusgangskorb,
 			int filterThreadCount) {
-		
+
 		this.alarmVorgangEingangskorb = alarmVorgangEingangskorb;
 		this.ausgangskorb = alarmVorgangAusgangskorb;
-		this._sachbearbeiterList = new LinkedList<Sachbearbeiter>();
+		this._sachbearbeiterList = new LinkedList<Arbeitsfaehig>();
 		// Sachbearbeiter und Koerbe anlegen:
 		final StandardAblagekorb<Terminnotiz> terminAssistenzAblagekorb = new StandardAblagekorb<Terminnotiz>();
-		final Eingangskorb<Ablagefaehig>[] eingangskoerbeSachbearbeiter = this
-				.erzeugeEingangskoerbeArray(regelwerke.length);
+		final List eingangskoerbeSachbearbeiter = new ArrayList<Eingangskorb<Ablagefaehig>>(regelwerke.length);
+
 		final Map<String, Eingangskorb<Ablagefaehig>> terminEingangskoerbeDerSachbearbeiter = new HashMap<String, Eingangskorb<Ablagefaehig>>();
 
 		final Executor threadPool = Executors.newFixedThreadPool(filterThreadCount);
+		final Timer watchDogTimer = new Timer("watchDogTimer");
 		
 		for (int zaehler = 0; zaehler < regelwerke.length; zaehler++) {
+			Arbeitsfaehig sachbearbeiter = null;
+			Regelwerk regelwerk = regelwerke[zaehler];
+			if (regelwerk instanceof DefaultRegelwerk) {
+				final BeobachtbarerEingangskorb<Vorgangsmappe> eingangskorb = new ExecutorBeobachtbarerEingangskorb<Vorgangsmappe>(threadPool);
+				sachbearbeiter = new DefaultSachbearbeiter(eingangskorb, this.ausgangskorb, (DefaultRegelwerk) regelwerk);
+				eingangskoerbeSachbearbeiter.add(zaehler, eingangskorb);
+			} else if (regelwerk instanceof TimebasedRegelwerk) {
+				final BeobachtbarerEingangskorb<Ablagefaehig> eingangskorb = new ExecutorBeobachtbarerEingangskorb<Ablagefaehig>(threadPool);
+				sachbearbeiter = new TimebasedSachbearbeiter("" + zaehler, eingangskorb, new StandardAblagekorb<Vorgangsmappe>(),
+						terminAssistenzAblagekorb, this.ausgangskorb, (TimebasedRegelwerk) regelwerk);
+				eingangskoerbeSachbearbeiter.add(zaehler, eingangskorb);
+				terminEingangskoerbeDerSachbearbeiter.put(((TimebasedSachbearbeiter) sachbearbeiter).gibName(), eingangskorb);
+			} else if (regelwerk instanceof WatchDogRegelwerk) {
+				final BeobachtbarerEingangskorb<Vorgangsmappe> eingangskorb = new ExecutorBeobachtbarerEingangskorb<Vorgangsmappe>(threadPool);
+				sachbearbeiter = new WatchDogSachbearbeiter(eingangskorb, this.ausgangskorb, (WatchDogRegelwerk) regelwerk, watchDogTimer);
+				eingangskoerbeSachbearbeiter.add(zaehler, eingangskorb);
+			}
 
-			final BeobachtbarerEingangskorb<Ablagefaehig> eingangskorb = new ExecutorBeobachtbarerEingangskorb<Ablagefaehig>(threadPool);
-			eingangskoerbeSachbearbeiter[zaehler] = eingangskorb;
-			final Sachbearbeiter sachbearbeiter = new Sachbearbeiter(
-					"" + zaehler, 
-					eingangskorb,
-					new StandardAblagekorb<Vorgangsmappe>(),
-					terminAssistenzAblagekorb,
-					this.ausgangskorb,
-					regelwerke[zaehler]
-			);
-
-			terminEingangskoerbeDerSachbearbeiter.put(sachbearbeiter.gibName(),
-					eingangskorb);
 			this._sachbearbeiterList.add(sachbearbeiter);
 			sachbearbeiter.beginneArbeit();
 		}
 
-		this._assistenz = new TerminAssistenz(executionService,
-				terminAssistenzAblagekorb,
-				terminEingangskoerbeDerSachbearbeiter, new Timer());
+		this._assistenz = new TerminAssistenz(executionService, terminAssistenzAblagekorb, terminEingangskoerbeDerSachbearbeiter, new Timer());
 		this._assistenz.beginneArbeit();
 
-		this._abteilungsleiter = new Abteilungsleiter(executionService, this
-				.gibAlarmVorgangEingangskorb(), eingangskoerbeSachbearbeiter);
+		this._abteilungsleiter = new Abteilungsleiter(executionService, this.gibAlarmVorgangEingangskorb(), eingangskoerbeSachbearbeiter);
 		// Starten...
 		this._abteilungsleiter.beginneArbeit();
 	}
@@ -129,7 +135,7 @@ public class AlarmEntscheidungsBuero {
 		// Terminassistenz beenden...
 		this._assistenz.beendeArbeit();
 		// Sachbearbeiter in den Feierabend schicken...
-		for (final Sachbearbeiter sachbearbeiter : this._sachbearbeiterList) {
+		for (final Arbeitsfaehig sachbearbeiter : this._sachbearbeiterList) {
 			sachbearbeiter.beendeArbeit();
 		}
 		// Andere Threads zu ende arbeiten lassen
@@ -174,13 +180,7 @@ public class AlarmEntscheidungsBuero {
 	/**
 	 * Inspector fuer Tests. Liefert die Referenzen auf alle Sachbearbeiter.
 	 */
-	Collection<Sachbearbeiter> gibListeDerSachbearbeiterFuerTest() {
+	List<Arbeitsfaehig> gibListeDerSachbearbeiterFuerTest() {
 		return this._sachbearbeiterList;
-	}
-
-	@SuppressWarnings("unchecked")
-	private Eingangskorb<Ablagefaehig>[] erzeugeEingangskoerbeArray(
-			final int length) {
-		return new Eingangskorb[length];
 	}
 }

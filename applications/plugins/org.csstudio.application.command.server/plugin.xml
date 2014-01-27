@@ -3,9 +3,11 @@
 <plugin>
 
    <extension
-         id="application"
+         id="CommandServerApplication"
          point="org.eclipse.core.runtime.applications">
-      <application>
+      <application
+            cardinality="singleton-global"
+            visible="true">
          <run
                class="org.csstudio.application.command.server.CommandServerApplication">
          </run>
@@ -28,6 +30,18 @@
             id="org.csstudio.application.command.server.Command"
             label="Commands">
       </command>
+   </extension>
+   <extension
+         id="CommandServerProduct"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.csstudio.application.command.server.CommandServerApplication"
+            name="CommandServerProduct">
+         <property
+               name="appName"
+               value="CommandServerProduct">
+         </property>
+      </product>
    </extension>
 
 </plugin>

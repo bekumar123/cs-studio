@@ -32,6 +32,9 @@ import org.csstudio.application.command.server.management.StopCmd;
 import org.csstudio.application.command.server.preferences.CommandServerPreferences;
 import org.csstudio.application.command.server.service.CommandExecutor;
 import org.csstudio.application.command.server.service.CommandMessageListener;
+import org.csstudio.headless.common.cipher.ApplicationKeyStore;
+import org.csstudio.headless.common.cipher.ClientKeyStore;
+import org.csstudio.headless.common.cipher.KeyStores;
 import org.csstudio.headless.common.management.IInfoProvider;
 import org.csstudio.headless.common.management.Stoppable;
 import org.csstudio.headless.common.util.ApplicationInfo;
@@ -87,8 +90,12 @@ public class CommandServerApplication implements IApplication,
         SharedJmsConnections
                .staticInjectPublisherUrlAndClientId(CommandServerPreferences.JMS_PUBLISHER_URL.getValue(),
                                                     JmsTool.createUniqueClientId("ServerCommandPublisher"));
-        msgAcceptor = new MessageAcceptor(CommandServerPreferences.JMS_TOPIC.getValue());
-        msgAcceptor.setListener(this);
+        ApplicationKeyStore appKeyStore = new ApplicationKeyStore("./security/server/");
+        ClientKeyStore clientKeyStore = new ClientKeyStore("./security/clients/");
+        KeyStores keyStores = new KeyStores(appKeyStore, clientKeyStore);
+        msgAcceptor = new MessageAcceptor(keyStores,
+                                          CommandServerPreferences.JMS_TOPIC.getValue(),
+                                          this);
         cmdExecutor = new CommandExecutor();
         commandMsg = new ConcurrentLinkedQueue<CommandMessage>();
         lock = new Object();

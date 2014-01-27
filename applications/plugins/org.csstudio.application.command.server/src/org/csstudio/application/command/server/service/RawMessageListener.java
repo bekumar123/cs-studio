@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2013 Stiftung Deutsches Elektronen-Synchrotron,
+ * Copyright (c) 2014 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -21,42 +21,14 @@
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
  */
 
-package org.csstudio.application.command.server.jms;
+package org.csstudio.application.command.server.service;
 
+import org.csstudio.application.command.server.cmd.RawMessage;
 
 /**
  * @author mmoeller
- * @since 18.06.2013
+ * @since 23.01.2014
  */
-public class CommandMessage {
-
-    private String cmdLine;
-
-    public CommandMessage() {
-        cmdLine = "";
-    }
-
-    /**
-     * The property COMMAND or NAME may contain the command line.
-     *
-     * @param msgContent
-     */
-    public CommandMessage(String type, String command) {
-        this();
-        if (type != null && command != null) {
-            if (type.compareToIgnoreCase("command") == 0) {
-                if (!command.trim().isEmpty()) {
-                    cmdLine = new String(command.trim());
-                }
-            }
-        }
-    }
-
-    public boolean isCommandMessage() {
-        return !cmdLine.isEmpty();
-    }
-
-    public String getCommandLine() {
-        return cmdLine;
-    }
+public interface RawMessageListener {
+    void onRawMessage(RawMessage message);
 }

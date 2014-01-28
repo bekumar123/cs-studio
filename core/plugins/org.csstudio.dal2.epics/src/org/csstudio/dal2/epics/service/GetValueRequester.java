@@ -10,6 +10,7 @@ import gov.aps.jca.event.GetListener;
 import org.csstudio.dal2.dv.Characteristics;
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
+import org.csstudio.dal2.epics.mapping.IEpicsTypeMapping;
 import org.csstudio.dal2.service.DalException;
 import org.csstudio.dal2.service.cs.CsPvData;
 import org.csstudio.dal2.service.cs.ICsResponseListener;
@@ -25,10 +26,10 @@ class GetValueRequester<T> extends AbstractChannelOperator implements
 	private ICsResponseListener<CsPvData<T>> _callback;
 	private Type<T> _type;
 
-	public GetValueRequester(Context context, PvAddress pv, Type<T> type,
+	public GetValueRequester(Context context, IEpicsTypeMapping mapping, PvAddress pv, Type<T> type,
 			ICsResponseListener<CsPvData<T>> callback)
 			throws DalException {
-		super(context, pv);
+		super(context, mapping, pv);
 
 		_callback = callback;
 		_type = type;
@@ -37,7 +38,7 @@ class GetValueRequester<T> extends AbstractChannelOperator implements
 	@Override
 	protected void onFirstConnect(ConnectionEvent ev) {
 
-		DBRType dbrType = TypeMapper.getMapper(_type, getNativeType()).getDBRCtrlType();
+		DBRType dbrType = getMapping().getMapper(_type, getNativeType()).getDBRCtrlType();
 		int elementCount = getChannel().getElementCount();
 
 		try {
@@ -60,10 +61,10 @@ class GetValueRequester<T> extends AbstractChannelOperator implements
 						"Error reading value from channel: received null");
 			} else {
 				DBR dbr = ev.getDBR();
-				T value = TypeMapper.getMapper(_type, getNativeType()).mapValue(dbr);
 				String hostname = getChannel().getHostName();
 				Characteristics characteristics = new CharacteristicsService()
-						.newCharacteristics(dbr, hostname);
+				.newCharacteristics(dbr, hostname);
+				T value = getMapping().getMapper(_type, getNativeType()).mapValue(dbr, characteristics);
 				CsPvData<T> pvData = new CsPvData<T>(value, characteristics, getNativeType());
 
 				dispose();

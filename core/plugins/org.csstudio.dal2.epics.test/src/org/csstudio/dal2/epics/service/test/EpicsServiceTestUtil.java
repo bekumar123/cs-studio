@@ -6,6 +6,7 @@ import gov.aps.jca.JCALibrary;
 import gov.aps.jca.configuration.DefaultConfiguration;
 import gov.aps.jca.event.QueuedEventDispatcher;
 
+import org.csstudio.dal2.epics.mapping.SimpleTypeMapping;
 import org.csstudio.dal2.epics.service.EpicsPvAccessFactory;
 import org.csstudio.dal2.service.IDalService;
 import org.csstudio.dal2.service.IDalServiceFactory;
@@ -16,7 +17,8 @@ public class EpicsServiceTestUtil {
 
 	public static ICsPvAccessFactory createEpicsPvAccessFactory(
 			Context jcaContext) {
-		return new EpicsPvAccessFactory(jcaContext);
+		
+		return new EpicsPvAccessFactory(jcaContext, SimpleTypeMapping.getInstance());
 	}
 
 	public static IDalService createDalServiceWithLocalJCAContext()

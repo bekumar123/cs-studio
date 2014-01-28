@@ -18,6 +18,7 @@ import org.csstudio.dal2.dv.EnumType;
 import org.csstudio.dal2.dv.ListenerType;
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
+import org.csstudio.dal2.epics.mapping.SimpleTypeMapping;
 import org.csstudio.dal2.epics.service.test.EpicsServiceTestUtil;
 import org.csstudio.dal2.service.cs.CsPvData;
 import org.csstudio.dal2.service.cs.ICsPvListener;
@@ -84,7 +85,7 @@ public class EpicsPVAccessNativeTypeTest {
 	@Test(timeout = 7000)
 	public void testMonitor() throws Exception {
 
-		EpicsPvAccess<Object> pva = new EpicsPvAccess<Object>(_jcaContext,
+		EpicsPvAccess<Object> pva = new EpicsPvAccess<Object>(_jcaContext, SimpleTypeMapping.getInstance(),
 				PvAddress.getValue("TestDal:Counter"), Type.NATIVE);
 		ICsPvListener<Object> listener = mock(ICsPvListener.class);
 		when(listener.getType()).thenReturn(ListenerType.VALUE);
@@ -141,7 +142,7 @@ public class EpicsPVAccessNativeTypeTest {
 	@Test(timeout = 7000)
 	public void testAsyncGetValue() throws Exception {
 
-		EpicsPvAccess<Object> pva = new EpicsPvAccess<Object>(_jcaContext,
+		EpicsPvAccess<Object> pva = new EpicsPvAccess<Object>(_jcaContext, SimpleTypeMapping.getInstance(),
 				PvAddress.getValue("TestDal:Counter"), Type.NATIVE);
 
 		startUpSoftIoc(_file1);

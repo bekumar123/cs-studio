@@ -29,6 +29,8 @@ import org.csstudio.dal2.dv.Characteristics;
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Timestamp;
 import org.csstudio.dal2.dv.Type;
+import org.csstudio.dal2.epics.mapping.IEpicsTypeMapping;
+import org.csstudio.dal2.epics.mapping.SimpleTypeMapping;
 import org.csstudio.dal2.service.cs.CsPvData;
 import org.csstudio.dal2.service.cs.ICsResponseListener;
 import org.csstudio.domain.desy.epics.alarm.EpicsAlarmSeverity;
@@ -40,6 +42,8 @@ public class GetValueRequesterTest {
 
 	private static final TimeStamp TIMESTAMP = new TimeStamp();
 
+	private IEpicsTypeMapping mapping = new SimpleTypeMapping();
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testMonitor() throws Exception {
@@ -60,7 +64,7 @@ public class GetValueRequesterTest {
 		ICsResponseListener responseListener = mock(ICsResponseListener.class);
 
 		// create requester
-		new GetValueRequester(context, pv, type, responseListener);
+		new GetValueRequester(context, mapping, pv, type, responseListener);
 
 		ArgumentCaptor<ConnectionListener> connListenerCaptor = ArgumentCaptor
 				.forClass(ConnectionListener.class);

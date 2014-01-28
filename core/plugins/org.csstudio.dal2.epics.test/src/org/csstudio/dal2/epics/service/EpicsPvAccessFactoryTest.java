@@ -29,6 +29,7 @@ import gov.aps.jca.Context;
 
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
+import org.csstudio.dal2.epics.mapping.SimpleTypeMapping;
 import org.csstudio.dal2.service.DalException;
 import org.junit.Test;
 
@@ -46,7 +47,7 @@ public class EpicsPvAccessFactoryTest {
 		Context jcaContext = mock(Context.class);
 		PvAddress pvAddress = PvAddress.getValue("TestDal:ConstantPV");
 		
-		EpicsPvAccessFactory service = new EpicsPvAccessFactory(jcaContext);
+		EpicsPvAccessFactory service = new EpicsPvAccessFactory(jcaContext, new SimpleTypeMapping());
 		EpicsPvAccess<Integer> pvAccess1 = (EpicsPvAccess<Integer>) service.createPVAccess(pvAddress, Type.LONG);
 		
 		assertEquals(pvAddress, pvAccess1.getPvAddress());

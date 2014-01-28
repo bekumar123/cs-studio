@@ -59,7 +59,7 @@ public class Type<T> {
 	 * @param javaType
 	 *            Java Type
 	 */
-	private Type(Class<? extends T> javaType) {
+	public Type(Class<? extends T> javaType) {
 		this(javaType, null);
 	}
 
@@ -67,7 +67,7 @@ public class Type<T> {
 	 * @param javaType
 	 *            Java Type
 	 */
-	private Type(Class<? extends T> javaType, Type<?> sequenceType) {
+	public Type(Class<? extends T> javaType, Type<?> sequenceType) {
 		assert javaType != null;
 		_javaType = javaType;
 		_sequenceType = sequenceType;

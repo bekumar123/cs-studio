@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
+import org.csstudio.dal2.epics.mapping.IEpicsTypeMapping;
 import org.csstudio.dal2.service.DalException;
 import org.csstudio.dal2.service.cs.ICsOperationHandle;
 import org.slf4j.Logger;
@@ -43,9 +44,12 @@ public abstract class AbstractChannelOperator implements ConnectionListener,
 
 	private Type<?> _nativeType;
 
-	public AbstractChannelOperator(Context context, PvAddress address)
+	private IEpicsTypeMapping _mapping;
+
+	public AbstractChannelOperator(Context context, IEpicsTypeMapping mapping, PvAddress address)
 			throws DalException {
 		_context = context;
+		_mapping = mapping;
 		_address = address;
 
 		try {
@@ -69,7 +73,7 @@ public abstract class AbstractChannelOperator implements ConnectionListener,
 
 				if (connected) {
 					DBRType dbrType = getChannel().getFieldType();
-					_nativeType = TypeMapper.getType(dbrType);
+					_nativeType = _mapping.getType(dbrType);
 				}
 
 				onConnectionChanged(ev);
@@ -153,6 +157,10 @@ public abstract class AbstractChannelOperator implements ConnectionListener,
 
 	protected final Type<?> getNativeType() {
 		return _nativeType;
+	}
+	
+	protected IEpicsTypeMapping getMapping() {
+		return _mapping;
 	}
 
 	public final PvAddress getAddress() {

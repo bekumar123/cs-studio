@@ -23,6 +23,7 @@ import org.csstudio.dal2.dv.EnumType;
 import org.csstudio.dal2.dv.ListenerType;
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
+import org.csstudio.dal2.epics.mapping.SimpleTypeMapping;
 import org.csstudio.dal2.epics.service.test.EpicsServiceTestUtil;
 import org.csstudio.dal2.service.cs.CsPvData;
 import org.csstudio.dal2.service.cs.ICsOperationHandle;
@@ -83,7 +84,7 @@ public class EpicsPVAccessTest {
 
 	@Test
 	public void testConnectionChangesWhenIocStartsAndStops() throws Exception {
-		EpicsPvAccess<Integer> pva = new EpicsPvAccess<Integer>(_jcaContext,
+		EpicsPvAccess<Integer> pva = new EpicsPvAccess<Integer>(_jcaContext, SimpleTypeMapping.getInstance(),
 				PvAddress.getValue("TestDal:ConstantPV"), Type.LONG);
 
 		PvListenerMock<Integer> listener = new PvListenerMock<Integer>(
@@ -109,7 +110,7 @@ public class EpicsPVAccessTest {
 
 		String PV = "TestDal:ConstantPV";
 
-		EpicsPvAccess<Integer> pva = new EpicsPvAccess<Integer>(_jcaContext,
+		EpicsPvAccess<Integer> pva = new EpicsPvAccess<Integer>(_jcaContext, SimpleTypeMapping.getInstance(),
 				PvAddress.getValue(PV), Type.LONG);
 
 		ICsPvListener listenerMock = mock(ICsPvListener.class);
@@ -129,7 +130,7 @@ public class EpicsPVAccessTest {
 	public void testMonitor() throws Exception {
 		startUpSoftIoc();
 
-		EpicsPvAccess<Integer> pva = new EpicsPvAccess<Integer>(_jcaContext,
+		EpicsPvAccess<Integer> pva = new EpicsPvAccess<Integer>(_jcaContext, SimpleTypeMapping.getInstance(),
 				PvAddress.getValue("TestDal:Counter"), Type.LONG);
 
 		PvListenerMock2<Integer> listener = new PvListenerMock2<Integer>(
@@ -152,7 +153,7 @@ public class EpicsPVAccessTest {
 	public void testMonitorAlarm() throws Exception {
 		startUpSoftIoc();
 
-		EpicsPvAccess<Integer> pva = new EpicsPvAccess<Integer>(_jcaContext,
+		EpicsPvAccess<Integer> pva = new EpicsPvAccess<Integer>(_jcaContext, SimpleTypeMapping.getInstance(),
 				PvAddress.getValue("TestDal:AlarmCounter"), Type.LONG);
 
 		ICsPvListener<Integer> listener = mock(ICsPvListener.class);
@@ -202,7 +203,7 @@ public class EpicsPVAccessTest {
 		startUpSoftIoc();
 
 		PvAddress address = PvAddress.getValue("TestDal:Counter");
-		EpicsPvAccess<double[]> pva = new EpicsPvAccess<double[]>(_jcaContext,
+		EpicsPvAccess<double[]> pva = new EpicsPvAccess<double[]>(_jcaContext, SimpleTypeMapping.getInstance(),
 				address, Type.DOUBLE_SEQ);
 
 		ResponseCallbackHandlerMock<double[]> callbackHandler = new ResponseCallbackHandlerMock<double[]>();
@@ -232,7 +233,7 @@ public class EpicsPVAccessTest {
 
 		// retrieve as long
 		{
-			EpicsPvAccess<Integer> pva = new EpicsPvAccess<Integer>(_jcaContext,
+			EpicsPvAccess<Integer> pva = new EpicsPvAccess<Integer>(_jcaContext, SimpleTypeMapping.getInstance(),
 					address, Type.LONG);
 
 			ICsResponseListener<CsPvData<Integer>> callback = mock(ICsResponseListener.class);
@@ -249,7 +250,7 @@ public class EpicsPVAccessTest {
 		// retrieve as enum
 		{
 			EpicsPvAccess<EnumType> pva = new EpicsPvAccess<EnumType>(
-					_jcaContext, address, Type.ENUM);
+					_jcaContext,  SimpleTypeMapping.getInstance(), address, Type.ENUM);
 
 			ICsResponseListener<CsPvData<EnumType>> callback = mock(ICsResponseListener.class);
 			pva.getValue(callback);
@@ -282,7 +283,7 @@ public class EpicsPVAccessTest {
 
 		PvAddress address = PvAddress.getValue("TestDal:ConstantPV.HSV");
 		EpicsPvAccess<EpicsAlarmSeverity> pva = new EpicsPvAccess<EpicsAlarmSeverity>(
-				_jcaContext, address, Type.SEVERITY);
+				_jcaContext,  SimpleTypeMapping.getInstance(), address, Type.SEVERITY);
 
 		ResponseCallbackHandlerMock<EpicsAlarmSeverity> callbackHandler = new ResponseCallbackHandlerMock<EpicsAlarmSeverity>();
 		pva.getValue(callbackHandler);
@@ -302,7 +303,7 @@ public class EpicsPVAccessTest {
 	public void testNotExistingPvDoesNotConnect() throws Exception {
 		startUpSoftIoc();
 
-		EpicsPvAccess<String> pva = new EpicsPvAccess<String>(_jcaContext,
+		EpicsPvAccess<String> pva = new EpicsPvAccess<String>(_jcaContext, SimpleTypeMapping.getInstance(),
 				PvAddress.getValue("TestDal:NotExisting"), Type.STRING);
 
 		PvListenerMock<String> listenerMock = new PvListenerMock<String>(
@@ -321,7 +322,7 @@ public class EpicsPVAccessTest {
 	public void testGetFieldType() throws Exception {
 		startUpSoftIoc();
 
-		EpicsPvAccessFactory factory = new EpicsPvAccessFactory(_jcaContext);
+		EpicsPvAccessFactory factory = new EpicsPvAccessFactory(_jcaContext, SimpleTypeMapping.getInstance());
 
 		{
 			ICsResponseListener<Type<?>> callback = mock(ICsResponseListener.class);
@@ -351,7 +352,7 @@ public class EpicsPVAccessTest {
 	public void testGetFieldTypeForCharacteristic() throws Exception {
 		startUpSoftIoc();
 
-		EpicsPvAccessFactory factory = new EpicsPvAccessFactory(_jcaContext);
+		EpicsPvAccessFactory factory = new EpicsPvAccessFactory(_jcaContext, SimpleTypeMapping.getInstance());
 
 		{
 			ICsResponseListener<Type<?>> callback = mock(ICsResponseListener.class);

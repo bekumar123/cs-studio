@@ -17,6 +17,8 @@ import org.csstudio.dal2.dv.Characteristics;
 import org.csstudio.dal2.dv.ListenerType;
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
+import org.csstudio.dal2.epics.mapping.IEpicsTypeMapper;
+import org.csstudio.dal2.epics.mapping.IEpicsTypeMapping;
 import org.csstudio.dal2.service.DalException;
 import org.csstudio.dal2.service.cs.CsPvData;
 import org.csstudio.dal2.service.cs.ICsPvListener;
@@ -40,9 +42,9 @@ public class ChannelMonitor<T> extends AbstractChannelOperator implements
 
 	private AtomicBoolean _connected = new AtomicBoolean();
 
-	public ChannelMonitor(Context jcaContext, PvAddress pv, Type<T> type,
+	public ChannelMonitor(Context jcaContext, IEpicsTypeMapping mapping, PvAddress pv, Type<T> type,
 			ICsPvListener<T> listener) throws DalException {
-		super(jcaContext, pv);
+		super(jcaContext, mapping, pv);
 		_listener = listener;
 		_type = type;
 	}
@@ -96,7 +98,7 @@ public class ChannelMonitor<T> extends AbstractChannelOperator implements
 	 */
 	private void createMonitor(String name) {
 		try {
-			DBRType ctrlType = TypeMapper.getMapper(_type, getNativeType())
+			DBRType ctrlType = getMapping().getMapper(_type, getNativeType())
 					.getDBRCtrlType();
 			ListenerType type = _listener.getType();
 			int mask = getMask(type);
@@ -117,19 +119,19 @@ public class ChannelMonitor<T> extends AbstractChannelOperator implements
 
 		if (status.isSuccessful()) {
 			try {
-
-				TypeMapper<T> mapper = TypeMapper.getMapper(_type,
-						getNativeType());
-				final T value = mapper.mapValue(ev.getDBR());
-
 				String hostName = null;
-
+				
 				if (getChannel().getConnectionState() == ConnectionState.CONNECTED) {
 					hostName = getChannel().getHostName();
 				}
-
 				final Characteristics characteristics = new CharacteristicsService()
-						.newCharacteristics(ev.getDBR(), hostName);
+				.newCharacteristics(ev.getDBR(), hostName);
+
+				IEpicsTypeMapper<T> mapper = getMapping().getMapper(_type,
+						getNativeType());
+				final T value = mapper.mapValue(ev.getDBR(), characteristics);
+
+
 
 				LOGGER.debug("Monitor changed ({}): {}", getAddress()
 						.getAddress(), value);

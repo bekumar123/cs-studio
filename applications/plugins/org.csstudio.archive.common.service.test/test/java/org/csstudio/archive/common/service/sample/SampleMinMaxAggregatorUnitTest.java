@@ -25,6 +25,8 @@ import javax.annotation.Nonnull;
 
 import junit.framework.Assert;
 
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarmSeverity;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarmStatus;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
 import org.junit.Test;
@@ -42,6 +44,7 @@ public class SampleMinMaxAggregatorUnitTest {
         final Double min = Double.MIN_VALUE;
         testOneValue(min);
     }
+
     @Test
     public void testDoubleMax() {
         final Double max = Double.MAX_VALUE;
@@ -49,8 +52,7 @@ public class SampleMinMaxAggregatorUnitTest {
     }
 
     private void testOneValue(@Nonnull final Double min) {
-        final SampleMinMaxAggregator cache =
-            new SampleMinMaxAggregator(min, TimeInstantBuilder.fromNow());
+        final SampleMinMaxAggregator cache = new SampleMinMaxAggregator(min, TimeInstantBuilder.fromNow());
 
         Assert.assertEquals(min, cache.getAvg());
         Assert.assertEquals(min, cache.getMin());
@@ -58,26 +60,30 @@ public class SampleMinMaxAggregatorUnitTest {
 
         cache.reset();
 
-        cache.aggregate(min, TimeInstantBuilder.fromNow());
+        cache.aggregate(min, EpicsAlarmStatus.HIHI, EpicsAlarmSeverity.MAJOR, TimeInstantBuilder.fromNow());
 
         Assert.assertEquals(min, cache.getAvg());
         Assert.assertEquals(min, cache.getMin());
         Assert.assertEquals(min, cache.getMax());
+        Assert.assertEquals(EpicsAlarmStatus.HIHI, cache.getStatus());
+        Assert.assertEquals(EpicsAlarmSeverity.MAJOR, cache.getSeverity());
 
-        cache.aggregate(min, TimeInstantBuilder.fromNow());
+        cache.aggregate(min, EpicsAlarmStatus.HIGH, EpicsAlarmSeverity.MINOR, TimeInstantBuilder.fromNow());
 
         Assert.assertEquals(min, cache.getAvg());
         Assert.assertEquals(min, cache.getMin());
         Assert.assertEquals(min, cache.getMax());
+        Assert.assertEquals(EpicsAlarmStatus.HIGH, cache.getStatus());
+        Assert.assertEquals(EpicsAlarmSeverity.MINOR, cache.getSeverity());
+
     }
 
     @Test
     public void testManyDoubleMins() {
         final TimeInstant now = TimeInstantBuilder.fromNow();
-        final SampleMinMaxAggregator cache =
-            new SampleMinMaxAggregator(Double.MIN_VALUE, now);
+        final SampleMinMaxAggregator cache = new SampleMinMaxAggregator(Double.MIN_VALUE, now);
         for (int i = 0; i < 1000; i++) {
-            cache.aggregate(Double.MIN_VALUE, now.plusMillis(i));
+            cache.aggregate(Double.MIN_VALUE, EpicsAlarmStatus.NO_ALARM, EpicsAlarmSeverity.NO_ALARM, now.plusMillis(i));
         }
         Assert.assertEquals(Double.MIN_VALUE, cache.getAvg());
         Assert.assertEquals(Double.MIN_VALUE, cache.getMin());

@@ -24,11 +24,9 @@ package org.csstudio.archive.common.service.sample;
 import java.io.Serializable;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import org.csstudio.archive.common.service.channel.ArchiveChannelId;
-import org.csstudio.domain.desy.alarm.IAlarm;
-import org.csstudio.domain.desy.system.ISystemVariable;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 
 /**
  * TODO (bknerr) : find a better abstraction for this object
@@ -43,7 +41,7 @@ import org.csstudio.domain.desy.system.ISystemVariable;
  * @param <T> the css value type
  */
 public class ArchiveMinMaxSample<V extends Serializable,
-                                 T extends ISystemVariable<V>>
+                                 T extends IAlarmSystemVariable<V>>
                                 extends ArchiveSample<V, T>
                                 implements IArchiveMinMaxSample<V, T> {
 
@@ -57,10 +55,9 @@ public class ArchiveMinMaxSample<V extends Serializable,
      */
     public ArchiveMinMaxSample(@Nonnull final ArchiveChannelId channelId,
                                @Nonnull final T data,
-                               @Nullable final IAlarm alarm,
                                @Nonnull final V min,
                                @Nonnull final V max) {
-        super(channelId, data, alarm);
+        super(channelId, data);
         _minimum = min;
         _maximum = max;
     }

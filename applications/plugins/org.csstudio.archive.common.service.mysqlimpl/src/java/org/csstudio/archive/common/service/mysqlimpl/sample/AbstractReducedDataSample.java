@@ -24,6 +24,8 @@ package org.csstudio.archive.common.service.mysqlimpl.sample;
 import javax.annotation.Nonnull;
 
 import org.csstudio.archive.common.service.channel.ArchiveChannelId;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarmSeverity;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarmStatus;
 import org.csstudio.domain.desy.time.TimeInstant;
 
 /**
@@ -39,6 +41,8 @@ abstract class AbstractReducedDataSample {
     private final Double _avg;
     private final Double _min;
     private final Double _max;
+    private final EpicsAlarmStatus _status;
+    private final EpicsAlarmSeverity _severity;
 
     /**
      * Constructor.
@@ -47,31 +51,50 @@ abstract class AbstractReducedDataSample {
                                         @Nonnull final TimeInstant timestamp,
                                         @Nonnull final Double avg,
                                         @Nonnull final Double min,
-                                        @Nonnull final Double max) {
+                                        @Nonnull final Double max,
+                                        @Nonnull final EpicsAlarmStatus status,
+                                        @Nonnull final EpicsAlarmSeverity severity) {
         _channelId = id;
         _timestamp = timestamp;
         _avg = avg;
         _min = min;
         _max = max;
+        _status = status;
+        _severity = severity;
     }
+
     @Nonnull
     protected ArchiveChannelId getChannelId() {
         return _channelId;
     }
+
     @Nonnull
     public TimeInstant getTimestamp() {
         return _timestamp;
     }
+
     @Nonnull
     public Double getAvg() {
         return _avg;
     }
+
     @Nonnull
     public Double getMin() {
         return _min;
     }
+
     @Nonnull
     public Double getMax() {
         return _max;
+    }
+
+    @Nonnull
+    public EpicsAlarmSeverity getSeverity() {
+        return _severity;
+    }
+
+    @Nonnull
+    public EpicsAlarmStatus getStatus() {
+        return _status;
     }
 }

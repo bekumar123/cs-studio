@@ -40,7 +40,7 @@ import org.csstudio.archive.common.service.enginestatus.IArchiveEngineStatus;
 import org.csstudio.archive.common.service.sample.IArchiveSample;
 import org.csstudio.domain.common.service.DeleteResult;
 import org.csstudio.domain.common.service.UpdateResult;
-import org.csstudio.domain.desy.system.ISystemVariable;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 
 /**
@@ -113,7 +113,7 @@ public interface IArchiveEngineFacade {
      * @return true, if the samples have been persisted
      * @throws ArchiveServiceException
      */
-    <V extends Serializable, T extends ISystemVariable<V>>
+    <V extends Serializable, T extends IAlarmSystemVariable<V>>
     boolean writeSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples)
                          throws ArchiveServiceException;
 

@@ -25,6 +25,8 @@ import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSample
 import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_CHANNEL_ID;
 import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_MAX;
 import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_MIN;
+import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_SEVERITY;
+import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_STATUS;
 import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_TIME;
 
 import java.sql.PreparedStatement;
@@ -37,6 +39,7 @@ import javax.annotation.Nonnull;
 
 import org.csstudio.archive.common.service.mysqlimpl.batch.BatchQueueHandlerSupport;
 import org.csstudio.archive.common.service.mysqlimpl.dao.ArchiveDaoException;
+import org.csstudio.archive.common.service.util.ArchiveTypeConversionSupport;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -50,7 +53,7 @@ import com.google.common.collect.Collections2;
  * @param <T> the type of the entity used to fill the statement's batch
  */
 public abstract class AbstractReducedDataSampleBatchQueueHandler<T extends AbstractReducedDataSample> extends BatchQueueHandlerSupport<T> {
-    protected static final String VALUES_WILDCARD = "(?, ?, ?, ?, ?)";
+    protected static final String VALUES_WILDCARD = "(?, ?, ?, ?, ?, ?, ?)";
 
     /**
      * Constructor.
@@ -66,7 +69,7 @@ public abstract class AbstractReducedDataSampleBatchQueueHandler<T extends Abstr
                                                      @Nonnull final String table) {
         final String sql =
             "INSERT IGNORE INTO " + database + "." + table +
-            " (" + Joiner.on(",").join(COLUMN_CHANNEL_ID, COLUMN_TIME, COLUMN_AVG, COLUMN_MIN, COLUMN_MAX) +
+            " (" + Joiner.on(",").join(COLUMN_CHANNEL_ID, COLUMN_TIME, COLUMN_AVG, COLUMN_MIN, COLUMN_MAX, COLUMN_STATUS, COLUMN_SEVERITY) +
             ") VALUES " + VALUES_WILDCARD;
         return sql;
     }
@@ -85,6 +88,9 @@ public abstract class AbstractReducedDataSampleBatchQueueHandler<T extends Abstr
         stmt.setDouble(3, element.getAvg());
         stmt.setDouble(4, element.getMin());
         stmt.setDouble(5, element.getMax());
+
+        stmt.setString(6, ArchiveTypeConversionSupport.toSeverityArchiveString(element.getSeverity()));
+        stmt.setString(7, element.getStatus().name());
     }
 
     /**

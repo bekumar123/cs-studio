@@ -37,7 +37,6 @@ import org.csstudio.domain.desy.epics.types.EpicsSystemVariable;
 import org.csstudio.domain.desy.system.ControlSystem;
 import org.csstudio.domain.desy.system.ControlSystemType;
 import org.csstudio.domain.desy.system.IAlarmSystemVariable;
-import org.csstudio.domain.desy.system.ISystemVariable;
 import org.csstudio.domain.desy.system.SystemVariableSupport;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
@@ -132,7 +131,7 @@ public abstract class EpicsSystemVariableSupport<T> extends SystemVariableSuppor
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     @Nonnull
-    protected ISystemVariable<T> createVariable(@Nonnull final String name,
+    protected IAlarmSystemVariable<T> createVariable(@Nonnull final String name,
                                                 @Nonnull final T value,
                                                 @Nonnull final ControlSystem system,
                                                 @Nonnull final TimeInstant timestamp,

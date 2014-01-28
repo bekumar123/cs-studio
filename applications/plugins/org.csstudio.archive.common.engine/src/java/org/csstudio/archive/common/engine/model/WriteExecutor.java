@@ -19,7 +19,7 @@ import javax.annotation.Nonnull;
 
 import org.csstudio.archive.common.engine.service.IServiceProvider;
 import org.csstudio.archive.common.service.engine.ArchiveEngineId;
-import org.csstudio.domain.desy.system.ISystemVariable;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class WriteExecutor {
     private static final long MIN_WRITE_PERIOD_MS = 2000;
 
 
-    private final Collection<ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> _channelsView;
+    private final Collection<ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>> _channelsView;
 
     private final ScheduledExecutorService _heartBeatExecutor =
         Executors.newSingleThreadScheduledExecutor();
@@ -64,7 +64,7 @@ public class WriteExecutor {
      */
     public WriteExecutor(@Nonnull final IServiceProvider provider,
                          @Nonnull final ArchiveEngineId engineId,
-                         @Nonnull final Collection<ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> collection) {
+                         @Nonnull final Collection<ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>> collection) {
         _provider = provider;
         _engineId = engineId;
         _channelsView = collection;

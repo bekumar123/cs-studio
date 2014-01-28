@@ -38,7 +38,7 @@ import org.csstudio.archive.common.service.mysqlimpl.dao.ArchiveDaoException;
 import org.csstudio.archive.common.service.mysqlimpl.requesttypes.DesyArchiveRequestType;
 import org.csstudio.archive.common.service.sample.ArchiveMultiScalarSample;
 import org.csstudio.archive.common.service.sample.IArchiveSample;
-import org.csstudio.domain.desy.system.ISystemVariable;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -82,7 +82,7 @@ public class CollectionDataBatchQueueHandlerUnitTest extends AbstractDaoTestSetu
             Assert.fail();
         }
 
-        final Collection<IArchiveSample<Serializable, ISystemVariable<Serializable>>> samples =
+        final Collection<IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>>> samples =
             SAMPLE_DAO.retrieveSamples(DesyArchiveRequestType.RAW,
                                        CHANNEL_ID_5TH,
                                        START.minusMillis(1L),
@@ -90,7 +90,7 @@ public class CollectionDataBatchQueueHandlerUnitTest extends AbstractDaoTestSetu
 
 
         Assert.assertTrue(samples.size() == 1);
-        final IArchiveSample<Serializable, ISystemVariable<Serializable>> sample =
+        final IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>> sample =
             samples.iterator().next();
         Assert.assertTrue(sample.getValue() instanceof ArrayList);
 

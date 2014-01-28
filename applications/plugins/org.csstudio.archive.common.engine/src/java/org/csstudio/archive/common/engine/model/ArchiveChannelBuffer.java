@@ -40,7 +40,7 @@ import org.csstudio.domain.desy.epics.alarm.EpicsAlarmStatus;
 import org.csstudio.domain.desy.epics.types.EpicsSystemVariable;
 import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
 import org.csstudio.domain.desy.system.ControlSystem;
-import org.csstudio.domain.desy.system.ISystemVariable;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
 import org.csstudio.domain.desy.typesupport.TypeSupportException;
@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  *  @param <T> the system variable for the basic value type
  */
 @SuppressWarnings("nls")
-public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVariable<V>> {
+public class ArchiveChannelBuffer<V extends Serializable, T extends IAlarmSystemVariable<V>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArchiveChannelBuffer.class);
 
@@ -283,9 +283,9 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
 
                 ArchiveSample<V, T> sample;
                 if (type.isSequenceType()) {
-                    sample = new ArchiveMultiScalarSample(_id, systemVariable, alarm);
+                    sample = new ArchiveMultiScalarSample(_id, systemVariable);
                 } else {
-                    sample = new ArchiveSample(_id, systemVariable, alarm);
+                    sample = new ArchiveSample(_id, systemVariable);
                 }
 
                 // add sample to buffer

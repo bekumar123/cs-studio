@@ -23,13 +23,13 @@ package org.csstudio.archive.common.service.sample;
 
 import java.io.Serializable;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import org.csstudio.archive.common.service.channel.ArchiveChannelId;
-import org.csstudio.domain.desy.alarm.IAlarm;
-import org.csstudio.domain.desy.system.ISystemVariable;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarm;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarmSeverity;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarmStatus;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,31 +41,35 @@ import org.slf4j.LoggerFactory;
  * @param <V> the data value type
  * @param <T> the css value type with alarm information
  */
-public class ArchiveSample<V extends Serializable,
-                           T extends ISystemVariable<V>>
-                          implements IArchiveSample<V, T> {
+public class ArchiveSample<V extends Serializable, T extends IAlarmSystemVariable<V>> implements IArchiveSample<V, T> {
 
     private static final long serialVersionUID = -2244316283884247177L;
     private static final Logger LOG = LoggerFactory.getLogger(ArchiveSample.class);
 
     private final ArchiveChannelId _channelId;
     private final T _sysVar;
-    private final IAlarm _alarm;
+    private final EpicsAlarmStatus _status;
+    private final EpicsAlarmSeverity _severity;
 
     /**
      * Constructor.
+     * @param status
+     * @param severity
      */
     public ArchiveSample(@Nonnull final ArchiveChannelId channelId,
-                         @Nonnull final T sysVar,
-                         @Nullable final IAlarm alarm) {
+                         @Nonnull final T sysVar) {
         if (sysVar.getTimestamp().getNanos() <= 0L) {
             LOG.error("Timestamp for sample of channel {} is <= 0! Invalid for archive samples.", sysVar.getName());
             throw new IllegalStateException("Invalid sample timestamp");
         }
 
         _channelId = channelId;
+
         _sysVar = sysVar;
-        _alarm = alarm;
+
+        final EpicsAlarm alarm = (EpicsAlarm) sysVar.getAlarm();
+        _status = alarm.getStatus();
+        _severity = alarm.getSeverity();
     }
 
     /**
@@ -95,8 +99,15 @@ public class ArchiveSample<V extends Serializable,
         return _sysVar;
     }
 
-    @CheckForNull
-    public IAlarm getAlarm() {
-        return _alarm;
+    @Override
+    @Nonnull
+    public EpicsAlarmStatus getStatus() {
+        return _status;
+    }
+
+    @Override
+    @Nonnull
+    public EpicsAlarmSeverity getSeverity() {
+        return _severity;
     }
 }

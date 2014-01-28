@@ -22,6 +22,8 @@
 package org.csstudio.archive.common.service.mysqlimpl.sample;
 
 import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_CHANNEL_ID;
+import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_SEVERITY;
+import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_STATUS;
 import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_TIME;
 import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_VALUE;
 import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.TAB_SAMPLE;
@@ -39,6 +41,8 @@ import org.csstudio.archive.common.service.mysqlimpl.batch.BatchQueueHandlerSupp
 import org.csstudio.archive.common.service.mysqlimpl.dao.ArchiveDaoException;
 import org.csstudio.archive.common.service.sample.ArchiveSample;
 import org.csstudio.archive.common.service.util.ArchiveTypeConversionSupport;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarmSeverity;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarmStatus;
 import org.csstudio.domain.desy.typesupport.TypeSupportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +64,7 @@ public class ArchiveSampleBatchQueueHandler extends BatchQueueHandlerSupport<Arc
 
     static final Logger LOG = LoggerFactory.getLogger(ArchiveSampleBatchQueueHandler.class);
 
-    private static final String VALUES_WILDCARD = "(?, ?, ?)";
+    private static final String VALUES_WILDCARD = "(?, ?, ?, ?, ?)";
 
     /**
      * Constructor.
@@ -75,7 +79,7 @@ public class ArchiveSampleBatchQueueHandler extends BatchQueueHandlerSupport<Arc
     @Nonnull
     private static String createSqlStatement(@Nonnull final String databaseName) {
         return "INSERT IGNORE INTO " + databaseName + "." + TAB_SAMPLE + " " +
-                "(" + Joiner.on(",").join(COLUMN_CHANNEL_ID, COLUMN_TIME, COLUMN_VALUE)+ ") " +
+                "(" + Joiner.on(",").join(COLUMN_CHANNEL_ID, COLUMN_TIME, COLUMN_VALUE, COLUMN_SEVERITY, COLUMN_STATUS)+ ") " +
                 "VALUES " + VALUES_WILDCARD;
     }
 
@@ -92,6 +96,8 @@ public class ArchiveSampleBatchQueueHandler extends BatchQueueHandlerSupport<Arc
         try {
             final String archiveString = ArchiveTypeConversionSupport.toArchiveString(type.getValue());
             stmt.setString(3, archiveString);
+            stmt.setString(4, ArchiveTypeConversionSupport.toSeverityArchiveString(type.getSeverity()));
+            stmt.setString(5, type.getStatus().name());
         } catch (final TypeSupportException e) {
             throw new ArchiveDaoException("No type support found for " + type.getValue().getClass().getName(), e);
         }
@@ -115,11 +121,17 @@ public class ArchiveSampleBatchQueueHandler extends BatchQueueHandlerSupport<Arc
                                        @CheckForNull
                                        public String apply(@Nonnull final ArchiveSample input) {
                                            try {
+
+                                               final EpicsAlarmStatus status = input.getStatus();
+                                               final EpicsAlarmSeverity severity = input.getSeverity();
+
                                                final String value =
                                                    "(" +
                                                    Joiner.on(",").join(input.getChannelId().asString(),
                                                                        input.getSystemVariable().getTimestamp().getNanos(),
-                                                                       "'" + ArchiveTypeConversionSupport.toArchiveString(input.getValue()) + "'") +
+                                                                       "'" + ArchiveTypeConversionSupport.toArchiveString(input.getValue()) + "'",
+                                                                       ArchiveTypeConversionSupport.toSeverityArchiveString(severity),
+                                                                       status.name()) +
                                                    ")";
                                                return value;
                                            } catch (final TypeSupportException e) {

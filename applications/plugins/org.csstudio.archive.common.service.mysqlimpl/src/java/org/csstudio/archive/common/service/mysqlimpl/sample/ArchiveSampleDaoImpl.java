@@ -51,8 +51,12 @@ import org.csstudio.archive.common.service.sample.IArchiveSample;
 import org.csstudio.archive.common.service.sample.SampleMinMaxAggregator;
 import org.csstudio.archive.common.service.util.ArchiveTypeConversionSupport;
 import org.csstudio.domain.desy.alarm.IAlarm;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarm;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarmSeverity;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarmStatus;
 import org.csstudio.domain.desy.epics.typesupport.EpicsSystemVariableSupport;
 import org.csstudio.domain.desy.system.ControlSystem;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.system.ISystemVariable;
 import org.csstudio.domain.desy.system.SystemVariableSupport;
 import org.csstudio.domain.desy.time.TimeInstant;
@@ -88,12 +92,14 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
     public static final String COLUMN_AVG = "avg_val";
     public static final String COLUMN_MIN = "min_val";
     public static final String COLUMN_MAX = "max_val";
+    public static final String COLUMN_SEVERITY = "serverty";
+    public static final String COLUMN_STATUS = "status";
 
     private static final String ARCH_TABLE_PLACEHOLDER = "<arch.table>";
     private static final String RETRIEVAL_FAILED = "Sample retrieval from archive failed.";
 
     private static final String SELECT_RAW_PREFIX =
-        "SELECT " + Joiner.on(",").join(COLUMN_CHANNEL_ID, COLUMN_TIME, COLUMN_VALUE) + " ";
+        "SELECT " + Joiner.on(",").join(COLUMN_CHANNEL_ID, COLUMN_TIME, COLUMN_VALUE, COLUMN_STATUS, COLUMN_SEVERITY) + " ";
     private final String _selectRawSamplesStmt =
         SELECT_RAW_PREFIX +
         "FROM " + getDatabaseName() + "." + ARCH_TABLE_PLACEHOLDER + " WHERE " + COLUMN_CHANNEL_ID + "=? " +
@@ -138,11 +144,10 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
      * {@inheritDoc}
      */
     @Override
-    public <V extends Serializable, T extends ISystemVariable<V>>
+    public <V extends Serializable, T extends IAlarmSystemVariable<V>>
     void createSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveDaoException {
 
         try {
-            final IAlarm alarm = ((ArchiveSample)samples.iterator().next()).getAlarm();
             getEngineMgr().submitToBatch(samples);
 
             final List<? extends AbstractReducedDataSample> minuteSamples =
@@ -180,14 +185,13 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             final Double minValue = sample.getMin();
             final Double maxValue = sample.getMax();
             final TimeInstant time = sample.getTimestamp();
+            final EpicsAlarmStatus status = sample.getStatus();
+            final EpicsAlarmSeverity severity = sample.getSeverity();
 
-            final SampleMinMaxAggregator agg = retrieveAndInitializeAggregator(channelId,
-                                                                               aggregatorMap,
-                                                                               newValue,
-                                                                               minValue,
-                                                                               maxValue,
-                                                                               time);
-            processHourSampleOnTimeCondition(hourSamples, channelId, newValue, time, agg);
+            final SampleMinMaxAggregator aggregator = retrieveAggregator(channelId, aggregatorMap);
+            aggregator.aggregate(newValue, minValue, maxValue, status, severity, time);
+
+            processHourSampleOnTimeCondition(hourSamples, channelId, newValue, time, aggregator);
         }
         return hourSamples;
     }
@@ -201,8 +205,10 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             final Double avg = agg.getAvg();
             final Double min = agg.getMin();
             final Double max = agg.getMax();
+            final EpicsAlarmStatus status = agg.getStatus();
+            final EpicsAlarmSeverity severity = agg.getSeverity();
             if (avg != null && min != null && max != null) {
-                hourSamples.add(new HourReducedDataSample(channelId, time, avg, min, max));
+                hourSamples.add(new HourReducedDataSample(channelId, time, avg, min, max, status, severity));
             }
             agg.reset();
         }
@@ -232,14 +238,13 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                 final Double minValue = newValue;
                 final Double maxValue = newValue;
                 final TimeInstant time = sample.getSystemVariable().getTimestamp();
+                final EpicsAlarmStatus status = sample.getStatus();
+                final EpicsAlarmSeverity severity = sample.getSeverity();
 
-                final SampleMinMaxAggregator agg = retrieveAndInitializeAggregator(channelId,
-                                                                                   aggregatorMap,
-                                                                                   newValue,
-                                                                                   minValue,
-                                                                                   maxValue,
-                                                                                   time);
-                processMinuteSampleOnTimeCondition(minuteSamples, newValue, channelId, time, agg);
+                final SampleMinMaxAggregator aggregator = retrieveAggregator(channelId, aggregatorMap);
+                aggregator.aggregate(newValue, minValue, maxValue, status, severity, time);
+
+                processMinuteSampleOnTimeCondition(minuteSamples, newValue, channelId, time, aggregator);
             }
         }
         return minuteSamples;
@@ -255,29 +260,29 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             final Double avg = agg.getAvg();
             final Double min = agg.getMin();
             final Double max = agg.getMax();
+            final EpicsAlarmStatus status = agg.getStatus();
+            final EpicsAlarmSeverity severity = agg.getSeverity();
             if (avg != null && min != null && max != null) {
-                minuteSamples.add(new MinuteReducedDataSample(channelId, time, avg, min, max));
+                minuteSamples.add(new MinuteReducedDataSample(channelId, time, avg, min, max, status, severity));
             }
             agg.reset();
         }
     }
 
-    @Nonnull
-    private SampleMinMaxAggregator retrieveAndInitializeAggregator(@Nonnull final ArchiveChannelId channelId,
-                                                                   @Nonnull final ConcurrentMap<ArchiveChannelId, SampleMinMaxAggregator> aggMap,
-                                                                   @Nonnull final Double value,
-                                                                   @Nonnull final Double min,
-                                                                   @Nonnull final Double max,
-                                                                   @Nonnull final TimeInstant time) throws ArchiveDaoException {
-
-
+    /**
+     * @param channelId
+     * @param aggMap
+     * @return
+     * @throws ArchiveDaoException
+     */
+    private SampleMinMaxAggregator retrieveAggregator(final ArchiveChannelId channelId,
+                                                      final ConcurrentMap<ArchiveChannelId, SampleMinMaxAggregator> aggMap) throws ArchiveDaoException {
         SampleMinMaxAggregator aggregator = aggMap.get(channelId);
         if (aggregator == null) {
             aggregator = new SampleMinMaxAggregator();
             aggMap.put(channelId, aggregator);
             initAggregatorToLastKnownSample(channelId, aggregator);
         }
-        aggregator.aggregate(value, min, max, time);
         return aggregator;
     }
 
@@ -288,14 +293,17 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             throw new ArchiveDaoException("Init sample aggregator failed. Channel with id " + channelId.intValue() +
                                           " does not exist.", null);
         }
-        final IArchiveSample<Serializable, ISystemVariable<Serializable>> sample =
+        final IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>> sample =
             retrieveLatestSample(channels.iterator().next());
         if (sample != null) {
             final Double lastWrittenValue =
                 BaseTypeConversionSupport.createDoubleFromValueOrNull(sample.getSystemVariable());
             if (lastWrittenValue != null) {
                 final TimeInstant lastWriteTime = sample.getSystemVariable().getTimestamp();
-                aggregator.aggregate(lastWrittenValue, lastWriteTime);
+                final EpicsAlarmStatus status = sample.getStatus();
+                final EpicsAlarmSeverity severity = sample.getSeverity();
+
+                aggregator.aggregate(lastWrittenValue, status, severity, lastWriteTime);
             }
         }
     }
@@ -325,7 +333,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
      */
     @Override
     @Nonnull
-    public <V extends Serializable, T extends ISystemVariable<V>>
+    public <V extends Serializable, T extends IAlarmSystemVariable<V>>
     Collection<IArchiveSample<V, T>> retrieveSamples(@Nullable final DesyArchiveRequestType type,
                                                      @Nonnull final ArchiveChannelId channelId,
                                                      @Nonnull final TimeInstant start,
@@ -342,7 +350,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
      */
     @Override
     @Nonnull
-    public <V extends Serializable, T extends ISystemVariable<V>>
+    public <V extends Serializable, T extends IAlarmSystemVariable<V>>
     Collection<IArchiveSample<V, T>> retrieveSamples(@Nullable final DesyArchiveRequestType type,
                                                      @Nonnull final IArchiveChannel channel,
                                                      @Nonnull final TimeInstant start,
@@ -376,7 +384,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
     }
 
     @Nonnull
-    private <V extends Serializable, T extends ISystemVariable<V>>
+    private <V extends Serializable, T extends IAlarmSystemVariable<V>>
     Collection<IArchiveSample<V, T>> createRetrievedSamplesContainer(@Nonnull final IArchiveChannel channel,
                                                                      @Nonnull final DesyArchiveRequestType reqType,
                                                                      @CheckForNull final ResultSet result)
@@ -439,7 +447,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
 
     @SuppressWarnings("unchecked")
     @Nonnull
-    private <V extends Serializable, T extends ISystemVariable<V>>
+    private <V extends Serializable, T extends IAlarmSystemVariable<V>>
     IArchiveSample<V, T> createSampleFromQueryResult(@Nonnull final DesyArchiveRequestType type,
                                                      @Nonnull final IArchiveChannel channel,
                                                      @Nonnull final ResultSet result) throws SQLException,
@@ -450,12 +458,14 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         V value = null;
         V min = null;
         V max = null;
+
         switch (type) {
             case RAW : { // (..., value)
                 if (ArchiveTypeConversionSupport.isDataTypeSerializableCollection(typeClass)) {
                     value = ArchiveTypeConversionSupport.fromByteArray(result.getBytes(COLUMN_VALUE));
                 } else {
                     value = ArchiveTypeConversionSupport.fromArchiveString(typeClass, result.getString(COLUMN_VALUE));
+
                 }
                 break;
             }
@@ -472,14 +482,18 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         final long time = result.getLong(COLUMN_TIME);
         final TimeInstant timeInstant = TimeInstantBuilder.fromNanos(time);
         final IArchiveControlSystem cs = channel.getControlSystem();
-        final ISystemVariable<V> sysVar = SystemVariableSupport.create(channel.getName(),
-                                                                       value,
-                                                                       ControlSystem.valueOf(cs.getName(), cs.getType()),
-                                                                       timeInstant);
+
+        final EpicsAlarmSeverity severity = ArchiveTypeConversionSupport.fromSeverityArchiveString(result.getString(COLUMN_SEVERITY));
+        final EpicsAlarmStatus status = EpicsAlarmStatus.parseStatus(result.getString(COLUMN_STATUS));
+        final IAlarm alarm = new EpicsAlarm(severity, status);
+        final IAlarmSystemVariable<V> sysVar = SystemVariableSupport.create(channel.getName(),
+                                                                            value,
+                                                                            ControlSystem.valueOf(cs.getName(), cs.getType()),
+                                                                            timeInstant, alarm);
         if (min == null || max == null) {
-            return new ArchiveSample<V, T>(channel.getId(), (T) sysVar, null);
+            return new ArchiveSample<V, T>(channel.getId(), (T) sysVar);
         }
-        return new ArchiveMinMaxSample<V, T>(channel.getId(), (T) sysVar, null, min, max);
+        return new ArchiveMinMaxSample<V, T>(channel.getId(), (T) sysVar, min, max);
     }
 
     @SuppressWarnings("unchecked")
@@ -498,7 +512,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
      */
     @Override
     @CheckForNull
-    public <V extends Serializable, T extends ISystemVariable<V>>
+    public <V extends Serializable, T extends IAlarmSystemVariable<V>>
     IArchiveSample<V, T> retrieveLatestSample(@Nonnull final IArchiveChannel channel)
                                               throws ArchiveDaoException {
         final TimeInstant latestTimestamp = channel.getLatestTimestamp();
@@ -517,7 +531,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
      */
     @Override
     @CheckForNull
-    public <V extends Serializable, T extends ISystemVariable<V>>
+    public <V extends Serializable, T extends IAlarmSystemVariable<V>>
     IArchiveSample<V, T> retrieveLatestSampleBeforeTime(@Nonnull final IArchiveChannel channel,
                                                         @Nonnull final TimeInstant time) throws ArchiveDaoException {
         final TimeInstant latestTimestamp = channel.getLatestTimestamp();

@@ -25,6 +25,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 import org.csstudio.domain.desy.calc.CumulativeAverageCache;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarmSeverity;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarmStatus;
 import org.csstudio.domain.desy.time.TimeInstant;
 
 import com.google.common.collect.Ordering;
@@ -47,6 +49,8 @@ public class SampleMinMaxAggregator {
     private TimeInstant _lastSampleTimeStamp;
     private TimeInstant _resetTimeStamp;
 
+    private EpicsAlarmStatus _status;
+    private EpicsAlarmSeverity _severity;
 
     /**
      * Constructor.
@@ -80,17 +84,26 @@ public class SampleMinMaxAggregator {
     }
 
     public void aggregate(@Nonnull final Double newVal,
+                          final EpicsAlarmStatus status,
+                          final EpicsAlarmSeverity severity,
                           @Nonnull final TimeInstant timestamp) {
-        aggregate(newVal, newVal, newVal, timestamp);
+        aggregate(newVal, newVal, newVal, status, severity, timestamp);
     }
 
     public synchronized void aggregate(@Nonnull final Double newVal,
                                        @Nonnull final Double min,
                                        @Nonnull final Double max,
+                                       final EpicsAlarmStatus status,
+                                       final EpicsAlarmSeverity severity,
                                        @Nonnull final TimeInstant timestamp) {
         _avg.accumulate(newVal);
         _minVal = Ordering.natural().nullsLast().min(newVal, min, max, _minVal);
         _maxVal = Ordering.natural().nullsFirst().max(newVal, min, max, _maxVal);
+
+        // first simple approach: archive last value of status and severity
+        _status = status;
+        _severity = severity;
+
         _lastSampleTimeStamp = timestamp;
     }
 
@@ -107,7 +120,8 @@ public class SampleMinMaxAggregator {
         _lastAvgBeforeReset = _avg.readValue();
         _minVal = null;
         _maxVal = null;
-
+        _status = null;
+        _severity = null;
         _avg.clear();
     }
     @CheckForNull
@@ -121,6 +135,12 @@ public class SampleMinMaxAggregator {
     @CheckForNull
     public synchronized Double getMax() {
         return _maxVal;
+    }
+    public EpicsAlarmStatus getStatus() {
+        return _status;
+    }
+    public EpicsAlarmSeverity getSeverity() {
+        return _severity;
     }
     @CheckForNull
     public synchronized Double getAverageBeforeReset() {

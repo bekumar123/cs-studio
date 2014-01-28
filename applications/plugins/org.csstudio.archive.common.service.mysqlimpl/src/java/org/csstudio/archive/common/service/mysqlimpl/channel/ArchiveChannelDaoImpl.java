@@ -102,19 +102,18 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
         "SELECT " + TAB + ".id, " + TAB + ".name, " + TAB + ".datatype, " + TAB + ".group_id, " + LST_TAB + ".time, " +
                     TAB + ".enabled, " + TAB + ".display_high, " + TAB + ".display_low, " +
                  CS_TAB + ".id, " + CS_TAB + ".name, " + CS_TAB + ".type " +
-                "FROM " + getDatabaseName() + "." + TAB + ", " +
-                          getDatabaseName() + "." + CS_TAB + ", " +
-                          getDatabaseName() + "." + LST_TAB;
-    private final String _selectChannelSuffix = " AND " + TAB + ".control_system_id=" + CS_TAB + ".id" +
-                                                " AND " + TAB + ".id=" + LST_TAB + ".channel_id";
+                " FROM " + getDatabaseName() + "." + TAB + " " + TAB + " " +
+                " JOIN " + getDatabaseName() + "." + CS_TAB + " ON " + TAB + ".control_system_id=" + CS_TAB + ".id" +
+                " LEFT JOIN " + getDatabaseName() + "." + LST_TAB + " ON " + TAB + ".id=" + LST_TAB + ".channel_id";
+
 
     // FIXME (bknerr) : refactor into CRUD command objects with cmd factories
     // TODO (bknerr) : parameterize the database schema name via dao call
-    private final String _selectChannelByNamesStmt = _selectChannelPrefix + " WHERE " + TAB + ".name in " + WHERE_SET_PLACEHOLDER + _selectChannelSuffix;
-    private final String _selectChannelsByIdsStmt =   _selectChannelPrefix + " WHERE " + TAB + ".id in " + WHERE_SET_PLACEHOLDER + _selectChannelSuffix;
-    private final String _selectChannelsByGroupIdStmt = _selectChannelPrefix + " WHERE " + TAB + ".group_id=? " + _selectChannelSuffix +
+    private final String _selectChannelByNamesStmt = _selectChannelPrefix + " WHERE " + TAB + ".name in " + WHERE_SET_PLACEHOLDER;
+    private final String _selectChannelsByIdsStmt =   _selectChannelPrefix + " WHERE " + TAB + ".id in " + WHERE_SET_PLACEHOLDER;
+    private final String _selectChannelsByGroupIdStmt = _selectChannelPrefix + " WHERE " + TAB + ".group_id=? " +
                                                     " ORDER BY " + TAB + ".name";
-    private final String _selectMatchingChannelsStmt = _selectChannelPrefix + " WHERE " + TAB + ".name REGEXP ? " + _selectChannelSuffix;
+    private final String _selectMatchingChannelsStmt = _selectChannelPrefix + " WHERE " + TAB + ".name REGEXP ? ";
 
     private final String _createChannelsStmt = "INSERT INTO " + getDatabaseName() + "." + TAB +
                                                " (name, datatype, group_id, control_system_id, enabled, display_high, display_low)" +

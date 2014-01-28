@@ -8,6 +8,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-ExtensibleAPI: true
 Import-Package: org.csstudio.domain.desy.epics.alarm,
+ org.csstudio.domain.desy.epics.types,
  org.osgi.framework;version="1.3.0"
 Require-Bundle: org.csstudio.servicelocator;bundle-version="1.0.0",
  org.csstudio.dal2;bundle-version="1.0.0",

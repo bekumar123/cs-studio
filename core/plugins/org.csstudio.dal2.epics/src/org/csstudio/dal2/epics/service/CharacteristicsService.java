@@ -58,71 +58,84 @@ public class CharacteristicsService {
 
 	// TODO dal2 extract interface, add tests
 
-	/** Seconds of epoch start since UTC time start. 
-	 * <p><i> taken from {@link org.csstudio.dal.epics.PlugUtilities}*/
+	/**
+	 * Seconds of epoch start since UTC time start.
+	 * <p>
+	 * <i> taken from {@link org.csstudio.dal.epics.PlugUtilities}
+	 */
 	public static long TS_EPOCH_SEC_PAST_1970 = 7305 * 86400;
-	
-	public Characteristics newCharacteristics(final DBR dbr, final String hostname) {
+
+	public Characteristics newCharacteristics(final DBR dbr,
+			final String hostname) {
 
 		Characteristics.Builder builder = new Characteristics.Builder();
 
 		builder.set(Characteristic.HOSTNAME, hostname);
-		
+
 		if (dbr instanceof STS) {
 			STS dbr_sts = (STS) dbr;
-			builder .set(SEVERITY, EpicsAlarmSeverity.valueOf(dbr_sts.getSeverity()))
-					.set(STATUS, EpicsAlarmStatus.valueOf(dbr_sts.getStatus()));
-			
-			if (dbr instanceof TIME) {
-				TIME dbr_time = (TIME)dbr;
+			builder.set(SEVERITY,
+					EpicsAlarmSeverity.valueOf(dbr_sts.getSeverity())).set(
+					STATUS, EpicsAlarmStatus.valueOf(dbr_sts.getStatus()));
 
-				TimeStamp timeStamp = dbr_time.getTimeStamp();
-				if (timeStamp != null) {
-					builder.set(Characteristic.TIMESTAMP, convertTimestamp(timeStamp));
-				} else {
-					builder.set(Characteristic.TIMESTAMP, new Timestamp());
-				}
-			
-				if (dbr instanceof GR) {
-					GR dbr_gr = (GR) dbr;
-					builder	.set(GRAPH_MAX, dbr_gr.getUpperDispLimit().doubleValue())
-							.set(GRAPH_MIN, dbr_gr.getLowerDispLimit().doubleValue())
-							.set(ALARM_MAX, dbr_gr.getUpperAlarmLimit().doubleValue())
-							.set(ALARM_MIN, dbr_gr.getLowerAlarmLimit().doubleValue())
-							.set(WARNING_MAX, dbr_gr.getUpperWarningLimit().doubleValue())
-							.set(WARNING_MIN, dbr_gr.getLowerWarningLimit().doubleValue());
-		
-					if (dbr instanceof CTRL) {
-						CTRL dbr_ctrl = (CTRL) dbr;
-						builder	.set(MAXIMUM, dbr_ctrl.getUpperCtrlLimit().doubleValue())
-								.set(MINIMUM, dbr_ctrl.getLowerCtrlLimit().doubleValue());
-					}
+			if (dbr instanceof GR) {
+				GR dbr_gr = (GR) dbr;
+				builder.set(GRAPH_MAX, dbr_gr.getUpperDispLimit().doubleValue())
+						.set(GRAPH_MIN,
+								dbr_gr.getLowerDispLimit().doubleValue())
+						.set(ALARM_MAX,
+								dbr_gr.getUpperAlarmLimit().doubleValue())
+						.set(ALARM_MIN,
+								dbr_gr.getLowerAlarmLimit().doubleValue())
+						.set(WARNING_MAX,
+								dbr_gr.getUpperWarningLimit().doubleValue())
+						.set(WARNING_MIN,
+								dbr_gr.getLowerWarningLimit().doubleValue());
+
+				if (dbr instanceof CTRL) {
+					CTRL dbr_ctrl = (CTRL) dbr;
+					builder.set(MAXIMUM,
+							dbr_ctrl.getUpperCtrlLimit().doubleValue())
+							.set(MINIMUM,
+									dbr_ctrl.getLowerCtrlLimit().doubleValue());
 				}
 			}
 		}
+
+		TimeStamp timeStamp = null;
+		if (dbr instanceof TIME) {
+			TIME dbr_time = (TIME) dbr;
+			timeStamp = dbr_time.getTimeStamp();
+		}
 		
+		if (timeStamp != null) {
+			builder.set(Characteristic.TIMESTAMP,
+					convertTimestamp(timeStamp));
+		} else {
+			builder.set(Characteristic.TIMESTAMP, new Timestamp());
+		}
+
 		if (dbr instanceof LABELS) {
 			LABELS dbr_labels = (LABELS) dbr;
 			builder.set(LABELS, dbr_labels.getLabels());
 		}
-
-		// TODO weitere ergänzen ...
 
 		return builder.build();
 	}
 
 	/**
 	 * Converts CA timestamp to DAL timestamp.
-	 *
-	 * @param ts CA timestamp
-	 *
+	 * 
+	 * @param ts
+	 *            CA timestamp
+	 * 
 	 * @return DAL timestamp
 	 * 
-	 * taken from {@link org.csstudio.dal.epics.PlugUtilities}
+	 *         taken from {@link org.csstudio.dal.epics.PlugUtilities}
 	 */
-	private static Timestamp convertTimestamp(final TimeStamp ts)
-	{
-		return new Timestamp((ts.secPastEpoch() + TS_EPOCH_SEC_PAST_1970) * 1000, ts.nsec());
+	private static Timestamp convertTimestamp(final TimeStamp ts) {
+		return new Timestamp(
+				(ts.secPastEpoch() + TS_EPOCH_SEC_PAST_1970) * 1000, ts.nsec());
 	}
 
 }

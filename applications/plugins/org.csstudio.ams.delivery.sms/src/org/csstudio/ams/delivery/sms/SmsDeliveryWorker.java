@@ -29,6 +29,7 @@ import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.MessageListener;
+
 import org.csstudio.ams.AmsActivator;
 import org.csstudio.ams.AmsConstants;
 import org.csstudio.ams.delivery.AbstractDeliveryWorker;
@@ -45,6 +46,7 @@ import org.csstudio.ams.delivery.util.jms.JmsProperties;
 import org.csstudio.ams.delivery.util.jms.JmsSender;
 import org.csstudio.ams.internal.AmsPreferenceKey;
 import org.csstudio.platform.utility.jms.JmsSimpleProducer;
+import org.csstudio.utility.jms.JmsTool;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.slf4j.Logger;
@@ -338,7 +340,7 @@ public class SmsDeliveryWorker extends AbstractDeliveryWorker implements Message
                                                      null);
 
             // Create the redundant receiver
-            amsConsumer = new JmsAsyncConsumer("SmsConnectorWorkReceiverInternal",
+            amsConsumer = new JmsAsyncConsumer(JmsTool.createUniqueClientId("SmsConnectorWorkReceiverInternal"),
                                                prefs.getString(AmsActivator.PLUGIN_ID,
                                                                AmsPreferenceKey.P_JMS_AMS_PROVIDER_URL_1,
                                                                "failover:(tcp://localhost:62616)",
@@ -401,7 +403,7 @@ public class SmsDeliveryWorker extends AbstractDeliveryWorker implements Message
         } catch(final Exception e) {
             LOG.error("Could not init internal Jms", e);
 
-            JmsSender sender = new JmsSender("SmsConnectorAlarmSender",
+            JmsSender sender = new JmsSender(JmsTool.createUniqueClientId("SmsConnectorAlarmSender"),
                                              prefs.getString(AmsActivator.PLUGIN_ID,
                                                              AmsPreferenceKey.P_JMS_AMS_SENDER_PROVIDER_URL,
                                                              "failover:(tcp://localhost:62616,tcp://localhost:64616)",

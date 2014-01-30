@@ -30,6 +30,7 @@ import org.csstudio.ams.delivery.AbstractDeliveryWorker;
 import org.csstudio.ams.delivery.message.BaseAlarmMessage.State;
 import org.csstudio.ams.delivery.util.jms.JmsAsyncConsumer;
 import org.csstudio.ams.internal.AmsPreferenceKey;
+import org.csstudio.utility.jms.JmsTool;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.slf4j.Logger;
@@ -137,7 +138,7 @@ public class EMailDeliveryWorker extends AbstractDeliveryWorker {
                                                 "tcp://localhost:64616",
                                                 null);
             LOG.info("Connecting for urls: " + url1 + " and " + url2);
-            amsConsumer = new JmsAsyncConsumer("EMailConnectorWorkReceiverInternal",
+            amsConsumer = new JmsAsyncConsumer(JmsTool.createUniqueClientId("EMailConnectorWorkReceiverInternal"),
                                                url1,
                                                url2);
 

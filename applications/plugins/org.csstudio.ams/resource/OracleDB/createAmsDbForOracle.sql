@@ -596,6 +596,7 @@ INSERT INTO AMS_FilterActionType (iFilterActionTypeID,cName,iTopicRef) values (7
 INSERT INTO AMS_FilterActionType (iFilterActionTypeID,cName,iTopicRef) values (8,'EMail an Gruppe',NULL);
 INSERT INTO AMS_FilterActionType (iFilterActionTypeID,cName,iTopicRef) values (9,'EMail an Gruppe Best.',NULL);
 INSERT INTO AMS_FilterActionType (iFilterActionTypeID,cName,iTopicRef) values (10,'Message an Topic',NULL);
+insert into AMS_FilterActionType (iFilterActionTypeID,cName,iTopicRef) values (11,'Erweiterte Message an Topic',NULL);
 
 INSERT INTO AMS_FilterActionType (iFilterActionTypeID,cName,iTopicRef) values (100,'Topic Special Log',1);
 INSERT INTO AMS_FilterActionType (iFilterActionTypeID,cName,iTopicRef) values (101,'Topic 101',2);

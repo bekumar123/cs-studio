@@ -39,16 +39,17 @@ import org.csstudio.nams.application.department.decision.management.Restart;
 import org.csstudio.nams.application.department.decision.management.Stop;
 import org.csstudio.nams.application.department.decision.office.decision.DecisionDepartment;
 import org.csstudio.nams.application.department.decision.remote.RemotelyStoppable;
+import org.csstudio.nams.common.AMS;
 import org.csstudio.nams.common.IRemotelyAccesible;
 import org.csstudio.nams.common.activatorUtils.AbstractBundleActivator;
 import org.csstudio.nams.common.activatorUtils.OSGiBundleActivationMethod;
 import org.csstudio.nams.common.activatorUtils.OSGiBundleDeactivationMethod;
 import org.csstudio.nams.common.activatorUtils.OSGiService;
 import org.csstudio.nams.common.activatorUtils.Required;
-import org.csstudio.nams.common.decision.Inbox;
-import org.csstudio.nams.common.decision.DefaultDocumentBox;
-import org.csstudio.nams.common.decision.MessageCasefile;
 import org.csstudio.nams.common.decision.CasefileId;
+import org.csstudio.nams.common.decision.DefaultDocumentBox;
+import org.csstudio.nams.common.decision.Inbox;
+import org.csstudio.nams.common.decision.MessageCasefile;
 import org.csstudio.nams.common.material.regelwerk.Regelwerk;
 import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 import org.csstudio.nams.common.service.ExecutionService;
@@ -350,7 +351,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 		IPreferencesService preferenceService = Platform.getPreferencesService();
 
 		String applicationDescription = preferenceService.getString(DecisionDepartmentActivator.PLUGIN_ID, "description", "I am a simple but happy application.", null);
-		appInfo = new ApplicationInfo("AmsDepartmentDecision", applicationDescription);
+        appInfo = new ApplicationInfo("AMS", AMS.AMS_MAIN_VERSION, "AmsDepartmentDecision", applicationDescription);
 		
 		configureXmppConnection(preferenceService);
 		
@@ -569,8 +570,8 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 					.getString(PreferenceServiceJMSKeys.P_JMS_AMS_SENDER_PROVIDER_URL);
 			DecisionDepartmentActivator.logger.logDebugMessage(this, "PreferenceServiceJMSKeys.P_JMS_AMS_SENDER_PROVIDER_URL = "
 					+ amsSenderProviderUrl);
-			this.amsMessagingSessionForProducer = DecisionDepartmentActivator.messagingService.createNewMessagingSession(
-					preferenceService.getString(PreferenceServiceJMSKeys.P_JMS_AMS_TSUB_DD_OUTBOX), new String[] { amsSenderProviderUrl });
+			this.amsMessagingSessionForProducer = DecisionDepartmentActivator.messagingService.createNewMessagingSession(JmsTool.createUniqueClientId(
+					preferenceService.getString(PreferenceServiceJMSKeys.P_JMS_AMS_TSUB_DD_OUTBOX)), new String[] { amsSenderProviderUrl });
 
 			final String amsAusgangsTopic = DecisionDepartmentActivator.preferenceService
 					.getString(PreferenceServiceJMSKeys.P_JMS_AMS_TOPIC_DD_OUTBOX);
@@ -594,15 +595,15 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 			DecisionDepartmentActivator.logger.logDebugMessage(this, "PreferenceServiceJMSKeys.P_JMS_AMS_PROVIDER_URL_1 = " + amsProvider1);
 			DecisionDepartmentActivator.logger.logDebugMessage(this, "PreferenceServiceJMSKeys.P_JMS_AMS_PROVIDER_URL_2 = " + amsProvider2);
 
-			this.amsMessagingSessionForConsumer = DecisionDepartmentActivator.messagingService.createNewMessagingSession(
-					preferenceService.getString(PreferenceServiceJMSKeys.P_JMS_AMS_TSUB_COMMAND_DECISSION_DEPARTMENT), new String[] { amsProvider1,
+			this.amsMessagingSessionForConsumer = DecisionDepartmentActivator.messagingService.createNewMessagingSession(JmsTool.createUniqueClientId(
+					preferenceService.getString(PreferenceServiceJMSKeys.P_JMS_AMS_TSUB_COMMAND_DECISSION_DEPARTMENT)), new String[] { amsProvider1,
 							amsProvider2 });
 			final String extProvider1 = DecisionDepartmentActivator.preferenceService.getString(PreferenceServiceJMSKeys.P_JMS_EXTERN_PROVIDER_URL_1);
 			final String extProvider2 = DecisionDepartmentActivator.preferenceService.getString(PreferenceServiceJMSKeys.P_JMS_EXTERN_PROVIDER_URL_2);
 			DecisionDepartmentActivator.logger.logDebugMessage(this, "PreferenceServiceJMSKeys.P_JMS_EXTERN_PROVIDER_URL_1 = " + extProvider1);
 			DecisionDepartmentActivator.logger.logDebugMessage(this, "PreferenceServiceJMSKeys.P_JMS_EXTERN_PROVIDER_URL_2 = " + extProvider2);
-			this.extMessagingSessionForConsumer = DecisionDepartmentActivator.messagingService.createNewMessagingSession(
-					preferenceService.getString(PreferenceServiceJMSKeys.P_JMS_EXT_TSUB_ALARM), new String[] { extProvider1, extProvider2 });
+			this.extMessagingSessionForConsumer = DecisionDepartmentActivator.messagingService.createNewMessagingSession(JmsTool.createUniqueClientId(
+					preferenceService.getString(PreferenceServiceJMSKeys.P_JMS_EXT_TSUB_ALARM)), new String[] { extProvider1, extProvider2 });
 
 			final String extAlarmTopic = DecisionDepartmentActivator.preferenceService.getString(PreferenceServiceJMSKeys.P_JMS_EXT_TOPIC_ALARM);
 			DecisionDepartmentActivator.logger.logDebugMessage(this, "PreferenceServiceJMSKeys.P_JMS_EXT_TOPIC_ALARM = " + extAlarmTopic);

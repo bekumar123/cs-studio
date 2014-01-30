@@ -40,19 +40,34 @@ public class ApplicationInfo {
 
     private StartTime startTime;
 
+    private String superordinateSystem;
+
+    private int superordinateVersion;
+
     private String applicName;
 
     private String version;
 
     private String description;
 
-    public ApplicationInfo(String appName, String desc) {
-        applicName = appName;
-        if (applicName == null) {
+    public ApplicationInfo(String superordinate, int superVersion, String appName, String desc) {
+        if (superordinate != null) {
+            superordinateSystem = superordinate.trim();
+            if (superordinateSystem.isEmpty()) {
+                superordinateSystem = NOT_AVAILABLE;
+            }
+        } else {
+            superordinateSystem = NOT_AVAILABLE;
+        }
+        superordinateVersion = superVersion < 0 ? 0 : superVersion;
+        if (appName != null) {
+            applicName = appName.trim();
+            if (applicName.isEmpty()) {
+                applicName = NOT_AVAILABLE;
+            }
+        } else {
             applicName = NOT_AVAILABLE;
         }
-        startTime = new StartTime();
-        readVersionFile();
         if (desc != null) {
             description = desc.trim();
             if (description.trim().isEmpty()) {
@@ -61,6 +76,12 @@ public class ApplicationInfo {
         } else {
             description = NOT_AVAILABLE;
         }
+        startTime = new StartTime();
+        readVersionFile();
+    }
+
+    public ApplicationInfo(String appName, String desc) {
+        this(null, 0, appName, desc);
     }
 
     private void readVersionFile() {
@@ -95,6 +116,14 @@ public class ApplicationInfo {
         return version;
     }
 
+    public String getSuperordinateSystem() {
+        return superordinateSystem;
+    }
+
+    public int getSuperordinateVersion() {
+        return superordinateVersion;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -102,7 +131,10 @@ public class ApplicationInfo {
     @Override
     public String toString() {
         StringBuffer str = new StringBuffer();
-        str.append("Name: " + applicName + "  -  Version: " + version);
+        if (!superordinateSystem.equals(NOT_AVAILABLE)) {
+            str.append("System: " + superordinateSystem + " - Version: " + superordinateVersion + "\n\n");
+        }
+        str.append("Application: " + applicName + "  -  Version: " + version);
         str.append("\n\nDescription: " + description);
         str.append("\n\nStarting time\n  " + startTime.getStartingTimeAsString());
         str.append("\n\nUptime\n  " + startTime.getRunningTimeAsString());

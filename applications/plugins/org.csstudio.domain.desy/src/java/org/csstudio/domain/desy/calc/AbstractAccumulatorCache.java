@@ -47,7 +47,7 @@ public abstract class AbstractAccumulatorCache<A, R> implements ReadFunction<R> 
     private static final Logger LOG =
         LoggerFactory.getLogger(AbstractAccumulatorCache.class);
 
-    private final ValueCache<R> _accumulatedValue;
+    private final ValueCacheImpl<R> _accumulatedValue;
     private long _num;
 
     /**

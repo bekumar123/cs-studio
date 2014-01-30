@@ -17,6 +17,8 @@ import org.csstudio.dal2.dv.Characteristics;
 import org.csstudio.dal2.dv.ListenerType;
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
+import org.csstudio.dal2.epics.mapping.IEpicsTypeMapper;
+import org.csstudio.dal2.epics.mapping.IEpicsTypeMapping;
 import org.csstudio.dal2.service.DalException;
 import org.csstudio.dal2.service.cs.CsPvData;
 import org.csstudio.dal2.service.cs.ICsPvListener;
@@ -40,9 +42,9 @@ public class ChannelMonitor<T> extends AbstractChannelOperator implements
 
 	private AtomicBoolean _connected = new AtomicBoolean();
 
-	public ChannelMonitor(Context jcaContext, PvAddress pv, Type<T> type,
+	public ChannelMonitor(Context jcaContext, IEpicsTypeMapping mapping, PvAddress pv, Type<T> type,
 			ICsPvListener<T> listener) throws DalException {
-		super(jcaContext, pv);
+		super(jcaContext, mapping, pv);
 		_listener = listener;
 		_type = type;
 	}
@@ -50,29 +52,54 @@ public class ChannelMonitor<T> extends AbstractChannelOperator implements
 	@Override
 	protected void onConnectionChanged(ConnectionEvent ev) {
 		String name = getChannel().getName();
-
 		assert name.equals(getAddress().getAddress());
-		
+
 		boolean connected = ev.isConnected();
 
 		if (connected) {
 			_connected.set(true);
 			LOGGER.debug("Connection changed ({}): connected", name);
-			_listener.connectionChanged(name, true);
+			_listener.connected(name, getNativeType());
 		} else if (_connected.getAndSet(connected)) {
 			LOGGER.debug("Connection changed ({}): disconnected", name);
-			_listener.connectionChanged(name, false);
-		}
+			_listener.disconnected(name);
 
+			if (_type == Type.NATIVE) {
+				// Dispose monitor when using Type.NATIVE because it will be
+				// recreated
+				// on reconnect using the potentially changed native type
+				disposeMonitor();
+			}
+		}
 	}
 
 	@Override
 	protected void onFirstConnect(ConnectionEvent ev) {
 		String name = getAddress().getAddress();
+		LOGGER.debug("First connect({}): adding monitor {}", name, _listener);
+		createMonitor(name);
+	}
+
+	@Override
+	protected void onReconnect(ConnectionEvent ev) {
+		// Recreate Monitor when using Type.NATIVE to ensure the monitor is
+		// using the
+		// potentially changed native type
+		if (_type == Type.NATIVE) {
+			String name = getAddress().getAddress();
+			LOGGER.debug("Reconnect connect({}): adding monitor {}", name,
+					_listener);
+			createMonitor(name);
+		}
+	}
+
+	/**
+	 * @param name
+	 */
+	private void createMonitor(String name) {
 		try {
-			LOGGER.debug("First connect({}): adding monitor {}", name, _listener);
-			
-			DBRType ctrlType = TypeMapper.getMapper(_type).getDBRCtrlType();
+			DBRType ctrlType = getMapping().getMapper(_type, getNativeType())
+					.getDBRCtrlType();
 			ListenerType type = _listener.getType();
 			int mask = getMask(type);
 			_subscription = getChannel().addMonitor(ctrlType, 0, mask, this);
@@ -88,60 +115,50 @@ public class ChannelMonitor<T> extends AbstractChannelOperator implements
 
 	@Override
 	public void monitorChanged(final MonitorEvent ev) {
-		// Execute in separate thread to avoid delay on cja thread
-//		EXECUTOR.execute(new Runnable() {
-//			@Override
-//			public void run() {
+		CAStatus status = ev.getStatus();
 
-				CAStatus status = ev.getStatus();
-
-				if (status.isSuccessful()) {
-					try {
-						final T value = TypeMapper.getMapper(_type).mapValue(
-								ev.getDBR());
-						
-						String hostName = null;
-						
-						if (getChannel().getConnectionState() == ConnectionState.CONNECTED) {
-							hostName = getChannel().getHostName();
-						}
-
-						
-						final Characteristics characteristics = new CharacteristicsService()
-								.newCharacteristics(ev.getDBR(), hostName);
-
-						LOGGER.debug("Monitor changed ({}): {}", getAddress()
-								.getAddress(), value);
-
-						_listener.valueChanged(new CsPvData<T>(value,
-								characteristics));
-
-					} catch (Throwable t) {
-						LOGGER.error(
-								"Error handling monitor changed event for pv {}",
-								getAddress().getAddress(), t);
-					}
-				} else {
-
-					CASeverity severity = status.getSeverity();
-					if (severity.equals(CASeverity.FATAL)
-							|| severity.equals(CASeverity.ERROR)
-							|| severity.equals(CASeverity.SEVERE)) {
-						LOGGER.error(
-								"Monitor was not successful for channel ({}):",
-								getChannel().getName(), status.getMessage());
-					} else if (severity.equals(CASeverity.WARNING)) {
-						LOGGER.warn(
-								"Monitor was not successful for channel ({}):",
-								getChannel().getName(), status.getMessage());
-					} else if (severity.equals(CASeverity.INFO)) {
-						LOGGER.info(
-								"Monitor was not successful for channel ({}):",
-								getChannel().getName(), status.getMessage());
-					}
+		if (status.isSuccessful()) {
+			try {
+				String hostName = null;
+				
+				if (getChannel().getConnectionState() == ConnectionState.CONNECTED) {
+					hostName = getChannel().getHostName();
 				}
-//			}
-//		});
+				final Characteristics characteristics = new CharacteristicsService()
+				.newCharacteristics(ev.getDBR(), hostName);
+
+				IEpicsTypeMapper<T> mapper = getMapping().getMapper(_type,
+						getNativeType());
+				final T value = mapper.mapValue(ev.getDBR(), characteristics);
+
+
+
+				LOGGER.debug("Monitor changed ({}): {}", getAddress()
+						.getAddress(), value);
+
+				_listener.valueChanged(new CsPvData<T>(value, characteristics,
+						getNativeType()));
+
+			} catch (Throwable t) {
+				LOGGER.error("Error handling monitor changed event for pv {}",
+						getAddress().getAddress(), t);
+			}
+		} else {
+
+			CASeverity severity = status.getSeverity();
+			if (severity.equals(CASeverity.FATAL)
+					|| severity.equals(CASeverity.ERROR)
+					|| severity.equals(CASeverity.SEVERE)) {
+				LOGGER.error("Monitor was not successful for channel ({}):",
+						getChannel().getName(), status.getMessage());
+			} else if (severity.equals(CASeverity.WARNING)) {
+				LOGGER.warn("Monitor was not successful for channel ({}):",
+						getChannel().getName(), status.getMessage());
+			} else if (severity.equals(CASeverity.INFO)) {
+				LOGGER.info("Monitor was not successful for channel ({}):",
+						getChannel().getName(), status.getMessage());
+			}
+		}
 	}
 
 	@Override
@@ -154,18 +171,23 @@ public class ChannelMonitor<T> extends AbstractChannelOperator implements
 		if (_connected.getAndSet(false)) {
 			String pv = getAddress().getAddress();
 			LOGGER.debug("Connection changed ({}): disconnected", pv);
-			_listener.connectionChanged(pv, false);
+			_listener.disconnected(pv);
 		}
 
+		disposeMonitor();
+
+		super.dispose();
+	}
+
+	private void disposeMonitor() {
 		try {
 			if (_subscription != null) {
 				_subscription.clear();
+				_subscription = null;
 			}
 		} catch (CAException e) {
 			LOGGER.error("error clearing jcs monitor", e);
 		}
-
-		super.dispose();
 	}
 
 	public ICsPvListener<T> getListener() {

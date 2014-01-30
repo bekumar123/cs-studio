@@ -7,33 +7,44 @@
  ******************************************************************************/
 package org.csstudio.archive.common.engine.model;
 
-import static org.epics.pvmanager.ExpressionLanguage.channel;
-import static org.epics.pvmanager.ExpressionLanguage.newValuesOf;
-import static org.epics.pvmanager.util.TimeDuration.ms;
-
 import java.io.Serializable;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 
-import org.csstudio.archive.common.engine.pvmanager.DesyArchivePVManagerListener;
 import org.csstudio.archive.common.engine.service.IServiceProvider;
 import org.csstudio.archive.common.service.ArchiveServiceException;
 import org.csstudio.archive.common.service.IArchiveEngineFacade;
 import org.csstudio.archive.common.service.channel.ArchiveChannelId;
 import org.csstudio.archive.common.service.channel.IArchiveChannel;
+import org.csstudio.archive.common.service.sample.ArchiveMultiScalarSample;
+import org.csstudio.archive.common.service.sample.ArchiveSample;
 import org.csstudio.archive.common.service.sample.IArchiveSample;
-import org.csstudio.domain.desy.epics.pvmanager.DesyJCADataSource;
+import org.csstudio.dal2.dv.Characteristic;
+import org.csstudio.dal2.dv.Characteristics;
+import org.csstudio.dal2.dv.ListenerType;
+import org.csstudio.dal2.dv.PvAddress;
+import org.csstudio.dal2.dv.Timestamp;
+import org.csstudio.dal2.dv.Type;
+import org.csstudio.dal2.service.DalException;
+import org.csstudio.dal2.service.IDalService;
+import org.csstudio.dal2.service.IPvAccess;
+import org.csstudio.dal2.service.IPvListener;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarm;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarmSeverity;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarmStatus;
+import org.csstudio.domain.desy.epics.types.EpicsSystemVariable;
 import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
-import org.csstudio.domain.desy.system.ISystemVariable;
+import org.csstudio.domain.desy.system.ControlSystem;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
-import org.epics.pvmanager.ChannelHandler;
-import org.epics.pvmanager.PVManager;
-import org.epics.pvmanager.PVReader;
-import org.epics.pvmanager.util.TimeDuration;
+import org.csstudio.domain.desy.typesupport.TypeSupportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,30 +56,22 @@ import org.slf4j.LoggerFactory;
  *  @param <T> the system variable for the basic value type
  */
 @SuppressWarnings("nls")
-public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVariable<V>> {
+public class ArchiveChannelBuffer<V extends Serializable, T extends IAlarmSystemVariable<V>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArchiveChannelBuffer.class);
-
-    private static final TimeDuration RATE = ms(2000);
 
     /** Channel name.
      *  This is the name by which the channel was created,
      *  not the PV name that might include decorations.
      */
-    private final String _name;
+    private final PvAddress _address;
 
     private final ArchiveChannelId _id;
 
-    private final String _datatype;
-
-    private final DesyJCADataSource _source;
-
-    /** Control system PV */
-    private PVReader<List<Object>> _pv;
+    private String _datatype;
 
     /** Buffer of received samples, periodically written */
     private final SampleBuffer<V, T, IArchiveSample<V, T>> _buffer;
-
 
     /** Is this channel currently running?
      *  <p>
@@ -99,33 +102,33 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
 
     private final IServiceProvider _provider;
 
-    @SuppressWarnings("rawtypes")
-    private DesyArchivePVManagerListener _listener;
-
     private final TimeInstant _timeOfLastSampleBeforeChannelStart;
+
+    private IPvAccess<Object> _pvAccess;
+
+    private IPvListener<Object> _listener;
 
     /**
      * Constructor.
+     * @throws EngineModelException
+     * @throws TypeSupportException
      */
-    public ArchiveChannelBuffer(@Nonnull final IArchiveChannel cfg,
-                                @Nonnull final IServiceProvider provider,
-                                @Nonnull final DesyJCADataSource source) {
+    public ArchiveChannelBuffer(@Nonnull final IArchiveChannel cfg, @Nonnull final IServiceProvider provider) throws EngineModelException {
 
-        _name = cfg.getName();
+        _address = PvAddress.getValue(cfg.getName());
         _id = cfg.getId();
         _datatype = cfg.getDataType();
+
         _timeOfLastSampleBeforeChannelStart = cfg.getLatestTimestamp();
         _isEnabled = cfg.isEnabled();
-        _buffer = new SampleBuffer<V, T, IArchiveSample<V, T>>(_name);
+        _buffer = new SampleBuffer<V, T, IArchiveSample<V, T>>(_address.getAddress());
         _provider = provider;
-        _source = source;
     }
-
 
     /** @return Name of channel */
     @Nonnull
     public String getName() {
-        return _name;
+        return _address.getAddress();
     }
 
     /** @return Short description of sample mechanism */
@@ -136,11 +139,7 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
 
     /** @return <code>true</code> if connected */
     public boolean isConnected() {
-        if (_source != null) {
-            final ChannelHandler channelHandler = _source.getChannels().get(_name);
-            return channelHandler != null && channelHandler.isConnected();
-        }
-        return false;
+        return _pvAccess != null && _pvAccess.isConnected();
     }
 
     /** @return <code>true</code> if connected */
@@ -151,8 +150,7 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
     /** @return Human-readable info on internal state of PV */
     @CheckForNull
     public String getInternalState() {
-        // FIXME (bknerr) : is this information available?
-        return "UNKNOWN via PVManager";
+        return "UNKNOWN via DAL2";
     }
 
     @CheckForNull
@@ -176,33 +174,178 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
         try {
             enable();
         } catch (final EngineModelException e) {
-            LOG.error("PV " + _pv.getName() + " could not be enabled. Database access failed", e);
+            LOG.error("PV " + _address.getAddress() + " could not be enabled. Database access failed", e);
             throw e;
         }
         return true;
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private void initPvAndListener(@Nonnull final String info) {
-        if (_pv != null) {
-            _pv.close();
-        }
-        _pv = PVManager.read(newValuesOf(channel(_name))).every(RATE);
+    private void initPvAndListener(@Nonnull final String info) throws EngineModelException {
 
-        _listener = new DesyArchivePVManagerListener(this, _pv, _provider, _name, _id, _datatype) {
-            @SuppressWarnings("synthetic-access")
+        try {
+            final IDalService dalService = _provider.getDalService();
+            _pvAccess = dalService.getPVAccess(_address, Type.NATIVE, ListenerType.LOG);
+        } catch (final OsgiServiceUnavailableException e) {
+            throw new EngineModelException("Missing dynamic service", e);
+        }
+
+        _listener = new IPvListener<Object>() {
+
+            private Number _graphMin;
+            private Number _graphMax;
+            private String _units;
+
             @Override
-            protected boolean addSampleToBuffer(@Nonnull final IArchiveSample sample) {
+            public void connectionChanged(final IPvAccess<Object> source, final boolean connected) {
+                try {
+                    persistChannelStatusInfo(_id, connected, info);
+                } catch (final EngineModelException e) {
+                    LOG.error("Error persisting channel status info", e);
+                }
+
+                try {
+                    final Type<?> nativeType = source.getLastKnownNativeType();
+
+                    String datatype;
+                    if (nativeType.isSequenceType()) {
+                        datatype = "ArrayList<" + nativeType.getComponentType().getJavaType().getSimpleName() + ">";
+                    } else {
+                        datatype = nativeType.getJavaType().getSimpleName();
+                    }
+
+                    if (!datatype.equals(_datatype)) {
+                        final IArchiveEngineFacade service = _provider.getEngineFacade();
+                        _datatype = datatype;
+                        service.writeChannelDataTypeInfo(_id, _datatype);
+                    }
+                } catch (final OsgiServiceUnavailableException e) {
+                    LOG.error("Error persisting channel type info", e);
+                } catch (final ArchiveServiceException e) {
+                    LOG.error("Error persisting channel type info", e);
+                }
+            }
+
+            @Override
+            public void valueChanged(final IPvAccess<Object> source, final Object value) {
+
+                final Characteristics characteristics = source.getLastKnownCharacteristics();
+
+                checkDisplayRange(characteristics);
+                checkUnit(characteristics);
+
+                // TODO Move this to characteristics: IAlarmm characteristics.get(Characteristic.ALARM)
+                final EpicsAlarmStatus alarmStatus = characteristics.get(Characteristic.STATUS);
+                final EpicsAlarmSeverity alarmSeverity = characteristics.get(Characteristic.SEVERITY);
+
+                final EpicsAlarm alarm = new EpicsAlarm(alarmSeverity, alarmStatus);
+
+                final Timestamp timestamp = characteristics.get(Characteristic.TIMESTAMP);
+
+                final ControlSystem origin = ControlSystem.EPICS_DEFAULT;
+
+                // TODO Is it possible to avoid this mapping? We could use TimeInstant within DAL2 ...
+                final TimeInstant timeInstant = TimeInstant.TimeInstantBuilder.fromNanos(timestamp.toNanoTime());
+
+                // TODO Should we provide a SystemVariable from DAL2?
+
+                Type<?> type = source.getLastKnownNativeType();
+
+                V data;
+                if (type.isSequenceType()) {
+                    Object[] valueAsArray = (Object[]) value;
+
+                    ArrayList list = new ArrayList(valueAsArray.length);
+                    for (Object element : valueAsArray) {
+                        list.add(element);
+                    }
+
+                    data = (V) new ArrayList(Arrays.asList(valueAsArray));
+                } else {
+                    data = (V) value;
+                }
+
+                String name = _address.getAddress();
+                EpicsSystemVariable<V> systemVariable = new EpicsSystemVariable<V>(name, data, origin, timeInstant, alarm);
+
+                ArchiveSample<V, T> sample;
+                if (type.isSequenceType()) {
+                    sample = new ArchiveMultiScalarSample(_id, systemVariable);
+                } else {
+                    sample = new ArchiveSample(_id, systemVariable);
+                }
+
+                // add sample to buffer
                 synchronized (this) {
                     _receivedSampleCount++;
-                    _mostRecentSysVar = (T) sample.getSystemVariable();
+                    _mostRecentSysVar = sample.getSystemVariable();
                 }
-                return _buffer.add(sample);
 
+                if (!_buffer.add(sample)) {
+                    ArchiveEngineSampleRescuer.with((Collection) Collections.singleton(sample)).rescue();
+                }
             }
+
+            /**
+             * @param characteristics
+             */
+            private <W extends Comparable<? super W> & Serializable> void checkDisplayRange(final Characteristics characteristics) {
+                try {
+                    final Number newGraphMin = characteristics.get(Characteristic.GRAPH_MIN);
+                    final Number newGraphMax = characteristics.get(Characteristic.GRAPH_MAX);
+
+                    boolean changed = false;
+                    if (_graphMin == null && newGraphMin != null || _graphMin != null && !_graphMin.equals(newGraphMin)) {
+                        _graphMin = newGraphMin;
+                        changed = true;
+                    }
+
+                    if (_graphMax == null && newGraphMax != null || _graphMax != null && !_graphMax.equals(newGraphMax)) {
+                        _graphMax = newGraphMax;
+                        changed = true;
+                    }
+
+                    if (changed) {
+                        IArchiveEngineFacade service = _provider.getEngineFacade();
+                        service.writeChannelDisplayRangeInfo(_id, (W) _graphMin, (W) _graphMax);
+                    }
+
+                } catch (final OsgiServiceUnavailableException e) {
+                    LOG.error("Error updating range info", e);
+                } catch (final ArchiveServiceException e) {
+                    LOG.error("Error updating range info", e);
+                }
+            }
+
+            private void checkUnit(final Characteristics characteristics) {
+                try {
+                    final String newUnits = characteristics.get(Characteristic.UNITS);
+
+                    boolean changed = false;
+                    if (_units == null && newUnits != null || _units != null && !_units.equals(newUnits)) {
+                        _units = newUnits;
+                        changed = true;
+                    }
+
+                    if (changed) {
+                        IArchiveEngineFacade service = _provider.getEngineFacade();
+                        service.writeChannelUnitsInfo(_id, _units);
+                    }
+
+                } catch (final OsgiServiceUnavailableException e) {
+                    LOG.error("Error updating range info", e);
+                } catch (final ArchiveServiceException e) {
+                    LOG.error("Error updating range info", e);
+                }
+            }
+
         };
-        _listener.setStartInfo(info);
-        _pv.addPVReaderListener(_listener);
+
+        try {
+            _pvAccess.registerListener(_listener);
+        } catch (final DalException e) {
+            throw new EngineModelException("Error connecting channel", e);
+        }
     }
 
     public void enable() throws EngineModelException {
@@ -213,15 +356,15 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
             _isEnabled = true;
         }
         try {
-            _provider.getEngineFacade().setEnableChannelFlag(_name, true);
+            _provider.getEngineFacade().setEnableChannelFlag(_address.getAddress(), true);
         } catch (final OsgiServiceUnavailableException e) {
             throw new EngineModelException("Service unavailable. Disabling of channel could not be persisted.", e);
         }
     }
 
-    public void persistChannelStatusInfo(@Nonnull final ArchiveChannelId id,
-                                         final boolean connected,
-                                         @Nonnull final String info) throws EngineModelException {
+    private void persistChannelStatusInfo(@Nonnull final ArchiveChannelId id,
+                                          final boolean connected,
+                                          @Nonnull final String info) throws EngineModelException {
         try {
             final IArchiveEngineFacade service = _provider.getEngineFacade();
             service.writeChannelStatusInfo(id, connected, info, TimeInstantBuilder.fromNow());
@@ -231,6 +374,7 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
             throw new EngineModelException("Internal service error on handling channel connection info.", e);
         }
     }
+
     /**
      * Stop archiving this channel
      * @throws EngineModelException
@@ -243,8 +387,14 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
             _isStarted = false;
         }
         persistChannelStatusInfo(_id, false, info);
-        _pv.removePVReaderListener(_listener);
-        _pv.close();
+
+        if (_pvAccess != null) {
+            try {
+                _provider.getDalService().dispose(_pvAccess);
+            } catch (final OsgiServiceUnavailableException e) {
+                throw new EngineModelException("Missing dynamic service", e);
+            }
+        }
     }
 
     public void disable() throws EngineModelException {
@@ -258,7 +408,7 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
             _isEnabled = false;
         }
         try {
-            _provider.getEngineFacade().setEnableChannelFlag(_name, false);
+            _provider.getEngineFacade().setEnableChannelFlag(_address.getAddress(), false);
         } catch (final OsgiServiceUnavailableException e) {
             throw new EngineModelException("Service unavailable. Disabling of channel could not be persisted.", e);
         }
@@ -279,7 +429,6 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends ISystemVaria
     public final SampleBuffer<V, T, IArchiveSample<V, T>> getSampleBuffer() {
         return _buffer;
     }
-
 
     /** Reset counters */
     public void reset() {

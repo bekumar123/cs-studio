@@ -4,14 +4,15 @@ import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Channel.ConnectionState;
 import gov.aps.jca.Context;
+import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.event.ConnectionEvent;
 import gov.aps.jca.event.ConnectionListener;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.csstudio.dal2.dv.PvAddress;
+import org.csstudio.dal2.dv.Type;
+import org.csstudio.dal2.epics.mapping.IEpicsTypeMapping;
 import org.csstudio.dal2.service.DalException;
 import org.csstudio.dal2.service.cs.ICsOperationHandle;
 import org.slf4j.Logger;
@@ -24,10 +25,11 @@ public abstract class AbstractChannelOperator implements ConnectionListener,
 			.getLogger(AbstractChannelOperator.class);
 
 	/**
-	 * Single Thread executor. This is used to handle CJA-Callbacks in a different thread. 
+	 * Single Thread executor. This is used to handle CJA-Callbacks in a
+	 * different thread.
 	 */
-//	protected static final Executor EXECUTOR = Executors
-//			.newSingleThreadExecutor();
+	// protected static final Executor EXECUTOR = Executors
+	// .newSingleThreadExecutor();
 
 	/**
 	 * JCA Context
@@ -40,9 +42,14 @@ public abstract class AbstractChannelOperator implements ConnectionListener,
 
 	private AtomicBoolean _onceConnected = new AtomicBoolean(false);
 
-	public AbstractChannelOperator(Context context, PvAddress address)
+	private Type<?> _nativeType;
+
+	private IEpicsTypeMapping _mapping;
+
+	public AbstractChannelOperator(Context context, IEpicsTypeMapping mapping, PvAddress address)
 			throws DalException {
 		_context = context;
+		_mapping = mapping;
 		_address = address;
 
 		try {
@@ -61,17 +68,27 @@ public abstract class AbstractChannelOperator implements ConnectionListener,
 	public final void connectionChanged(final ConnectionEvent ev) {
 		try {
 			synchronized (AbstractChannelOperator.this) {
-				
+
+				boolean connected = _channel.getConnectionState() == ConnectionState.CONNECTED;
+
+				if (connected) {
+					DBRType dbrType = getChannel().getFieldType();
+					int elementCount = getChannel().getElementCount();
+					_nativeType = _mapping.getType(dbrType, elementCount);
+				}
+
 				onConnectionChanged(ev);
 
-				if (_channel.getConnectionState() == ConnectionState.CONNECTED
-						&& !_onceConnected.getAndSet(true)) {
-					onFirstConnect(ev);
+				if (connected) {
+					if (_onceConnected.getAndSet(true)) {
+						onReconnect(ev);
+					} else {
+						onFirstConnect(ev);
+					}
 				}
 			}
 		} catch (Throwable t) {
-			LOGGER.error(
-					"Error handling connection changed event for pv {}",
+			LOGGER.error("Error handling connection changed event for pv {}",
 					_address.getAddress(), t);
 		}
 	}
@@ -87,6 +104,13 @@ public abstract class AbstractChannelOperator implements ConnectionListener,
 	 * Override this method to react on (first) existing connection
 	 */
 	protected void onFirstConnect(ConnectionEvent ev) {
+		// override to implement
+	}
+
+	/**
+	 * Override this method to react on reconnect
+	 */
+	protected void onReconnect(ConnectionEvent ev) {
 		// override to implement
 	}
 
@@ -132,7 +156,15 @@ public abstract class AbstractChannelOperator implements ConnectionListener,
 		return _channel;
 	}
 
-	public PvAddress getAddress() {
+	protected final Type<?> getNativeType() {
+		return _nativeType;
+	}
+	
+	protected IEpicsTypeMapping getMapping() {
+		return _mapping;
+	}
+
+	public final PvAddress getAddress() {
 		return _address;
 	}
 

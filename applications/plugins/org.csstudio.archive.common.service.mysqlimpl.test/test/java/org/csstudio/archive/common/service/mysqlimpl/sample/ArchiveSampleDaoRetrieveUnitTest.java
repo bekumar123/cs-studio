@@ -39,7 +39,7 @@ import org.csstudio.archive.common.service.mysqlimpl.dao.AbstractDaoTestSetup;
 import org.csstudio.archive.common.service.mysqlimpl.dao.ArchiveDaoException;
 import org.csstudio.archive.common.service.mysqlimpl.requesttypes.DesyArchiveRequestType;
 import org.csstudio.archive.common.service.sample.IArchiveSample;
-import org.csstudio.domain.desy.system.ISystemVariable;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -72,13 +72,13 @@ public class ArchiveSampleDaoRetrieveUnitTest extends AbstractDaoTestSetup {
         Assert.assertTrue(channels.size() == 1);
         IArchiveChannel channel = channels.iterator().next();
 
-        final IArchiveSample<Serializable, ISystemVariable<Serializable>> sample =
+        final IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>> sample =
             SAMPLE_DAO.retrieveLatestSampleBeforeTime(channel, START);
         Assert.assertNotNull(sample);
         Assert.assertEquals(Byte.valueOf((byte) 26), sample.getValue());
 
 
-        Collection<IArchiveSample<Serializable, ISystemVariable<Serializable>>>
+        Collection<IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>>>
             samples = SAMPLE_DAO.retrieveSamples(DesyArchiveRequestType.RAW, channel, TimeInstantBuilder.fromNanos(1L), START);
         Assert.assertNotNull(samples);
         Assert.assertEquals(1, samples.size());

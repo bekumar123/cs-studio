@@ -2,6 +2,7 @@ package org.csstudio.dal2.epics.service;
 
 import org.csstudio.dal2.dv.Characteristics;
 import org.csstudio.dal2.dv.ListenerType;
+import org.csstudio.dal2.dv.Type;
 import org.csstudio.dal2.service.cs.CsPvData;
 import org.csstudio.dal2.service.cs.ICsPvListener;
 
@@ -18,8 +19,14 @@ public class PvListenerMock<T> implements ICsPvListener<T> {
 	}
 
 	@Override
-	public void connectionChanged(String pvName, final boolean isConnected) {
-		_isConnected = isConnected;
+	public void connected(String pvName, Type<?> nativeType) {
+		_isConnected = true;
+		_connectionChangedCalled++;
+	}
+	
+	@Override
+	public void disconnected(String pvName) {
+		_isConnected = false;
 		_connectionChangedCalled++;
 	}
 

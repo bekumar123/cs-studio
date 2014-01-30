@@ -32,6 +32,7 @@ import org.csstudio.dal2.dv.ListenerType;
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Timestamp;
 import org.csstudio.dal2.dv.Type;
+import org.csstudio.dal2.epics.mapping.SimpleTypeMapping;
 import org.csstudio.dal2.service.cs.CsPvData;
 import org.csstudio.dal2.service.cs.ICsPvListener;
 import org.csstudio.domain.desy.epics.alarm.EpicsAlarmSeverity;
@@ -60,10 +61,11 @@ public class ChannelMonitorTest {
 						any(ConnectionListener.class))).thenReturn(channel);
 
 		ICsPvListener<String> pvListener = mock(ICsPvListener.class);
-		when (pvListener.getType()).thenReturn(ListenerType.VALUE);
+		when(pvListener.getType()).thenReturn(ListenerType.VALUE);
 
 		// create channel monitor
-		new ChannelMonitor<String>(jcaContext, pv, type, pvListener);
+		new ChannelMonitor<String>(jcaContext, SimpleTypeMapping.getInstance(),
+				pv, type, pvListener);
 
 		ArgumentCaptor<ConnectionListener> connectionListenerCaptor = ArgumentCaptor
 				.forClass(ConnectionListener.class);
@@ -73,17 +75,19 @@ public class ChannelMonitorTest {
 		// simulate connect event
 		when(channel.getConnectionState())
 				.thenReturn(ConnectionState.CONNECTED);
+		when(channel.getFieldType()).thenReturn(DBRType.STRING);
 		ConnectionListener connectionListener = connectionListenerCaptor
 				.getValue();
 		connectionListener
 				.connectionChanged(new ConnectionEvent(channel, true));
 
-		verify(pvListener, timeout(1000)).connectionChanged(pv.getAddress(), true);
+		verify(pvListener, timeout(1000)).connected(pv.getAddress(),
+				Type.STRING);
 
 		ArgumentCaptor<MonitorListener> monitorListenerCaptor = ArgumentCaptor
 				.forClass(MonitorListener.class);
-		verify(channel).addMonitor(eq(DBRType.CTRL_STRING), anyInt(), eq(Monitor.VALUE),
-				monitorListenerCaptor.capture());
+		verify(channel).addMonitor(eq(DBRType.CTRL_STRING), anyInt(),
+				eq(Monitor.VALUE), monitorListenerCaptor.capture());
 		verify(jcaContext).flushIO();
 
 		// simulate value change
@@ -106,9 +110,10 @@ public class ChannelMonitorTest {
 		assertEquals(EpicsAlarmStatus.HIGH, characteristics.getStatus());
 
 		Timestamp t = characteristics.get(Characteristic.TIMESTAMP);
-		
+
 		SimpleDateFormat format = new SimpleDateFormat("MM:dd:yy HH:mm:ss.SSS");
-		assertEquals(TIMESTAMP.toMMDDYY(), format.format(new Date(t.getMilliseconds())));
+		assertEquals(TIMESTAMP.toMMDDYY(),
+				format.format(new Date(t.getMilliseconds())));
 	}
 
 }

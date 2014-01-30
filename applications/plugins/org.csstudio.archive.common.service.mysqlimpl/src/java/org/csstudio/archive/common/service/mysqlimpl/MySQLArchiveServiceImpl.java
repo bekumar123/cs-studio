@@ -48,7 +48,7 @@ import org.csstudio.archive.common.service.mysqlimpl.requesttypes.DesyArchiveReq
 import org.csstudio.archive.common.service.sample.IArchiveSample;
 import org.csstudio.domain.common.service.DeleteResult;
 import org.csstudio.domain.common.service.UpdateResult;
-import org.csstudio.domain.desy.system.ISystemVariable;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.types.Limits;
 import org.slf4j.Logger;
@@ -109,7 +109,7 @@ public class MySQLArchiveServiceImpl implements IArchiveEngineFacade, IArchiveRe
      * {@inheritDoc}
      */
     @Override
-    public <V extends Serializable, T extends ISystemVariable<V>>
+    public <V extends Serializable, T extends IAlarmSystemVariable<V>>
     boolean writeSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveServiceException {
         return _createSupport.createSamples(samples);
     }
@@ -196,6 +196,14 @@ public class MySQLArchiveServiceImpl implements IArchiveEngineFacade, IArchiveRe
         _updateSupport.updateChannelDataType(id, datatype);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void writeChannelUnitsInfo(@Nonnull final ArchiveChannelId id, @Nonnull final String units) throws ArchiveServiceException {
+        _updateSupport.updateChannelUnitsInfo(id, units);
+    }
+
 
     /**
      * {@inheritDoc}
@@ -260,7 +268,7 @@ public class MySQLArchiveServiceImpl implements IArchiveEngineFacade, IArchiveRe
      */
     @Override
     @Nonnull
-    public <V extends Serializable, T extends ISystemVariable<V>>
+    public <V extends Serializable, T extends IAlarmSystemVariable<V>>
     Collection<IArchiveSample<V, T>> readSamples(@Nonnull final String channelName,
                                                  @Nonnull final TimeInstant start,
                                                  @Nonnull final TimeInstant end) throws ArchiveServiceException {
@@ -272,7 +280,7 @@ public class MySQLArchiveServiceImpl implements IArchiveEngineFacade, IArchiveRe
      */
     @Override
     @Nonnull
-    public <V extends Serializable, T extends ISystemVariable<V>>
+    public <V extends Serializable, T extends IAlarmSystemVariable<V>>
     Collection<IArchiveSample<V, T>> readSamples(@Nonnull final String channelName,
                                                  @Nonnull final TimeInstant start,
                                                  @Nonnull final TimeInstant end,
@@ -286,7 +294,7 @@ public class MySQLArchiveServiceImpl implements IArchiveEngineFacade, IArchiveRe
      */
     @Override
     @CheckForNull
-    public <V extends Serializable, T extends ISystemVariable<V>>
+    public <V extends Serializable, T extends IAlarmSystemVariable<V>>
     IArchiveSample<V, T> readLastSampleBefore(@Nonnull final String channelName,
                                               @Nonnull final TimeInstant time) throws ArchiveServiceException {
         return _retrievalSupport.retrieveLastSampleBefore(channelName, time);

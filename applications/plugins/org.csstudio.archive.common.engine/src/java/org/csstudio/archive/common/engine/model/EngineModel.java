@@ -30,9 +30,8 @@ import org.csstudio.archive.common.service.enginestatus.ArchiveEngineStatus;
 import org.csstudio.archive.common.service.enginestatus.EngineMonitorStatus;
 import org.csstudio.archive.common.service.enginestatus.IArchiveEngineStatus;
 import org.csstudio.domain.desy.epics.name.EpicsChannelName;
-import org.csstudio.domain.desy.epics.pvmanager.DesyJCADataSource;
 import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
-import org.csstudio.domain.desy.system.ISystemVariable;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
 import org.csstudio.domain.desy.typesupport.TypeSupportException;
@@ -58,7 +57,7 @@ public final class EngineModel {
     private WriteExecutor _writeExecutor;
 
     /**  All channels */
-    private final ConcurrentMap<String, ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> _channelMap;
+    private final ConcurrentMap<String, ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>> _channelMap;
 
     /** Groups of archived channels */
     private final ConcurrentMap<String, ArchiveGroup> _groupMap;
@@ -75,17 +74,14 @@ public final class EngineModel {
 
     private final IServiceProvider _provider;
     private IArchiveEngine _engine;
-    private final DesyJCADataSource _dataSource;
 
     /**
      * Constructor
      */
     public EngineModel(@Nonnull final String engineName,
-                       @Nonnull final IServiceProvider provider,
-                       @Nonnull final DesyJCADataSource dataSource) throws EngineModelException {
+                       @Nonnull final IServiceProvider provider) throws EngineModelException {
         _name = engineName;
         _provider = provider;
-        _dataSource = dataSource;
 
         _groupMap = new MapMaker().concurrencyLevel(2).makeMap();
         _channelMap = new MapMaker().concurrencyLevel(2).makeMap();
@@ -166,7 +162,7 @@ public final class EngineModel {
 
     /** @return All channels */
     @Nonnull
-    public Collection<ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> getChannels() {
+    public Collection<ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>> getChannels() {
         return _channelMap.values();
     }
 
@@ -210,7 +206,7 @@ public final class EngineModel {
      */
     private void checkAndUpdateLastShutdownStatus(@Nonnull final IServiceProvider provider,
                                                   @Nonnull final IArchiveEngine engine,
-                                                  @Nonnull final Collection<ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> channels)
+                                                  @Nonnull final Collection<ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>> channels)
                                                   throws EngineModelException {
         try {
             final IArchiveEngineFacade facade = provider.getEngineFacade();
@@ -257,7 +253,7 @@ public final class EngineModel {
      */
     private void checkAndUpdateChannelsStatus(@Nonnull final IArchiveEngineFacade facade,
                                               @Nonnull final IArchiveEngine engine,
-                                              @Nonnull final Collection<ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> channels)
+                                              @Nonnull final Collection<ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>> channels)
                                               throws ArchiveServiceException {
 
         final TimeInstant latestAliveTime = engine.getLastAliveTime();
@@ -390,7 +386,7 @@ public final class EngineModel {
 
             for (final IArchiveChannelGroup groupCfg : groups) {
                 final ArchiveGroup group = addGroup(groupCfg);
-                EngineModelConfigurator.configureGroup(_provider, group, _channelMap, _dataSource);
+                EngineModelConfigurator.configureGroup(_provider, group, _channelMap);
             }
         } catch (final Exception e) {
             handleExceptions(e);
@@ -441,7 +437,7 @@ public final class EngineModel {
 
     @SuppressWarnings("unchecked")
     @Nonnull
-    public ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>
+    public ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>
     configureNewChannel(@Nonnull final EpicsChannelName epicsName,
                         @Nonnull final String groupName,
                         @Nullable final String type,
@@ -462,9 +458,8 @@ public final class EngineModel {
                                                                     high,
                                                                     group,
                                                                     _channelMap,
-                                                                    _dataSource,
                                                                     _provider);
-        return (ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>) channelBuffer;
+        return (ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>) channelBuffer;
     }
 
     public void removeChannelFromConfiguration(@Nonnull final String name) throws EngineModelException{

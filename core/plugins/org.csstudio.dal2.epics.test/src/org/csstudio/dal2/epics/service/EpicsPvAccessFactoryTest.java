@@ -29,6 +29,7 @@ import gov.aps.jca.Context;
 
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
+import org.csstudio.dal2.epics.mapping.SimpleTypeMapping;
 import org.csstudio.dal2.service.DalException;
 import org.junit.Test;
 
@@ -46,13 +47,13 @@ public class EpicsPvAccessFactoryTest {
 		Context jcaContext = mock(Context.class);
 		PvAddress pvAddress = PvAddress.getValue("TestDal:ConstantPV");
 		
-		EpicsPvAccessFactory service = new EpicsPvAccessFactory(jcaContext);
-		EpicsPvAccess<Long> pvAccess1 = (EpicsPvAccess<Long>) service.createPVAccess(pvAddress, Type.LONG);
+		EpicsPvAccessFactory service = new EpicsPvAccessFactory(jcaContext, new SimpleTypeMapping());
+		EpicsPvAccess<Integer> pvAccess1 = (EpicsPvAccess<Integer>) service.createPVAccess(pvAddress, Type.LONG);
 		
 		assertEquals(pvAddress, pvAccess1.getPvAddress());
 		assertEquals(jcaContext, pvAccess1.getJcaContext());
 		
-		EpicsPvAccess<Long> pvAccess2 = (EpicsPvAccess<Long>) service.createPVAccess(pvAddress, Type.LONG);
+		EpicsPvAccess<Integer> pvAccess2 = (EpicsPvAccess<Integer>) service.createPVAccess(pvAddress, Type.LONG);
 		assertNotSame(pvAccess1, pvAccess2);
 	}
 	

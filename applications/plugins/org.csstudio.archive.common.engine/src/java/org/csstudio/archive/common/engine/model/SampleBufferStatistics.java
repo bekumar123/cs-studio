@@ -30,7 +30,7 @@ public final class SampleBufferStatistics {
     }
 
     public synchronized double getAverageSize() {
-        final Double value  = _avgSize.getValue();
+        final Double value  = _avgSize.readValue();
         return value == null ? 0.0 : value.doubleValue();
     }
 

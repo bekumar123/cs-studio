@@ -41,10 +41,9 @@ import org.csstudio.archive.common.service.engine.ArchiveEngineId;
 import org.csstudio.archive.common.service.engine.IArchiveEngine;
 import org.csstudio.archive.common.service.util.ArchiveTypeConversionSupport;
 import org.csstudio.domain.desy.epics.name.EpicsChannelName;
-import org.csstudio.domain.desy.epics.pvmanager.DesyJCADataSource;
 import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
 import org.csstudio.domain.desy.system.ControlSystem;
-import org.csstudio.domain.desy.system.ISystemVariable;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.typesupport.TypeSupportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,34 +67,32 @@ public final class EngineModelConfigurator {
 
     public static void configureGroup(@Nonnull final IServiceProvider provider,
                                       @Nonnull final ArchiveGroup group,
-                                      @Nonnull final ConcurrentMap<String, ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> channelMap,
-                                      @Nonnull final DesyJCADataSource dataSource)
+                                      @Nonnull final ConcurrentMap<String, ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>> channelMap)
                                       throws ArchiveServiceException,
-                                             OsgiServiceUnavailableException {
+                                             OsgiServiceUnavailableException, EngineModelException {
         LOG.info("Configure group '{}'.", group.getName());
         final Collection<IArchiveChannel> channelCfgs =
             provider.getEngineFacade().getChannelsByGroupId(group.getId());
         LOG.info("with {} channels", channelCfgs.size());
 
         for (final IArchiveChannel channelCfg : channelCfgs) {
-            final ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>> channelBuffer =
-                createAndAddArchiveChannelBuffer(provider, channelCfg, channelMap, dataSource);
+            final ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>> channelBuffer =
+                createAndAddArchiveChannelBuffer(provider, channelCfg, channelMap);
             group.add(channelBuffer);
         }
     }
 
     @Nonnull
-    public static ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>
+    public static ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>
     createAndAddArchiveChannelBuffer(@Nonnull final IServiceProvider provider,
                                      @Nonnull final IArchiveChannel channelCfg,
-                                     @Nonnull final ConcurrentMap<String, ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> channelMap,
-                                     @Nonnull final DesyJCADataSource dataSource) {
+                                     @Nonnull final ConcurrentMap<String, ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>> channelMap) throws EngineModelException {
 
         @SuppressWarnings({ "rawtypes", "unchecked" })
-        final ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>> channel =
-            new ArchiveChannelBuffer(channelCfg, provider, dataSource);
+        final ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>> channel =
+            new ArchiveChannelBuffer(channelCfg, provider);
 
-        ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>> presentChannel =
+        ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>> presentChannel =
             channelMap.putIfAbsent(channel.getName(), channel);
 
         if (presentChannel == null) {
@@ -151,7 +148,7 @@ public final class EngineModelConfigurator {
     }
 
     public static void removeChannel(@Nonnull final String name,
-                                     @Nonnull final ConcurrentMap<String, ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> channelMap,
+                                     @Nonnull final ConcurrentMap<String, ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>> channelMap,
                                      @Nonnull final Collection<ArchiveGroup> groups,
                                      @Nonnull final IServiceProvider provider) throws EngineModelException {
         channelMap.remove(name);
@@ -179,8 +176,7 @@ public final class EngineModelConfigurator {
                                                                  @Nullable final String low,
                                                                  @Nullable final String high,
                                                                  @Nullable final ArchiveGroup group,
-                                                                 @Nullable final ConcurrentMap<String, ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> channelMap,
-                                                                 @Nullable final DesyJCADataSource dataSource,
+                                                                 @Nullable final ConcurrentMap<String, ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>> channelMap,
                                                                  @Nonnull final IServiceProvider provider) throws EngineModelException {
     // CHECKSTYLE ON: ParameterNumber
 
@@ -213,7 +209,7 @@ public final class EngineModelConfigurator {
                 provider.getEngineFacade().getChannelByName(epicsName.toString());
             if (cfg != null) {
                 final ArchiveChannelBuffer<?, ?> channelBuffer =
-                    createAndAddArchiveChannelBuffer(provider, cfg, channelMap, dataSource);
+                    createAndAddArchiveChannelBuffer(provider, cfg, channelMap);
                 group.add(channelBuffer);
 
                 return channelBuffer;

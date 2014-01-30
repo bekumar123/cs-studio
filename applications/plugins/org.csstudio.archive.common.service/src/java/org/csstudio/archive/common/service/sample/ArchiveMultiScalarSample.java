@@ -27,8 +27,7 @@ import java.util.Collection;
 import javax.annotation.Nonnull;
 
 import org.csstudio.archive.common.service.channel.ArchiveChannelId;
-import org.csstudio.domain.desy.alarm.IAlarm;
-import org.csstudio.domain.desy.system.ISystemVariable;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 
 /**
  * Data transfer object for multi scalar sample.
@@ -41,7 +40,7 @@ import org.csstudio.domain.desy.system.ISystemVariable;
  */
 public class ArchiveMultiScalarSample<V extends Serializable,
                                       C extends Serializable & Collection<V>,
-                                      T extends ISystemVariable<C>> extends ArchiveSample<C, T>{
+                                      T extends IAlarmSystemVariable<C>> extends ArchiveSample<C, T>{
 
     private static final long serialVersionUID = -2453137570581671787L;
 
@@ -49,9 +48,8 @@ public class ArchiveMultiScalarSample<V extends Serializable,
      * Constructor.
      */
     public ArchiveMultiScalarSample(@Nonnull final ArchiveChannelId channelId,
-                                    @Nonnull final T data,
-                                    @Nonnull final IAlarm alarm) {
-        super(channelId, data, alarm);
+                                    @Nonnull final T data) {
+        super(channelId, data);
     }
 
 }

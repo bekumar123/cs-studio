@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
+import org.csstudio.dal2.epics.mapping.IEpicsTypeMapping;
 import org.csstudio.dal2.service.DalException;
 import org.csstudio.dal2.service.cs.CsPvData;
 import org.csstudio.dal2.service.cs.ICsOperationHandle;
@@ -46,6 +47,8 @@ public class EpicsPvAccess<T> implements ICsPvAccess<T> {
 	 */
 	private Map<ICsResponseListener<CsPvData<T>>, AbstractChannelOperator> openRequests = new HashMap<ICsResponseListener<CsPvData<T>>, AbstractChannelOperator>();
 
+	private IEpicsTypeMapping _typeMapping;
+
 	/**
 	 * Constructor
 	 * 
@@ -57,16 +60,20 @@ public class EpicsPvAccess<T> implements ICsPvAccess<T> {
 	 *            the type used for the connection to the process variable
 	 * 
 	 * @require jcaContext != null
+	 * @require typeMapping != null
 	 * @require pv != null
 	 * @require type != null
 	 */
-	public EpicsPvAccess(final Context jcaContext, PvAddress pv, Type<T> type) {
+	public EpicsPvAccess(final Context jcaContext,
+			IEpicsTypeMapping typeMapping, PvAddress pv, Type<T> type) {
 
 		assert jcaContext != null : "Precondition: jcaContext!=null";
+		assert typeMapping != null : "Precondition: typeMapping != null";
 		assert pv != null : "Precondition: pv != null";
 		assert type != null : "Precondition: type != null";
 
 		_jcaContext = jcaContext;
+		_typeMapping = typeMapping;
 		_pv = pv;
 		_type = type;
 	}
@@ -95,7 +102,8 @@ public class EpicsPvAccess<T> implements ICsPvAccess<T> {
 						"Monitor already initialized with a different listener");
 			}
 		} else {
-			_monitor = new ChannelMonitor<T>(_jcaContext, _pv, _type, listener);
+			_monitor = new ChannelMonitor<T>(_jcaContext, _typeMapping, _pv,
+					_type, listener);
 		}
 
 	}
@@ -111,21 +119,22 @@ public class EpicsPvAccess<T> implements ICsPvAccess<T> {
 	}
 
 	@Override
-	public ICsOperationHandle getValue(final ICsResponseListener<CsPvData<T>> callback)
+	public ICsOperationHandle getValue(
+			final ICsResponseListener<CsPvData<T>> callback)
 			throws DalException {
 
-		GetValueRequester<T> requester = new GetValueRequester<T>(_jcaContext, _pv,
-						_type, callback) {
-					@Override
-					protected void onDispose() {
-						openRequests.remove(callback);
-					}
-				};
+		GetValueRequester<T> requester = new GetValueRequester<T>(_jcaContext,
+				_typeMapping, _pv, _type, callback) {
+			@Override
+			protected void onDispose() {
+				openRequests.remove(callback);
+			}
+		};
 		openRequests.put(callback, requester);
 		assert requester != null : "Postcondition: result != null";
 		return requester;
 	}
-	
+
 	protected final Context getJcaContext() {
 		return _jcaContext;
 	}

@@ -43,7 +43,7 @@ import org.csstudio.domain.desy.epics.types.EpicsSystemVariable;
 import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
 import org.csstudio.domain.desy.system.ControlSystem;
 import org.csstudio.domain.desy.system.ControlSystemType;
-import org.csstudio.domain.desy.system.ISystemVariable;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
 import org.csstudio.domain.desy.types.Limits;
@@ -85,32 +85,30 @@ public final class TestUtils {
                                                                        new ArchiveControlSystem("EPICS", ControlSystemType.EPICS_V3),
                                                                        true);
 
-    public static final Collection<IArchiveSample<Double, ISystemVariable<Double>>> CHANNEL_1_SAMPLES =
-        new ArrayList<IArchiveSample<Double, ISystemVariable<Double>>>();
+    public static final Collection<IArchiveSample<Double, IAlarmSystemVariable<Double>>> CHANNEL_1_SAMPLES =
+        new ArrayList<IArchiveSample<Double, IAlarmSystemVariable<Double>>>();
 
-    public static final Collection<IArchiveSample<Double, ISystemVariable<Double>>> CHANNEL_2_SAMPLES =
-        new ArrayList<IArchiveSample<Double, ISystemVariable<Double>>>();
+    public static final Collection<IArchiveSample<Double, IAlarmSystemVariable<Double>>> CHANNEL_2_SAMPLES =
+        new ArrayList<IArchiveSample<Double, IAlarmSystemVariable<Double>>>();
 
-    public static final Collection<IArchiveSample<Double, ISystemVariable<Double>>> CHANNEL_3_SAMPLES =
-        new ArrayList<IArchiveSample<Double, ISystemVariable<Double>>>();
+    public static final Collection<IArchiveSample<Double, IAlarmSystemVariable<Double>>> CHANNEL_3_SAMPLES =
+        new ArrayList<IArchiveSample<Double, IAlarmSystemVariable<Double>>>();
 
     static {
         int id = 0;
-        CHANNEL_1_SAMPLES.add(new ArchiveMinMaxSample<Double, ISystemVariable<Double>>(new ArchiveChannelId(id++),
+        CHANNEL_1_SAMPLES.add(new ArchiveMinMaxSample<Double, IAlarmSystemVariable<Double>>(new ArchiveChannelId(id++),
                                                                                        new EpicsSystemVariable<Double>(CHANNEL_NAME_1,
                                                                                                                  10.0,
                                                                                                                  ControlSystem.EPICS_DEFAULT,
                                                                                                                  TimeInstantBuilder.fromMillis(10L),
                                                                                                                  EpicsAlarm.UNKNOWN),
-                                                                                       EpicsAlarm.UNKNOWN,
                                                                                        9.0, 11.0));
-        CHANNEL_1_SAMPLES.add(new ArchiveMinMaxSample<Double, ISystemVariable<Double>>(new ArchiveChannelId(id++),
+        CHANNEL_1_SAMPLES.add(new ArchiveMinMaxSample<Double, IAlarmSystemVariable<Double>>(new ArchiveChannelId(id++),
                                                                                        new EpicsSystemVariable<Double>(CHANNEL_NAME_1,
                                                                                                                  20.0,
                                                                                                                  ControlSystem.EPICS_DEFAULT,
                                                                                                                  TimeInstantBuilder.fromMillis(20L),
                                                                                                                  EpicsAlarm.UNKNOWN),
-                                                                                       EpicsAlarm.UNKNOWN,
                                                                                        19.0, 21.0));
 
         CHANNEL_2_SAMPLES.add(createArchiveMinMaxDoubleSample(CHANNEL_NAME_2, TimeInstantBuilder.fromMillis(125L), 5.0));
@@ -131,13 +129,12 @@ public final class TestUtils {
     public static IArchiveMinMaxSample createArchiveMinMaxDoubleSample(@Nonnull final String channelName,
                                                                        @Nonnull final TimeInstant ts,
                                                                        @Nonnull final Double value) {
-        return new ArchiveMinMaxSample<Double, ISystemVariable<Double>>(new ArchiveChannelId(1L),
+        return new ArchiveMinMaxSample<Double, IAlarmSystemVariable<Double>>(new ArchiveChannelId(1L),
                                                                         new EpicsSystemVariable<Double>(channelName,
                                                                                                         value,
                                                                                                         ControlSystem.EPICS_DEFAULT,
                                                                                                         ts,
                                                                                                         EpicsAlarm.UNKNOWN),
-                                                                         EpicsAlarm.UNKNOWN,
                                                                          value, value);
     }
 

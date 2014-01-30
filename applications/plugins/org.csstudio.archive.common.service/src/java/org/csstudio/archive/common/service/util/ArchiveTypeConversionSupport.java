@@ -41,6 +41,7 @@ import org.csstudio.archive.common.service.channel.ArchiveLimitsChannel;
 import org.csstudio.archive.common.service.channel.IArchiveChannel;
 import org.csstudio.archive.common.service.channelgroup.ArchiveChannelGroupId;
 import org.csstudio.archive.common.service.controlsystem.IArchiveControlSystem;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarmSeverity;
 import org.csstudio.domain.desy.epics.types.EpicsEnum;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.typesupport.AbstractTypeSupport;
@@ -77,11 +78,11 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
 
     protected static final String ARCHIVE_NULL_ENTRY = "<null>";
 
-    private static final String[] ADDITIONAL_TYPE_PACKAGES =
-        new String[]{
-                     "org.csstudio.domain.desy.epics.types",
-                     };
+    private static final String[] ADDITIONAL_TYPE_PACKAGES = new String[] { "org.csstudio.domain.desy.epics.types" };
     private static boolean INSTALLED;
+
+    private static final Logger LOG = LoggerFactory.getLogger(ArchiveTypeConversionSupport.class);
+
     /**
      * Constructor.
      */
@@ -120,8 +121,8 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
         @SuppressWarnings("unchecked")
         final Class<T> typeClass = (Class<T>) value.getClass();
         final ArchiveTypeConversionSupport<T> support =
-            (ArchiveTypeConversionSupport<T>) findTypeSupportForOrThrowTSE(ArchiveTypeConversionSupport.class,
-                                                                           typeClass);
+                                                        (ArchiveTypeConversionSupport<T>) findTypeSupportForOrThrowTSE(ArchiveTypeConversionSupport.class,
+                                                                                                                       typeClass);
         return support.convertToArchiveString(value);
     }
 
@@ -161,26 +162,22 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
      * @throws TypeSupportException
      */
     @Nonnull
-    public static <T extends Serializable> T fromArchiveString(@Nonnull final Class<T> typeClass,
-                                                               @Nonnull final String value) throws TypeSupportException {
+    public static <T extends Serializable> T fromArchiveString(@Nonnull final Class<T> typeClass, @Nonnull final String value) throws TypeSupportException {
         final ArchiveTypeConversionSupport<T> support =
-            (ArchiveTypeConversionSupport<T>) findTypeSupportForOrThrowTSE(ArchiveTypeConversionSupport.class,
-                                                                           typeClass);
+                                                        (ArchiveTypeConversionSupport<T>) findTypeSupportForOrThrowTSE(ArchiveTypeConversionSupport.class,
+                                                                                                                       typeClass);
         return support.convertFromArchiveString(value);
     }
 
-
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Nonnull
-    public static <T extends Serializable> T fromArchiveString(@Nonnull final String datatype,
-                                                               @Nonnull final String value) throws TypeSupportException {
+    public static <T extends Serializable> T fromArchiveString(@Nonnull final String datatype, @Nonnull final String value) throws TypeSupportException {
         final Class<T> typeClass = (Class<T>) createTypeClassFromArchiveString(datatype);
         if (!Collection.class.isAssignableFrom(typeClass)) {
             return fromArchiveString(typeClass, value);
         }
 
-        final String elemType =
-            BaseTypeConversionSupport.parseForFirstNestedGenericType(datatype);
+        final String elemType = BaseTypeConversionSupport.parseForFirstNestedGenericType(datatype);
         final Class<T> elemClass = (Class<T>) createTypeClassFromArchiveString(elemType);
         return (T) fromArchiveString((Class) typeClass, (Class) elemClass, value);
     }
@@ -200,30 +197,31 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
      * elements could not be converted from the values string.
      */
     @Nonnull
-    public static <T extends Serializable, C extends Collection<T> & Serializable>
-    C fromArchiveString(@Nonnull final Class<C> collectionClass,
-                        @Nonnull final Class<T> elemClass,
-                        @Nonnull final String values) throws TypeSupportException {
+    public static <T extends Serializable, C extends Collection<T> & Serializable> C fromArchiveString(@Nonnull final Class<C> collectionClass,
+                                                                                                       @Nonnull final Class<T> elemClass,
+                                                                                                       @Nonnull final String values) throws TypeSupportException {
         final ArchiveTypeConversionSupport<T> elemSupport =
-            (ArchiveTypeConversionSupport<T>) findTypeSupportForOrThrowTSE(ArchiveTypeConversionSupport.class,
-                                                                           elemClass);
+                                                            (ArchiveTypeConversionSupport<T>) findTypeSupportForOrThrowTSE(ArchiveTypeConversionSupport.class,
+                                                                                                                           elemClass);
         final String releasedStr = collectionRelease(values);
         if (releasedStr == null) {
-            throw new TypeSupportException("Values representation does not adhere to multi scalar start and end delimiters.", null);
+            throw new TypeSupportException("Values representation does not adhere to multi scalar start and end delimiters.",
+                                           null);
         }
         final Iterable<String> strings = Splitter.on(ARCHIVE_COLLECTION_ELEM_SEP).split(releasedStr);
 
-        final Iterable<T> typedValues = Iterables.filter(Iterables.transform(strings, new String2TypeFunction<T>(elemSupport)),
-                                                         Predicates.<T>notNull());
+        final Iterable<T> typedValues =
+                                        Iterables.filter(Iterables.transform(strings,
+                                                                             new String2TypeFunction<T>(elemSupport)),
+                                                         Predicates.<T> notNull());
         checkInputVsOutputSize(strings, typedValues);
 
         return createCollectionFromIterable(collectionClass, typedValues);
     }
 
     @Nonnull
-    protected static <T extends Serializable, C extends Collection<T> & Serializable>
-    C createCollectionFromIterable(@Nonnull final Class<C> collectionClass,
-                                   @Nonnull final Iterable<T> values) throws TypeSupportException {
+    protected static <T extends Serializable, C extends Collection<T> & Serializable> C createCollectionFromIterable(@Nonnull final Class<C> collectionClass,
+                                                                                                                     @Nonnull final Iterable<T> values) throws TypeSupportException {
         try {
             final C collection = collectionClass.newInstance();
             for (final T elem : values) {
@@ -250,15 +248,15 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
         if (Strings.isNullOrEmpty(datatype)) {
             return null;
         }
-        return (Class<Serializable>) BaseTypeConversionSupport.createBaseTypeClassFromString(datatype, ADDITIONAL_TYPE_PACKAGES);
+        return (Class<Serializable>) BaseTypeConversionSupport.createBaseTypeClassFromString(datatype,
+                                                                                             ADDITIONAL_TYPE_PACKAGES);
     }
 
     @Nonnull
-    public static <T extends Serializable> T fromDouble(@Nonnull final Class<T> typeClass,
-                                                        @Nonnull final Double value) throws TypeSupportException {
+    public static <T extends Serializable> T fromDouble(@Nonnull final Class<T> typeClass, @Nonnull final Double value) throws TypeSupportException {
         final ArchiveTypeConversionSupport<T> support =
-            (ArchiveTypeConversionSupport<T>) findTypeSupportForOrThrowTSE(ArchiveTypeConversionSupport.class,
-                                                                           typeClass);
+                                                        (ArchiveTypeConversionSupport<T>) findTypeSupportForOrThrowTSE(ArchiveTypeConversionSupport.class,
+                                                                                                                       typeClass);
         return support.convertFromDouble(value);
     }
 
@@ -270,6 +268,7 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
         }
         return isDataTypeSerializableCollection(typeClass);
     }
+
     @Nonnull
     public static Boolean isDataTypeSerializableCollection(@Nonnull final Class<?> typeClass) {
         return Collection.class.isAssignableFrom(typeClass) && Serializable.class.isAssignableFrom(typeClass);
@@ -285,12 +284,12 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
     public static Boolean isDataTypeOptimizable(@Nonnull final String dataType) throws TypeSupportException {
         final Class<?> typeClass = createTypeClassFromArchiveString(dataType);
         if (typeClass == null) {
-            throw new TypeSupportException("Class object for data type " + dataType +
-                                           " could not be loaded from packages " +
-                                           Joiner.on(", ").join(ADDITIONAL_TYPE_PACKAGES), null);
+            throw new TypeSupportException("Class object for data type " + dataType + " could not be loaded from packages "
+                                           + Joiner.on(", ").join(ADDITIONAL_TYPE_PACKAGES), null);
         }
         return isDataTypeOptimizable(typeClass);
     }
+
     /**
      * Returns whether the given data type is optimizable by averaging.
      * This datatype has to have a registered type support with convertibility to Double type.
@@ -300,49 +299,45 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
     @Nonnull
     public static <T> Boolean isDataTypeOptimizable(@Nonnull final Class<T> dataType) throws TypeSupportException {
         final ArchiveTypeConversionSupport<?> support =
-            (ArchiveTypeConversionSupport<?>) findTypeSupportForOrThrowTSE(ArchiveTypeConversionSupport.class,
-                                                                           dataType);
+                                                        (ArchiveTypeConversionSupport<?>) findTypeSupportForOrThrowTSE(ArchiveTypeConversionSupport.class,
+                                                                                                                       dataType);
         return support.isOptimizableByAveraging();
     }
 
     // CHECKSTYLE OFF : ParameterNumber
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Nonnull
-    public static <T extends Serializable>
-    IArchiveChannel createArchiveChannel(@Nonnull final ArchiveChannelId id,
-                                         @Nonnull final String name,
-                                         @Nullable final String datatype,
-                                         @Nonnull final ArchiveChannelGroupId archiveChannelGroupId,
-                                         @Nullable final TimeInstant time,
-                                         @Nonnull final IArchiveControlSystem cs,
-                                         final boolean enabled,
-                                         @CheckForNull final String low,
-                                         @CheckForNull final String high) throws TypeSupportException {
+    public static <T extends Serializable> IArchiveChannel createArchiveChannel(@Nonnull final ArchiveChannelId id,
+                                                                                @Nonnull final String name,
+                                                                                @Nullable final String datatype,
+                                                                                @Nonnull final ArchiveChannelGroupId archiveChannelGroupId,
+                                                                                @Nullable final TimeInstant time,
+                                                                                @Nonnull final IArchiveControlSystem cs,
+                                                                                final boolean enabled,
+                                                                                @CheckForNull final String low,
+                                                                                @CheckForNull final String high) throws TypeSupportException {
         // CHECKSTYLE ON : ParameterNumber
 
-        if (datatype != null) {
-            final Class<T> clazz = (Class<T>) createTypeClassFromArchiveString(datatype);
-            if (!ArchiveTypeConversionSupport.isDataTypeSerializableCollection(clazz) &&
-                !Strings.isNullOrEmpty(low) &&
-                !Strings.isNullOrEmpty(high)) {
-                return new ArchiveLimitsChannel(id,
-                                                name,
-                                                datatype,
-                                                archiveChannelGroupId,
-                                                time,
-                                                cs,
-                                                enabled,
-                                                (Comparable) fromArchiveString(clazz, low),
-                                                (Comparable) fromArchiveString(clazz, high));
+        try {
+            if (datatype != null) {
+                final Class<T> clazz = (Class<T>) createTypeClassFromArchiveString(datatype);
+                if (!ArchiveTypeConversionSupport.isDataTypeSerializableCollection(clazz) && !Strings.isNullOrEmpty(low)
+                    && !Strings.isNullOrEmpty(high)) {
+                    return new ArchiveLimitsChannel(id,
+                                                    name,
+                                                    datatype,
+                                                    archiveChannelGroupId,
+                                                    time,
+                                                    cs,
+                                                    enabled,
+                                                    (Comparable) fromArchiveString(clazz, low),
+                                                    (Comparable) fromArchiveString(clazz, high));
+                }
             }
+        } catch (final Exception e) {
+            LOG.warn("Error reading datatype. Datatype, high and low will be ignored. Message: {}", e.getMessage());
         }
-        return new ArchiveChannel(id,
-                                  name,
-                                  datatype,
-                                  archiveChannelGroupId,
-                                  time,
-                                  cs,
-                                  enabled);
+        return new ArchiveChannel(id, name, datatype, archiveChannelGroupId, time, cs, enabled);
     }
 
     protected static <T> void checkInputVsOutputSize(@Nonnull final Iterable<String> strings,
@@ -354,7 +349,8 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
             throw new TypeSupportException("Values representation is not convertible to " + EpicsEnum.class.getName(), e);
         }
         if (Iterables.size(strings) != size) {
-            throw new TypeSupportException("Number of values in string representation does not match the size of the result collection..", null);
+            throw new TypeSupportException("Number of values in string representation does not match the size of the result collection..",
+                                           null);
         }
     }
 
@@ -362,27 +358,31 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
     protected static String collectionEmbrace(@Nonnull final String input) {
         return embrace(ARCHIVE_COLLECTION_PREFIX, input, ARCHIVE_COLLECTION_SUFFIX);
     }
+
     @Nonnull
     protected static String tupleEmbrace(@Nonnull final String input) {
         return embrace(ARCHIVE_TUPLE_PREFIX, input, ARCHIVE_TUPLE_SUFFIX);
     }
+
     @Nonnull
     private static String embrace(@Nonnull final String prefix, @Nonnull final String input, @Nonnull final String suffix) {
         return prefix + input + suffix;
     }
+
     @CheckForNull
     protected static String collectionRelease(@Nonnull final String input) {
         return release(ARCHIVE_COLLECTION_PREFIX, input, ARCHIVE_COLLECTION_SUFFIX);
     }
+
     @CheckForNull
     protected static String tupleRelease(@Nonnull final String input) {
         return release(ARCHIVE_TUPLE_PREFIX, input, ARCHIVE_TUPLE_SUFFIX);
     }
+
     @CheckForNull
     private static String release(@Nonnull final String prefix, @Nonnull final String input, @Nonnull final String suffix) {
         if (input.startsWith(prefix) && input.endsWith(suffix)) {
-            return input.substring(prefix.length(),
-                                   input.length() - suffix.length());
+            return input.substring(prefix.length(), input.length() - suffix.length());
         }
         return null;
     }
@@ -394,8 +394,7 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
      * @since 22.12.2010
      */
     protected final class Type2StringFunction implements Function<T, String> {
-        private final Logger _log =
-                LoggerFactory.getLogger(ArchiveTypeConversionSupport.Type2StringFunction.class);
+        private final Logger _log = LoggerFactory.getLogger(ArchiveTypeConversionSupport.Type2StringFunction.class);
         private final ArchiveTypeConversionSupport<T> _support;
 
         /**
@@ -417,6 +416,7 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
             }
         }
     }
+
     /**
      * Archive string to type converter function for guava collection transforming.
      *
@@ -424,8 +424,8 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
      * @since 22.12.2010
      */
     protected static final class String2TypeFunction<T extends Serializable> implements Function<String, T> {
-        private static final Logger S2T_LOG =
-            LoggerFactory.getLogger(ArchiveTypeConversionSupport.String2TypeFunction.class);
+        private static final Logger S2T_LOG = LoggerFactory
+                .getLogger(ArchiveTypeConversionSupport.String2TypeFunction.class);
         private final ArchiveTypeConversionSupport<T> _support;
 
         /**
@@ -448,11 +448,12 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
         }
     }
 
-
     @Nonnull
     protected abstract String convertToArchiveString(@Nonnull final T value) throws TypeSupportException;
+
     @Nonnull
     protected abstract T convertFromArchiveString(@Nonnull final String value) throws TypeSupportException;
+
     @Nonnull
     protected abstract T convertFromDouble(@Nonnull final Double value) throws TypeSupportException;
 
@@ -473,15 +474,36 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
 
         final Class<? extends Object> clazz = data.getClass();
         if (Collection.class.isAssignableFrom(clazz) && !((Collection) data).isEmpty()) {
-            return clazz.getSimpleName() +
-                    "<" +
-                   createArchiveTypeStringFromData(((Collection) data).iterator().next()) +
-                   ">";
+            return clazz.getSimpleName() + "<" + createArchiveTypeStringFromData(((Collection) data).iterator().next())
+                   + ">";
         } else {
             return clazz.getSimpleName();
         }
     }
 
+    /**
+     * Creates the string representation of the severity used in archive
+     *
+     * @param severity
+     * @return
+     */
+    public static String toSeverityArchiveString(final EpicsAlarmSeverity severity) {
+        final int archiverValue = severity.ordinal(); // TODO use value from mapping table
+        final int csValue = severity.ordinal();
+        return Integer.toString(archiverValue * 100 + csValue);
+    }
 
+    public static EpicsAlarmSeverity fromSeverityArchiveString(final String severityString) {
+
+        EpicsAlarmSeverity result = EpicsAlarmSeverity.UNKNOWN;
+        try {
+            final int severityIntValue = Integer.parseInt(severityString) % 100;
+            result = EpicsAlarmSeverity.values()[severityIntValue];
+        } catch (final NumberFormatException e) {
+            // old value found. try to parse as string
+            result = EpicsAlarmSeverity.parseSeverity(severityString);
+        }
+        return result;
+    }
 
 }

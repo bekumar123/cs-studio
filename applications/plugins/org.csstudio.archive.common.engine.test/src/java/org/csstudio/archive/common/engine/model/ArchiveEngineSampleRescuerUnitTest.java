@@ -46,6 +46,7 @@ import org.csstudio.domain.desy.epics.alarm.EpicsAlarm;
 import org.csstudio.domain.desy.epics.types.EpicsEnum;
 import org.csstudio.domain.desy.epics.types.EpicsSystemVariable;
 import org.csstudio.domain.desy.system.ControlSystem;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.system.ISystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
 import org.csstudio.domain.desy.typesupport.TypeSupportException;
@@ -87,38 +88,35 @@ public class ArchiveEngineSampleRescuerUnitTest {
 
         ArchiveTypeConversionSupport.install();
 
-        final IArchiveSample<Double, ISystemVariable<Double>> sample1 =
-            new ArchiveSample<Double, ISystemVariable<Double>>(new ArchiveChannelId(1),
+        final IArchiveSample<Double, IAlarmSystemVariable<Double>> sample1 =
+            new ArchiveSample<Double, IAlarmSystemVariable<Double>>(new ArchiveChannelId(1),
                                                                new EpicsSystemVariable("leonard",
                                                                                        Double.valueOf(2.0),
                                                                                        ControlSystem.EPICS_DEFAULT,
                                                                                        TimeInstantBuilder.fromNow(),
-                                                                                       EpicsAlarm.UNKNOWN),
-                                                               null);
-        final IArchiveSample<Integer, ISystemVariable<Integer>> sample2 =
-            new ArchiveSample<Integer, ISystemVariable<Integer>>(new ArchiveChannelId(2),
+                                                                                       EpicsAlarm.UNKNOWN));
+        final IArchiveSample<Integer, IAlarmSystemVariable<Integer>> sample2 =
+            new ArchiveSample<Integer, IAlarmSystemVariable<Integer>>(new ArchiveChannelId(2),
                                                                  new EpicsSystemVariable("sheldon",
                                                                                          Integer.valueOf(26),
                                                                                          ControlSystem.EPICS_DEFAULT,
                                                                                          TimeInstantBuilder.fromNow(),
-                                                                                         EpicsAlarm.UNKNOWN),
-                                                                 null);
-        final IArchiveSample<EpicsEnum, ISystemVariable<EpicsEnum>> sample3 =
-            new ArchiveSample<EpicsEnum, ISystemVariable<EpicsEnum>>(new ArchiveChannelId(3),
+                                                                                         EpicsAlarm.UNKNOWN));
+        final IArchiveSample<EpicsEnum, IAlarmSystemVariable<EpicsEnum>> sample3 =
+            new ArchiveSample<EpicsEnum, IAlarmSystemVariable<EpicsEnum>>(new ArchiveChannelId(3),
                                                                      new EpicsSystemVariable("howard",
                                                                                              EpicsEnum.createFromRaw(666),
                                                                                              ControlSystem.EPICS_DEFAULT,
                                                                                              TimeInstantBuilder.fromNow(),
-                                                                                             EpicsAlarm.UNKNOWN),
-                                                                     null);
-        final IArchiveSample<ArrayList<Double>, ISystemVariable<ArrayList<Double>>> sample4 =
-            new ArchiveSample<ArrayList<Double>, ISystemVariable<ArrayList<Double>>>(new ArchiveChannelId(3),
+                                                                                             EpicsAlarm.UNKNOWN));
+        final IArchiveSample<ArrayList<Double>, IAlarmSystemVariable<ArrayList<Double>>> sample4 =
+            new ArchiveSample<ArrayList<Double>, IAlarmSystemVariable<ArrayList<Double>>>(new ArchiveChannelId(3),
                     new EpicsSystemVariable("rajesh",
                                             Lists.newArrayList(1.0, 2.0, 3.0, 4.0, 5.0),
                                             ControlSystem.EPICS_DEFAULT,
                                             TimeInstantBuilder.fromNow(),
-                                            EpicsAlarm.UNKNOWN),
-                                            null);
+                                            EpicsAlarm.UNKNOWN)
+                                            );
 
         SAMPLES = new ArrayList();
         SAMPLES.add((IArchiveSample) sample1);

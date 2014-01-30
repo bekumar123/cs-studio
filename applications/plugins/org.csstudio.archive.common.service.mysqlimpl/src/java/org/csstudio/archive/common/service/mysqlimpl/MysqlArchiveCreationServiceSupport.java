@@ -43,7 +43,7 @@ import org.csstudio.archive.common.service.mysqlimpl.dao.ArchiveDaoException;
 import org.csstudio.archive.common.service.mysqlimpl.enginestatus.IArchiveEngineStatusDao;
 import org.csstudio.archive.common.service.mysqlimpl.sample.IArchiveSampleDao;
 import org.csstudio.archive.common.service.sample.IArchiveSample;
-import org.csstudio.domain.desy.system.ISystemVariable;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 
 import com.google.inject.Inject;
@@ -81,7 +81,7 @@ public class MysqlArchiveCreationServiceSupport {
         _channelStatusDao = channelStatusDao;
     }
 
-    <V extends Serializable, T extends ISystemVariable<V>>
+    <V extends Serializable, T extends IAlarmSystemVariable<V>>
     boolean createSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveServiceException {
         try {
             _sampleDao.createSamples(samples);

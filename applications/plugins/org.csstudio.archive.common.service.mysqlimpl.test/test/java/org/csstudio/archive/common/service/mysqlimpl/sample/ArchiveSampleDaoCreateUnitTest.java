@@ -55,7 +55,7 @@ import org.csstudio.archive.common.service.mysqlimpl.dao.ArchiveDaoException;
 import org.csstudio.archive.common.service.mysqlimpl.requesttypes.DesyArchiveRequestType;
 import org.csstudio.archive.common.service.sample.ArchiveMinMaxSample;
 import org.csstudio.archive.common.service.sample.IArchiveSample;
-import org.csstudio.domain.desy.system.ISystemVariable;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.junit.AfterClass;
 import org.junit.Test;
@@ -104,7 +104,7 @@ public class ArchiveSampleDaoCreateUnitTest extends AbstractDaoTestSetup {
         Assert.assertNotNull(latestTimestamp);
         Assert.assertTrue(latestTimestamp.equals(START.plusMillis(1000*60)));
 
-        final Collection<IArchiveSample<Serializable, ISystemVariable<Serializable>>> minSamples =
+        final Collection<IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>>> minSamples =
             SAMPLE_DAO.retrieveSamples(DesyArchiveRequestType.AVG_PER_MINUTE, channel, START, START.plusMillis(1000*60));
 
         assertSamples(minSamples);
@@ -122,7 +122,7 @@ public class ArchiveSampleDaoCreateUnitTest extends AbstractDaoTestSetup {
         Assert.assertNotNull(channels);
         Assert.assertTrue(channels.size() == 1);
 
-        final Collection<IArchiveSample<Serializable, ISystemVariable<Serializable>>> hourSamples =
+        final Collection<IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>>> hourSamples =
             SAMPLE_DAO.retrieveSamples(DesyArchiveRequestType.AVG_PER_HOUR, channels.iterator().next(), START, START.plusMillis(1000*60*60));
 
         assertSamples(hourSamples);
@@ -131,14 +131,14 @@ public class ArchiveSampleDaoCreateUnitTest extends AbstractDaoTestSetup {
     }
 
     @SuppressWarnings("rawtypes")
-    private void assertSamples(@Nonnull final Collection<IArchiveSample<Serializable, ISystemVariable<Serializable>>> samples) {
+    private void assertSamples(@Nonnull final Collection<IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>>> samples) {
         Assert.assertNotNull(samples);
         // no sample before the first one, so the first one is persisted immediately, the second one is
         // aggregated, the third one is persisted again
         Assert.assertEquals(2, samples.size());
 
-        final Iterator<IArchiveSample<Serializable, ISystemVariable<Serializable>>> iterator = samples.iterator();
-        IArchiveSample<Serializable, ISystemVariable<Serializable>> sample = iterator.next();
+        final Iterator<IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>>> iterator = samples.iterator();
+        IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>> sample = iterator.next();
         Assert.assertEquals(Double.valueOf(1.0), sample.getValue());
         Assert.assertTrue(sample instanceof ArchiveMinMaxSample);
         Assert.assertEquals(Double.valueOf(1.0), ((ArchiveMinMaxSample) sample).getMinimum());
@@ -162,7 +162,7 @@ public class ArchiveSampleDaoCreateUnitTest extends AbstractDaoTestSetup {
         Assert.assertTrue(channels.size() == 1);
         final IArchiveChannel channel = channels.iterator().next();
 
-        final IArchiveSample<Serializable, ISystemVariable<Serializable>> sample =
+        final IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>> sample =
             SAMPLE_DAO.retrieveLatestSampleBeforeTime(channel, END.plusMillis(1L));
 
         Assert.assertNotNull(sample);
@@ -178,13 +178,13 @@ public class ArchiveSampleDaoCreateUnitTest extends AbstractDaoTestSetup {
     }
 
     private void assertPerHourSamples(@Nonnull final IArchiveChannel channel) throws ArchiveDaoException {
-        final Collection<IArchiveSample<Serializable, ISystemVariable<Serializable>>> hourSamples =
+        final Collection<IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>>> hourSamples =
             SAMPLE_DAO.retrieveSamples(DesyArchiveRequestType.AVG_PER_HOUR, channel, START, END);
         Assert.assertNotNull(hourSamples);
         Assert.assertFalse(hourSamples.isEmpty());
 
         TimeInstant lastTime = hourSamples.iterator().next().getSystemVariable().getTimestamp().minusMillis(1000*60*60);
-        for (final IArchiveSample<Serializable, ISystemVariable<Serializable>> minSample : hourSamples) {
+        for (final IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>> minSample : hourSamples) {
             final TimeInstant curTime = minSample.getSystemVariable().getTimestamp();
             Assert.assertTrue(!curTime.isBefore(lastTime.plusMillis(1000*60)));
             lastTime= curTime;
@@ -192,13 +192,13 @@ public class ArchiveSampleDaoCreateUnitTest extends AbstractDaoTestSetup {
     }
 
     private void assertPerMinuteSamples(@Nonnull final IArchiveChannel channel) throws ArchiveDaoException {
-        final Collection<IArchiveSample<Serializable, ISystemVariable<Serializable>>> minSamples =
+        final Collection<IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>>> minSamples =
             SAMPLE_DAO.retrieveSamples(DesyArchiveRequestType.AVG_PER_MINUTE, channel, START, END);
         Assert.assertNotNull(minSamples);
         Assert.assertFalse(minSamples.isEmpty());
 
         TimeInstant lastTime = minSamples.iterator().next().getSystemVariable().getTimestamp().minusMillis(1000*60);
-        for (final IArchiveSample<Serializable, ISystemVariable<Serializable>> minSample : minSamples) {
+        for (final IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>> minSample : minSamples) {
             final TimeInstant curTime = minSample.getSystemVariable().getTimestamp();
             Assert.assertTrue(!curTime.isBefore(lastTime.plusMillis(1000*60)));
             lastTime= curTime;
@@ -206,7 +206,7 @@ public class ArchiveSampleDaoCreateUnitTest extends AbstractDaoTestSetup {
     }
 
     private void assertRawSamples(@Nonnull final IArchiveChannel channel) throws ArchiveDaoException {
-        final Collection<IArchiveSample<Serializable, ISystemVariable<Serializable>>> rawSamples =
+        final Collection<IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>>> rawSamples =
             SAMPLE_DAO.retrieveSamples(DesyArchiveRequestType.RAW, channel, START, END);
         Assert.assertNotNull(rawSamples);
         Assert.assertFalse(rawSamples.isEmpty());

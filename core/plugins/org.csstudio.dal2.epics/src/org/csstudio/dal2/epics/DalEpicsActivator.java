@@ -7,6 +7,7 @@ import gov.aps.jca.configuration.DefaultConfiguration;
 import gov.aps.jca.event.LatestMonitorOnlyQueuedEventDispatcher;
 import gov.aps.jca.event.QueuedEventDispatcher;
 
+import org.csstudio.dal2.epics.mapping.SimpleTypeMapping;
 import org.csstudio.dal2.epics.service.EpicsPvAccessFactory;
 import org.csstudio.dal2.service.cs.ICsPvAccessFactory;
 import org.csstudio.servicelocator.ServiceLocator;
@@ -28,7 +29,9 @@ public class DalEpicsActivator implements BundleActivator {
         DalEpicsActivator.context = bundleContext;
         
         Context jcaContext = newJcaContext();
-        ServiceLocator.registerService(ICsPvAccessFactory.class, new EpicsPvAccessFactory(jcaContext));
+        SimpleTypeMapping typeMapping = SimpleTypeMapping.getInstance();
+        EpicsPvAccessFactory pvAccessFactory = new EpicsPvAccessFactory(jcaContext, typeMapping);
+		ServiceLocator.registerService(ICsPvAccessFactory.class, pvAccessFactory);
     }
     
     @Override

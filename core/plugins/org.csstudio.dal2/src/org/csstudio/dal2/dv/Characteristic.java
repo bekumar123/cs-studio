@@ -7,12 +7,20 @@ public class Characteristic<T> {
 
 	public static final Characteristic<Double> MAXIMUM = new Characteristic<Double>("MAXIMUM", Double.class);
 	public static final Characteristic<Double> MINIMUM = new Characteristic<Double>("MINIMUM", Double.class);
-	public static final Characteristic<Double> GRAPH_MIN = new Characteristic<Double>("GRAPH_MIN", Double.class);
-	public static final Characteristic<Double> GRAPH_MAX = new Characteristic<Double>("GRAPH_MAX", Double.class);
+	/**
+	 * Graph Min (Lower Display Limit)
+	 */
+	public static final Characteristic<Number> GRAPH_MIN = new Characteristic<Number>("GRAPH_MIN", Number.class);
+	/**
+	 * Graph Max (Upper Display Limit)
+	 */
+	public static final Characteristic<Number> GRAPH_MAX = new Characteristic<Number>("GRAPH_MAX", Number.class);
 	public static final Characteristic<Double> ALARM_MIN = new Characteristic<Double>("ALARM_MIN", Double.class);
 	public static final Characteristic<Double> ALARM_MAX = new Characteristic<Double>("ALARM_MAX", Double.class);
 	public static final Characteristic<Double> WARNING_MIN = new Characteristic<Double>("WARNING_MIN", Double.class);
 	public static final Characteristic<Double> WARNING_MAX = new Characteristic<Double>("WARNING_MAX", Double.class);
+	
+	public static final Characteristic<String> UNITS = new Characteristic<String>("UNITS", String.class);
 	
 	public static final Characteristic<String[]> LABELS = new Characteristic<String[]>("LABELS", String[].class);
 	

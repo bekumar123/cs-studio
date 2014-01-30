@@ -6,6 +6,7 @@ import gov.aps.jca.event.ConnectionEvent;
 
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
+import org.csstudio.dal2.epics.mapping.IEpicsTypeMapping;
 import org.csstudio.dal2.service.DalException;
 import org.csstudio.dal2.service.cs.ICsResponseListener;
 import org.slf4j.Logger;
@@ -18,9 +19,9 @@ class FieldTypeRequester extends AbstractChannelOperator {
 
 	private ICsResponseListener<Type<?>> _callback;
 
-	public FieldTypeRequester(Context context, PvAddress pv,
+	public FieldTypeRequester(Context context, IEpicsTypeMapping mapping, PvAddress pv,
 			ICsResponseListener<Type<?>> callback) throws DalException {
-		super(context, pv);
+		super(context, mapping, pv);
 		_callback = callback;
 	}
 
@@ -28,7 +29,8 @@ class FieldTypeRequester extends AbstractChannelOperator {
 	protected void onFirstConnect(ConnectionEvent ev) {
 		
 		DBRType dbrType = getChannel().getFieldType();
-		Type<?> type = TypeMapper.getType(dbrType);
+		int elementCount = getChannel().getElementCount();
+		Type<?> type = getMapping().getType(dbrType, elementCount);
 
 //		// Execute in separate thread to avoid delay on cja thread
 //		EXECUTOR.execute(new Runnable() {

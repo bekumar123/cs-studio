@@ -38,26 +38,26 @@ public class CumulativeAverageCacheUnitTest {
         final CumulativeAverageCache cache =
             new CumulativeAverageCache();
 
-        Assert.assertEquals(null, cache.getValue());
+        Assert.assertEquals(null, cache.readValue());
 
         for (int i = 0; i <= 10; i++) {
             cache.accumulate(Double.valueOf(i));
         }
-        Assert.assertEquals(5.0, cache.getValue());
+        Assert.assertEquals(5.0, cache.readValue());
         Assert.assertEquals(11, cache.getNumberOfAccumulations());
         cache.clear();
-        Assert.assertEquals(null, cache.getValue());
+        Assert.assertEquals(null, cache.readValue());
         Assert.assertEquals(0, cache.getNumberOfAccumulations());
 
 
         for (int i = -5; i <= 5; i++) {
             cache.accumulate(Double.valueOf(i));
         }
-        Assert.assertEquals(0.0, cache.getValue());
+        Assert.assertEquals(0.0, cache.readValue());
         Assert.assertEquals(11, cache.getNumberOfAccumulations());
         cache.clear();
 
-        Assert.assertEquals(null, cache.getValue());
+        Assert.assertEquals(null, cache.readValue());
         Assert.assertEquals(0, cache.getNumberOfAccumulations());
     }
 }

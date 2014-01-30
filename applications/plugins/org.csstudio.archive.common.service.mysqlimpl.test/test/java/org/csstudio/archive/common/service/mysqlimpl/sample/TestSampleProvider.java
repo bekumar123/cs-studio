@@ -32,7 +32,7 @@ import org.csstudio.archive.common.service.sample.IArchiveSample;
 import org.csstudio.domain.desy.epics.alarm.EpicsAlarm;
 import org.csstudio.domain.desy.epics.types.EpicsSystemVariable;
 import org.csstudio.domain.desy.system.ControlSystem;
-import org.csstudio.domain.desy.system.ISystemVariable;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
 
@@ -47,18 +47,18 @@ import com.google.common.collect.Lists;
 @SuppressWarnings({"unchecked", "rawtypes"})
 public final class TestSampleProvider {
 
-    public static final LinkedList<IArchiveSample<Serializable, ISystemVariable<Serializable>>> SAMPLES =
+    public static final LinkedList<IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>>> SAMPLES =
         Lists.newLinkedList();
-    public static final LinkedList<IArchiveSample<Serializable, ISystemVariable<Serializable>>> SAMPLES_MIN =
+    public static final LinkedList<IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>>> SAMPLES_MIN =
         Lists.newLinkedList();
-    public static final LinkedList<IArchiveSample<Serializable, ISystemVariable<Serializable>>> SAMPLES_HOUR =
+    public static final LinkedList<IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>>> SAMPLES_HOUR =
         Lists.newLinkedList();
     // CHECKSTYLE OFF: |
     public static TimeInstant START;
     public static TimeInstant END;
 
     public static ArrayList<Double> SAMPLE_D_VAL;
-    public static IArchiveSample<ArrayList<Double>, ISystemVariable<ArrayList<Double>>> SAMPLE_ARRAY_D;
+    public static IArchiveSample<ArrayList<Double>, IAlarmSystemVariable<ArrayList<Double>>> SAMPLE_ARRAY_D;
     // CHECKSTYLE ON: |
 
     public static final ArchiveChannelId CHANNEL_ID_1ST = new ArchiveChannelId(1L);
@@ -77,13 +77,12 @@ public final class TestSampleProvider {
             time = time.plusMillis(1000*30);
             d += 1.0;
             final IArchiveSample sample =
-                new ArchiveSample<Double, ISystemVariable<Double>>(CHANNEL_ID_2ND,
+                new ArchiveSample<Double, IAlarmSystemVariable<Double>>(CHANNEL_ID_2ND,
                                                                    new EpicsSystemVariable<Double>("fuup",
                                                                                                    d,
                                                                                                    ControlSystem.EPICS_DEFAULT,
                                                                                                    time,
-                                                                                                   EpicsAlarm.UNKNOWN),
-                                                                   EpicsAlarm.UNKNOWN);
+                                                                                                   EpicsAlarm.UNKNOWN));
 
             SAMPLES.add(sample);
         }
@@ -94,13 +93,12 @@ public final class TestSampleProvider {
             time = time.plusMillis(1000*60*30);
             d += 1.0;
             final IArchiveSample sample =
-                new ArchiveSample<Double, ISystemVariable<Double>>(CHANNEL_ID_2ND,
+                new ArchiveSample<Double, IAlarmSystemVariable<Double>>(CHANNEL_ID_2ND,
                                                                    new EpicsSystemVariable<Double>("fuup",
                                                                                                    d,
                                                                                                    ControlSystem.EPICS_DEFAULT,
-                                                                                                   time,
-                                                                                                   EpicsAlarm.UNKNOWN),
-                                                                   EpicsAlarm.UNKNOWN);
+                                                                                                   time, 
+                                                                                                   EpicsAlarm.UNKNOWN));
 
             SAMPLES.add(sample);
 
@@ -110,60 +108,54 @@ public final class TestSampleProvider {
 
         // add three samples spanning exactly one minute
         IArchiveSample sample =
-            new ArchiveSample<Double, ISystemVariable<Double>>(CHANNEL_ID_1ST,
+            new ArchiveSample<Double, IAlarmSystemVariable<Double>>(CHANNEL_ID_1ST,
                     new EpicsSystemVariable<Double>("fuup",
                             1.0,
                             ControlSystem.EPICS_DEFAULT,
                             START,
-                            EpicsAlarm.UNKNOWN),
-                            EpicsAlarm.UNKNOWN);
+                            EpicsAlarm.UNKNOWN));
         SAMPLES_MIN.add(sample);
         sample =
-            new ArchiveSample<Double, ISystemVariable<Double>>(CHANNEL_ID_1ST,
+            new ArchiveSample<Double, IAlarmSystemVariable<Double>>(CHANNEL_ID_1ST,
                     new EpicsSystemVariable<Double>("fuup",
                             2.0,
                             ControlSystem.EPICS_DEFAULT,
                             START.plusMillis(1000*30), // one within the same minute
-                            EpicsAlarm.UNKNOWN),
-                            EpicsAlarm.UNKNOWN);
+                            EpicsAlarm.UNKNOWN));
         SAMPLES_MIN.add(sample);
         sample =
-            new ArchiveSample<Double, ISystemVariable<Double>>(CHANNEL_ID_1ST,
+            new ArchiveSample<Double, IAlarmSystemVariable<Double>>(CHANNEL_ID_1ST,
                     new EpicsSystemVariable<Double>("fuup",
                             3.0,
                             ControlSystem.EPICS_DEFAULT,
                             START.plusMillis(1000*60), // one after exactly one minute
-                            EpicsAlarm.UNKNOWN),
-                            EpicsAlarm.UNKNOWN);
+                            EpicsAlarm.UNKNOWN));
         SAMPLES_MIN.add(sample);
 
         // add two more samples spanning exactly one hour
         sample =
-            new ArchiveSample<Double, ISystemVariable<Double>>(CHANNEL_ID_1ST,
+            new ArchiveSample<Double, IAlarmSystemVariable<Double>>(CHANNEL_ID_1ST,
                     new EpicsSystemVariable<Double>("fuup",
                             1.0,
                             ControlSystem.EPICS_DEFAULT,
                             START,
-                            EpicsAlarm.UNKNOWN),
-                            EpicsAlarm.UNKNOWN);
+                            EpicsAlarm.UNKNOWN));
         SAMPLES_HOUR.add(sample);
         sample =
-            new ArchiveSample<Double, ISystemVariable<Double>>(CHANNEL_ID_1ST,
+            new ArchiveSample<Double, IAlarmSystemVariable<Double>>(CHANNEL_ID_1ST,
                     new EpicsSystemVariable<Double>("fuup",
                             2.0,
                             ControlSystem.EPICS_DEFAULT,
                             START.plusMillis(1000*60*30), // one within the same hour
-                            EpicsAlarm.UNKNOWN),
-                            EpicsAlarm.UNKNOWN);
+                            EpicsAlarm.UNKNOWN));
         SAMPLES_HOUR.add(sample);
         sample =
-            new ArchiveSample<Double, ISystemVariable<Double>>(CHANNEL_ID_1ST,
+            new ArchiveSample<Double, IAlarmSystemVariable<Double>>(CHANNEL_ID_1ST,
                     new EpicsSystemVariable<Double>("fuup",
                             3.0,
                             ControlSystem.EPICS_DEFAULT,
                             START.plusMillis(1000*60*60), // one after exactly one hour
-                            EpicsAlarm.UNKNOWN),
-                            EpicsAlarm.UNKNOWN);
+                            EpicsAlarm.UNKNOWN));
         SAMPLES_HOUR.add(sample);
 
 
@@ -171,14 +163,13 @@ public final class TestSampleProvider {
         SAMPLE_ARRAY_D =
             new ArchiveMultiScalarSample<Double,
                                          ArrayList<Double>,
-                                         ISystemVariable<ArrayList<Double>>>(
+                                         IAlarmSystemVariable<ArrayList<Double>>>(
                 CHANNEL_ID_5TH,
                 new EpicsSystemVariable<ArrayList<Double>>("fuup",
                                                            SAMPLE_D_VAL,
                                                            ControlSystem.EPICS_DEFAULT,
                                                            START,
-                                                           EpicsAlarm.UNKNOWN),
-                EpicsAlarm.UNKNOWN);
+                                                           EpicsAlarm.UNKNOWN));
 
     }
 

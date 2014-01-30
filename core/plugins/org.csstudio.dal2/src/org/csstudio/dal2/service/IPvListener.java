@@ -30,8 +30,20 @@ package org.csstudio.dal2.service;
  */
 public interface IPvListener<T> {
     
+	/**
+	 * Called when the connection state of the variable has changed
+	 * 
+	 * @param source The underlying pv access object
+	 * @param isConnected the connection state 
+	 */
     void connectionChanged(IPvAccess<T> source, boolean isConnected);
 
+    /**
+     * Called when the value has changed
+     * 
+     * @param source The underlying pv access object
+     * @param value the new value
+     */
     void valueChanged(IPvAccess<T> source, T value);
     
 }

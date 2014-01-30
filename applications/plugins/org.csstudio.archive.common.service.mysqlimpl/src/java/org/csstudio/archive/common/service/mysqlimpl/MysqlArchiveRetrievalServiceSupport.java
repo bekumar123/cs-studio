@@ -51,7 +51,7 @@ import org.csstudio.archive.common.service.mysqlimpl.enginestatus.IArchiveEngine
 import org.csstudio.archive.common.service.mysqlimpl.requesttypes.DesyArchiveRequestType;
 import org.csstudio.archive.common.service.mysqlimpl.sample.IArchiveSampleDao;
 import org.csstudio.archive.common.service.sample.IArchiveSample;
-import org.csstudio.domain.desy.system.ISystemVariable;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.types.Limits;
 
@@ -179,7 +179,7 @@ public class MysqlArchiveRetrievalServiceSupport {
     }
 
     @Nonnull
-    public <V extends Serializable, T extends ISystemVariable<V>>
+    public <V extends Serializable, T extends IAlarmSystemVariable<V>>
     Collection<IArchiveSample<V, T>> retrieveSamples(@Nonnull final String channelName,
                                                      @Nonnull final TimeInstant start,
                                                      @Nonnull final TimeInstant end,
@@ -215,7 +215,7 @@ public class MysqlArchiveRetrievalServiceSupport {
     }
 
     @CheckForNull
-    public <V extends Serializable, T extends ISystemVariable<V>>
+    public <V extends Serializable, T extends IAlarmSystemVariable<V>>
     IArchiveSample<V, T> retrieveLastSampleBefore(@Nonnull final String channelName,
                                                   @Nonnull final TimeInstant time) throws ArchiveServiceException {
         try {

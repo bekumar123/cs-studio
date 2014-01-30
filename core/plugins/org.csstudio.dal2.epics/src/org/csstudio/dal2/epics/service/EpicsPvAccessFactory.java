@@ -27,6 +27,7 @@ import gov.aps.jca.Context;
 
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
+import org.csstudio.dal2.epics.mapping.IEpicsTypeMapping;
 import org.csstudio.dal2.service.DalException;
 import org.csstudio.dal2.service.cs.ICsOperationHandle;
 import org.csstudio.dal2.service.cs.ICsPvAccess;
@@ -42,8 +43,10 @@ import org.csstudio.dal2.service.cs.ICsResponseListener;
 public class EpicsPvAccessFactory implements ICsPvAccessFactory {
 
 	private Context _jcaContext;
+	private IEpicsTypeMapping _mapping;
 
-	public EpicsPvAccessFactory(final Context jcaContext) {
+	public EpicsPvAccessFactory(final Context jcaContext, IEpicsTypeMapping mapping) {
+		_mapping = mapping;
 		assert jcaContext != null : "Precondition: jcaContext != null";
 		_jcaContext = jcaContext;
 	}
@@ -52,7 +55,7 @@ public class EpicsPvAccessFactory implements ICsPvAccessFactory {
 	public <T> ICsPvAccess<T> createPVAccess(PvAddress pv, Type<T> type) {
 		assert pv != null : "Precondition: pv != null";
 		assert type != null : "Precondition: type != null";
-		return new EpicsPvAccess<T>(_jcaContext, pv, type);
+		return new EpicsPvAccess<T>(_jcaContext, _mapping, pv, type);
 	}
 
 	@Override
@@ -60,7 +63,7 @@ public class EpicsPvAccessFactory implements ICsPvAccessFactory {
 			ICsResponseListener<Type<?>> callback) throws DalException {
 		assert pv != null : "Precondition: pv != null";
 		assert callback != null : "Precondition: callback != null";
-		return new FieldTypeRequester(_jcaContext, pv, callback);
+		return new FieldTypeRequester(_jcaContext, _mapping, pv, callback);
 	}
 
 }

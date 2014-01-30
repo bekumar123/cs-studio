@@ -112,7 +112,7 @@ public abstract class SystemVariableSupport<T> extends AbstractTypeSupport<T> {
         return create(name, value, system, time, null);
     }
     @Nonnull
-    protected abstract ISystemVariable<T> createVariable(@Nonnull final String name,
+    protected abstract IAlarmSystemVariable<T> createVariable(@Nonnull final String name,
                                                          @Nonnull final T value,
                                                          @Nonnull final ControlSystem system,
                                                          @Nonnull final TimeInstant timestamp,

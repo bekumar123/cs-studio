@@ -41,7 +41,7 @@ import org.csstudio.archive.common.service.mysqlimpl.channel.IArchiveChannelDao;
 import org.csstudio.archive.common.service.mysqlimpl.dao.AbstractDaoTestSetup;
 import org.csstudio.archive.common.service.mysqlimpl.dao.ArchiveDaoException;
 import org.csstudio.archive.common.service.sample.IArchiveSample;
-import org.csstudio.domain.desy.system.ISystemVariable;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
@@ -85,12 +85,12 @@ public class ArchiveMultiScalarSampleDaoCreateUnitTest extends AbstractDaoTestSe
         Assert.assertNotNull(channels);
         Assert.assertTrue(channels.size() == 1);
 
-        final Collection<IArchiveSample<Serializable, ISystemVariable<Serializable>>> samples =
+        final Collection<IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>>> samples =
             SAMPLE_DAO.retrieveSamples(null, channels.iterator().next(), START.minusMillis(1L), START.plusMillis(1L));
 
         Assert.assertTrue(samples.size() == 1);
 
-        final IArchiveSample<Serializable, ISystemVariable<Serializable>> sample =
+        final IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>> sample =
             samples.iterator().next();
         Assert.assertEquals(CHANNEL_ID_5TH, sample.getChannelId());
         Assert.assertTrue(sample.getValue() instanceof ArrayList);

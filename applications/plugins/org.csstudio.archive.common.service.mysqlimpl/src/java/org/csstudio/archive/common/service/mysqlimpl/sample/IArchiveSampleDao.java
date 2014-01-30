@@ -33,7 +33,7 @@ import org.csstudio.archive.common.service.channel.IArchiveChannel;
 import org.csstudio.archive.common.service.mysqlimpl.dao.ArchiveDaoException;
 import org.csstudio.archive.common.service.mysqlimpl.requesttypes.DesyArchiveRequestType;
 import org.csstudio.archive.common.service.sample.IArchiveSample;
-import org.csstudio.domain.desy.system.ISystemVariable;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 
 /**
@@ -49,7 +49,7 @@ public interface IArchiveSampleDao {
      * @param samples the sample objects
      * @throws ArchiveSampleDaoException
      */
-    <V extends Serializable, T extends ISystemVariable<V>>
+    <V extends Serializable, T extends IAlarmSystemVariable<V>>
     void createSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveDaoException;
 
 
@@ -58,7 +58,7 @@ public interface IArchiveSampleDao {
      * @throws ArchiveSampleDaoException
      */
     @Nonnull
-    <V extends Serializable, T extends ISystemVariable<V>>
+    <V extends Serializable, T extends IAlarmSystemVariable<V>>
     Collection<IArchiveSample<V, T>> retrieveSamples(@Nullable DesyArchiveRequestType type,
                                                      @Nonnull IArchiveChannel channel,
                                                      @Nonnull TimeInstant start,
@@ -68,7 +68,7 @@ public interface IArchiveSampleDao {
      * @throws ArchiveDaoException
      */
     @Nonnull
-    <V extends Serializable, T extends ISystemVariable<V>>
+    <V extends Serializable, T extends IAlarmSystemVariable<V>>
     Collection<IArchiveSample<V, T>> retrieveSamples(@Nullable final DesyArchiveRequestType type,
                                                      @Nonnull final ArchiveChannelId channelId,
                                                      @Nonnull final TimeInstant start,
@@ -85,7 +85,7 @@ public interface IArchiveSampleDao {
      * @throws ArchiveDaoException
      */
     @CheckForNull
-    <V extends Serializable, T extends ISystemVariable<V>>
+    <V extends Serializable, T extends IAlarmSystemVariable<V>>
     IArchiveSample<V, T> retrieveLatestSampleBeforeTime(@Nonnull final IArchiveChannel channel,
                                                         @Nonnull final TimeInstant time) throws ArchiveDaoException;
 
@@ -96,7 +96,7 @@ public interface IArchiveSampleDao {
      * @throws ArchiveDaoException
      */
     @CheckForNull
-    <V extends Serializable, T extends ISystemVariable<V>>
+    <V extends Serializable, T extends IAlarmSystemVariable<V>>
     IArchiveSample<V, T> retrieveLatestSample(@Nonnull final IArchiveChannel channel) throws ArchiveDaoException;
 
     /**

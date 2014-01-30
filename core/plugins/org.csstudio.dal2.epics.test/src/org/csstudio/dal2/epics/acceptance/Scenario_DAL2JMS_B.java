@@ -33,22 +33,22 @@ public class Scenario_DAL2JMS_B {
 			ICsPvAccessFactory epicsPvAccessFactory = EpicsServiceTestUtil.createEpicsPvAccessFactory(jcaContext);
 			IDalService dalService = DalServiceTestUtil.createService(epicsPvAccessFactory);
 
-			List<IPvAccess<Long>> accessList = new ArrayList<IPvAccess<Long>>(
+			List<IPvAccess<Integer>> accessList = new ArrayList<IPvAccess<Integer>>(
 					numberOfPVs);
 
 			for (int i = 0; i < numberOfPVs; i++) {
 
 				PvAddress address = PvAddress.getValue("Test:Ramp_calc_" + i);
-				IPvAccess<Long> pvAccess = dalService.getPVAccess(address,
+				IPvAccess<Integer> pvAccess = dalService.getPVAccess(address,
 						Type.LONG, ListenerType.VALUE);
 				accessList.add(pvAccess);
 
-				pvAccess.registerListener(new IPvListener<Long>() {
+				pvAccess.registerListener(new IPvListener<Integer>() {
 
 					boolean inAlarm = false;
 
 					@Override
-					public void valueChanged(IPvAccess<Long> source, Long value) {
+					public void valueChanged(IPvAccess<Integer> source, Integer value) {
 
 						Characteristics characteristics = source
 								.getLastKnownCharacteristics();
@@ -68,7 +68,7 @@ public class Scenario_DAL2JMS_B {
 					}
 
 					@Override
-					public void connectionChanged(IPvAccess<Long> source,
+					public void connectionChanged(IPvAccess<Integer> source,
 							boolean isConnected) {
 					}
 				});
@@ -76,7 +76,7 @@ public class Scenario_DAL2JMS_B {
 
 			new BufferedReader(new InputStreamReader(System.in)).readLine();
 
-			for (IPvAccess<Long> access : accessList) {
+			for (IPvAccess<Integer> access : accessList) {
 				access.deregisterAllListener();
 			}
 

@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.csstudio.dal2.dv.ListenerType;
+import org.csstudio.dal2.dv.Type;
 import org.csstudio.dal2.service.cs.CsPvData;
 import org.csstudio.dal2.service.cs.ICsPvListener;
 
@@ -44,9 +45,13 @@ class PvListenerMock2<T> implements ICsPvListener<T> {
 	}
 
 	@Override
-	public void connectionChanged(String pvName, final boolean isConnected) {
-		System.out.println("connectionChanged");
-		_isConnected = isConnected;
+	public void connected(String pvName, Type<?> nativeType) {
+		_isConnected = true;
+	}
+	
+	@Override
+	public void disconnected(String pvName) {
+		_isConnected = false;
 	}
 
 	@Override

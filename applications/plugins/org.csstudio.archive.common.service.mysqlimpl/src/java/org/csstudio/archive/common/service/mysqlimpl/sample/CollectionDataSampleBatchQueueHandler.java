@@ -96,6 +96,11 @@ public class CollectionDataSampleBatchQueueHandler extends BatchQueueHandlerSupp
             throw new ArchiveDaoException("Archive type support for byte array conversion failed for " +
                                           element.getValue().getClass().getName(), e);
         }
+
+//        final EpicsAlarmStatus status = element.getStatus();
+//        final EpicsAlarmSeverity severity = element.getSeverity();
+//        stmt.setString(4, ArchiveTypeConversionSupport.toSeverityArchiveString(severity));
+//        stmt.setString(5, status.name());
     }
 
     /**
@@ -119,11 +124,16 @@ public class CollectionDataSampleBatchQueueHandler extends BatchQueueHandlerSupp
                                                final byte[] byteArray = ArchiveTypeConversionSupport.toByteArray(input.getValue());
                                                final String hexStr = BaseCodecUtil.getHex(byteArray);
 
+//                                               final EpicsAlarmStatus status = input.getStatus();
+//                                               final EpicsAlarmSeverity severity = input.getSeverity();
+
                                                final String value = sqlWithoutValues +
                                                    "(" +
                                                    Joiner.on(",").join(input.getChannelId().asString(),
                                                                        input.getSystemVariable().getTimestamp().getNanos(),
-                                                                       "x'" + hexStr + "'") +
+                                                                       "x'" + hexStr + "'"/*,
+                                                                       ArchiveTypeConversionSupport.toSeverityArchiveString(severity),
+                                                                       status.name()*/) +
                                                    ");";
                                                return value;
                                            } catch (final TypeSupportException e) {

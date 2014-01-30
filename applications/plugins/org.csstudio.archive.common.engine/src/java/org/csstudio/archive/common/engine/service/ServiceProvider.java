@@ -26,7 +26,10 @@ import javax.annotation.Nonnull;
 import org.csstudio.archive.common.engine.ArchiveEngineActivator;
 import org.csstudio.archive.common.engine.ArchiveEnginePreferencesService;
 import org.csstudio.archive.common.service.IArchiveEngineFacade;
+import org.csstudio.dal2.service.IDalService;
+import org.csstudio.dal2.service.IDalServiceFactory;
 import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
+import org.csstudio.servicelocator.ServiceLocator;
 
 /**
  * Implementation of the service provider encapsulating all OSGi services for this application.
@@ -38,6 +41,8 @@ import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
  * @since Mar 23, 2011
  */
 public class ServiceProvider implements IServiceProvider {
+    private IDalService _dalService;
+
     /**
      * {@inheritDoc}
      */
@@ -54,5 +59,19 @@ public class ServiceProvider implements IServiceProvider {
     @Nonnull
     public ArchiveEnginePreferencesService getPreferencesService() {
         return ArchiveEngineActivator.getDefault().getPreferencesService();
+    }
+
+    @Override
+    @Nonnull
+    public IDalService getDalService() throws OsgiServiceUnavailableException {
+
+        if (_dalService == null) {
+            final IDalServiceFactory dalServiceFactory = ServiceLocator.getService(IDalServiceFactory.class);
+            if (dalServiceFactory == null) {
+                throw new OsgiServiceUnavailableException("Missing service: " + IDalServiceFactory.class.getName());
+            }
+            _dalService = dalServiceFactory.newDalService();
+        }
+        return _dalService;
     }
 }

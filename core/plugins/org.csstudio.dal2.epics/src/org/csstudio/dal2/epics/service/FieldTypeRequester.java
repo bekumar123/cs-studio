@@ -29,7 +29,8 @@ class FieldTypeRequester extends AbstractChannelOperator {
 	protected void onFirstConnect(ConnectionEvent ev) {
 		
 		DBRType dbrType = getChannel().getFieldType();
-		Type<?> type = getMapping().getType(dbrType);
+		int elementCount = getChannel().getElementCount();
+		Type<?> type = getMapping().getType(dbrType, elementCount);
 
 //		// Execute in separate thread to avoid delay on cja thread
 //		EXECUTOR.execute(new Runnable() {

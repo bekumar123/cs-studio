@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.csstudio.dal2.dv.Characteristics;
 import org.csstudio.dal2.dv.Type;
+import org.csstudio.dal2.epics.mapping.TypeMapper.MapperRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,17 +36,32 @@ public class TypeMapping implements IEpicsTypeMapping {
 	 */
 	private final Map<DBRType, TypeMapper<?>> _dbr2mapper = new HashMap<DBRType, TypeMapper<?>>();
 
+	/**
+	 * Mapping from dbrType to TypeMapper. Only primary sequence mapper are
+	 * added to this map.
+	 * <p>
+	 * Example:<br/>
+	 * ({@link DBRType#Double <-> {@link Type#DOUBLE}) is <b>not</b> added<br/>
+	 * ({@link DBRType#Double <-> {@link Type#DOUBLE_SEQ}) is added <br/>
+	 */
+	private final Map<DBRType, TypeMapper<?>> _dbr2seqMapper = new HashMap<DBRType, TypeMapper<?>>();
+
 	protected void registerMapper(TypeMapper<?> mapper) {
 		_typeMapper.put(mapper.getType(), mapper);
 		if (mapper.isPrimary()) {
 			DBRType dbrType = mapper.getDBRType();
-
 			if (_dbr2mapper.containsKey(dbrType)) {
 				LOGGER.error("Invalid type mapping: Multiple primary type mapper using the same dbr type ("
 						+ dbrType + ")");
 			}
-
 			_dbr2mapper.put(dbrType, mapper);
+		} else if (mapper.isPrimarySquence()) {
+			DBRType dbrType = mapper.getDBRType();
+			if (_dbr2seqMapper.containsKey(dbrType)) {
+				LOGGER.error("Invalid type mapping: Multiple primary sequence type mapper using the same dbr type ("
+						+ dbrType + ")");
+			}
+			_dbr2seqMapper.put(dbrType, mapper);
 		}
 	}
 
@@ -87,17 +103,32 @@ public class TypeMapping implements IEpicsTypeMapping {
 	 * 
 	 * @throws IllegalSelectorException
 	 *             if no mapping is defined
+	 * @require dbrType != null
+	 * @require elementCount >= 0
 	 */
 	@Override
-	public Type<?> getType(DBRType dbrType) {
+	public Type<?> getType(DBRType dbrType, int elementCount) {
+		assert dbrType != null : "Precondition: dbrType != null";
+		assert elementCount >= 0 : "Precondition: elementCount >= 0 : "
+				+ elementCount;
 
-		TypeMapper<?> mapper = _dbr2mapper.get(dbrType);
-		if (mapper == null) {
-			throw new IllegalStateException("No mapping defined for dbrType "
-					+ dbrType);
+		if (elementCount > 1) {
+			TypeMapper<?> mapper = _dbr2seqMapper.get(dbrType);
+			if (mapper == null) {
+				throw new IllegalStateException(
+						"No mapping defined for dbrType " + dbrType);
+			}
+			assert mapper.isPrimarySquence() : "Check: mapper.isPrimarySquence()";
+			return mapper.getType();
+		} else {
+			TypeMapper<?> mapper = _dbr2mapper.get(dbrType);
+			if (mapper == null) {
+				throw new IllegalStateException(
+						"No mapping defined for dbrType " + dbrType);
+			}
+			assert mapper.isPrimary() : "Check: mapper.isPrimary()";
+			return mapper.getType();
 		}
-		assert mapper.isPrimary() : "Check: mapper.isPrimary()";
-		return mapper.getType();
 	}
 
 	protected Set<Type<?>> getMappedTypes() {
@@ -112,7 +143,8 @@ public class TypeMapping implements IEpicsTypeMapping {
 	 */
 	private static TypeMapper<Object> createWrapper(
 			final TypeMapper<?> nativeTypeMapper) {
-		return new TypeMapper<Object>(Type.NATIVE, DBRType.UNKNOWN, false) {
+		return new TypeMapper<Object>(Type.NATIVE, DBRType.UNKNOWN,
+				MapperRole.ADDITIONAL) {
 
 			@Override
 			public Object mapValue(DBR dbrValue, Characteristics characteristics) {

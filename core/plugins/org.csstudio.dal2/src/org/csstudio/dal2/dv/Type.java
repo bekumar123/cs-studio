@@ -29,27 +29,28 @@ public class Type<T> {
 
 	public static final Type<EpicsAlarmSeverity> SEVERITY = new Type<EpicsAlarmSeverity>(
 			EpicsAlarmSeverity.class);
-	public static final Type<EnumType> ENUM = new Type<EnumType>(EnumType.class);
+	
 	public static final Type<EpicsEnum> EPICS_ENUM = new Type<EpicsEnum>(EpicsEnum.class);
-
-	public static final Type<String> STRING = new Type<String>(String.class);
-	public static final Type<Double> DOUBLE = new Type<Double>(Double.class);
-	public static final Type<Byte> BYTE = new Type<Byte>(Byte.class);
-	public static final Type<Integer> LONG = new Type<Integer>(Integer.class);
-	public static final Type<Float> FLOAT = new Type<Float>(Float.class);
-	public static final Type<Short> SHORT = new Type<Short>(Short.class);
 
 	public static final Type<String[]> STRING_SEQ = new Type<String[]>(
 			String[].class);
-	public static final Type<double[]> DOUBLE_SEQ = new Type<double[]>(
-			double[].class);
+	public static final Type<Double[]> DOUBLE_SEQ = new Type<Double[]>(
+			Double[].class);
 	public static final Type<byte[]> BYTE_SEQ = new Type<byte[]>(byte[].class);
-	public static final Type<int[]> LONG_SEQ = new Type<int[]>(int[].class);
+	public static final Type<Integer[]> LONG_SEQ = new Type<Integer[]>(Integer[].class);
 	public static final Type<float[]> FLOAT_SEQ = new Type<float[]>(
 			float[].class);
 	public static final Type<short[]> SHORT_SEQ = new Type<short[]>(
 			short[].class);
 
+	public static final Type<String> STRING = new Type<String>(String.class, STRING_SEQ);
+	public static final Type<Double> DOUBLE = new Type<Double>(Double.class, DOUBLE_SEQ);
+	public static final Type<Byte> BYTE = new Type<Byte>(Byte.class, BYTE_SEQ);
+	public static final Type<Integer> LONG = new Type<Integer>(Integer.class, LONG_SEQ);
+	public static final Type<Float> FLOAT = new Type<Float>(Float.class, FLOAT_SEQ);
+	public static final Type<Short> SHORT = new Type<Short>(Short.class, SHORT_SEQ);
+
+	
 	private Class<? extends T> _javaType;
 
 	/**

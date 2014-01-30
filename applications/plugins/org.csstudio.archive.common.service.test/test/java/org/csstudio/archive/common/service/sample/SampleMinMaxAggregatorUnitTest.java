@@ -88,6 +88,7 @@ public class SampleMinMaxAggregatorUnitTest {
         Assert.assertEquals(Double.MIN_VALUE, cache.getAvg());
         Assert.assertEquals(Double.MIN_VALUE, cache.getMin());
         Assert.assertEquals(Double.MIN_VALUE, cache.getMax());
+        Assert.assertEquals(1000, cache.getCount());
     }
 
 }

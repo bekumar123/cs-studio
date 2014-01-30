@@ -23,6 +23,7 @@ import org.csstudio.dal2.epics.service.test.EpicsServiceTestUtil;
 import org.csstudio.dal2.service.cs.CsPvData;
 import org.csstudio.dal2.service.cs.ICsPvListener;
 import org.csstudio.dal2.service.cs.ICsResponseListener;
+import org.csstudio.domain.desy.epics.types.EpicsEnum;
 import org.csstudio.domain.desy.softioc.AbstractSoftIocConfigurator;
 import org.csstudio.domain.desy.softioc.ISoftIocConfigurator;
 import org.csstudio.domain.desy.softioc.SoftIoc;
@@ -122,13 +123,13 @@ public class EpicsPVAccessNativeTypeTest {
 
 		{
 			verify(listener, timeout(4000)).connected("TestDal:Counter",
-					Type.ENUM);
+					Type.EPICS_ENUM);
 
 			ArgumentCaptor<CsPvData> captor = ArgumentCaptor
 					.forClass(CsPvData.class);
 			verify(listener, timeout(1000)).valueChanged(captor.capture());
 			CsPvData data = captor.getValue();
-			assertEquals(Type.ENUM, data.getNativeType());
+			assertEquals(Type.EPICS_ENUM, data.getNativeType());
 			
 			stopSoftIoc();
 
@@ -175,8 +176,8 @@ public class EpicsPVAccessNativeTypeTest {
 			ArgumentCaptor<CsPvData> captor = ArgumentCaptor.forClass(CsPvData.class);
 			verify(callback, timeout(5000)).onSuccess(captor.capture());
 			CsPvData data = captor.getValue();
-			assertEquals(4, ((EnumType)data.getValue()).getValue());
-			assertEquals(Type.ENUM, data.getNativeType());
+			assertEquals(4, ((EpicsEnum)data.getValue()).getStateIndex().intValue());
+			assertEquals(Type.EPICS_ENUM, data.getNativeType());
 			
 			stopSoftIoc();
 		}

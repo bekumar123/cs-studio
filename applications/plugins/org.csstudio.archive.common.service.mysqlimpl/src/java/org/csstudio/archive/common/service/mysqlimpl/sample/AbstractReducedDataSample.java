@@ -43,6 +43,7 @@ abstract class AbstractReducedDataSample {
     private final Double _max;
     private final EpicsAlarmStatus _status;
     private final EpicsAlarmSeverity _severity;
+    private final int _count;
 
     /**
      * Constructor.
@@ -53,7 +54,8 @@ abstract class AbstractReducedDataSample {
                                         @Nonnull final Double min,
                                         @Nonnull final Double max,
                                         @Nonnull final EpicsAlarmStatus status,
-                                        @Nonnull final EpicsAlarmSeverity severity) {
+                                        @Nonnull final EpicsAlarmSeverity severity,
+                                        final int count) {
         _channelId = id;
         _timestamp = timestamp;
         _avg = avg;
@@ -61,6 +63,7 @@ abstract class AbstractReducedDataSample {
         _max = max;
         _status = status;
         _severity = severity;
+        _count = count;
     }
 
     @Nonnull
@@ -96,5 +99,9 @@ abstract class AbstractReducedDataSample {
     @Nonnull
     public EpicsAlarmStatus getStatus() {
         return _status;
+    }
+
+    public int getCount() {
+        return _count;
     }
 }

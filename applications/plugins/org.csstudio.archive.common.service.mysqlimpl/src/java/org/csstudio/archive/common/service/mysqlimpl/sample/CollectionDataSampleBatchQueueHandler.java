@@ -22,8 +22,6 @@
 package org.csstudio.archive.common.service.mysqlimpl.sample;
 
 import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_CHANNEL_ID;
-import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_SEVERITY;
-import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_STATUS;
 import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_TIME;
 import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_VALUE;
 
@@ -40,8 +38,6 @@ import org.csstudio.archive.common.service.mysqlimpl.dao.ArchiveDaoException;
 import org.csstudio.archive.common.service.sample.ArchiveMultiScalarSample;
 import org.csstudio.archive.common.service.util.ArchiveTypeConversionSupport;
 import org.csstudio.domain.common.codec.BaseCodecUtil;
-import org.csstudio.domain.desy.epics.alarm.EpicsAlarmSeverity;
-import org.csstudio.domain.desy.epics.alarm.EpicsAlarmStatus;
 import org.csstudio.domain.desy.typesupport.TypeSupportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +59,7 @@ public class CollectionDataSampleBatchQueueHandler extends BatchQueueHandlerSupp
 
     static final Logger LOG = LoggerFactory.getLogger(CollectionDataSampleBatchQueueHandler.class);
 
-    private static final String VALUES_WILDCARD = "(?, ?, ?, ?, ?)";
+    private static final String VALUES_WILDCARD = "(?, ?, ?)";
 
     /**
      * Constructor.
@@ -78,7 +74,7 @@ public class CollectionDataSampleBatchQueueHandler extends BatchQueueHandlerSupp
     private static String createSqlStatementString(@Nonnull final String database) {
         final String sql =
             "INSERT IGNORE INTO " + database + "." + TAB_SAMPLE_BLOB + " " +
-            "(" + Joiner.on(",").join(COLUMN_CHANNEL_ID, COLUMN_TIME, COLUMN_VALUE, COLUMN_SEVERITY, COLUMN_STATUS)+ ") " +
+            "(" + Joiner.on(",").join(COLUMN_CHANNEL_ID, COLUMN_TIME, COLUMN_VALUE)+ ") " +
             "VALUES " + VALUES_WILDCARD;
         return sql;
     }
@@ -101,10 +97,10 @@ public class CollectionDataSampleBatchQueueHandler extends BatchQueueHandlerSupp
                                           element.getValue().getClass().getName(), e);
         }
 
-        final EpicsAlarmStatus status = element.getStatus();
-        final EpicsAlarmSeverity severity = element.getSeverity();
-        stmt.setString(4, ArchiveTypeConversionSupport.toSeverityArchiveString(severity));
-        stmt.setString(5, status.name());
+//        final EpicsAlarmStatus status = element.getStatus();
+//        final EpicsAlarmSeverity severity = element.getSeverity();
+//        stmt.setString(4, ArchiveTypeConversionSupport.toSeverityArchiveString(severity));
+//        stmt.setString(5, status.name());
     }
 
     /**
@@ -128,16 +124,16 @@ public class CollectionDataSampleBatchQueueHandler extends BatchQueueHandlerSupp
                                                final byte[] byteArray = ArchiveTypeConversionSupport.toByteArray(input.getValue());
                                                final String hexStr = BaseCodecUtil.getHex(byteArray);
 
-                                               final EpicsAlarmStatus status = input.getStatus();
-                                               final EpicsAlarmSeverity severity = input.getSeverity();
+//                                               final EpicsAlarmStatus status = input.getStatus();
+//                                               final EpicsAlarmSeverity severity = input.getSeverity();
 
                                                final String value = sqlWithoutValues +
                                                    "(" +
                                                    Joiner.on(",").join(input.getChannelId().asString(),
                                                                        input.getSystemVariable().getTimestamp().getNanos(),
-                                                                       "x'" + hexStr + "'",
+                                                                       "x'" + hexStr + "'"/*,
                                                                        ArchiveTypeConversionSupport.toSeverityArchiveString(severity),
-                                                                       status.name()) +
+                                                                       status.name()*/) +
                                                    ");";
                                                return value;
                                            } catch (final TypeSupportException e) {

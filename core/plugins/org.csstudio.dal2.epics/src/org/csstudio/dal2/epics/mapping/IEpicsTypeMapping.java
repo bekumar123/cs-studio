@@ -22,6 +22,6 @@ public interface IEpicsTypeMapping extends ICsTypeMapping {
 	 * @param dbrType
 	 * @return
 	 */
-	Type<?> getType(DBRType dbrType);
+	Type<?> getType(DBRType dbrType, int elementCount);
 
 }

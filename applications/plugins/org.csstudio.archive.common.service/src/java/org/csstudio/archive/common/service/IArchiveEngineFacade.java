@@ -163,6 +163,13 @@ public interface IArchiveEngineFacade {
                                   @Nonnull final String datatype) throws ArchiveServiceException;
 
     /**
+     * Writes the channel's units information.
+     * @param id
+     * @param units
+     */
+    void writeChannelUnitsInfo(@Nonnull ArchiveChannelId id, @Nonnull String units)  throws ArchiveServiceException;;
+
+    /**
      * Updates the time information for the given archive engine.
      * @param engineId
      * @param lastTimeAlive
@@ -230,4 +237,5 @@ public interface IArchiveEngineFacade {
 
     @Nonnull
     UpdateResult setEnableChannelFlag(@Nonnull final String name, final boolean isEnabled);
+
 }

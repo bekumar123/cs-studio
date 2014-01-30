@@ -75,7 +75,7 @@ public class SampleAggregatorUnitTest {
         final EpicsAlarmStatus status3 = EpicsAlarmStatus.READ;
         final EpicsAlarmSeverity severity3 = EpicsAlarmSeverity.MAJOR;
         
-        agg.aggregate(3.0, -1.0, 20.0, status3, severity3, ts3);
+        agg.aggregate(3.0, -1.0, 20.0, status3, severity3, ts3, 1);
         Assert.assertEquals(Double.valueOf(2.0), agg.getAvg());
         Assert.assertEquals(Double.valueOf(-1.0), agg.getMin());
         Assert.assertEquals(Double.valueOf(20.0), agg.getMax());

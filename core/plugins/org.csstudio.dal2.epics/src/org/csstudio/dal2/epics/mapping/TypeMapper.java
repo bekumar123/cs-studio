@@ -19,6 +19,10 @@ public abstract class TypeMapper<T> implements IEpicsTypeMapper<T> {
 
 	private static final int CTRL_TYPE_OFFSET = 28;
 
+	public static enum MapperRole {
+		PRIMARY, PRIMARY_SEQUENCE, ADDITIONAL
+	}
+	
 	/** Seconds of epoch start since UTC time start. */
 	public static long TS_EPOCH_SEC_PAST_1970 = 7305 * 86400;
 
@@ -26,7 +30,7 @@ public abstract class TypeMapper<T> implements IEpicsTypeMapper<T> {
 
 	private DBRType _dbrType;
 
-	private boolean _primary;
+	private MapperRole _role;
 
 	/**
 	 * Constructor
@@ -44,13 +48,14 @@ public abstract class TypeMapper<T> implements IEpicsTypeMapper<T> {
 	 * @require type != null
 	 * @require dbrType != null
 	 */
-	TypeMapper(Type<T> type, DBRType dbrType, boolean primary) {
+	TypeMapper(Type<T> type, DBRType dbrType, MapperRole role) {
 		assert type != null : "Precondition: type != null";
 		assert dbrType != null : "Precondition: dbrType != null";
+		assert role != null : "Precondition: role != null";
 
 		_type = type;
 		_dbrType = dbrType;
-		_primary = primary;
+		_role = role;
 	}
 
 	@Override
@@ -66,7 +71,11 @@ public abstract class TypeMapper<T> implements IEpicsTypeMapper<T> {
 	}
 
 	protected boolean isPrimary() {
-		return _primary;
+		return _role == MapperRole.PRIMARY;
+	}
+	
+	protected boolean isPrimarySquence() {
+		return _role == MapperRole.PRIMARY_SEQUENCE;
 	}
 
 	@Override

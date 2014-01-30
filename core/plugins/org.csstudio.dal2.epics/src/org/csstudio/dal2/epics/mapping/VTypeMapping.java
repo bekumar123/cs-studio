@@ -15,6 +15,7 @@ import java.util.Set;
 import org.csstudio.dal2.dv.Characteristics;
 import org.csstudio.dal2.dv.Type;
 import org.csstudio.dal2.dv.VTypes;
+import org.csstudio.dal2.epics.mapping.TypeMapper.MapperRole;
 import org.epics.util.array.ArrayInt;
 import org.epics.util.array.ListInt;
 import org.epics.vtype.Alarm;
@@ -55,7 +56,7 @@ public class VTypeMapping extends TypeMapping implements IEpicsTypeMapping {
 //				return ((DBR_Double) dbrValue).getDoubleValue();
 //			}
 //		});
-		registerMapper(new TypeMapper<VInt>(VTypes.LONG, DBRType.INT, true) {
+		registerMapper(new TypeMapper<VInt>(VTypes.LONG, DBRType.INT, MapperRole.PRIMARY) {
 			@Override
 			public VInt mapValue(DBR dbrValue, Characteristics characteristics) {
 				DBR_Int dbrInt = (DBR_Int) dbrValue;
@@ -66,7 +67,7 @@ public class VTypeMapping extends TypeMapping implements IEpicsTypeMapping {
 				return ValueFactory.newVInt(value, alarm, time, display);
 			}
 		});
-		registerMapper(new TypeMapper<VIntArray>(VTypes.LONG_SEQ, DBRType.INT, false) {
+		registerMapper(new TypeMapper<VIntArray>(VTypes.LONG_SEQ, DBRType.INT, MapperRole.PRIMARY_SEQUENCE) {
 			@Override
 			public VIntArray mapValue(DBR dbrValue, Characteristics characteristics) {
 				DBR_Int dbrInt = (DBR_Int) dbrValue;

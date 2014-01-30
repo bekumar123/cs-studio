@@ -23,6 +23,7 @@ package org.csstudio.archive.common.service.mysqlimpl.sample;
 
 import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_AVG;
 import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_CHANNEL_ID;
+import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_COUNT;
 import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_MAX;
 import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_MIN;
 import static org.csstudio.archive.common.service.mysqlimpl.sample.ArchiveSampleDaoImpl.COLUMN_SEVERITY;
@@ -53,7 +54,7 @@ import com.google.common.collect.Collections2;
  * @param <T> the type of the entity used to fill the statement's batch
  */
 public abstract class AbstractReducedDataSampleBatchQueueHandler<T extends AbstractReducedDataSample> extends BatchQueueHandlerSupport<T> {
-    protected static final String VALUES_WILDCARD = "(?, ?, ?, ?, ?, ?, ?)";
+    protected static final String VALUES_WILDCARD = "(?, ?, ?, ?, ?, ?, ?, ?)";
 
     /**
      * Constructor.
@@ -69,7 +70,7 @@ public abstract class AbstractReducedDataSampleBatchQueueHandler<T extends Abstr
                                                      @Nonnull final String table) {
         final String sql =
             "INSERT IGNORE INTO " + database + "." + table +
-            " (" + Joiner.on(",").join(COLUMN_CHANNEL_ID, COLUMN_TIME, COLUMN_AVG, COLUMN_MIN, COLUMN_MAX, COLUMN_STATUS, COLUMN_SEVERITY) +
+            " (" + Joiner.on(",").join(COLUMN_CHANNEL_ID, COLUMN_TIME, COLUMN_AVG, COLUMN_MIN, COLUMN_MAX, COLUMN_STATUS, COLUMN_SEVERITY, COLUMN_COUNT) +
             ") VALUES " + VALUES_WILDCARD;
         return sql;
     }
@@ -91,6 +92,7 @@ public abstract class AbstractReducedDataSampleBatchQueueHandler<T extends Abstr
 
         stmt.setString(6, ArchiveTypeConversionSupport.toSeverityArchiveString(element.getSeverity()));
         stmt.setString(7, element.getStatus().name());
+        stmt.setInt(8, element.getCount());
     }
 
     /**
@@ -116,7 +118,11 @@ public abstract class AbstractReducedDataSampleBatchQueueHandler<T extends Abstr
                                                                    input.getTimestamp().getNanos(),
                                                                    input.getAvg(),
                                                                    input.getMin(),
-                                                                   input.getMax()) +
+                                                                   input.getMax(),
+                                                                   ArchiveTypeConversionSupport.toSeverityArchiveString(input.getSeverity()),
+                                                                   input.getStatus().name(),
+                                                                   input.getCount()
+                                                       ) +
                                                ")";
                                            return result;
                                        }

@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.csstudio.dal2.dv.Characteristic;
-import org.csstudio.dal2.dv.EnumType;
 import org.csstudio.dal2.dv.ListenerType;
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
@@ -30,6 +29,7 @@ import org.csstudio.dal2.service.cs.ICsOperationHandle;
 import org.csstudio.dal2.service.cs.ICsPvListener;
 import org.csstudio.dal2.service.cs.ICsResponseListener;
 import org.csstudio.domain.desy.epics.alarm.EpicsAlarmSeverity;
+import org.csstudio.domain.desy.epics.types.EpicsEnum;
 import org.csstudio.domain.desy.softioc.AbstractSoftIocConfigurator;
 import org.csstudio.domain.desy.softioc.ISoftIocConfigurator;
 import org.csstudio.domain.desy.softioc.SoftIoc;
@@ -82,25 +82,27 @@ public class EpicsPVAccessTest {
 		Thread.sleep(1000); // wait until soft ioc comes down
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testConnectionChangesWhenIocStartsAndStops() throws Exception {
 		EpicsPvAccess<Integer> pva = new EpicsPvAccess<Integer>(_jcaContext, SimpleTypeMapping.getInstance(),
 				PvAddress.getValue("TestDal:ConstantPV"), Type.LONG);
 
-		PvListenerMock<Integer> listener = new PvListenerMock<Integer>(
-				ListenerType.VALUE);
-
-		pva.initMonitor(listener);
-		Assert.assertEquals(0, listener.getConnectionChangedCalled());
-		Assert.assertFalse(listener.isConnected());
+		ICsPvListener listenerMock = mock(ICsPvListener.class);
+		
+		when(listenerMock.getType()).thenReturn(ListenerType.VALUE);
+		
+		pva.initMonitor(listenerMock);
+		
+		verify(listenerMock, times(0)).connected(any(String.class), any(Type.class));
 
 		startUpSoftIoc();
-		Assert.assertEquals(1, listener.getConnectionChangedCalled());
-		Assert.assertTrue(listener.isConnected());
+		
+		verify(listenerMock, timeout(2000).times(1)).connected("TestDal:ConstantPV", Type.DOUBLE);
 
 		stopSoftIoc();
-		Assert.assertEquals(2, listener.getConnectionChangedCalled());
-		Assert.assertFalse(listener.isConnected());
+		
+		verify(listenerMock, timeout(2000).times(1)).disconnected("TestDal:ConstantPV");		
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -203,19 +205,19 @@ public class EpicsPVAccessTest {
 		startUpSoftIoc();
 
 		PvAddress address = PvAddress.getValue("TestDal:Counter");
-		EpicsPvAccess<double[]> pva = new EpicsPvAccess<double[]>(_jcaContext, SimpleTypeMapping.getInstance(),
+		EpicsPvAccess<Double[]> pva = new EpicsPvAccess<Double[]>(_jcaContext, SimpleTypeMapping.getInstance(),
 				address, Type.DOUBLE_SEQ);
 
-		ResponseCallbackHandlerMock<double[]> callbackHandler = new ResponseCallbackHandlerMock<double[]>();
+		ResponseCallbackHandlerMock<Double[]> callbackHandler = new ResponseCallbackHandlerMock<Double[]>();
 		pva.getValue(callbackHandler);
 
 		while (!callbackHandler.isFinished()) {
 			Thread.yield();
 		}
 
-		CsPvData<double[]> data = callbackHandler.getValue();
+		CsPvData<Double[]> data = callbackHandler.getValue();
 
-		double[] value = data.getValue();
+		Double[] value = data.getValue();
 
 		Assert.assertTrue(value.length == 1);
 		Assert.assertTrue("Unexpected Value: " + Arrays.toString(value),
@@ -249,19 +251,19 @@ public class EpicsPVAccessTest {
 
 		// retrieve as enum
 		{
-			EpicsPvAccess<EnumType> pva = new EpicsPvAccess<EnumType>(
-					_jcaContext,  SimpleTypeMapping.getInstance(), address, Type.ENUM);
+			EpicsPvAccess<EpicsEnum> pva = new EpicsPvAccess<EpicsEnum>(
+					_jcaContext, SimpleTypeMapping.getInstance(), address, Type.EPICS_ENUM);
 
-			ICsResponseListener<CsPvData<EnumType>> callback = mock(ICsResponseListener.class);
+			ICsResponseListener<CsPvData<EpicsEnum>> callback = mock(ICsResponseListener.class);
 			pva.getValue(callback);
 
 			ArgumentCaptor<CsPvData> captor = ArgumentCaptor
 					.forClass(CsPvData.class);
 			verify(callback, timeout(100)).onSuccess(captor.capture());
-			CsPvData<EnumType> csPvData = captor.getValue();
+			CsPvData<EpicsEnum> csPvData = captor.getValue();
 
-			assertEquals(4, csPvData.getValue().getValue());
-			assertEquals("laeuft", csPvData.getValue().getName());
+			assertEquals(4, csPvData.getValue().getStateIndex().intValue());
+			assertEquals("laeuft", csPvData.getValue().getState());
 
 			List<String> expectedLabels = Arrays.asList("", "gestoppt",
 					"bereit", "startbereit", "laeuft", "auto geregelt",

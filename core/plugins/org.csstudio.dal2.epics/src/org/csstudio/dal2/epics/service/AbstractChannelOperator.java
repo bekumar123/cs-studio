@@ -73,7 +73,8 @@ public abstract class AbstractChannelOperator implements ConnectionListener,
 
 				if (connected) {
 					DBRType dbrType = getChannel().getFieldType();
-					_nativeType = _mapping.getType(dbrType);
+					int elementCount = getChannel().getElementCount();
+					_nativeType = _mapping.getType(dbrType, elementCount);
 				}
 
 				onConnectionChanged(ev);

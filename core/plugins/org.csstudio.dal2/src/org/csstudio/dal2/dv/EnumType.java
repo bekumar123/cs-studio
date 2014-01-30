@@ -1,7 +1,11 @@
 package org.csstudio.dal2.dv;
 
-public class EnumType {
+import java.io.Serializable;
 
+public class EnumType implements Serializable {
+
+	private static final long serialVersionUID = -1L;
+	
 	private String _name;
 	private int _value;
 	

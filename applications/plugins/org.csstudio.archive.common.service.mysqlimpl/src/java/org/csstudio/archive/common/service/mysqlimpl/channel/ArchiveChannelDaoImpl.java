@@ -125,6 +125,8 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
                                                      " SET enabled=? WHERE name=?";
     private final String _updateChannelDatatypeStmt = "UPDATE " + getDatabaseName() + "." + TAB +
                                                       " SET datatype=? WHERE id=?";
+    private final String _updateChannelUnitsStmt = "UPDATE " + getDatabaseName() + "." + TAB +
+            " SET uv=? WHERE id=?";
 
     /**
      * Constructor.
@@ -379,7 +381,7 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
         }
     }
 
-    private <V extends Comparable<? super V> & Serializable>
+    private <V extends Comparable<? super V>>
     void updateCache(@Nonnull final ArchiveChannelId id, @Nonnull final V low, @Nonnull final V high) {
         final IArchiveChannel channel = _channelCacheById.get(id);
         if (channel != null) {
@@ -586,4 +588,29 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
         return UpdateResult.failed("Channel '" + id.asString() + "' has not been updated, doesn't it exist?");
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Nonnull
+    public UpdateResult updateChannelUnits(@Nonnull final ArchiveChannelId id,
+                                              @Nonnull final String units) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = createConnection();
+            stmt = conn.prepareStatement(_updateChannelUnitsStmt);
+            stmt.setString(1, units);
+            stmt.setInt(2, id.intValue());
+            final int updated = stmt.executeUpdate();
+            if (updated == 1) {
+                return UpdateResult.succeeded("Update of units for channel '" + id.asString() + "' succeeded.");
+            }
+        } catch (final Exception e) {
+            return UpdateResult.failed("Update of units for channel '" + id.asString() + "' failed:\n" + e.getMessage());
+        } finally {
+            closeSqlResources(null, stmt, conn, _deleteChannelStmt);
+        }
+        return UpdateResult.failed("Channel '" + id.asString() + "' has not been updated, doesn't it exist?");
+    }
 }

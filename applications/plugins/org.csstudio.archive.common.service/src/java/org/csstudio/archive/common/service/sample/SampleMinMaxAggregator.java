@@ -52,6 +52,8 @@ public class SampleMinMaxAggregator {
     private EpicsAlarmStatus _status;
     private EpicsAlarmSeverity _severity;
 
+    private int _count;
+
     /**
      * Constructor.
      */
@@ -68,6 +70,7 @@ public class SampleMinMaxAggregator {
         _lastSampleTimeStamp = timestamp;
         _resetTimeStamp = _lastSampleTimeStamp;
 
+        _count = 0;
     }
     /**
      * Constructor.
@@ -87,7 +90,7 @@ public class SampleMinMaxAggregator {
                           final EpicsAlarmStatus status,
                           final EpicsAlarmSeverity severity,
                           @Nonnull final TimeInstant timestamp) {
-        aggregate(newVal, newVal, newVal, status, severity, timestamp);
+        aggregate(newVal, newVal, newVal, status, severity, timestamp, 1);
     }
 
     public synchronized void aggregate(@Nonnull final Double newVal,
@@ -95,7 +98,8 @@ public class SampleMinMaxAggregator {
                                        @Nonnull final Double max,
                                        final EpicsAlarmStatus status,
                                        final EpicsAlarmSeverity severity,
-                                       @Nonnull final TimeInstant timestamp) {
+                                       @Nonnull final TimeInstant timestamp,
+                                       final int count) {
         _avg.accumulate(newVal);
         _minVal = Ordering.natural().nullsLast().min(newVal, min, max, _minVal);
         _maxVal = Ordering.natural().nullsFirst().max(newVal, min, max, _maxVal);
@@ -105,6 +109,7 @@ public class SampleMinMaxAggregator {
         _severity = severity;
 
         _lastSampleTimeStamp = timestamp;
+        _count += count;
     }
 
     /**
@@ -123,6 +128,7 @@ public class SampleMinMaxAggregator {
         _status = null;
         _severity = null;
         _avg.clear();
+        _count = 0;
     }
     @CheckForNull
     public synchronized Double getAvg() {
@@ -153,5 +159,9 @@ public class SampleMinMaxAggregator {
     @CheckForNull
     public synchronized TimeInstant getResetTimestamp() {
         return _resetTimeStamp;
+    }
+
+    public int getCount() {
+        return _count;
     }
 }

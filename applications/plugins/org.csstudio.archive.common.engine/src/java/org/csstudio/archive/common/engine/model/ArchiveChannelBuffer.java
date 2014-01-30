@@ -8,6 +8,7 @@
 package org.csstudio.archive.common.engine.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -191,8 +192,9 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends IAlarmSystem
 
         _listener = new IPvListener<Object>() {
 
-            private Double _graphMin;
-            private Double _graphMax;
+            private Number _graphMin;
+            private Number _graphMax;
+            private String _units;
 
             @Override
             public void connectionChanged(final IPvAccess<Object> source, final boolean connected) {
@@ -205,9 +207,11 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends IAlarmSystem
                 try {
                     final Type<?> nativeType = source.getLastKnownNativeType();
 
-                    String datatype = nativeType.getJavaType().getSimpleName();
+                    String datatype;
                     if (nativeType.isSequenceType()) {
-                        datatype = "ArrayList<" + datatype + ">";
+                        datatype = "ArrayList<" + nativeType.getComponentType().getJavaType().getSimpleName() + ">";
+                    } else {
+                        datatype = nativeType.getJavaType().getSimpleName();
                     }
 
                     if (!datatype.equals(_datatype)) {
@@ -227,31 +231,8 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends IAlarmSystem
 
                 final Characteristics characteristics = source.getLastKnownCharacteristics();
 
-                try {
-                    final Double newGraphMin = characteristics.get(Characteristic.GRAPH_MIN);
-                    final Double newGraphMax = characteristics.get(Characteristic.GRAPH_MAX);
-
-                    boolean changed = false;
-                    if (_graphMin == null && newGraphMin != null || _graphMin != null && !_graphMin.equals(newGraphMin)) {
-                        _graphMin = newGraphMin;
-                        changed = true;
-                    }
-
-                    if (_graphMax == null && newGraphMax != null || _graphMax != null && !_graphMax.equals(newGraphMax)) {
-                        _graphMax = newGraphMax;
-                        changed = true;
-                    }
-
-                    if (changed) {
-                        IArchiveEngineFacade service = _provider.getEngineFacade();
-                        service.writeChannelDisplayRangeInfo(_id, _graphMin, _graphMax);
-                    }
-
-                } catch (final OsgiServiceUnavailableException e) {
-                    LOG.error("Error updating range info", e);
-                } catch (final ArchiveServiceException e) {
-                    LOG.error("Error updating range info", e);
-                }
+                checkDisplayRange(characteristics);
+                checkUnit(characteristics);
 
                 // TODO Move this to characteristics: IAlarmm characteristics.get(Characteristic.ALARM)
                 final EpicsAlarmStatus alarmStatus = characteristics.get(Characteristic.STATUS);
@@ -273,7 +254,13 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends IAlarmSystem
                 V data;
                 if (type.isSequenceType()) {
                     Object[] valueAsArray = (Object[]) value;
-                    data = (V) Arrays.asList(valueAsArray);
+
+                    ArrayList list = new ArrayList(valueAsArray.length);
+                    for (Object element : valueAsArray) {
+                        list.add(element);
+                    }
+
+                    data = (V) new ArrayList(Arrays.asList(valueAsArray));
                 } else {
                     data = (V) value;
                 }
@@ -294,9 +281,61 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends IAlarmSystem
                     _mostRecentSysVar = sample.getSystemVariable();
                 }
 
-
                 if (!_buffer.add(sample)) {
                     ArchiveEngineSampleRescuer.with((Collection) Collections.singleton(sample)).rescue();
+                }
+            }
+
+            /**
+             * @param characteristics
+             */
+            private <W extends Comparable<? super W> & Serializable> void checkDisplayRange(final Characteristics characteristics) {
+                try {
+                    final Number newGraphMin = characteristics.get(Characteristic.GRAPH_MIN);
+                    final Number newGraphMax = characteristics.get(Characteristic.GRAPH_MAX);
+
+                    boolean changed = false;
+                    if (_graphMin == null && newGraphMin != null || _graphMin != null && !_graphMin.equals(newGraphMin)) {
+                        _graphMin = newGraphMin;
+                        changed = true;
+                    }
+
+                    if (_graphMax == null && newGraphMax != null || _graphMax != null && !_graphMax.equals(newGraphMax)) {
+                        _graphMax = newGraphMax;
+                        changed = true;
+                    }
+
+                    if (changed) {
+                        IArchiveEngineFacade service = _provider.getEngineFacade();
+                        service.writeChannelDisplayRangeInfo(_id, (W) _graphMin, (W) _graphMax);
+                    }
+
+                } catch (final OsgiServiceUnavailableException e) {
+                    LOG.error("Error updating range info", e);
+                } catch (final ArchiveServiceException e) {
+                    LOG.error("Error updating range info", e);
+                }
+            }
+
+            private void checkUnit(final Characteristics characteristics) {
+                try {
+                    final String newUnits = characteristics.get(Characteristic.UNITS);
+
+                    boolean changed = false;
+                    if (_units == null && newUnits != null || _units != null && !_units.equals(newUnits)) {
+                        _units = newUnits;
+                        changed = true;
+                    }
+
+                    if (changed) {
+                        IArchiveEngineFacade service = _provider.getEngineFacade();
+                        service.writeChannelUnitsInfo(_id, _units);
+                    }
+
+                } catch (final OsgiServiceUnavailableException e) {
+                    LOG.error("Error updating range info", e);
+                } catch (final ArchiveServiceException e) {
+                    LOG.error("Error updating range info", e);
                 }
             }
 

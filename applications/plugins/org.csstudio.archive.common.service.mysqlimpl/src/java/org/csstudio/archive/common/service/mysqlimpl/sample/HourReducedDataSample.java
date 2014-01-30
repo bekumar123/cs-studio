@@ -44,7 +44,8 @@ class HourReducedDataSample extends AbstractReducedDataSample {
                                  @Nonnull final Double min,
                                  @Nonnull final Double max,
                                  @Nonnull final EpicsAlarmStatus status,
-                                 @Nonnull final EpicsAlarmSeverity severity) {
-        super(id, timestamp, avg, min, max, status, severity);
+                                 @Nonnull final EpicsAlarmSeverity severity,
+                                 final int count) {
+        super(id, timestamp, avg, min, max, status, severity, count);
     }
 }

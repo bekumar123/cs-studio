@@ -34,6 +34,7 @@ import static org.csstudio.dal2.dv.Characteristic.SEVERITY;
 import static org.csstudio.dal2.dv.Characteristic.STATUS;
 import static org.csstudio.dal2.dv.Characteristic.WARNING_MAX;
 import static org.csstudio.dal2.dv.Characteristic.WARNING_MIN;
+import static org.csstudio.dal2.dv.Characteristic.UNITS;
 import gov.aps.jca.dbr.CTRL;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.GR;
@@ -80,9 +81,9 @@ public class CharacteristicsService {
 
 			if (dbr instanceof GR) {
 				GR dbr_gr = (GR) dbr;
-				builder.set(GRAPH_MAX, dbr_gr.getUpperDispLimit().doubleValue())
+				builder.set(GRAPH_MAX, dbr_gr.getUpperDispLimit())
 						.set(GRAPH_MIN,
-								dbr_gr.getLowerDispLimit().doubleValue())
+								dbr_gr.getLowerDispLimit())
 						.set(ALARM_MAX,
 								dbr_gr.getUpperAlarmLimit().doubleValue())
 						.set(ALARM_MIN,
@@ -90,7 +91,9 @@ public class CharacteristicsService {
 						.set(WARNING_MAX,
 								dbr_gr.getUpperWarningLimit().doubleValue())
 						.set(WARNING_MIN,
-								dbr_gr.getLowerWarningLimit().doubleValue());
+								dbr_gr.getLowerWarningLimit().doubleValue())
+						.set(UNITS, dbr_gr.getUnits());
+				
 
 				if (dbr instanceof CTRL) {
 					CTRL dbr_ctrl = (CTRL) dbr;
@@ -107,10 +110,9 @@ public class CharacteristicsService {
 			TIME dbr_time = (TIME) dbr;
 			timeStamp = dbr_time.getTimeStamp();
 		}
-		
+
 		if (timeStamp != null) {
-			builder.set(Characteristic.TIMESTAMP,
-					convertTimestamp(timeStamp));
+			builder.set(Characteristic.TIMESTAMP, convertTimestamp(timeStamp));
 		} else {
 			builder.set(Characteristic.TIMESTAMP, new Timestamp());
 		}

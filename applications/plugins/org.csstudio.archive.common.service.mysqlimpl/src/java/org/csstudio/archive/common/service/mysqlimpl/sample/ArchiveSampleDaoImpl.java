@@ -94,6 +94,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
     public static final String COLUMN_MAX = "max_val";
     public static final String COLUMN_SEVERITY = "serverty";
     public static final String COLUMN_STATUS = "status";
+    public static final String COLUMN_COUNT = "count";
 
     private static final String ARCH_TABLE_PLACEHOLDER = "<arch.table>";
     private static final String RETRIEVAL_FAILED = "Sample retrieval from archive failed.";
@@ -189,7 +190,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             final EpicsAlarmSeverity severity = sample.getSeverity();
 
             final SampleMinMaxAggregator aggregator = retrieveAggregator(channelId, aggregatorMap);
-            aggregator.aggregate(newValue, minValue, maxValue, status, severity, time);
+            aggregator.aggregate(newValue, minValue, maxValue, status, severity, time, sample.getCount());
 
             processHourSampleOnTimeCondition(hourSamples, channelId, newValue, time, aggregator);
         }
@@ -207,8 +208,9 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             final Double max = agg.getMax();
             final EpicsAlarmStatus status = agg.getStatus();
             final EpicsAlarmSeverity severity = agg.getSeverity();
+            final int count = agg.getCount();
             if (avg != null && min != null && max != null) {
-                hourSamples.add(new HourReducedDataSample(channelId, time, avg, min, max, status, severity));
+                hourSamples.add(new HourReducedDataSample(channelId, time, avg, min, max, status, severity, count));
             }
             agg.reset();
         }
@@ -242,7 +244,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                 final EpicsAlarmSeverity severity = sample.getSeverity();
 
                 final SampleMinMaxAggregator aggregator = retrieveAggregator(channelId, aggregatorMap);
-                aggregator.aggregate(newValue, minValue, maxValue, status, severity, time);
+                aggregator.aggregate(newValue, minValue, maxValue, status, severity, time, 1);
 
                 processMinuteSampleOnTimeCondition(minuteSamples, newValue, channelId, time, aggregator);
             }
@@ -262,8 +264,9 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             final Double max = agg.getMax();
             final EpicsAlarmStatus status = agg.getStatus();
             final EpicsAlarmSeverity severity = agg.getSeverity();
+            final int count = agg.getCount();
             if (avg != null && min != null && max != null) {
-                minuteSamples.add(new MinuteReducedDataSample(channelId, time, avg, min, max, status, severity));
+                minuteSamples.add(new MinuteReducedDataSample(channelId, time, avg, min, max, status, severity, count));
             }
             agg.reset();
         }
@@ -302,7 +305,6 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                 final TimeInstant lastWriteTime = sample.getSystemVariable().getTimestamp();
                 final EpicsAlarmStatus status = sample.getStatus();
                 final EpicsAlarmSeverity severity = sample.getSeverity();
-
                 aggregator.aggregate(lastWrittenValue, status, severity, lastWriteTime);
             }
         }

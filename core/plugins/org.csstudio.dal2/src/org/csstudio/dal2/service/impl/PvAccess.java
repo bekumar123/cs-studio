@@ -229,6 +229,11 @@ public class PvAccess<T> implements IPvAccess<T> {
 	public synchronized boolean isConnected() {
 		return _connected.get();
 	}
+	
+	@Override
+	public String toString() {
+		return "PV Access to " + getPVAddress().getAddress() + " [C:" + (isConnected() ? 1 : 0) + ", T:" + _type + ", V:" + getLastKnownValue() + ", NT:" + getLastKnownNativeType() + "]";
+	}
 
 	private synchronized void updateLastKnown(CsPvData<T> result) {
 		_lastKnownValue = result.getValue();

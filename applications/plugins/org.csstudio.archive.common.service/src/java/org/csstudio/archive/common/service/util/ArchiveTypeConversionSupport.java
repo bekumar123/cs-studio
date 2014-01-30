@@ -78,8 +78,10 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
 
     protected static final String ARCHIVE_NULL_ENTRY = "<null>";
 
-    private static final String[] ADDITIONAL_TYPE_PACKAGES = new String[] { "org.csstudio.domain.desy.epics.types", };
+    private static final String[] ADDITIONAL_TYPE_PACKAGES = new String[] { "org.csstudio.domain.desy.epics.types" };
     private static boolean INSTALLED;
+
+    private static final Logger LOG = LoggerFactory.getLogger(ArchiveTypeConversionSupport.class);
 
     /**
      * Constructor.
@@ -316,20 +318,24 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
                                                                                 @CheckForNull final String high) throws TypeSupportException {
         // CHECKSTYLE ON : ParameterNumber
 
-        if (datatype != null) {
-            final Class<T> clazz = (Class<T>) createTypeClassFromArchiveString(datatype);
-            if (!ArchiveTypeConversionSupport.isDataTypeSerializableCollection(clazz) && !Strings.isNullOrEmpty(low)
-                && !Strings.isNullOrEmpty(high)) {
-                return new ArchiveLimitsChannel(id,
-                                                name,
-                                                datatype,
-                                                archiveChannelGroupId,
-                                                time,
-                                                cs,
-                                                enabled,
-                                                (Comparable) fromArchiveString(clazz, low),
-                                                (Comparable) fromArchiveString(clazz, high));
+        try {
+            if (datatype != null) {
+                final Class<T> clazz = (Class<T>) createTypeClassFromArchiveString(datatype);
+                if (!ArchiveTypeConversionSupport.isDataTypeSerializableCollection(clazz) && !Strings.isNullOrEmpty(low)
+                    && !Strings.isNullOrEmpty(high)) {
+                    return new ArchiveLimitsChannel(id,
+                                                    name,
+                                                    datatype,
+                                                    archiveChannelGroupId,
+                                                    time,
+                                                    cs,
+                                                    enabled,
+                                                    (Comparable) fromArchiveString(clazz, low),
+                                                    (Comparable) fromArchiveString(clazz, high));
+                }
             }
+        } catch (final Exception e) {
+            LOG.warn("Error reading datatype. Datatype, high and low will be ignored. Message: {}", e.getMessage());
         }
         return new ArchiveChannel(id, name, datatype, archiveChannelGroupId, time, cs, enabled);
     }

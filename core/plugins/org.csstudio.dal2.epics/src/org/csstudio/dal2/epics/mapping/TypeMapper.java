@@ -3,8 +3,6 @@ package org.csstudio.dal2.epics.mapping;
 import gov.aps.jca.dbr.DBRType;
 
 import org.csstudio.dal2.dv.Type;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The TypeMapper provides the mapping of epics data types to dal2 data types. A
@@ -13,9 +11,6 @@ import org.slf4j.LoggerFactory;
  * @param <T>
  */
 public abstract class TypeMapper<T> implements IEpicsTypeMapper<T> {
-
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(TypeMapper.class);
 
 	private static final int CTRL_TYPE_OFFSET = 28;
 

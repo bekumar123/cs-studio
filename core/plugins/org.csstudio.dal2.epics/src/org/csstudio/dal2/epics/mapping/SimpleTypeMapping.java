@@ -24,6 +24,10 @@ import org.csstudio.domain.desy.epics.types.EpicsEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The SimpleTypeMapping provides a set of DAL2 TypeMapper implementations mapping from DBR to
+ * mainly built in java types.  
+ */
 public class SimpleTypeMapping extends TypeMapping {
 
 	private static final Logger LOGGER = LoggerFactory
@@ -43,11 +47,11 @@ public class SimpleTypeMapping extends TypeMapping {
 				return ((DBR_Byte) dbrValue).getByteValue()[0];
 			}
 		});
-		registerMapper(new TypeMapper<byte[]>(Type.BYTE_SEQ, DBRType.BYTE,
+		registerMapper(new TypeMapper<Byte[]>(Type.BYTE_SEQ, DBRType.BYTE,
 				 MapperRole.PRIMARY_SEQUENCE) {
 			@Override
-			public byte[] mapValue(DBR dbrValue, Characteristics characteristics) {
-				return ((DBR_Byte) dbrValue).getByteValue();
+			public Byte[] mapValue(DBR dbrValue, Characteristics characteristics) {
+				return ArrayUtils.toObject(((DBR_Byte) dbrValue).getByteValue());
 			}
 		});
 		registerMapper(new TypeMapper<Double>(Type.DOUBLE, DBRType.DOUBLE,  MapperRole.PRIMARY) {
@@ -84,12 +88,12 @@ public class SimpleTypeMapping extends TypeMapping {
 				return dbr.getFloatValue()[0];
 			}
 		});
-		registerMapper(new TypeMapper<float[]>(Type.FLOAT_SEQ, DBRType.FLOAT,
+		registerMapper(new TypeMapper<Float[]>(Type.FLOAT_SEQ, DBRType.FLOAT,
 				MapperRole.PRIMARY_SEQUENCE) {
 			@Override
-			public float[] mapValue(DBR dbrValue, Characteristics characteristics) {
+			public Float[] mapValue(DBR dbrValue, Characteristics characteristics) {
 				DBR_Float dbr = (DBR_Float) dbrValue;
-				return dbr.getFloatValue();
+				return ArrayUtils.toObject(dbr.getFloatValue());
 			}
 		});
 		registerMapper(new TypeMapper<Short>(Type.SHORT, DBRType.SHORT,  MapperRole.PRIMARY) {
@@ -99,12 +103,12 @@ public class SimpleTypeMapping extends TypeMapping {
 				return dbr.getShortValue()[0];
 			}
 		});
-		registerMapper(new TypeMapper<short[]>(Type.SHORT_SEQ, DBRType.SHORT,
+		registerMapper(new TypeMapper<Short[]>(Type.SHORT_SEQ, DBRType.SHORT,
 				MapperRole.PRIMARY_SEQUENCE) {
 			@Override
-			public short[] mapValue(DBR dbrValue, Characteristics characteristics) {
+			public Short[] mapValue(DBR dbrValue, Characteristics characteristics) {
 				DBR_Short dbr = (DBR_Short) dbrValue;
-				return dbr.getShortValue();
+				return ArrayUtils.toObject(dbr.getShortValue());
 			}
 		});
 		registerMapper(new TypeMapper<String>(Type.STRING, DBRType.STRING,  MapperRole.PRIMARY) {

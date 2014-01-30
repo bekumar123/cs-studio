@@ -25,8 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The SimpleTypeMapping provides a set of DAL2 TypeMapper implementations mapping from DBR to
- * mainly built in java types.  
+ * The SimpleTypeMapping provides a set of DAL2 TypeMapper implementations
+ * mapping from DBR to mainly built in java types.
  */
 public class SimpleTypeMapping extends TypeMapping {
 
@@ -41,87 +41,105 @@ public class SimpleTypeMapping extends TypeMapping {
 
 	public SimpleTypeMapping() {
 
-		registerMapper(new TypeMapper<Byte>(Type.BYTE, DBRType.BYTE, MapperRole.PRIMARY) {
+		registerMapper(new TypeMapper<Byte>(Type.BYTE, DBRType.BYTE,
+				MapperRole.PRIMARY) {
 			@Override
 			public Byte mapValue(DBR dbrValue, Characteristics characteristics) {
-				return ((DBR_Byte) dbrValue).getByteValue()[0];
+				byte[] bytes = ((DBR_Byte) dbrValue).getByteValue();
+				return (bytes != null && bytes.length > 0) ? bytes[0] : null;
 			}
 		});
 		registerMapper(new TypeMapper<Byte[]>(Type.BYTE_SEQ, DBRType.BYTE,
-				 MapperRole.PRIMARY_SEQUENCE) {
+				MapperRole.PRIMARY_SEQUENCE) {
 			@Override
 			public Byte[] mapValue(DBR dbrValue, Characteristics characteristics) {
-				return ArrayUtils.toObject(((DBR_Byte) dbrValue).getByteValue());
+				return ArrayUtils
+						.toObject(((DBR_Byte) dbrValue).getByteValue());
 			}
 		});
-		registerMapper(new TypeMapper<Double>(Type.DOUBLE, DBRType.DOUBLE,  MapperRole.PRIMARY) {
+		registerMapper(new TypeMapper<Double>(Type.DOUBLE, DBRType.DOUBLE,
+				MapperRole.PRIMARY) {
 			@Override
 			public Double mapValue(DBR dbrValue, Characteristics characteristics) {
-				return ((DBR_Double) dbrValue).getDoubleValue()[0];
+				double[] doubles = ((DBR_Double) dbrValue).getDoubleValue();
+				return (doubles != null && doubles.length > 0) ? doubles[0]
+						: null;
 			}
 		});
 		registerMapper(new TypeMapper<Double[]>(Type.DOUBLE_SEQ,
 				DBRType.DOUBLE, MapperRole.PRIMARY_SEQUENCE) {
 			@Override
-			public Double[] mapValue(DBR dbrValue, Characteristics characteristics) {
-				return ArrayUtils.toObject(((DBR_Double) dbrValue).getDoubleValue());
+			public Double[] mapValue(DBR dbrValue,
+					Characteristics characteristics) {
+				return ArrayUtils.toObject(((DBR_Double) dbrValue)
+						.getDoubleValue());
 			}
 		});
-		registerMapper(new TypeMapper<Integer>(Type.LONG, DBRType.INT,  MapperRole.PRIMARY) {
+		registerMapper(new TypeMapper<Integer>(Type.LONG, DBRType.INT,
+				MapperRole.PRIMARY) {
 			@Override
-			public Integer mapValue(DBR dbrValue, Characteristics characteristics) {
-				DBR_Int dbrInt = (DBR_Int) dbrValue;
-				return dbrInt.getIntValue()[0];
+			public Integer mapValue(DBR dbrValue,
+					Characteristics characteristics) {
+				int[] ints = ((DBR_Int) dbrValue).getIntValue();
+				return (ints != null && ints.length > 0) ? ints[0] : null;
 			}
 		});
-		registerMapper(new TypeMapper<Integer[]>(Type.LONG_SEQ, DBRType.INT, MapperRole.PRIMARY_SEQUENCE) {
+		registerMapper(new TypeMapper<Integer[]>(Type.LONG_SEQ, DBRType.INT,
+				MapperRole.PRIMARY_SEQUENCE) {
 			@Override
-			public Integer[] mapValue(DBR dbrValue, Characteristics characteristics) {
+			public Integer[] mapValue(DBR dbrValue,
+					Characteristics characteristics) {
 				DBR_Int dbrInt = (DBR_Int) dbrValue;
 				return ArrayUtils.toObject(dbrInt.getIntValue());
 			}
 		});
-		registerMapper(new TypeMapper<Float>(Type.FLOAT, DBRType.FLOAT,  MapperRole.PRIMARY) {
+		registerMapper(new TypeMapper<Float>(Type.FLOAT, DBRType.FLOAT,
+				MapperRole.PRIMARY) {
 			@Override
 			public Float mapValue(DBR dbrValue, Characteristics characteristics) {
-				DBR_Float dbr = (DBR_Float) dbrValue;
-				return dbr.getFloatValue()[0];
+				float[] floats = ((DBR_Float) dbrValue).getFloatValue();
+				return (floats != null && floats.length > 0) ? floats[0] : null;
 			}
 		});
 		registerMapper(new TypeMapper<Float[]>(Type.FLOAT_SEQ, DBRType.FLOAT,
 				MapperRole.PRIMARY_SEQUENCE) {
 			@Override
-			public Float[] mapValue(DBR dbrValue, Characteristics characteristics) {
+			public Float[] mapValue(DBR dbrValue,
+					Characteristics characteristics) {
 				DBR_Float dbr = (DBR_Float) dbrValue;
 				return ArrayUtils.toObject(dbr.getFloatValue());
 			}
 		});
-		registerMapper(new TypeMapper<Short>(Type.SHORT, DBRType.SHORT,  MapperRole.PRIMARY) {
+		registerMapper(new TypeMapper<Short>(Type.SHORT, DBRType.SHORT,
+				MapperRole.PRIMARY) {
 			@Override
 			public Short mapValue(DBR dbrValue, Characteristics characteristics) {
-				DBR_Short dbr = (DBR_Short) dbrValue;
-				return dbr.getShortValue()[0];
+				short[] shorts = ((DBR_Short) dbrValue).getShortValue();
+				return (shorts != null && shorts.length > 0) ? shorts[0] : null;
 			}
 		});
 		registerMapper(new TypeMapper<Short[]>(Type.SHORT_SEQ, DBRType.SHORT,
 				MapperRole.PRIMARY_SEQUENCE) {
 			@Override
-			public Short[] mapValue(DBR dbrValue, Characteristics characteristics) {
+			public Short[] mapValue(DBR dbrValue,
+					Characteristics characteristics) {
 				DBR_Short dbr = (DBR_Short) dbrValue;
 				return ArrayUtils.toObject(dbr.getShortValue());
 			}
 		});
-		registerMapper(new TypeMapper<String>(Type.STRING, DBRType.STRING,  MapperRole.PRIMARY) {
+		registerMapper(new TypeMapper<String>(Type.STRING, DBRType.STRING,
+				MapperRole.PRIMARY) {
 			@Override
 			public String mapValue(DBR dbrValue, Characteristics characteristics) {
-				DBR_String dbrString = (DBR_String) dbrValue;
-				return dbrString.getStringValue()[0];
+				String[] strings = ((DBR_String) dbrValue).getStringValue();
+				return (strings != null && strings.length > 0) ? strings[0] : null;
 			}
 		});
 		registerMapper(new TypeMapper<String[]>(Type.STRING_SEQ,
 				DBRType.STRING, MapperRole.PRIMARY_SEQUENCE) {
 			@Override
-			public String[] mapValue(DBR dbrValue, Characteristics characteristics) {
+			public String[] mapValue(DBR dbrValue,
+					Characteristics characteristics) {
 				DBR_String dbrString = (DBR_String) dbrValue;
 				return dbrString.getStringValue();
 			}
@@ -129,38 +147,33 @@ public class SimpleTypeMapping extends TypeMapping {
 		registerMapper(new TypeMapper<EpicsAlarmSeverity>(Type.SEVERITY,
 				DBRType.ENUM, MapperRole.ADDITIONAL) {
 			@Override
-			public EpicsAlarmSeverity mapValue(DBR dbrValue, Characteristics characteristics) {
+			public EpicsAlarmSeverity mapValue(DBR dbrValue,
+					Characteristics characteristics) {
 				DBR_Enum dbrEnum = (DBR_Enum) dbrValue;
 				short enumValue = dbrEnum.getEnumValue()[0];
 				return EpicsAlarmSeverity.valueOf(gov.aps.jca.dbr.Severity
 						.forValue(enumValue));
 			}
 		});
-		registerMapper(new TypeMapper<EpicsEnum>(Type.EPICS_ENUM, DBRType.ENUM, MapperRole.PRIMARY) {
+		registerMapper(new TypeMapper<EpicsEnum>(Type.EPICS_ENUM, DBRType.ENUM,
+				MapperRole.PRIMARY) {
 			@Override
-			public EpicsEnum mapValue(DBR dbrValue, Characteristics characteristics) {
+			public EpicsEnum mapValue(DBR dbrValue,
+					Characteristics characteristics) {
 				DBR_LABELS_Enum dbrEnum = (DBR_LABELS_Enum) dbrValue;
 				short enumValue = dbrEnum.getEnumValue()[0];
 				String[] labels = dbrEnum.getLabels();
 				if (labels != null && enumValue < labels.length) {
 					String label = labels[enumValue];
 					if (label != null && !label.isEmpty()) {
-						return EpicsEnum.createFromState(label, (int)enumValue);
+						return EpicsEnum
+								.createFromState(label, (int) enumValue);
 					}
 				}
-                return EpicsEnum.createFromRaw((int)enumValue);
-				
+				return EpicsEnum.createFromRaw((int) enumValue);
+
 			}
 		});
-
-		// registerMapper(new TypeMapper<String[]>(Type.NUMBER_SEQ,
-		// DBRType.STRING) {
-		// @Override
-		// public String[] mapValue(DBR dbrValue) {
-		// DBR_String dbrString = (DBR_String) dbrValue;
-		// return dbrString.getStringValue();
-		// }
-		// });
 
 		Collection<Type<?>> listTypes = Type.listTypes();
 		Set<Type<?>> checklist = new HashSet<Type<?>>(listTypes);

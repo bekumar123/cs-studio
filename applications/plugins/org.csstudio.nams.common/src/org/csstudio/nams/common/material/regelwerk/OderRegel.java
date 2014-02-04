@@ -18,13 +18,15 @@ public class OderRegel implements Regel {
 	    // Im Array this.regeln gibt es als Wert null (event. fehlende Timebased-Bedingung??)
 	    boolean result = false;
 		for (Regel regel : this.regeln) {
-            if (regel != null) {
-    			boolean regelErgebnis = regel.pruefeNachricht(nachricht);
-    			if(regelErgebnis) {
-    				result = true;
-    				break;
-    			}
+            if (regel == null) {
+                result = true;
+                break;
             }
+			boolean regelErgebnis = regel.pruefeNachricht(nachricht);
+			if(regelErgebnis) {
+				result = true;
+				break;
+			}
 		}
 		return result;
 	}

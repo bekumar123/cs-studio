@@ -18,12 +18,14 @@ public class UndRegel implements Regel {
         // Im Array this.regeln gibt es als Wert null (event. fehlende Timebased-Bedingung??)
 		boolean result = regeln.size() > 0;
 		for (Regel regel : this.regeln) {
-			if (regel != null) {
-    		    boolean regelErgebnis = regel.pruefeNachricht(nachricht);
-    			if(!regelErgebnis) {
-    				result = false;
-    				break;
-    			}
+			if (regel == null) {
+                result = false;
+                break;
+			}
+		    boolean regelErgebnis = regel.pruefeNachricht(nachricht);
+			if(!regelErgebnis) {
+				result = false;
+				break;
 			}
 		}
 

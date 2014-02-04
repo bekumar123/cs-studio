@@ -19,7 +19,7 @@ public class OderRegel implements Regel {
 	    boolean result = false;
 		for (Regel regel : this.regeln) {
             if (regel == null) {
-                result = true;
+                result = false;
                 break;
             }
 			boolean regelErgebnis = regel.pruefeNachricht(nachricht);

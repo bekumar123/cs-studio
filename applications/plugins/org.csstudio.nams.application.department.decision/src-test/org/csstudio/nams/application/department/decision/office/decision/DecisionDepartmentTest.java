@@ -2,62 +2,64 @@ package org.csstudio.nams.application.department.decision.office.decision;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.csstudio.nams.common.DefaultExecutionService;
-import org.csstudio.nams.common.decision.Arbeitsfaehig;
-import org.csstudio.nams.common.decision.Inbox;
-import org.csstudio.nams.common.decision.DefaultDocumentBox;
-import org.csstudio.nams.common.decision.MessageCasefile;
 import org.csstudio.nams.common.decision.CasefileId;
+import org.csstudio.nams.common.decision.DefaultDocumentBox;
+import org.csstudio.nams.common.decision.Inbox;
+import org.csstudio.nams.common.decision.MessageCasefile;
+import org.csstudio.nams.common.decision.Worker;
 import org.csstudio.nams.common.fachwert.Milliseconds;
 import org.csstudio.nams.common.material.AlarmMessage;
-import org.csstudio.nams.common.material.Regelwerkskennung;
-import org.csstudio.nams.common.material.regelwerk.DefaultRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.Regel;
-import org.csstudio.nams.common.material.regelwerk.Regelwerk;
-import org.csstudio.nams.common.material.regelwerk.TimebasedRegelwerk;
+import org.csstudio.nams.common.material.FilterId;
+import org.csstudio.nams.common.material.regelwerk.DefaultFilter;
+import org.csstudio.nams.common.material.regelwerk.Filter;
+import org.csstudio.nams.common.material.regelwerk.FilterCondition;
+import org.csstudio.nams.common.material.regelwerk.TimebasedFilter;
+import org.csstudio.nams.common.material.regelwerk.TimebasedFilter.TimeoutType;
 import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
-import org.csstudio.nams.common.material.regelwerk.TimebasedRegelwerk.TimeoutType;
+import org.csstudio.nams.service.logging.declaration.LoggerMock;
 import org.junit.Test;
 
-public class AlarmEntscheidungsBuero_Test extends TestCase {
+public class DecisionDepartmentTest extends TestCase {
 
 	public void testConstructor() {
 		final int ANZAHL_REGELWERKE = 3;
 
-		final Regelwerk[] regelwerke = new Regelwerk[ANZAHL_REGELWERKE];
+		final List<Filter> regelwerke = new ArrayList<Filter>(ANZAHL_REGELWERKE);
 		for (int i = 0; i < ANZAHL_REGELWERKE; i++) {
-			regelwerke[i] = new DefaultRegelwerk(Regelwerkskennung.valueOf(),
-					new Regel() {
-						// Impl hier egal!
-						@Override
-						public boolean pruefeNachricht(AlarmMessage nachricht) {
-							// TODO Auto-generated method stub
-							return false;
-						}
-						@Override
-						public boolean pruefeNachricht(
-								AlarmMessage nachricht,
-								AlarmMessage vergleichsNachricht) {
-							// TODO Auto-generated method stub
-							return false;
-						}
-					});
+			regelwerke.add(new DefaultFilter(FilterId.valueOf(i), new FilterCondition() {
+				// Impl hier egal!
+				@Override
+				public boolean pruefeNachricht(AlarmMessage nachricht) {
+					// TODO Auto-generated method stub
+					return false;
+				}
+
+				@Override
+				public boolean pruefeNachricht(AlarmMessage nachricht, AlarmMessage vergleichsNachricht) {
+					// TODO Auto-generated method stub
+					return false;
+				}
+			}));
 		}
 
 		final DecisionDepartment buero = new DecisionDepartment(
 				new DefaultExecutionService(), regelwerke,
 				new DefaultDocumentBox<MessageCasefile>(),
-				new DefaultDocumentBox<MessageCasefile>(), 10);
+				new DefaultDocumentBox<MessageCasefile>(), 10, new LoggerMock());
 
 		Assert.assertNotNull(buero.gibAbteilungsleiterFuerTest());
 		Assert.assertNotNull(buero.gibAssistenzFuerTest());
-		final Collection<Arbeitsfaehig> listOfSachbearbeiter = buero
+		final Collection<Worker> listOfSachbearbeiter = buero
 				.gibListeDerSachbearbeiterFuerTest();
 		Assert.assertNotNull(listOfSachbearbeiter);
 		Assert.assertTrue("listOfSachbearbeiter.size()==" + ANZAHL_REGELWERKE,
@@ -67,16 +69,17 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 				.gibAbteilungsleiterFuerTest().isWorking());
 		Assert.assertTrue("buero.getAssistenz().istAmArbeiten()", buero
 				.gibAssistenzFuerTest().isWorking());
-		for (final Arbeitsfaehig bearbeiter : listOfSachbearbeiter) {
+		for (final Worker bearbeiter : listOfSachbearbeiter) {
 			Assert.assertTrue(
 					"buero.getListOfSachbearbeiter().istAmArbeiten()",
 					bearbeiter.isWorking());
 		}
 	}
 
+	@Test(timeout = 4000)
 	public void testIntegration() throws InterruptedException,
 			UnknownHostException {
-		final Regel regel = new Regel() {
+		final FilterCondition regel = new FilterCondition() {
 						@Override
 			public boolean pruefeNachricht(AlarmMessage nachricht) {
 				return true;
@@ -89,7 +92,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 			}
 		};
 		
-		final Regel regel2 = new Regel() {
+		final FilterCondition regel2 = new FilterCondition() {
 			@Override
 			public boolean pruefeNachricht(AlarmMessage nachricht) {
 				return false;
@@ -103,20 +106,19 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 			}
 		};
 		
-		final Regelwerkskennung regelwerkskennung = Regelwerkskennung.valueOf();
-		final Regelwerk regelwerk = new DefaultRegelwerk(regelwerkskennung,
+		final FilterId regelwerkskennung = FilterId.valueOf(1);
+		final Filter regelwerk = new DefaultFilter(regelwerkskennung,
 				regel);
 
-		final Regelwerkskennung regelwerkskennung2 = Regelwerkskennung
-				.valueOf();
-		final Regelwerk regelwerk2 = new DefaultRegelwerk(regelwerkskennung2,
+		final FilterId regelwerkskennung2 = FilterId.valueOf(2);
+		final Filter regelwerk2 = new DefaultFilter(regelwerkskennung2,
 				regel2);
 
 		final DecisionDepartment buero = new DecisionDepartment(
-				new DefaultExecutionService(), new Regelwerk[] { regelwerk,
-						regelwerk2 },
+				new DefaultExecutionService(), Arrays.asList(new Filter[]{ regelwerk,
+						regelwerk2 }),
 				new DefaultDocumentBox<MessageCasefile>(),
-				new DefaultDocumentBox<MessageCasefile>(), 1);
+				new DefaultDocumentBox<MessageCasefile>(), 1, new LoggerMock());
 		
 		final Inbox<MessageCasefile> alarmVorgangEingangskorb = buero
 				.gibAlarmVorgangEingangskorb();
@@ -134,20 +136,16 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 		MessageCasefile aelteste = alarmVorgangAusgangskorb
 				.takeDocument();
 
-		Assert.assertEquals(alarmNachricht, aelteste.getAlarmNachricht());
+		Assert.assertEquals(alarmNachricht, aelteste.getAlarmMessage());
 		Assert.assertTrue(aelteste.getWeiteresVersandVorgehen() == WeiteresVersandVorgehen.VERSENDEN);
-		Assert.assertTrue(aelteste.getBearbeitetMitRegelWerk() == regelwerk.getRegelwerksKennung());
+		Assert.assertTrue(aelteste.getHandledByFilterId() == regelwerk.getFilterId());
 
-		aelteste = alarmVorgangAusgangskorb.takeDocument();
-
-		Assert.assertEquals(alarmNachricht, aelteste.getAlarmNachricht());
-		Assert.assertTrue(aelteste.getWeiteresVersandVorgehen() == WeiteresVersandVorgehen.NICHT_VERSENDEN);
-		Assert.assertTrue(aelteste.getBearbeitetMitRegelWerk() == regelwerk2.getRegelwerksKennung());		
+		Assert.assertEquals(alarmVorgangAusgangskorb.documentCount(), 0);
 	}
 
 	@Test(timeout = 4000)
 	public void testTimeBasedAufhebenBeiTimeout() throws Throwable {
-		Regel startRegel = new Regel() {
+		FilterCondition startRegel = new FilterCondition() {
 			@Override
 			public boolean pruefeNachricht(AlarmMessage nachricht,
 					AlarmMessage vergleichsNachricht) {
@@ -159,7 +157,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 				return nachricht.gibNachrichtenText().equals("START");
 			}
 		};
-		Regel stopRegel = new Regel() {
+		FilterCondition stopRegel = new FilterCondition() {
 			@Override
 			public boolean pruefeNachricht(AlarmMessage nachricht,
 					AlarmMessage vergleichsNachricht) {
@@ -170,12 +168,12 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 				return nachricht.gibNachrichtenText().equals("STOP");
 			}
 		};
-		TimebasedRegelwerk timebasedRegelwerk = new TimebasedRegelwerk(Regelwerkskennung.valueOf(), startRegel, stopRegel, Milliseconds.valueOf(100), TimeoutType.SENDE_BEI_STOP_REGEL);
+		TimebasedFilter timebasedRegelwerk = new TimebasedFilter(FilterId.valueOf(666), startRegel, stopRegel, Milliseconds.valueOf(100), TimeoutType.SENDE_BEI_STOP_REGEL);
 
 		final DecisionDepartment buero = new DecisionDepartment(
-				new DefaultExecutionService(), new Regelwerk[] { timebasedRegelwerk },
+				new DefaultExecutionService(), Arrays.asList(new Filter[] { timebasedRegelwerk }),
 				new DefaultDocumentBox<MessageCasefile>(),
-				new DefaultDocumentBox<MessageCasefile>(), 1);
+				new DefaultDocumentBox<MessageCasefile>(), 1, new LoggerMock());
 		final Inbox<MessageCasefile> alarmVorgangEingangskorb = buero
 				.gibAlarmVorgangEingangskorb();
 		final DefaultDocumentBox<MessageCasefile> alarmVorgangAusgangskorb = (DefaultDocumentBox<MessageCasefile>) buero
@@ -218,45 +216,12 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 				.takeDocument();
 
 		Assert.assertNotNull(aelteste);
-		Assert.assertEquals("XXO", aelteste
-				.getAlarmNachricht()
-				.gibNachrichtenText());
-		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aelteste.getWeiteresVersandVorgehen());
-
-		// Pruefen 3
-		aelteste = alarmVorgangAusgangskorb.takeDocument();
-
-		Assert.assertNotNull(aelteste);
-		Assert.assertEquals("Baeh!", aelteste
-				.getAlarmNachricht()
-				.gibNachrichtenText());
-		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aelteste.getWeiteresVersandVorgehen());
-
-		// Nachricht 2
-		aelteste = alarmVorgangAusgangskorb.takeDocument();
-		
-		Assert.assertNotNull(aelteste);
 		Assert.assertEquals("START", aelteste
-				.getAlarmNachricht()
+				.getAlarmMessage()
 				.gibNachrichtenText());
 		Assert.assertEquals(WeiteresVersandVorgehen.VERSENDEN, aelteste.getWeiteresVersandVorgehen());
 
-		// Pruefen 4
-		MessageCasefile vorgangsmappe5 = alarmVorgangAusgangskorb
-				.takeDocument();
-
-		Assert.assertNotNull(vorgangsmappe5);
-		Assert.assertEquals("STOP", vorgangsmappe5
-				.getAlarmNachricht()
-				.gibNachrichtenText());
-		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, vorgangsmappe5.getWeiteresVersandVorgehen());
-
-		
-		
-		
-		
-		
-		
+		Assert.assertEquals(0, alarmVorgangAusgangskorb.documentCount());
 
 		// Un-Passende 1
 		vorgangsmappenkennung = CasefileId
@@ -291,49 +256,12 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 				vorgangsmappenkennung4, alarmNachricht4);
 		alarmVorgangEingangskorb.put(vorgangsmappe4);
 
-		// Pruefen 1
-		aelteste = alarmVorgangAusgangskorb
-				.takeDocument();
-
-		Assert.assertNotNull(aelteste);
-		Assert.assertEquals("XXO", aelteste
-				.getAlarmNachricht()
-				.gibNachrichtenText());
-		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aelteste.getWeiteresVersandVorgehen());
-
-		// Pruefen 3
-		aelteste = alarmVorgangAusgangskorb.takeDocument();
-
-		Assert.assertNotNull(aelteste);
-		Assert.assertEquals("Baeh!", aelteste
-				.getAlarmNachricht()
-				.gibNachrichtenText());
-		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aelteste.getWeiteresVersandVorgehen());
-
-		// Nachricht 2
-		aelteste = alarmVorgangAusgangskorb.takeDocument();
-		
-		Assert.assertNotNull(aelteste);
-		Assert.assertEquals("START", aelteste
-				.getAlarmNachricht()
-				.gibNachrichtenText());
-		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aelteste.getWeiteresVersandVorgehen());
-
-		// Pruefen 4
-		vorgangsmappe5 = alarmVorgangAusgangskorb
-				.takeDocument();
-
-		Assert.assertNotNull(vorgangsmappe5);
-		Assert.assertEquals("STOP", vorgangsmappe5
-				.getAlarmNachricht()
-				.gibNachrichtenText());
-		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, vorgangsmappe5.getWeiteresVersandVorgehen());
-		
+		Assert.assertEquals(0, alarmVorgangAusgangskorb.documentCount());
 	}
 	
 	@Test(timeout = 4000)
 	public void testTimeBasedAusloesenBeiTimeout() throws Throwable {
-		Regel startRegel = new Regel() {
+		FilterCondition startRegel = new FilterCondition() {
 			@Override
 			public boolean pruefeNachricht(AlarmMessage nachricht,
 					AlarmMessage vergleichsNachricht) {
@@ -345,7 +273,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 				return nachricht.gibNachrichtenText().equals("START");
 			}
 		};
-		Regel stopRegel = new Regel() {
+		FilterCondition stopRegel = new FilterCondition() {
 			@Override
 			public boolean pruefeNachricht(AlarmMessage nachricht,
 					AlarmMessage vergleichsNachricht) {
@@ -356,12 +284,12 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 				return nachricht.gibNachrichtenText().equals("STOP");
 			}
 		};
-		TimebasedRegelwerk timebasedRegelwerk = new TimebasedRegelwerk(Regelwerkskennung.valueOf(), startRegel, stopRegel, Milliseconds.valueOf(100), TimeoutType.SENDE_BEI_TIMEOUT);
+		TimebasedFilter timebasedRegelwerk = new TimebasedFilter(FilterId.valueOf(18), startRegel, stopRegel, Milliseconds.valueOf(100), TimeoutType.SENDE_BEI_TIMEOUT);
 
 		final DecisionDepartment buero = new DecisionDepartment(
-				new DefaultExecutionService(), new Regelwerk[] { timebasedRegelwerk },
+				new DefaultExecutionService(), Arrays.asList(new Filter[] { timebasedRegelwerk }),
 				new DefaultDocumentBox<MessageCasefile>(),
-				new DefaultDocumentBox<MessageCasefile>(), 1);
+				new DefaultDocumentBox<MessageCasefile>(), 1, new LoggerMock());
 		final Inbox<MessageCasefile> alarmVorgangEingangskorb = buero
 				.gibAlarmVorgangEingangskorb();
 		final DefaultDocumentBox<MessageCasefile> alarmVorgangAusgangskorb = (DefaultDocumentBox<MessageCasefile>) buero
@@ -399,50 +327,7 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 				vorgangsmappenkennung4, alarmNachricht4);
 		alarmVorgangEingangskorb.put(vorgangsmappe4);
 
-		// Pruefen 1
-		MessageCasefile aelteste = alarmVorgangAusgangskorb
-				.takeDocument();
-
-		Assert.assertNotNull(aelteste);
-		Assert.assertEquals("XXO", aelteste
-				.getAlarmNachricht()
-				.gibNachrichtenText());
-		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aelteste.getWeiteresVersandVorgehen());
-
-		// Pruefen 3
-		aelteste = alarmVorgangAusgangskorb.takeDocument();
-
-		Assert.assertNotNull(aelteste);
-		Assert.assertEquals("Baeh!", aelteste
-				.getAlarmNachricht()
-				.gibNachrichtenText());
-		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aelteste.getWeiteresVersandVorgehen());
-
-		// Nachricht 2
-		aelteste = alarmVorgangAusgangskorb.takeDocument();
-		
-		Assert.assertNotNull(aelteste);
-		Assert.assertEquals("START", aelteste
-				.getAlarmNachricht()
-				.gibNachrichtenText());
-		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aelteste.getWeiteresVersandVorgehen());
-
-		// Pruefen 4
-		MessageCasefile vorgangsmappe5 = alarmVorgangAusgangskorb
-				.takeDocument();
-
-		Assert.assertNotNull(vorgangsmappe5);
-		Assert.assertEquals("STOP", vorgangsmappe5
-				.getAlarmNachricht()
-				.gibNachrichtenText());
-		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, vorgangsmappe5.getWeiteresVersandVorgehen());
-
-		
-		
-		
-		
-		
-		
+		Assert.assertEquals(0, alarmVorgangAusgangskorb.documentCount());
 
 		// Un-Passende 1
 		vorgangsmappenkennung = CasefileId
@@ -477,43 +362,16 @@ public class AlarmEntscheidungsBuero_Test extends TestCase {
 				vorgangsmappenkennung4, alarmNachricht4);
 		alarmVorgangEingangskorb.put(vorgangsmappe4);
 
-		// Pruefen 1
-		aelteste = alarmVorgangAusgangskorb
-				.takeDocument();
 
-		Assert.assertNotNull(aelteste);
-		Assert.assertEquals("XXO", aelteste
-				.getAlarmNachricht()
-				.gibNachrichtenText());
-		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aelteste.getWeiteresVersandVorgehen());
-
-		// Pruefen 3
-		aelteste = alarmVorgangAusgangskorb.takeDocument();
-
-		Assert.assertNotNull(aelteste);
-		Assert.assertEquals("Baeh!", aelteste
-				.getAlarmNachricht()
-				.gibNachrichtenText());
-		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aelteste.getWeiteresVersandVorgehen());
-
-		// Nachricht 2
-		aelteste = alarmVorgangAusgangskorb.takeDocument();
+		// Eine Alarmnachricht
+		MessageCasefile aelteste = alarmVorgangAusgangskorb.takeDocument();
 		
 		Assert.assertNotNull(aelteste);
 		Assert.assertEquals("START", aelteste
-				.getAlarmNachricht()
+				.getAlarmMessage()
 				.gibNachrichtenText());
 		Assert.assertEquals(WeiteresVersandVorgehen.VERSENDEN, aelteste.getWeiteresVersandVorgehen());
 
-		// Pruefen 4
-		vorgangsmappe5 = alarmVorgangAusgangskorb
-				.takeDocument();
-
-		Assert.assertNotNull(vorgangsmappe5);
-		Assert.assertEquals("STOP", vorgangsmappe5
-				.getAlarmNachricht()
-				.gibNachrichtenText());
-		Assert.assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, vorgangsmappe5.getWeiteresVersandVorgehen());
-
+		Assert.assertEquals(0, alarmVorgangAusgangskorb.documentCount());
 	}
 }

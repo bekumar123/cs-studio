@@ -7,26 +7,26 @@ import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.concurrent.Executor;
 
-import org.csstudio.nams.common.decision.ExecutorBeobachtbarerEingangskorb;
-import org.csstudio.nams.common.decision.DefaultDocumentBox;
-import org.csstudio.nams.common.decision.MessageCasefile;
 import org.csstudio.nams.common.decision.CasefileId;
+import org.csstudio.nams.common.decision.DefaultDocumentBox;
+import org.csstudio.nams.common.decision.ExecutorBeobachtbarerEingangskorb;
+import org.csstudio.nams.common.decision.MessageCasefile;
 import org.csstudio.nams.common.material.AlarmMessage;
-import org.csstudio.nams.common.material.Regelwerkskennung;
-import org.csstudio.nams.common.material.regelwerk.DefaultRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.Regel;
+import org.csstudio.nams.common.material.FilterId;
+import org.csstudio.nams.common.material.regelwerk.DefaultFilter;
+import org.csstudio.nams.common.material.regelwerk.FilterCondition;
 import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class DefaultSachbearbeiter_Test {
+public class DefaultFilterWorkerTest {
 
 	
 	private DefaultDocumentBox<MessageCasefile> ausgangskorb;
 	private ExecutorBeobachtbarerEingangskorb<MessageCasefile> eingangskorb;
-	private TestRegel regel;
-	private Regelwerkskennung regelwerksKennung;
+	private TestFilterCondition regel;
+	private FilterId regelwerksKennung;
 
 	private class DirectExecutor implements Executor {
 	     public void execute(Runnable r) {
@@ -34,7 +34,7 @@ public class DefaultSachbearbeiter_Test {
 	     }
 	}
 
-	private class TestRegel implements Regel {
+	private class TestFilterCondition implements FilterCondition {
 
 		private boolean result = false;
 
@@ -54,13 +54,12 @@ public class DefaultSachbearbeiter_Test {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@Before
 	public void setUp() throws Exception {
 		ausgangskorb = new DefaultDocumentBox<MessageCasefile>();
 		eingangskorb = new ExecutorBeobachtbarerEingangskorb<MessageCasefile>(new DirectExecutor());
-		regelwerksKennung = Regelwerkskennung.valueOf();
-		regel = new TestRegel();
+		regelwerksKennung = FilterId.valueOf(1);
+		regel = new TestFilterCondition();
 	}
 
 	@After
@@ -69,7 +68,7 @@ public class DefaultSachbearbeiter_Test {
 	}
 
 	private DefaultFilterWorker erzeugeSachbearbeiter() {
-		return new DefaultFilterWorker(eingangskorb,ausgangskorb, new DefaultRegelwerk(regelwerksKennung, regel));
+		return new DefaultFilterWorker(eingangskorb,ausgangskorb, new DefaultFilter(regelwerksKennung, regel));
 	}
 
 	@Test
@@ -94,24 +93,19 @@ public class DefaultSachbearbeiter_Test {
 		regel.setResult(false);
 		
 		eingangskorb.put(vorgangsmappe);
-		MessageCasefile aeltesterEingang = ausgangskorb.takeDocument();
-		
-		assertEquals(vorgangsmappe, aeltesterEingang);
-		assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aeltesterEingang.getWeiteresVersandVorgehen());
-		assertEquals(regelwerksKennung, aeltesterEingang.getBearbeitetMitRegelWerk());
-		assertTrue(aeltesterEingang.istAbgeschlossen());
-		assertFalse(aeltesterEingang.istAbgeschlossenDurchTimeOut());
+
+		assertEquals(0, ausgangskorb.documentCount());
 		
 		vorgangsmappe = new MessageCasefile(CasefileId.createNew(InetAddress.getLocalHost(), new Date()), new AlarmMessage("XXX"));
 		
 		regel.setResult(true);
 		
 		eingangskorb.put(vorgangsmappe);
-		aeltesterEingang = ausgangskorb.takeDocument();
+		MessageCasefile aeltesterEingang = ausgangskorb.takeDocument();
 		
-		assertEquals(vorgangsmappe, aeltesterEingang);
+		assertFalse(vorgangsmappe.equals(aeltesterEingang));
 		assertEquals(WeiteresVersandVorgehen.VERSENDEN, aeltesterEingang.getWeiteresVersandVorgehen());
-		assertEquals(regelwerksKennung, aeltesterEingang.getBearbeitetMitRegelWerk());
+		assertEquals(regelwerksKennung, aeltesterEingang.getHandledByFilterId());
 		assertTrue(aeltesterEingang.istAbgeschlossen());
 		assertFalse(aeltesterEingang.istAbgeschlossenDurchTimeOut());
 		

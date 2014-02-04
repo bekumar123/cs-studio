@@ -3,19 +3,19 @@ package org.csstudio.nams.common.material;
 import org.csstudio.nams.common.wam.Fachwert;
 
 @Fachwert
-public final class Regelwerkskennung {
+public final class FilterId {
 
-	public static Regelwerkskennung valueOf(final int filterId) {
-		return new Regelwerkskennung(filterId);
+	public static FilterId valueOf(final int filterId) {
+		return new FilterId(filterId);
 	}
 
 	private final int id;
 
-	private Regelwerkskennung(final int filterId) {
+	private FilterId(final int filterId) {
 		this.id = filterId;
 	}
 
-	public int getRegelwerksId() {
+	public int getIntValue() {
 		return this.id;
 	}
 
@@ -37,7 +37,7 @@ public final class Regelwerkskennung {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Regelwerkskennung other = (Regelwerkskennung) obj;
+		FilterId other = (FilterId) obj;
 		if (id != other.id)
 			return false;
 		return true;

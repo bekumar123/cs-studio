@@ -15,7 +15,7 @@ import javax.jms.Session;
 import org.csstudio.nams.common.decision.MessageCasefile;
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
 import org.csstudio.nams.common.material.AlarmMessage;
-import org.csstudio.nams.common.material.Regelwerkskennung;
+import org.csstudio.nams.common.material.FilterId;
 import org.csstudio.nams.common.material.SystemNachricht;
 import org.csstudio.nams.service.logging.declaration.ILogger;
 import org.csstudio.nams.service.messaging.declaration.PostfachArt;
@@ -111,8 +111,8 @@ public class JMSProducer implements Producer {
 	@Override
     public void sendeVorgangsmappe(final MessageCasefile vorgangsmappe)
 			throws MessagingException {
-		final Regelwerkskennung regelwerkskennung = vorgangsmappe.getBearbeitetMitRegelWerk();
-		final AlarmMessage alarmNachricht = vorgangsmappe.getAlarmNachricht();
+		final FilterId regelwerkskennung = vorgangsmappe.getHandledByFilterId();
+		final AlarmMessage alarmNachricht = vorgangsmappe.getAlarmMessage();
 		final Map<MessageKeyEnum, String> contentMap = alarmNachricht
 				.getContentMap();
 		final Map<String, String> unknownContentMap = alarmNachricht
@@ -139,9 +139,9 @@ public class JMSProducer implements Producer {
 				if(regelwerkskennung != null) {
 					mapMessage.setString(MessageKeyEnum.AMS_FILTERID
 						.getStringValue(), Integer.toString(regelwerkskennung
-						.getRegelwerksId()));
+						.getIntValue()));
 				} else {
-					_logger.logErrorMessage(this, "the message to be sent has not been assigned a valid filter id. (Message: " + vorgangsmappe.getAlarmNachricht() + ")");
+					_logger.logErrorMessage(this, "the message to be sent has not been assigned a valid filter id. (Message: " + vorgangsmappe.getAlarmMessage() + ")");
 				}
 
 				mapMessage.setJMSDeliveryMode(DeliveryMode.PERSISTENT);

@@ -9,7 +9,7 @@ import java.util.Map;
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
 import org.csstudio.nams.common.fachwert.RubrikTypeEnum;
 import org.csstudio.nams.common.material.regelwerk.Operator;
-import org.csstudio.nams.common.material.regelwerk.StringRegelOperator;
+import org.csstudio.nams.common.material.regelwerk.StringFilterConditionOperator;
 import org.csstudio.nams.common.material.regelwerk.SuggestedProcessVariableType;
 import org.csstudio.nams.configurator.Messages;
 import org.csstudio.nams.configurator.beans.AbstractConfigurationBean;
@@ -264,7 +264,7 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
 				StringFilterConditionBean.PropertyNames.keyValue.name());
 
 		this.createTitledComboForEnumValues(this.stackComposites[SupportedFilterTypes.STRING_CONDITION.ordinal()],
-				Messages.FilterbedingungEditor_operator, StringRegelOperator.values(),
+				Messages.FilterbedingungEditor_operator, StringFilterConditionOperator.values(),
 				stringConfigurationBean,
 				StringFilterConditionBean.PropertyNames.operator.name());
 
@@ -289,7 +289,7 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
 				StringArrayFilterConditionBean.PropertyNames.keyValue.name());
 
 		this.createTitledComboForEnumValues(this.stackComposites[SupportedFilterTypes.STRING_ARRAY_CONDITION.ordinal()],
-				Messages.FilterbedingungEditor_operator, StringRegelOperator.values(),
+				Messages.FilterbedingungEditor_operator, StringFilterConditionOperator.values(),
 				stringArrayConfigurationBean,
 				StringArrayFilterConditionBean.PropertyNames.operator.name());
 
@@ -558,7 +558,7 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
 						PropertyCompareConditionBean.PropertyNames.messageKeyValue.name());
 
 		this.createTitledComboForEnumValues(this.stackComposites[SupportedFilterTypes.PROPERTY_COMPARE_CONDITION.ordinal()],
-						Messages.FilterbedingungEditor_operator, StringRegelOperator.values(),
+						Messages.FilterbedingungEditor_operator, StringFilterConditionOperator.values(),
 						propertyCompareConfigurationBean,
 						PropertyCompareConditionBean.PropertyNames.operator.name());
 

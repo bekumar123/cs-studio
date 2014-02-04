@@ -1,10 +1,6 @@
 package org.csstudio.nams.application.department.decision.office.decision;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.*;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -13,28 +9,28 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executor;
 
-import org.csstudio.nams.common.decision.ExecutorBeobachtbarerEingangskorb;
-import org.csstudio.nams.common.decision.DefaultDocumentBox;
-import org.csstudio.nams.common.decision.MessageCasefile;
 import org.csstudio.nams.common.decision.CasefileId;
+import org.csstudio.nams.common.decision.DefaultDocumentBox;
+import org.csstudio.nams.common.decision.ExecutorBeobachtbarerEingangskorb;
+import org.csstudio.nams.common.decision.MessageCasefile;
 import org.csstudio.nams.common.fachwert.Milliseconds;
 import org.csstudio.nams.common.material.AlarmMessage;
-import org.csstudio.nams.common.material.Regelwerkskennung;
-import org.csstudio.nams.common.material.regelwerk.Regel;
-import org.csstudio.nams.common.material.regelwerk.WatchDogRegelwerk;
+import org.csstudio.nams.common.material.FilterId;
+import org.csstudio.nams.common.material.regelwerk.FilterCondition;
+import org.csstudio.nams.common.material.regelwerk.WatchDogFilter;
 import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class WatchDogSachbearbeiter_Test {
+public class WatchDogFilterWorkerTest {
 
 	
 	private static final int DELAY = 10;
 	private DefaultDocumentBox<MessageCasefile> ausgangskorb;
 	private ExecutorBeobachtbarerEingangskorb<MessageCasefile> eingangskorb;
 	private TestRegel regel;
-	private Regelwerkskennung regelwerksKennung;
+	private FilterId regelwerksKennung;
 	private TestTimer timer;
 
 	private class DirectExecutor implements Executor {
@@ -43,7 +39,7 @@ public class WatchDogSachbearbeiter_Test {
 	     }
 	}
 
-	private class TestRegel implements Regel {
+	private class TestRegel implements FilterCondition {
 
 		private boolean result = false;
 
@@ -87,12 +83,11 @@ public class WatchDogSachbearbeiter_Test {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@Before
 	public void setUp() throws Exception {
 		ausgangskorb = new DefaultDocumentBox<MessageCasefile>();
 		eingangskorb = new ExecutorBeobachtbarerEingangskorb<MessageCasefile>(new DirectExecutor());
-		regelwerksKennung = Regelwerkskennung.valueOf();
+		regelwerksKennung = FilterId.valueOf(1);
 		regel = new TestRegel();
 		timer = new TestTimer();
 	}
@@ -103,7 +98,7 @@ public class WatchDogSachbearbeiter_Test {
 	}
 
 	private WatchDogFilterWorker erzeugeSachbearbeiter() {
-		return new WatchDogFilterWorker(eingangskorb,ausgangskorb, new WatchDogRegelwerk(regelwerksKennung, regel, Milliseconds.valueOf(DELAY)), timer);
+		return new WatchDogFilterWorker(eingangskorb,ausgangskorb, new WatchDogFilter(regelwerksKennung, regel, Milliseconds.valueOf(DELAY)), timer);
 	}
 
 	@Test
@@ -135,7 +130,7 @@ public class WatchDogSachbearbeiter_Test {
 		
 		MessageCasefile aeltesterEingang = ausgangskorb.takeDocument();
 		assertEquals(WeiteresVersandVorgehen.VERSENDEN, aeltesterEingang.getWeiteresVersandVorgehen());
-		assertEquals(regelwerksKennung, aeltesterEingang.getBearbeitetMitRegelWerk());
+		assertEquals(regelwerksKennung, aeltesterEingang.getHandledByFilterId());
 		assertTrue(aeltesterEingang.istAbgeschlossen());
 		assertFalse(aeltesterEingang.istAbgeschlossenDurchTimeOut());
 		
@@ -145,14 +140,8 @@ public class WatchDogSachbearbeiter_Test {
 		eingangskorb.put(vorgangsmappe);
 		assertNotNull(timer.getLastScheduledTask());
 		assertEquals(DELAY, timer.getLastScheduledDelay());
-		
-		aeltesterEingang = ausgangskorb.takeDocument();
-		
-		assertEquals(vorgangsmappe, aeltesterEingang);
-		assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aeltesterEingang.getWeiteresVersandVorgehen());
-		assertEquals(regelwerksKennung, aeltesterEingang.getBearbeitetMitRegelWerk());
-		assertTrue(aeltesterEingang.istAbgeschlossen());
-		assertFalse(aeltesterEingang.istAbgeschlossenDurchTimeOut());
+
+		assertEquals(0, ausgangskorb.documentCount());
 		
 		timer.reset();
 		// WatchDog startet timer neu bei eingang von gültiger Nachricht
@@ -162,13 +151,7 @@ public class WatchDogSachbearbeiter_Test {
 		assertNotNull(timer.getLastScheduledTask());
 		assertEquals(DELAY, timer.getLastScheduledDelay());
 		
-		aeltesterEingang = ausgangskorb.takeDocument();
-		
-		assertEquals(vorgangsmappe, aeltesterEingang);
-		assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aeltesterEingang.getWeiteresVersandVorgehen());
-		assertEquals(regelwerksKennung, aeltesterEingang.getBearbeitetMitRegelWerk());
-		assertTrue(aeltesterEingang.istAbgeschlossen());
-		assertFalse(aeltesterEingang.istAbgeschlossenDurchTimeOut());
+		assertEquals(0, ausgangskorb.documentCount());		
 		
 		timer.reset();
 		// WatchDog startet timer nicht neu bei eingang von ungültiger Nachricht
@@ -177,12 +160,6 @@ public class WatchDogSachbearbeiter_Test {
 		eingangskorb.put(vorgangsmappe);
 		assertNull(timer.getLastScheduledTask());
 		
-		aeltesterEingang = ausgangskorb.takeDocument();
-		
-		assertEquals(vorgangsmappe, aeltesterEingang);
-		assertEquals(WeiteresVersandVorgehen.NICHT_VERSENDEN, aeltesterEingang.getWeiteresVersandVorgehen());
-		assertEquals(regelwerksKennung, aeltesterEingang.getBearbeitetMitRegelWerk());
-		assertTrue(aeltesterEingang.istAbgeschlossen());
-		assertFalse(aeltesterEingang.istAbgeschlossenDurchTimeOut());
+		assertEquals(0, ausgangskorb.documentCount());		
 	}
 }

@@ -5,7 +5,7 @@ import java.util.Date;
 
 import org.csstudio.nams.common.decision.MessageCasefile;
 import org.csstudio.nams.common.material.AlarmMessage;
-import org.csstudio.nams.common.material.Regelwerkskennung;
+import org.csstudio.nams.common.material.FilterId;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.HistoryDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.LocalStoreConfigurationService;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.exceptions.InconsistentConfigurationException;
@@ -64,9 +64,9 @@ public class HistoryServiceImpl implements HistoryService {
 
 	@Override
     public void logTimeOutForTimeBased(final MessageCasefile vorgangsmappe) {
-		final Regelwerkskennung regelwerkId = vorgangsmappe.getBearbeitetMitRegelWerk();
+		final FilterId regelwerkId = vorgangsmappe.getHandledByFilterId();
 		final AlarmMessage alarmNachricht = vorgangsmappe
-				.getAlarmNachricht();
+				.getAlarmMessage();
 
 		final HistoryDTO historyDTO = new HistoryDTO();
 		historyDTO.setTTimeNewAsDate(new Date());
@@ -80,7 +80,7 @@ public class HistoryServiceImpl implements HistoryService {
 				// + "FC="
 				// + regelId
 				// + "/"
-				+ "F=" + regelwerkId.getRegelwerksId() + ")");
+				+ "F=" + regelwerkId.getIntValue() + ")");
 		try {
 			this.localStoreConfigurationService.saveHistoryDTO(historyDTO);
 		} catch (final StorageError e) {

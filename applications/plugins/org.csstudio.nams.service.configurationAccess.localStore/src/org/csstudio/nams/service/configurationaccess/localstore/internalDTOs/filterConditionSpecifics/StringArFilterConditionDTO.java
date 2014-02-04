@@ -12,7 +12,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
-import org.csstudio.nams.common.material.regelwerk.StringRegelOperator;
+import org.csstudio.nams.common.material.regelwerk.StringFilterConditionOperator;
 import org.csstudio.nams.service.configurationaccess.localstore.Mapper;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.FilterConditionDTO;
 
@@ -111,8 +111,8 @@ public class StringArFilterConditionDTO extends FilterConditionDTO implements
 		return MessageKeyEnum.getEnumFor(this.keyValue);
 	}
 
-	public StringRegelOperator getOperatorEnum() {
-		return StringRegelOperator.valueOf(this.operator);
+	public StringFilterConditionOperator getOperatorEnum() {
+		return StringFilterConditionOperator.valueOf(this.operator);
 	}
 
 	@Override
@@ -176,7 +176,7 @@ public class StringArFilterConditionDTO extends FilterConditionDTO implements
 		this.operator = operator;
 	}
 
-	public void setOperatorEnum(final StringRegelOperator op) {
+	public void setOperatorEnum(final StringFilterConditionOperator op) {
 		this.operator = op.databaseValue();
 	}
 

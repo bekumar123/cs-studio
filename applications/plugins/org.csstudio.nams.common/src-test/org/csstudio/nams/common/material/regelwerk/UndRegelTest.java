@@ -13,42 +13,42 @@ public class UndRegelTest {
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testUndRegel() {
-		Regel falseRegel1 = createRegel(false);
-		Regel falseRegel2 = createRegel(false);
-		Regel falseRegel3 = createRegel(false);
-		Regel trueRegel1 = createRegel(true);
-		Regel trueRegel2 = createRegel(true);
+		FilterCondition falseRegel1 = createRegel(false);
+		FilterCondition falseRegel2 = createRegel(false);
+		FilterCondition falseRegel3 = createRegel(false);
+		FilterCondition trueRegel1 = createRegel(true);
+		FilterCondition trueRegel2 = createRegel(true);
 		
-		UndRegel undRegel = new UndRegel(Arrays.asList(falseRegel1));
+		AndFilterCondition undRegel = new AndFilterCondition(Arrays.asList(falseRegel1));
 		Assert.assertFalse(undRegel.pruefeNachricht(new AlarmMessage("TestNachricht")));
 		
-		undRegel = new UndRegel(Arrays.asList(trueRegel1));
+		undRegel = new AndFilterCondition(Arrays.asList(trueRegel1));
 		Assert.assertTrue(undRegel.pruefeNachricht(new AlarmMessage("TestNachricht")));
 		
-		undRegel = new UndRegel(Arrays.asList(falseRegel1,falseRegel2,falseRegel3));
+		undRegel = new AndFilterCondition(Arrays.asList(falseRegel1,falseRegel2,falseRegel3));
 		Assert.assertFalse(undRegel.pruefeNachricht(new AlarmMessage("TestNachricht")));
 		
-		undRegel = new UndRegel(Arrays.asList(falseRegel1,falseRegel2,falseRegel3, trueRegel1));
+		undRegel = new AndFilterCondition(Arrays.asList(falseRegel1,falseRegel2,falseRegel3, trueRegel1));
 		Assert.assertFalse(undRegel.pruefeNachricht(new AlarmMessage("TestNachricht")));
 
-		undRegel = new UndRegel(Arrays.asList(falseRegel1,trueRegel1));
+		undRegel = new AndFilterCondition(Arrays.asList(falseRegel1,trueRegel1));
 		Assert.assertFalse(undRegel.pruefeNachricht(new AlarmMessage("TestNachricht")));
 		
-		undRegel = new UndRegel(Arrays.asList(falseRegel1,trueRegel1, falseRegel2));
+		undRegel = new AndFilterCondition(Arrays.asList(falseRegel1,trueRegel1, falseRegel2));
 		Assert.assertFalse(undRegel.pruefeNachricht(new AlarmMessage("TestNachricht")));
 		
-		undRegel = new UndRegel(Arrays.asList(trueRegel1, falseRegel1, falseRegel2, falseRegel3));
+		undRegel = new AndFilterCondition(Arrays.asList(trueRegel1, falseRegel1, falseRegel2, falseRegel3));
 		Assert.assertFalse(undRegel.pruefeNachricht(new AlarmMessage("TestNachricht")));
 		
-		undRegel = new UndRegel(Arrays.asList(trueRegel1, trueRegel2));
+		undRegel = new AndFilterCondition(Arrays.asList(trueRegel1, trueRegel2));
 		Assert.assertTrue(undRegel.pruefeNachricht(new AlarmMessage("TestNachricht")));
 		
-		undRegel = new UndRegel(Collections.<Regel> emptyList());
+		undRegel = new AndFilterCondition(Collections.<FilterCondition> emptyList());
 		Assert.assertFalse(undRegel.pruefeNachricht(new AlarmMessage("TestNachricht")));
 	}
 	
-	private Regel createRegel(final boolean testResult) {
-		return new Regel() {
+	private FilterCondition createRegel(final boolean testResult) {
+		return new FilterCondition() {
 			
 			@Override
 			public boolean pruefeNachricht(AlarmMessage nachricht,

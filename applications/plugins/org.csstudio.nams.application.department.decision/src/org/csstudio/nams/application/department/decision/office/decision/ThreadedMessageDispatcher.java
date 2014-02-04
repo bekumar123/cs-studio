@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.csstudio.nams.application.department.decision.ThreadTypesOfDecisionDepartment;
-import org.csstudio.nams.common.decision.Arbeitsfaehig;
+import org.csstudio.nams.common.decision.Worker;
 import org.csstudio.nams.common.decision.Document;
 import org.csstudio.nams.common.decision.Inbox;
 import org.csstudio.nams.common.decision.DefaultDocumentBox;
@@ -43,7 +43,7 @@ import org.csstudio.nams.common.wam.Automat;
  */
 @Automat
 class ThreadedMessageDispatcher implements DocumentHandler<MessageCasefile>,
-		Arbeitsfaehig {
+		Worker {
 	private final InboxReader<MessageCasefile> inboxListener;
 	private final ExecutionService executionService;
 	private List<MessageDispatcher> messageDispatchers;

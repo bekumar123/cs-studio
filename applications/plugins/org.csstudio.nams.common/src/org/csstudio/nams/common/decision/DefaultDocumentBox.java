@@ -69,7 +69,7 @@ public class DefaultDocumentBox<T extends Document> implements
 		return this.inhalt.take();
 	}
 
-	public boolean istEnthalten(final T element) {
+	public boolean contains(final T element) {
 		return this.inhalt.contains(element);
 	}
 

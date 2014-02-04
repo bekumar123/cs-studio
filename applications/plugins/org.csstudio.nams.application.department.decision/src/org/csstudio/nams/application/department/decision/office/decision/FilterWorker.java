@@ -1,13 +1,13 @@
 package org.csstudio.nams.application.department.decision.office.decision;
 
 import org.csstudio.nams.common.decision.Document;
-import org.csstudio.nams.common.decision.Arbeitsfaehig;
+import org.csstudio.nams.common.decision.Worker;
 import org.csstudio.nams.common.decision.Inbox;
-import org.csstudio.nams.common.material.regelwerk.Regelwerk;
+import org.csstudio.nams.common.material.regelwerk.Filter;
 
-public interface FilterWorker extends Arbeitsfaehig {
+public interface FilterWorker extends Worker {
 
-	Regelwerk getRegelwerk();
+	Filter getFilter();
 
 	Inbox<Document> getInbox();
 }

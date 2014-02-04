@@ -4,18 +4,18 @@ import java.util.List;
 
 import org.csstudio.nams.common.material.AlarmMessage;
 
-public class UndRegel implements Regel {
+public class AndFilterCondition implements FilterCondition {
 
-	private final List<Regel> regeln;
+	private final List<FilterCondition> regeln;
 	
-	public UndRegel(List<Regel> regeln) {
+	public AndFilterCondition(List<FilterCondition> regeln) {
 		this.regeln = regeln;
 	}
 	
 	@Override
 	public boolean pruefeNachricht(AlarmMessage nachricht) {
 		boolean result = regeln.size() > 0;
-		for (Regel regel : this.regeln) {
+		for (FilterCondition regel : this.regeln) {
 			boolean regelErgebnis = regel.pruefeNachricht(nachricht);
 			if(!regelErgebnis) {
 				result = false;
@@ -29,7 +29,7 @@ public class UndRegel implements Regel {
 	@Override
 	public boolean pruefeNachricht(AlarmMessage nachricht, AlarmMessage vergleichsNachricht) {
 		boolean result = regeln.size() > 0;
-		for (Regel regel : this.regeln) {
+		for (FilterCondition regel : this.regeln) {
 			boolean regelErgebnis = regel.pruefeNachricht(nachricht, vergleichsNachricht);
 			if(!regelErgebnis) {
 				result = false;
@@ -61,7 +61,7 @@ public class UndRegel implements Regel {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		UndRegel other = (UndRegel) obj;
+		AndFilterCondition other = (AndFilterCondition) obj;
 		if (regeln == null) {
 			if (other.regeln != null)
 				return false;

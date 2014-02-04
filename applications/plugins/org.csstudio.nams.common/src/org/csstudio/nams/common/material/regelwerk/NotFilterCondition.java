@@ -2,11 +2,11 @@ package org.csstudio.nams.common.material.regelwerk;
 
 import org.csstudio.nams.common.material.AlarmMessage;
 
-public class NichtRegel implements Regel {
+public class NotFilterCondition implements FilterCondition {
 	
-	private Regel childRegel;
+	private FilterCondition childRegel;
 	
-	public NichtRegel(Regel childRegel) {
+	public NotFilterCondition(FilterCondition childRegel) {
 		this.childRegel = childRegel;
 	}
 
@@ -37,7 +37,7 @@ public class NichtRegel implements Regel {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		NichtRegel other = (NichtRegel) obj;
+		NotFilterCondition other = (NotFilterCondition) obj;
 		if (childRegel == null) {
 			if (other.childRegel != null)
 				return false;

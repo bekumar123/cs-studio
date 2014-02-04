@@ -29,33 +29,34 @@ import org.csstudio.nams.common.contract.Contract;
 import org.csstudio.nams.common.decision.Document;
 import org.csstudio.nams.common.decision.CasefileId;
 import org.csstudio.nams.common.fachwert.Milliseconds;
+import org.csstudio.nams.common.material.FilterId;
 
-public final class TimerMessage implements Document {
+public final class TimeoutMessage implements Document {
 
 	private final CasefileId casefileId;
 	private final Milliseconds timeout;
 
-	private final int recipientWorkerId;
+	private final FilterId recipientWorkerId;
 
-	public static TimerMessage valueOf(
+	public static TimeoutMessage valueOf(
 			final CasefileId betreffendeVorgangsmappe,
 			final Milliseconds zeitBisZurBenachrichtigung,
-			final int idDesZuInformierendenSachbearbeiters) {
-		return new TimerMessage(betreffendeVorgangsmappe,
+			final FilterId recipientWorkerId) {
+		return new TimeoutMessage(betreffendeVorgangsmappe,
 				zeitBisZurBenachrichtigung,
-				idDesZuInformierendenSachbearbeiters);
+				recipientWorkerId);
 	}
 
-	private TimerMessage(final CasefileId betreffendeVorgangsmappe,
+	private TimeoutMessage(final CasefileId betreffendeVorgangsmappe,
 			final Milliseconds zeitBisZurBenachrichtigung,
-			final int idDesZuInformierendenSachbearbeiters) {
+			final FilterId recipientWorkerId) {
 		Contract.require(betreffendeVorgangsmappe != null,
 				"betreffendeVorgangsmappe!=null");
 		Contract.require(zeitBisZurBenachrichtigung != null,
 				"zeitBisZurBenachrichtigung!=null");
 		this.casefileId = betreffendeVorgangsmappe;
 		this.timeout = zeitBisZurBenachrichtigung;
-		this.recipientWorkerId = idDesZuInformierendenSachbearbeiters;
+		this.recipientWorkerId = recipientWorkerId;
 	}
 
 	@Override
@@ -66,10 +67,10 @@ public final class TimerMessage implements Document {
 		if (obj == null) {
 			return false;
 		}
-		if (!(obj instanceof TimerMessage)) {
+		if (!(obj instanceof TimeoutMessage)) {
 			return false;
 		}
-		final TimerMessage other = (TimerMessage) obj;
+		final TimeoutMessage other = (TimeoutMessage) obj;
 		if (!this.casefileId
 				.equals(other.casefileId)) {
 			return false;
@@ -84,7 +85,7 @@ public final class TimerMessage implements Document {
 		return true;
 	}
 
-	public int getRecipientWorkerId() {
+	public FilterId getRecipientWorkerId() {
 		return this.recipientWorkerId;
 	}
 
@@ -101,7 +102,7 @@ public final class TimerMessage implements Document {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + this.casefileId.hashCode();
-		result = prime * result + recipientWorkerId;
+		result = prime * result + recipientWorkerId.getIntValue();
 		result = prime * result + this.timeout.hashCode();
 		return result;
 	}

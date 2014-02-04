@@ -27,7 +27,7 @@ package org.csstudio.nams.common.decision;
 
 import org.csstudio.nams.common.contract.Contract;
 import org.csstudio.nams.common.material.AlarmMessage;
-import org.csstudio.nams.common.material.Regelwerkskennung;
+import org.csstudio.nams.common.material.FilterId;
 import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 import org.csstudio.nams.common.wam.Material;
 
@@ -39,7 +39,7 @@ public class MessageCasefile implements Document {
 	private CasefileId abgeschlossenDurchMappenkennung;
 	private boolean abgeschlossenDurchTimeOut = false;
 	private WeiteresVersandVorgehen weiteresVersandVorgehen;
-	private Regelwerkskennung bearbeitetMitRegelWerk;
+	private FilterId bearbeitetMitRegelWerk;
 
 	public MessageCasefile(final CasefileId kennung, final AlarmMessage nachricht) {
 		Contract.requireNotNull("nachricht", nachricht);
@@ -55,11 +55,11 @@ public class MessageCasefile implements Document {
 		this.abgeschlossenDurchTimeOut = true;
 	}
 	
-	public void setBearbeitetMitRegelWerk(Regelwerkskennung bearbeitetMitRegelWerk) {
+	public void setHandledWithFilter(FilterId bearbeitetMitRegelWerk) {
 		this.bearbeitetMitRegelWerk = bearbeitetMitRegelWerk;
 	}
 	
-	public Regelwerkskennung getBearbeitetMitRegelWerk() {
+	public FilterId getHandledByFilterId() {
 		return bearbeitetMitRegelWerk;
 	}
 
@@ -108,7 +108,7 @@ public class MessageCasefile implements Document {
 		return this.abgeschlossenDurchMappenkennung;
 	}
 
-	public AlarmMessage getAlarmNachricht() {
+	public AlarmMessage getAlarmMessage() {
 		return this.alarmNachricht;
 	}
 

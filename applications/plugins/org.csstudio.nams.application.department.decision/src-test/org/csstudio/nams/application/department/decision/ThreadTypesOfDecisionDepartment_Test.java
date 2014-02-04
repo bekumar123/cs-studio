@@ -26,7 +26,7 @@ public class ThreadTypesOfDecisionDepartment_Test extends
 		return new ThreadTypesOfDecisionDepartment[] {
 				ThreadTypesOfDecisionDepartment.AUSGANGSKORBBEARBEITER,
 				ThreadTypesOfDecisionDepartment.FILTER_WORKER,
-				ThreadTypesOfDecisionDepartment.TERMINASSISTENZ };
+				ThreadTypesOfDecisionDepartment.TIMEOUT_FILTER_NOTIFIER };
 	}
 
 }

@@ -30,11 +30,11 @@ import java.util.Date;
 import junit.framework.Assert;
 
 import org.csstudio.nams.common.DefaultExecutionService;
+import org.csstudio.nams.common.decision.CasefileId;
+import org.csstudio.nams.common.decision.DefaultDocumentBox;
 import org.csstudio.nams.common.decision.Document;
 import org.csstudio.nams.common.decision.Inbox;
-import org.csstudio.nams.common.decision.DefaultDocumentBox;
 import org.csstudio.nams.common.decision.MessageCasefile;
-import org.csstudio.nams.common.decision.CasefileId;
 import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.common.testutils.AbstractTestObject;
 import org.easymock.Capture;
@@ -42,7 +42,7 @@ import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.junit.Test;
 
-public class Abteilungsleiter_Test extends
+public class ThreadedMessageDispatcherTest extends
 		AbstractTestObject<ThreadedMessageDispatcher> {
 
 	protected volatile int anzahlDerSachbearbeiterDieEineMappeErhaltenHaben;
@@ -50,17 +50,17 @@ public class Abteilungsleiter_Test extends
 
 	@SuppressWarnings("unchecked")
 	@Test(timeout = 4000)
-	public void testAbteilungsleiter() throws Throwable {
-		final MessageCasefile vorgangsmappe = new MessageCasefile(
+	public void testDispatcher() throws Throwable {
+		final MessageCasefile messageCasefile = new MessageCasefile(
 				CasefileId.valueOf(InetAddress
 						.getByAddress(new byte[] { 127, 0, 0, 1 }), new Date(
 						123)), new AlarmMessage("Test-Nachricht"));
 		this.anzahlDerSachbearbeiterDieEineMappeErhaltenHaben = 0;
 
-		final Inbox<MessageCasefile> eingangskorb = EasyMock
+		final Inbox<MessageCasefile> dispatcherInboxMock = EasyMock
 				.createMock(Inbox.class);
-		EasyMock.expect(eingangskorb.takeDocument()).andReturn(
-				vorgangsmappe).times(1).andStubAnswer(
+		EasyMock.expect(dispatcherInboxMock.takeDocument()).andReturn(
+				messageCasefile).times(1).andStubAnswer(
 				new IAnswer<MessageCasefile>() {
 					public MessageCasefile answer() throws Throwable {
 						Thread.sleep(Integer.MAX_VALUE);
@@ -70,22 +70,18 @@ public class Abteilungsleiter_Test extends
 				});
 		
 		
-		Inbox<Document> korbMock = EasyMock.createMock(Inbox.class);
-		Capture<Document> ablegenArguments = new Capture<Document>();
-		korbMock.put(EasyMock.<Document> capture(ablegenArguments));
+		Inbox<Document> workerInboxMock = EasyMock.createMock(Inbox.class);
+		Capture<Document> capturedPutArguments = new Capture<Document>();
+		workerInboxMock.put(EasyMock.<Document> capture(capturedPutArguments));
 		EasyMock.expectLastCall().once();
-		EasyMock.replay(korbMock);
+		EasyMock.replay(workerInboxMock);
 		
-		final Inbox<Document> sachbearbeiterkorb1 = createEingangskorbMock(vorgangsmappe);
-		// Da die Exemplare nicht unterschieden werden, ist dieses derzeit möglich!
-		final Inbox<Document> sachbearbeiterkorb2 = createEingangskorbMock(vorgangsmappe); 
-
-		EasyMock.replay(eingangskorb);
+		EasyMock.replay(dispatcherInboxMock);
 		this.testFailedError = null;
 
-		final ThreadedMessageDispatcher abteilungsleiter = new ThreadedMessageDispatcher(
-				new DefaultExecutionService(), eingangskorb);
-		abteilungsleiter.addWorkerInbox(korbMock);
+		final ThreadedMessageDispatcher abteilungsleiter = new ThreadedMessageDispatcher(1,
+				new DefaultExecutionService(), dispatcherInboxMock);
+		abteilungsleiter.addWorkerInbox(workerInboxMock);
 
 		abteilungsleiter.startWorking();
 
@@ -105,59 +101,16 @@ public class Abteilungsleiter_Test extends
 		if (this.testFailedError != null) {
 			throw this.testFailedError;
 		}
-		EasyMock.verify(eingangskorb);
+		EasyMock.verify(dispatcherInboxMock);
 		
-		EasyMock.verify(korbMock);
-		MessageCasefile dokument = (MessageCasefile) ablegenArguments.getValue();
-		Assert.assertNotSame("Vorgangsmappen nicht identisch",
-				vorgangsmappe, dokument);
-		Assert.assertFalse("Vorgangsmappen nicht gleich",
-				vorgangsmappe.equals(dokument));
-
-		Assert.assertNotSame("Vorgangsmappen.Alarmnachricht nicht identisch",
-						vorgangsmappe.getAlarmNachricht(),
-						dokument.getAlarmNachricht());
-		Assert.assertEquals("Vorgangsmappen.Alarmnachrichten bleiben in diesem Büro gleich",
-						vorgangsmappe.getAlarmNachricht(),
-						dokument.getAlarmNachricht());
-		
-		
-
-	}
-
-	private Inbox<Document> createEingangskorbMock(final MessageCasefile vorgangsmappe) {
-		return new Inbox<Document>() {
-			public void put(Document ablagefaehig) {
-				try {
-					MessageCasefile dokument = (MessageCasefile) ablagefaehig;
-					Assert.assertNotSame("Vorgangsmappen nicht identisch",
-							vorgangsmappe, dokument);
-					Assert.assertFalse("Vorgangsmappen nicht gleich",
-							vorgangsmappe.equals(dokument));
-
-					Assert.assertNotSame("Vorgangsmappen.Alarmnachricht nicht identisch",
-									vorgangsmappe.getAlarmNachricht(),
-									dokument.getAlarmNachricht());
-					Assert.assertEquals("Vorgangsmappen.Alarmnachrichten bleiben in diesem Büro gleich",
-									vorgangsmappe.getAlarmNachricht(),
-									dokument.getAlarmNachricht());
-
-					Abteilungsleiter_Test.this.anzahlDerSachbearbeiterDieEineMappeErhaltenHaben++;
-				} catch (Throwable throwable) {
-					Abteilungsleiter_Test.this.testFailedError = throwable;
-				}
-			}
-
-			public MessageCasefile take()
-					throws InterruptedException {
-				Assert.fail("not to be called!");
-				return null;
-			}
-		};
+		EasyMock.verify(workerInboxMock);
+		MessageCasefile capturedPutDocument = (MessageCasefile) capturedPutArguments.getValue();
+		Assert.assertSame("Vorgangsmappen identisch",
+				messageCasefile, capturedPutDocument);
 	}
 
 	@Test
-	public void testArbeit() throws InterruptedException {
+	public void testDispatcherStates() throws InterruptedException {
 		final ThreadedMessageDispatcher abteilungsleiter = this
 				.getNewInstanceOfClassUnderTest();
 		Assert.assertFalse("abteilungsleiter.istAmArbeiten()", abteilungsleiter
@@ -174,7 +127,7 @@ public class Abteilungsleiter_Test extends
 	@SuppressWarnings("unchecked")
 	@Override
 	protected ThreadedMessageDispatcher getNewInstanceOfClassUnderTest() {
-		return new ThreadedMessageDispatcher(new DefaultExecutionService(),
+		return new ThreadedMessageDispatcher(1, new DefaultExecutionService(),
 				new DefaultDocumentBox<MessageCasefile>());
 	}
 
@@ -187,11 +140,11 @@ public class Abteilungsleiter_Test extends
 	@Override
 	protected ThreadedMessageDispatcher[] getThreeDiffrentNewInstanceOfClassUnderTest() {
 		return new ThreadedMessageDispatcher[] {
-				new ThreadedMessageDispatcher(new DefaultExecutionService(),
+				new ThreadedMessageDispatcher(1, new DefaultExecutionService(),
 						new DefaultDocumentBox<MessageCasefile>()),
-				new ThreadedMessageDispatcher(new DefaultExecutionService(),
+				new ThreadedMessageDispatcher(1, new DefaultExecutionService(),
 						new DefaultDocumentBox<MessageCasefile>()),
-				new ThreadedMessageDispatcher(new DefaultExecutionService(),
+				new ThreadedMessageDispatcher(1, new DefaultExecutionService(),
 						new DefaultDocumentBox<MessageCasefile>()) };
 	}
 

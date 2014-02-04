@@ -15,7 +15,7 @@ public class PropertyVergleichsRegelTest {
 	public void testVergleichsRegel() {
 		
 		MessageKeyEnum messageKey = MessageKeyEnum.AMS_REINSERTED;
-		PropertyVergleichsRegel vergleichsRegel = new PropertyVergleichsRegel(StringRegelOperator.OPERATOR_NUMERIC_GT,
+		PropertyCompareFilterCondition vergleichsRegel = new PropertyCompareFilterCondition(StringFilterConditionOperator.OPERATOR_NUMERIC_GT,
 				messageKey, null);
 		
 		Map<MessageKeyEnum, String> map1 = new HashMap<MessageKeyEnum, String>();

@@ -48,7 +48,7 @@ public class Vorgangsmappe_Test extends AbstractTestObject<MessageCasefile> {
 		Assert.assertSame(
 				"Hineingereichte Nachricht ist auch die, die herauskommt",
 				alarmNachricht, vorgangsmappe
-						.getAlarmNachricht());
+						.getAlarmMessage());
 	}
 
 	@Test
@@ -68,15 +68,15 @@ public class Vorgangsmappe_Test extends AbstractTestObject<MessageCasefile> {
 		Assert.assertNotNull(neueVorgangsmappe);
 		Assert.assertFalse(neueVorgangsmappe == vorgangsmappe);
 		Assert.assertNotNull(neueVorgangsmappe
-				.getAlarmNachricht());
+				.getAlarmMessage());
 		Assert.assertFalse(neueVorgangsmappe
-				.getAlarmNachricht() == vorgangsmappe
-				.getAlarmNachricht());
+				.getAlarmMessage() == vorgangsmappe
+				.getAlarmMessage());
 		Assert
 				.assertEquals(vorgangsmappe
-						.getAlarmNachricht(),
+						.getAlarmMessage(),
 						neueVorgangsmappe
-								.getAlarmNachricht());
+								.getAlarmMessage());
 		Assert.assertFalse("Kennung bleibt nicht gleich!",
 				kennung == neueVorgangsmappe.gibMappenkennung());
 		Assert.assertFalse("Kennung bleibt nicht gleich!", kennung

@@ -2,7 +2,7 @@ package org.csstudio.nams.common.material.regelwerk;
 
 import org.csstudio.nams.common.material.AlarmMessage;
 
-public interface Regel {
+public interface FilterCondition {
 
 	/**
 	 * Prüft, ob die Regel auf die übergebene Nachricht zutrifft.

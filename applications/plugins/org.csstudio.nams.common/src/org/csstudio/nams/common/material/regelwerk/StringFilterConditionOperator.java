@@ -5,14 +5,14 @@
 
 package org.csstudio.nams.common.material.regelwerk;
 
-public enum StringRegelOperator {
+public enum StringFilterConditionOperator {
 	OPERATOR_TEXT_EQUAL, OPERATOR_TEXT_NOT_EQUAL,
 
 	OPERATOR_NUMERIC_LT, OPERATOR_NUMERIC_LT_EQUAL, OPERATOR_NUMERIC_EQUAL, OPERATOR_NUMERIC_GT_EQUAL, OPERATOR_NUMERIC_GT, OPERATOR_NUMERIC_NOT_EQUAL,
 
 	OPERATOR_TIME_BEFORE, OPERATOR_TIME_BEFORE_EQUAL, OPERATOR_TIME_EQUAL, OPERATOR_TIME_AFTER_EQUAL, OPERATOR_TIME_AFTER, OPERATOR_TIME_NOT_EQUAL;
 
-	public static StringRegelOperator valueOf(final short value) {
+	public static StringFilterConditionOperator valueOf(final short value) {
 		switch (value) {
 		case 1:
 			return OPERATOR_TEXT_EQUAL;

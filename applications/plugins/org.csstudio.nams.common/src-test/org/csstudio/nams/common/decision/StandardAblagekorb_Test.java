@@ -217,7 +217,7 @@ public class StandardAblagekorb_Test
 	protected boolean pruefeObEnthalten(
 			final Box<AblagefaehigesObject> korb,
 			final AblagefaehigesObject element) {
-		return ((DefaultDocumentBox) korb).istEnthalten(element);
+		return ((DefaultDocumentBox) korb).contains(element);
 	}
 
 }

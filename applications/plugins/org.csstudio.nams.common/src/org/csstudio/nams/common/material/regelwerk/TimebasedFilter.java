@@ -1,17 +1,17 @@
 package org.csstudio.nams.common.material.regelwerk;
 
 import org.csstudio.nams.common.fachwert.Milliseconds;
-import org.csstudio.nams.common.material.Regelwerkskennung;
+import org.csstudio.nams.common.material.FilterId;
 
-public class TimebasedRegelwerk implements Regelwerk {
+public class TimebasedFilter implements Filter {
 
-	private final Regel startRegel;
-	private final Regel stopRegel;
+	private final FilterCondition startRegel;
+	private final FilterCondition stopRegel;
 	private final Milliseconds timeout;
 	private final TimeoutType timeoutType;
-	private final Regelwerkskennung regelwerkskennung;
+	private final FilterId regelwerkskennung;
 
-	public TimebasedRegelwerk(Regelwerkskennung regelwerkskennung, Regel startRegel, Regel stopRegel, Milliseconds timeout, TimeoutType timeoutType) {
+	public TimebasedFilter(FilterId regelwerkskennung, FilterCondition startRegel, FilterCondition stopRegel, Milliseconds timeout, TimeoutType timeoutType) {
 		this.regelwerkskennung = regelwerkskennung;
 		this.startRegel = startRegel;
 		this.stopRegel = stopRegel;
@@ -19,11 +19,11 @@ public class TimebasedRegelwerk implements Regelwerk {
 		this.timeoutType = timeoutType;
 	}
 	
-	public Regel getStartRegel() {
+	public FilterCondition getStartRegel() {
 		return startRegel;
 	}
 	
-	public Regel getStopRegel() {
+	public FilterCondition getStopRegel() {
 		return stopRegel;
 	}
 
@@ -36,7 +36,7 @@ public class TimebasedRegelwerk implements Regelwerk {
 	}
 	
 	@Override
-	public Regelwerkskennung getRegelwerksKennung() {
+	public FilterId getFilterId() {
 		return regelwerkskennung;
 	}
 	
@@ -69,7 +69,7 @@ public class TimebasedRegelwerk implements Regelwerk {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TimebasedRegelwerk other = (TimebasedRegelwerk) obj;
+		TimebasedFilter other = (TimebasedFilter) obj;
 		if (regelwerkskennung == null) {
 			if (other.regelwerkskennung != null)
 				return false;

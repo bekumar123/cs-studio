@@ -8,7 +8,7 @@ import javax.persistence.Table;
 
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
 import org.csstudio.nams.common.fachwert.Milliseconds;
-import org.csstudio.nams.common.material.regelwerk.StringRegelOperator;
+import org.csstudio.nams.common.material.regelwerk.StringFilterConditionOperator;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.FilterConditionDTO;
 
 /**
@@ -129,12 +129,12 @@ public class TimeBasedFilterConditionDTO extends FilterConditionDTO {
 		return MessageKeyEnum.getEnumFor(this.cStartKeyValue);
 	}
 
-	public StringRegelOperator getTBConfirmOperator() {
-		return StringRegelOperator.valueOf(this.sConfirmOperator);
+	public StringFilterConditionOperator getTBConfirmOperator() {
+		return StringFilterConditionOperator.valueOf(this.sConfirmOperator);
 	}
 
-	public StringRegelOperator getTBStartOperator() {
-		return StringRegelOperator.valueOf(this.sStartOperator);
+	public StringFilterConditionOperator getTBStartOperator() {
+		return StringFilterConditionOperator.valueOf(this.sStartOperator);
 	}
 
 	public TimeBasedType getTimeBehavior() {
@@ -192,11 +192,11 @@ public class TimeBasedFilterConditionDTO extends FilterConditionDTO {
 		this.cStartKeyValue = value.getStringValue();
 	}
 
-	public void setTBConfirmOperator(final StringRegelOperator operator) {
+	public void setTBConfirmOperator(final StringFilterConditionOperator operator) {
 		this.sConfirmOperator = operator.databaseValue();
 	}
 
-	public void setTBStartOperator(final StringRegelOperator operator) {
+	public void setTBStartOperator(final StringFilterConditionOperator operator) {
 		this.sStartOperator = operator.databaseValue();
 	}
 

@@ -4,11 +4,11 @@ import java.util.List;
 
 import org.csstudio.nams.common.material.AlarmMessage;
 
-public class OderRegel implements Regel {
+public class OrFilterCondition implements FilterCondition {
 
-	private final List<Regel> regeln;
+	private final List<FilterCondition> regeln;
 	
-	public OderRegel(List<Regel> regeln) {
+	public OrFilterCondition(List<FilterCondition> regeln) {
 		this.regeln = regeln;
 	}
 	
@@ -16,7 +16,7 @@ public class OderRegel implements Regel {
 	public boolean pruefeNachricht(AlarmMessage nachricht) {
 		boolean result = false;
 		
-		for (Regel regel : this.regeln) {
+		for (FilterCondition regel : this.regeln) {
 			boolean regelErgebnis = regel.pruefeNachricht(nachricht);
 			if(regelErgebnis) {
 				result = true;
@@ -31,7 +31,7 @@ public class OderRegel implements Regel {
 	public boolean pruefeNachricht(AlarmMessage nachricht, AlarmMessage vergleichsNachricht) {
 		boolean result = false;
 		
-		for (Regel regel : this.regeln) {
+		for (FilterCondition regel : this.regeln) {
 			boolean regelErgebnis = regel.pruefeNachricht(nachricht, vergleichsNachricht);
 			if(regelErgebnis) {
 				result = true;
@@ -58,7 +58,7 @@ public class OderRegel implements Regel {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		OderRegel other = (OderRegel) obj;
+		OrFilterCondition other = (OrFilterCondition) obj;
 		if (regeln == null) {
 			if (other.regeln != null)
 				return false;

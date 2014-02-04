@@ -17,20 +17,20 @@ import org.csstudio.nams.common.decision.MessageCasefile;
 import org.csstudio.nams.common.decision.CasefileId;
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
 import org.csstudio.nams.common.material.AlarmMessage;
-import org.csstudio.nams.common.material.regelwerk.Regelwerk;
-import org.csstudio.nams.common.material.regelwerk.WatchDogRegelwerk;
+import org.csstudio.nams.common.material.regelwerk.Filter;
+import org.csstudio.nams.common.material.regelwerk.WatchDogFilter;
 import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 
 public class WatchDogFilterWorker implements FilterWorker {
 
-	private WatchDogRegelwerk regelwerk;
+	private WatchDogFilter regelwerk;
 	private ObservableInbox<MessageCasefile> inbox;
 	private Outbox<MessageCasefile> outbox;
 	private boolean isWorking;
 	private Timer timer;
 	private TimerTask timerTask;
 
-	public WatchDogFilterWorker(ObservableInbox<MessageCasefile> inbox, Outbox<MessageCasefile> outbox, WatchDogRegelwerk regelwerk, Timer timer) {
+	public WatchDogFilterWorker(ObservableInbox<MessageCasefile> inbox, Outbox<MessageCasefile> outbox, WatchDogFilter regelwerk, Timer timer) {
 		this.inbox = inbox;
 		this.outbox = outbox;
 		this.regelwerk = regelwerk;
@@ -69,7 +69,7 @@ public class WatchDogFilterWorker implements FilterWorker {
 			MessageCasefile casefile = inbox.takeDocument();
 			
 			// Trifft Regel zu?
-			if (regelwerk.getRegel().pruefeNachricht(casefile.getAlarmNachricht())) {
+			if (regelwerk.getRegel().pruefeNachricht(casefile.getAlarmMessage())) {
 				resetTimer();
 			}
 		} 
@@ -110,7 +110,7 @@ public class WatchDogFilterWorker implements FilterWorker {
 				AlarmMessage alarmMessage = new AlarmMessage(map, unknownMap);
 				MessageCasefile casefile;
 				casefile = new MessageCasefile(CasefileId.createNew(InetAddress.getLocalHost(), new Date()), alarmMessage);
-				casefile.setBearbeitetMitRegelWerk(regelwerk.getRegelwerksKennung());
+				casefile.setHandledWithFilter(regelwerk.getFilterId());
 				casefile.setWeiteresVersandVorgehen(WeiteresVersandVorgehen.VERSENDEN);
 				casefile.pruefungAbgeschlossenDurch(casefile.gibMappenkennung());
 				outbox.put(casefile);
@@ -119,11 +119,11 @@ public class WatchDogFilterWorker implements FilterWorker {
 	}
 	
 	@Override
-	public Regelwerk getRegelwerk() {
+	public Filter getFilter() {
 		return regelwerk;
 	}
 	
-	public void setRegelwerk(WatchDogRegelwerk regelwerk) {
+	public void setRegelwerk(WatchDogFilter regelwerk) {
 		this.regelwerk = regelwerk;
 		resetTimer();
 	}

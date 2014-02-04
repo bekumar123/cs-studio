@@ -1,23 +1,23 @@
 package org.csstudio.nams.common.material.regelwerk;
 
-import org.csstudio.nams.common.material.Regelwerkskennung;
+import org.csstudio.nams.common.material.FilterId;
 
-public class DefaultRegelwerk implements Regelwerk {
+public class DefaultFilter implements Filter {
 
-	private final Regel regel;
-	private final Regelwerkskennung regelwerkskennung;
+	private final FilterCondition regel;
+	private final FilterId regelwerkskennung;
 
-	public DefaultRegelwerk(Regelwerkskennung regelwerkskennung, Regel regel) {
+	public DefaultFilter(FilterId regelwerkskennung, FilterCondition regel) {
 		this.regelwerkskennung = regelwerkskennung;
 		this.regel = regel;
 	}
 	
-	public Regel getRegel() {
+	public FilterCondition getRegel() {
 		return regel;
 	}
 
 	@Override
-	public Regelwerkskennung getRegelwerksKennung() {
+	public FilterId getFilterId() {
 		return regelwerkskennung;
 	}
 
@@ -38,7 +38,7 @@ public class DefaultRegelwerk implements Regelwerk {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		DefaultRegelwerk other = (DefaultRegelwerk) obj;
+		DefaultFilter other = (DefaultFilter) obj;
 		if (regel == null) {
 			if (other.regel != null)
 				return false;

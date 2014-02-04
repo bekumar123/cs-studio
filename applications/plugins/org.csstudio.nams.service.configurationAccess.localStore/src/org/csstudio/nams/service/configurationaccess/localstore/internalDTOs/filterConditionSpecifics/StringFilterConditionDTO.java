@@ -8,7 +8,7 @@ import javax.persistence.Table;
 
 import org.csstudio.nams.common.contract.Contract;
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
-import org.csstudio.nams.common.material.regelwerk.StringRegelOperator;
+import org.csstudio.nams.common.material.regelwerk.StringFilterConditionOperator;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.FilterConditionDTO;
 
 /**
@@ -86,8 +86,8 @@ public class StringFilterConditionDTO extends FilterConditionDTO {
 		return valueOf;
 	}
 
-	public StringRegelOperator getOperatorEnum() {
-		return StringRegelOperator.valueOf(this.operator);
+	public StringFilterConditionOperator getOperatorEnum() {
+		return StringFilterConditionOperator.valueOf(this.operator);
 	}
 
 	@Override
@@ -119,7 +119,7 @@ public class StringFilterConditionDTO extends FilterConditionDTO {
 	/**
 	 * TODO Rename to sth. like setStringOperator
 	 */
-	public void setOperatorEnum(final StringRegelOperator op) {
+	public void setOperatorEnum(final StringFilterConditionOperator op) {
 		this.setOperator(op.databaseValue());
 	}
 

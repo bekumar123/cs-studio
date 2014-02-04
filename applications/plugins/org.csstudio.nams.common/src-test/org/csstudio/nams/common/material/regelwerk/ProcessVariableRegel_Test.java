@@ -15,7 +15,7 @@ import org.junit.Test;
 
 @SuppressWarnings("deprecation")
 public class ProcessVariableRegel_Test extends
-		AbstractTestObject<ProcessVariableRegel> {
+		AbstractTestObject<ProcessVariableFilterCondition> {
 
 	private ConnectionServiceMock _connectionServiceMock;
 	private TestLogger logger;
@@ -29,7 +29,7 @@ public class ProcessVariableRegel_Test extends
 		final SuggestedProcessVariableType suggestedProcessVariableType = SuggestedProcessVariableType.DOUBLE;
 		final Object compValue = 5d;
 
-		final ProcessVariableRegel pvRegel = new ProcessVariableRegel(
+		final ProcessVariableFilterCondition pvRegel = new ProcessVariableFilterCondition(
 				this._connectionServiceMock, channelName, operator,
 				suggestedProcessVariableType, compValue, logger);
 
@@ -68,7 +68,7 @@ public class ProcessVariableRegel_Test extends
 		final SuggestedProcessVariableType suggestedProcessVariableType = SuggestedProcessVariableType.DOUBLE;
 		final Object compValue = "5.0";
 
-		final ProcessVariableRegel pvRegel = new ProcessVariableRegel(
+		final ProcessVariableFilterCondition pvRegel = new ProcessVariableFilterCondition(
 				this._connectionServiceMock, channelName, operator,
 				suggestedProcessVariableType, compValue, logger);
 
@@ -102,7 +102,7 @@ public class ProcessVariableRegel_Test extends
 		final SuggestedProcessVariableType suggestedProcessVariableType = SuggestedProcessVariableType.DOUBLE;
 		final Object compValue = 5d;
 
-		final ProcessVariableRegel pvRegel = new ProcessVariableRegel(
+		final ProcessVariableFilterCondition pvRegel = new ProcessVariableFilterCondition(
 				this._connectionServiceMock, channelName, operator,
 				suggestedProcessVariableType, compValue, logger);
 
@@ -137,7 +137,7 @@ public class ProcessVariableRegel_Test extends
 		final SuggestedProcessVariableType suggestedProcessVariableType = SuggestedProcessVariableType.DOUBLE;
 		final Object compValue = 5d;
 
-		final ProcessVariableRegel pvRegel = new ProcessVariableRegel(
+		final ProcessVariableFilterCondition pvRegel = new ProcessVariableFilterCondition(
 				this._connectionServiceMock, channelName, operator,
 				suggestedProcessVariableType, compValue, logger);
 
@@ -171,7 +171,7 @@ public class ProcessVariableRegel_Test extends
 		final SuggestedProcessVariableType suggestedProcessVariableType = SuggestedProcessVariableType.DOUBLE;
 		final Object compValue = 5d;
 
-		final ProcessVariableRegel pvRegel = new ProcessVariableRegel(
+		final ProcessVariableFilterCondition pvRegel = new ProcessVariableFilterCondition(
 				this._connectionServiceMock, channelName, operator,
 				suggestedProcessVariableType, compValue, logger);
 
@@ -208,7 +208,7 @@ public class ProcessVariableRegel_Test extends
 		final SuggestedProcessVariableType suggestedProcessVariableType = SuggestedProcessVariableType.LONG;
 		final Object compValue = 5l;
 
-		final ProcessVariableRegel pvRegel = new ProcessVariableRegel(
+		final ProcessVariableFilterCondition pvRegel = new ProcessVariableFilterCondition(
 				this._connectionServiceMock, channelName, operator,
 				suggestedProcessVariableType, compValue, logger);
 
@@ -245,7 +245,7 @@ public class ProcessVariableRegel_Test extends
 		final SuggestedProcessVariableType suggestedProcessVariableType = SuggestedProcessVariableType.LONG;
 		final Object compValue = 5l;
 
-		final ProcessVariableRegel pvRegel = new ProcessVariableRegel(
+		final ProcessVariableFilterCondition pvRegel = new ProcessVariableFilterCondition(
 				this._connectionServiceMock, channelName, operator,
 				suggestedProcessVariableType, compValue, logger);
 
@@ -280,7 +280,7 @@ public class ProcessVariableRegel_Test extends
 		final SuggestedProcessVariableType suggestedProcessVariableType = SuggestedProcessVariableType.LONG;
 		final Object compValue = 5l;
 
-		final ProcessVariableRegel pvRegel = new ProcessVariableRegel(
+		final ProcessVariableFilterCondition pvRegel = new ProcessVariableFilterCondition(
 				this._connectionServiceMock, channelName, operator,
 				suggestedProcessVariableType, compValue, logger);
 
@@ -314,7 +314,7 @@ public class ProcessVariableRegel_Test extends
 		final SuggestedProcessVariableType suggestedProcessVariableType = SuggestedProcessVariableType.LONG;
 		final Object compValue = 5l;
 
-		final ProcessVariableRegel pvRegel = new ProcessVariableRegel(
+		final ProcessVariableFilterCondition pvRegel = new ProcessVariableFilterCondition(
 				this._connectionServiceMock, channelName, operator,
 				suggestedProcessVariableType, compValue, logger);
 
@@ -351,7 +351,7 @@ public class ProcessVariableRegel_Test extends
 		final SuggestedProcessVariableType suggestedProcessVariableType = SuggestedProcessVariableType.STRING;
 		final Object compValue = "Foo";
 
-		final ProcessVariableRegel pvRegel = new ProcessVariableRegel(
+		final ProcessVariableFilterCondition pvRegel = new ProcessVariableFilterCondition(
 				this._connectionServiceMock, channelName, operator,
 				suggestedProcessVariableType, compValue, logger);
 
@@ -382,7 +382,7 @@ public class ProcessVariableRegel_Test extends
 		final SuggestedProcessVariableType suggestedProcessVariableType = SuggestedProcessVariableType.STRING;
 		final Object compValue = "Foo";
 
-		final ProcessVariableRegel pvRegel = new ProcessVariableRegel(
+		final ProcessVariableFilterCondition pvRegel = new ProcessVariableFilterCondition(
 				this._connectionServiceMock, channelName, operator,
 				suggestedProcessVariableType, compValue, logger);
 
@@ -410,7 +410,7 @@ public class ProcessVariableRegel_Test extends
 	}
 
 	@Override
-	protected ProcessVariableRegel getNewInstanceOfClassUnderTest() {
+	protected ProcessVariableFilterCondition getNewInstanceOfClassUnderTest() {
 		final IProcessVariableConnectionService pvService = this
 				.createPVServiceMock();
 		final IProcessVariableAddress channelName = this
@@ -419,7 +419,7 @@ public class ProcessVariableRegel_Test extends
 		final SuggestedProcessVariableType suggestedProcessVariableType = SuggestedProcessVariableType.STRING;
 		final Object compValue = "test";
 
-		return new ProcessVariableRegel(pvService, channelName, operator,
+		return new ProcessVariableFilterCondition(pvService, channelName, operator,
 				suggestedProcessVariableType, compValue, logger);
 	}
 
@@ -429,8 +429,8 @@ public class ProcessVariableRegel_Test extends
 	}
 
 	@Override
-	protected ProcessVariableRegel[] getThreeDiffrentNewInstanceOfClassUnderTest() {
-		final ProcessVariableRegel[] regels = new ProcessVariableRegel[3];
+	protected ProcessVariableFilterCondition[] getThreeDiffrentNewInstanceOfClassUnderTest() {
+		final ProcessVariableFilterCondition[] regels = new ProcessVariableFilterCondition[3];
 		{
 			final IProcessVariableConnectionService pvService = this
 					.createPVServiceMock();
@@ -440,7 +440,7 @@ public class ProcessVariableRegel_Test extends
 			final SuggestedProcessVariableType suggestedProcessVariableType = SuggestedProcessVariableType.STRING;
 			final Object compValue = "test2";
 
-			regels[0] = new ProcessVariableRegel(pvService, channelName,
+			regels[0] = new ProcessVariableFilterCondition(pvService, channelName,
 					operator, suggestedProcessVariableType, compValue, logger);
 		}
 		{
@@ -452,7 +452,7 @@ public class ProcessVariableRegel_Test extends
 			final SuggestedProcessVariableType suggestedProcessVariableType = SuggestedProcessVariableType.STRING;
 			final Object compValue = "test";
 
-			regels[1] = new ProcessVariableRegel(pvService, channelName,
+			regels[1] = new ProcessVariableFilterCondition(pvService, channelName,
 					operator, suggestedProcessVariableType, compValue, logger);
 		}
 		{
@@ -464,7 +464,7 @@ public class ProcessVariableRegel_Test extends
 			final SuggestedProcessVariableType suggestedProcessVariableType = SuggestedProcessVariableType.LONG;
 			final Object compValue = 42l;
 
-			regels[2] = new ProcessVariableRegel(pvService, channelName,
+			regels[2] = new ProcessVariableFilterCondition(pvService, channelName,
 					operator, suggestedProcessVariableType, compValue, logger);
 		}
 		return regels;

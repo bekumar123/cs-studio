@@ -13,41 +13,41 @@ public class OderRegelTest {
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testOderRegel() {
-		Regel falseRegel1 = createRegel(false);
-		Regel falseRegel2 = createRegel(false);
-		Regel falseRegel3 = createRegel(false);
-		Regel trueRegel1 = createRegel(true);
+		FilterCondition falseRegel1 = createRegel(false);
+		FilterCondition falseRegel2 = createRegel(false);
+		FilterCondition falseRegel3 = createRegel(false);
+		FilterCondition trueRegel1 = createRegel(true);
 		
-		OderRegel oderRegel = new OderRegel(Arrays.asList(falseRegel1,falseRegel2,falseRegel3));
+		OrFilterCondition oderRegel = new OrFilterCondition(Arrays.asList(falseRegel1,falseRegel2,falseRegel3));
 		Assert.assertFalse(oderRegel.pruefeNachricht(new AlarmMessage("TestNachricht")));
 		
-		oderRegel = new OderRegel(Arrays.asList(falseRegel1,falseRegel2,falseRegel3, trueRegel1));
+		oderRegel = new OrFilterCondition(Arrays.asList(falseRegel1,falseRegel2,falseRegel3, trueRegel1));
 		Assert.assertTrue(oderRegel.pruefeNachricht(new AlarmMessage("TestNachricht")));
 
-		oderRegel = new OderRegel(Arrays.asList(falseRegel1,trueRegel1));
+		oderRegel = new OrFilterCondition(Arrays.asList(falseRegel1,trueRegel1));
 		Assert.assertTrue(oderRegel.pruefeNachricht(new AlarmMessage("TestNachricht")));
 		
-		oderRegel = new OderRegel(Arrays.asList(falseRegel1,trueRegel1, falseRegel2));
+		oderRegel = new OrFilterCondition(Arrays.asList(falseRegel1,trueRegel1, falseRegel2));
 		Assert.assertTrue(oderRegel.pruefeNachricht(new AlarmMessage("TestNachricht")));
 		
-		oderRegel = new OderRegel(Arrays.asList(trueRegel1, falseRegel1, falseRegel2, falseRegel3));
+		oderRegel = new OrFilterCondition(Arrays.asList(trueRegel1, falseRegel1, falseRegel2, falseRegel3));
 		Assert.assertTrue(oderRegel.pruefeNachricht(new AlarmMessage("TestNachricht")));
 		
-		oderRegel = new OderRegel(Arrays.asList(trueRegel1, trueRegel1));
+		oderRegel = new OrFilterCondition(Arrays.asList(trueRegel1, trueRegel1));
 		Assert.assertTrue(oderRegel.pruefeNachricht(new AlarmMessage("TestNachricht")));
 		
-		oderRegel = new OderRegel(Arrays.asList(trueRegel1));
+		oderRegel = new OrFilterCondition(Arrays.asList(trueRegel1));
 		Assert.assertTrue(oderRegel.pruefeNachricht(new AlarmMessage("TestNachricht")));
 		
-		oderRegel = new OderRegel(Arrays.asList(falseRegel1));
+		oderRegel = new OrFilterCondition(Arrays.asList(falseRegel1));
 		Assert.assertFalse(oderRegel.pruefeNachricht(new AlarmMessage("TestNachricht")));
 		
-		oderRegel = new OderRegel(Collections.<Regel> emptyList());
+		oderRegel = new OrFilterCondition(Collections.<FilterCondition> emptyList());
 		Assert.assertFalse(oderRegel.pruefeNachricht(new AlarmMessage("TestNachricht")));
 	}
 	
-	private Regel createRegel(final boolean testResult) {
-		return new Regel() {
+	private FilterCondition createRegel(final boolean testResult) {
+		return new FilterCondition() {
 			
 			@Override
 			public boolean pruefeNachricht(AlarmMessage nachricht,

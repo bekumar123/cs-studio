@@ -5,15 +5,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Pattern;
 
-	public class StringRegelComparator {
+	public class StringFilterConditionComparator {
 		
-		private final StringRegelOperator stringRegelOperator;
+		private final StringFilterConditionOperator stringRegelOperator;
 		private final boolean useWildcards;
 		private final SimpleDateFormat amsDateFormat;
 		private String comparedString;
 		private Pattern wildcardPattern;
 		
-		public StringRegelComparator(StringRegelOperator operator, boolean useWildcards) {
+		public StringFilterConditionComparator(StringFilterConditionOperator operator, boolean useWildcards) {
 			stringRegelOperator = operator;
 			this.useWildcards = useWildcards;
 			this.amsDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 		
 		public void setComparedString(String comparedString) {
 			this.comparedString = comparedString;
-			if(useWildcards && stringRegelOperator == StringRegelOperator.OPERATOR_TEXT_EQUAL) {
+			if(useWildcards && (stringRegelOperator == StringFilterConditionOperator.OPERATOR_TEXT_EQUAL || stringRegelOperator == StringFilterConditionOperator.OPERATOR_TEXT_NOT_EQUAL)) {
 				wildcardPattern = Pattern.compile(
 						wildcardToRegex(comparedString),
 						Pattern.CASE_INSENSITIVE);
@@ -138,7 +138,7 @@ import java.util.regex.Pattern;
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			StringRegelComparator other = (StringRegelComparator) obj;
+			StringFilterConditionComparator other = (StringFilterConditionComparator) obj;
 			if (amsDateFormat == null) {
 				if (other.amsDateFormat != null)
 					return false;

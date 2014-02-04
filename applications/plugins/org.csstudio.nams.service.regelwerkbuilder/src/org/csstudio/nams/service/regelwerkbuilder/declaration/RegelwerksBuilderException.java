@@ -1,10 +1,10 @@
 
 package org.csstudio.nams.service.regelwerkbuilder.declaration;
 
-import org.csstudio.nams.common.material.regelwerk.Regelwerk;
+import org.csstudio.nams.common.material.regelwerk.Filter;
 
 /**
- * This exception is thrown if loading or creating of {@link Regelwerk}-elements
+ * This exception is thrown if loading or creating of {@link Filter}-elements
  * failed.
  */
 public class RegelwerksBuilderException extends Exception {

@@ -3,7 +3,7 @@ package org.csstudio.nams.configurator.beans.filters;
 
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
 import org.csstudio.nams.common.fachwert.Milliseconds;
-import org.csstudio.nams.common.material.regelwerk.StringRegelOperator;
+import org.csstudio.nams.common.material.regelwerk.StringFilterConditionOperator;
 import org.csstudio.nams.configurator.beans.AbstractConfigurationBean;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.TimeBasedType;
 
@@ -16,11 +16,11 @@ public class TimeBasedFilterConditionBean extends
 	}
 
 	private MessageKeyEnum startKeyValue = MessageKeyEnum.NAME;
-	private StringRegelOperator sStartOperator = StringRegelOperator.OPERATOR_TEXT_EQUAL;
+	private StringFilterConditionOperator sStartOperator = StringFilterConditionOperator.OPERATOR_TEXT_EQUAL;
 
 	private String startCompValue = ""; //$NON-NLS-1$
 	private MessageKeyEnum confirmKeyValue = MessageKeyEnum.NAME;
-	private StringRegelOperator confirmOperator = StringRegelOperator.OPERATOR_TEXT_EQUAL;
+	private StringFilterConditionOperator confirmOperator = StringFilterConditionOperator.OPERATOR_TEXT_EQUAL;
 
 	private String confirmCompValue = ""; //$NON-NLS-1$
 	private Milliseconds timePeriodDomainValue = Milliseconds.valueOf(0);
@@ -107,7 +107,7 @@ public class TimeBasedFilterConditionBean extends
 		return this.confirmKeyValue;
 	}
 
-	public StringRegelOperator getConfirmOperator() {
+	public StringFilterConditionOperator getConfirmOperator() {
 		return this.confirmOperator;
 	}
 
@@ -132,7 +132,7 @@ public class TimeBasedFilterConditionBean extends
 		return this.startKeyValue;
 	}
 
-	public StringRegelOperator getStartOperator() {
+	public StringFilterConditionOperator getStartOperator() {
 		return this.sStartOperator;
 	}
 
@@ -198,8 +198,8 @@ public class TimeBasedFilterConditionBean extends
 				oldValue, messageKeyEnum);
 	}
 
-	public void setConfirmOperator(final StringRegelOperator stringRegelOperator) {
-		final StringRegelOperator oldValue = this.confirmOperator;
+	public void setConfirmOperator(final StringFilterConditionOperator stringRegelOperator) {
+		final StringFilterConditionOperator oldValue = this.confirmOperator;
 		this.confirmOperator = stringRegelOperator;
 		this.pcs.firePropertyChange(PropertyNames.confirmOperator.name(),
 				oldValue, stringRegelOperator);
@@ -224,8 +224,8 @@ public class TimeBasedFilterConditionBean extends
 				oldValue, startKeyValue);
 	}
 
-	public void setStartOperator(final StringRegelOperator stringRegelOperator) {
-		final StringRegelOperator oldValue = stringRegelOperator;
+	public void setStartOperator(final StringFilterConditionOperator stringRegelOperator) {
+		final StringFilterConditionOperator oldValue = stringRegelOperator;
 		this.sStartOperator = stringRegelOperator;
 		this.pcs.firePropertyChange(PropertyNames.startOperator.name(),
 				oldValue, stringRegelOperator);

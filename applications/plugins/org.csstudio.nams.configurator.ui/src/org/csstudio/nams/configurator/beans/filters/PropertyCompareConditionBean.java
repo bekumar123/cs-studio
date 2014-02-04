@@ -1,7 +1,7 @@
 package org.csstudio.nams.configurator.beans.filters;
 
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
-import org.csstudio.nams.common.material.regelwerk.StringRegelOperator;
+import org.csstudio.nams.common.material.regelwerk.StringFilterConditionOperator;
 import org.csstudio.nams.configurator.beans.AbstractConfigurationBean;
 
 public class PropertyCompareConditionBean extends AbstractConfigurationBean<PropertyCompareConditionBean> implements
@@ -12,7 +12,7 @@ FilterConditionAddOnBean {
 	}
 	
 	private MessageKeyEnum messageKeyValue = MessageKeyEnum.NAME;
-	private StringRegelOperator operator = StringRegelOperator.OPERATOR_TEXT_EQUAL;
+	private StringFilterConditionOperator operator = StringFilterConditionOperator.OPERATOR_TEXT_EQUAL;
 
 	public void setMessageKeyValue(MessageKeyEnum messageKeyValue) {
 		MessageKeyEnum oldValue = this.messageKeyValue;
@@ -25,14 +25,14 @@ FilterConditionAddOnBean {
 		return messageKeyValue;
 	}
 	
-	public void setOperator(StringRegelOperator operator) {
-		StringRegelOperator oldValue = this.operator;
+	public void setOperator(StringFilterConditionOperator operator) {
+		StringFilterConditionOperator oldValue = this.operator;
 		this.operator = operator;
 		this.pcs.firePropertyChange(PropertyNames.operator.name(), oldValue,
 				this.operator);
 	}
 	
-	public StringRegelOperator getOperator() {
+	public StringFilterConditionOperator getOperator() {
 		return operator;
 	}
 	

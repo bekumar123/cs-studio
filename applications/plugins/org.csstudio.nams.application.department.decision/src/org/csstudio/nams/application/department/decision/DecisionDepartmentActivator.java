@@ -50,7 +50,7 @@ import org.csstudio.nams.common.decision.CasefileId;
 import org.csstudio.nams.common.decision.DefaultDocumentBox;
 import org.csstudio.nams.common.decision.Inbox;
 import org.csstudio.nams.common.decision.MessageCasefile;
-import org.csstudio.nams.common.material.regelwerk.Regelwerk;
+import org.csstudio.nams.common.material.regelwerk.Filter;
 import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 import org.csstudio.nams.common.service.ExecutionService;
 import org.csstudio.nams.common.service.StepByStepProcessor;
@@ -134,7 +134,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 					// Nachricht nicht anreichern. Wird im JMSProducer gemacht
 					// Versenden
 					DecisionDepartmentActivator.logger.logInfoMessage(this, "decission office ordered message to be send: \""
-							+ vorgangsmappe.getAlarmNachricht().toString() + "\" [internal process id: "
+							+ vorgangsmappe.getAlarmMessage().toString() + "\" [internal process id: "
 							+ vorgangsmappe.gibMappenkennung().toString() + "]");
 
 					DecisionDepartmentActivator.this.amsAusgangsProducer.sendeVorgangsmappe(vorgangsmappe);
@@ -420,10 +420,6 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 		DecisionDepartmentActivator.logger.logInfoMessage(this, "Start to shut down decision department application on user request...");
 		this._continueWorking = false;
 		this.restart = false;
-		if (SynchronisationsAutomat.isRunning()) {
-			DecisionDepartmentActivator.logger.logInfoMessage(this, "Canceling running syncronisation...");
-			SynchronisationsAutomat.cancel();
-		}
 
 		DecisionDepartmentActivator.logger.logInfoMessage(this, "Interrupting working thread...");
 
@@ -439,10 +435,6 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 		DecisionDepartmentActivator.logger.logInfoMessage(this, "Begin to restart decision department application on user request...");
 		this._continueWorking = false;
 		this.restart = true;
-		if (SynchronisationsAutomat.isRunning()) {
-			DecisionDepartmentActivator.logger.logInfoMessage(this, "Canceling running syncronisation...");
-			SynchronisationsAutomat.cancel();
-		}
 
 		DecisionDepartmentActivator.logger.logInfoMessage(this, "Interrupting working thread...");
 
@@ -473,10 +465,10 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 		try {
 			DecisionDepartmentActivator.logger.logInfoMessage(this, "Decision department application is creating decision office...");
 	
-			final List<Regelwerk> alleRegelwerke = DecisionDepartmentActivator.regelwerkBuilderService.gibAlleRegelwerke();
+			final List<Filter> alleRegelwerke = DecisionDepartmentActivator.regelwerkBuilderService.gibAlleRegelwerke();
 	
 			DecisionDepartmentActivator.logger.logDebugMessage(this, "alleRegelwerke size: " + alleRegelwerke.size());
-			for (final Regelwerk regelwerk : alleRegelwerke) {
+			for (final Filter regelwerk : alleRegelwerke) {
 				DecisionDepartmentActivator.logger.logDebugMessage(this, regelwerk.toString());
 			}
 	

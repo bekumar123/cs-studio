@@ -4,18 +4,18 @@ import org.csstudio.nams.common.fachwert.MessageKeyEnum;
 import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.service.logging.declaration.ILogger;
 
-public class PropertyVergleichsRegel implements Regel {
+public class PropertyCompareFilterCondition implements FilterCondition {
 
 	private final MessageKeyEnum messageKey;
-	private final StringRegelComparator regelComparator; 
+	private final StringFilterConditionComparator regelComparator; 
 
 	private final ILogger errorLogger;
 	
-	public PropertyVergleichsRegel(final StringRegelOperator operator,
+	public PropertyCompareFilterCondition(final StringFilterConditionOperator operator,
 			final MessageKeyEnum messageKey, ILogger errorLogger) {
 		this.messageKey = messageKey;
 		this.errorLogger = errorLogger;
-		regelComparator = new StringRegelComparator(operator, false);
+		regelComparator = new StringFilterConditionComparator(operator, false);
 	}
 
 
@@ -66,7 +66,7 @@ public class PropertyVergleichsRegel implements Regel {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		PropertyVergleichsRegel other = (PropertyVergleichsRegel) obj;
+		PropertyCompareFilterCondition other = (PropertyCompareFilterCondition) obj;
 		if (messageKey != other.messageKey)
 			return false;
 		if (regelComparator == null) {

@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 
-import org.csstudio.nams.common.decision.Arbeitsfaehig;
+import org.csstudio.nams.common.decision.Worker;
 import org.csstudio.nams.common.decision.Outbox;
 import org.csstudio.nams.common.decision.ObservableInbox;
 import org.csstudio.nams.common.decision.BeobachtbarerEingangskorbImpl;
@@ -39,11 +39,11 @@ import org.csstudio.nams.common.decision.Document;
 import org.csstudio.nams.common.decision.Inbox;
 import org.csstudio.nams.common.decision.MessageCasefile;
 import org.csstudio.nams.common.decision.DefaultDocumentBox;
-import org.csstudio.nams.common.material.Regelwerkskennung;
-import org.csstudio.nams.common.material.regelwerk.DefaultRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.Regelwerk;
-import org.csstudio.nams.common.material.regelwerk.TimebasedRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.WatchDogRegelwerk;
+import org.csstudio.nams.common.material.FilterId;
+import org.csstudio.nams.common.material.regelwerk.DefaultFilter;
+import org.csstudio.nams.common.material.regelwerk.Filter;
+import org.csstudio.nams.common.material.regelwerk.TimebasedFilter;
+import org.csstudio.nams.common.material.regelwerk.WatchDogFilter;
 import org.csstudio.nams.common.service.ExecutionService;
 import org.csstudio.nams.common.wam.Arbeitsumgebung;
 import org.csstudio.nams.service.logging.declaration.ILogger;
@@ -61,12 +61,12 @@ public class DecisionDepartment {
 	private final Inbox<MessageCasefile> alarmVorgangEingangskorb;
 	private final Outbox<MessageCasefile> ausgangskorb;
 
-	private final TimebasedFilterNotifier _assistenz;
+	private final TimeoutFilterNotifier _assistenz;
 	private final ThreadedMessageDispatcher _abteilungsleiter;
-	private Map<Regelwerkskennung, FilterWorker> _regelwerkKennungenZuSachbearbeitern;
+	private Map<FilterId, FilterWorker> _regelwerkKennungenZuSachbearbeitern;
 	
 	private Timer watchDogTimer;
-	private DefaultDocumentBox<TimerMessage> terminAssistenzAblagekorb;
+	private DefaultDocumentBox<TimeoutMessage> terminAssistenzAblagekorb;
 	private final ILogger logger;
 
 	/**
@@ -81,20 +81,20 @@ public class DecisionDepartment {
 	 *            TODO
 	 * @param historyService
 	 */
-	public DecisionDepartment(final ExecutionService executionService, List<Regelwerk> regelwerke,
+	public DecisionDepartment(final ExecutionService executionService, List<Filter> regelwerke,
 			final Inbox<MessageCasefile> alarmVorgangEingangskorb, final Outbox<MessageCasefile> alarmVorgangAusgangskorb,
 			int filterThreadCount, ILogger logger) {
 
 		this.alarmVorgangEingangskorb = alarmVorgangEingangskorb;
 		this.ausgangskorb = alarmVorgangAusgangskorb;
 		this.logger = logger;
-		terminAssistenzAblagekorb = new DefaultDocumentBox<TimerMessage>();
+		terminAssistenzAblagekorb = new DefaultDocumentBox<TimeoutMessage>();
 
 		watchDogTimer = new Timer("watchDogTimer");
 
-		this._regelwerkKennungenZuSachbearbeitern = new HashMap<Regelwerkskennung, FilterWorker>();
+		this._regelwerkKennungenZuSachbearbeitern = new HashMap<FilterId, FilterWorker>();
 
-		this._assistenz = new TimebasedFilterNotifier(executionService, terminAssistenzAblagekorb, new Timer());
+		this._assistenz = new TimeoutFilterNotifier(executionService, terminAssistenzAblagekorb, new Timer());
 		this._abteilungsleiter = new ThreadedMessageDispatcher(filterThreadCount, executionService, this.gibAlarmVorgangEingangskorb());
 		
 		this.updateRegelwerke(regelwerke);
@@ -104,60 +104,60 @@ public class DecisionDepartment {
 		this._abteilungsleiter.startWorking();
 	}
 
-	public void updateRegelwerke(List<Regelwerk> regelwerke) {
+	public void updateRegelwerke(List<Filter> regelwerke) {
 		logger.logInfoMessage(this, "Updating " + regelwerke.size() + " filter configurations");
-		Map<Regelwerkskennung, FilterWorker> neueSachbearbeiter = new HashMap<Regelwerkskennung, FilterWorker>();
+		Map<FilterId, FilterWorker> neueSachbearbeiter = new HashMap<FilterId, FilterWorker>();
 		
-		for (Regelwerk regelwerk : regelwerke) {
-			if(_regelwerkKennungenZuSachbearbeitern.containsKey(regelwerk.getRegelwerksKennung())) {
-				FilterWorker vorhandenerSachbearbeiter = _regelwerkKennungenZuSachbearbeitern.remove(regelwerk.getRegelwerksKennung());
-				if(!vorhandenerSachbearbeiter.getRegelwerk().equals(regelwerk)) {
+		for (Filter regelwerk : regelwerke) {
+			if(_regelwerkKennungenZuSachbearbeitern.containsKey(regelwerk.getFilterId())) {
+				FilterWorker vorhandenerSachbearbeiter = _regelwerkKennungenZuSachbearbeitern.remove(regelwerk.getFilterId());
+				if(!vorhandenerSachbearbeiter.getFilter().equals(regelwerk)) {
 					logger.logInfoMessage(this, "Updating configuration for filter: " + regelwerk);
 
 					// verändert, vorhandenen aktualisieren
 					if(vorhandenerSachbearbeiter instanceof DefaultFilterWorker) {
-						((DefaultFilterWorker) vorhandenerSachbearbeiter).setRegelwerk((DefaultRegelwerk) regelwerk);
+						((DefaultFilterWorker) vorhandenerSachbearbeiter).setRegelwerk((DefaultFilter) regelwerk);
 					} else if(vorhandenerSachbearbeiter instanceof TimebasedFilterWorker) {
-						((TimebasedFilterWorker) vorhandenerSachbearbeiter).setRegelwerk((TimebasedRegelwerk) regelwerk);
+						((TimebasedFilterWorker) vorhandenerSachbearbeiter).setFilter((TimebasedFilter) regelwerk);
 					} else if(vorhandenerSachbearbeiter instanceof WatchDogFilterWorker) {
-						((WatchDogFilterWorker) vorhandenerSachbearbeiter).setRegelwerk((WatchDogRegelwerk) regelwerk);
+						((WatchDogFilterWorker) vorhandenerSachbearbeiter).setRegelwerk((WatchDogFilter) regelwerk);
 					}
 				}
-				neueSachbearbeiter.put(vorhandenerSachbearbeiter.getRegelwerk().getRegelwerksKennung(), vorhandenerSachbearbeiter);
+				neueSachbearbeiter.put(vorhandenerSachbearbeiter.getFilter().getFilterId(), vorhandenerSachbearbeiter);
 			} else {
 				logger.logInfoMessage(this, "New filter: " + regelwerk);
 				// neu
 				FilterWorker sachbearbeiter = null;
-				if (regelwerk instanceof DefaultRegelwerk) {
+				if (regelwerk instanceof DefaultFilter) {
 					ObservableInbox<MessageCasefile> spezifischerEingangskorb = new BeobachtbarerEingangskorbImpl<MessageCasefile>();
-					sachbearbeiter = new DefaultFilterWorker(spezifischerEingangskorb, this.ausgangskorb, (DefaultRegelwerk) regelwerk);
-				} else if (regelwerk instanceof TimebasedRegelwerk) {
+					sachbearbeiter = new DefaultFilterWorker(spezifischerEingangskorb, this.ausgangskorb, (DefaultFilter) regelwerk);
+				} else if (regelwerk instanceof TimebasedFilter) {
 					ObservableInbox<Document> spezifischerEingangskorb = new BeobachtbarerEingangskorbImpl<Document>();
 					sachbearbeiter = new TimebasedFilterWorker(spezifischerEingangskorb, new DefaultDocumentBox<MessageCasefile>(),
-							terminAssistenzAblagekorb, this.ausgangskorb, (TimebasedRegelwerk) regelwerk);
-					_assistenz.addTimebasedFilterWorker((TimebasedFilterWorker)sachbearbeiter);
-				} else if (regelwerk instanceof WatchDogRegelwerk) {
+							terminAssistenzAblagekorb, this.ausgangskorb, (TimebasedFilter) regelwerk);
+					_assistenz.addFilterWorkerInbox(sachbearbeiter.getFilter().getFilterId(), sachbearbeiter.getInbox());
+				} else if (regelwerk instanceof WatchDogFilter) {
 					ObservableInbox<MessageCasefile> spezifischerEingangskorb = new BeobachtbarerEingangskorbImpl<MessageCasefile>();
-					sachbearbeiter = new WatchDogFilterWorker(spezifischerEingangskorb, this.ausgangskorb, (WatchDogRegelwerk) regelwerk, watchDogTimer);
+					sachbearbeiter = new WatchDogFilterWorker(spezifischerEingangskorb, this.ausgangskorb, (WatchDogFilter) regelwerk, watchDogTimer);
 				} else {
 					throw new RuntimeException("Unhandled subclass of Regelwerk: " + regelwerk.getClass());
 				}
 				sachbearbeiter.startWorking();
 			
 				_abteilungsleiter.addWorkerInbox(sachbearbeiter.getInbox());
-				neueSachbearbeiter.put(regelwerk.getRegelwerksKennung(), sachbearbeiter);
+				neueSachbearbeiter.put(regelwerk.getFilterId(), sachbearbeiter);
 			}
 		}
 		
 		// verbleibende vorhandene Sachbearbeiter löschen
 		for (FilterWorker alterSachbearbeiter : _regelwerkKennungenZuSachbearbeitern.values()) {
-			logger.logInfoMessage(this, "Delete filter: " + alterSachbearbeiter.getRegelwerk());
+			logger.logInfoMessage(this, "Delete filter: " + alterSachbearbeiter.getFilter());
 			alterSachbearbeiter.stopWorking();
 			
 			_abteilungsleiter.removeWorkerInbox(alterSachbearbeiter.getInbox());
 			
 			if(alterSachbearbeiter instanceof TimebasedFilterWorker) {
-				_assistenz.removeTimebasedFilterWorker((TimebasedFilterWorker)alterSachbearbeiter);
+				_assistenz.removeFilterWorkerInbox(((TimebasedFilterWorker) alterSachbearbeiter).getId());
 			}
 		}
 		
@@ -174,7 +174,7 @@ public class DecisionDepartment {
 		// Terminassistenz beenden...
 		this._assistenz.stopWorking();
 		// Sachbearbeiter in den Feierabend schicken...
-		for (final Arbeitsfaehig sachbearbeiter : _regelwerkKennungenZuSachbearbeitern.values()) {
+		for (final Worker sachbearbeiter : _regelwerkKennungenZuSachbearbeitern.values()) {
 			sachbearbeiter.stopWorking();
 		}
 		// Andere Threads zu ende arbeiten lassen
@@ -212,14 +212,14 @@ public class DecisionDepartment {
 	/**
 	 * Inspector fuer Tests. Liefert die Referenz auf die Terminassistenz.
 	 */
-	TimebasedFilterNotifier gibAssistenzFuerTest() {
+	TimeoutFilterNotifier gibAssistenzFuerTest() {
 		return this._assistenz;
 	}
 
 	/**
 	 * Inspector fuer Tests. Liefert die Referenzen auf alle Sachbearbeiter.
 	 */
-	List<Arbeitsfaehig> gibListeDerSachbearbeiterFuerTest() {
-		return new ArrayList<Arbeitsfaehig>(_regelwerkKennungenZuSachbearbeitern.values());
+	List<Worker> gibListeDerSachbearbeiterFuerTest() {
+		return new ArrayList<Worker>(_regelwerkKennungenZuSachbearbeitern.values());
 	}
 }

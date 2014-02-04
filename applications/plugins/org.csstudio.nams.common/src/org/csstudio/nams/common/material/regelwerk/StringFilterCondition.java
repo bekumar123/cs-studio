@@ -4,20 +4,20 @@ import org.csstudio.nams.common.fachwert.MessageKeyEnum;
 import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.service.logging.declaration.ILogger;
 
-public class StringRegel implements Regel {
+public class StringFilterCondition implements FilterCondition {
 
 	private final String compareString;
 	private final MessageKeyEnum messageKey;
 
-	private StringRegelComparator regelComparator; 
+	private StringFilterConditionComparator regelComparator; 
 	private final ILogger errorLogger;
 	
-	public StringRegel(final StringRegelOperator operator,
+	public StringFilterCondition(final StringFilterConditionOperator operator,
 			final MessageKeyEnum messageKey, final String compareString, ILogger errorLogger) {
 		this.messageKey = messageKey;
 		this.compareString = compareString;
 		this.errorLogger = errorLogger;
-		this.regelComparator = new StringRegelComparator(operator, true);
+		this.regelComparator = new StringFilterConditionComparator(operator, true);
 		this.regelComparator.setComparedString(compareString);
 	}
 
@@ -64,7 +64,7 @@ public class StringRegel implements Regel {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		StringRegel other = (StringRegel) obj;
+		StringFilterCondition other = (StringFilterCondition) obj;
 		if (compareString == null) {
 			if (other.compareString != null)
 				return false;

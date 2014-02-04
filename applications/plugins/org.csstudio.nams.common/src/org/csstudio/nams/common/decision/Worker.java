@@ -9,7 +9,7 @@ package org.csstudio.nams.common.decision;
  * @author Goesta Steen
  * 
  */
-public interface Arbeitsfaehig {
+public interface Worker {
 	/**
 	 * Beendet die Arbeit.
 	 */

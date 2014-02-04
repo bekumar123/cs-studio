@@ -2,7 +2,7 @@
 package org.csstudio.nams.configurator.beans.filters;
 
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
-import org.csstudio.nams.common.material.regelwerk.StringRegelOperator;
+import org.csstudio.nams.common.material.regelwerk.StringFilterConditionOperator;
 import org.csstudio.nams.configurator.beans.AbstractConfigurationBean;
 
 public class StringFilterConditionBean extends
@@ -14,7 +14,7 @@ public class StringFilterConditionBean extends
 	}
 
 	private MessageKeyEnum keyValue = MessageKeyEnum.NAME;
-	private StringRegelOperator operator = StringRegelOperator.OPERATOR_TEXT_EQUAL;
+	private StringFilterConditionOperator operator = StringFilterConditionOperator.OPERATOR_TEXT_EQUAL;
 
 	private String compValue = ""; //$NON-NLS-1$
 
@@ -23,7 +23,7 @@ public class StringFilterConditionBean extends
 	}
 
 	public StringFilterConditionBean(final MessageKeyEnum keyValue,
-			final StringRegelOperator operator, final String compValue) {
+			final StringFilterConditionOperator operator, final String compValue) {
 		super();
 		this.keyValue = keyValue;
 		this.operator = operator;
@@ -85,7 +85,7 @@ public class StringFilterConditionBean extends
 		return this.keyValue;
 	}
 
-	public StringRegelOperator getOperator() {
+	public StringFilterConditionOperator getOperator() {
 		return this.operator;
 	}
 
@@ -121,8 +121,8 @@ public class StringFilterConditionBean extends
 				this.keyValue);
 	}
 
-	public void setOperator(final StringRegelOperator operator) {
-		final StringRegelOperator oldValue = this.operator;
+	public void setOperator(final StringFilterConditionOperator operator) {
+		final StringFilterConditionOperator oldValue = this.operator;
 		this.operator = operator;
 		this.pcs.firePropertyChange(PropertyNames.operator.name(), oldValue,
 				this.operator);

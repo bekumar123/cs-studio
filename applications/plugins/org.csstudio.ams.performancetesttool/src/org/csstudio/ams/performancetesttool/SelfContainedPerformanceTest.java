@@ -16,14 +16,14 @@ import org.csstudio.nams.common.decision.MessageCasefile;
 import org.csstudio.nams.common.decision.CasefileId;
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
 import org.csstudio.nams.common.material.AlarmMessage;
-import org.csstudio.nams.common.material.Regelwerkskennung;
-import org.csstudio.nams.common.material.regelwerk.DefaultRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.OderRegel;
-import org.csstudio.nams.common.material.regelwerk.Regel;
-import org.csstudio.nams.common.material.regelwerk.Regelwerk;
-import org.csstudio.nams.common.material.regelwerk.StringRegel;
-import org.csstudio.nams.common.material.regelwerk.StringRegelOperator;
-import org.csstudio.nams.common.material.regelwerk.UndRegel;
+import org.csstudio.nams.common.material.FilterId;
+import org.csstudio.nams.common.material.regelwerk.DefaultFilter;
+import org.csstudio.nams.common.material.regelwerk.OrFilterCondition;
+import org.csstudio.nams.common.material.regelwerk.FilterCondition;
+import org.csstudio.nams.common.material.regelwerk.Filter;
+import org.csstudio.nams.common.material.regelwerk.StringFilterCondition;
+import org.csstudio.nams.common.material.regelwerk.StringFilterConditionOperator;
+import org.csstudio.nams.common.material.regelwerk.AndFilterCondition;
 import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 import org.csstudio.nams.service.logging.declaration.ILogger;
 import org.csstudio.nams.service.logging.impl.LoggerImpl;
@@ -109,16 +109,16 @@ public class SelfContainedPerformanceTest {
 		return result;
 	}
 	
-	private List<Regelwerk> erzeugeRegelwerke(int anzahlAnRegelwerken) {
+	private List<Filter> erzeugeRegelwerke(int anzahlAnRegelwerken) {
 		assert anzahlAnRegelwerken >= 1;
-		List<Regelwerk> result = new ArrayList<Regelwerk>(anzahlAnRegelwerken);
+		List<Filter> result = new ArrayList<Filter>(anzahlAnRegelwerken);
 		for(int index = 0; index < anzahlAnRegelwerken; index++) {
-			Regel stringRegel1 = new StringRegel(StringRegelOperator.OPERATOR_TEXT_EQUAL, MessageKeyEnum.SEVERITY, "Sehr hoch", null);
-			Regel stringRegel2 = new StringRegel(StringRegelOperator.OPERATOR_NUMERIC_GT, MessageKeyEnum.EVENTTIME, "" + System.currentTimeMillis(), null);
-			Regel oderRegel = new OderRegel(Arrays.asList(stringRegel2, stringRegel1));
-			result.add(new DefaultRegelwerk(Regelwerkskennung.valueOf(index), oderRegel));
+			FilterCondition stringRegel1 = new StringFilterCondition(StringFilterConditionOperator.OPERATOR_TEXT_EQUAL, MessageKeyEnum.SEVERITY, "Sehr hoch", null);
+			FilterCondition stringRegel2 = new StringFilterCondition(StringFilterConditionOperator.OPERATOR_NUMERIC_GT, MessageKeyEnum.EVENTTIME, "" + System.currentTimeMillis(), null);
+			FilterCondition oderRegel = new OrFilterCondition(Arrays.asList(stringRegel2, stringRegel1));
+			result.add(new DefaultFilter(FilterId.valueOf(index), oderRegel));
 		}
-		result.set(anzahlAnRegelwerken-1, new DefaultRegelwerk(Regelwerkskennung.valueOf(anzahlAnRegelwerken-1), new StringRegel(StringRegelOperator.OPERATOR_TEXT_EQUAL, MessageKeyEnum.NAME, "TEST", null)));
+		result.set(anzahlAnRegelwerken-1, new DefaultFilter(FilterId.valueOf(anzahlAnRegelwerken-1), new StringFilterCondition(StringFilterConditionOperator.OPERATOR_TEXT_EQUAL, MessageKeyEnum.NAME, "TEST", null)));
 		return result;
 	}
 	

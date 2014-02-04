@@ -163,9 +163,9 @@ public class AlarmMessage implements Cloneable {
 	}
 
 	// TODO mz: Name sprechender gestalten.
-	public void matchedMessageWithRegelwerk(final Regelwerkskennung kennung) {
+	public void matchedMessageWithRegelwerk(final FilterId kennung) {
 		this.content.put(MessageKeyEnum.AMS_REINSERTED, Integer.valueOf(
-				kennung.getRegelwerksId()).toString());
+				kennung.getIntValue()).toString());
 	}
 
 	@Override

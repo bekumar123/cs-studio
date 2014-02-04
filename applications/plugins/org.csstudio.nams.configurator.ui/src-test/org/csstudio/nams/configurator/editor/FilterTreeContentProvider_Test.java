@@ -9,7 +9,7 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
-import org.csstudio.nams.common.material.regelwerk.StringRegelOperator;
+import org.csstudio.nams.common.material.regelwerk.StringFilterConditionOperator;
 import org.csstudio.nams.configurator.beans.FilterbedingungBean;
 import org.csstudio.nams.configurator.beans.filters.JunctorConditionForFilterTreeBean;
 import org.csstudio.nams.configurator.beans.filters.NotConditionForFilterTreeBean;
@@ -38,14 +38,14 @@ public class FilterTreeContentProvider_Test extends TestCase {
 		this.stringVergleichAusserhalb
 				.setFilterSpecificBean(new StringFilterConditionBean(
 						MessageKeyEnum.TEXT,
-						StringRegelOperator.OPERATOR_TEXT_EQUAL, "Hallo Welt!"));
+						StringFilterConditionOperator.OPERATOR_TEXT_EQUAL, "Hallo Welt!"));
 
 		this.stringVergleichImOderLinkeSeite = new FilterbedingungBean();
 		this.stringVergleichImOderLinkeSeite.setName("Links");
 		this.stringVergleichImOderLinkeSeite
 				.setFilterSpecificBean(new StringFilterConditionBean(
 						MessageKeyEnum.TEXT,
-						StringRegelOperator.OPERATOR_TEXT_EQUAL,
+						StringFilterConditionOperator.OPERATOR_TEXT_EQUAL,
 						"Hallo Oder 1!"));
 
 		this.stringVergleichImOderRechteSeite1 = new FilterbedingungBean();
@@ -53,7 +53,7 @@ public class FilterTreeContentProvider_Test extends TestCase {
 		this.stringVergleichImOderRechteSeite1
 				.setFilterSpecificBean(new StringFilterConditionBean(
 						MessageKeyEnum.TEXT,
-						StringRegelOperator.OPERATOR_TEXT_EQUAL,
+						StringFilterConditionOperator.OPERATOR_TEXT_EQUAL,
 						"Hallo Oder 2!"));
 
 		this.stringVergleichImOderRechteSeite2 = new FilterbedingungBean();
@@ -61,7 +61,7 @@ public class FilterTreeContentProvider_Test extends TestCase {
 		this.stringVergleichImOderRechteSeite2
 				.setFilterSpecificBean(new StringFilterConditionBean(
 						MessageKeyEnum.TEXT,
-						StringRegelOperator.OPERATOR_TEXT_EQUAL,
+						StringFilterConditionOperator.OPERATOR_TEXT_EQUAL,
 						"Hallo Oder 2!"));
 
 		this.and = new JunctorConditionForFilterTreeBean();

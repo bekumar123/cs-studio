@@ -32,38 +32,39 @@ import java.util.TimerTask;
 
 import org.csstudio.nams.application.department.decision.ThreadTypesOfDecisionDepartment;
 import org.csstudio.nams.common.decision.Document;
-import org.csstudio.nams.common.decision.Arbeitsfaehig;
+import org.csstudio.nams.common.decision.Worker;
 import org.csstudio.nams.common.decision.Inbox;
 import org.csstudio.nams.common.fachwert.Milliseconds;
+import org.csstudio.nams.common.material.FilterId;
 import org.csstudio.nams.common.service.ExecutionService;
 
-public class TimebasedFilterNotifier implements Arbeitsfaehig {
+public class TimeoutFilterNotifier implements Worker {
 
-	private Map<Integer, TimebasedFilterWorker> timebasedFilterWorkers = new HashMap<Integer, TimebasedFilterWorker>();
-	private final InboxReader<TimerMessage> timerMessageInboxReader;
+	private Map<FilterId, Inbox<Document>> filterWorkerInboxes = new HashMap<FilterId, Inbox<Document>>();
+	private final InboxReader<TimeoutMessage> timerMessageInboxReader;
 	private final Timer timer;
 
 	private final ExecutionService executionService;
 
-	public TimebasedFilterNotifier(
+	public TimeoutFilterNotifier(
 			final ExecutionService executionService,
-			final Inbox<TimerMessage> eingehendeTerminnotizen,
+			final Inbox<TimeoutMessage> timerMessageInbox,
 			final Timer timer) {
 		this.executionService = executionService;
 		this.timer = timer;
-		this.timerMessageInboxReader = new InboxReader<TimerMessage>(new TimerMessageHandler(), eingehendeTerminnotizen);
+		this.timerMessageInboxReader = new InboxReader<TimeoutMessage>(new TimerMessageHandler(), timerMessageInbox);
 	}
 	
-	public void addTimebasedFilterWorker(TimebasedFilterWorker worker) {
-		timebasedFilterWorkers.put(worker.getId(), worker);
+	public void addFilterWorkerInbox(FilterId filterId, Inbox<Document> filterWorkerInbox) {
+		filterWorkerInboxes.put(filterId, filterWorkerInbox);
 	}
 	
-	public void removeTimebasedFilterWorker(TimebasedFilterWorker worker) {
-		timebasedFilterWorkers.remove(worker.getId());
+	public void removeFilterWorkerInbox(FilterId filterId) {
+		filterWorkerInboxes.remove(filterId);
 	}
 	
-	public boolean containsTimebasedFilterWorker(TimebasedFilterWorker worker) {
-		return timebasedFilterWorkers.containsKey(worker.getId());
+	public boolean containsFilterWorkerInbox(FilterId filterId) {
+		return filterWorkerInboxes.containsKey(filterId);
 	}
 
 	public void stopWorking() {
@@ -72,7 +73,7 @@ public class TimebasedFilterNotifier implements Arbeitsfaehig {
 
 	public void startWorking() {
 		this.executionService.executeAsynchronously(
-				ThreadTypesOfDecisionDepartment.TERMINASSISTENZ,
+				ThreadTypesOfDecisionDepartment.TIMEOUT_FILTER_NOTIFIER,
 				this.timerMessageInboxReader);
 		while (!this.timerMessageInboxReader.isCurrentlyRunning()) {
 			Thread.yield();
@@ -83,31 +84,31 @@ public class TimebasedFilterNotifier implements Arbeitsfaehig {
 		return this.timerMessageInboxReader.isCurrentlyRunning();
 	}
 
-	private class TimerMessageHandler implements DocumentHandler<TimerMessage> {
+	private class TimerMessageHandler implements DocumentHandler<TimeoutMessage> {
 	
-		public void handleDocument(final TimerMessage timerMessage)
+		public void handleDocument(final TimeoutMessage timerMessage)
 				throws InterruptedException {
-			final int id = timerMessage.getRecipientWorkerId();
+			final FilterId id = timerMessage.getRecipientWorkerId();
 			final Milliseconds wartezeit = timerMessage.getTimeout();
 			
-			if (!timebasedFilterWorkers.containsKey(id)) {
-				throw new RuntimeException("Zu jedem Sachbearbeiter sollte es einen Eingangskorb geben.");
-			}
-	
-			final Inbox<Document> workerInbox = timebasedFilterWorkers.get(id).getInbox();
-			
-			final TimerTask futureTask = new TimerTask() {
-				@Override
-				public void run() {
-					try {
-						workerInbox.put(timerMessage);
-					} catch (InterruptedException e) {
-						throw new RuntimeException(
-								"Ablegen in einen Eingangskorb schlug fehl.", e);
+			if (!filterWorkerInboxes.containsKey(id)) {
+				throw new RuntimeException("Fatal: Could not find a FilterWorker inbox for id: " + id + ".");
+			} else {
+				final Inbox<Document> workerInbox = filterWorkerInboxes.get(id);
+
+				final TimerTask futureTask = new TimerTask() {
+					@Override
+					public void run() {
+						try {
+							workerInbox.put(timerMessage);
+						} catch (InterruptedException e) {
+							throw new RuntimeException("Fatal: Could not put timer message into inbox for worker " + id, e);
+						}
 					}
-				}
-			};
-			TimebasedFilterNotifier.this.timer.schedule(futureTask, wartezeit.getMilliseconds());
+				};
+				
+				TimeoutFilterNotifier.this.timer.schedule(futureTask, wartezeit.getMilliseconds());
+			}
 		}
 	}
 }

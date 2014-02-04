@@ -8,20 +8,20 @@ import java.util.Set;
 
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
 import org.csstudio.nams.common.fachwert.Milliseconds;
-import org.csstudio.nams.common.material.Regelwerkskennung;
-import org.csstudio.nams.common.material.regelwerk.DefaultRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.NichtRegel;
-import org.csstudio.nams.common.material.regelwerk.OderRegel;
-import org.csstudio.nams.common.material.regelwerk.ProcessVariableRegel;
-import org.csstudio.nams.common.material.regelwerk.PropertyVergleichsRegel;
-import org.csstudio.nams.common.material.regelwerk.Regel;
-import org.csstudio.nams.common.material.regelwerk.Regelwerk;
-import org.csstudio.nams.common.material.regelwerk.StringRegel;
-import org.csstudio.nams.common.material.regelwerk.StringRegelOperator;
-import org.csstudio.nams.common.material.regelwerk.TimebasedRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.UndRegel;
-import org.csstudio.nams.common.material.regelwerk.WatchDogRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.TimebasedRegelwerk.TimeoutType;
+import org.csstudio.nams.common.material.FilterId;
+import org.csstudio.nams.common.material.regelwerk.DefaultFilter;
+import org.csstudio.nams.common.material.regelwerk.NotFilterCondition;
+import org.csstudio.nams.common.material.regelwerk.OrFilterCondition;
+import org.csstudio.nams.common.material.regelwerk.ProcessVariableFilterCondition;
+import org.csstudio.nams.common.material.regelwerk.PropertyCompareFilterCondition;
+import org.csstudio.nams.common.material.regelwerk.FilterCondition;
+import org.csstudio.nams.common.material.regelwerk.Filter;
+import org.csstudio.nams.common.material.regelwerk.StringFilterCondition;
+import org.csstudio.nams.common.material.regelwerk.StringFilterConditionOperator;
+import org.csstudio.nams.common.material.regelwerk.TimebasedFilter;
+import org.csstudio.nams.common.material.regelwerk.AndFilterCondition;
+import org.csstudio.nams.common.material.regelwerk.WatchDogFilter;
+import org.csstudio.nams.common.material.regelwerk.TimebasedFilter.TimeoutType;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.DefaultFilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.JunctorConditionType;
@@ -60,8 +60,8 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 	}
 
 	@Override
-	public List<Regelwerk> gibAlleRegelwerke() throws RegelwerksBuilderException {
-		final List<Regelwerk> results = new LinkedList<Regelwerk>();
+	public List<Filter> gibAlleRegelwerke() throws RegelwerksBuilderException {
+		final List<Filter> results = new LinkedList<Filter>();
 
 		try {
 
@@ -72,14 +72,14 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 
 			// we do assume, that the first level filtercondition are conjugated
 			for (final FilterDTO filterDTO : listOfFilters) {
-				Regelwerk regelwerk = null;
-				Regelwerkskennung regelwerkskennung = Regelwerkskennung.valueOf(filterDTO.getIFilterID());
+				Filter regelwerk = null;
+				FilterId regelwerkskennung = FilterId.valueOf(filterDTO.getIFilterID());
 
 				if (filterDTO instanceof DefaultFilterDTO) {
 					final List<FilterConditionDTO> filterConditions = ((DefaultFilterDTO) filterDTO).getFilterConditions();
 
 					// create a list of first level filterconditions
-					final List<Regel> versandRegels = new LinkedList<Regel>();
+					final List<FilterCondition> versandRegels = new LinkedList<FilterCondition>();
 					for (final FilterConditionDTO filterConditionDTO : filterConditions) {
 						try {
 							versandRegels.add(this.createRegel(filterConditionDTO));
@@ -89,20 +89,20 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 						}
 					}
 
-					UndRegel hauptRegel = new UndRegel(versandRegels);
-					regelwerk = new DefaultRegelwerk(regelwerkskennung, hauptRegel);
+					AndFilterCondition hauptRegel = new AndFilterCondition(versandRegels);
+					regelwerk = new DefaultFilter(regelwerkskennung, hauptRegel);
 
 				} else if (filterDTO instanceof TimeBasedFilterDTO) {
 					TimeBasedFilterDTO timeBasedFilterDTO = (TimeBasedFilterDTO) filterDTO;
-					Regel startRegel = createRegel(timeBasedFilterDTO.getStartFilterCondition());
-					Regel stopRegel = createRegel(timeBasedFilterDTO.getStopFilterCondition());
+					FilterCondition startRegel = createRegel(timeBasedFilterDTO.getStartFilterCondition());
+					FilterCondition stopRegel = createRegel(timeBasedFilterDTO.getStopFilterCondition());
 					TimeoutType timeoutType = (timeBasedFilterDTO.isSendOnTimeout()) ? TimeoutType.SENDE_BEI_TIMEOUT : TimeoutType.SENDE_BEI_STOP_REGEL;
-					regelwerk = new TimebasedRegelwerk(regelwerkskennung, startRegel, stopRegel, Milliseconds.valueOf(timeBasedFilterDTO
+					regelwerk = new TimebasedFilter(regelwerkskennung, startRegel, stopRegel, Milliseconds.valueOf(timeBasedFilterDTO
 							.getTimeout() * 1000), timeoutType); 
 				} else if (filterDTO instanceof WatchDogFilterDTO) {
 					WatchDogFilterDTO watchDogFilterDTO = (WatchDogFilterDTO) filterDTO;
-					Regel rootRegel = createRegel(watchDogFilterDTO.getFilterCondition());
-					regelwerk = new WatchDogRegelwerk(regelwerkskennung, rootRegel, Milliseconds.valueOf(watchDogFilterDTO.getTimeout() * 1000));
+					FilterCondition rootRegel = createRegel(watchDogFilterDTO.getFilterCondition());
+					regelwerk = new WatchDogFilter(regelwerkskennung, rootRegel, Milliseconds.valueOf(watchDogFilterDTO.getTimeout() * 1000));
 				}
 				results.add(regelwerk);
 			}
@@ -114,7 +114,7 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 		return results;
 	}
 
-	protected Regel createRegel(final FilterConditionDTO filterConditionDTO) {
+	protected FilterCondition createRegel(final FilterConditionDTO filterConditionDTO) {
 		// mapping the type information in the aggrFilterConditionTObject to a
 		// VersandRegel
 
@@ -126,12 +126,12 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 		case STRING: {
 			final StringFilterConditionDTO stringCondition = (StringFilterConditionDTO) filterConditionDTO;
 
-			return new StringRegel(stringCondition.getOperatorEnum(), stringCondition.getKeyValueEnum(), stringCondition.getCompValue(), logger);
+			return new StringFilterCondition(stringCondition.getOperatorEnum(), stringCondition.getKeyValueEnum(), stringCondition.getCompValue(), logger);
 		}
 		case PROPERTY_COMPARE: {
 			final PropertyCompareFilterConditionDTO propertyCompareCondition = (PropertyCompareFilterConditionDTO) filterConditionDTO;
 			
-			return new PropertyVergleichsRegel(propertyCompareCondition.getOperatorEnum(), propertyCompareCondition.getMessageKeyValueEnum(), logger);
+			return new PropertyCompareFilterCondition(propertyCompareCondition.getOperatorEnum(), propertyCompareCondition.getMessageKeyValueEnum(), logger);
 		}
 		case TIMEBASED: {
 			// nach entfernen der zeitbasierten Filterbedingungen darf dieser
@@ -142,7 +142,7 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 			return null;
 		}
 		case JUNCTOR: {
-			final List<Regel> children = new ArrayList<Regel>(2);
+			final List<FilterCondition> children = new ArrayList<FilterCondition>(2);
 
 			final JunctorConditionDTO junctorCondition = (JunctorConditionDTO) filterConditionDTO;
 			final FilterConditionDTO firstFilterCondition = junctorCondition.getFirstFilterCondition();
@@ -153,53 +153,53 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 
 			switch (junctorCondition.getJunctor()) {
 			case OR:
-				return new OderRegel(children);
+				return new OrFilterCondition(children);
 			case AND:
-				return new UndRegel(children);
+				return new AndFilterCondition(children);
 			default:
 				throw new IllegalArgumentException("Unsupported Junctor.");
 			}
 		}
 		// oder verknüpfte Stringregeln
 		case STRING_ARRAY: {
-			final List<Regel> children = new LinkedList<Regel>();
+			final List<FilterCondition> children = new LinkedList<FilterCondition>();
 
 			final StringArFilterConditionDTO stringArayCondition = (StringArFilterConditionDTO) filterConditionDTO;
 
 			final List<String> compareValueList = stringArayCondition.getCompareValueStringList();
 
 			final MessageKeyEnum keyValue = stringArayCondition.getKeyValueEnum();
-			final StringRegelOperator operatorEnum = stringArayCondition.getOperatorEnum();
+			final StringFilterConditionOperator operatorEnum = stringArayCondition.getOperatorEnum();
 			for (final String string : compareValueList) {
-				children.add(new StringRegel(operatorEnum, keyValue, string, logger));
+				children.add(new StringFilterCondition(operatorEnum, keyValue, string, logger));
 			}
 
-			return new OderRegel(children);
+			return new OrFilterCondition(children);
 		}
 		case PV: {
 			final ProcessVarFiltCondDTO pvCondition = (ProcessVarFiltCondDTO) filterConditionDTO;
 
-			return new ProcessVariableRegel(RegelwerkBuilderServiceImpl.pvConnectionService, pvCondition.getPVAddress(), pvCondition.getPVOperator(),
+			return new ProcessVariableFilterCondition(RegelwerkBuilderServiceImpl.pvConnectionService, pvCondition.getPVAddress(), pvCondition.getPVOperator(),
 					pvCondition.getSuggestedPVType(), pvCondition.getCCompValue(), logger);
 		}
 		case NEGATION: {
 			final NegationCondForFilterTreeDTO notCondition = (NegationCondForFilterTreeDTO) filterConditionDTO;
 
-			return new NichtRegel(this.createRegel(notCondition.getNegatedFilterCondition()));
+			return new NotFilterCondition(this.createRegel(notCondition.getNegatedFilterCondition()));
 		}
 		case JUNCTOR_FOR_TREE: {
 			final JunctorCondForFilterTreeDTO junctorCondition = (JunctorCondForFilterTreeDTO) filterConditionDTO;
 
 			final Set<FilterConditionDTO> operands = junctorCondition.getOperands();
-			final List<Regel> children = new ArrayList<Regel>(operands.size());
+			final List<FilterCondition> children = new ArrayList<FilterCondition>(operands.size());
 			for (FilterConditionDTO operand : operands) {
 				children.add(this.createRegel(operand));
 			}
 
 			if (junctorCondition.getOperator() == JunctorConditionType.AND) {
-				return new UndRegel(children);
+				return new AndFilterCondition(children);
 			} else if (junctorCondition.getOperator() == JunctorConditionType.OR) {
-				return new OderRegel(children);
+				return new OrFilterCondition(children);
 			} else {
 				throw new IllegalArgumentException("Unsupported FilterType, see " + this.getClass().getPackage() + "." + this.getClass().getName());
 			}

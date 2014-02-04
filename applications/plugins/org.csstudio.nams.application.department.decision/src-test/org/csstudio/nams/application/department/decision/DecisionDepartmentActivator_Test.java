@@ -11,7 +11,7 @@ import junit.framework.TestCase;
 import org.csstudio.nams.common.material.SynchronisationsAufforderungsSystemNachchricht;
 import org.csstudio.nams.common.material.SynchronisationsBestaetigungSystemNachricht;
 import org.csstudio.nams.common.material.SystemNachricht;
-import org.csstudio.nams.common.material.regelwerk.Regelwerk;
+import org.csstudio.nams.common.material.regelwerk.Filter;
 import org.csstudio.nams.common.service.ExecutionServiceMock;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.ConfigurationServiceFactory;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.DatabaseType;
@@ -172,7 +172,7 @@ public class DecisionDepartmentActivator_Test extends TestCase {
         // * Andere...
         this.regelwerksBuilderService = EasyMock
         .createMock(RegelwerkBuilderService.class);
-        final List<Regelwerk> list = Collections.emptyList();
+        final List<Filter> list = Collections.emptyList();
         // FIXME Die nächste Zeile muss wieder rein:
         // EasyMock.expect(regelwerksBuilderService.gibAlleRegelwerke())
         // .andReturn(list).once();

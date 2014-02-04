@@ -2,80 +2,113 @@ package org.csstudio.nams.application.department.decision.office.decision;
 
 import java.util.Iterator;
 
+import org.csstudio.nams.common.decision.Box;
+import org.csstudio.nams.common.decision.CasefileId;
+import org.csstudio.nams.common.decision.Clipboard;
 import org.csstudio.nams.common.decision.Document;
-import org.csstudio.nams.common.decision.Outbox;
-import org.csstudio.nams.common.decision.ObservableInbox;
 import org.csstudio.nams.common.decision.Inbox;
 import org.csstudio.nams.common.decision.InboxObserver;
-import org.csstudio.nams.common.decision.DefaultDocumentBox;
 import org.csstudio.nams.common.decision.MessageCasefile;
-import org.csstudio.nams.common.decision.CasefileId;
-import org.csstudio.nams.common.material.regelwerk.Regelwerk;
-import org.csstudio.nams.common.material.regelwerk.TimebasedRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.TimebasedRegelwerk.TimeoutType;
+import org.csstudio.nams.common.decision.ObservableInbox;
+import org.csstudio.nams.common.decision.Outbox;
+import org.csstudio.nams.common.material.FilterId;
+import org.csstudio.nams.common.material.regelwerk.Filter;
+import org.csstudio.nams.common.material.regelwerk.TimebasedFilter;
+import org.csstudio.nams.common.material.regelwerk.TimebasedFilter.TimeoutType;
 import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 
 public class TimebasedFilterWorker implements FilterWorker {
 
-	private TimebasedRegelwerk regelwerk;
-	private final ObservableInbox<Document> eingangskorb;
-	private final DefaultDocumentBox<MessageCasefile> offeneVorgaenge;
-	private final DefaultDocumentBox<TimerMessage> terminAssistenzAblagekorb;
-	private final Outbox<MessageCasefile> ausgangskorb;
+	private TimebasedFilter filter;
+	private final ObservableInbox<Document> inbox;
+	private final Clipboard<MessageCasefile> openCasefiles;
+	private final Box<TimeoutMessage> timeoutNotifierBox;
+	private final Outbox<MessageCasefile> outbox;
 
-	private boolean istAmArbeiten;
+	private boolean isWorking;
 
-	public TimebasedFilterWorker(ObservableInbox<Document> eingangskorb,
-			DefaultDocumentBox<MessageCasefile> offeneVorgaenge,
-			DefaultDocumentBox<TimerMessage> terminAssistenzAblagekorb,
-			Outbox<MessageCasefile> ausgangskorb,
-			TimebasedRegelwerk regelwerk) {
-				this.eingangskorb = eingangskorb;
-				this.offeneVorgaenge = offeneVorgaenge;
-				this.terminAssistenzAblagekorb = terminAssistenzAblagekorb;
-				this.ausgangskorb = ausgangskorb;
-				this.regelwerk = regelwerk;
+	public TimebasedFilterWorker(ObservableInbox<Document> inbox,
+			Clipboard<MessageCasefile> openCasefiles,
+			Box<TimeoutMessage> timeoutNotifierBox,
+			Outbox<MessageCasefile> outbox,
+			TimebasedFilter filter) {
+				this.inbox = inbox;
+				this.openCasefiles = openCasefiles;
+				this.timeoutNotifierBox = timeoutNotifierBox;
+				this.outbox = outbox;
+				this.filter = filter;
 	}
 
 	@Override
 	public void stopWorking() {
-		istAmArbeiten = false;
-		eingangskorb.setObserver(null);
+		isWorking = false;
+		inbox.setObserver(null);
 	}
 
 	@Override
 	public void startWorking() {
-		istAmArbeiten = true;
+		isWorking = true;
 		
-		eingangskorb.setObserver(new InboxObserver() {
+		inbox.setObserver(new InboxObserver() {
 			@Override
 			public void onNewDocument() {
-				handleNeuerEingang();
+				handleNewMessage();
 			}
 		});
 	}
 
 	@Override
 	public boolean isWorking() {
-		return istAmArbeiten;
+		return isWorking;
 	}
 
 	@Override
 	public String toString() {
-		return "Sachbearbeiter: " + regelwerk;
+		return "Sachbearbeiter: " + filter;
 	}
 	
-	private void handleNeuerEingang() {
+	public FilterId getId() {
+		return getFilter().getFilterId();
+	}
+
+	@Override
+	public Filter getFilter() {
+		return filter;
+	}
+
+	public void setFilter(TimebasedFilter regelwerk) {
+		// Offene Vorgänge verhalten sich wie bei Eintritt eines Timeouts
+		synchronized (openCasefiles) {
+			Iterator<MessageCasefile> vorgaengeIterator = openCasefiles.iterator();
+			while(vorgaengeIterator.hasNext()) {
+				try {
+					MessageCasefile offenerVorgang = vorgaengeIterator.next();
+					closeCaseWithTimeout(offenerVorgang, offenerVorgang.gibMappenkennung());
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				vorgaengeIterator.remove();
+			}
+		}
+		this.filter = regelwerk;
+	}
+
+	@Override
+	public Inbox<Document> getInbox() {
+		return inbox;
+	}
+
+	private void handleNewMessage() {
 		Document ablagefaehig;
 		try {
-			ablagefaehig = eingangskorb.takeDocument();
+			ablagefaehig = inbox.takeDocument();
 			if (ablagefaehig instanceof MessageCasefile) {
 				MessageCasefile vorgangsmappe = (MessageCasefile) ablagefaehig;
 				
-				handleOffeneVorgaengeMitNeuerMappe(vorgangsmappe);
-				handleNeueMappe(vorgangsmappe);
-			} else if (ablagefaehig instanceof TimerMessage) {
-				TimerMessage terminnotiz = (TimerMessage) ablagefaehig;
+				handleOpenCaseFilesWithNewMessage(vorgangsmappe);
+				handleNewMessage(vorgangsmappe);
+			} else if (ablagefaehig instanceof TimeoutMessage) {
+				TimeoutMessage terminnotiz = (TimeoutMessage) ablagefaehig;
 				handleTimeout(terminnotiz);
 			}
 		} catch (InterruptedException e) {
@@ -84,9 +117,9 @@ public class TimebasedFilterWorker implements FilterWorker {
 		}
 	}
 	
-	private MessageCasefile getKopieFuerVersand(MessageCasefile mappe) throws InterruptedException {
+	private MessageCasefile createMessageCopyToSend(MessageCasefile mappe) throws InterruptedException {
 		MessageCasefile result = mappe.erstelleKopieFuer(this.toString());
-		result.setBearbeitetMitRegelWerk(regelwerk.getRegelwerksKennung());
+		result.setHandledWithFilter(filter.getFilterId());
 		
 		return result;
 	}
@@ -103,34 +136,34 @@ public class TimebasedFilterWorker implements FilterWorker {
 	 * 
 	 * @throws InterruptedException
 	 */
-	private void handleTimeout(TimerMessage terminnotiz) throws InterruptedException {
-		synchronized (offeneVorgaenge) {
-			final Iterator<MessageCasefile> offeneVorgaengeIterator = offeneVorgaenge.iterator();
+	private void handleTimeout(TimeoutMessage terminnotiz) throws InterruptedException {
+		synchronized (openCasefiles) {
+			final Iterator<MessageCasefile> offeneVorgaengeIterator = openCasefiles.iterator();
 			while (offeneVorgaengeIterator.hasNext()) {
 				final MessageCasefile offenerVorgang = offeneVorgaengeIterator.next();
 				if (offenerVorgang.gibMappenkennung().equals(terminnotiz.getCasefileId())) {
 					// Entferne Vorgang aus den offenen Vorgängen
 					offeneVorgaengeIterator.remove();
 
-					schliesseVorgangDurchTimeoutAb(offenerVorgang, terminnotiz.getCasefileId());
+					closeCaseWithTimeout(offenerVorgang, terminnotiz.getCasefileId());
 				}
 			}
 		}
 	}
 
-	private void schliesseVorgangDurchTimeoutAb(final MessageCasefile offenerVorgang, CasefileId abgeschlossenDurchKennung)
+	private void closeCaseWithTimeout(final MessageCasefile offenerVorgang, CasefileId abgeschlossenDurchKennung)
 			throws InterruptedException {
-		if(regelwerk.getTimeoutType() == TimeoutType.SENDE_BEI_STOP_REGEL) {
+		if(filter.getTimeoutType() == TimeoutType.SENDE_BEI_STOP_REGEL) {
 			// Offener Vorgang ist kein Alarm, da durch Timeout abgebrochen 
 		} 
-		else if(regelwerk.getTimeoutType() == TimeoutType.SENDE_BEI_TIMEOUT) {
+		else if(filter.getTimeoutType() == TimeoutType.SENDE_BEI_TIMEOUT) {
 			// Offener Vorgang ist ein Alarm, da Timeout abgelaufen
-			MessageCasefile kopieFuerVersand = getKopieFuerVersand(offenerVorgang);
+			MessageCasefile kopieFuerVersand = createMessageCopyToSend(offenerVorgang);
 			kopieFuerVersand.setWeiteresVersandVorgehen(WeiteresVersandVorgehen.VERSENDEN);
 			kopieFuerVersand.pruefungAbgeschlossenDurch(abgeschlossenDurchKennung);
 			kopieFuerVersand.abgeschlossenDurchTimeOut();
 			
-			ausgangskorb.put(kopieFuerVersand);
+			outbox.put(kopieFuerVersand);
 		}
 
 	}
@@ -145,24 +178,24 @@ public class TimebasedFilterWorker implements FilterWorker {
 	 * 
 	 * @throws InterruptedException
 	 */
-	private void handleOffeneVorgaengeMitNeuerMappe(MessageCasefile aktuellerVorgang) throws InterruptedException {
-		synchronized (offeneVorgaenge) {
+	private void handleOpenCaseFilesWithNewMessage(MessageCasefile aktuellerVorgang) throws InterruptedException {
+		synchronized (openCasefiles) {
 			// Prüfe bei allen offenen Vorgängen, ob die Vorgangsmappe zu der entsprechenden Stop-Bedingung passt
-			final Iterator<MessageCasefile> offeneVorgaengeIterator = offeneVorgaenge.iterator();
+			final Iterator<MessageCasefile> offeneVorgaengeIterator = openCasefiles.iterator();
 
 			while (offeneVorgaengeIterator.hasNext()) {
 				MessageCasefile offenerVorgang = offeneVorgaengeIterator.next();
-				boolean trifftRegelZu = regelwerk.getStopRegel().pruefeNachricht(aktuellerVorgang.getAlarmNachricht(),
-						offenerVorgang.getAlarmNachricht());
+				boolean trifftRegelZu = filter.getStopRegel().pruefeNachricht(aktuellerVorgang.getAlarmMessage(),
+						offenerVorgang.getAlarmMessage());
 
 				if (trifftRegelZu) {
-					if (regelwerk.getTimeoutType() == TimeoutType.SENDE_BEI_STOP_REGEL) {
+					if (filter.getTimeoutType() == TimeoutType.SENDE_BEI_STOP_REGEL) {
 						// Offener Vorgang ist ein Alarm, da er bestätigt wurde
-						MessageCasefile kopieFuerVersand = getKopieFuerVersand(offenerVorgang);
+						MessageCasefile kopieFuerVersand = createMessageCopyToSend(offenerVorgang);
 						kopieFuerVersand.setWeiteresVersandVorgehen(WeiteresVersandVorgehen.VERSENDEN);
 						kopieFuerVersand.pruefungAbgeschlossenDurch(aktuellerVorgang.gibMappenkennung());
-						ausgangskorb.put(kopieFuerVersand);
-					} else if (regelwerk.getTimeoutType() == TimeoutType.SENDE_BEI_TIMEOUT) {
+						outbox.put(kopieFuerVersand);
+					} else if (filter.getTimeoutType() == TimeoutType.SENDE_BEI_TIMEOUT) {
 						// Offener Vorgang ist kein Alarm, da er abgebrochen
 						// wurde
 					}
@@ -183,45 +216,14 @@ public class TimebasedFilterWorker implements FilterWorker {
 	 * 
 	 * @throws InterruptedException
 	 */
-	private void handleNeueMappe(MessageCasefile vorgangsmappe) throws InterruptedException {
-		boolean trifftStartRegelZu = regelwerk.getStartRegel().pruefeNachricht(vorgangsmappe.getAlarmNachricht());
+	private void handleNewMessage(MessageCasefile vorgangsmappe) throws InterruptedException {
+		boolean trifftStartRegelZu = filter.getStartRegel().pruefeNachricht(vorgangsmappe.getAlarmMessage());
 
 		if (trifftStartRegelZu) {
-			synchronized (offeneVorgaenge) {
-				offeneVorgaenge.put(vorgangsmappe);
+			synchronized (openCasefiles) {
+				openCasefiles.put(vorgangsmappe);
 			}
-			terminAssistenzAblagekorb.put(TimerMessage.valueOf(vorgangsmappe.gibMappenkennung(), regelwerk.getTimeOut(), getId()));
+			timeoutNotifierBox.put(TimeoutMessage.valueOf(vorgangsmappe.gibMappenkennung(), filter.getTimeOut(), getId()));
 		}
-	}
-
-	public int getId() {
-		return getRegelwerk().getRegelwerksKennung().getRegelwerksId();
-	}
-
-	@Override
-	public Regelwerk getRegelwerk() {
-		return regelwerk;
-	}
-	
-	public void setRegelwerk(TimebasedRegelwerk regelwerk) {
-		// Offene Vorgänge verhalten sich wie bei Eintritt eines Timeouts
-		synchronized (offeneVorgaenge) {
-			Iterator<MessageCasefile> vorgaengeIterator = offeneVorgaenge.iterator();
-			while(vorgaengeIterator.hasNext()) {
-				try {
-					MessageCasefile offenerVorgang = vorgaengeIterator.next();
-					schliesseVorgangDurchTimeoutAb(offenerVorgang, offenerVorgang.gibMappenkennung());
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				vorgaengeIterator.remove();
-			}
-		}
-		this.regelwerk = regelwerk;
-	}
-
-	@Override
-	public Inbox<Document> getInbox() {
-		return eingangskorb;
 	}
 }

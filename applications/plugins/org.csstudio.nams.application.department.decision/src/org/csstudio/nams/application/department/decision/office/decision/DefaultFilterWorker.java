@@ -6,13 +6,13 @@ import org.csstudio.nams.common.decision.ObservableInbox;
 import org.csstudio.nams.common.decision.Inbox;
 import org.csstudio.nams.common.decision.InboxObserver;
 import org.csstudio.nams.common.decision.MessageCasefile;
-import org.csstudio.nams.common.material.regelwerk.DefaultRegelwerk;
-import org.csstudio.nams.common.material.regelwerk.Regelwerk;
+import org.csstudio.nams.common.material.regelwerk.DefaultFilter;
+import org.csstudio.nams.common.material.regelwerk.Filter;
 import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 
 public class DefaultFilterWorker implements FilterWorker {
 
-	private DefaultRegelwerk regelwerk;
+	private DefaultFilter regelwerk;
 	private final ObservableInbox<MessageCasefile> eingangskorb;
 	private final Outbox<MessageCasefile> ausgangskorb;
 	
@@ -21,7 +21,7 @@ public class DefaultFilterWorker implements FilterWorker {
 	public DefaultFilterWorker(			
 			final ObservableInbox<MessageCasefile> eingangskorb,
 			final Outbox<MessageCasefile> ausgangskorb,
-			final DefaultRegelwerk regelwerk) 
+			final DefaultFilter regelwerk) 
 	{
 		this.eingangskorb = eingangskorb;
 		this.ausgangskorb = ausgangskorb;
@@ -56,11 +56,11 @@ public class DefaultFilterWorker implements FilterWorker {
 	private void handleNeuerEingang() {
 		try {
 			MessageCasefile vorgangsMappe = eingangskorb.takeDocument();
-			boolean trifftRegelZu = regelwerk.getRegel().pruefeNachricht(vorgangsMappe.getAlarmNachricht());
+			boolean trifftRegelZu = regelwerk.getRegel().pruefeNachricht(vorgangsMappe.getAlarmMessage());
 			
 			if(trifftRegelZu) {
 				MessageCasefile erstelleKopieFuer = vorgangsMappe.erstelleKopieFuer(this.toString());
-				erstelleKopieFuer.setBearbeitetMitRegelWerk(regelwerk.getRegelwerksKennung());
+				erstelleKopieFuer.setHandledWithFilter(regelwerk.getFilterId());
 				erstelleKopieFuer.setWeiteresVersandVorgehen(WeiteresVersandVorgehen.VERSENDEN);
 				erstelleKopieFuer.pruefungAbgeschlossenDurch(vorgangsMappe.gibMappenkennung());
 				ausgangskorb.put(erstelleKopieFuer);
@@ -73,11 +73,11 @@ public class DefaultFilterWorker implements FilterWorker {
 	}
 
 	@Override
-	public Regelwerk getRegelwerk() {
+	public Filter getFilter() {
 		return regelwerk;
 	}
 
-	public void setRegelwerk(DefaultRegelwerk regelwerk) {
+	public void setRegelwerk(DefaultFilter regelwerk) {
 		this.regelwerk = regelwerk;
 	}
 

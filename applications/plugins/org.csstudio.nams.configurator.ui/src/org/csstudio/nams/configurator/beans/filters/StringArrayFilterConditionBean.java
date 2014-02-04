@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
-import org.csstudio.nams.common.material.regelwerk.StringRegelOperator;
+import org.csstudio.nams.common.material.regelwerk.StringFilterConditionOperator;
 import org.csstudio.nams.configurator.beans.AbstractConfigurationBean;
 
 public class StringArrayFilterConditionBean extends
@@ -20,7 +20,7 @@ public class StringArrayFilterConditionBean extends
 	private List<String> compareValues = new LinkedList<String>();
 	private MessageKeyEnum keyValue = MessageKeyEnum.NAME;
 
-	private StringRegelOperator operator = StringRegelOperator.OPERATOR_TEXT_EQUAL;
+	private StringFilterConditionOperator operator = StringFilterConditionOperator.OPERATOR_TEXT_EQUAL;
 
 	@Override
 	public boolean equals(final Object obj) {
@@ -77,7 +77,7 @@ public class StringArrayFilterConditionBean extends
 		return this.keyValue;
 	}
 
-	public StringRegelOperator getOperator() {
+	public StringFilterConditionOperator getOperator() {
 		return this.operator;
 	}
 
@@ -116,8 +116,8 @@ public class StringArrayFilterConditionBean extends
 				this.keyValue);
 	}
 
-	public void setOperator(final StringRegelOperator operator) {
-		final StringRegelOperator oldValue = this.operator;
+	public void setOperator(final StringFilterConditionOperator operator) {
+		final StringFilterConditionOperator oldValue = this.operator;
 		this.operator = operator;
 		this.pcs.firePropertyChange(PropertyNames.operator.name(), oldValue,
 				this.operator);

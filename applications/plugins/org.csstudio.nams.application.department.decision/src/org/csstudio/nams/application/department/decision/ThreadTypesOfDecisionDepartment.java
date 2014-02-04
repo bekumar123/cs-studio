@@ -30,6 +30,6 @@ import org.csstudio.nams.common.service.ThreadType;
 public enum ThreadTypesOfDecisionDepartment implements ThreadType {
 	FILTER_WORKER,
 	THREADED_MESSAGE_DISPATCHER,
-	TERMINASSISTENZ,
+	TIMEOUT_FILTER_NOTIFIER,
 	AUSGANGSKORBBEARBEITER
 }

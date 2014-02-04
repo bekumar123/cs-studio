@@ -1,27 +1,27 @@
 package org.csstudio.nams.common.material.regelwerk;
 
 import org.csstudio.nams.common.fachwert.Milliseconds;
-import org.csstudio.nams.common.material.Regelwerkskennung;
+import org.csstudio.nams.common.material.FilterId;
 
-public class WatchDogRegelwerk implements Regelwerk {
+public class WatchDogFilter implements Filter {
 
-	private Regel regel;
-	private Regelwerkskennung regelwerkskennung;
+	private FilterCondition regel;
+	private FilterId regelwerkskennung;
 	private Milliseconds delay;
 
-	public WatchDogRegelwerk(Regelwerkskennung regelwerkskennung,
-			Regel regel, Milliseconds timeout) {
+	public WatchDogFilter(FilterId regelwerkskennung,
+			FilterCondition regel, Milliseconds timeout) {
 				this.regelwerkskennung = regelwerkskennung;
 				this.regel = regel;
 				this.delay = timeout;
 	}
 
 	@Override
-	public Regelwerkskennung getRegelwerksKennung() {
+	public FilterId getFilterId() {
 		return regelwerkskennung;
 	}
 
-	public Regel getRegel() {
+	public FilterCondition getRegel() {
 		return regel;
 	}
 
@@ -47,7 +47,7 @@ public class WatchDogRegelwerk implements Regelwerk {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		WatchDogRegelwerk other = (WatchDogRegelwerk) obj;
+		WatchDogFilter other = (WatchDogFilter) obj;
 		if (delay == null) {
 			if (other.delay != null)
 				return false;

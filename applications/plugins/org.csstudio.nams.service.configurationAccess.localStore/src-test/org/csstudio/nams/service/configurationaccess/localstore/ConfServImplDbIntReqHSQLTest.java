@@ -11,7 +11,7 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
-import org.csstudio.nams.common.material.regelwerk.StringRegelOperator;
+import org.csstudio.nams.common.material.regelwerk.StringFilterConditionOperator;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.AlarmbearbeiterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.AlarmbearbeiterGruppenDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.Configuration;
@@ -178,7 +178,7 @@ public class ConfServImplDbIntReqHSQLTest
 		neueFilterCondition.setCompValue("TestValue");
 		neueFilterCondition.setKeyValue(MessageKeyEnum.DESTINATION);
 		neueFilterCondition
-				.setOperatorEnum(StringRegelOperator.OPERATOR_TEXT_EQUAL);
+				.setOperatorEnum(StringFilterConditionOperator.OPERATOR_TEXT_EQUAL);
 
 		Configuration entireConfiguration = this.service
 				.getEntireConfiguration();
@@ -501,13 +501,13 @@ public class ConfServImplDbIntReqHSQLTest
 		leftCondition.setCName("Test-LeftCond");
 		leftCondition.setCompValue("TestValue");
 		leftCondition.setKeyValue(MessageKeyEnum.DESTINATION);
-		leftCondition.setOperatorEnum(StringRegelOperator.OPERATOR_TEXT_EQUAL);
+		leftCondition.setOperatorEnum(StringFilterConditionOperator.OPERATOR_TEXT_EQUAL);
 
 		final StringFilterConditionDTO rightCondition = new StringFilterConditionDTO();
 		rightCondition.setCName("Test-RightCond");
 		rightCondition.setCompValue("TestValue2");
 		rightCondition.setKeyValue(MessageKeyEnum.DESTINATION);
-		rightCondition.setOperatorEnum(StringRegelOperator.OPERATOR_TEXT_EQUAL);
+		rightCondition.setOperatorEnum(StringFilterConditionOperator.OPERATOR_TEXT_EQUAL);
 
 		// Speicher die FC nicht(!) die Tree-FC (andCondition)
 		this.service.saveDTO(leftCondition);
@@ -612,13 +612,13 @@ public class ConfServImplDbIntReqHSQLTest
 		leftCondition.setCName("Test-LeftCond");
 		leftCondition.setCompValue("TestValue");
 		leftCondition.setKeyValue(MessageKeyEnum.DESTINATION);
-		leftCondition.setOperatorEnum(StringRegelOperator.OPERATOR_TEXT_EQUAL);
+		leftCondition.setOperatorEnum(StringFilterConditionOperator.OPERATOR_TEXT_EQUAL);
 
 		final StringFilterConditionDTO rightCondition = new StringFilterConditionDTO();
 		rightCondition.setCName("Test-RightCond");
 		rightCondition.setCompValue("TestValue2");
 		rightCondition.setKeyValue(MessageKeyEnum.DESTINATION);
-		rightCondition.setOperatorEnum(StringRegelOperator.OPERATOR_TEXT_EQUAL);
+		rightCondition.setOperatorEnum(StringFilterConditionOperator.OPERATOR_TEXT_EQUAL);
 
 		final Set<FilterConditionDTO> operands = new HashSet<FilterConditionDTO>();
 		operands.add(leftCondition);

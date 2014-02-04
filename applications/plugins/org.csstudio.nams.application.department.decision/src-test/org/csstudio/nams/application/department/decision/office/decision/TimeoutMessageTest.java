@@ -8,22 +8,24 @@ import junit.framework.Assert;
 
 import org.csstudio.nams.common.decision.CasefileId;
 import org.csstudio.nams.common.fachwert.Milliseconds;
+import org.csstudio.nams.common.material.FilterId;
 import org.csstudio.nams.common.testutils.AbstractTestValue;
 import org.junit.Test;
 
-public class Terminnotiz_Test extends AbstractTestValue<Terminnotiz> {
+public class TimeoutMessageTest extends AbstractTestValue<TimeoutMessage> {
 
 	@Test
 	public void testCheckContract() throws Throwable {
+		FilterId filterId = FilterId.valueOf(1);
 		try {
-			Terminnotiz.valueOf(null, Milliseconds.valueOf(100), 1);
+			TimeoutMessage.valueOf(null, Milliseconds.valueOf(100), filterId);
 			Assert.fail();
 		} catch (final AssertionError ae) {
 		}
 		try {
-			Terminnotiz.valueOf(CasefileId.valueOf(InetAddress
+			TimeoutMessage.valueOf(CasefileId.valueOf(InetAddress
 					.getByAddress(new byte[] { 127, 0, 0, 1 }), new Date(42)),
-					null, 1);
+					null, filterId);
 			Assert.fail();
 		} catch (final AssertionError ae) {
 		}
@@ -41,40 +43,40 @@ public class Terminnotiz_Test extends AbstractTestValue<Terminnotiz> {
 		} catch (final UnknownHostException e) {
 			Assert.fail(e.getMessage());
 		}
-
-		final Terminnotiz vergleichsTerminnotiz = Terminnotiz.valueOf(
+		FilterId filterId2 = FilterId.valueOf(2);
+		final TimeoutMessage vergleichsTimerMessage = TimeoutMessage.valueOf(
 				vorgangsmappenkennung1, Milliseconds.valueOf(5),
-				2);
-		Terminnotiz terminnotiz1 = Terminnotiz.valueOf(vorgangsmappenkennung1,
-				Milliseconds.valueOf(5), 2);
+				filterId2);
+		TimeoutMessage timerMessage1 = TimeoutMessage.valueOf(vorgangsmappenkennung1,
+				Milliseconds.valueOf(5), filterId2);
 
-		Assert.assertEquals(vergleichsTerminnotiz, terminnotiz1);
+		Assert.assertEquals(vergleichsTimerMessage, timerMessage1);
 
-		terminnotiz1 = Terminnotiz.valueOf(vorgangsmappenkennung1,
-				Milliseconds.valueOf(5), 3);
-		Assert.assertFalse(vergleichsTerminnotiz.equals(terminnotiz1));
+		timerMessage1 = TimeoutMessage.valueOf(vorgangsmappenkennung1,
+				Milliseconds.valueOf(5), FilterId.valueOf(3));
+		Assert.assertFalse(vergleichsTimerMessage.equals(timerMessage1));
 
-		terminnotiz1 = Terminnotiz.valueOf(vorgangsmappenkennung1,
-				Milliseconds.valueOf(10), 2);
-		Assert.assertFalse(vergleichsTerminnotiz.equals(terminnotiz1));
+		timerMessage1 = TimeoutMessage.valueOf(vorgangsmappenkennung1,
+				Milliseconds.valueOf(10), filterId2);
+		Assert.assertFalse(vergleichsTimerMessage.equals(timerMessage1));
 
-		terminnotiz1 = Terminnotiz.valueOf(vorgangsmappenkennung2,
-				Milliseconds.valueOf(5), 2);
-		Assert.assertFalse(vergleichsTerminnotiz.equals(terminnotiz1));
+		timerMessage1 = TimeoutMessage.valueOf(vorgangsmappenkennung2,
+				Milliseconds.valueOf(5), filterId2);
+		Assert.assertFalse(vergleichsTimerMessage.equals(timerMessage1));
 	}
 
 	@Override
-	protected Terminnotiz doGetAValueOfTypeUnderTest() throws Throwable {
+	protected TimeoutMessage doGetAValueOfTypeUnderTest() throws Throwable {
 		CasefileId vorgangsmappenkennung = null;
 		vorgangsmappenkennung = CasefileId.valueOf(InetAddress
 				.getByAddress(new byte[] { 127, 0, 0, 1 }), new Date(42));
 		final Milliseconds millisekunden = Milliseconds.valueOf(42);
-		return Terminnotiz.valueOf(vorgangsmappenkennung, millisekunden,
-				4);
+		return TimeoutMessage.valueOf(vorgangsmappenkennung, millisekunden,
+				FilterId.valueOf(4));
 	}
 
 	@Override
-	protected Terminnotiz[] doGetDifferentInstancesOfTypeUnderTest()
+	protected TimeoutMessage[] doGetDifferentInstancesOfTypeUnderTest()
 			throws Throwable {
 		CasefileId vorgangsmappenkennung1 = null;
 		CasefileId vorgangsmappenkennung2 = null;
@@ -83,15 +85,15 @@ public class Terminnotiz_Test extends AbstractTestValue<Terminnotiz> {
 		vorgangsmappenkennung2 = CasefileId.valueOf(InetAddress
 				.getByAddress(new byte[] { 127, 0, 0, 2 }), new Date(23));
 		Milliseconds millisekunden = Milliseconds.valueOf(42);
-		final Terminnotiz terminnotiz1 = Terminnotiz.valueOf(
-				vorgangsmappenkennung1, millisekunden, 5);
+		final TimeoutMessage timerMessage1 = TimeoutMessage.valueOf(
+				vorgangsmappenkennung1, millisekunden, FilterId.valueOf(5));
 		millisekunden = Milliseconds.valueOf(23);
-		final Terminnotiz terminnotiz2 = Terminnotiz.valueOf(
-				vorgangsmappenkennung2, millisekunden, 6);
+		final TimeoutMessage timerMessage2 = TimeoutMessage.valueOf(
+				vorgangsmappenkennung2, millisekunden, FilterId.valueOf(6));
 		millisekunden = Milliseconds.valueOf(666);
-		final Terminnotiz terminnotiz3 = Terminnotiz.valueOf(
-				vorgangsmappenkennung2, millisekunden, 7);
+		final TimeoutMessage timerMessage3 = TimeoutMessage.valueOf(
+				vorgangsmappenkennung2, millisekunden, FilterId.valueOf(7));
 
-		return new Terminnotiz[] { terminnotiz1, terminnotiz2, terminnotiz3 };
+		return new TimeoutMessage[] { timerMessage1, timerMessage2, timerMessage3 };
 	}
 }

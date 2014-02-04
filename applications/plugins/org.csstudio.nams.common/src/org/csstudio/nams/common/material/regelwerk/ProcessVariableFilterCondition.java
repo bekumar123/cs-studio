@@ -11,7 +11,7 @@ import org.csstudio.platform.simpledal.ConnectionState;
 import org.csstudio.platform.simpledal.IProcessVariableConnectionService;
 import org.csstudio.platform.simpledal.IProcessVariableValueListener;
 
-public class ProcessVariableRegel implements Regel {
+public class ProcessVariableFilterCondition implements FilterCondition {
 
 	private final ILogger logger;
 
@@ -23,7 +23,7 @@ public class ProcessVariableRegel implements Regel {
 
 	private final IProcessVariableAddress channelName;
 
-	public ProcessVariableRegel(final IProcessVariableConnectionService pvService, final IProcessVariableAddress channelName,
+	public ProcessVariableFilterCondition(final IProcessVariableConnectionService pvService, final IProcessVariableAddress channelName,
 			final Operator operator, final SuggestedProcessVariableType suggestedProcessVariableType, final Object compValue, ILogger logger) {
 		this.channelName = channelName;
 		this.operator = operator;
@@ -270,7 +270,7 @@ public class ProcessVariableRegel implements Regel {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ProcessVariableRegel other = (ProcessVariableRegel) obj;
+		ProcessVariableFilterCondition other = (ProcessVariableFilterCondition) obj;
 		if (channelName == null) {
 			if (other.channelName != null)
 				return false;

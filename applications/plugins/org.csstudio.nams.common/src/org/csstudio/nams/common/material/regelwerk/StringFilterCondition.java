@@ -80,6 +80,9 @@ public class StringFilterCondition implements FilterCondition {
 		return true;
 	}
 
-
+	@Override
+	public String toString() {
+		return "string(value("  + messageKey + ") " + regelComparator + ")";
+	}
 	
 }

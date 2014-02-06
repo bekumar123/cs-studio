@@ -23,7 +23,7 @@ public abstract class StepByStepProcessor implements Runnable {
 		return this.executionThread;
 	}
 
-	public final boolean isCurrentlyRunning() {
+	public boolean isCurrentlyRunning() {
 		return this.executionThread != null;
 	}
 

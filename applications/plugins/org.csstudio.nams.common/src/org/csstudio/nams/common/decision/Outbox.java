@@ -29,6 +29,13 @@ package org.csstudio.nams.common.decision;
 import org.csstudio.nams.common.wam.Behaelter;
 
 @Behaelter
-public interface Outbox<T extends Document> extends Box<T> {
-    // Nothing here
+public interface Outbox<T extends Document> {
+
+	/**
+	 * Legt eine neues Dokument in den Korb.
+	 * 
+	 * @param dokument
+	 *            Das neue Dokuement,
+	 */
+	void put(T dokument) throws InterruptedException;
 }

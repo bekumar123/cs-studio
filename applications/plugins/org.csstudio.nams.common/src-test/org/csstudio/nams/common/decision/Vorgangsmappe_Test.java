@@ -14,22 +14,17 @@ public class Vorgangsmappe_Test extends AbstractTestObject<MessageCasefile> {
 
 	@Test
 	public void testAbgeschlossenDurch() throws UnknownHostException {
-		final CasefileId kennung = CasefileId.valueOf(
-				InetAddress.getByAddress(new byte[] { 127, 0, 0, 1 }),
-				new Date(123456));
+		final CasefileId kennung = CasefileId.createNew();
 		final AlarmMessage alarmNachricht = new AlarmMessage(
 				"Test-Nachricht");
 		final MessageCasefile mappe = new MessageCasefile(kennung, alarmNachricht);
 		Assert
 				.assertFalse("mappe.istAbgeschlossen()", mappe
 						.istAbgeschlossen());
-		final CasefileId abschliesserKennung = CasefileId
-				.valueOf(InetAddress.getByAddress(new byte[] { 127, 0, 0, 3 }),
-						new Date(123457));
+		final CasefileId abschliesserKennung = CasefileId.createNew();
 		mappe.pruefungAbgeschlossenDurch(abschliesserKennung);
 		Assert.assertTrue("mappe.istAbgeschlossen()", mappe.istAbgeschlossen());
-		Assert
-				.assertTrue(
+		Assert.assertTrue(
 						"abschliesserKennung.equals(mappe.gibAbschliessendeMappenkennung())",
 						abschliesserKennung.equals(mappe
 								.gibAbschliessendeMappenkennung()));
@@ -40,9 +35,7 @@ public class Vorgangsmappe_Test extends AbstractTestObject<MessageCasefile> {
 			throws UnknownHostException {
 		final AlarmMessage alarmNachricht = new AlarmMessage(
 				"Test-Nachricht");
-		final CasefileId vorgangsmappenkennung = CasefileId
-				.valueOf(InetAddress.getByAddress(new byte[] { 127, 0, 0, 1 }),
-						new Date(123456));
+		final CasefileId vorgangsmappenkennung = CasefileId.createNew();
 		final MessageCasefile vorgangsmappe = new MessageCasefile(
 				vorgangsmappenkennung, alarmNachricht);
 		Assert.assertSame(
@@ -53,9 +46,7 @@ public class Vorgangsmappe_Test extends AbstractTestObject<MessageCasefile> {
 
 	@Test
 	public void testKopieren() throws UnknownHostException {
-		final CasefileId kennung = CasefileId.valueOf(
-				InetAddress.getByAddress(new byte[] { 127, 0, 0, 1 }),
-				new Date(123456));
+		final CasefileId kennung = CasefileId.createNew();
 		final AlarmMessage alarmNachricht = new AlarmMessage(
 				"Test-Nachricht");
 
@@ -78,23 +69,17 @@ public class Vorgangsmappe_Test extends AbstractTestObject<MessageCasefile> {
 						neueVorgangsmappe
 								.getAlarmMessage());
 		Assert.assertFalse("Kennung bleibt nicht gleich!",
-				kennung == neueVorgangsmappe.gibMappenkennung());
+				kennung == neueVorgangsmappe.getCasefileId());
 		Assert.assertFalse("Kennung bleibt nicht gleich!", kennung
-				.equals(neueVorgangsmappe.gibMappenkennung()));
-		Assert.assertTrue(neueVorgangsmappe.gibMappenkennung().hatErgaenzung());
+				.equals(neueVorgangsmappe.getCasefileId()));
+		Assert.assertTrue(neueVorgangsmappe.getCasefileId().hasExtension());
 		Assert.assertEquals(CasefileId.valueOf(kennung,
-				"Horst Senkel"), neueVorgangsmappe.gibMappenkennung());
+				"Horst Senkel"), neueVorgangsmappe.getCasefileId());
 	}
 
 	public void testLocalToString() {
 		CasefileId kennung = null;
-		try {
-			kennung = CasefileId.valueOf(InetAddress
-					.getByAddress(new byte[] { 127, 0, 0, 1 }),
-					new Date(123456));
-		} catch (final UnknownHostException e) {
-			Assert.fail(e.getMessage());
-		}
+		kennung = CasefileId.createNew();
 
 		final AlarmMessage alarmNachricht = new AlarmMessage(
 				"Test-Nachricht");
@@ -102,21 +87,19 @@ public class Vorgangsmappe_Test extends AbstractTestObject<MessageCasefile> {
 				alarmNachricht);
 
 		Assert.assertEquals(kennung.toString(), vorgangsmappe
-				.gibMappenkennung().toString());
+				.getCasefileId().toString());
 	}
 
 	@Test
 	public void testMappenkennung() throws UnknownHostException {
-		final CasefileId kennung = CasefileId.valueOf(
-				InetAddress.getByAddress(new byte[] { 127, 0, 0, 1 }),
-				new Date(123456));
+		final CasefileId kennung = CasefileId.createNew();
 		final AlarmMessage alarmNachricht = new AlarmMessage(
 				"Test-Nachricht");
 		final MessageCasefile vorgangsmappe = new MessageCasefile(kennung,
 				alarmNachricht);
 
 		final CasefileId kennungAusDerMappe = vorgangsmappe
-				.gibMappenkennung();
+				.getCasefileId();
 		Assert.assertNotNull(kennungAusDerMappe);
 		Assert.assertEquals(kennung, kennungAusDerMappe);
 	}
@@ -124,13 +107,7 @@ public class Vorgangsmappe_Test extends AbstractTestObject<MessageCasefile> {
 	@Override
 	protected MessageCasefile getNewInstanceOfClassUnderTest() {
 		CasefileId kennung = null;
-		try {
-			kennung = CasefileId.valueOf(InetAddress
-					.getByAddress(new byte[] { 127, 0, 0, 1 }),
-					new Date(123456));
-		} catch (final UnknownHostException e) {
-			Assert.fail(e.getMessage());
-		}
+		kennung = CasefileId.createNew();
 
 		final AlarmMessage alarmNachricht = new AlarmMessage(
 				"Test-Nachricht");
@@ -147,19 +124,9 @@ public class Vorgangsmappe_Test extends AbstractTestObject<MessageCasefile> {
 		CasefileId kennung1 = null;
 		CasefileId kennung2 = null;
 		CasefileId kennung3 = null;
-		try {
-			kennung1 = CasefileId.valueOf(InetAddress
-					.getByAddress(new byte[] { 127, 0, 0, 1 }),
-					new Date(123456));
-			kennung2 = CasefileId.valueOf(InetAddress
-					.getByAddress(new byte[] { 127, 0, 0, 1 }),
-					new Date(123456));
-			kennung3 = CasefileId.valueOf(InetAddress
-					.getByAddress(new byte[] { 127, 0, 0, 1 }),
-					new Date(123456));
-		} catch (final UnknownHostException e) {
-			Assert.fail(e.getMessage());
-		}
+		kennung1 = CasefileId.createNew();
+		kennung2 = CasefileId.createNew();
+		kennung3 = CasefileId.createNew();
 
 		final AlarmMessage alarmNachricht1 = new AlarmMessage(
 				"Test-Nachricht 1");

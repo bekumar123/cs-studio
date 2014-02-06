@@ -33,7 +33,7 @@ import org.csstudio.nams.common.wam.Material;
 
 @Material
 public class DefaultDocumentBox<T extends Document> implements
-		Inbox<T>, Outbox<T>, Clipboard<T> {
+		Inbox<T>, Clipboard<T> {
 	private final LinkedBlockingQueue<T> inhalt;
 
 	public DefaultDocumentBox() {

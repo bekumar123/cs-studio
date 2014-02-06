@@ -4,20 +4,20 @@ import org.csstudio.nams.common.material.AlarmMessage;
 
 public class NotFilterCondition implements FilterCondition {
 	
-	private FilterCondition childRegel;
+	private FilterCondition childCondition;
 	
 	public NotFilterCondition(FilterCondition childRegel) {
-		this.childRegel = childRegel;
+		this.childCondition = childRegel;
 	}
 
 	@Override
 	public boolean pruefeNachricht(AlarmMessage nachricht) {
-		return !childRegel.pruefeNachricht(nachricht);
+		return !childCondition.pruefeNachricht(nachricht);
 	}
 
 	@Override
 	public boolean pruefeNachricht(AlarmMessage nachricht, AlarmMessage vergleichsNachricht) {
-		return !childRegel.pruefeNachricht(nachricht, vergleichsNachricht);
+		return !childCondition.pruefeNachricht(nachricht, vergleichsNachricht);
 	}
 
 	@Override
@@ -25,7 +25,7 @@ public class NotFilterCondition implements FilterCondition {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
-				+ ((childRegel == null) ? 0 : childRegel.hashCode());
+				+ ((childCondition == null) ? 0 : childCondition.hashCode());
 		return result;
 	}
 
@@ -38,12 +38,17 @@ public class NotFilterCondition implements FilterCondition {
 		if (getClass() != obj.getClass())
 			return false;
 		NotFilterCondition other = (NotFilterCondition) obj;
-		if (childRegel == null) {
-			if (other.childRegel != null)
+		if (childCondition == null) {
+			if (other.childCondition != null)
 				return false;
-		} else if (!childRegel.equals(other.childRegel))
+		} else if (!childCondition.equals(other.childCondition))
 			return false;
 		return true;
+	}
+	
+	@Override
+	public String toString() {
+		return "!(" + childCondition + ")";
 	}
 
 }

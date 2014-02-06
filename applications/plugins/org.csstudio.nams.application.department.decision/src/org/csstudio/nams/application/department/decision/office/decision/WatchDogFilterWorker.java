@@ -1,25 +1,21 @@
 package org.csstudio.nams.application.department.decision.office.decision;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.csstudio.nams.common.decision.CasefileId;
 import org.csstudio.nams.common.decision.Document;
-import org.csstudio.nams.common.decision.Outbox;
-import org.csstudio.nams.common.decision.ObservableInbox;
 import org.csstudio.nams.common.decision.Inbox;
 import org.csstudio.nams.common.decision.InboxObserver;
 import org.csstudio.nams.common.decision.MessageCasefile;
-import org.csstudio.nams.common.decision.CasefileId;
+import org.csstudio.nams.common.decision.ObservableInbox;
+import org.csstudio.nams.common.decision.Outbox;
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
 import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.common.material.regelwerk.Filter;
 import org.csstudio.nams.common.material.regelwerk.WatchDogFilter;
-import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 
 public class WatchDogFilterWorker implements FilterWorker {
 
@@ -69,7 +65,7 @@ public class WatchDogFilterWorker implements FilterWorker {
 			MessageCasefile casefile = inbox.takeDocument();
 			
 			// Trifft Regel zu?
-			if (regelwerk.getRegel().pruefeNachricht(casefile.getAlarmMessage())) {
+			if (regelwerk.getCondition().pruefeNachricht(casefile.getAlarmMessage())) {
 				resetTimer();
 			}
 		} 
@@ -82,7 +78,7 @@ public class WatchDogFilterWorker implements FilterWorker {
 	private void resetTimer() {
 		timerTask.cancel();
 		timerTask = createTimerTask();
-		timer.schedule(timerTask, regelwerk.getDelay().getMilliseconds());
+		timer.schedule(timerTask, regelwerk.getTimeout().getMilliseconds());
 	}
 
 	private TimerTask createTimerTask() {
@@ -93,15 +89,11 @@ public class WatchDogFilterWorker implements FilterWorker {
 					sendAlarmMessage();
 					
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
-				} catch (UnknownHostException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
 				}
 			}
 
-			private void sendAlarmMessage() throws UnknownHostException, InterruptedException {
+			private void sendAlarmMessage() throws InterruptedException {
 				Map<MessageKeyEnum, String> map = new HashMap<MessageKeyEnum, String>();
 				Map<String, String> unknownMap = new HashMap<String, String>();
 				
@@ -109,10 +101,9 @@ public class WatchDogFilterWorker implements FilterWorker {
 
 				AlarmMessage alarmMessage = new AlarmMessage(map, unknownMap);
 				MessageCasefile casefile;
-				casefile = new MessageCasefile(CasefileId.createNew(InetAddress.getLocalHost(), new Date()), alarmMessage);
+				casefile = new MessageCasefile(CasefileId.createNew(), alarmMessage);
 				casefile.setHandledWithFilter(regelwerk.getFilterId());
-				casefile.setWeiteresVersandVorgehen(WeiteresVersandVorgehen.VERSENDEN);
-				casefile.pruefungAbgeschlossenDurch(casefile.gibMappenkennung());
+				casefile.pruefungAbgeschlossenDurch(casefile.getCasefileId());
 				outbox.put(casefile);
 			}
 		};

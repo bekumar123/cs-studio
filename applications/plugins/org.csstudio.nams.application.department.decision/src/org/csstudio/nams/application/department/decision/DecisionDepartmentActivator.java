@@ -24,9 +24,7 @@
 
 package org.csstudio.nams.application.department.decision;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Date;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.List;
 
 import org.csstudio.domain.common.statistic.Collector;
@@ -80,6 +78,7 @@ import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleException;
 
 /**
  * <p>
@@ -112,11 +111,11 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 
 	private static final int DEFAULT_THREAD_COUNT = 10;
 
-	class AusgangsKorbBearbeiter extends StepByStepProcessor {
+	class OutboxProcessor extends StepByStepProcessor {
 
 		private final Inbox<MessageCasefile> vorgangskorb;
 
-		public AusgangsKorbBearbeiter(final Inbox<MessageCasefile> vorgangskorb) {
+		public OutboxProcessor(final Inbox<MessageCasefile> vorgangskorb) {
 			this.vorgangskorb = vorgangskorb;
 		}
 
@@ -128,17 +127,13 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 				if (vorgangsmappe.istAbgeschlossenDurchTimeOut()) {
 					DecisionDepartmentActivator.historyService.logTimeOutForTimeBased(vorgangsmappe);
 				}
-				DecisionDepartmentActivator.logger.logDebugMessage(this, "gesamtErgebnis: " + vorgangsmappe.getWeiteresVersandVorgehen());
 
-				if (vorgangsmappe.getWeiteresVersandVorgehen() == WeiteresVersandVorgehen.VERSENDEN) {
-					// Nachricht nicht anreichern. Wird im JMSProducer gemacht
-					// Versenden
-					DecisionDepartmentActivator.logger.logInfoMessage(this, "decission office ordered message to be send: \""
-							+ vorgangsmappe.getAlarmMessage().toString() + "\" [internal process id: "
-							+ vorgangsmappe.gibMappenkennung().toString() + "]");
+				// Nachricht nicht anreichern. Wird im JMSProducer gemacht
+				// Versenden
+				DecisionDepartmentActivator.logger.logInfoMessage(this, "decission office ordered message to be send: \""
+						+ vorgangsmappe.getAlarmMessage().toString() + "\" [internal process id: " + vorgangsmappe.getCasefileId().toString() + "]");
 
-					DecisionDepartmentActivator.this.amsAusgangsProducer.sendeVorgangsmappe(vorgangsmappe);
-				}
+				DecisionDepartmentActivator.this.amsAusgangsProducer.sendeVorgangsmappe(vorgangsmappe);
 
 			} catch (final InterruptedException e) {
 				// wird zum stoppen benötigt. hier muss nichts unternommen
@@ -272,9 +267,26 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 			@OSGiService @Required final HistoryService injectedHistoryService,
 			@OSGiService @Required final ConfigurationServiceFactory injectedConfigurationServiceFactory,
 			@OSGiService @Required final ExecutionService injectedExecutionService) throws Exception {
+
+		
+		// uncaught (runtime) exceptions in threads should lead to decision department shutdown
+		UncaughtExceptionHandler handler = new UncaughtExceptionHandler() {
+			@Override
+			public void uncaughtException(Thread t, Throwable e) {
+				logger.logFatalMessage(this, "Uncaught exception in decision department.");
+				try {
+					getBundleContext().getBundle(0).stop();
+				} catch (BundleException e1) {
+					e1.printStackTrace();
+				} finally {
+					System.exit(1);
+				}
+			}
+		};
+		Thread.setDefaultUncaughtExceptionHandler(handler);
 	
 		// ** Services holen...
-	
+		
 		// Logging Service
 		DecisionDepartmentActivator.logger = injectedLogger;
 	
@@ -362,7 +374,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 		createDecisionOffice();
 
 		// Ausgangskoerbe nebenläufig abfragen
-		this._ausgangskorbBearbeiter = new AusgangsKorbBearbeiter(this.ausgangskorbDesDecisionOfficeUndEingangskorbDesPostOffice);
+		this._ausgangskorbBearbeiter = new OutboxProcessor(this.ausgangskorbDesDecisionOfficeUndEingangskorbDesPostOffice);
 		DecisionDepartmentActivator.executionService.executeAsynchronously(ThreadTypesOfDecisionDepartment.AUSGANGSKORBBEARBEITER,
 				this._ausgangskorbBearbeiter);
 		
@@ -699,10 +711,8 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 								"Decision department recieves a message to handle: " + message.toString());
 						if (message.enthaeltAlarmnachricht()) {
 							try {
-								eingangskorb.put(new MessageCasefile(CasefileId.createNew(InetAddress.getLocalHost(), new Date()),
+								eingangskorb.put(new MessageCasefile(CasefileId.createNew(),
 										message.alsAlarmnachricht()));
-							} catch (final UnknownHostException e) {
-								DecisionDepartmentActivator.logger.logFatalMessage(this, "Host unreachable", e);
 							} catch (final InterruptedException e) {
 								DecisionDepartmentActivator.logger.logInfoMessage(this, "Message processing interrupted", e);
 							} finally {

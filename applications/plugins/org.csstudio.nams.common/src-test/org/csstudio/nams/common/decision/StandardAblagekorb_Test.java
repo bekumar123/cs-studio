@@ -208,14 +208,14 @@ public class StandardAblagekorb_Test
 	}
 
 	@Override
-	protected Box<AblagefaehigesObject> gibNeuesExemplar() {
+	protected Outbox<AblagefaehigesObject> gibNeuesExemplar() {
 		return new DefaultDocumentBox<AblagefaehigesObject>();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	protected boolean pruefeObEnthalten(
-			final Box<AblagefaehigesObject> korb,
+			final Outbox<AblagefaehigesObject> korb,
 			final AblagefaehigesObject element) {
 		return ((DefaultDocumentBox) korb).contains(element);
 	}

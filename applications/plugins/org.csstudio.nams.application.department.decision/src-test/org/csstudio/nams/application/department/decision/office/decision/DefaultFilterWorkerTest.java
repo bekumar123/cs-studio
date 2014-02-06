@@ -2,9 +2,6 @@ package org.csstudio.nams.application.department.decision.office.decision;
 
 import static junit.framework.Assert.*;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Date;
 import java.util.concurrent.Executor;
 
 import org.csstudio.nams.common.decision.CasefileId;
@@ -15,7 +12,6 @@ import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.common.material.FilterId;
 import org.csstudio.nams.common.material.regelwerk.DefaultFilter;
 import org.csstudio.nams.common.material.regelwerk.FilterCondition;
-import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -84,11 +80,11 @@ public class DefaultFilterWorkerTest {
 
 	@SuppressWarnings("deprecation")
 	@Test(timeout=1000)
-	public void testHandleNachricht() throws UnknownHostException, InterruptedException {
+	public void testHandleNachricht() throws InterruptedException {
 		DefaultFilterWorker sachbearbeiter = erzeugeSachbearbeiter();
 		sachbearbeiter.startWorking();
 		
-		MessageCasefile vorgangsmappe = new MessageCasefile(CasefileId.createNew(InetAddress.getLocalHost(), new Date()), new AlarmMessage("XXX"));
+		MessageCasefile vorgangsmappe = new MessageCasefile(CasefileId.createNew(), new AlarmMessage("XXX"));
 		
 		regel.setResult(false);
 		
@@ -96,7 +92,7 @@ public class DefaultFilterWorkerTest {
 
 		assertEquals(0, ausgangskorb.documentCount());
 		
-		vorgangsmappe = new MessageCasefile(CasefileId.createNew(InetAddress.getLocalHost(), new Date()), new AlarmMessage("XXX"));
+		vorgangsmappe = new MessageCasefile(CasefileId.createNew(), new AlarmMessage("XXX"));
 		
 		regel.setResult(true);
 		
@@ -104,7 +100,6 @@ public class DefaultFilterWorkerTest {
 		MessageCasefile aeltesterEingang = ausgangskorb.takeDocument();
 		
 		assertFalse(vorgangsmappe.equals(aeltesterEingang));
-		assertEquals(WeiteresVersandVorgehen.VERSENDEN, aeltesterEingang.getWeiteresVersandVorgehen());
 		assertEquals(regelwerksKennung, aeltesterEingang.getHandledByFilterId());
 		assertTrue(aeltesterEingang.istAbgeschlossen());
 		assertFalse(aeltesterEingang.istAbgeschlossenDurchTimeOut());

@@ -48,11 +48,6 @@ public enum WeiteresVersandVorgehen {
 	VERSENDEN,
 
 	/**
-	 * Gibt an, dass die Alarmnacht NICHT gesendet werden soll.
-	 */
-	NICHT_VERSENDEN,
-
-	/**
 	 * Gibt an, dass die Alarmnacht noch NICHT geprüft wurde.
 	 */
 	NOCH_NICHT_GEPRUEFT;

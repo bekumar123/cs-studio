@@ -1,11 +1,9 @@
 package org.csstudio.nams.application.department.decision.office.decision;
 
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 import junit.framework.Assert;
@@ -25,7 +23,6 @@ import org.csstudio.nams.common.material.regelwerk.Filter;
 import org.csstudio.nams.common.material.regelwerk.FilterCondition;
 import org.csstudio.nams.common.material.regelwerk.TimebasedFilter;
 import org.csstudio.nams.common.material.regelwerk.TimebasedFilter.TimeoutType;
-import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 import org.csstudio.nams.service.logging.declaration.LoggerMock;
 import org.junit.Test;
 
@@ -126,7 +123,7 @@ public class DecisionDepartmentTest extends TestCase {
 				.gibAlarmVorgangAusgangskorb();
 
 		final CasefileId vorgangsmappenkennung = CasefileId
-				.createNew(InetAddress.getLocalHost(), new Date());
+				.createNew();
 		final AlarmMessage alarmNachricht = new AlarmMessage(
 				"test nachricht");
 		final MessageCasefile vorgangsmappe = new MessageCasefile(
@@ -137,7 +134,6 @@ public class DecisionDepartmentTest extends TestCase {
 				.takeDocument();
 
 		Assert.assertEquals(alarmNachricht, aelteste.getAlarmMessage());
-		Assert.assertTrue(aelteste.getWeiteresVersandVorgehen() == WeiteresVersandVorgehen.VERSENDEN);
 		Assert.assertTrue(aelteste.getHandledByFilterId() == regelwerk.getFilterId());
 
 		Assert.assertEquals(alarmVorgangAusgangskorb.documentCount(), 0);
@@ -181,7 +177,7 @@ public class DecisionDepartmentTest extends TestCase {
 
 		// Un-Passende 1
 		CasefileId vorgangsmappenkennung = CasefileId
-				.createNew(InetAddress.getLocalHost(), new Date());
+				.createNew();
 		AlarmMessage alarmNachricht = new AlarmMessage("XXO");
 		MessageCasefile vorgangsmappe = new MessageCasefile(
 				vorgangsmappenkennung, alarmNachricht);
@@ -189,7 +185,7 @@ public class DecisionDepartmentTest extends TestCase {
 
 		// Passende 1
 		CasefileId vorgangsmappenkennung2 = CasefileId
-				.createNew(InetAddress.getLocalHost(), new Date());
+				.createNew();
 		AlarmMessage alarmNachricht2 = new AlarmMessage("START");
 		MessageCasefile vorgangsmappe2 = new MessageCasefile(
 				vorgangsmappenkennung2, alarmNachricht2);
@@ -197,7 +193,7 @@ public class DecisionDepartmentTest extends TestCase {
 
 		// Un-Passende 1
 		CasefileId vorgangsmappenkennung3 = CasefileId
-				.createNew(InetAddress.getLocalHost(), new Date());
+				.createNew();
 		AlarmMessage alarmNachricht3 = new AlarmMessage("Baeh!");
 		MessageCasefile vorgangsmappe3 = new MessageCasefile(
 				vorgangsmappenkennung3, alarmNachricht3);
@@ -205,7 +201,7 @@ public class DecisionDepartmentTest extends TestCase {
 
 		// Passende Bestaetigung1
 		CasefileId vorgangsmappenkennung4 = CasefileId
-				.createNew(InetAddress.getLocalHost(), new Date());
+				.createNew();
 		AlarmMessage alarmNachricht4 = new AlarmMessage("STOP");
 		MessageCasefile vorgangsmappe4 = new MessageCasefile(
 				vorgangsmappenkennung4, alarmNachricht4);
@@ -219,13 +215,12 @@ public class DecisionDepartmentTest extends TestCase {
 		Assert.assertEquals("START", aelteste
 				.getAlarmMessage()
 				.gibNachrichtenText());
-		Assert.assertEquals(WeiteresVersandVorgehen.VERSENDEN, aelteste.getWeiteresVersandVorgehen());
 
 		Assert.assertEquals(0, alarmVorgangAusgangskorb.documentCount());
 
 		// Un-Passende 1
 		vorgangsmappenkennung = CasefileId
-				.createNew(InetAddress.getLocalHost(), new Date());
+				.createNew();
 		alarmNachricht = new AlarmMessage("XXO");
 		vorgangsmappe = new MessageCasefile(
 				vorgangsmappenkennung, alarmNachricht);
@@ -233,7 +228,7 @@ public class DecisionDepartmentTest extends TestCase {
 
 		// Passende 1
 		vorgangsmappenkennung2 = CasefileId
-				.createNew(InetAddress.getLocalHost(), new Date());
+				.createNew();
 		alarmNachricht2 = new AlarmMessage("START");
 		vorgangsmappe2 = new MessageCasefile(
 				vorgangsmappenkennung2, alarmNachricht2);
@@ -241,7 +236,7 @@ public class DecisionDepartmentTest extends TestCase {
 
 		// Un-Passende 1
 		vorgangsmappenkennung3 = CasefileId
-				.createNew(InetAddress.getLocalHost(), new Date());
+				.createNew();
 		alarmNachricht3 = new AlarmMessage("Baeh!");
 		vorgangsmappe3 = new MessageCasefile(
 				vorgangsmappenkennung3, alarmNachricht3);
@@ -250,7 +245,7 @@ public class DecisionDepartmentTest extends TestCase {
 		// Passende Bestaetigung1
 		Thread.sleep(150);
 		vorgangsmappenkennung4 = CasefileId
-				.createNew(InetAddress.getLocalHost(), new Date());
+				.createNew();
 		alarmNachricht4 = new AlarmMessage("STOP");
 		vorgangsmappe4 = new MessageCasefile(
 				vorgangsmappenkennung4, alarmNachricht4);
@@ -297,7 +292,7 @@ public class DecisionDepartmentTest extends TestCase {
 
 		// Un-Passende 1
 		CasefileId vorgangsmappenkennung = CasefileId
-				.createNew(InetAddress.getLocalHost(), new Date());
+				.createNew();
 		AlarmMessage alarmNachricht = new AlarmMessage("XXO");
 		MessageCasefile vorgangsmappe = new MessageCasefile(
 				vorgangsmappenkennung, alarmNachricht);
@@ -305,7 +300,7 @@ public class DecisionDepartmentTest extends TestCase {
 
 		// Passende 1
 		CasefileId vorgangsmappenkennung2 = CasefileId
-				.createNew(InetAddress.getLocalHost(), new Date());
+				.createNew();
 		AlarmMessage alarmNachricht2 = new AlarmMessage("START");
 		MessageCasefile vorgangsmappe2 = new MessageCasefile(
 				vorgangsmappenkennung2, alarmNachricht2);
@@ -313,7 +308,7 @@ public class DecisionDepartmentTest extends TestCase {
 
 		// Un-Passende 1
 		CasefileId vorgangsmappenkennung3 = CasefileId
-				.createNew(InetAddress.getLocalHost(), new Date());
+				.createNew();
 		AlarmMessage alarmNachricht3 = new AlarmMessage("Baeh!");
 		MessageCasefile vorgangsmappe3 = new MessageCasefile(
 				vorgangsmappenkennung3, alarmNachricht3);
@@ -321,7 +316,7 @@ public class DecisionDepartmentTest extends TestCase {
 
 		// Passende Bestaetigung1
 		CasefileId vorgangsmappenkennung4 = CasefileId
-				.createNew(InetAddress.getLocalHost(), new Date());
+				.createNew();
 		AlarmMessage alarmNachricht4 = new AlarmMessage("STOP");
 		MessageCasefile vorgangsmappe4 = new MessageCasefile(
 				vorgangsmappenkennung4, alarmNachricht4);
@@ -331,7 +326,7 @@ public class DecisionDepartmentTest extends TestCase {
 
 		// Un-Passende 1
 		vorgangsmappenkennung = CasefileId
-				.createNew(InetAddress.getLocalHost(), new Date());
+				.createNew();
 		alarmNachricht = new AlarmMessage("XXO");
 		vorgangsmappe = new MessageCasefile(
 				vorgangsmappenkennung, alarmNachricht);
@@ -339,7 +334,7 @@ public class DecisionDepartmentTest extends TestCase {
 
 		// Passende 1
 		vorgangsmappenkennung2 = CasefileId
-				.createNew(InetAddress.getLocalHost(), new Date());
+				.createNew();
 		alarmNachricht2 = new AlarmMessage("START");
 		vorgangsmappe2 = new MessageCasefile(
 				vorgangsmappenkennung2, alarmNachricht2);
@@ -347,7 +342,7 @@ public class DecisionDepartmentTest extends TestCase {
 
 		// Un-Passende 1
 		vorgangsmappenkennung3 = CasefileId
-				.createNew(InetAddress.getLocalHost(), new Date());
+				.createNew();
 		alarmNachricht3 = new AlarmMessage("Baeh!");
 		vorgangsmappe3 = new MessageCasefile(
 				vorgangsmappenkennung3, alarmNachricht3);
@@ -356,7 +351,7 @@ public class DecisionDepartmentTest extends TestCase {
 		// Passende Bestaetigung1
 		Thread.sleep(150);
 		vorgangsmappenkennung4 = CasefileId
-				.createNew(InetAddress.getLocalHost(), new Date());
+				.createNew();
 		alarmNachricht4 = new AlarmMessage("STOP");
 		vorgangsmappe4 = new MessageCasefile(
 				vorgangsmappenkennung4, alarmNachricht4);
@@ -370,7 +365,6 @@ public class DecisionDepartmentTest extends TestCase {
 		Assert.assertEquals("START", aelteste
 				.getAlarmMessage()
 				.gibNachrichtenText());
-		Assert.assertEquals(WeiteresVersandVorgehen.VERSENDEN, aelteste.getWeiteresVersandVorgehen());
 
 		Assert.assertEquals(0, alarmVorgangAusgangskorb.documentCount());
 	}

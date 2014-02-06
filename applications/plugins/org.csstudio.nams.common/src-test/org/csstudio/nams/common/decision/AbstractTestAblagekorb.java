@@ -9,7 +9,7 @@ abstract public class AbstractTestAblagekorb<T extends Document, KT>
 		extends AbstractTestObject<KT> {
 	@Test(timeout = 2000)
 	public void testAblegen() throws InterruptedException {
-		final Box<T> eingangskorb = this.gibNeuesExemplar();
+		final Outbox<T> eingangskorb = this.gibNeuesExemplar();
 
 		final T object1 = this.gibNeuesAblagefaehigesExemplar();
 		final T object2 = this.gibNeuesAblagefaehigesExemplar();
@@ -27,7 +27,7 @@ abstract public class AbstractTestAblagekorb<T extends Document, KT>
 
 	protected abstract T gibNeuesAblagefaehigesExemplar();
 
-	protected abstract Box<T> gibNeuesExemplar();
+	protected abstract Outbox<T> gibNeuesExemplar();
 
-	protected abstract boolean pruefeObEnthalten(Box<T> korb, T element);
+	protected abstract boolean pruefeObEnthalten(Outbox<T> korb, T element);
 }

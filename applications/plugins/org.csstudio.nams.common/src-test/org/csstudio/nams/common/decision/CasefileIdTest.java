@@ -1,32 +1,26 @@
 package org.csstudio.nams.common.decision;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Date;
-
 import junit.framework.Assert;
 
 import org.csstudio.nams.common.testutils.AbstractTestValue;
 import org.junit.Test;
 
-public class Vorgangsmappenkennung_Test extends
+public class CasefileIdTest extends
 		AbstractTestValue<CasefileId> {
 
 	@Test
 	public void testContractValueOf() throws Throwable {
-		final InetAddress hostAdress = InetAddress.getByAddress(new byte[] {
-				127, 0, 0, 1 });
-		final Date time1 = new Date(123456);
-
 		try {
-			CasefileId.valueOf(null, time1);
-			Assert.fail();
+			CasefileId.valueOf(null, "hallo");
+			
 		} catch (final AssertionError ae) {
 			// Ok!
 		}
 
 		try {
-			CasefileId.valueOf(hostAdress, null);
+			CasefileId casefileId = CasefileId.createNew();
+			CasefileId extendedId = CasefileId.valueOf(casefileId, "extended");
+			CasefileId.valueOf(extendedId, "valueof von extended nicht erlaubt");
 			Assert.fail();
 		} catch (final AssertionError ae) {
 			// Ok!
@@ -34,49 +28,33 @@ public class Vorgangsmappenkennung_Test extends
 	}
 
 	@Test
-	public void testEquals() throws UnknownHostException {
-		final InetAddress hostAdress = InetAddress.getByAddress(new byte[] {
-				127, 0, 0, 1 });
-		final InetAddress hostAdress2 = InetAddress.getByAddress(new byte[] {
-				127, 0, 0, 2 });
-		final Date time1 = new Date(123456);
-		final Date time2 = new Date(8975);
-		Assert.assertNotNull(hostAdress);
-		Assert.assertNotNull(hostAdress2);
+	public void testEquals() {
 
-		final CasefileId kennung1 = CasefileId.valueOf(
-				hostAdress, time1);
-		final CasefileId kennung2 = CasefileId.valueOf(
-				hostAdress, time1);
+		final CasefileId kennung1 = CasefileId.createNew();
+		final CasefileId kennung2 = CasefileId.valueOf(kennung1, null);
+		Assert.assertNotNull(kennung1);
+		Assert.assertNotNull(kennung2);
 		Assert.assertEquals(kennung1, kennung2);
 
-		final CasefileId kennung3 = CasefileId.valueOf(
-				hostAdress, time2);
-
-		Assert.assertNotNull(kennung1);
+		final CasefileId kennung3 = CasefileId.createNew();
 		Assert.assertNotNull(kennung3);
-		Assert.assertFalse("kennung1.equals(kennung3)", kennung1
-				.equals(kennung3));
+		Assert.assertFalse(kennung1.equals(kennung3));
+		Assert.assertFalse(kennung2.equals(kennung3));
 
-		final CasefileId kennung4 = CasefileId.valueOf(
-				hostAdress2, time1);
-
-		Assert.assertFalse(kennung1.equals(kennung4));
-
-		final CasefileId kennung5 = CasefileId.valueOf(
+		final CasefileId kennungExtended1 = CasefileId.valueOf(
 				kennung1, "Horst Seidel");
 		Assert.assertFalse("kennung1.equals(kennung5)", kennung1
-				.equals(kennung5));
-		final CasefileId kennung6 = CasefileId.valueOf(
+				.equals(kennungExtended1));
+		final CasefileId kennungExtended2 = CasefileId.valueOf(
 				kennung1, "Harry Hirsch");
 		Assert.assertFalse("kennung1.equals(kennung6)", kennung1
-				.equals(kennung6));
-		Assert.assertFalse("kennung5.equals(kennung6)", kennung5
-				.equals(kennung6));
-		final CasefileId kennung7 = CasefileId.valueOf(
+				.equals(kennungExtended2));
+		Assert.assertFalse("kennung5.equals(kennung6)", kennungExtended1
+				.equals(kennungExtended2));
+		final CasefileId kennungExtended3 = CasefileId.valueOf(
 				kennung2, "Horst Seidel");
-		Assert.assertTrue("kennung5.equals(kennung7)", kennung5
-				.equals(kennung7));
+		Assert.assertTrue("kennung5.equals(kennung7)", kennungExtended1
+				.equals(kennungExtended3));
 	}
 
 	@Test
@@ -128,40 +106,14 @@ public class Vorgangsmappenkennung_Test extends
 	}
 
 	@Test
-	public final void testToStringLocal() throws Throwable {
-		final InetAddress hostAdress = InetAddress.getByAddress(new byte[] {
-				127, 0, 0, 1 });
-		final Date time1 = new Date(123456);
-		final CasefileId ohneErgaenzung = CasefileId
-				.valueOf(hostAdress, time1);
-		final CasefileId mitErgaenzung = CasefileId
-				.valueOf(ohneErgaenzung, "Horst Seidel");
-
-		Assert.assertNotNull(ohneErgaenzung);
-		Assert.assertEquals("123456,0@127.0.0.1", ohneErgaenzung.toString());
-
-		Assert.assertNotNull(mitErgaenzung);
-		Assert.assertEquals("123456,0@127.0.0.1/Horst Seidel", mitErgaenzung
-				.toString());
-	}
-
-	@Test
-	public void testValueOf() throws UnknownHostException {
-		final InetAddress hostAdress = InetAddress.getByAddress(new byte[] {
-				127, 0, 0, 1 });
-		final Date time = new Date(123456);
-		Assert.assertNotNull(hostAdress);
-
-		final CasefileId kennung = CasefileId.valueOf(
-				hostAdress, time);
-		Assert.assertNotNull(kennung);
-		Assert.assertFalse(kennung.hatErgaenzung());
+	public void testValueOf() {
+		final CasefileId kennung = CasefileId.createNew();
 
 		final CasefileId neueKennungBasierendAufAlter = CasefileId
 				.valueOf(kennung, "Horst Senkel"); // "12345@127.0.0.1 / Horst
 		// Senkel"
 		Assert.assertNotNull(neueKennungBasierendAufAlter);
-		Assert.assertTrue(neueKennungBasierendAufAlter.hatErgaenzung());
+		Assert.assertTrue(neueKennungBasierendAufAlter.hasExtension());
 
 		try {
 			CasefileId.valueOf(neueKennungBasierendAufAlter,
@@ -174,36 +126,14 @@ public class Vorgangsmappenkennung_Test extends
 
 	@Override
 	protected CasefileId doGetAValueOfTypeUnderTest() {
-
-		InetAddress hostAdress = null;
-		try {
-			hostAdress = InetAddress.getByAddress(new byte[] { 127, 0, 0, 1 });
-		} catch (final UnknownHostException e) {
-			Assert.fail(e.getMessage());
-		}
-		Assert.assertNotNull(hostAdress);
-
-		final Date time = new Date(123456);
-		return CasefileId.valueOf(hostAdress, time);
+		return CasefileId.createNew();
 	}
 
 	@Override
 	protected CasefileId[] doGetDifferentInstancesOfTypeUnderTest() {
-		InetAddress hostAdress = null;
-		try {
-			hostAdress = InetAddress.getByAddress(new byte[] { 127, 0, 0, 1 });
-		} catch (final UnknownHostException e) {
-			Assert.fail(e.getMessage());
-		}
-		Assert.assertNotNull(hostAdress);
-
-		final Date time1 = new Date(123456);
-		final Date time2 = new Date(123457);
-		final Date time3 = new Date(123458);
-
 		return new CasefileId[] {
-				CasefileId.valueOf(hostAdress, time1),
-				CasefileId.valueOf(hostAdress, time2),
-				CasefileId.valueOf(hostAdress, time3) };
+				CasefileId.createNew(),
+				CasefileId.createNew(),
+				CasefileId.createNew() };
 	}
 }

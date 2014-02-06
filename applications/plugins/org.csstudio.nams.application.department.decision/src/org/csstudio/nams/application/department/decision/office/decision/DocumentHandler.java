@@ -27,7 +27,6 @@
 package org.csstudio.nams.application.department.decision.office.decision;
 
 import org.csstudio.nams.common.decision.Document;
-import org.csstudio.nams.common.decision.Box;
 
 /**
  * Ein Dokumentenbearbeiter bearbeitet Dokumente die in der Regel zuvor in einem

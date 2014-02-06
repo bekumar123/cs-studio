@@ -5,26 +5,26 @@ import org.csstudio.nams.common.material.FilterId;
 
 public class TimebasedFilter implements Filter {
 
-	private final FilterCondition startRegel;
-	private final FilterCondition stopRegel;
+	private final FilterCondition startCondition;
+	private final FilterCondition stopCondition;
 	private final Milliseconds timeout;
 	private final TimeoutType timeoutType;
-	private final FilterId regelwerkskennung;
+	private final FilterId filterId;
 
 	public TimebasedFilter(FilterId regelwerkskennung, FilterCondition startRegel, FilterCondition stopRegel, Milliseconds timeout, TimeoutType timeoutType) {
-		this.regelwerkskennung = regelwerkskennung;
-		this.startRegel = startRegel;
-		this.stopRegel = stopRegel;
+		this.filterId = regelwerkskennung;
+		this.startCondition = startRegel;
+		this.stopCondition = stopRegel;
 		this.timeout = timeout;
 		this.timeoutType = timeoutType;
 	}
 	
 	public FilterCondition getStartRegel() {
-		return startRegel;
+		return startCondition;
 	}
 	
 	public FilterCondition getStopRegel() {
-		return stopRegel;
+		return stopCondition;
 	}
 
 	public Milliseconds getTimeOut() {
@@ -37,12 +37,13 @@ public class TimebasedFilter implements Filter {
 	
 	@Override
 	public FilterId getFilterId() {
-		return regelwerkskennung;
+		return filterId;
 	}
 	
 	@Override
 	public String toString() {
-		return "Regelwerk " + regelwerkskennung + ", Startregel: " + startRegel + ", Stopregel: " + stopRegel;
+		return "Timebased Filter " + filterId + ", start condition: " + 
+	startCondition + ", stop condition: " + stopCondition;
 	}
 	
 	public static enum TimeoutType {
@@ -53,9 +54,9 @@ public class TimebasedFilter implements Filter {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((regelwerkskennung == null) ? 0 : regelwerkskennung.hashCode());
-		result = prime * result + ((startRegel == null) ? 0 : startRegel.hashCode());
-		result = prime * result + ((stopRegel == null) ? 0 : stopRegel.hashCode());
+		result = prime * result + ((filterId == null) ? 0 : filterId.hashCode());
+		result = prime * result + ((startCondition == null) ? 0 : startCondition.hashCode());
+		result = prime * result + ((stopCondition == null) ? 0 : stopCondition.hashCode());
 		result = prime * result + ((timeout == null) ? 0 : timeout.hashCode());
 		result = prime * result + ((timeoutType == null) ? 0 : timeoutType.hashCode());
 		return result;
@@ -70,20 +71,20 @@ public class TimebasedFilter implements Filter {
 		if (getClass() != obj.getClass())
 			return false;
 		TimebasedFilter other = (TimebasedFilter) obj;
-		if (regelwerkskennung == null) {
-			if (other.regelwerkskennung != null)
+		if (filterId == null) {
+			if (other.filterId != null)
 				return false;
-		} else if (!regelwerkskennung.equals(other.regelwerkskennung))
+		} else if (!filterId.equals(other.filterId))
 			return false;
-		if (startRegel == null) {
-			if (other.startRegel != null)
+		if (startCondition == null) {
+			if (other.startCondition != null)
 				return false;
-		} else if (!startRegel.equals(other.startRegel))
+		} else if (!startCondition.equals(other.startCondition))
 			return false;
-		if (stopRegel == null) {
-			if (other.stopRegel != null)
+		if (stopCondition == null) {
+			if (other.stopCondition != null)
 				return false;
-		} else if (!stopRegel.equals(other.stopRegel))
+		} else if (!stopCondition.equals(other.stopCondition))
 			return false;
 		if (timeout == null) {
 			if (other.timeout != null)

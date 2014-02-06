@@ -217,4 +217,9 @@ import java.util.regex.Pattern;
 
 			return dateValue.compareTo(dateCompValue);
 		}
+		
+		@Override
+		public String toString() {
+			return stringRegelOperator + (useWildcards ? "* (" : " (") + comparedString + ")";
+		}
 	}

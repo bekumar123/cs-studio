@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.csstudio.nams.application.department.decision.ThreadTypesOfDecisionDepartment;
+import org.csstudio.nams.common.decision.Outbox;
 import org.csstudio.nams.common.decision.Worker;
 import org.csstudio.nams.common.decision.Document;
 import org.csstudio.nams.common.decision.Inbox;
@@ -39,12 +40,11 @@ import org.csstudio.nams.common.service.ExecutionService;
 import org.csstudio.nams.common.wam.Automat;
 
 /**
- * Der Abteilungsleiter ist verantwortlich für die Bearbeitung von Nachrichten.
+ * Der Dispatcher ist verantwortlich für die Verteilung der Nachrichten.
  */
 @Automat
-class ThreadedMessageDispatcher implements DocumentHandler<MessageCasefile>,
-		Worker {
-	private final InboxReader<MessageCasefile> inboxListener;
+class ThreadedMessageDispatcher implements DocumentHandler<MessageCasefile>, Worker {
+	protected InboxReader<MessageCasefile> inboxListener;
 	private final ExecutionService executionService;
 	private List<MessageDispatcher> messageDispatchers;
 	private List<Inbox<MessageCasefile>> dispatcherInboxes;
@@ -74,22 +74,22 @@ class ThreadedMessageDispatcher implements DocumentHandler<MessageCasefile>,
 		this.inboxListener = new InboxReader<MessageCasefile>(this, inbox);
 	}
 	
-	public void addWorkerInbox(Inbox<Document> workerInbox) {
-		assert !containsWorkerInbox(workerInbox) : "!containsWorkerInbox(workerInbox)";
+	public void addOutbox(Outbox<Document> outbox) {
+		assert !containsOutbox(outbox) : "!containsOutbox(outbox)";
 		
 		MessageDispatcher dispatcher = getEmptiestDispatcher();
-		dispatcher.addOutbox(workerInbox);
+		dispatcher.addOutbox(outbox);
 	}
 	
-	public void removeWorkerInbox(Inbox<Document> workerInbox) {
+	public void removeOutbox(Inbox<Document> outbox) {
 		for (MessageDispatcher dispatcher : messageDispatchers) {
-			dispatcher.removeOutbox(workerInbox);
+			dispatcher.removeOutbox(outbox);
 		}
 	}
 	
-	public boolean containsWorkerInbox(Inbox<Document> workerInbox) {
+	public boolean containsOutbox(Outbox<Document> outbox) {
 		for (MessageDispatcher dispatcher : messageDispatchers) {
-			if(dispatcher.containsOutbox(workerInbox)) {
+			if(dispatcher.containsOutbox(outbox)) {
 				return true;
 			}
 		}
@@ -97,21 +97,8 @@ class ThreadedMessageDispatcher implements DocumentHandler<MessageCasefile>,
 		return false;
 	}
 	
-	private MessageDispatcher getEmptiestDispatcher() {
-		MessageDispatcher result = null;
-		for (MessageDispatcher dispatcher : messageDispatchers) {
-			if(result == null) {
-				result = dispatcher;
-			} else if (dispatcher.getOutboxCount() < result.getOutboxCount()) {
-				result = dispatcher;
-			}
-		}
-		
-		return result;
-	}
-
 	/**
-	 * Delegiert Vorgaende an die {@link FilterWorker}.
+	 * Delegiert Vorgaenge an die {@link FilterWorker}.
 	 */
 	public void handleDocument(final MessageCasefile casefile) {
 		
@@ -149,7 +136,7 @@ class ThreadedMessageDispatcher implements DocumentHandler<MessageCasefile>,
 		for (InboxReader<MessageCasefile> inboxListener : inboxListeners) {
 			executionService.executeAsynchronously(ThreadTypesOfDecisionDepartment.FILTER_WORKER, inboxListener);
 		}
-		this.executionService.executeAsynchronously(ThreadTypesOfDecisionDepartment.THREADED_MESSAGE_DISPATCHER, this.inboxListener);
+		this.executionService.executeAsynchronously(ThreadTypesOfDecisionDepartment.THREADED_MESSAGE_DISPATCHER, inboxListener);
 
 		while (!this.inboxListener.isCurrentlyRunning()) {
 			Thread.yield();
@@ -160,23 +147,36 @@ class ThreadedMessageDispatcher implements DocumentHandler<MessageCasefile>,
 		return this.inboxListener.isCurrentlyRunning();
 	}
 	
-	private class MessageDispatcher implements DocumentHandler<MessageCasefile> {
-
-		private List<Inbox<Document>> outboxes;
-		
-		public MessageDispatcher() {
-			this.outboxes = new ArrayList<Inbox<Document>>();
+	protected MessageDispatcher getEmptiestDispatcher() {
+		MessageDispatcher result = null;
+		for (MessageDispatcher dispatcher : messageDispatchers) {
+			if(result == null) {
+				result = dispatcher;
+			} else if (dispatcher.getOutboxCount() < result.getOutboxCount()) {
+				result = dispatcher;
+			}
 		}
 		
-		public boolean containsOutbox(Inbox<Document> outbox) {
+		return result;
+	}
+
+	protected class MessageDispatcher implements DocumentHandler<MessageCasefile> {
+
+		private List<Outbox<Document>> outboxes;
+		
+		public MessageDispatcher() {
+			this.outboxes = new ArrayList<Outbox<Document>>();
+		}
+		
+		public boolean containsOutbox(Outbox<Document> outbox) {
 			return outboxes.contains(outbox);
 		}
 		
-		public void addOutbox(Inbox<Document> outbox) {
+		public void addOutbox(Outbox<Document> outbox) {
 			outboxes.add(outbox);
 		}
 		
-		public void removeOutbox(Inbox<Document> outbox) {
+		public void removeOutbox(Outbox<Document> outbox) {
 			outboxes.remove(outbox);
 		}
 		
@@ -186,7 +186,7 @@ class ThreadedMessageDispatcher implements DocumentHandler<MessageCasefile>,
 		
 		@Override
 		public void handleDocument(MessageCasefile message) throws InterruptedException {
-			for (Inbox<Document> outbox : outboxes) {
+			for (Outbox<Document> outbox : outboxes) {
 				try {
 					outbox.put(message);
 				} catch (InterruptedException e) {

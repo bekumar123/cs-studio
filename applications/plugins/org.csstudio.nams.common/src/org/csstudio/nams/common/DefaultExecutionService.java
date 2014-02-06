@@ -1,5 +1,6 @@
-
 package org.csstudio.nams.common;
+
+import java.lang.Thread.UncaughtExceptionHandler;
 
 import org.csstudio.nams.common.service.ExecutionService;
 import org.csstudio.nams.common.service.StepByStepProcessor;
@@ -17,40 +18,18 @@ public class DefaultExecutionService implements ExecutionService {
 	@Override
     public <GT extends Enum<?> & ThreadType> void executeAsynchronously(
 			final GT groupId, final StepByStepProcessor runnable) {
-		// TODO ThreadGroup anlegen!
-		new Thread(runnable, groupId.name()).start();
+		executeAsynchronously(groupId, runnable, null);
 	}
-
+	
 	@Override
-    public <GT extends Enum<?> & ThreadType> Iterable<GT> getCurrentlyUsedGroupIds() {
-		// TODO registrierte ThreadGroup liefern!
-		return null;
-	}
+    public <GT extends Enum<?> & ThreadType> void executeAsynchronously(final GT groupId, StepByStepProcessor runnable, UncaughtExceptionHandler uncaughtExceptionHandler) {
+		Thread thread = new Thread(runnable, groupId.name());
+		
+		if(uncaughtExceptionHandler != null) {
+			thread.setUncaughtExceptionHandler(uncaughtExceptionHandler);
+		}
+		
+		thread.start();
+	};
 
-	@Override
-    public <GT extends Enum<?> & ThreadType> ThreadGroup getRegisteredGroup(
-			final GT groupId) {
-		// TODO registrierte ThreadGroup liefern!
-		return null;
-	}
-
-	@Override
-    public <GT extends Enum<?> & ThreadType> Iterable<StepByStepProcessor> getRunnablesOfGroupId(
-			final GT groupId) {
-		// TODO runnables of ThreadGroups liefern!
-		return null;
-	}
-
-	@Override
-    public <GT extends Enum<?> & ThreadType> boolean hasGroupRegistered(
-			final GT groupId) {
-		// TODO Check for registred group
-		return false;
-	}
-
-	@Override
-    public <GT extends Enum<?> & ThreadType> void registerGroup(
-			final GT groupId, final ThreadGroup group) {
-		// TODO register group
-	}
 }

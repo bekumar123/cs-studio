@@ -1,14 +1,13 @@
 package org.csstudio.nams.application.department.decision.office.decision;
 
 import org.csstudio.nams.common.decision.Document;
-import org.csstudio.nams.common.decision.Outbox;
-import org.csstudio.nams.common.decision.ObservableInbox;
 import org.csstudio.nams.common.decision.Inbox;
 import org.csstudio.nams.common.decision.InboxObserver;
 import org.csstudio.nams.common.decision.MessageCasefile;
+import org.csstudio.nams.common.decision.ObservableInbox;
+import org.csstudio.nams.common.decision.Outbox;
 import org.csstudio.nams.common.material.regelwerk.DefaultFilter;
 import org.csstudio.nams.common.material.regelwerk.Filter;
-import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 
 public class DefaultFilterWorker implements FilterWorker {
 
@@ -61,8 +60,7 @@ public class DefaultFilterWorker implements FilterWorker {
 			if(trifftRegelZu) {
 				MessageCasefile erstelleKopieFuer = vorgangsMappe.erstelleKopieFuer(this.toString());
 				erstelleKopieFuer.setHandledWithFilter(regelwerk.getFilterId());
-				erstelleKopieFuer.setWeiteresVersandVorgehen(WeiteresVersandVorgehen.VERSENDEN);
-				erstelleKopieFuer.pruefungAbgeschlossenDurch(vorgangsMappe.gibMappenkennung());
+				erstelleKopieFuer.pruefungAbgeschlossenDurch(vorgangsMappe.getCasefileId());
 				ausgangskorb.put(erstelleKopieFuer);
 			}
 		} 

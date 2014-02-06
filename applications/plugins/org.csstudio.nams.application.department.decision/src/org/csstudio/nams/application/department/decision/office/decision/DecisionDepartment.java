@@ -61,8 +61,8 @@ public class DecisionDepartment {
 	private final Inbox<MessageCasefile> alarmVorgangEingangskorb;
 	private final Outbox<MessageCasefile> ausgangskorb;
 
-	private final TimeoutFilterNotifier _assistenz;
-	private final ThreadedMessageDispatcher _abteilungsleiter;
+	private final TimeoutFilterNotifier timeoutFilterNotifier;
+	private final ThreadedMessageDispatcher messageDispatcher;
 	private Map<FilterId, FilterWorker> _regelwerkKennungenZuSachbearbeitern;
 	
 	private Timer watchDogTimer;
@@ -94,14 +94,14 @@ public class DecisionDepartment {
 
 		this._regelwerkKennungenZuSachbearbeitern = new HashMap<FilterId, FilterWorker>();
 
-		this._assistenz = new TimeoutFilterNotifier(executionService, terminAssistenzAblagekorb, new Timer());
-		this._abteilungsleiter = new ThreadedMessageDispatcher(filterThreadCount, executionService, this.gibAlarmVorgangEingangskorb());
+		this.timeoutFilterNotifier = new TimeoutFilterNotifier(executionService, terminAssistenzAblagekorb, new Timer(), logger);
+		this.messageDispatcher = new ThreadedMessageDispatcher(filterThreadCount, executionService, this.gibAlarmVorgangEingangskorb());
 		
 		this.updateRegelwerke(regelwerke);
 		
 		// Starten...
-		this._assistenz.startWorking();
-		this._abteilungsleiter.startWorking();
+		this.timeoutFilterNotifier.startWorking();
+		this.messageDispatcher.startWorking();
 	}
 
 	public void updateRegelwerke(List<Filter> regelwerke) {
@@ -135,7 +135,7 @@ public class DecisionDepartment {
 					ObservableInbox<Document> spezifischerEingangskorb = new BeobachtbarerEingangskorbImpl<Document>();
 					sachbearbeiter = new TimebasedFilterWorker(spezifischerEingangskorb, new DefaultDocumentBox<MessageCasefile>(),
 							terminAssistenzAblagekorb, this.ausgangskorb, (TimebasedFilter) regelwerk);
-					_assistenz.addFilterWorkerInbox(sachbearbeiter.getFilter().getFilterId(), sachbearbeiter.getInbox());
+					timeoutFilterNotifier.addFilterWorkerInbox(sachbearbeiter.getFilter().getFilterId(), sachbearbeiter.getInbox());
 				} else if (regelwerk instanceof WatchDogFilter) {
 					ObservableInbox<MessageCasefile> spezifischerEingangskorb = new BeobachtbarerEingangskorbImpl<MessageCasefile>();
 					sachbearbeiter = new WatchDogFilterWorker(spezifischerEingangskorb, this.ausgangskorb, (WatchDogFilter) regelwerk, watchDogTimer);
@@ -144,7 +144,7 @@ public class DecisionDepartment {
 				}
 				sachbearbeiter.startWorking();
 			
-				_abteilungsleiter.addWorkerInbox(sachbearbeiter.getInbox());
+				messageDispatcher.addOutbox(sachbearbeiter.getInbox());
 				neueSachbearbeiter.put(regelwerk.getFilterId(), sachbearbeiter);
 			}
 		}
@@ -154,10 +154,10 @@ public class DecisionDepartment {
 			logger.logInfoMessage(this, "Delete filter: " + alterSachbearbeiter.getFilter());
 			alterSachbearbeiter.stopWorking();
 			
-			_abteilungsleiter.removeWorkerInbox(alterSachbearbeiter.getInbox());
+			messageDispatcher.removeOutbox(alterSachbearbeiter.getInbox());
 			
 			if(alterSachbearbeiter instanceof TimebasedFilterWorker) {
-				_assistenz.removeFilterWorkerInbox(((TimebasedFilterWorker) alterSachbearbeiter).getId());
+				timeoutFilterNotifier.removeFilterWorkerInbox(((TimebasedFilterWorker) alterSachbearbeiter).getId());
 			}
 		}
 		
@@ -172,7 +172,7 @@ public class DecisionDepartment {
 	 */
 	public void beendeArbeitUndSendeSofortAlleOffeneneVorgaenge() {
 		// Terminassistenz beenden...
-		this._assistenz.stopWorking();
+		this.timeoutFilterNotifier.stopWorking();
 		// Sachbearbeiter in den Feierabend schicken...
 		for (final Worker sachbearbeiter : _regelwerkKennungenZuSachbearbeitern.values()) {
 			sachbearbeiter.stopWorking();
@@ -180,7 +180,7 @@ public class DecisionDepartment {
 		// Andere Threads zu ende arbeiten lassen
 		Thread.yield();
 		// Abteilungsleiter in den Feierabend schicken...
-		this._abteilungsleiter.stopWorking();
+		this.messageDispatcher.stopWorking();
 	}
 
 	/**
@@ -206,14 +206,14 @@ public class DecisionDepartment {
 	 * Inspector fuer Tests. Liefert die Referenz auf den Abteilungsleiter.
 	 */
 	ThreadedMessageDispatcher gibAbteilungsleiterFuerTest() {
-		return this._abteilungsleiter;
+		return this.messageDispatcher;
 	}
 
 	/**
 	 * Inspector fuer Tests. Liefert die Referenz auf die Terminassistenz.
 	 */
 	TimeoutFilterNotifier gibAssistenzFuerTest() {
-		return this._assistenz;
+		return this.timeoutFilterNotifier;
 	}
 
 	/**

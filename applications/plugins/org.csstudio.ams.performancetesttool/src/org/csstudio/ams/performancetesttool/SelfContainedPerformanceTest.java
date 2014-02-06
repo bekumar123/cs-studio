@@ -1,29 +1,26 @@
 package org.csstudio.ams.performancetesttool;
 
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 import org.csstudio.nams.application.department.decision.office.decision.DecisionDepartment;
 import org.csstudio.nams.common.DefaultExecutionService;
-import org.csstudio.nams.common.decision.Inbox;
-import org.csstudio.nams.common.decision.DefaultDocumentBox;
-import org.csstudio.nams.common.decision.MessageCasefile;
 import org.csstudio.nams.common.decision.CasefileId;
+import org.csstudio.nams.common.decision.DefaultDocumentBox;
+import org.csstudio.nams.common.decision.Inbox;
+import org.csstudio.nams.common.decision.MessageCasefile;
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
 import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.common.material.FilterId;
 import org.csstudio.nams.common.material.regelwerk.DefaultFilter;
-import org.csstudio.nams.common.material.regelwerk.OrFilterCondition;
-import org.csstudio.nams.common.material.regelwerk.FilterCondition;
 import org.csstudio.nams.common.material.regelwerk.Filter;
+import org.csstudio.nams.common.material.regelwerk.FilterCondition;
+import org.csstudio.nams.common.material.regelwerk.OrFilterCondition;
 import org.csstudio.nams.common.material.regelwerk.StringFilterCondition;
 import org.csstudio.nams.common.material.regelwerk.StringFilterConditionOperator;
-import org.csstudio.nams.common.material.regelwerk.AndFilterCondition;
 import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 import org.csstudio.nams.service.logging.declaration.ILogger;
 import org.csstudio.nams.service.logging.impl.LoggerImpl;
@@ -84,13 +81,10 @@ public class SelfContainedPerformanceTest {
 		}).start();
 		System.out.println("\nReceiving messages");
 		while(messageCounter<arguments.messageCount) {
-			MessageCasefile vorgangsmappe = alarmVorgangAusgangskorb.takeDocument();
-			WeiteresVersandVorgehen gesamtErgebnis = vorgangsmappe.getWeiteresVersandVorgehen();
-			if (gesamtErgebnis.equals(WeiteresVersandVorgehen.VERSENDEN)) {
-				empfangsZeiten[messageCounter] = System.currentTimeMillis();
-				messageCounter += 1;
-				printProgressBar();
-			}
+			alarmVorgangAusgangskorb.takeDocument(); // blocks
+			empfangsZeiten[messageCounter] = System.currentTimeMillis();
+			messageCounter += 1;
+			printProgressBar();
 		}
 		System.out.print("\n");
 		printMeasurements();
@@ -99,12 +93,12 @@ public class SelfContainedPerformanceTest {
 	}
 
 	
-	private MessageCasefile[] erzeugeVorgangsmappen(int anzahlAnMappen) throws UnknownHostException {
+	private MessageCasefile[] erzeugeVorgangsmappen(int anzahlAnMappen) {
 		MessageCasefile[] result = new MessageCasefile[anzahlAnMappen];
 		for(int index = 0; index < anzahlAnMappen; index++) {
 			HashMap<MessageKeyEnum, String> mapMessage = new HashMap<MessageKeyEnum, String>(1);
 			mapMessage.put(MessageKeyEnum.NAME, "TEST");
-			result[index] = new MessageCasefile(CasefileId.createNew(InetAddress.getLocalHost(), new Date()), new AlarmMessage(mapMessage));
+			result[index] = new MessageCasefile(CasefileId.createNew(), new AlarmMessage(mapMessage));
 		}
 		return result;
 	}

@@ -42,7 +42,7 @@ public class AndFilterCondition implements FilterCondition {
 	
 	@Override
 	public String toString() {
-		return "Und( " + regeln + ")";
+		return "and( " + regeln + ")";
 	}
 
 	@Override

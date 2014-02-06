@@ -24,8 +24,9 @@
  */
 package org.csstudio.nams.application.department.decision.office.decision;
 
-import java.net.InetAddress;
-import java.util.Date;
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.Assert;
 
@@ -45,17 +46,23 @@ import org.junit.Test;
 public class ThreadedMessageDispatcherTest extends
 		AbstractTestObject<ThreadedMessageDispatcher> {
 
-	protected volatile int anzahlDerSachbearbeiterDieEineMappeErhaltenHaben;
+	
+	
 	protected Throwable testFailedError;
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "deprecation"})
 	@Test(timeout = 4000)
-	public void testDispatcher() throws Throwable {
+	public void testDispatcherThreading() throws Throwable {
+		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+			@Override
+			public void uncaughtException(Thread t, Throwable e) {
+				testFailedError = e;
+				Assert.fail("Exception in Thread");
+			}
+		});
+		
 		final MessageCasefile messageCasefile = new MessageCasefile(
-				CasefileId.valueOf(InetAddress
-						.getByAddress(new byte[] { 127, 0, 0, 1 }), new Date(
-						123)), new AlarmMessage("Test-Nachricht"));
-		this.anzahlDerSachbearbeiterDieEineMappeErhaltenHaben = 0;
+				CasefileId.createNew(), new AlarmMessage("Test-Nachricht"));
 
 		final Inbox<MessageCasefile> dispatcherInboxMock = EasyMock
 				.createMock(Inbox.class);
@@ -69,6 +76,74 @@ public class ThreadedMessageDispatcherTest extends
 					}
 				});
 		
+		EasyMock.replay(dispatcherInboxMock);
+
+		int threadCount = 4;
+		final ThreadedMessageDispatcher threadedMessageDispatcher = new ThreadedMessageDispatcher(threadCount,
+				new DefaultExecutionService(), dispatcherInboxMock);
+
+		List<Inbox<Document>> workerInboxes = new ArrayList<Inbox<Document>>(10);
+		for(int multipleTimes = 0; multipleTimes < 3; multipleTimes++) {
+			for (int i = 0; i < threadCount; i++) {
+				// Make sure the threaded dispatcher balances it's loads evenly
+				Assert.assertEquals(multipleTimes, threadedMessageDispatcher.getEmptiestDispatcher().getOutboxCount());
+				Inbox<Document> workerInboxMock = createWorkerInboxMock(messageCasefile);
+				EasyMock.replay(workerInboxMock);
+				workerInboxes.add(workerInboxMock);
+				threadedMessageDispatcher.addOutbox(workerInboxMock);
+			}
+		}
+		
+		this.testFailedError = null;
+
+		threadedMessageDispatcher.startWorking();
+		
+		// Der Mock simuliert jetzt folgendes:
+		// eingangskorb.ablegen(vorgangsmappe);
+
+		// Warte bis der Bearbeiter fertig sein müsste...
+		Thread.sleep(1000);
+
+		if (this.testFailedError != null) {
+			throw this.testFailedError;
+		}
+
+		threadedMessageDispatcher.stopWorking();
+		EasyMock.verify(dispatcherInboxMock);
+		
+		for (Inbox<Document> inbox : workerInboxes) {
+			EasyMock.verify(inbox);
+		}
+	}
+	
+	private Inbox<Document> createWorkerInboxMock(Document document) throws InterruptedException {
+		@SuppressWarnings("unchecked")
+		Inbox<Document> result = EasyMock.createMock(Inbox.class);
+		result.put(document);
+		EasyMock.expectLastCall().once();
+		
+		return result;
+	}
+	
+	@Test(timeout = 4000)
+	@SuppressWarnings({ "unchecked", "deprecation" })
+	public void testDispatch() throws Throwable {
+		final MessageCasefile messageCasefile = new MessageCasefile(
+				CasefileId.createNew(), new AlarmMessage("Test-Nachricht"));
+		
+		final Inbox<MessageCasefile> dispatcherInboxMock = EasyMock
+				.createMock(Inbox.class);
+		EasyMock.expect(dispatcherInboxMock.takeDocument()).andReturn(
+				messageCasefile).times(1).andStubAnswer(
+						new IAnswer<MessageCasefile>() {
+							public MessageCasefile answer() throws Throwable {
+								Thread.sleep(Integer.MAX_VALUE);
+								Assert.fail();
+								return null;
+							}
+						});
+		
+		EasyMock.replay(dispatcherInboxMock);
 		
 		Inbox<Document> workerInboxMock = EasyMock.createMock(Inbox.class);
 		Capture<Document> capturedPutArguments = new Capture<Document>();
@@ -76,28 +151,22 @@ public class ThreadedMessageDispatcherTest extends
 		EasyMock.expectLastCall().once();
 		EasyMock.replay(workerInboxMock);
 		
-		EasyMock.replay(dispatcherInboxMock);
 		this.testFailedError = null;
-
-		final ThreadedMessageDispatcher abteilungsleiter = new ThreadedMessageDispatcher(1,
+		
+		final ThreadedMessageDispatcher threadedMessageDispatcher = new ThreadedMessageDispatcher(1,
 				new DefaultExecutionService(), dispatcherInboxMock);
-		abteilungsleiter.addWorkerInbox(workerInboxMock);
-
-		abteilungsleiter.startWorking();
-
+		threadedMessageDispatcher.addOutbox(workerInboxMock);
+		
+		threadedMessageDispatcher.startWorking();
+		
 		// Der Mock simuliert jetzt folgendes:
 		// eingangskorb.ablegen(vorgangsmappe);
-
+		
 		// Warte bis der Bearbeiter fertig sein müsste...
-		for (int wartezeit = 0; wartezeit < 3000; wartezeit += 10) {
-			if (this.anzahlDerSachbearbeiterDieEineMappeErhaltenHaben > 1) {
-				break;
-			}
-			Thread.sleep(10);
-		}
-
-		abteilungsleiter.stopWorking();
-
+		Thread.sleep(1000);
+		
+		threadedMessageDispatcher.stopWorking();
+		
 		if (this.testFailedError != null) {
 			throw this.testFailedError;
 		}
@@ -113,14 +182,14 @@ public class ThreadedMessageDispatcherTest extends
 	public void testDispatcherStates() throws InterruptedException {
 		final ThreadedMessageDispatcher abteilungsleiter = this
 				.getNewInstanceOfClassUnderTest();
-		Assert.assertFalse("abteilungsleiter.istAmArbeiten()", abteilungsleiter
+		Assert.assertFalse("abteilungsleiter.isWorking()", abteilungsleiter
 				.isWorking());
 		abteilungsleiter.startWorking();
-		Assert.assertTrue("abteilungsleiter.istAmArbeiten()", abteilungsleiter
+		Assert.assertTrue("abteilungsleiter.isWorking()", abteilungsleiter
 				.isWorking());
 		abteilungsleiter.stopWorking();
 		Thread.sleep(100);
-		Assert.assertFalse("abteilungsleiter.istAmArbeiten()", abteilungsleiter
+		Assert.assertFalse("abteilungsleiter.isWorking()", abteilungsleiter
 				.isWorking());
 	}
 

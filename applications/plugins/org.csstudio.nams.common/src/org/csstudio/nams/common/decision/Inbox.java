@@ -29,7 +29,7 @@ package org.csstudio.nams.common.decision;
 import org.csstudio.nams.common.wam.Behaelter;
 
 @Behaelter
-public interface Inbox<T extends Document> extends Box<T> {
+public interface Inbox<T extends Document> extends Outbox<T> {
 	/**
 	 * Entnimmt den ältesten Eingang aus diesem Korb. Achtung:
 	 * <ol>

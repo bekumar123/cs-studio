@@ -2,9 +2,7 @@ package org.csstudio.nams.application.department.decision.office.decision;
 
 import static junit.framework.Assert.*;
 
-import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Date;
 import java.util.concurrent.Executor;
 
 import junit.framework.Assert;
@@ -21,7 +19,6 @@ import org.csstudio.nams.common.material.FilterId;
 import org.csstudio.nams.common.material.regelwerk.FilterCondition;
 import org.csstudio.nams.common.material.regelwerk.TimebasedFilter;
 import org.csstudio.nams.common.material.regelwerk.TimebasedFilter.TimeoutType;
-import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -101,7 +98,7 @@ public class TimebasedFilterWorkerTest {
 		sachbearbeiter.startWorking();
 		
 		// Test Startregel trifft nicht zu
-		MessageCasefile vorgangsmappe = new MessageCasefile(CasefileId.createNew(InetAddress.getLocalHost(), new Date()), new AlarmMessage("start message"));
+		MessageCasefile vorgangsmappe = new MessageCasefile(CasefileId.createNew(), new AlarmMessage("start message"));
 		
 		startRegel.setResult(false);
 		
@@ -110,7 +107,7 @@ public class TimebasedFilterWorkerTest {
 		Assert.assertEquals(0, ausgangskorb.documentCount());
 
 		// Test SENDE_BEI_TIMEOUT
-		vorgangsmappe = new MessageCasefile(CasefileId.createNew(InetAddress.getLocalHost(), new Date()), new AlarmMessage("start message"));
+		vorgangsmappe = new MessageCasefile(CasefileId.createNew(), new AlarmMessage("start message"));
 		
 		startRegel.setResult(true);
 		
@@ -119,21 +116,18 @@ public class TimebasedFilterWorkerTest {
 		MessageCasefile aeltesterEingang = ausgangskorb.takeDocument();
 		
 		Assert.assertFalse(vorgangsmappe.equals(aeltesterEingang));
-		assertEquals(WeiteresVersandVorgehen.VERSENDEN, aeltesterEingang.getWeiteresVersandVorgehen());
 		assertEquals(filterId, aeltesterEingang.getHandledByFilterId());
 		assertTrue(aeltesterEingang.istAbgeschlossen());
 		assertTrue(aeltesterEingang.istAbgeschlossenDurchTimeOut());
 		
 		// Test cancel bei Stopnachricht
-		vorgangsmappe = new MessageCasefile(CasefileId.createNew(
-				InetAddress.getLocalHost(), new Date()), new AlarmMessage(
+		vorgangsmappe = new MessageCasefile(CasefileId.createNew(), new AlarmMessage(
 				"start message"));
 		startRegel.setResult(true);
 		stopRegel.setResult(false);
 		filterInbox.put(vorgangsmappe);
 		
-		MessageCasefile stopVorgangsmappe = new MessageCasefile(CasefileId.createNew(
-				InetAddress.getLocalHost(), new Date()), new AlarmMessage(
+		MessageCasefile stopVorgangsmappe = new MessageCasefile(CasefileId.createNew(), new AlarmMessage(
 						"stop message"));
 		startRegel.setResult(false);
 		stopRegel.setResult(true);
@@ -144,15 +138,13 @@ public class TimebasedFilterWorkerTest {
 		assertEquals(0, ausgangskorb.documentCount());
 		
 		// Test andere Nachricht zwischendurch
-		vorgangsmappe = new MessageCasefile(CasefileId.createNew(
-				InetAddress.getLocalHost(), new Date()), new AlarmMessage(
+		vorgangsmappe = new MessageCasefile(CasefileId.createNew(), new AlarmMessage(
 						"start message"));
 		startRegel.setResult(true);
 		stopRegel.setResult(false);
 		filterInbox.put(vorgangsmappe);
 		
-		stopVorgangsmappe = new MessageCasefile(CasefileId.createNew(
-				InetAddress.getLocalHost(), new Date()), new AlarmMessage(
+		stopVorgangsmappe = new MessageCasefile(CasefileId.createNew(), new AlarmMessage(
 						"stop message"));
 		startRegel.setResult(false);
 		stopRegel.setResult(false);
@@ -168,7 +160,7 @@ public class TimebasedFilterWorkerTest {
 		sachbearbeiter.startWorking();
 		
 		// Test Startregel trifft nicht zu
-		MessageCasefile vorgangsmappe = new MessageCasefile(CasefileId.createNew(InetAddress.getLocalHost(), new Date()), new AlarmMessage("start message"));
+		MessageCasefile vorgangsmappe = new MessageCasefile(CasefileId.createNew(), new AlarmMessage("start message"));
 		
 		startRegel.setResult(false);
 		
@@ -177,7 +169,7 @@ public class TimebasedFilterWorkerTest {
 		assertEquals(0, ausgangskorb.documentCount());
 		
 		// Test cancel bei Timeout
-		vorgangsmappe = new MessageCasefile(CasefileId.createNew(InetAddress.getLocalHost(), new Date()), new AlarmMessage("start message"));
+		vorgangsmappe = new MessageCasefile(CasefileId.createNew(), new AlarmMessage("start message"));
 		
 		startRegel.setResult(true);
 		
@@ -187,15 +179,13 @@ public class TimebasedFilterWorkerTest {
 		assertEquals(0, ausgangskorb.documentCount());
 
 		// Test sende bei Stopnachricht
-		vorgangsmappe = new MessageCasefile(CasefileId.createNew(
-				InetAddress.getLocalHost(), new Date()), new AlarmMessage(
+		vorgangsmappe = new MessageCasefile(CasefileId.createNew(), new AlarmMessage(
 						"start message"));
 		startRegel.setResult(true);
 		stopRegel.setResult(false);
 		filterInbox.put(vorgangsmappe);
 		
-		MessageCasefile stopVorgangsmappe = new MessageCasefile(CasefileId.createNew(
-				InetAddress.getLocalHost(), new Date()), new AlarmMessage(
+		MessageCasefile stopVorgangsmappe = new MessageCasefile(CasefileId.createNew(), new AlarmMessage(
 						"stop message"));
 		startRegel.setResult(false);
 		stopRegel.setResult(true);
@@ -206,8 +196,6 @@ public class TimebasedFilterWorkerTest {
 		MessageCasefile aeltesterEingang = ausgangskorb.takeDocument();
 		
 		assertFalse(vorgangsmappe.equals(aeltesterEingang));
-		assertEquals(WeiteresVersandVorgehen.VERSENDEN,
-				aeltesterEingang.getWeiteresVersandVorgehen());
 		assertEquals(filterId, aeltesterEingang.getHandledByFilterId());
 		assertTrue(aeltesterEingang.istAbgeschlossen());
 		assertFalse(aeltesterEingang.istAbgeschlossenDurchTimeOut());
@@ -215,15 +203,13 @@ public class TimebasedFilterWorkerTest {
 		assertEquals(0, ausgangskorb.documentCount());
 		
 		// Test andere Nachricht zwischendurch
-		vorgangsmappe = new MessageCasefile(CasefileId.createNew(
-				InetAddress.getLocalHost(), new Date()), new AlarmMessage(
+		vorgangsmappe = new MessageCasefile(CasefileId.createNew(), new AlarmMessage(
 						"start message"));
 		startRegel.setResult(true);
 		stopRegel.setResult(false);
 		filterInbox.put(vorgangsmappe);
 		
-		stopVorgangsmappe = new MessageCasefile(CasefileId.createNew(
-				InetAddress.getLocalHost(), new Date()), new AlarmMessage(
+		stopVorgangsmappe = new MessageCasefile(CasefileId.createNew(), new AlarmMessage(
 						"stop message"));
 		startRegel.setResult(false);
 		stopRegel.setResult(false);

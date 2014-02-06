@@ -2,9 +2,7 @@ package org.csstudio.nams.application.department.decision.office.decision;
 
 import static junit.framework.Assert.*;
 
-import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executor;
@@ -18,7 +16,6 @@ import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.common.material.FilterId;
 import org.csstudio.nams.common.material.regelwerk.FilterCondition;
 import org.csstudio.nams.common.material.regelwerk.WatchDogFilter;
-import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -129,13 +126,12 @@ public class WatchDogFilterWorkerTest {
 		assertNull("Nach ablauf des timers darf kein neuer gestartet werden", timer.getLastScheduledTask());
 		
 		MessageCasefile aeltesterEingang = ausgangskorb.takeDocument();
-		assertEquals(WeiteresVersandVorgehen.VERSENDEN, aeltesterEingang.getWeiteresVersandVorgehen());
 		assertEquals(regelwerksKennung, aeltesterEingang.getHandledByFilterId());
 		assertTrue(aeltesterEingang.istAbgeschlossen());
 		assertFalse(aeltesterEingang.istAbgeschlossenDurchTimeOut());
 		
 		// WatchDog startet timer neu bei eingang von gültiger Nachricht
-		MessageCasefile vorgangsmappe = new MessageCasefile(CasefileId.createNew(InetAddress.getLocalHost(), new Date()), new AlarmMessage("XXX"));
+		MessageCasefile vorgangsmappe = new MessageCasefile(CasefileId.createNew(), new AlarmMessage("XXX"));
 		regel.setResult(true);
 		eingangskorb.put(vorgangsmappe);
 		assertNotNull(timer.getLastScheduledTask());
@@ -145,7 +141,7 @@ public class WatchDogFilterWorkerTest {
 		
 		timer.reset();
 		// WatchDog startet timer neu bei eingang von gültiger Nachricht
-		vorgangsmappe = new MessageCasefile(CasefileId.createNew(InetAddress.getLocalHost(), new Date()), new AlarmMessage("XXX"));
+		vorgangsmappe = new MessageCasefile(CasefileId.createNew(), new AlarmMessage("XXX"));
 		regel.setResult(true);
 		eingangskorb.put(vorgangsmappe);
 		assertNotNull(timer.getLastScheduledTask());
@@ -155,7 +151,7 @@ public class WatchDogFilterWorkerTest {
 		
 		timer.reset();
 		// WatchDog startet timer nicht neu bei eingang von ungültiger Nachricht
-		vorgangsmappe = new MessageCasefile(CasefileId.createNew(InetAddress.getLocalHost(), new Date()), new AlarmMessage("XXX"));
+		vorgangsmappe = new MessageCasefile(CasefileId.createNew(), new AlarmMessage("XXX"));
 		regel.setResult(false);
 		eingangskorb.put(vorgangsmappe);
 		assertNull(timer.getLastScheduledTask());

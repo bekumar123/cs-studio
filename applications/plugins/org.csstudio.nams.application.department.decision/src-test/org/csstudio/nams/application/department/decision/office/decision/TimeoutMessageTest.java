@@ -1,9 +1,5 @@
 package org.csstudio.nams.application.department.decision.office.decision;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Date;
-
 import junit.framework.Assert;
 
 import org.csstudio.nams.common.decision.CasefileId;
@@ -23,8 +19,7 @@ public class TimeoutMessageTest extends AbstractTestValue<TimeoutMessage> {
 		} catch (final AssertionError ae) {
 		}
 		try {
-			TimeoutMessage.valueOf(CasefileId.valueOf(InetAddress
-					.getByAddress(new byte[] { 127, 0, 0, 1 }), new Date(42)),
+			TimeoutMessage.valueOf(CasefileId.createNew(),
 					null, filterId);
 			Assert.fail();
 		} catch (final AssertionError ae) {
@@ -35,14 +30,8 @@ public class TimeoutMessageTest extends AbstractTestValue<TimeoutMessage> {
 	public void testEqualsJetztAberRichtig() {
 		CasefileId vorgangsmappenkennung1 = null;
 		CasefileId vorgangsmappenkennung2 = null;
-		try {
-			vorgangsmappenkennung1 = CasefileId.valueOf(InetAddress
-					.getByAddress(new byte[] { 127, 0, 0, 1 }), new Date(42));
-			vorgangsmappenkennung2 = CasefileId.valueOf(InetAddress
-					.getByAddress(new byte[] { 127, 0, 0, 2 }), new Date(23));
-		} catch (final UnknownHostException e) {
-			Assert.fail(e.getMessage());
-		}
+		vorgangsmappenkennung1 = CasefileId.createNew();
+		vorgangsmappenkennung2 = CasefileId.createNew();
 		FilterId filterId2 = FilterId.valueOf(2);
 		final TimeoutMessage vergleichsTimerMessage = TimeoutMessage.valueOf(
 				vorgangsmappenkennung1, Milliseconds.valueOf(5),
@@ -68,8 +57,7 @@ public class TimeoutMessageTest extends AbstractTestValue<TimeoutMessage> {
 	@Override
 	protected TimeoutMessage doGetAValueOfTypeUnderTest() throws Throwable {
 		CasefileId vorgangsmappenkennung = null;
-		vorgangsmappenkennung = CasefileId.valueOf(InetAddress
-				.getByAddress(new byte[] { 127, 0, 0, 1 }), new Date(42));
+		vorgangsmappenkennung = CasefileId.createNew();
 		final Milliseconds millisekunden = Milliseconds.valueOf(42);
 		return TimeoutMessage.valueOf(vorgangsmappenkennung, millisekunden,
 				FilterId.valueOf(4));
@@ -80,10 +68,8 @@ public class TimeoutMessageTest extends AbstractTestValue<TimeoutMessage> {
 			throws Throwable {
 		CasefileId vorgangsmappenkennung1 = null;
 		CasefileId vorgangsmappenkennung2 = null;
-		vorgangsmappenkennung1 = CasefileId.valueOf(InetAddress
-				.getByAddress(new byte[] { 127, 0, 0, 1 }), new Date(42));
-		vorgangsmappenkennung2 = CasefileId.valueOf(InetAddress
-				.getByAddress(new byte[] { 127, 0, 0, 2 }), new Date(23));
+		vorgangsmappenkennung1 = CasefileId.createNew();
+		vorgangsmappenkennung2 = CasefileId.createNew();
 		Milliseconds millisekunden = Milliseconds.valueOf(42);
 		final TimeoutMessage timerMessage1 = TimeoutMessage.valueOf(
 				vorgangsmappenkennung1, millisekunden, FilterId.valueOf(5));

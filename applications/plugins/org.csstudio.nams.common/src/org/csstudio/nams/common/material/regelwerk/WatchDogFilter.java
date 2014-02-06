@@ -5,37 +5,37 @@ import org.csstudio.nams.common.material.FilterId;
 
 public class WatchDogFilter implements Filter {
 
-	private FilterCondition regel;
-	private FilterId regelwerkskennung;
-	private Milliseconds delay;
+	private FilterCondition rootCondition;
+	private FilterId filterId;
+	private Milliseconds timeout;
 
 	public WatchDogFilter(FilterId regelwerkskennung,
 			FilterCondition regel, Milliseconds timeout) {
-				this.regelwerkskennung = regelwerkskennung;
-				this.regel = regel;
-				this.delay = timeout;
+				this.filterId = regelwerkskennung;
+				this.rootCondition = regel;
+				this.timeout = timeout;
 	}
 
 	@Override
 	public FilterId getFilterId() {
-		return regelwerkskennung;
+		return filterId;
 	}
 
-	public FilterCondition getRegel() {
-		return regel;
+	public FilterCondition getCondition() {
+		return rootCondition;
 	}
 
-	public Milliseconds getDelay() {
-		return delay;
+	public Milliseconds getTimeout() {
+		return timeout;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((delay == null) ? 0 : delay.hashCode());
-		result = prime * result + ((regel == null) ? 0 : regel.hashCode());
-		result = prime * result + ((regelwerkskennung == null) ? 0 : regelwerkskennung.hashCode());
+		result = prime * result + ((timeout == null) ? 0 : timeout.hashCode());
+		result = prime * result + ((rootCondition == null) ? 0 : rootCondition.hashCode());
+		result = prime * result + ((filterId == null) ? 0 : filterId.hashCode());
 		return result;
 	}
 
@@ -48,21 +48,27 @@ public class WatchDogFilter implements Filter {
 		if (getClass() != obj.getClass())
 			return false;
 		WatchDogFilter other = (WatchDogFilter) obj;
-		if (delay == null) {
-			if (other.delay != null)
+		if (timeout == null) {
+			if (other.timeout != null)
 				return false;
-		} else if (!delay.equals(other.delay))
+		} else if (!timeout.equals(other.timeout))
 			return false;
-		if (regel == null) {
-			if (other.regel != null)
+		if (rootCondition == null) {
+			if (other.rootCondition != null)
 				return false;
-		} else if (!regel.equals(other.regel))
+		} else if (!rootCondition.equals(other.rootCondition))
 			return false;
-		if (regelwerkskennung == null) {
-			if (other.regelwerkskennung != null)
+		if (filterId == null) {
+			if (other.filterId != null)
 				return false;
-		} else if (!regelwerkskennung.equals(other.regelwerkskennung))
+		} else if (!filterId.equals(other.filterId))
 			return false;
 		return true;
 	}
+	
+	@Override
+	public String toString() {
+		return "Watchdog filter " + filterId + ", timeout: " + timeout + ", conditions: " + rootCondition;
+	}
+
 }

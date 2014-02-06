@@ -4,29 +4,29 @@ import org.csstudio.nams.common.material.FilterId;
 
 public class DefaultFilter implements Filter {
 
-	private final FilterCondition regel;
-	private final FilterId regelwerkskennung;
+	private final FilterCondition rootCondition;
+	private final FilterId filterId;
 
 	public DefaultFilter(FilterId regelwerkskennung, FilterCondition regel) {
-		this.regelwerkskennung = regelwerkskennung;
-		this.regel = regel;
+		this.filterId = regelwerkskennung;
+		this.rootCondition = regel;
 	}
 	
 	public FilterCondition getRegel() {
-		return regel;
+		return rootCondition;
 	}
 
 	@Override
 	public FilterId getFilterId() {
-		return regelwerkskennung;
+		return filterId;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((regel == null) ? 0 : regel.hashCode());
-		result = prime * result + ((regelwerkskennung == null) ? 0 : regelwerkskennung.hashCode());
+		result = prime * result + ((rootCondition == null) ? 0 : rootCondition.hashCode());
+		result = prime * result + ((filterId == null) ? 0 : filterId.hashCode());
 		return result;
 	}
 
@@ -39,18 +39,22 @@ public class DefaultFilter implements Filter {
 		if (getClass() != obj.getClass())
 			return false;
 		DefaultFilter other = (DefaultFilter) obj;
-		if (regel == null) {
-			if (other.regel != null)
+		if (rootCondition == null) {
+			if (other.rootCondition != null)
 				return false;
-		} else if (!regel.equals(other.regel))
+		} else if (!rootCondition.equals(other.rootCondition))
 			return false;
-		if (regelwerkskennung == null) {
-			if (other.regelwerkskennung != null)
+		if (filterId == null) {
+			if (other.filterId != null)
 				return false;
-		} else if (!regelwerkskennung.equals(other.regelwerkskennung))
+		} else if (!filterId.equals(other.filterId))
 			return false;
 		return true;
 	}
 	
-	
+	@Override
+	public String toString() {
+		return "Filter " + filterId + ", conditions: " + rootCondition;
+	}
+
 }

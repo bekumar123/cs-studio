@@ -67,4 +67,9 @@ public class OrFilterCondition implements FilterCondition {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "or( " + regeln + ")";
+	}
+
 }

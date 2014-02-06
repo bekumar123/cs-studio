@@ -37,21 +37,25 @@ import org.csstudio.nams.common.decision.Inbox;
 import org.csstudio.nams.common.fachwert.Milliseconds;
 import org.csstudio.nams.common.material.FilterId;
 import org.csstudio.nams.common.service.ExecutionService;
+import org.csstudio.nams.service.logging.declaration.ILogger;
 
 public class TimeoutFilterNotifier implements Worker {
 
 	private Map<FilterId, Inbox<Document>> filterWorkerInboxes = new HashMap<FilterId, Inbox<Document>>();
-	private final InboxReader<TimeoutMessage> timerMessageInboxReader;
+	protected InboxReader<TimeoutMessage> timerMessageInboxReader;
 	private final Timer timer;
 
 	private final ExecutionService executionService;
+	private final ILogger logger;
 
 	public TimeoutFilterNotifier(
 			final ExecutionService executionService,
 			final Inbox<TimeoutMessage> timerMessageInbox,
-			final Timer timer) {
+			final Timer timer,
+			final ILogger logger) {
 		this.executionService = executionService;
 		this.timer = timer;
+		this.logger = logger;
 		this.timerMessageInboxReader = new InboxReader<TimeoutMessage>(new TimerMessageHandler(), timerMessageInbox);
 	}
 	
@@ -72,9 +76,7 @@ public class TimeoutFilterNotifier implements Worker {
 	}
 
 	public void startWorking() {
-		this.executionService.executeAsynchronously(
-				ThreadTypesOfDecisionDepartment.TIMEOUT_FILTER_NOTIFIER,
-				this.timerMessageInboxReader);
+		this.executionService.executeAsynchronously(ThreadTypesOfDecisionDepartment.TIMEOUT_FILTER_NOTIFIER, this.timerMessageInboxReader);
 		while (!this.timerMessageInboxReader.isCurrentlyRunning()) {
 			Thread.yield();
 		}
@@ -92,7 +94,7 @@ public class TimeoutFilterNotifier implements Worker {
 			final Milliseconds wartezeit = timerMessage.getTimeout();
 			
 			if (!filterWorkerInboxes.containsKey(id)) {
-				throw new RuntimeException("Fatal: Could not find a FilterWorker inbox for id: " + id + ".");
+				logger.logWarningMessage(this, "Could not find a FilterWorker inbox for id: " + id + ".");
 			} else {
 				final Inbox<Document> workerInbox = filterWorkerInboxes.get(id);
 
@@ -102,7 +104,7 @@ public class TimeoutFilterNotifier implements Worker {
 						try {
 							workerInbox.put(timerMessage);
 						} catch (InterruptedException e) {
-							throw new RuntimeException("Fatal: Could not put timer message into inbox for worker " + id, e);
+							logger.logWarningMessage(this, "Could not put timer message into inbox for worker " + id, e);
 						}
 					}
 				};

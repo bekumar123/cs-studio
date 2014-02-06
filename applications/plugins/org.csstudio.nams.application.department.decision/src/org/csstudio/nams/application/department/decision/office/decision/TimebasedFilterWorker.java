@@ -2,7 +2,6 @@ package org.csstudio.nams.application.department.decision.office.decision;
 
 import java.util.Iterator;
 
-import org.csstudio.nams.common.decision.Box;
 import org.csstudio.nams.common.decision.CasefileId;
 import org.csstudio.nams.common.decision.Clipboard;
 import org.csstudio.nams.common.decision.Document;
@@ -15,21 +14,20 @@ import org.csstudio.nams.common.material.FilterId;
 import org.csstudio.nams.common.material.regelwerk.Filter;
 import org.csstudio.nams.common.material.regelwerk.TimebasedFilter;
 import org.csstudio.nams.common.material.regelwerk.TimebasedFilter.TimeoutType;
-import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 
 public class TimebasedFilterWorker implements FilterWorker {
 
 	private TimebasedFilter filter;
 	private final ObservableInbox<Document> inbox;
 	private final Clipboard<MessageCasefile> openCasefiles;
-	private final Box<TimeoutMessage> timeoutNotifierBox;
+	private final Outbox<TimeoutMessage> timeoutNotifierBox;
 	private final Outbox<MessageCasefile> outbox;
 
 	private boolean isWorking;
 
 	public TimebasedFilterWorker(ObservableInbox<Document> inbox,
 			Clipboard<MessageCasefile> openCasefiles,
-			Box<TimeoutMessage> timeoutNotifierBox,
+			Outbox<TimeoutMessage> timeoutNotifierBox,
 			Outbox<MessageCasefile> outbox,
 			TimebasedFilter filter) {
 				this.inbox = inbox;
@@ -83,7 +81,7 @@ public class TimebasedFilterWorker implements FilterWorker {
 			while(vorgaengeIterator.hasNext()) {
 				try {
 					MessageCasefile offenerVorgang = vorgaengeIterator.next();
-					closeCaseWithTimeout(offenerVorgang, offenerVorgang.gibMappenkennung());
+					closeCaseWithTimeout(offenerVorgang, offenerVorgang.getCasefileId());
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -136,16 +134,16 @@ public class TimebasedFilterWorker implements FilterWorker {
 	 * 
 	 * @throws InterruptedException
 	 */
-	private void handleTimeout(TimeoutMessage terminnotiz) throws InterruptedException {
+	private void handleTimeout(TimeoutMessage timeoutMessage) throws InterruptedException {
 		synchronized (openCasefiles) {
 			final Iterator<MessageCasefile> offeneVorgaengeIterator = openCasefiles.iterator();
 			while (offeneVorgaengeIterator.hasNext()) {
 				final MessageCasefile offenerVorgang = offeneVorgaengeIterator.next();
-				if (offenerVorgang.gibMappenkennung().equals(terminnotiz.getCasefileId())) {
+				if (offenerVorgang.getCasefileId().equals(timeoutMessage.getCasefileId())) {
 					// Entferne Vorgang aus den offenen Vorgängen
 					offeneVorgaengeIterator.remove();
 
-					closeCaseWithTimeout(offenerVorgang, terminnotiz.getCasefileId());
+					closeCaseWithTimeout(offenerVorgang, timeoutMessage.getCasefileId());
 				}
 			}
 		}
@@ -159,7 +157,6 @@ public class TimebasedFilterWorker implements FilterWorker {
 		else if(filter.getTimeoutType() == TimeoutType.SENDE_BEI_TIMEOUT) {
 			// Offener Vorgang ist ein Alarm, da Timeout abgelaufen
 			MessageCasefile kopieFuerVersand = createMessageCopyToSend(offenerVorgang);
-			kopieFuerVersand.setWeiteresVersandVorgehen(WeiteresVersandVorgehen.VERSENDEN);
 			kopieFuerVersand.pruefungAbgeschlossenDurch(abgeschlossenDurchKennung);
 			kopieFuerVersand.abgeschlossenDurchTimeOut();
 			
@@ -192,8 +189,7 @@ public class TimebasedFilterWorker implements FilterWorker {
 					if (filter.getTimeoutType() == TimeoutType.SENDE_BEI_STOP_REGEL) {
 						// Offener Vorgang ist ein Alarm, da er bestätigt wurde
 						MessageCasefile kopieFuerVersand = createMessageCopyToSend(offenerVorgang);
-						kopieFuerVersand.setWeiteresVersandVorgehen(WeiteresVersandVorgehen.VERSENDEN);
-						kopieFuerVersand.pruefungAbgeschlossenDurch(aktuellerVorgang.gibMappenkennung());
+						kopieFuerVersand.pruefungAbgeschlossenDurch(aktuellerVorgang.getCasefileId());
 						outbox.put(kopieFuerVersand);
 					} else if (filter.getTimeoutType() == TimeoutType.SENDE_BEI_TIMEOUT) {
 						// Offener Vorgang ist kein Alarm, da er abgebrochen
@@ -223,7 +219,7 @@ public class TimebasedFilterWorker implements FilterWorker {
 			synchronized (openCasefiles) {
 				openCasefiles.put(vorgangsmappe);
 			}
-			timeoutNotifierBox.put(TimeoutMessage.valueOf(vorgangsmappe.gibMappenkennung(), filter.getTimeOut(), getId()));
+			timeoutNotifierBox.put(TimeoutMessage.valueOf(vorgangsmappe.getCasefileId(), filter.getTimeOut(), getId()));
 		}
 	}
 }

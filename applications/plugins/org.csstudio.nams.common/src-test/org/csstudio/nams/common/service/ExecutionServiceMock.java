@@ -1,5 +1,6 @@
 package org.csstudio.nams.common.service;
 
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -17,27 +18,14 @@ import junit.framework.Assert;
  */
 public class ExecutionServiceMock implements ExecutionService {
 
-	// return errors; Marek: -2602
-
 	private final Map<Enum<?>, List<StepByStepProcessor>> allStepByStepProcessors = new HashMap<Enum<?>, List<StepByStepProcessor>>();
 
 	public <GT extends Enum<?> & ThreadType> void executeAsynchronously(
 			final GT groupId, final StepByStepProcessor runnable) {
-		// System.out.println("ExecutionServiceMock.executeAsynchronsly():
-		// "+groupId+ ", time: "+System.nanoTime()+", all:
-		// "+allStepByStepProcessors.toString());
-
-		// for (Enum<?> enuum :allStepByStepProcessors.keySet()) {
-		// System.out.println(enuum.toString() + " = " + groupId.toString() + "
-		// is " + (enuum == groupId));
-		// }
 
 		final List<StepByStepProcessor> list = this.allStepByStepProcessors
 				.get(groupId);
 		if (list == null) {
-			// System.out.println("ExecutionServiceMock.executeAsynchronsly():
-			// "+groupId+ ", time: "+System.nanoTime()+", all:
-			// "+allStepByStepProcessors.toString());
 			Assert.fail("group not registered: " + groupId);
 		}
 		list.add(runnable);
@@ -86,8 +74,11 @@ public class ExecutionServiceMock implements ExecutionService {
 			final GT groupId, final ThreadGroup group) {
 		this.allStepByStepProcessors.put(groupId,
 				new LinkedList<StepByStepProcessor>());
-		// System.out.println("ExecutionServiceMock.registerGroup(): "+groupId+
-		// ", time: "+System.nanoTime()+", all:
-		// "+allStepByStepProcessors.toString());
+	}
+
+	@Override
+	public <GT extends Enum<?> & ThreadType> void executeAsynchronously(GT groupId, StepByStepProcessor runnable,
+			UncaughtExceptionHandler uncaughtExceptionHandler) {
+		executeAsynchronously(groupId, runnable);
 	}
 }

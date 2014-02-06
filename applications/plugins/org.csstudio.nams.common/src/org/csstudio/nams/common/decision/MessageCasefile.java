@@ -28,39 +28,36 @@ package org.csstudio.nams.common.decision;
 import org.csstudio.nams.common.contract.Contract;
 import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.common.material.FilterId;
-import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 import org.csstudio.nams.common.wam.Material;
 
 @Material
 public class MessageCasefile implements Document {
 
 	private final AlarmMessage alarmNachricht;
-	private final CasefileId kennung;
-	private CasefileId abgeschlossenDurchMappenkennung;
-	private boolean abgeschlossenDurchTimeOut = false;
-	private WeiteresVersandVorgehen weiteresVersandVorgehen;
-	private FilterId bearbeitetMitRegelWerk;
+	private final CasefileId id;
+	private CasefileId closedByFileId;
+	private boolean isClosedByTimeout = false;
+	private FilterId handledByFilter;
 
 	public MessageCasefile(final CasefileId kennung, final AlarmMessage nachricht) {
 		Contract.requireNotNull("nachricht", nachricht);
 
 		this.alarmNachricht = nachricht;
-		this.kennung = kennung;
-		this.weiteresVersandVorgehen = WeiteresVersandVorgehen.NOCH_NICHT_GEPRUEFT;
-		this.bearbeitetMitRegelWerk = null;
+		this.id = kennung;
+		this.handledByFilter = null;
 	}
 
 	public void abgeschlossenDurchTimeOut() {
-		this.abgeschlossenDurchMappenkennung = this.kennung;
-		this.abgeschlossenDurchTimeOut = true;
+		this.closedByFileId = this.id;
+		this.isClosedByTimeout = true;
 	}
 	
 	public void setHandledWithFilter(FilterId bearbeitetMitRegelWerk) {
-		this.bearbeitetMitRegelWerk = bearbeitetMitRegelWerk;
+		this.handledByFilter = bearbeitetMitRegelWerk;
 	}
 	
 	public FilterId getHandledByFilterId() {
-		return bearbeitetMitRegelWerk;
+		return handledByFilter;
 	}
 
 	@Override
@@ -78,7 +75,7 @@ public class MessageCasefile implements Document {
 		if (!this.alarmNachricht.equals(other.alarmNachricht)) {
 			return false;
 		}
-		if (!this.kennung.equals(other.kennung)) {
+		if (!this.id.equals(other.id)) {
 			return false;
 		}
 		return true;
@@ -93,44 +90,36 @@ public class MessageCasefile implements Document {
 	}
 
 	public MessageCasefile erstelleKopieFuer(final String bearbeiter) {
-		return new MessageCasefile(CasefileId.valueOf(this.kennung, bearbeiter), this.alarmNachricht.clone());
+		return new MessageCasefile(CasefileId.valueOf(this.id, bearbeiter), this.alarmNachricht.clone());
 	}
 	
-	public WeiteresVersandVorgehen getWeiteresVersandVorgehen() {
-		return weiteresVersandVorgehen;
-	}
-	
-	public void setWeiteresVersandVorgehen(WeiteresVersandVorgehen weiteresVersandVorgehen) {
-		this.weiteresVersandVorgehen = weiteresVersandVorgehen;
-	}
-
 	public CasefileId gibAbschliessendeMappenkennung() {
-		return this.abgeschlossenDurchMappenkennung;
+		return this.closedByFileId;
 	}
 
 	public AlarmMessage getAlarmMessage() {
 		return this.alarmNachricht;
 	}
 
-	public CasefileId gibMappenkennung() {
-		return this.kennung;
+	public CasefileId getCasefileId() {
+		return this.id;
 	}
 
 	public boolean istAbgeschlossen() {
-		return (this.abgeschlossenDurchMappenkennung != null);
+		return (this.closedByFileId != null);
 	}
 
 	public boolean istAbgeschlossenDurchTimeOut() {
-		return this.abgeschlossenDurchTimeOut;
+		return this.isClosedByTimeout;
 	}
 
 	public void pruefungAbgeschlossenDurch(final CasefileId mappenkennung) {
-		this.abgeschlossenDurchMappenkennung = mappenkennung;
+		this.closedByFileId = mappenkennung;
 	}
 
 	@Override
 	public String toString() {
-		return this.kennung.toString() + " " + this.alarmNachricht;
+		return this.id.toString() + " " + this.alarmNachricht;
 	}
 
 	// TODO Ggf. spaeter Kapitel einfuehren für einzelne Bereiche!

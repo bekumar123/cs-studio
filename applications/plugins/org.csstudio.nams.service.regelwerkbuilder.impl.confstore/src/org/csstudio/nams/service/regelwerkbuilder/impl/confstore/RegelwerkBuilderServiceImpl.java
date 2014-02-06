@@ -79,17 +79,17 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 					final List<FilterConditionDTO> filterConditions = ((DefaultFilterDTO) filterDTO).getFilterConditions();
 
 					// create a list of first level filterconditions
-					final List<FilterCondition> versandRegels = new LinkedList<FilterCondition>();
+					final List<FilterCondition> filterconditions = new LinkedList<FilterCondition>();
 					for (final FilterConditionDTO filterConditionDTO : filterConditions) {
 						try {
-							versandRegels.add(this.createRegel(filterConditionDTO));
+							filterconditions.add(this.createRegel(filterConditionDTO));
 						} catch (Throwable t) {
 							RegelwerkBuilderServiceImpl.logger.logErrorMessage(this, "Failed to create Versand-Regel from DTO: " + filterConditionDTO
 									+ " for Filter: " + filterDTO, t);
 						}
 					}
 
-					AndFilterCondition hauptRegel = new AndFilterCondition(versandRegels);
+					AndFilterCondition hauptRegel = new AndFilterCondition(filterconditions);
 					regelwerk = new DefaultFilter(regelwerkskennung, hauptRegel);
 
 				} else if (filterDTO instanceof TimeBasedFilterDTO) {
@@ -115,13 +115,8 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 	}
 
 	protected FilterCondition createRegel(final FilterConditionDTO filterConditionDTO) {
-		// mapping the type information in the aggrFilterConditionTObject to a
-		// VersandRegel
-
-		// FIXME (gs) hier knallt es bei JCFF oder NCFF Bedingungen
-
-		final FilterConditionTypeRefToVersandRegelMapper fctr = FilterConditionTypeRefToVersandRegelMapper.valueOf(filterConditionDTO.getClass());
-		switch (fctr) {
+		final FilterConditionType type = FilterConditionType.valueOf(filterConditionDTO.getClass());
+		switch (type) {
 		//
 		case STRING: {
 			final StringFilterConditionDTO stringCondition = (StringFilterConditionDTO) filterConditionDTO;
@@ -136,10 +131,7 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 		case TIMEBASED: {
 			// nach entfernen der zeitbasierten Filterbedingungen darf dieser
 			// Fall nicht mehr eintreten, dann also IAE werfen..
-			// throw new IllegalArgumentException("Unsupported FilterType, see "
-			// + this.getClass().getPackage() + "." +
-			// this.getClass().getName());
-			return null;
+			throw new IllegalArgumentException("Unsupported FilterType, see " + this.getClass().getPackage() + "." + this.getClass().getName());
 		}
 		case JUNCTOR: {
 			final List<FilterCondition> children = new ArrayList<FilterCondition>(2);

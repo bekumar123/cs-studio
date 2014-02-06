@@ -14,14 +14,8 @@ public class AndFilterCondition implements FilterCondition {
 	
 	@Override
 	public boolean pruefeNachricht(AlarmMessage nachricht) {
-        // ACHTUNG: NullPointerException !!!
-        // Im Array this.regeln gibt es als Wert null (event. fehlende Timebased-Bedingung??)
 		boolean result = regeln.size() > 0;
 		for (FilterCondition regel : this.regeln) {
-			if (regel == null) {
-				result = false;
-				break;
-			}
 			boolean regelErgebnis = regel.pruefeNachricht(nachricht);
 			if (!regelErgebnis) {
 				result = false;

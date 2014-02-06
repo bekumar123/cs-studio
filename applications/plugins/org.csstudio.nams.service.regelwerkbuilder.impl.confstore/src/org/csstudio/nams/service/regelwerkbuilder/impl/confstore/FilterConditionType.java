@@ -11,7 +11,7 @@ import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.fil
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.StringFilterConditionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.TimeBasedFilterConditionDTO;
 
-public enum FilterConditionTypeRefToVersandRegelMapper {
+public enum FilterConditionType {
 	// TODO find a nice place to settle
 
 	// STRING(1),
@@ -29,9 +29,9 @@ public enum FilterConditionTypeRefToVersandRegelMapper {
 			JunctorCondForFilterTreeDTO.class), NEGATION(
 			NegationCondForFilterTreeDTO.class), PROPERTY_COMPARE(PropertyCompareFilterConditionDTO.class);
 
-	public static FilterConditionTypeRefToVersandRegelMapper valueOf(
+	public static FilterConditionType valueOf(
 			final Class<? extends FilterConditionDTO> clazz) {
-		for (final FilterConditionTypeRefToVersandRegelMapper enumC : FilterConditionTypeRefToVersandRegelMapper
+		for (final FilterConditionType enumC : FilterConditionType
 				.values()) {
 			if (enumC._clazz == clazz) {
 				return enumC;
@@ -42,7 +42,7 @@ public enum FilterConditionTypeRefToVersandRegelMapper {
 
 	private final Class<? extends FilterConditionDTO> _clazz;
 
-	private FilterConditionTypeRefToVersandRegelMapper(
+	private FilterConditionType(
 			final Class<? extends FilterConditionDTO> clazz) {
 		// this.id = iD;
 		this._clazz = clazz;

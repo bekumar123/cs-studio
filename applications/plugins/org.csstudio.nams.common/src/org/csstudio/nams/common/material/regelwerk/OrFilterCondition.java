@@ -16,14 +16,7 @@ public class OrFilterCondition implements FilterCondition {
 	public boolean pruefeNachricht(AlarmMessage nachricht) {
 		boolean result = false;
 
-		// ACHTUNG: NullPointerException !!!
-	    // Im Array this.regeln gibt es als Wert null (event. fehlende Timebased-Bedingung??)
-
 		for (FilterCondition regel : this.regeln) {
-			if(regel == null) {
-				result = false;
-				break;
-			}
 			boolean regelErgebnis = regel.pruefeNachricht(nachricht);
 			if (regelErgebnis) {
 				result = true;

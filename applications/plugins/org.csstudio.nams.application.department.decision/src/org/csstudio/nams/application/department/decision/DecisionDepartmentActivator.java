@@ -477,7 +477,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 		try {
 			DecisionDepartmentActivator.logger.logInfoMessage(this, "Decision department application is creating decision office...");
 	
-			final List<Filter> alleRegelwerke = DecisionDepartmentActivator.regelwerkBuilderService.gibAlleRegelwerke();
+			final List<Filter> alleRegelwerke = DecisionDepartmentActivator.regelwerkBuilderService.getAllFilters();
 	
 			DecisionDepartmentActivator.logger.logDebugMessage(this, "alleRegelwerke size: " + alleRegelwerke.size());
 			for (final Filter regelwerk : alleRegelwerke) {

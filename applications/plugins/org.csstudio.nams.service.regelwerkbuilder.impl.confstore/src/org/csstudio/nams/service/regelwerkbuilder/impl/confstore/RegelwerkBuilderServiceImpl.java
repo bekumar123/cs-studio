@@ -60,7 +60,7 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 	}
 
 	@Override
-	public List<Filter> gibAlleRegelwerke() throws RegelwerksBuilderException {
+	public List<Filter> getAllFilters() throws RegelwerksBuilderException {
 		final List<Filter> results = new LinkedList<Filter>();
 
 		try {
@@ -82,9 +82,9 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 					final List<FilterCondition> filterconditions = new LinkedList<FilterCondition>();
 					for (final FilterConditionDTO filterConditionDTO : filterConditions) {
 						try {
-							filterconditions.add(this.createRegel(filterConditionDTO));
+							filterconditions.add(this.createFilterCondition(filterConditionDTO));
 						} catch (Throwable t) {
-							RegelwerkBuilderServiceImpl.logger.logErrorMessage(this, "Failed to create Versand-Regel from DTO: " + filterConditionDTO
+							RegelwerkBuilderServiceImpl.logger.logErrorMessage(this, "Failed to create filter condition from DTO: " + filterConditionDTO
 									+ " for Filter: " + filterDTO, t);
 						}
 					}
@@ -94,14 +94,14 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 
 				} else if (filterDTO instanceof TimeBasedFilterDTO) {
 					TimeBasedFilterDTO timeBasedFilterDTO = (TimeBasedFilterDTO) filterDTO;
-					FilterCondition startRegel = createRegel(timeBasedFilterDTO.getStartFilterCondition());
-					FilterCondition stopRegel = createRegel(timeBasedFilterDTO.getStopFilterCondition());
+					FilterCondition startRegel = createFilterCondition(timeBasedFilterDTO.getStartFilterCondition());
+					FilterCondition stopRegel = createFilterCondition(timeBasedFilterDTO.getStopFilterCondition());
 					TimeoutType timeoutType = (timeBasedFilterDTO.isSendOnTimeout()) ? TimeoutType.SENDE_BEI_TIMEOUT : TimeoutType.SENDE_BEI_STOP_REGEL;
 					regelwerk = new TimebasedFilter(regelwerkskennung, startRegel, stopRegel, Milliseconds.valueOf(timeBasedFilterDTO
 							.getTimeout() * 1000), timeoutType); 
 				} else if (filterDTO instanceof WatchDogFilterDTO) {
 					WatchDogFilterDTO watchDogFilterDTO = (WatchDogFilterDTO) filterDTO;
-					FilterCondition rootRegel = createRegel(watchDogFilterDTO.getFilterCondition());
+					FilterCondition rootRegel = createFilterCondition(watchDogFilterDTO.getFilterCondition());
 					regelwerk = new WatchDogFilter(regelwerkskennung, rootRegel, Milliseconds.valueOf(watchDogFilterDTO.getTimeout() * 1000));
 				}
 				results.add(regelwerk);
@@ -114,7 +114,7 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 		return results;
 	}
 
-	protected FilterCondition createRegel(final FilterConditionDTO filterConditionDTO) {
+	protected FilterCondition createFilterCondition(final FilterConditionDTO filterConditionDTO) {
 		final FilterConditionType type = FilterConditionType.valueOf(filterConditionDTO.getClass());
 		switch (type) {
 		//
@@ -140,8 +140,8 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 			final FilterConditionDTO firstFilterCondition = junctorCondition.getFirstFilterCondition();
 			final FilterConditionDTO secondFilterCondition = junctorCondition.getSecondFilterCondition();
 
-			children.add(this.createRegel(firstFilterCondition));
-			children.add(this.createRegel(secondFilterCondition));
+			children.add(this.createFilterCondition(firstFilterCondition));
+			children.add(this.createFilterCondition(secondFilterCondition));
 
 			switch (junctorCondition.getJunctor()) {
 			case OR:
@@ -177,7 +177,7 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 		case NEGATION: {
 			final NegationCondForFilterTreeDTO notCondition = (NegationCondForFilterTreeDTO) filterConditionDTO;
 
-			return new NotFilterCondition(this.createRegel(notCondition.getNegatedFilterCondition()));
+			return new NotFilterCondition(this.createFilterCondition(notCondition.getNegatedFilterCondition()));
 		}
 		case JUNCTOR_FOR_TREE: {
 			final JunctorCondForFilterTreeDTO junctorCondition = (JunctorCondForFilterTreeDTO) filterConditionDTO;
@@ -185,7 +185,7 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 			final Set<FilterConditionDTO> operands = junctorCondition.getOperands();
 			final List<FilterCondition> children = new ArrayList<FilterCondition>(operands.size());
 			for (FilterConditionDTO operand : operands) {
-				children.add(this.createRegel(operand));
+				children.add(this.createFilterCondition(operand));
 			}
 
 			if (junctorCondition.getOperator() == JunctorConditionType.AND) {

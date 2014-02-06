@@ -66,7 +66,7 @@ public class Synchronizer {
 
 				synchronizationState = SynchronizationState.IDLE;
 				
-				alarmEntscheidungsBuero.updateRegelwerke(regelwerkBuilderService.gibAlleRegelwerke());
+				alarmEntscheidungsBuero.updateRegelwerke(regelwerkBuilderService.getAllFilters());
 
 				if (alarmConsumer.isPaused()) {
 					alarmConsumer.unpause();

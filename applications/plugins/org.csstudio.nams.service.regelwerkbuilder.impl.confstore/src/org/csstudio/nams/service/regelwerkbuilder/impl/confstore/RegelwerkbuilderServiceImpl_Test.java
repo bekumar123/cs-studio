@@ -10,13 +10,13 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
+import org.csstudio.nams.common.material.regelwerk.AndFilterCondition;
+import org.csstudio.nams.common.material.regelwerk.Filter;
+import org.csstudio.nams.common.material.regelwerk.FilterCondition;
 import org.csstudio.nams.common.material.regelwerk.NotFilterCondition;
 import org.csstudio.nams.common.material.regelwerk.OrFilterCondition;
-import org.csstudio.nams.common.material.regelwerk.FilterCondition;
-import org.csstudio.nams.common.material.regelwerk.Filter;
 import org.csstudio.nams.common.material.regelwerk.StringFilterCondition;
 import org.csstudio.nams.common.material.regelwerk.StringFilterConditionOperator;
-import org.csstudio.nams.common.material.regelwerk.AndFilterCondition;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.Configuration;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.DefaultFilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterConfiguration;
@@ -87,7 +87,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 	@Test
 	public void testBuildStringCondition() {
 		assertEquals(childRegel, regelwerkBuilderService
-				.createRegel(childDTO));
+				.createFilterCondition(childDTO));
 	}
 
 	@Test
@@ -120,7 +120,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		FilterCondition zielRegel = new OrFilterCondition(regeln);
 
 		assertEquals(zielRegel, regelwerkBuilderService
-				.createRegel(arrayDTO));
+				.createFilterCondition(arrayDTO));
 	}
 
 	@Test
@@ -142,7 +142,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		FilterCondition zielRegel = new OrFilterCondition(regeln);
 
 		assertEquals(zielRegel, regelwerkBuilderService
-				.createRegel(junctorDTO));
+				.createFilterCondition(junctorDTO));
 	}
 
 	@Test
@@ -158,7 +158,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		FilterCondition zielRegel = new AndFilterCondition(regeln);
 
 		assertEquals(zielRegel, regelwerkBuilderService
-				.createRegel(junctorDTO));
+				.createFilterCondition(junctorDTO));
 	}
 
 	@Test
@@ -167,7 +167,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		negationDTO.setNegatedFilterCondition(childDTO);
 		FilterCondition zielRegel = new NotFilterCondition(childRegel);
 		assertEquals(zielRegel, regelwerkBuilderService
-				.createRegel(negationDTO));
+				.createFilterCondition(negationDTO));
 	}
 
 	@Test
@@ -184,7 +184,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		regeln.add(childRegel2);
 		FilterCondition zielRegel = new AndFilterCondition(regeln);
 		
-		assertEquals(zielRegel, regelwerkBuilderService.createRegel(junctorDTO));
+		assertEquals(zielRegel, regelwerkBuilderService.createFilterCondition(junctorDTO));
 	}
 
 	@Test
@@ -201,7 +201,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		regeln.add(childRegel2);
 		FilterCondition zielRegel = new OrFilterCondition(regeln);
 		
-		assertEquals(zielRegel, regelwerkBuilderService.createRegel(junctorDTO));
+		assertEquals(zielRegel, regelwerkBuilderService.createFilterCondition(junctorDTO));
 	}
 	
 	@Test
@@ -211,7 +211,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		
 		localStoreConfigurationServiceFilterDTOs.add(complexStringFilterDTO);
 
-		List<Filter> komplexeRegelwerke = regelwerkBuilderService.gibAlleRegelwerke();
+		List<Filter> komplexeRegelwerke = regelwerkBuilderService.getAllFilters();
 		assertEquals(1, komplexeRegelwerke.size());
 
 		DefaultFilterDTO simpleStringFilterDTO = new DefaultFilterDTO();
@@ -219,7 +219,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		
 		localStoreConfigurationServiceFilterDTOs.add(simpleStringFilterDTO);
 
-		komplexeRegelwerke = regelwerkBuilderService.gibAlleRegelwerke();
+		komplexeRegelwerke = regelwerkBuilderService.getAllFilters();
 		assertEquals(2, komplexeRegelwerke.size());
 		
 		DefaultFilterDTO stringFilterDtoWrongOperator = new DefaultFilterDTO();
@@ -231,7 +231,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		
 		localStoreConfigurationServiceFilterDTOs.add(stringFilterDtoWrongOperator);
 		
-		assertEquals(3, regelwerkBuilderService.gibAlleRegelwerke().size());
+		assertEquals(3, regelwerkBuilderService.getAllFilters().size());
 
 		DefaultFilterDTO otherFilterDtoWrongOperator = new DefaultFilterDTO();
 		
@@ -259,7 +259,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 		
 		localStoreConfigurationServiceFilterDTOs.add(otherFilterDtoWrongOperator);
 		
-		assertEquals(4, regelwerkBuilderService.gibAlleRegelwerke().size());
+		assertEquals(4, regelwerkBuilderService.getAllFilters().size());
 	}
 
 	private LocalStoreConfigurationService createMockLocalStoreConfigurationService() {

@@ -14,6 +14,6 @@ public interface RegelwerkBuilderService {
 	 * @throws RegelwerksBuilderException
 	 *             If an error occurs on loading or creating {@link Filter}-elements.
 	 */
-	public List<Filter> gibAlleRegelwerke()
+	public List<Filter> getAllFilters()
 			throws RegelwerksBuilderException;
 }

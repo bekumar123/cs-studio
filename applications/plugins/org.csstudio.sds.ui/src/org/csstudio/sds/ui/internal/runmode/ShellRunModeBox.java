@@ -24,6 +24,7 @@ package org.csstudio.sds.ui.internal.runmode;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.csstudio.sds.internal.runmode.RunModeBoxInput;
@@ -99,6 +100,8 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
 	private final RunModeBoxLayoutData lastLayoutDataOrNull;
 
 	private ZoomManager zoomManager;
+
+	private ActionRegistry actionRegistry;
     
     /**
      * Constructor.
@@ -211,7 +214,7 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
         	zoomManager = ((ScalableFreeformRootEditPart)rootEditPart).getZoomManager();
         }
         
-        ActionRegistry actionRegistry = new ActionRegistry();
+        actionRegistry = new ActionRegistry();
         this.createActions(actionRegistry);
         
         // provide a context menu, Note: We use an proxy for the EditpartViewer
@@ -330,6 +333,14 @@ public final class ShellRunModeBox extends AbstractRunModeBox {
                 _editPartViewerProxy = null;
             }
         }
+        
+        // actions need to be unregistered so this box can be garbage collected
+        @SuppressWarnings("unchecked")
+        Iterator<IAction> actions = actionRegistry.getActions();
+        while(actions.hasNext()) {
+        	IAction action = actions.next();
+        	actionRegistry.removeAction(action);
+		}
     }
     
     /**

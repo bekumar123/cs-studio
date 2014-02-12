@@ -3,7 +3,7 @@ package org.csstudio.nams.service.messaging.declaration;
 
 import org.csstudio.nams.common.contract.Contract;
 import org.csstudio.nams.common.material.AlarmMessage;
-import org.csstudio.nams.common.material.SystemNachricht;
+import org.csstudio.nams.common.material.SystemMessage;
 import org.csstudio.nams.service.messaging.exceptions.MessagingException;
 
 public class DefaultNAMSMessage implements NAMSMessage {
@@ -12,7 +12,7 @@ public class DefaultNAMSMessage implements NAMSMessage {
 		public void acknowledge() throws Throwable;
 	}
 
-	private final SystemNachricht sysNachricht;
+	private final SystemMessage sysNachricht;
 	private final AcknowledgeHandler ackHandler;
 
 	private final AlarmMessage alarmNachricht;
@@ -36,7 +36,7 @@ public class DefaultNAMSMessage implements NAMSMessage {
 		this.sysNachricht = null;
 	}
 
-	public DefaultNAMSMessage(final SystemNachricht sysNachricht,
+	public DefaultNAMSMessage(final SystemMessage sysNachricht,
 			final AcknowledgeHandler ackHandler) {
 		Contract.requireNotNull("ackHandler", ackHandler);
 		Contract.requireNotNull("sysNachricht", sysNachricht);
@@ -62,7 +62,7 @@ public class DefaultNAMSMessage implements NAMSMessage {
 	}
 
 	@Override
-    public final SystemNachricht alsSystemachricht() {
+    public final SystemMessage alsSystemachricht() {
 		Contract.require(this.enthaeltSystemnachricht(),
 				"enthaeltSystemnachricht()");
 		return this.sysNachricht;

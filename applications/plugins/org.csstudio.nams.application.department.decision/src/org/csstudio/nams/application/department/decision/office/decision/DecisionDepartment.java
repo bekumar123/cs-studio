@@ -108,13 +108,16 @@ public class DecisionDepartment {
 		logger.logInfoMessage(this, "Updating " + regelwerke.size() + " filter configurations");
 		Map<FilterId, FilterWorker> neueSachbearbeiter = new HashMap<FilterId, FilterWorker>();
 		
+		int newCount = 0;
+		int changedCount = 0;
 		for (Filter regelwerk : regelwerke) {
 			if(_regelwerkKennungenZuSachbearbeitern.containsKey(regelwerk.getFilterId())) {
 				FilterWorker vorhandenerSachbearbeiter = _regelwerkKennungenZuSachbearbeitern.remove(regelwerk.getFilterId());
 				if(!vorhandenerSachbearbeiter.getFilter().equals(regelwerk)) {
-					logger.logInfoMessage(this, "Updating configuration for filter: " + regelwerk);
-
 					// verändert, vorhandenen aktualisieren
+					logger.logInfoMessage(this, "Updating configuration for filter: " + regelwerk);
+					changedCount += 1;
+
 					if(vorhandenerSachbearbeiter instanceof DefaultFilterWorker) {
 						((DefaultFilterWorker) vorhandenerSachbearbeiter).setRegelwerk((DefaultFilter) regelwerk);
 					} else if(vorhandenerSachbearbeiter instanceof TimebasedFilterWorker) {
@@ -125,8 +128,9 @@ public class DecisionDepartment {
 				}
 				neueSachbearbeiter.put(vorhandenerSachbearbeiter.getFilter().getFilterId(), vorhandenerSachbearbeiter);
 			} else {
-				logger.logInfoMessage(this, "New filter: " + regelwerk);
 				// neu
+				logger.logInfoMessage(this, "New filter: " + regelwerk);
+				newCount += 1;
 				FilterWorker sachbearbeiter = null;
 				if (regelwerk instanceof DefaultFilter) {
 					ObservableInbox<MessageCasefile> spezifischerEingangskorb = new BeobachtbarerEingangskorbImpl<MessageCasefile>();
@@ -162,7 +166,7 @@ public class DecisionDepartment {
 		}
 		
 		_regelwerkKennungenZuSachbearbeitern = neueSachbearbeiter;
-		logger.logInfoMessage(this, "Updating " + regelwerke.size() + " filter configurations finished");
+		logger.logInfoMessage(this, "Updating " + regelwerke.size() + " filter configurations finished, " + newCount + " new filters, " + changedCount + " changed filters.");
 	}
 
 	/**

@@ -6,7 +6,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import org.csstudio.nams.common.contract.Contract;
-import org.csstudio.nams.configurator.Messages;
 import org.csstudio.nams.configurator.beans.AbstractConfigurationBean;
 import org.csstudio.nams.configurator.beans.IConfigurationBean;
 import org.csstudio.nams.configurator.service.ConfigurationBeanService;
@@ -20,13 +19,11 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 
 /**
@@ -356,6 +353,20 @@ public abstract class AbstractEditor<ConfigurationType extends AbstractConfigura
 		return textWidget;
 	}
 
+	protected void createLabelEntry(final Composite parent,
+			final String labeltext, final String valueText) {
+		final Label label = new Label(parent, SWT.RIGHT);
+		label.setText(labeltext);
+		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		final Label labelWidget = new Label(parent, SWT.BORDER);
+		final GridData gridData = new GridData(SWT.FILL, SWT.CENTER, false,
+				false, this.NUM_COLUMNS - 1, 1);
+		gridData.minimumWidth = this.MIN_WIDTH;
+		gridData.widthHint = this.MIN_WIDTH;
+		labelWidget.setLayoutData(gridData);
+		labelWidget.setText(valueText);
+	}
+	
 	protected abstract void doInit(IEditorSite site, IEditorInput input);
 
 	protected abstract int getNumColumns();

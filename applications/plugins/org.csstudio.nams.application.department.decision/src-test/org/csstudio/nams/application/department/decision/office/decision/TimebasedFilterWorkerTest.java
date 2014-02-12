@@ -117,8 +117,8 @@ public class TimebasedFilterWorkerTest {
 		
 		Assert.assertFalse(vorgangsmappe.equals(aeltesterEingang));
 		assertEquals(filterId, aeltesterEingang.getHandledByFilterId());
-		assertTrue(aeltesterEingang.istAbgeschlossen());
-		assertTrue(aeltesterEingang.istAbgeschlossenDurchTimeOut());
+		assertTrue(aeltesterEingang.isClosed());
+		assertTrue(aeltesterEingang.isClosedByTimeout());
 		
 		// Test cancel bei Stopnachricht
 		vorgangsmappe = new MessageCasefile(CasefileId.createNew(), new AlarmMessage(
@@ -197,8 +197,8 @@ public class TimebasedFilterWorkerTest {
 		
 		assertFalse(vorgangsmappe.equals(aeltesterEingang));
 		assertEquals(filterId, aeltesterEingang.getHandledByFilterId());
-		assertTrue(aeltesterEingang.istAbgeschlossen());
-		assertFalse(aeltesterEingang.istAbgeschlossenDurchTimeOut());
+		assertTrue(aeltesterEingang.isClosed());
+		assertFalse(aeltesterEingang.isClosedByTimeout());
 		
 		assertEquals(0, ausgangskorb.documentCount());
 		

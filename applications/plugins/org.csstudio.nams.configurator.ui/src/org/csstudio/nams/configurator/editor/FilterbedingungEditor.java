@@ -21,6 +21,8 @@ import org.csstudio.nams.configurator.beans.filters.PVFilterConditionBean;
 import org.csstudio.nams.configurator.beans.filters.PropertyCompareConditionBean;
 import org.csstudio.nams.configurator.beans.filters.StringArrayFilterConditionBean;
 import org.csstudio.nams.configurator.beans.filters.StringFilterConditionBean;
+import org.csstudio.nams.configurator.beans.filters.TimeBasedFilterConditionBean;
+import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.TimeBasedType;
 import org.csstudio.platform.model.pvs.ProcessVariableAdressFactory;
 import org.csstudio.platform.model.pvs.ValueType;
 import org.csstudio.platform.simpledal.ConnectionException;
@@ -103,7 +105,7 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
 		STRING_CONDITION(Messages.FilterbedingungEditor_supported_filter_types_string_condition, StringFilterConditionBean.class), 
 		STRING_ARRAY_CONDITION(Messages.FilterbedingungEditor_supported_filter_types_string_array_condition, StringArrayFilterConditionBean.class), 
 		PV_CONDITION(Messages.FilterbedingungEditor_supported_filter_types_pv_condition, PVFilterConditionBean.class), 
-//		TIMEBASED_CONDITION(Messages.FilterbedingungEditor_supported_filter_types_time_based_condition, TimeBasedFilterConditionBean.class),
+		TIMEBASED_CONDITION(Messages.FilterbedingungEditor_supported_filter_types_time_based_condition, TimeBasedFilterConditionBean.class),
 		PROPERTY_COMPARE_CONDITION(Messages.FilterbedingungEditor_supported_filter_types_property_compare_condition, PropertyCompareConditionBean.class);
 
 		public static SupportedFilterTypes fromClass(final Class<?> cls) {
@@ -499,55 +501,42 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
 		});
 
 		// TimeBasedComposite
-//		this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()] = new Composite(this.filterSpecificComposite,
-//				SWT.TOP);
-//		this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()].setLayout(new GridLayout(this.NUM_COLUMNS,
-//				false));
-//		final IConfigurationBean timeBasedConfigurationBean = this.specificBeans
-//				.get(SupportedFilterTypes.TIMEBASED_CONDITION);
-//
-//		this.timeDelayText = this.createTextEntry(this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()],
-//				Messages.FilterbedingungEditor_delay_time, true);
-//		this.timeBehaviorCheck = this.createCheckBoxEntry(
-//				this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()], Messages.FilterbedingungEditor_alarm_on_timeout, true);
-//		this.addSeparator(this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()]);
-//		this
-//				.createTitledComboForEnumValues(
-//						this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()],
-//						Messages.FilterbedingungEditor_start_key_value,
-//						MessageKeyEnum.values(),
-//						timeBasedConfigurationBean,
-//						TimeBasedFilterConditionBean.PropertyNames.startKeyValue
-//								.name());
-//
-//		this
-//				.createTitledComboForEnumValues(
-//						this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()],
-//						Messages.FilterbedingungEditor_start_operator,
-//						StringRegelOperator.values(),
-//						timeBasedConfigurationBean,
-//						TimeBasedFilterConditionBean.PropertyNames.startOperator
-//								.name());
-//
-//		this.timeStartCompareText = this.createTextEntry(
-//				this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()], Messages.FilterbedingungEditor_start_compare_value, true);
-//		this.addSeparator(this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()]);
-//		this.createTitledComboForEnumValues(this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()],
-//				Messages.FilterbedingungEditor_stop_key_value, MessageKeyEnum.values(),
-//				timeBasedConfigurationBean,
-//				TimeBasedFilterConditionBean.PropertyNames.confirmKeyValue
-//						.name());
-//
-//		this.createTitledComboForEnumValues(this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()],
-//				Messages.FilterbedingungEditor_stop_operator, StringRegelOperator.values(),
-//				timeBasedConfigurationBean,
-//				TimeBasedFilterConditionBean.PropertyNames.confirmOperator
-//						.name());
-//
-//		this.timeStopCompareText = this.createTextEntry(
-//				this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()], Messages.FilterbedingungEditor_stop_compare_value, true);
-
 		
+		this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()] = new Composite(this.filterSpecificComposite,
+				SWT.TOP);
+		this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()].setLayout(new GridLayout(this.NUM_COLUMNS,
+				false));
+
+		final Label timebasedConditionWarningLabel = new Label(this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()], SWT.LEFT
+				| SWT.WRAP);
+		timebasedConditionWarningLabel.setText(Messages.FilterbedingungEditor_timebased_condition_warning1
+				+ Messages.FilterbedingungEditor_timebased_condition_warning2
+				+ Messages.FilterbedingungEditor_timebased_condition_warning3
+				+ Messages.FilterbedingungEditor_timebased_condition_warning4);
+		timebasedConditionWarningLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, this.NUM_COLUMNS, 1));
+		this.addSeparator(this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()]);
+		
+		final TimeBasedFilterConditionBean timeBasedConfigurationBean = (TimeBasedFilterConditionBean) this.specificBeans
+				.get(SupportedFilterTypes.TIMEBASED_CONDITION);
+
+		createLabelEntry(this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()], Messages.FilterbedingungEditor_delay_time, "" + (timeBasedConfigurationBean.getTimePeriod().getMilliseconds()/1000) + " sec");
+		
+		this.addSeparator(this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()]);
+
+		boolean hasAlarmOnTimeout = timeBasedConfigurationBean.getTimeBehavior() == TimeBasedType.TIMEBEHAVIOR_TIMEOUT_THEN_ALARM;
+		createLabelEntry(this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()], Messages.FilterbedingungEditor_alarm_on_timeout, "" + hasAlarmOnTimeout);
+
+		this.addSeparator(this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()]);
+		
+		createLabelEntry(this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()], Messages.FilterbedingungEditor_start_key_value, timeBasedConfigurationBean.getStartKeyValue().name());
+		createLabelEntry(this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()], Messages.FilterbedingungEditor_start_operator, timeBasedConfigurationBean.getStartOperator().name());
+		createLabelEntry(this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()], Messages.FilterbedingungEditor_start_compare_value, timeBasedConfigurationBean.getStartCompValue());
+		this.addSeparator(this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()]);
+		createLabelEntry(this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()], Messages.FilterbedingungEditor_stop_key_value, timeBasedConfigurationBean.getConfirmKeyValue().name());
+		createLabelEntry(this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()], Messages.FilterbedingungEditor_stop_operator, timeBasedConfigurationBean.getConfirmOperator().name());
+		createLabelEntry(this.stackComposites[SupportedFilterTypes.TIMEBASED_CONDITION.ordinal()], Messages.FilterbedingungEditor_stop_compare_value, timeBasedConfigurationBean.getConfirmCompValue());
+		
+
 		// PROPERTY COMPARE CONDITION
 		this.stackComposites[SupportedFilterTypes.PROPERTY_COMPARE_CONDITION.ordinal()] = new Composite(this.filterSpecificComposite, SWT.TOP);
 		this.stackComposites[SupportedFilterTypes.PROPERTY_COMPARE_CONDITION.ordinal()].setLayout(new GridLayout(this.NUM_COLUMNS, false));
@@ -587,7 +576,10 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
 			this.selectedFilterType.setType(SupportedFilterTypes.STRING_ARRAY_CONDITION);
 		} else if (filterSpecificBean instanceof PVFilterConditionBean) {
 			this.selectedFilterType.setType(SupportedFilterTypes.PV_CONDITION);
-		} else {
+		} else if (filterSpecificBean instanceof TimeBasedFilterConditionBean) {
+			this.selectedFilterType.setType(SupportedFilterTypes.TIMEBASED_CONDITION);
+		}
+		else {
 			throw new RuntimeException("Unsupported AddOnBean " //$NON-NLS-1$
 					+ filterSpecificBean.getClass());
 		}
@@ -734,6 +726,8 @@ public class FilterbedingungEditor extends AbstractEditor<FilterbedingungBean> {
 				new StringArrayFilterConditionBean());
 		this.specificBeans.put(SupportedFilterTypes.PV_CONDITION,
 				new PVFilterConditionBean());
+		this.specificBeans.put(SupportedFilterTypes.TIMEBASED_CONDITION,
+				new TimeBasedFilterConditionBean());
 		final AbstractConfigurationBean<?> filterSpecificBean = this
 				.getWorkingCopyOfEditorInput().getFilterSpecificBean();
 

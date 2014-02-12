@@ -33,21 +33,21 @@ import org.csstudio.nams.common.wam.Material;
 @Material
 public class MessageCasefile implements Document {
 
-	private final AlarmMessage alarmNachricht;
+	private final AlarmMessage alarmMessage;
 	private final CasefileId id;
 	private CasefileId closedByFileId;
 	private boolean isClosedByTimeout = false;
 	private FilterId handledByFilter;
 
-	public MessageCasefile(final CasefileId kennung, final AlarmMessage nachricht) {
-		Contract.requireNotNull("nachricht", nachricht);
+	public MessageCasefile(final CasefileId id, final AlarmMessage message) {
+		Contract.requireNotNull("message", message);
 
-		this.alarmNachricht = nachricht;
-		this.id = kennung;
+		this.alarmMessage = message;
+		this.id = id;
 		this.handledByFilter = null;
 	}
 
-	public void abgeschlossenDurchTimeOut() {
+	public void closeWithTimeOut() {
 		this.closedByFileId = this.id;
 		this.isClosedByTimeout = true;
 	}
@@ -72,7 +72,7 @@ public class MessageCasefile implements Document {
 			return false;
 		}
 		final MessageCasefile other = (MessageCasefile) obj;
-		if (!this.alarmNachricht.equals(other.alarmNachricht)) {
+		if (!this.alarmMessage.equals(other.alarmMessage)) {
 			return false;
 		}
 		if (!this.id.equals(other.id)) {
@@ -85,42 +85,40 @@ public class MessageCasefile implements Document {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + this.alarmNachricht.hashCode();
+		result = prime * result + this.alarmMessage.hashCode();
 		return result;
 	}
 
-	public MessageCasefile erstelleKopieFuer(final String bearbeiter) {
-		return new MessageCasefile(CasefileId.valueOf(this.id, bearbeiter), this.alarmNachricht.clone());
+	public MessageCasefile getCopyFor(final String bearbeiter) {
+		return new MessageCasefile(CasefileId.valueOf(this.id, bearbeiter), this.alarmMessage.clone());
 	}
 	
-	public CasefileId gibAbschliessendeMappenkennung() {
+	public CasefileId getClosedByFileId() {
 		return this.closedByFileId;
 	}
 
 	public AlarmMessage getAlarmMessage() {
-		return this.alarmNachricht;
+		return this.alarmMessage;
 	}
 
 	public CasefileId getCasefileId() {
 		return this.id;
 	}
 
-	public boolean istAbgeschlossen() {
+	public boolean isClosed() {
 		return (this.closedByFileId != null);
 	}
 
-	public boolean istAbgeschlossenDurchTimeOut() {
+	public boolean isClosedByTimeout() {
 		return this.isClosedByTimeout;
 	}
 
-	public void pruefungAbgeschlossenDurch(final CasefileId mappenkennung) {
-		this.closedByFileId = mappenkennung;
+	public void closeWithFileId(final CasefileId casefileId) {
+		this.closedByFileId = casefileId;
 	}
 
 	@Override
 	public String toString() {
-		return this.id.toString() + " " + this.alarmNachricht;
+		return this.id.toString() + " " + this.alarmMessage;
 	}
-
-	// TODO Ggf. spaeter Kapitel einfuehren für einzelne Bereiche!
 }

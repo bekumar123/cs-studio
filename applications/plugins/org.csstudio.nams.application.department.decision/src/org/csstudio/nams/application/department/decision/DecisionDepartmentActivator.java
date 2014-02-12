@@ -49,7 +49,6 @@ import org.csstudio.nams.common.decision.DefaultDocumentBox;
 import org.csstudio.nams.common.decision.Inbox;
 import org.csstudio.nams.common.decision.MessageCasefile;
 import org.csstudio.nams.common.material.regelwerk.Filter;
-import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 import org.csstudio.nams.common.service.ExecutionService;
 import org.csstudio.nams.common.service.StepByStepProcessor;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.ConfigurationServiceFactory;
@@ -113,27 +112,27 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 
 	class OutboxProcessor extends StepByStepProcessor {
 
-		private final Inbox<MessageCasefile> vorgangskorb;
+		private final Inbox<MessageCasefile> departmentOutbox;
 
 		public OutboxProcessor(final Inbox<MessageCasefile> vorgangskorb) {
-			this.vorgangskorb = vorgangskorb;
+			this.departmentOutbox = vorgangskorb;
 		}
 
 		@Override
 		protected void doRunOneSingleStep() throws Throwable {
 
 			try {
-				final MessageCasefile vorgangsmappe = this.vorgangskorb.takeDocument();
-				if (vorgangsmappe.istAbgeschlossenDurchTimeOut()) {
-					DecisionDepartmentActivator.historyService.logTimeOutForTimeBased(vorgangsmappe);
+				final MessageCasefile messageCasefile = this.departmentOutbox.takeDocument();
+				if (messageCasefile.isClosedByTimeout()) {
+					DecisionDepartmentActivator.historyService.logTimeOutForTimeBased(messageCasefile);
 				}
 
 				// Nachricht nicht anreichern. Wird im JMSProducer gemacht
 				// Versenden
 				DecisionDepartmentActivator.logger.logInfoMessage(this, "decission office ordered message to be send: \""
-						+ vorgangsmappe.getAlarmMessage().toString() + "\" [internal process id: " + vorgangsmappe.getCasefileId().toString() + "]");
+						+ messageCasefile.getAlarmMessage().toString() + "\" [internal process id: " + messageCasefile.getCasefileId().toString() + "]");
 
-				DecisionDepartmentActivator.this.amsAusgangsProducer.sendeVorgangsmappe(vorgangsmappe);
+				DecisionDepartmentActivator.this.amsAusgangsProducer.sendMessageCasefile(messageCasefile);
 
 			} catch (final InterruptedException e) {
 				// wird zum stoppen benötigt. hier muss nichts unternommen
@@ -676,9 +675,9 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 
 	private void handleSystemMessage(Synchronizer synchronizer, final NAMSMessage message) throws StorageError {
 		try {
-			if (message.alsSystemachricht().istSynchronisationsAufforderung()) {
+			if (message.alsSystemachricht().isSynchronizationRequest()) {
 				synchronizer.startSynchronization();
-			} else if (message.alsSystemachricht().istSynchronisationsBestaetigung()) {
+			} else if (message.alsSystemachricht().isSynchronizationConfirmation()) {
 				logReceivedReplicationDoneMessage();
 				synchronizer.handleSynchronizationFinishedMessageReceived();
 			}
@@ -729,7 +728,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 
 				alarmConsumer.close();
 			}
-		});
+		}, "ALARM_RECEIVER");
 	
 		alarmReceiverThread.start();
 	}

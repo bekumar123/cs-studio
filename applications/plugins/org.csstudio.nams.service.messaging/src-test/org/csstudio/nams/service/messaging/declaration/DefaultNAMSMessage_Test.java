@@ -5,7 +5,7 @@ import junit.framework.Assert;
 import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.common.material.SynchronisationsAufforderungsSystemNachchricht;
 import org.csstudio.nams.common.material.SynchronisationsBestaetigungSystemNachricht;
-import org.csstudio.nams.common.material.SystemNachricht;
+import org.csstudio.nams.common.material.SystemMessage;
 import org.csstudio.nams.common.testutils.AbstractTestObject;
 import org.csstudio.nams.service.messaging.declaration.DefaultNAMSMessage.AcknowledgeHandler;
 import org.junit.After;
@@ -40,9 +40,9 @@ public class DefaultNAMSMessage_Test extends
 
 		Assert.assertTrue(msg.enthaeltSystemnachricht());
 		Assert.assertFalse(msg.enthaeltAlarmnachricht());
-		SystemNachricht systemNachricht = msg.alsSystemachricht();
-		Assert.assertTrue(systemNachricht.istSynchronisationsBestaetigung());
-		Assert.assertFalse(systemNachricht.istSynchronisationsAufforderung());
+		SystemMessage systemNachricht = msg.alsSystemachricht();
+		Assert.assertTrue(systemNachricht.isSynchronizationConfirmation());
+		Assert.assertFalse(systemNachricht.isSynchronizationRequest());
 
 		// Aufforderungsnachricht erstellen
 		msg = new DefaultNAMSMessage(
@@ -56,8 +56,8 @@ public class DefaultNAMSMessage_Test extends
 		Assert.assertTrue(msg.enthaeltSystemnachricht());
 		Assert.assertFalse(msg.enthaeltAlarmnachricht());
 		systemNachricht = msg.alsSystemachricht();
-		Assert.assertFalse(systemNachricht.istSynchronisationsBestaetigung());
-		Assert.assertTrue(systemNachricht.istSynchronisationsAufforderung());
+		Assert.assertFalse(systemNachricht.isSynchronizationConfirmation());
+		Assert.assertTrue(systemNachricht.isSynchronizationRequest());
 	}
 
 	@Override

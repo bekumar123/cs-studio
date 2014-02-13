@@ -71,6 +71,10 @@ public class Messages extends NLS {
 	public static String FilterbedingungEditor_or_condition_warning1;
 	public static String FilterbedingungEditor_or_condition_warning2;
 	public static String FilterbedingungEditor_or_condition_warning3;
+	public static String FilterbedingungEditor_timebased_condition_warning1;
+	public static String FilterbedingungEditor_timebased_condition_warning2;
+	public static String FilterbedingungEditor_timebased_condition_warning3;
+	public static String FilterbedingungEditor_timebased_condition_warning4;
 	public static String FilterbedingungEditor_property_compare_description;
 	public static String FilterbedingungEditor_pv_connection_test;
 	public static String FilterbedingungEditor_pv_connection_test_success1;

@@ -10,7 +10,7 @@ import junit.framework.TestCase;
 
 import org.csstudio.nams.common.material.SynchronisationsAufforderungsSystemNachchricht;
 import org.csstudio.nams.common.material.SynchronisationsBestaetigungSystemNachricht;
-import org.csstudio.nams.common.material.SystemNachricht;
+import org.csstudio.nams.common.material.SystemMessage;
 import org.csstudio.nams.common.material.regelwerk.Filter;
 import org.csstudio.nams.common.service.ExecutionServiceMock;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.ConfigurationServiceFactory;
@@ -239,7 +239,7 @@ public class DecisionDepartmentActivator_Test extends TestCase {
 
         this.amsToDistributorProducerMock = new ProducerMock() {
             @Override
-            public void sendeSystemnachricht(final SystemNachricht nachricht) {
+            public void sendSystemMessage(final SystemMessage nachricht) {
                 Assert
                 .assertTrue((nachricht instanceof SynchronisationsAufforderungsSystemNachchricht));
             }

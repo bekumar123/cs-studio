@@ -72,7 +72,7 @@ public class Synchronizer {
 					alarmConsumer.unpause();
 				}
 
-				extCommandProducer.sendeSystemnachricht(new SynchronisationsBestaetigungSystemNachricht());
+				extCommandProducer.sendSystemMessage(new SynchronisationsBestaetigungSystemNachricht());
 				logger.logInfoMessage(this, "Synchronize confirm message sent.");
 			}
 		}
@@ -97,6 +97,6 @@ public class Synchronizer {
 			localStoreConfigurationService.saveCurrentReplicationState(stateDTO);
 		}
 
-		amsProducer.sendeSystemnachricht(new SynchronisationsAufforderungsSystemNachchricht());
+		amsProducer.sendSystemMessage(new SynchronisationsAufforderungsSystemNachchricht());
 	}
 }

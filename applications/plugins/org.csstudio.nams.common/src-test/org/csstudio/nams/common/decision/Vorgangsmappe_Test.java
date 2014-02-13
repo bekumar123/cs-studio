@@ -20,14 +20,14 @@ public class Vorgangsmappe_Test extends AbstractTestObject<MessageCasefile> {
 		final MessageCasefile mappe = new MessageCasefile(kennung, alarmNachricht);
 		Assert
 				.assertFalse("mappe.istAbgeschlossen()", mappe
-						.istAbgeschlossen());
+						.isClosed());
 		final CasefileId abschliesserKennung = CasefileId.createNew();
-		mappe.pruefungAbgeschlossenDurch(abschliesserKennung);
-		Assert.assertTrue("mappe.istAbgeschlossen()", mappe.istAbgeschlossen());
+		mappe.closeWithFileId(abschliesserKennung);
+		Assert.assertTrue("mappe.istAbgeschlossen()", mappe.isClosed());
 		Assert.assertTrue(
 						"abschliesserKennung.equals(mappe.gibAbschliessendeMappenkennung())",
 						abschliesserKennung.equals(mappe
-								.gibAbschliessendeMappenkennung()));
+								.getClosedByFileId()));
 	}
 
 	@Test
@@ -54,7 +54,7 @@ public class Vorgangsmappe_Test extends AbstractTestObject<MessageCasefile> {
 				alarmNachricht);
 
 		final MessageCasefile neueVorgangsmappe = vorgangsmappe
-				.erstelleKopieFuer("Horst Senkel");
+				.getCopyFor("Horst Senkel");
 
 		Assert.assertNotNull(neueVorgangsmappe);
 		Assert.assertFalse(neueVorgangsmappe == vorgangsmappe);

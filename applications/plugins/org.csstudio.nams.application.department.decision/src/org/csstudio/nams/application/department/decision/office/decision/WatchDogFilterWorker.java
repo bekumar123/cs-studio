@@ -103,7 +103,7 @@ public class WatchDogFilterWorker implements FilterWorker {
 				MessageCasefile casefile;
 				casefile = new MessageCasefile(CasefileId.createNew(), alarmMessage);
 				casefile.setHandledWithFilter(regelwerk.getFilterId());
-				casefile.pruefungAbgeschlossenDurch(casefile.getCasefileId());
+				casefile.closeWithFileId(casefile.getCasefileId());
 				outbox.put(casefile);
 			}
 		};

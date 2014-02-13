@@ -58,9 +58,9 @@ public class DefaultFilterWorker implements FilterWorker {
 			boolean trifftRegelZu = regelwerk.getRegel().pruefeNachricht(vorgangsMappe.getAlarmMessage());
 			
 			if(trifftRegelZu) {
-				MessageCasefile erstelleKopieFuer = vorgangsMappe.erstelleKopieFuer(this.toString());
+				MessageCasefile erstelleKopieFuer = vorgangsMappe.getCopyFor(this.toString());
 				erstelleKopieFuer.setHandledWithFilter(regelwerk.getFilterId());
-				erstelleKopieFuer.pruefungAbgeschlossenDurch(vorgangsMappe.getCasefileId());
+				erstelleKopieFuer.closeWithFileId(vorgangsMappe.getCasefileId());
 				ausgangskorb.put(erstelleKopieFuer);
 			}
 		} 
@@ -83,5 +83,10 @@ public class DefaultFilterWorker implements FilterWorker {
 	@Override
 	public Inbox<Document> getInbox() {
 		return (Inbox) eingangskorb;
+	}
+	
+	@Override
+	public String toString() {
+		return "FilterWorker " + regelwerk.getFilterId();
 	}
 }

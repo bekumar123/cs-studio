@@ -2,7 +2,7 @@
 package org.csstudio.nams.configurator.service.synchronize;
 
 import org.csstudio.nams.common.material.SynchronisationsAufforderungsSystemNachchricht;
-import org.csstudio.nams.common.material.SystemNachricht;
+import org.csstudio.nams.common.material.SystemMessage;
 import org.csstudio.nams.common.service.ExecutionService;
 import org.csstudio.nams.common.service.StepByStepProcessor;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.ConfigurationServiceFactory;
@@ -92,7 +92,7 @@ public class SynchronizeServiceImpl implements SynchronizeService {
 										.getString(PreferenceServiceJMSKeys.P_JMS_EXT_TOPIC_COMMAND),
 								PostfachArt.TOPIC);
 
-				producer.sendeSystemnachricht(new SynchronisationsAufforderungsSystemNachchricht());
+				producer.sendSystemMessage(new SynchronisationsAufforderungsSystemNachchricht());
 				
 				producer.tryToClose();
 				messagingSession.close();
@@ -129,8 +129,8 @@ public class SynchronizeServiceImpl implements SynchronizeService {
 				NAMSMessage message;
 				while ((message = consumer.receiveMessage()) != null) {
 					if (message.enthaeltSystemnachricht()) {
-						SystemNachricht systemachricht = message.alsSystemachricht();
-						if (systemachricht.istSynchronisationsBestaetigung()) {
+						SystemMessage systemachricht = message.alsSystemachricht();
+						if (systemachricht.isSynchronizationConfirmation()) {
 							message.acknowledge();
 							break;
 						}

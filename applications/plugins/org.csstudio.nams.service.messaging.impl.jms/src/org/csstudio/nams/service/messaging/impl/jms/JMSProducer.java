@@ -16,7 +16,7 @@ import org.csstudio.nams.common.decision.MessageCasefile;
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
 import org.csstudio.nams.common.material.AlarmMessage;
 import org.csstudio.nams.common.material.FilterId;
-import org.csstudio.nams.common.material.SystemNachricht;
+import org.csstudio.nams.common.material.SystemMessage;
 import org.csstudio.nams.service.logging.declaration.ILogger;
 import org.csstudio.nams.service.messaging.declaration.PostfachArt;
 import org.csstudio.nams.service.messaging.declaration.Producer;
@@ -73,10 +73,10 @@ public class JMSProducer implements Producer {
 	}
 
 	@Override
-    public void sendeSystemnachricht(final SystemNachricht systemNachricht)
+    public void sendSystemMessage(final SystemMessage systemNachricht)
 			throws MessagingException {
 		try {
-			if (systemNachricht.istSynchronisationsAufforderung()) {
+			if (systemNachricht.isSynchronizationRequest()) {
 				for (int i = 0; i < this._sessions.length; i++) {
 					final MapMessage mapMessage = this._sessions[i]
 							.createMapMessage();
@@ -86,7 +86,7 @@ public class JMSProducer implements Producer {
 					mapMessage.setJMSDeliveryMode(DeliveryMode.PERSISTENT);
 					this.producers[i].send(mapMessage);
 				}
-			} else if (systemNachricht.istSynchronisationsBestaetigung()) {
+			} else if (systemNachricht.isSynchronizationConfirmation()) {
 				for (int i = 0; i < this._sessions.length; i++) {
 					final MapMessage mapMessage = this._sessions[i]
 							.createMapMessage();
@@ -109,7 +109,7 @@ public class JMSProducer implements Producer {
 	}
 
 	@Override
-    public void sendeVorgangsmappe(final MessageCasefile vorgangsmappe)
+    public void sendMessageCasefile(final MessageCasefile vorgangsmappe)
 			throws MessagingException {
 		final FilterId regelwerkskennung = vorgangsmappe.getHandledByFilterId();
 		final AlarmMessage alarmNachricht = vorgangsmappe.getAlarmMessage();

@@ -116,7 +116,7 @@ public class TimebasedFilterWorker implements FilterWorker {
 	}
 	
 	private MessageCasefile createMessageCopyToSend(MessageCasefile mappe) throws InterruptedException {
-		MessageCasefile result = mappe.erstelleKopieFuer(this.toString());
+		MessageCasefile result = mappe.getCopyFor(this.toString());
 		result.setHandledWithFilter(filter.getFilterId());
 		
 		return result;
@@ -157,8 +157,8 @@ public class TimebasedFilterWorker implements FilterWorker {
 		else if(filter.getTimeoutType() == TimeoutType.SENDE_BEI_TIMEOUT) {
 			// Offener Vorgang ist ein Alarm, da Timeout abgelaufen
 			MessageCasefile kopieFuerVersand = createMessageCopyToSend(offenerVorgang);
-			kopieFuerVersand.pruefungAbgeschlossenDurch(abgeschlossenDurchKennung);
-			kopieFuerVersand.abgeschlossenDurchTimeOut();
+			kopieFuerVersand.closeWithFileId(abgeschlossenDurchKennung);
+			kopieFuerVersand.closeWithTimeOut();
 			
 			outbox.put(kopieFuerVersand);
 		}
@@ -189,7 +189,7 @@ public class TimebasedFilterWorker implements FilterWorker {
 					if (filter.getTimeoutType() == TimeoutType.SENDE_BEI_STOP_REGEL) {
 						// Offener Vorgang ist ein Alarm, da er bestätigt wurde
 						MessageCasefile kopieFuerVersand = createMessageCopyToSend(offenerVorgang);
-						kopieFuerVersand.pruefungAbgeschlossenDurch(aktuellerVorgang.getCasefileId());
+						kopieFuerVersand.closeWithFileId(aktuellerVorgang.getCasefileId());
 						outbox.put(kopieFuerVersand);
 					} else if (filter.getTimeoutType() == TimeoutType.SENDE_BEI_TIMEOUT) {
 						// Offener Vorgang ist kein Alarm, da er abgebrochen

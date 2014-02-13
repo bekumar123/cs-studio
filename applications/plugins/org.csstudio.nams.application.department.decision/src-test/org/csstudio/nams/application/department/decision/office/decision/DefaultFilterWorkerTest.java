@@ -101,8 +101,8 @@ public class DefaultFilterWorkerTest {
 		
 		assertFalse(vorgangsmappe.equals(aeltesterEingang));
 		assertEquals(regelwerksKennung, aeltesterEingang.getHandledByFilterId());
-		assertTrue(aeltesterEingang.istAbgeschlossen());
-		assertFalse(aeltesterEingang.istAbgeschlossenDurchTimeOut());
+		assertTrue(aeltesterEingang.isClosed());
+		assertFalse(aeltesterEingang.isClosedByTimeout());
 		
 	}
 }

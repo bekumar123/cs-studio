@@ -2,15 +2,15 @@
 package org.csstudio.nams.common.material;
 
 public class SynchronisationsBestaetigungSystemNachricht implements
-		SystemNachricht {
+		SystemMessage {
 
 	@Override
-    public boolean istSynchronisationsAufforderung() {
+    public boolean isSynchronizationRequest() {
 		return false;
 	}
 
 	@Override
-    public boolean istSynchronisationsBestaetigung() {
+    public boolean isSynchronizationConfirmation() {
 		return true;
 	}
 }

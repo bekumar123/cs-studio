@@ -127,8 +127,8 @@ public class WatchDogFilterWorkerTest {
 		
 		MessageCasefile aeltesterEingang = ausgangskorb.takeDocument();
 		assertEquals(regelwerksKennung, aeltesterEingang.getHandledByFilterId());
-		assertTrue(aeltesterEingang.istAbgeschlossen());
-		assertFalse(aeltesterEingang.istAbgeschlossenDurchTimeOut());
+		assertTrue(aeltesterEingang.isClosed());
+		assertFalse(aeltesterEingang.isClosedByTimeout());
 		
 		// WatchDog startet timer neu bei eingang von gültiger Nachricht
 		MessageCasefile vorgangsmappe = new MessageCasefile(CasefileId.createNew(), new AlarmMessage("XXX"));

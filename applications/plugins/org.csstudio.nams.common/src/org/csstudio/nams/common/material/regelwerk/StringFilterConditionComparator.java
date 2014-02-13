@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 			}
 		}
 		
-		public boolean compare(String string1) throws Exception {
+		public boolean compare(String string1) throws ParseException {
 			boolean result = false;
 
 
@@ -44,8 +44,7 @@ import java.util.regex.Pattern;
 				    	}
 				        break;
 				    case OPERATOR_TEXT_NOT_EQUAL:
-				        result = !this.wildcardStringCompare(string1,
-						comparedString);
+				        result = !this.wildcardStringCompare(string1, comparedString);
 				        break;
 
 		            // numeric compare

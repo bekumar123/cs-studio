@@ -2,7 +2,7 @@
 package org.csstudio.nams.service.messaging.declaration;
 
 import org.csstudio.nams.common.decision.MessageCasefile;
-import org.csstudio.nams.common.material.SystemNachricht;
+import org.csstudio.nams.common.material.SystemMessage;
 import org.csstudio.nams.service.messaging.exceptions.MessagingException;
 
 public interface Producer {
@@ -12,12 +12,12 @@ public interface Producer {
 	public boolean isClosed();
 
 	/**
-	 * Send a {@link SystemNachricht}
+	 * Send a {@link SystemMessage}
 	 * 
 	 * @throws MessagingException
 	 *             If an send-error/exception occurred.
 	 */
-	public void sendeSystemnachricht(SystemNachricht systemNachricht)
+	public void sendSystemMessage(SystemMessage systemMessage)
 			throws MessagingException;
 
 	/**
@@ -26,7 +26,7 @@ public interface Producer {
 	 * @throws MessagingException
 	 *             If an send-error/exception occurred.
 	 */
-	public void sendeVorgangsmappe(MessageCasefile vorgangsmappe)
+	public void sendMessageCasefile(MessageCasefile messageCasefile)
 			throws MessagingException;
 
 	/**

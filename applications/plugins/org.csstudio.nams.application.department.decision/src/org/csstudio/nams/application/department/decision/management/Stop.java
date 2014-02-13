@@ -96,15 +96,15 @@ public class Stop implements IManagementCommand {
      * Injection of logger. Note: This method have to be called before any
      * instance of this class is created!
      */
-    public static void staticInject(final ILogger logger) {
-        Stop.logger = logger;
+    public static void staticInject(final ILogger loggerObject) {
+        Stop.logger = loggerObject;
     }
 
     /**
      * Injection of stoppable thing. Note: This method have to be called before
      * any instance of this class is created!
      */
-    public static void staticInject(final RemotelyStoppable thingToBeStopped) {
-        Stop.thingToBeStopped = thingToBeStopped;
+    public static void staticInject(final RemotelyStoppable remoteObject) {
+        Stop.thingToBeStopped = remoteObject;
     }
 }

@@ -31,6 +31,7 @@ import org.csstudio.domain.common.statistic.Collector;
 import org.csstudio.headless.common.util.ApplicationInfo;
 import org.csstudio.headless.common.util.StandardStreams;
 import org.csstudio.headless.common.xmpp.XmppCredentials;
+import org.csstudio.headless.common.xmpp.XmppSessionException;
 import org.csstudio.headless.common.xmpp.XmppSessionHandler;
 import org.csstudio.nams.application.department.decision.management.InfoCmd;
 import org.csstudio.nams.application.department.decision.management.Restart;
@@ -49,7 +50,6 @@ import org.csstudio.nams.common.decision.DefaultDocumentBox;
 import org.csstudio.nams.common.decision.Inbox;
 import org.csstudio.nams.common.decision.MessageCasefile;
 import org.csstudio.nams.common.material.regelwerk.Filter;
-import org.csstudio.nams.common.material.regelwerk.WeiteresVersandVorgehen;
 import org.csstudio.nams.common.service.ExecutionService;
 import org.csstudio.nams.common.service.StepByStepProcessor;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.ConfigurationServiceFactory;
@@ -85,7 +85,7 @@ import org.osgi.framework.BundleException;
  * The decision department or more precise the activator and application class
  * to controls their life cycle.
  * </p>
- * 
+ *
  * <p>
  * <strong>Pay attention:</strong> There are always exactly two instances of
  * this class present: The <emph>bundle activator instance</emph> and the
@@ -97,10 +97,10 @@ import org.osgi.framework.BundleException;
  * operation are static to be accessible from the <emph>bundles
  * application</emph> start.
  * </p>
- * 
+ *
  * @author <a href="mailto:mz@c1-wps.de">Matthias Zeimer</a>
  * @author <a href="mailto:gs@c1-wps.de">Goesta Steen</a>
- * 
+ *
  * @version 0.1-2008-04-25: Created.
  * @version 0.1.1-2008-04-28 (MZ): Change to use
  *          org.csstudio.nams.common.activatorUtils.BundleActivatorUtils.
@@ -150,7 +150,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 	/**
 	 * Gemeinsames Attribut des Activators und der Application: Der Logger.
 	 */
-	private static ILogger logger;
+	protected static ILogger logger;
 
 	/**
 	 * Gemeinsames Attribut des Activators und der Application: Fatory for
@@ -168,7 +168,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 
 	private static RegelwerkBuilderService regelwerkBuilderService;
 
-	private static HistoryService historyService;
+	protected static HistoryService historyService;
 
 	/**
 	 * Service to receive configuration-data. Used by
@@ -181,11 +181,11 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 	/**
 	 * Indicates if the application instance should continue working. Unused in
 	 * the activator instance.
-	 * 
+	 *
 	 * This field may be set by another thread to indicate that application
 	 * should shut down.
 	 */
-	private volatile boolean _continueWorking;
+	protected volatile boolean _continueWorking;
 
 	private boolean restart;
 
@@ -198,7 +198,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 
 	private Thread alarmReceiverThread;
 
-	private MultiConsumersConsumer alarmConsumer;
+	protected MultiConsumersConsumer alarmConsumer;
 
 	private MessagingSession amsMessagingSessionForConsumer;
 
@@ -222,7 +222,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 	 * Producer zum Senden auf ams-Zielablage (normally Distributor or
 	 * MessageMinder).
 	 */
-	private Producer amsAusgangsProducer;
+	protected Producer amsAusgangsProducer;
 
 	/**
 	 * MessageSession für externe Quellen und Ziele.
@@ -248,7 +248,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 	private Producer extCommandProducer;
 
 	/** Class that collects statistic informations. Query it via XMPP. */
-	private Collector ackMessages = null;
+	protected Collector ackMessages = null;
 
 	private XmppSessionHandler xmppService;
 
@@ -256,7 +256,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 
 	/**
 	 * Starts the bundle activator instance. First Step.
-	 * 
+	 *
 	 * @see BundleActivator#start(org.osgi.framework.BundleContext)
 	 */
 	@OSGiBundleActivationMethod
@@ -268,7 +268,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 			@OSGiService @Required final ConfigurationServiceFactory injectedConfigurationServiceFactory,
 			@OSGiService @Required final ExecutionService injectedExecutionService) throws Exception {
 
-		
+
 		// uncaught (runtime) exceptions in threads should lead to decision department shutdown
 		UncaughtExceptionHandler handler = new UncaughtExceptionHandler() {
 			@Override
@@ -284,64 +284,65 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 			}
 		};
 		Thread.setDefaultUncaughtExceptionHandler(handler);
-	
+
 		// ** Services holen...
-		
+
 		// Logging Service
 		DecisionDepartmentActivator.logger = injectedLogger;
-	
+
 		DecisionDepartmentActivator.logger.logInfoMessage(this, "plugin " + DecisionDepartmentActivator.PLUGIN_ID + " initializing Services");
-	
+
 		// Messaging Service
 		DecisionDepartmentActivator.messagingService = injectedMessagingService;
-	
+
 		// Preference Service (wird als konfiguration verwendet!!)
 		DecisionDepartmentActivator.preferenceService = injectedPreferenceService;
-	
+
 		// RegelwerkBuilder Service
 		DecisionDepartmentActivator.regelwerkBuilderService = injectedBuilderService;
-	
+
 		// History Service
 		DecisionDepartmentActivator.historyService = injectedHistoryService;
-	
+
 		// LocalStoreConfigurationService
 		final DatabaseType dbType = DatabaseType.valueOf(preferenceService.getString(PreferenceServiceDatabaseKeys.P_APP_DATABASE_TYPE));
-	
+
 		DecisionDepartmentActivator.localStoreConfigurationService = injectedConfigurationServiceFactory.getConfigurationService(
 				DecisionDepartmentActivator.preferenceService.getString(PreferenceServiceDatabaseKeys.P_APP_DATABASE_CONNECTION), dbType,
 				DecisionDepartmentActivator.preferenceService.getString(PreferenceServiceDatabaseKeys.P_APP_DATABASE_USER),
 				DecisionDepartmentActivator.preferenceService.getString(PreferenceServiceDatabaseKeys.P_APP_DATABASE_PASSWORD));
-	
+
 		DecisionDepartmentActivator.executionService = injectedExecutionService;
-	
+
 		DecisionDepartmentActivator.managementPassword = DecisionDepartmentActivator.preferenceService
 				.getString(PreferenceServiceManagementKeys.P_AMS_MANAGEMENT_PASSWORD);
 		if (managementPassword == null) {
 			managementPassword = "";
 		}
-	
-		Stop.staticInject(this);
-		Stop.staticInject(DecisionDepartmentActivator.logger);
-		Restart.staticInject(this);
-		Restart.staticInject(logger);
-		
-		InfoCmd.staticInject(this);
 
-		StandardStreams stdStreams = new StandardStreams("./log");
-		stdStreams.redirectStreams();
-	
 		DecisionDepartmentActivator.logger.logInfoMessage(this, "Plugin " + DecisionDepartmentActivator.PLUGIN_ID + " started succesfully.");
 	}
 
 	/**
 	 * Starts the bundle application instance. Second Step.
-	 * 
+	 *
 	 * @see IApplication#start(IApplicationContext)
 	 */
 	@Override
 	public Object start(final IApplicationContext context) {
 
 		restart = false;
+
+		// IMPORTANT: The call of the injection methods must be done HERE and not within the activator.
+		//            Mixing the Application and Activator is very confusing...
+		Stop.staticInject(this);
+	    Stop.staticInject(DecisionDepartmentActivator.logger);
+	    Restart.staticInject(this);
+	    Restart.staticInject(DecisionDepartmentActivator.logger);
+	    InfoCmd.staticInject(this);
+
+	    StandardStreams stdStreams = new StandardStreams("./log");
+	    stdStreams.redirectStreams();
 
 		ackMessages = new Collector();
 		ackMessages.setApplication("AmsDecisionDepartment");
@@ -360,13 +361,12 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 
 		DecisionDepartmentActivator.logger.logInfoMessage(this, "Decision department application is going to be initialized...");
 
-		IPreferencesService preferenceService = Platform.getPreferencesService();
-
-		String applicationDescription = preferenceService.getString(DecisionDepartmentActivator.PLUGIN_ID, "description", "I am a simple but happy application.", null);
+		IPreferencesService amsPrefService = Platform.getPreferencesService();
+		String applicationDescription = amsPrefService.getString(DecisionDepartmentActivator.PLUGIN_ID, "description", "I am a simple but happy application.", null);
         appInfo = new ApplicationInfo("AMS", AMS.AMS_MAIN_VERSION, "AmsDepartmentDecision", applicationDescription);
-		
-		configureXmppConnection(preferenceService);
-		
+
+		configureXmppConnection(amsPrefService);
+
 		createMessagingConsumer();
 
 		createMessagingProducer();
@@ -377,11 +377,11 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 		this._ausgangskorbBearbeiter = new OutboxProcessor(this.ausgangskorbDesDecisionOfficeUndEingangskorbDesPostOffice);
 		DecisionDepartmentActivator.executionService.executeAsynchronously(ThreadTypesOfDecisionDepartment.AUSGANGSKORBBEARBEITER,
 				this._ausgangskorbBearbeiter);
-		
+
 		context.applicationRunning();
 
 		receiveAlarmsAsynchronouslyUntilApplicationQuits(eingangskorbDesDecisionOffice);
-		receiveCommandMessagesUntilApplicationQuits(); // blocks while _continueWorking is true 
+		receiveCommandMessagesUntilApplicationQuits(); // blocks while _continueWorking is true
 
 		DecisionDepartmentActivator.logger.logInfoMessage(this, "Decision department has stopped message processing and continue shutting down...");
 
@@ -401,11 +401,11 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 
 	/**
 	 * Stops the bundle application instance.Ppenultimate Step.
-	 * 
+	 *
 	 * Diese Methode darf NICHT von der Anwendung selber aufgerufen
 	 * werden. Sie wird vom Framework aufgerufen, wenn z.B. die Anwendung von
 	 * Außen beendet werden soll oder das Framework herunterfährt.
-	 * 
+	 *
 	 * @see IApplication#start(IApplicationContext)
 	 */
 	@Override
@@ -413,9 +413,17 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 		// Nothing to do here
 	}
 
+	   /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getInfo() {
+        return appInfo.toString();
+    }
+
 	/**
 	 * Stops the bundle activator instance. Last Step.
-	 * 
+	 *
 	 * @see BundleActivator#stop(org.osgi.framework.BundleContext)
 	 */
 	@OSGiBundleDeactivationMethod
@@ -457,7 +465,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 	}
 
 	/**
-	 * 
+	 *
 	 * @return The management password
 	 */
 	@Override
@@ -465,28 +473,20 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 		return DecisionDepartmentActivator.managementPassword;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getInfo() {
-		return appInfo.toString();
-	}
-
 	private void createDecisionOffice() {
 		try {
 			DecisionDepartmentActivator.logger.logInfoMessage(this, "Decision department application is creating decision office...");
-	
+
 			final List<Filter> alleRegelwerke = DecisionDepartmentActivator.regelwerkBuilderService.getAllFilters();
-	
+
 			DecisionDepartmentActivator.logger.logDebugMessage(this, "alleRegelwerke size: " + alleRegelwerke.size());
 			for (final Filter regelwerk : alleRegelwerke) {
 				DecisionDepartmentActivator.logger.logDebugMessage(this, regelwerk.toString());
 			}
-	
+
 			this.eingangskorbDesDecisionOffice = new DefaultDocumentBox<MessageCasefile>();
 			this.ausgangskorbDesDecisionOfficeUndEingangskorbDesPostOffice = new DefaultDocumentBox<MessageCasefile>();
-	
+
 			final IPreferencesService pref1 = Platform.getPreferencesService();
 			int threadCount = pref1.getInt(DecisionDepartmentActivator.PLUGIN_ID, PreferenceServiceConfigurationKeys.FILTER_THREAD_COUNT.getKey(),
 					DEFAULT_THREAD_COUNT, null);
@@ -497,26 +497,24 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 			DecisionDepartmentActivator.logger.logFatalMessage(this, "Exception while initializing the alarm decision department.", e);
 			this._continueWorking = false;
 		}
-	
+
 		DecisionDepartmentActivator.logger.logInfoMessage(this,
 				"******* Decision department application successfully initialized, beginning work... *******");
 	}
 
-	private void configureXmppConnection(IPreferencesService preferenceService) {
-		String xmppServer = preferenceService.getString(DecisionDepartmentActivator.PLUGIN_ID, "xmppServer", "krynfs.desy.de", null);
-		String xmppUser = preferenceService.getString(DecisionDepartmentActivator.PLUGIN_ID, "xmppUser", "anonymous", null);
-		String xmppPassword = preferenceService.getString(DecisionDepartmentActivator.PLUGIN_ID, "xmppPassword", "anonymous", null);
-	
+	private void configureXmppConnection(IPreferencesService amsPrefService) {
+		String xmppServer = amsPrefService.getString(DecisionDepartmentActivator.PLUGIN_ID, "xmppServer", "krynfs.desy.de", null);
+		String xmppUser = amsPrefService.getString(DecisionDepartmentActivator.PLUGIN_ID, "xmppUser", "anonymous", null);
+		String xmppPassword = amsPrefService.getString(DecisionDepartmentActivator.PLUGIN_ID, "xmppPassword", "anonymous", null);
+
 		XmppCredentials credentials = new XmppCredentials(xmppServer, xmppUser, xmppPassword);
 		xmppService = new XmppSessionHandler(bundleContext, credentials, true);
-		
-		// try {
-		// xmppService.connect();
-		// } catch (XmppSessionException e) {
-		// DecisionDepartmentActivator.logger.logWarningMessage(this,
-		// e.getMessage());
-		// }
-	
+
+	    try {
+	        xmppService.connect();
+	    } catch (XmppSessionException e) {
+	        DecisionDepartmentActivator.logger.logWarningMessage(this, e.getMessage());
+	    }
 	}
 
 	private void closeMessagingConnections() {
@@ -642,7 +640,7 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 	/**
 	 * This method is receiving Messages and handle them. It will block until
 	 * _continueWorking get false.
-	 * 
+	 *
 	 * @param eingangskorb
 	 *            Der {@link Inbox} to read on.
 	 */
@@ -730,11 +728,11 @@ public class DecisionDepartmentActivator extends AbstractBundleActivator impleme
 				alarmConsumer.close();
 			}
 		});
-	
+
 		alarmReceiverThread.start();
 	}
 
-	private void acknowledgeMessage(final NAMSMessage message) {
+	protected void acknowledgeMessage(final NAMSMessage message) {
 		try {
 			message.acknowledge();
 			ackMessages.decrementValue();

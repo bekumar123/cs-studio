@@ -102,19 +102,18 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
         "SELECT " + TAB + ".id, " + TAB + ".name, " + TAB + ".datatype, " + TAB + ".group_id, " + LST_TAB + ".time, " +
                     TAB + ".enabled, " + TAB + ".display_high, " + TAB + ".display_low, " +
                  CS_TAB + ".id, " + CS_TAB + ".name, " + CS_TAB + ".type " +
-                "FROM " + getDatabaseName() + "." + TAB + ", " +
-                          getDatabaseName() + "." + CS_TAB + ", " +
-                          getDatabaseName() + "." + LST_TAB;
-    private final String _selectChannelSuffix = " AND " + TAB + ".control_system_id=" + CS_TAB + ".id" +
-                                                " AND " + TAB + ".id=" + LST_TAB + ".channel_id";
+                " FROM " + getDatabaseName() + "." + TAB + " " + TAB + " " +
+                " JOIN " + getDatabaseName() + "." + CS_TAB + " ON " + TAB + ".control_system_id=" + CS_TAB + ".id" +
+                " LEFT JOIN " + getDatabaseName() + "." + LST_TAB + " ON " + TAB + ".id=" + LST_TAB + ".channel_id";
+
 
     // FIXME (bknerr) : refactor into CRUD command objects with cmd factories
     // TODO (bknerr) : parameterize the database schema name via dao call
-    private final String _selectChannelByNamesStmt = _selectChannelPrefix + " WHERE " + TAB + ".name in " + WHERE_SET_PLACEHOLDER + _selectChannelSuffix;
-    private final String _selectChannelsByIdsStmt =   _selectChannelPrefix + " WHERE " + TAB + ".id in " + WHERE_SET_PLACEHOLDER + _selectChannelSuffix;
-    private final String _selectChannelsByGroupIdStmt = _selectChannelPrefix + " WHERE " + TAB + ".group_id=? " + _selectChannelSuffix +
+    private final String _selectChannelByNamesStmt = _selectChannelPrefix + " WHERE " + TAB + ".name in " + WHERE_SET_PLACEHOLDER;
+    private final String _selectChannelsByIdsStmt =   _selectChannelPrefix + " WHERE " + TAB + ".id in " + WHERE_SET_PLACEHOLDER;
+    private final String _selectChannelsByGroupIdStmt = _selectChannelPrefix + " WHERE " + TAB + ".group_id=? " +
                                                     " ORDER BY " + TAB + ".name";
-    private final String _selectMatchingChannelsStmt = _selectChannelPrefix + " WHERE " + TAB + ".name REGEXP ? " + _selectChannelSuffix;
+    private final String _selectMatchingChannelsStmt = _selectChannelPrefix + " WHERE " + TAB + ".name REGEXP ? ";
 
     private final String _createChannelsStmt = "INSERT INTO " + getDatabaseName() + "." + TAB +
                                                " (name, datatype, group_id, control_system_id, enabled, display_high, display_low)" +
@@ -126,6 +125,8 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
                                                      " SET enabled=? WHERE name=?";
     private final String _updateChannelDatatypeStmt = "UPDATE " + getDatabaseName() + "." + TAB +
                                                       " SET datatype=? WHERE id=?";
+    private final String _updateChannelUnitsStmt = "UPDATE " + getDatabaseName() + "." + TAB +
+            " SET uv=? WHERE id=?";
 
     /**
      * Constructor.
@@ -380,7 +381,7 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
         }
     }
 
-    private <V extends Comparable<? super V> & Serializable>
+    private <V extends Comparable<? super V>>
     void updateCache(@Nonnull final ArchiveChannelId id, @Nonnull final V low, @Nonnull final V high) {
         final IArchiveChannel channel = _channelCacheById.get(id);
         if (channel != null) {
@@ -587,4 +588,29 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
         return UpdateResult.failed("Channel '" + id.asString() + "' has not been updated, doesn't it exist?");
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Nonnull
+    public UpdateResult updateChannelUnits(@Nonnull final ArchiveChannelId id,
+                                              @Nonnull final String units) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = createConnection();
+            stmt = conn.prepareStatement(_updateChannelUnitsStmt);
+            stmt.setString(1, units);
+            stmt.setInt(2, id.intValue());
+            final int updated = stmt.executeUpdate();
+            if (updated == 1) {
+                return UpdateResult.succeeded("Update of units for channel '" + id.asString() + "' succeeded.");
+            }
+        } catch (final Exception e) {
+            return UpdateResult.failed("Update of units for channel '" + id.asString() + "' failed:\n" + e.getMessage());
+        } finally {
+            closeSqlResources(null, stmt, conn, _deleteChannelStmt);
+        }
+        return UpdateResult.failed("Channel '" + id.asString() + "' has not been updated, doesn't it exist?");
+    }
 }

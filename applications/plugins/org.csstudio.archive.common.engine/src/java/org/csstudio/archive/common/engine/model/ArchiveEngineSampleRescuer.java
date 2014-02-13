@@ -31,7 +31,7 @@ import org.csstudio.archive.common.service.sample.ArchiveSampleProtos.Samples;
 import org.csstudio.archive.common.service.sample.IArchiveSample;
 import org.csstudio.archive.common.service.util.ArchiveTypeConversionSupport;
 import org.csstudio.archive.common.service.util.DataRescueResult;
-import org.csstudio.domain.desy.system.ISystemVariable;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
 import org.csstudio.domain.desy.typesupport.TypeSupportException;
 import org.slf4j.Logger;
@@ -54,18 +54,18 @@ public final class ArchiveEngineSampleRescuer {
     private static final Logger RESCUE_LOG =
         LoggerFactory.getLogger("SerializedSamplesRescueLogger");
 
-    private final Collection<IArchiveSample<Serializable, ISystemVariable<Serializable>>> _samplesToBeSerialized;
+    private final Collection<IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>>> _samplesToBeSerialized;
 
     /**
      * Constructor.
      */
-    private ArchiveEngineSampleRescuer(@Nonnull final Collection<IArchiveSample<Serializable, ISystemVariable<Serializable>>> samples) {
+    private ArchiveEngineSampleRescuer(@Nonnull final Collection<IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>>> samples) {
         super();
         _samplesToBeSerialized = samples;
     }
 
     @Nonnull
-    public static ArchiveEngineSampleRescuer with(@Nonnull final Collection<IArchiveSample<Serializable, ISystemVariable<Serializable>>> samples) {
+    public static ArchiveEngineSampleRescuer with(@Nonnull final Collection<IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>>> samples) {
         return new ArchiveEngineSampleRescuer(samples);
     }
 
@@ -92,10 +92,10 @@ public final class ArchiveEngineSampleRescuer {
         final ArchiveSampleProtos.ArchiveSample.Builder builder =
             ArchiveSampleProtos.ArchiveSample.newBuilder();
 
-        for (final IArchiveSample<Serializable, ISystemVariable<Serializable>> sample : _samplesToBeSerialized) {
+        for (final IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>> sample : _samplesToBeSerialized) {
             builder.clear();
 
-            final ISystemVariable<Serializable> sysVar = sample.getSystemVariable();
+            final IAlarmSystemVariable<Serializable> sysVar = sample.getSystemVariable();
             final ArchiveSampleProtos.ArchiveSample gpbSample =
                 builder.setChannelId(sysVar.getName())
                        .setControlSystemId(sysVar.getOrigin().getName())

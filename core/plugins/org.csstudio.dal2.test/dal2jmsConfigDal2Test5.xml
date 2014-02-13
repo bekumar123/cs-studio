@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ou
+  [
+    <!ELEMENT ou (efan*)>
+    <!ELEMENT efan (ecom* , eren*)>
+    <!ELEMENT ecom (ecom* , eren*)>
+    <!ELEMENT eren (#PCDATA)>
+    <!ATTLIST ou name CDATA #REQUIRED>
+    <!ATTLIST efan name CDATA #REQUIRED>
+    <!ATTLIST ecom name CDATA #REQUIRED>
+    <!ATTLIST eren name CDATA #REQUIRED>
+  ]
+>
+
+<ou name="EpicsAlarmcfg">
+  <efan name="Test">
+    <ecom name="Test-IOC">
+      <eren name="Test:Ramp_calc_0" />
+      <eren name="Test:Ramp_calc_1" />
+      <eren name="Test:Ramp_calc_2" />
+      <eren name="Test:Ramp_calc_3" />
+      <eren name="Test:Ramp_calc_4" />
+      <eren name="Test:NotExisting_0" />
+      <eren name="Test:NotExisting_1" />
+      <eren name="Test:NotExisting_2" />
+      <eren name="Test:NotExisting_3" />
+      <eren name="Test:NotExisting_4" />
+    </ecom>
+  </efan>
+</ou>

@@ -32,7 +32,7 @@ import javax.annotation.Nullable;
 import org.csstudio.archive.common.requesttype.IArchiveRequestType;
 import org.csstudio.archive.common.service.channel.IArchiveChannel;
 import org.csstudio.archive.common.service.sample.IArchiveSample;
-import org.csstudio.domain.desy.system.ISystemVariable;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.types.Limits;
 
@@ -72,7 +72,7 @@ public interface IArchiveReaderFacade {
      * @throws ArchiveServiceException
      */
     @Nonnull
-    <V extends Serializable, T extends ISystemVariable<V>>
+    <V extends Serializable, T extends IAlarmSystemVariable<V>>
     Collection<IArchiveSample<V, T>> readSamples(@Nonnull final String channelName,
                                                  @Nonnull final TimeInstant start,
                                                  @Nonnull final TimeInstant end)
@@ -88,7 +88,7 @@ public interface IArchiveReaderFacade {
      * @throws ArchiveServiceException
      */
     @Nonnull
-    <V extends Serializable, T extends ISystemVariable<V>>
+    <V extends Serializable, T extends IAlarmSystemVariable<V>>
     Collection<IArchiveSample<V, T>> readSamples(@Nonnull final String channelName,
                                                  @Nonnull final TimeInstant start,
                                                  @Nonnull final TimeInstant end,
@@ -105,7 +105,7 @@ public interface IArchiveReaderFacade {
      * @throws ArchiveServiceException
      */
     @CheckForNull
-    <V extends Serializable, T extends ISystemVariable<V>>
+    <V extends Serializable, T extends IAlarmSystemVariable<V>>
     IArchiveSample<V, T> readLastSampleBefore(@Nonnull final String channelName,
                                               @Nonnull final TimeInstant time)
                                               throws ArchiveServiceException;

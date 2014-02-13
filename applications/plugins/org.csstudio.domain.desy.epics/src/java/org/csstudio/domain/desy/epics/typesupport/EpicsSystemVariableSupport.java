@@ -40,7 +40,6 @@ import org.csstudio.domain.desy.epics.types.IControlLimits;
 import org.csstudio.domain.desy.system.ControlSystem;
 import org.csstudio.domain.desy.system.ControlSystemType;
 import org.csstudio.domain.desy.system.IAlarmSystemVariable;
-import org.csstudio.domain.desy.system.ISystemVariable;
 import org.csstudio.domain.desy.system.SystemVariableSupport;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
@@ -164,8 +163,8 @@ public abstract class EpicsSystemVariableSupport<T> extends
     @Override
 	@Nonnull
     protected VType convertToVStatisticsValue(@Nonnull final IAlarmSystemVariable<T> sysVar,
-                                                 @SuppressWarnings("unused") @Nonnull final T min,
-                                                 @SuppressWarnings("unused") @Nonnull final T max) throws TypeSupportException {
+                                                 @Nonnull final T min,
+                                                 @Nonnull final T max) throws TypeSupportException {
        	return org.epics.vtype.ValueFactory.newVStatistics( new Double(sysVar.getData().toString()), 0, new Double(min.toString()), new Double(max.toString()), 1, getAlarm((EpicsAlarm)sysVar.getAlarm()),
        			                                         getTime( sysVar.getTimestamp()), org.epics.vtype.ValueFactory.displayNone());
      }
@@ -175,7 +174,7 @@ public abstract class EpicsSystemVariableSupport<T> extends
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	@Nonnull
-	protected ISystemVariable<T> createVariable(@Nonnull final String name,
+	protected IAlarmSystemVariable<T> createVariable(@Nonnull final String name,
 			@Nonnull final T value, @Nonnull final ControlSystem system,
 			@Nonnull final TimeInstant timestamp,
 			@CheckForNull final IAlarm alarm) throws TypeSupportException {
@@ -292,7 +291,6 @@ public abstract class EpicsSystemVariableSupport<T> extends
 		Double ah=null;
 		Double wl=null;
 		Double wh=null;
-		final Double dc=null;
 
 
 		if(gr!=null){

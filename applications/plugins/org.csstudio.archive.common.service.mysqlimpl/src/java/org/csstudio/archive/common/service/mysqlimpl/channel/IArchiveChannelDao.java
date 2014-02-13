@@ -108,4 +108,7 @@ public interface IArchiveChannelDao {
     @Nonnull
     UpdateResult updateChannelDatatype(@Nonnull final ArchiveChannelId id,
                                        @Nonnull final String datatype);
+
+    @Nonnull
+    UpdateResult updateChannelUnits(@Nonnull ArchiveChannelId id, @Nonnull String units);
 }

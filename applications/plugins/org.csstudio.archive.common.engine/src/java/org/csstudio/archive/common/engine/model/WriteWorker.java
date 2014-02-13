@@ -35,7 +35,7 @@ import org.csstudio.archive.common.service.IArchiveEngineFacade;
 import org.csstudio.archive.common.service.sample.IArchiveSample;
 import org.csstudio.domain.desy.calc.AverageWithExponentialDecayCache;
 import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
-import org.csstudio.domain.desy.system.ISystemVariable;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.task.AbstractTimeMeasuredRunnable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
@@ -60,7 +60,7 @@ final class WriteWorker extends AbstractTimeMeasuredRunnable {
         LoggerFactory.getLogger("ErrorPerEmailLogger");
 
     private final String _name;
-    private final Collection<ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> _channels;
+    private final Collection<ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>> _channels;
 
     private final long _periodInMS;
     /** Average number of values per write run */
@@ -77,7 +77,7 @@ final class WriteWorker extends AbstractTimeMeasuredRunnable {
      */
     public WriteWorker(@Nonnull final IServiceProvider provider,
                        @Nonnull final String name,
-                       @Nonnull final Collection<ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> channels,
+                       @Nonnull final Collection<ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>> channels,
                        final long periodInMS) {
         _provider = provider;
         _name = name;
@@ -114,17 +114,17 @@ final class WriteWorker extends AbstractTimeMeasuredRunnable {
     }
 
 
-    private long collectSampleFromBuffersAndWriteToService(@Nonnull final Collection<ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>>> channels)
+    private long collectSampleFromBuffersAndWriteToService(@Nonnull final Collection<ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>> channels)
     throws ArchiveServiceException {
 
         long written = 0;
 
-        final LinkedList<IArchiveSample<Serializable, ISystemVariable<Serializable>>> bufferSamples =
+        final LinkedList<IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>>> bufferSamples =
             Lists.newLinkedList();
 
-        for (final ArchiveChannelBuffer<Serializable, ISystemVariable<Serializable>> channel : channels) {
+        for (final ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>> channel : channels) {
 
-            final SampleBuffer<Serializable, ISystemVariable<Serializable>, IArchiveSample<Serializable, ISystemVariable<Serializable>>> buffer =
+            final SampleBuffer<Serializable, IAlarmSystemVariable<Serializable>, IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>>> buffer =
                 channel.getSampleBuffer();
 
             if (buffer.isEmpty()) {
@@ -142,7 +142,7 @@ final class WriteWorker extends AbstractTimeMeasuredRunnable {
     }
 
     private long writeSamples(@Nonnull final IServiceProvider provider,
-                              @Nonnull final List<IArchiveSample<Serializable, ISystemVariable<Serializable>>> samples) throws ArchiveServiceException {
+                              @Nonnull final List<IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>>> samples) throws ArchiveServiceException {
 
         IArchiveEngineFacade service;
         try {

@@ -92,7 +92,8 @@ public class ArchiveConnectionHandler {
         ds.setUser(user);
         ds.setPassword(prefs.getPassword());
         ds.setMaxAllowedPacket(prefs.getMaxAllowedPacketSizeInKB()*1024);
-        ds.setUseTimezone(true);
+// TODO A.Scharping: Check this:
+//        ds.setUseTimezone(true);
 
         ds.setRewriteBatchedStatements(true);
 

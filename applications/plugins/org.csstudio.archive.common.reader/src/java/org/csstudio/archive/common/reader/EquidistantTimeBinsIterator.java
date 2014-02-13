@@ -340,7 +340,10 @@ public class EquidistantTimeBinsIterator extends AbstractValueIterator {
         aggregator.aggregate(value,
                              minimum == null ? value : BaseTypeConversionSupport.toDouble(minimum),
                              maximum == null ? value : BaseTypeConversionSupport.toDouble(maximum),
-                             curSampleTime);
+                             sample.getStatus(),
+                             sample.getSeverity(),
+                             curSampleTime,
+                             1);
     }
 
     /**

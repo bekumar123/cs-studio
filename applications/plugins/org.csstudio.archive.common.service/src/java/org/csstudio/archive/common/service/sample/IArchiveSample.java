@@ -26,6 +26,8 @@ import java.io.Serializable;
 import javax.annotation.Nonnull;
 
 import org.csstudio.archive.common.service.channel.ArchiveChannelId;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarmSeverity;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarmStatus;
 import org.csstudio.domain.desy.system.ISystemVariable;
 
 /**
@@ -46,6 +48,13 @@ public interface IArchiveSample<V extends Serializable, T extends ISystemVariabl
 
     @Nonnull
     V getValue();
+    
+    @Nonnull
+    EpicsAlarmStatus getStatus();
+
+    @Nonnull
+    EpicsAlarmSeverity getSeverity();
+    
     @Nonnull
     String getRequestType();
 }

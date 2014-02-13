@@ -137,4 +137,11 @@ public enum EpicsAlarmStatus {
         }
         return STATUS_BY_CODE.get(code);
     }
+
+    /**
+     * Returns true, if the status is an alarm status
+     */
+    public boolean isAlarm() {
+    	return this != NO_ALARM && this != UNKNOWN;
+    }
 }

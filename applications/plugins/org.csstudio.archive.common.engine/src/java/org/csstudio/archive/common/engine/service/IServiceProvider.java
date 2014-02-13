@@ -25,6 +25,7 @@ import javax.annotation.Nonnull;
 
 import org.csstudio.archive.common.engine.ArchiveEnginePreferencesService;
 import org.csstudio.archive.common.service.IArchiveEngineFacade;
+import org.csstudio.dal2.service.IDalService;
 import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
 
 /**
@@ -34,8 +35,12 @@ import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
  * @since Mar 23, 2011
  */
 public interface IServiceProvider {
+
     @Nonnull
     IArchiveEngineFacade getEngineFacade() throws OsgiServiceUnavailableException;
+
+    @Nonnull
+    IDalService getDalService() throws OsgiServiceUnavailableException;
 
     @Nonnull
     ArchiveEnginePreferencesService getPreferencesService();

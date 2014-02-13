@@ -43,7 +43,7 @@ import org.csstudio.archive.reader.UnknownChannelException;
 import org.csstudio.archive.reader.ValueIterator;
 import org.csstudio.domain.desy.regexp.SimplePattern;
 import org.csstudio.domain.desy.service.osgi.OsgiServiceUnavailableException;
-import org.csstudio.domain.desy.system.ISystemVariable;
+import org.csstudio.domain.desy.system.IAlarmSystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.typesupport.BaseTypeConversionSupport;
 import org.epics.util.time.Timestamp;
@@ -193,7 +193,7 @@ public final class DesyArchiveReaderFactory implements ArchiveReaderFactory {
             final TimeInstant s = BaseTypeConversionSupport.toTimeInstant1(start);
             final TimeInstant e = BaseTypeConversionSupport.toTimeInstant1(end);
             final IArchiveReaderFacade service = _provider.getReaderFacade();
-            final Collection<IArchiveSample<Serializable, ISystemVariable<Serializable>>> samples =
+            final Collection<IArchiveSample<Serializable, IAlarmSystemVariable<Serializable>>> samples =
              service.readSamples(name, s, e, findRequestType("RAW"));
             final IArchiveSample lastSampleBefore = service.readLastSampleBefore(name, s);
             return new DesyArchiveValueIterator(Iterables.concat(Collections.<IArchiveSample>singleton(lastSampleBefore), samples),

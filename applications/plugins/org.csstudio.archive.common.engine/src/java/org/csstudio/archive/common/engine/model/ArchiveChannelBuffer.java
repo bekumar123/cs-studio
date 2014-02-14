@@ -17,6 +17,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 
+import org.csstudio.apputil.ringbuffer.RingBuffer;
 import org.csstudio.archive.common.engine.service.IServiceProvider;
 import org.csstudio.archive.common.service.ArchiveServiceException;
 import org.csstudio.archive.common.service.IArchiveEngineFacade;
@@ -27,6 +28,7 @@ import org.csstudio.archive.common.service.sample.ArchiveSample;
 import org.csstudio.archive.common.service.sample.IArchiveSample;
 import org.csstudio.dal2.dv.Characteristic;
 import org.csstudio.dal2.dv.Characteristics;
+import org.csstudio.dal2.dv.ConnectionState;
 import org.csstudio.dal2.dv.ListenerType;
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Timestamp;
@@ -73,6 +75,14 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends IAlarmSystem
     /** Buffer of received samples, periodically written */
     private final SampleBuffer<V, T, IArchiveSample<V, T>> _buffer;
 
+    private final RingBuffer<IArchiveSample<?,?>> _lastSamples=new RingBuffer<IArchiveSample<?,?>>(10);
+
+    /**
+     * @return the ringBuffer
+     */
+    public RingBuffer<IArchiveSample<?,?>> getLastSamples() {
+        return _lastSamples;
+    }
     /** Is this channel currently running?
      *  <p>
      *  PV sends another 'disconnected' event
@@ -103,6 +113,10 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends IAlarmSystem
     private final IServiceProvider _provider;
 
     private final TimeInstant _timeOfLastSampleBeforeChannelStart;
+
+    private boolean _neverConnected = true;
+
+    private boolean _isStopped = false;
 
     private IPvAccess<Object> _pvAccess;
 
@@ -142,6 +156,15 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends IAlarmSystem
         return _pvAccess != null && _pvAccess.isConnected();
     }
 
+    public ConnectionState getConnectionState() {
+        return _pvAccess == null ? ConnectionState.UNDEFINED : _pvAccess.getConnectionState();
+    }
+
+    /** @return <code>true</code> if connected */
+    public boolean isNeverConnected() {
+        return _neverConnected;
+    }
+
     /** @return <code>true</code> if connected */
     public boolean isStarted() {
         return _isStarted;
@@ -169,6 +192,7 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends IAlarmSystem
                 return true;
             }
             _isStarted = true;
+            _isStopped = false;
             initPvAndListener(info);
         }
         try {
@@ -177,6 +201,7 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends IAlarmSystem
             LOG.error("PV " + _address.getAddress() + " could not be enabled. Database access failed", e);
             throw e;
         }
+
         return true;
     }
 
@@ -198,6 +223,11 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends IAlarmSystem
 
             @Override
             public void connectionChanged(final IPvAccess<Object> source, final boolean connected) {
+
+                if (connected) {
+                    _neverConnected = false;
+                }
+
                 try {
                     persistChannelStatusInfo(_id, connected, info);
                 } catch (final EngineModelException e) {
@@ -282,6 +312,8 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends IAlarmSystem
                     _receivedSampleCount++;
                     _mostRecentSysVar = sample.getSystemVariable();
                 }
+
+                _lastSamples.add(sample);
 
                 if (!_buffer.add(sample)) {
                     ArchiveEngineSampleRescuer.with((Collection) Collections.singleton(sample)).rescue();
@@ -387,6 +419,7 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends IAlarmSystem
                 return;
             }
             _isStarted = false;
+            _isStopped = true;
         }
         persistChannelStatusInfo(_id, false, info);
 
@@ -397,6 +430,8 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends IAlarmSystem
                 throw new EngineModelException("Missing dynamic service", e);
             }
         }
+
+
     }
 
     public void disable() throws EngineModelException {
@@ -453,5 +488,9 @@ public class ArchiveChannelBuffer<V extends Serializable, T extends IAlarmSystem
 
     public boolean isEnabled() {
         return _isEnabled;
+    }
+
+    public boolean isStopped() {
+        return _isStopped;
     }
 }

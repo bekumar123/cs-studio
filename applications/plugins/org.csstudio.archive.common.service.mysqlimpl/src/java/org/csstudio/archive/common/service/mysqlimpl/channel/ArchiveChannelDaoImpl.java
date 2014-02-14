@@ -99,21 +99,20 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
         new MapMaker().concurrencyLevel(2).weakKeys().makeMap();
 
     private final String _selectChannelPrefix =
-        "SELECT " + TAB + ".id, " + TAB + ".name, " + TAB + ".datatype, " + TAB + ".group_id, " + LST_TAB + ".time, " +
-                    TAB + ".enabled, " + TAB + ".display_high, " + TAB + ".display_low, " +
+        "SELECT " + TAB + ".id, " + TAB + ".name, " + TAB + ".datatype, " + TAB + ".group_id, " + TAB + ".last_sample_time, " +
+                    TAB + ".enabled, " + TAB + ".display_high, " + TAB + ".display_low, " +  TAB + ".uv, "+
                  CS_TAB + ".id, " + CS_TAB + ".name, " + CS_TAB + ".type " +
-                " FROM " + getDatabaseName() + "." + TAB + " " + TAB + " " +
-                " JOIN " + getDatabaseName() + "." + CS_TAB + " ON " + TAB + ".control_system_id=" + CS_TAB + ".id" +
-                " LEFT JOIN " + getDatabaseName() + "." + LST_TAB + " ON " + TAB + ".id=" + LST_TAB + ".channel_id";
-
+                "FROM " + getDatabaseName() + "." + TAB + ", " +
+                          getDatabaseName() + "." + CS_TAB;
+    private final String _selectChannelSuffix = " AND " + TAB + ".control_system_id=" + CS_TAB + ".id" ;
 
     // FIXME (bknerr) : refactor into CRUD command objects with cmd factories
     // TODO (bknerr) : parameterize the database schema name via dao call
-    private final String _selectChannelByNamesStmt = _selectChannelPrefix + " WHERE " + TAB + ".name in " + WHERE_SET_PLACEHOLDER;
-    private final String _selectChannelsByIdsStmt =   _selectChannelPrefix + " WHERE " + TAB + ".id in " + WHERE_SET_PLACEHOLDER;
-    private final String _selectChannelsByGroupIdStmt = _selectChannelPrefix + " WHERE " + TAB + ".group_id=? " +
+    private final String _selectChannelByNamesStmt = _selectChannelPrefix + " WHERE " + TAB + ".name in " + WHERE_SET_PLACEHOLDER + _selectChannelSuffix;
+    private final String _selectChannelsByIdsStmt =   _selectChannelPrefix + " WHERE " + TAB + ".id in " + WHERE_SET_PLACEHOLDER + _selectChannelSuffix;
+    private final String _selectChannelsByGroupIdStmt = _selectChannelPrefix + " WHERE " + TAB + ".group_id=? " + _selectChannelSuffix +
                                                     " ORDER BY " + TAB + ".name";
-    private final String _selectMatchingChannelsStmt = _selectChannelPrefix + " WHERE " + TAB + ".name REGEXP ? ";
+    private final String _selectMatchingChannelsStmt = _selectChannelPrefix + " WHERE " + TAB + ".name REGEXP ? " + _selectChannelSuffix;
 
     private final String _createChannelsStmt = "INSERT INTO " + getDatabaseName() + "." + TAB +
                                                " (name, datatype, group_id, control_system_id, enabled, display_high, display_low)" +
@@ -124,8 +123,8 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
     private final String _updateChannelEnabledStmt = "UPDATE " + getDatabaseName() + "." + TAB +
                                                      " SET enabled=? WHERE name=?";
     private final String _updateChannelDatatypeStmt = "UPDATE " + getDatabaseName() + "." + TAB +
-                                                      " SET datatype=? WHERE id=?";
-    private final String _updateChannelUnitsStmt = "UPDATE " + getDatabaseName() + "." + TAB +
+                                                " SET datatype=? WHERE id=?";
+    private final String _updateChannelUnitStmt = "UPDATE " + getDatabaseName() + "." + TAB +
             " SET uv=? WHERE id=?";
 
     /**
@@ -151,7 +150,8 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
         final String name = result.getString(TAB + ".name");
         final String datatype = result.getString(TAB + ".datatype");
         final long groupId = result.getLong(TAB + ".group_id");
-        final long lastSampleTime = result.getLong(LST_TAB + ".time");
+         //wenhua use last_sample_time in channel table
+        final long lastSampleTime = result.getLong(TAB + ".last_sample_time");
 
         final TimeInstant time = lastSampleTime > 0L ?
                                  TimeInstantBuilder.fromNanos(lastSampleTime) :
@@ -162,6 +162,8 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
         dispHi = Strings.isNullOrEmpty(dispHi) ? null : dispHi;
         String dispLo = result.getString(TAB + ".display_low");
         dispLo = Strings.isNullOrEmpty(dispLo) ? null : dispLo;
+        String uv = result.getString(TAB + ".uv");
+        uv = Strings.isNullOrEmpty(uv) ? null : uv;
 
         final ArchiveControlSystemId csId = new ArchiveControlSystemId(result.getLong(CS_TAB + ".id"));
         final String csName = result.getString(CS_TAB + ".name");
@@ -179,7 +181,7 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
                                                                   cs,
                                                                   isEnabled,
                                                                   dispLo,
-                                                                  dispHi);
+                                                                  dispHi,uv);
 
 
         _channelCacheByName.put(name, channel);
@@ -588,26 +590,27 @@ public class ArchiveChannelDaoImpl extends AbstractArchiveDao implements IArchiv
         return UpdateResult.failed("Channel '" + id.asString() + "' has not been updated, doesn't it exist?");
     }
 
-    /**
+
+    /**    //wenhua write unit of value for channel in DB
      * {@inheritDoc}
      */
     @Override
     @Nonnull
     public UpdateResult updateChannelUnits(@Nonnull final ArchiveChannelId id,
-                                              @Nonnull final String units) {
+                                              @Nonnull final String unit) {
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
             conn = createConnection();
-            stmt = conn.prepareStatement(_updateChannelUnitsStmt);
-            stmt.setString(1, units);
+            stmt = conn.prepareStatement(_updateChannelUnitStmt);
+            stmt.setString(1, unit);
             stmt.setInt(2, id.intValue());
             final int updated = stmt.executeUpdate();
             if (updated == 1) {
-                return UpdateResult.succeeded("Update of units for channel '" + id.asString() + "' succeeded.");
+                return UpdateResult.succeeded("Update of Unit for channel '" + id.asString() + "' succeeded.");
             }
         } catch (final Exception e) {
-            return UpdateResult.failed("Update of units for channel '" + id.asString() + "' failed:\n" + e.getMessage());
+            return UpdateResult.failed("Update of Unit for channel '" + id.asString() + "' failed:\n" + e.getMessage());
         } finally {
             closeSqlResources(null, stmt, conn, _deleteChannelStmt);
         }

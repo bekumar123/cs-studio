@@ -225,7 +225,8 @@ public class ArchiveChannelDaoUnitTest extends AbstractDaoTestSetup {
                                grpId,
                                null,
                                cs,
-                               false);
+                               false,
+                               null);
         final Collection<IArchiveChannel> directResult =
             DAO.createChannels(Collections.singleton((IArchiveChannel) chan1));
         Assert.assertTrue(directResult.isEmpty());
@@ -248,7 +249,8 @@ public class ArchiveChannelDaoUnitTest extends AbstractDaoTestSetup {
                                grpId,
                                null,
                                cs,
-                               true);
+                               true,
+                               null);
         IArchiveChannel chan2 =
             new ArchiveLimitsChannel<Double>(ArchiveChannelId.NONE,
                                "withLimits",
@@ -257,7 +259,8 @@ public class ArchiveChannelDaoUnitTest extends AbstractDaoTestSetup {
                                null,
                                cs,
                                false,
-                               Double.valueOf(0.0), Double.valueOf(10.0));
+                               Double.valueOf(0.0), Double.valueOf(10.0),
+                               null);
 
         final Collection<IArchiveChannel> directResult =
             DAO.createChannels(Lists.newArrayList(chan1, chan2));
@@ -286,7 +289,8 @@ public class ArchiveChannelDaoUnitTest extends AbstractDaoTestSetup {
                                grpId,
                                null,
                                cs,
-                               true);
+                               true,
+                               null);
         final IArchiveChannel chan2 =
             new ArchiveChannel(ArchiveChannelId.NONE,
                                "fooNoLimits",
@@ -294,7 +298,8 @@ public class ArchiveChannelDaoUnitTest extends AbstractDaoTestSetup {
                                grpId,
                                null,
                                cs,
-                               false);
+                               false,
+                               null);
 
 
         final Collection<IArchiveChannel> directResult =

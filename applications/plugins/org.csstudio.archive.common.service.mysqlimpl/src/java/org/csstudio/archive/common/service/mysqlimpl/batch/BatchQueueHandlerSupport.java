@@ -33,6 +33,7 @@ import javax.annotation.Nonnull;
 import org.csstudio.archive.common.service.mysqlimpl.dao.ArchiveDaoException;
 import org.csstudio.domain.desy.typesupport.AbstractTypeSupport;
 import org.csstudio.domain.desy.typesupport.TypeSupportException;
+import org.epics.pvmanager.TypeSupport;
 
 /**
  * Strategy for those statements that shall be batched.
@@ -83,10 +84,11 @@ public abstract class BatchQueueHandlerSupport<T> extends AbstractTypeSupport<T>
         }
         return Collections.emptyList();
     }
-
-    public static <T> void addToQueue(@Nonnull final Collection<T> newEntries) throws TypeSupportException {
+/*wenhua xu return queue size back
+*/
+    public static <T> int addToQueue(@Nonnull final Collection<T> newEntries) throws TypeSupportException {
         if (newEntries.isEmpty()) {
-            return;
+            return 0 ;
         }
         @SuppressWarnings("unchecked")
         final Class<T> type = (Class<T>) newEntries.iterator().next().getClass();
@@ -94,6 +96,7 @@ public abstract class BatchQueueHandlerSupport<T> extends AbstractTypeSupport<T>
 
         final BlockingQueue<T> queue = support.getQueue();
         queue.addAll(newEntries);
+        return queue.size();
     }
 
     @Nonnull
@@ -141,5 +144,12 @@ public abstract class BatchQueueHandlerSupport<T> extends AbstractTypeSupport<T>
         _sqlStmtString = _sqlStmtString.replaceFirst("^INSERT IGNORE INTO [^\\.]*", "INSERT IGNORE INTO " + databaseName);
         _sqlStmtString = _sqlStmtString.replaceFirst("^UPDATE [^\\.]*", "UPDATE " + databaseName);
 
+    }
+
+    @Nonnull
+    public static <T> TypeSupport<T> findTypeSupportForOrThrowTSE(@SuppressWarnings("rawtypes") @Nonnull final Class<? extends TypeSupport> family,
+                                                                     @Nonnull final Class<T> type)
+         throws TypeSupportException {
+        return AbstractTypeSupport.findTypeSupportForOrThrowTSE(family, type);
     }
 }

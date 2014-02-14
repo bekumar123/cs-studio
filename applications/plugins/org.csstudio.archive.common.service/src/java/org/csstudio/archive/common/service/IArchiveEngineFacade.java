@@ -238,4 +238,7 @@ public interface IArchiveEngineFacade {
     @Nonnull
     UpdateResult setEnableChannelFlag(@Nonnull final String name, final boolean isEnabled);
 
+    @Nonnull
+    IArchiveChannelStatus getLatestChannelStatusById(ArchiveChannelId id) throws ArchiveServiceException;
+
 }

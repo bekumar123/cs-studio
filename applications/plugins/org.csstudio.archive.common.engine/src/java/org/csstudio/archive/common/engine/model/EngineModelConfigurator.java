@@ -199,7 +199,8 @@ public final class EngineModelConfigurator {
                                                                   cs,
                                                                   true,
                                                                   low,
-                                                                  high);
+                                                                  high,
+                                                                  null);
 
             final IArchiveChannel failureCfg = provider.getEngineFacade().createChannel(channel);
             if (failureCfg != null) {

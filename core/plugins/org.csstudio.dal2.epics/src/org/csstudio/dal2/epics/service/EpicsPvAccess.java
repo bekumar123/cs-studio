@@ -5,6 +5,7 @@ import gov.aps.jca.Context;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.csstudio.dal2.dv.ConnectionState;
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
 import org.csstudio.dal2.epics.mapping.IEpicsTypeMapping;
@@ -116,6 +117,30 @@ public class EpicsPvAccess<T> implements ICsPvAccess<T> {
 
 		_monitor.dispose();
 		_monitor = null;
+	}
+
+	@Override
+	public ConnectionState getConnectionState() {
+		if (_monitor == null) {
+			return ConnectionState.NOT_REQUESTED;
+		} else {
+			gov.aps.jca.Channel.ConnectionState state = _monitor.getChannel()
+					.getConnectionState();
+			if (gov.aps.jca.Channel.ConnectionState.NEVER_CONNECTED
+					.equals(state)) {
+				return ConnectionState.NEVER_CONNECTED;
+			} else if (gov.aps.jca.Channel.ConnectionState.CLOSED.equals(state)) {
+				return ConnectionState.CLOSED;
+			} else if (gov.aps.jca.Channel.ConnectionState.CONNECTED
+					.equals(state)) {
+				return ConnectionState.CONNECTED;
+			} else if (gov.aps.jca.Channel.ConnectionState.DISCONNECTED
+					.equals(state)) {
+				return ConnectionState.DISCONNECTED;
+			} else {
+				return ConnectionState.UNDEFINED;
+			}
+		}
 	}
 
 	@Override

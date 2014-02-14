@@ -8,11 +8,11 @@
 package org.csstudio.archive.common.engine.httpserver;
 
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletResponse;
-
-import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
 
 /** Helper for creating uniform HTML pages for a servlet response.
  *  @author Kay Kasemir
@@ -36,8 +36,7 @@ public class HTMLWriter {
      *  @param title HTML title
      *  @throws Exception on error
      */
-    public HTMLWriter(@Nonnull final HttpServletResponse resp,
-                      @Nonnull final String title) throws Exception {
+    public HTMLWriter(@Nonnull final HttpServletResponse resp, @Nonnull final String title) throws Exception {
         resp.setContentType("text/html");
         html = resp.getWriter();
         text("<html>");
@@ -50,16 +49,51 @@ public class HTMLWriter {
         h1(title);
 
         text("<div id=\"navigation\">");
+        /* wenhua xu
+          new nav. menue for manage
+       */
         createNavigationBar(MainResponse.linkTo(),
                             GroupsResponse.linkTo(),
                             DisconnectedResponse.linkTo(Messages.HTTP_DISCONNECTED),
+                            ManageResponse.linkTo(),
                             HelpResponse.linkTo());
         text("</div>");
 
         text("<div id=\"content\">");
     }
 
-    private void createNavigationBar(@Nonnull final String...navPoints) {
+    /** @return HTML Writer with start of HTML page.
+     *  @param resp Response for which to create the writer
+     *  @param title HTML title
+     *  @throws Exception on error
+     */
+    public HTMLWriter(@Nonnull final HttpServletResponse resp, @Nonnull final String title, final String channelName) throws Exception {
+        resp.setContentType("text/html");
+        html = resp.getWriter();
+        text("<html>");
+        text("<head>");
+        text("<title>" + title + "</title>");
+        text("<script type=\"text/javascript\" src=\"/sorttable.js\"></script>\n");
+        text("<link rel=\"stylesheet\" type=\"text/css\" href=\"/archiver.css\"></link>");
+        text("</head>");
+        text("<body background='" + BACKGROUND + "' onload=\"recusivLoadChannel('" + channelName + "')\">");
+        h1(title);
+
+        text("<div id=\"navigation\">");
+        createNavigationBar(MainResponse.linkTo());
+        createNavigationBar(GroupsResponse.linkTo());
+        createNavigationBar(DisconnectedResponse.linkTo(Messages.HTTP_DISCONNECTED));
+         /* wenhua xu
+          new nav. menue for manage
+       */
+        createNavigationBar(ManageResponse.linkTo());
+        createNavigationBar(HelpResponse.linkTo());
+        text("</div>");
+
+        text("<div id=\"content\">");
+    }
+
+    private void createNavigationBar(@Nonnull final String... navPoints) {
         for (final String nav : navPoints) {
             text("<li>" + nav + "</li>");
         }
@@ -71,10 +105,14 @@ public class HTMLWriter {
         text("</div>");
         text("<hr width='100%' align='left'>");
         text("<div id=\"timeAndHint\">");
-        text(TimeInstantBuilder.fromNow().formatted());
+           /* wenhua xu
+          timeformate in Germany
+       */
+
+        text(new SimpleDateFormat("dd.MM.yyyy' 'HH:mm:ss").format(new Date()));
+        //   text(TimeInstantBuilder.fromNow().formatted());
         text("(Use web browser's Reload to refresh this page)");
         text("</div>");
-
 
         text("</blockquote>");
         text("</body>");
@@ -86,6 +124,7 @@ public class HTMLWriter {
     protected void text(@Nonnull final String text) {
         html.println(text);
     }
+
     /** Add header */
     protected void h1(@Nonnull final String text) {
         text("<h1>" + text + "</h1>");
@@ -107,15 +146,15 @@ public class HTMLWriter {
      *  @see #tableLine(String[])
      *  @see #closeTable()
      */
-    protected void openTable(final int initialColSpan,
-                             @Nonnull final String[] headers) {
+    protected void openTable(final int initialColSpan, @Nonnull final String[] headers) {
         text("<table border='0' class='sortable'>");
         text("<thead>");
         text("  <tr bgcolor='#FFCC66'>");
-        text("    <th align='center' colspan='" + initialColSpan + "'>" +
-                        headers[0] + "</th>");
-        for (int i=1; i<headers.length; ++i) {
-            text("    <th align='center'>" + headers[i] + "</th>");
+        text("    <th align='center' colspan='" + initialColSpan + "'>" + headers[0] + "</th>");
+        for (int i = 1; i < headers.length; ++i) {
+            if (headers[i] != null) {
+                text("    <th align='center'>" + headers[i] + "</th>");
+            }
         }
         text("  </tr>");
         text("</thead>");
@@ -132,18 +171,20 @@ public class HTMLWriter {
         text("  <tr>");
         boolean first = true;
         for (final String column : columns) {
-            if (first) {
-                first = false;
-                if (oddTableRow) {
-                    text("    <th align='left' valign='top'>" + column + "</th>");
+            if (column != null) {
+                if (first) {
+                    first = false;
+                    if (oddTableRow) {
+                        text("    <th align='left' valign='top'>" + column + "</th>");
+                    } else {
+                        text("    <th align='left' valign='top' bgcolor='#DFDFFF'>" + column + "</th>");
+                    }
                 } else {
-                    text("    <th align='left' valign='top' bgcolor='#DFDFFF'>" + column + "</th>");
-                }
-            } else {
-                if (oddTableRow) {
-                    text("    <td align='center' valign='top'>" + column + "</td>");
-                } else {
-                    text("    <td align='center' valign='top' bgcolor='#DFDFFF'>" + column + "</td>");
+                    if (oddTableRow) {
+                        text("    <td align='center' valign='top'>" + column + "</td>");
+                    } else {
+                        text("    <td align='center' valign='top' bgcolor='#DFDFFF'>" + column + "</td>");
+                    }
                 }
             }
         }

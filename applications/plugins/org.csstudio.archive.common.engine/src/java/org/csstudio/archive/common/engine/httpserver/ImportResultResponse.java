@@ -30,16 +30,22 @@ class ImportResultResponse extends AbstractChannelResponse {
 
     private static List<EpicsChannelName> _configureChannelsFromFile;
 
+    private static String _error_msgs="";
     ImportResultResponse(@Nonnull final EngineModel model) {
         super(model);
     }
 
     @Override
+       /* wenhua xu
+         error msg output 
+       */
     protected void fillResponse(@Nonnull final HttpServletRequest req,
                                 @Nonnull final HttpServletResponse resp) throws Exception {
             // HTML table similar to group's list of channels
             final HTMLWriter html = new HTMLWriter(resp, "Channel import result");
-
+            if(!_error_msgs.isEmpty()) {
+                html.text("Error on processing request:\n" + _error_msgs);
+            }
             createChannelListTable(html);
             html.close();
 
@@ -76,9 +82,13 @@ class ImportResultResponse extends AbstractChannelResponse {
         }
         html.closeTable();
     }
-
-    public static void setResult(final List<EpicsChannelName> configureChannelsFromFile) {
+    /* wenhua xu
+    error msg output 
+  */
+    public static void setResult(final List<EpicsChannelName> configureChannelsFromFile,final String error_msgs) {
+        _error_msgs="";
         _configureChannelsFromFile = configureChannelsFromFile;
+        _error_msgs=error_msgs;
     }
 
     @Nonnull

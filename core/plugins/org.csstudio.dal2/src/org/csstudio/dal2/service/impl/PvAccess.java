@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.csstudio.dal2.dv.Characteristics;
+import org.csstudio.dal2.dv.ConnectionState;
 import org.csstudio.dal2.dv.ListenerType;
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
@@ -229,6 +230,12 @@ public class PvAccess<T> implements IPvAccess<T> {
 	public synchronized boolean isConnected() {
 		return _connected.get();
 	}
+	
+	@Override
+	public ConnectionState getConnectionState() {
+		return _csPvAccess.getConnectionState();
+	}
+	
 	
 	@Override
 	public String toString() {

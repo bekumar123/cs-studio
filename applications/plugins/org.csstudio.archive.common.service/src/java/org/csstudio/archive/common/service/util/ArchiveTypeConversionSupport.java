@@ -78,11 +78,11 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
 
     protected static final String ARCHIVE_NULL_ENTRY = "<null>";
 
-    private static final String[] ADDITIONAL_TYPE_PACKAGES = new String[] { "org.csstudio.domain.desy.epics.types" };
+    private static final String[] ADDITIONAL_TYPE_PACKAGES =
+        new String[]{
+                     "org.csstudio.domain.desy.epics.types",
+                     };
     private static boolean INSTALLED;
-
-    private static final Logger LOG = LoggerFactory.getLogger(ArchiveTypeConversionSupport.class);
-
     /**
      * Constructor.
      */
@@ -162,7 +162,8 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
      * @throws TypeSupportException
      */
     @Nonnull
-    public static <T extends Serializable> T fromArchiveString(@Nonnull final Class<T> typeClass, @Nonnull final String value) throws TypeSupportException {
+    public static <T extends Serializable> T fromArchiveString(@Nonnull final Class<T> typeClass,
+                                                               @Nonnull final String value) throws TypeSupportException {
         final ArchiveTypeConversionSupport<T> support =
                                                         (ArchiveTypeConversionSupport<T>) findTypeSupportForOrThrowTSE(ArchiveTypeConversionSupport.class,
                                                                                                                        typeClass);
@@ -171,13 +172,15 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Nonnull
-    public static <T extends Serializable> T fromArchiveString(@Nonnull final String datatype, @Nonnull final String value) throws TypeSupportException {
+    public static <T extends Serializable> T fromArchiveString(@Nonnull final String datatype,
+                                                               @Nonnull final String value) throws TypeSupportException {
         final Class<T> typeClass = (Class<T>) createTypeClassFromArchiveString(datatype);
         if (!Collection.class.isAssignableFrom(typeClass)) {
             return fromArchiveString(typeClass, value);
         }
 
-        final String elemType = BaseTypeConversionSupport.parseForFirstNestedGenericType(datatype);
+        final String elemType =
+        	BaseTypeConversionSupport.parseForFirstNestedGenericType(datatype);
         final Class<T> elemClass = (Class<T>) createTypeClassFromArchiveString(elemType);
         return (T) fromArchiveString((Class) typeClass, (Class) elemClass, value);
     }
@@ -305,39 +308,54 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
     }
 
     // CHECKSTYLE OFF : ParameterNumber
+
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Nonnull
-    public static <T extends Serializable> IArchiveChannel createArchiveChannel(@Nonnull final ArchiveChannelId id,
-                                                                                @Nonnull final String name,
-                                                                                @Nullable final String datatype,
-                                                                                @Nonnull final ArchiveChannelGroupId archiveChannelGroupId,
-                                                                                @Nullable final TimeInstant time,
-                                                                                @Nonnull final IArchiveControlSystem cs,
-                                                                                final boolean enabled,
-                                                                                @CheckForNull final String low,
-                                                                                @CheckForNull final String high) throws TypeSupportException {
+    public static <T extends Serializable>
+    IArchiveChannel createArchiveChannel(@Nonnull final ArchiveChannelId id,
+                                         @Nonnull final String name,
+                                         @Nullable final String datatype,
+                                         @Nonnull final ArchiveChannelGroupId archiveChannelGroupId,
+                                         @Nullable final TimeInstant time,
+                                         @Nonnull final IArchiveControlSystem cs,
+                                         final boolean enabled,
+                                         @CheckForNull final String low,
+                                         @CheckForNull final String high,
+                                         @CheckForNull final String uv ) throws TypeSupportException {
         // CHECKSTYLE ON : ParameterNumber
+       //wenhua checken datatype.isEmpty()
+               /**
 
-        try {
-            if (datatype != null) {
-                final Class<T> clazz = (Class<T>) createTypeClassFromArchiveString(datatype);
-                if (!ArchiveTypeConversionSupport.isDataTypeSerializableCollection(clazz) && !Strings.isNullOrEmpty(low)
-                    && !Strings.isNullOrEmpty(high)) {
-                    return new ArchiveLimitsChannel(id,
-                                                    name,
-                                                    datatype,
-                                                    archiveChannelGroupId,
-                                                    time,
-                                                    cs,
-                                                    enabled,
-                                                    (Comparable) fromArchiveString(clazz, low),
-                                                    (Comparable) fromArchiveString(clazz, high));
-                }
+ * @author wxu
+ *  Statistic for count in minute and stunde
+ */
+        if (datatype != null && !datatype.isEmpty()) {
+
+            final Class<T> clazz = (Class<T>) createTypeClassFromArchiveString(datatype);
+            if (!ArchiveTypeConversionSupport.isDataTypeSerializableCollection(clazz) &&
+                !Strings.isNullOrEmpty(low) &&
+                !Strings.isNullOrEmpty(high)) {
+                return new ArchiveLimitsChannel(id,
+                                                name,
+                                                datatype,
+                                                archiveChannelGroupId,
+                                                time,
+                                                cs,
+                                                enabled,
+                                                (Comparable) fromArchiveString(clazz, low),
+                                                (Comparable) fromArchiveString(clazz, high),
+                                                uv);
             }
-        } catch (final Exception e) {
-            LOG.warn("Error reading datatype. Datatype, high and low will be ignored. Message: {}", e.getMessage());
         }
-        return new ArchiveChannel(id, name, datatype, archiveChannelGroupId, time, cs, enabled);
+
+        return new ArchiveChannel(id,
+                                  name,
+                                  datatype,
+                                  archiveChannelGroupId,
+                                  time,
+                                  cs,
+                                  enabled,
+                                  uv);
     }
 
     protected static <T> void checkInputVsOutputSize(@Nonnull final Iterable<String> strings,
@@ -424,8 +442,8 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
      * @since 22.12.2010
      */
     protected static final class String2TypeFunction<T extends Serializable> implements Function<String, T> {
-        private static final Logger S2T_LOG = LoggerFactory
-                .getLogger(ArchiveTypeConversionSupport.String2TypeFunction.class);
+        private static final Logger S2T_LOG =
+            LoggerFactory.getLogger(ArchiveTypeConversionSupport.String2TypeFunction.class);
         private final ArchiveTypeConversionSupport<T> _support;
 
         /**
@@ -474,8 +492,10 @@ public abstract class ArchiveTypeConversionSupport<T extends Serializable> exten
 
         final Class<? extends Object> clazz = data.getClass();
         if (Collection.class.isAssignableFrom(clazz) && !((Collection) data).isEmpty()) {
-            return clazz.getSimpleName() + "<" + createArchiveTypeStringFromData(((Collection) data).iterator().next())
-                   + ">";
+            return clazz.getSimpleName() +
+                    "<" +
+                   createArchiveTypeStringFromData(((Collection) data).iterator().next()) +
+                   ">";
         } else {
             return clazz.getSimpleName();
         }

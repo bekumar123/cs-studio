@@ -46,6 +46,7 @@ public class SampleMinMaxAggregator {
     private Double _minVal;
     private Double _maxVal;
     private Double _lastAvgBeforeReset;
+    private Double _lastVal;
     private TimeInstant _lastSampleTimeStamp;
     private TimeInstant _resetTimeStamp;
 
@@ -163,5 +164,10 @@ public class SampleMinMaxAggregator {
 
     public int getCount() {
         return _count;
+    }
+
+    @CheckForNull
+    public synchronized void setCount(final int c) {
+        _count+=c;
     }
 }

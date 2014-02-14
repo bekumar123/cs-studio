@@ -505,4 +505,35 @@ var forEach = function(object, block, context) {
 		resolve.forEach(object, block, context);
 	}
 };
+//wenhua: letzt 10 channelwert und channel status in Seit http://krynfsc:4811/channel/show? ausgeben 
+var channelName="";
+function writeTable(){
+	var xmlhttp;
+	if (window.XMLHttpRequest)
+	  {// code for IE7+, Firefox, Chrome, Opera, Safari
+	  xmlhttp=new XMLHttpRequest();
+	  }
+	else
+	  {// code for IE6, IE5
+	  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	  }
 
+	xmlhttp.onreadystatechange=function()
+	  {
+	 if (xmlhttp.readyState==4 && xmlhttp.status==200)
+	    {
+	    document.getElementById("content").innerHTML=xmlhttp.responseText;
+	    }
+	  }
+	
+	xmlhttp.open("GET","/channel/GET?name="+channelName,true);
+	xmlhttp.send();
+
+	
+	}
+ function recusivLoadChannel(name){
+	  channelName=name;
+	  writeTable();
+	  setInterval( function(){writeTable()},4000);
+  }
+  

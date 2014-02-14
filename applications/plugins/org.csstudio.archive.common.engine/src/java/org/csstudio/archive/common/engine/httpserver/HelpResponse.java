@@ -278,14 +278,12 @@ public class HelpResponse extends AbstractResponse {
                 Messages.HTTP_YES,
                 "Name of the group to which this channel will belong (has to exist)",
         });
-        html.tableLine(new String[] {
-                "",
-                AddChannelResponse.PARAM_DATATYPE,
-                Messages.HTTP_NO,
-                // TODO (2012-10-26 jp adapted to new pvmanager)
-                // "Java datatype of the channel, as such or as ArrayList<?> out of:\n" + DesyTypeFactoryProvider.getInstalledTargetTypes(),
-                "Java datatype of the channel, as such or as ArrayList<?> out of: NOT IMPLEMENTED\n",
-        });
+//        html.tableLine(new String[] {
+//                "",
+//                AddChannelResponse.PARAM_DATATYPE,
+//                Messages.HTTP_NO,
+//                "Java datatype of the channel, as such or as ArrayList<?> out of:\n" + DesyJCAVTypeAdapterSet.getInstalledTargetTypes(),
+//        });
         html.tableLine(new String[] {
                 "",
                 AddChannelResponse.PARAM_LOPR,

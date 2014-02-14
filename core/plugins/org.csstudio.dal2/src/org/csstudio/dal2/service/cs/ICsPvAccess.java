@@ -1,5 +1,6 @@
 package org.csstudio.dal2.service.cs;
 
+import org.csstudio.dal2.dv.ConnectionState;
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.service.DalException;
 
@@ -44,6 +45,11 @@ public interface ICsPvAccess<T> {
 	 * The address of the pv access
 	 */
 	PvAddress getPvAddress();
+	
+	/**
+	 * Provides the state of the underlying connection
+	 */
+	ConnectionState getConnectionState();
 	
 	
 }

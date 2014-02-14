@@ -7,6 +7,11 @@
  ******************************************************************************/
 package org.csstudio.archive.common.engine;
 
+import java.util.Enumeration;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
@@ -98,6 +103,8 @@ public class ArchiveEngineApplication implements IApplication {
     public final Object start(@Nonnull final IApplicationContext context) {
 
         final IServiceProvider provider = new ServiceProvider();
+
+        logEnvAndProps();
         LOG.info("DESY Archive Engine Version {} - START.", provider.getPreferencesService().getVersion());
         julLOG.info("DESY Archive Engine Version {} - START.");
 
@@ -127,6 +134,24 @@ public class ArchiveEngineApplication implements IApplication {
             LOG.error("Unexpected throwable in application's main loop.", e);
         }
         return killEngineAndHttpServer(_model, httpServer);
+    }
+
+    private void logEnvAndProps() {
+        LOG.error("Environment");
+        final Map<String, String> getenv = System.getenv();
+        final Set<String> keySet = getenv.keySet();
+        for (final String key : keySet) {
+            LOG.error(key + "   ----   " + getenv.get(key));
+        }
+
+        LOG.error("Properties");
+        final Properties p = System.getProperties();
+        final Enumeration keys = p.keys();
+        while (keys.hasMoreElements()) {
+          final String key = (String)keys.nextElement();
+          final String value = (String)p.get(key);
+          LOG.error(key + "  -----  " + value);
+        }
     }
 
     private synchronized boolean getRun() {

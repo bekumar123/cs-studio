@@ -68,14 +68,16 @@ public final class TestUtils {
                                                                        new ArchiveChannelGroupId(1L),
                                                                        TimeInstantBuilder.fromMillis(0L),
                                                                        new ArchiveControlSystem("EPICS", ControlSystemType.EPICS_V3),
-                                                                       true);
+                                                                       true,
+                                                                       null);
     public static final IArchiveChannel CHANNEL_2 = new ArchiveChannel(new ArchiveChannelId(1L),
                                                                        CHANNEL_NAME_2,
                                                                        "Double",
                                                                        new ArchiveChannelGroupId(2L),
                                                                        TimeInstantBuilder.fromMillis(0L),
                                                                        new ArchiveControlSystem("EPICS", ControlSystemType.EPICS_V3),
-                                                                       true);
+                                                                       true,
+                                                                       null);
 
     public static final IArchiveChannel CHANNEL_3 = new ArchiveChannel(new ArchiveChannelId(3L),
                                                                        CHANNEL_NAME_3,
@@ -83,7 +85,8 @@ public final class TestUtils {
                                                                        new ArchiveChannelGroupId(3L),
                                                                        TimeInstantBuilder.fromMillis(0L),
                                                                        new ArchiveControlSystem("EPICS", ControlSystemType.EPICS_V3),
-                                                                       true);
+                                                                       true,
+                                                                       null);
 
     public static final Collection<IArchiveSample<Double, IAlarmSystemVariable<Double>>> CHANNEL_1_SAMPLES =
         new ArrayList<IArchiveSample<Double, IAlarmSystemVariable<Double>>>();

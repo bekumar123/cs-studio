@@ -18,10 +18,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.csstudio.archive.common.engine.model.ArchiveChannelBuffer;
 import org.csstudio.archive.common.engine.model.ArchiveGroup;
 import org.csstudio.archive.common.engine.model.EngineModel;
+import org.csstudio.dal2.dv.ConnectionState;
 import org.csstudio.domain.desy.time.TimeInstant;
 import org.csstudio.domain.desy.time.TimeInstant.TimeInstantBuilder;
 import org.eclipse.core.runtime.Platform;
 import org.joda.time.Duration;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +41,8 @@ class MainResponse extends AbstractResponse {
     private static final Logger LOG = LoggerFactory.getLogger(MainResponse.class);
 
     private static final String URL_BASE_PAGE = "/main";
+
+    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormat.forPattern("dd.MM.yyyy' 'HH:mm:ss");
 
 
     /** Avoid serialization errors */
@@ -94,14 +99,24 @@ class MainResponse extends AbstractResponse {
 
     private void createProgramInfoRows(@Nonnull final HttpServletRequest req,
                                        @Nonnull final HTMLWriter html) {
-        html.tableLine(new String[] {Messages.HTTP_VERSION, _version});
+        final String s= Platform.getInstanceLocation().getURL().getFile().toString();
+        try{
+            html.tableLine(new String[] {Messages.HTTP_VERSION, _version+"-"+ Long.parseLong(s)});
+        }catch(final NumberFormatException e){
+            html.tableLine(new String[] {Messages.HTTP_VERSION, _version+"-"+ 0});
+        }
+
         html.tableLine(new String[] {Messages.HTTP_DESCRIPTION, getModel().getName()});
         html.tableLine(new String[] {Messages.HTTP_HOST, _host + ":" + req.getLocalPort()});
         html.tableLine(new String[] {Messages.HTTP_STATE, getModel().getState().name()});
 
         final TimeInstant start = getModel().getStartTime();
+
         if (start != null) {
-            html.tableLine(new String[] {Messages.HTTP_STARTTIME, start.formatted()});
+              /* wenhua xu
+             timeformate in germany
+           */
+            html.tableLine(new String[] {Messages.HTTP_STARTTIME, getModel().getStartTime().formatted(DATE_TIME_FORMAT)});
             final Duration dur = new Duration(start.getInstant(),
                                               TimeInstantBuilder.fromNow().getInstant());
             html.tableLine(new String[] {Messages.HTTP_UPTIME,
@@ -117,11 +132,39 @@ class MainResponse extends AbstractResponse {
     private void createChannelStatsRows(@Nonnull final HTMLWriter html) {
         int numOfChannels = 0;
         int numOfConnectedChannels = 0;
+           /* wenhua xu
+          new info line for engine
+       */
+        int numOfStartedChannels = 0;
+        int numOfConnectedStateChannels = 0;
+        int numOfDisconnectedStateChannels = 0;
+        int numOfNeverConnectedStateChannels = 0;
+        int numOfClosedStateChannels = 0;
+        int numOfUnknownStateChannels = 0;
         for (final ArchiveGroup group : getModel().getGroups()) {
             numOfChannels += group.getChannels().size();
 
             for (final ArchiveChannelBuffer<?, ?> channel : group.getChannels()) {
                 numOfConnectedChannels += channel.isConnected() ? 1 : 0;
+                numOfStartedChannels += channel.isStarted() ? 1 : 0;
+                ConnectionState state = channel.getConnectionState();
+                switch (state) {
+                    case CONNECTED:
+                        numOfConnectedStateChannels++;
+                        break;
+                    case DISCONNECTED:
+                        numOfDisconnectedStateChannels++;
+                        break;
+                    case NEVER_CONNECTED:
+                        numOfNeverConnectedStateChannels++;
+                        break;
+                    case CLOSED:
+                        numOfClosedStateChannels++;
+                        break;
+                    default:
+                        numOfUnknownStateChannels++;
+                        break;
+                }
             }
         }
         html.tableLine(new String[] {numOf(Messages.HTTP_COLUMN_GROUPCOUNT),
@@ -130,12 +173,44 @@ class MainResponse extends AbstractResponse {
         html.tableLine(new String[] {numOf(Messages.HTTP_COLUMN_CHANNELS),
                                      String.valueOf(numOfChannels),
                                      });
+        if (numOfStartedChannels > 0) {
+            html.tableLine(new String[] {numOf(Messages.HTTP_START_CHANNEL),
+                    numOfStartedChannels==numOfChannels?  String.valueOf(numOfStartedChannels): HTMLWriter.makeRedText(String.valueOf(numOfStartedChannels)),
+                                         });
+        }
         final int numOfDisconnectedChannels = numOfChannels - numOfConnectedChannels;
         if (numOfDisconnectedChannels > 0) {
             html.tableLine(new String[] {numOf(Messages.HTTP_NOT_CONNECTED),
                                          HTMLWriter.makeRedText(String.valueOf(numOfDisconnectedChannels)),
                                          });
         }
+        if (numOfConnectedStateChannels > 0) {
+            html.tableLine(new String[] {numOf(Messages.HTTP_CONNECTED_CHANNEL_STATE),
+                                         HTMLWriter.makeRedText(String.valueOf(numOfConnectedStateChannels)),
+                                         });
+        }
+        if (numOfDisconnectedStateChannels > 0) {
+            html.tableLine(new String[] {numOf(Messages.HTTP_DISCONNECTED_CHANNEL),
+                                         HTMLWriter.makeRedText(String.valueOf(numOfDisconnectedStateChannels)),
+                                         });
+        }
+        if (numOfNeverConnectedStateChannels > 0) {
+            html.tableLine(new String[] {numOf(Messages.HTTP_NEVERCONNECTED_CHANNEL),
+                                         HTMLWriter.makeRedText(String.valueOf(numOfNeverConnectedStateChannels)),
+                                         });
+        }
+        if (numOfClosedStateChannels> 0) {
+            html.tableLine(new String[] {numOf(Messages.HTTP_CLOSED_CHANNEL),
+                                         HTMLWriter.makeRedText(String.valueOf(numOfClosedStateChannels)),
+                                         });
+        }
+
+        if (numOfUnknownStateChannels > 0) {
+            html.tableLine(new String[] {numOf(Messages.HTTP_UNKNOWN_CHANNEL),
+                                         HTMLWriter.makeRedText(String.valueOf(numOfUnknownStateChannels)),
+                                         });
+        }
+
     }
 
     private void createWriteStatsRows(@Nonnull final HTMLWriter html) {
@@ -144,10 +219,11 @@ class MainResponse extends AbstractResponse {
                                      });
 
         final TimeInstant lastWriteTime = getModel().getLastWriteTime();
-        html.tableLine(new String[] {Messages.HTTP_LAST_WRITETIME,
-                                     (lastWriteTime == null ? Messages.HTTP_NEVER :
-                                                              lastWriteTime.formatted()),
-                                                              });
+
+             /* wenhua xu
+          timeformate in germany
+       */ html.tableLine(new String[] {Messages.HTTP_LAST_WRITETIME,
+                                     lastWriteTime == null ? Messages.HTTP_NEVER :  getModel().getLastWriteTime().formatted(DATE_TIME_FORMAT) });
 
         final Double avgWriteCount = getModel().getAvgWriteCount();
         html.tableLine(new String[] {numOf(Messages.HTTP_AVG_WRITE),

@@ -16,8 +16,11 @@ import org.csstudio.archive.common.engine.model.ArchiveGroup;
 import org.csstudio.archive.common.engine.model.EngineModel;
 import org.csstudio.archive.common.engine.model.SampleBuffer;
 import org.csstudio.archive.common.engine.model.SampleBufferStatistics;
+import org.csstudio.dal2.dv.ConnectionState;
 import org.csstudio.domain.desy.system.ISystemVariable;
 import org.csstudio.domain.desy.time.TimeInstant;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import com.google.common.base.Strings;
 
@@ -35,6 +38,8 @@ class ShowGroupResponse extends AbstractGroupResponse {
         URL_SHOW_GROUP_ACTION = "show";
         URL_BASE_PAGE = URL_GROUP_PAGE + "/" + URL_SHOW_GROUP_ACTION;
     }
+
+    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormat.forPattern("dd.MM.yyyy' 'HH:mm:ss");
 
     /** Maximum text length of last value that's displayed */
     private static final int MAX_VALUE_DISPLAY = 60;
@@ -80,9 +85,12 @@ class ShowGroupResponse extends AbstractGroupResponse {
             group.isStarted() ? Messages.HTTP_YES : HTMLWriter.makeRedText(Messages.HTTP_NO),
         });
         final TimeInstant lastWriteTime = getModel().getLastWriteTime();
+             /* wenhua xu
+          timeformate in germany
+       */
         html.tableLine(new String[] {
                 Messages.HTTP_LAST_WRITETIME,
-                lastWriteTime != null ? lastWriteTime.formatted() : Messages.HTTP_NOT_AVAILABLE,
+                lastWriteTime != null ? lastWriteTime.formatted(DATE_TIME_FORMAT) : Messages.HTTP_NOT_AVAILABLE,
         });
         if (!group.isStarted()) {
             html.tableLine(new String[] {
@@ -92,24 +100,51 @@ class ShowGroupResponse extends AbstractGroupResponse {
         }
         html.closeTable();
     }
+           /* wenhua xu
+          Adel for channel
+       */
+    private String getAdel(@Nonnull final String channelName){
+        final ArchiveChannelBuffer<?, ?> channel =getModel().getChannel(channelName+".ADEL");
 
+             if(channel!=null)
+             {
+                 final ISystemVariable<?> mostRecentSample = channel.getMostRecentSample();
+                 return  limitLength(getValueAsString(mostRecentSample), MAX_VALUE_DISPLAY);
+             }
+
+
+        return "";
+    }
     private void createChannelsTable(@Nonnull final ArchiveGroup group,
                                      @Nonnull final HTMLWriter html) {
         // HTML Table of all channels in the group
+        String errorChannels="";
+        boolean hasNumOfConnectedStateChannels = false;
+        for (final ArchiveChannelBuffer<?, ?> channel : group.getChannels()) {
+            if(channel.getConnectionState()!=null) {
+                hasNumOfConnectedStateChannels = true;
+            }
+        }
         html.openTable(1, new String[] {
+                "#",
             Messages.HTTP_CHANNEL,
             Messages.HTTP_STARTED,
             Messages.HTTP_CONNECTED,
+            hasNumOfConnectedStateChannels?   Messages.HTTP_CONN_STATE:null,
+      //      "CAJ direct",
+         //   "DB direct",
             Messages.HTTP_CURRENT_VALUE,
+            Messages.HTTP_DEADBAND_VALUE,
             Messages.HTTP_TIMESTAMP,
             Messages.HTTP_COLUMN_RECEIVEDVALUES,
             Messages.HTTP_QUEUELEN,
             Messages.HTTP_COLUMN_QUEUEAVG,
             Messages.HTTP_COLUMN_QUEUEMAX,
         });
+        int number=0;
         for (final ArchiveChannelBuffer<?, ?> channel : group.getChannels()) {
             try {
-
+                number++;
                 final String started = channel.isStarted() ? Messages.HTTP_YES :
                                                              HTMLWriter.makeRedText(Messages.HTTP_NO);
                 final String connected = channel.isConnected() ? Messages.HTTP_YES :
@@ -117,18 +152,24 @@ class ShowGroupResponse extends AbstractGroupResponse {
                 final SampleBuffer<?, ?, ?> buffer = channel.getSampleBuffer();
                 final SampleBufferStatistics stats = buffer.getBufferStats();
                 final ISystemVariable<?> mostRecentSample = channel.getMostRecentSample();
-
+                     /* wenhua xu
+                     new column in Group table
+                 */
+                ConnectionState state = channel.getConnectionState();
+                final String connState = state.isConnected() ? state.name() : HTMLWriter.makeRedText( state.name());
                 final String curVal = limitLength(getValueAsString(mostRecentSample), MAX_VALUE_DISPLAY);
-
-                final String curValTimestamp =
-                    mostRecentSample != null ? mostRecentSample.getTimestamp().formatted() :
-                        "null";
+                final String curValTimestamp = mostRecentSample == null ? "" : mostRecentSample.getTimestamp().formatted(DATE_TIME_FORMAT);
 
                     html.tableLine(new String[] {
+                            Integer.toString(number),
                             ShowChannelResponse.linkTo(channel.getName()),
                             started,
                             connected,
+                            hasNumOfConnectedStateChannels?  connState:null,
+                        //    cajDirectconnState,
+                        //    isChannelConnected,
                             curVal,
+                            getAdel(channel.getName()),
                             curValTimestamp,
                             Long.toString(channel.getReceivedValues()),
                             Integer.toString(buffer.size()),
@@ -136,10 +177,14 @@ class ShowGroupResponse extends AbstractGroupResponse {
                             Integer.toString(stats.getMaxSize()),
                     });
             } catch (final Throwable t) {
+                errorChannels+=channel.getName()+"    \n ";
                 System.out.println(channel.getName());
             }
         }
         html.closeTable();
+        if(!errorChannels.isEmpty()) {
+            html.text( HTMLWriter.makeRedText("Error Channel: \n" +errorChannels));
+        }
     }
 
     @Nonnull

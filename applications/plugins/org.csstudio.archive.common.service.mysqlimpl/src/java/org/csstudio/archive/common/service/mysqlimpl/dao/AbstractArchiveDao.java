@@ -67,7 +67,8 @@ public abstract class AbstractArchiveDao {
      */
     @Nonnull
     protected Connection createConnection() throws ArchiveConnectionException {
-        return _connectionHandler.createConnection();
+      //  return _connectionHandler.createConnection();
+     return   _connectionHandler.getThreadLocalConnection();
     }
 
     @Nonnull
@@ -131,5 +132,4 @@ public abstract class AbstractArchiveDao {
             throw new ArchiveDaoException("Unknown: ", re);
         }
     }
-
 }

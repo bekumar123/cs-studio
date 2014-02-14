@@ -21,9 +21,11 @@
  */
 package org.csstudio.archive.common.engine.httpserver;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -32,21 +34,21 @@ import org.csstudio.archive.common.engine.model.EngineModel;
 import org.csstudio.domain.desy.epics.name.EpicsChannelName;
 
 /**
- * TODO (bknerr) :
  *
- * @author bknerr
- * @since 30.09.2011
+ * @author wenhua xu
+ * @since 30.09.2013
+ * channel in file import for http upload function
  */
-public class ImportResponse extends AbstractResponse {
+public class ImportFileResponse extends AbstractResponse {
 
-    private static final String URL_IMPORT_ACTION = "/import";
+    private static final String URL_IMPORT_ACTION = "/importfile";
 
     private static final long serialVersionUID = 1L;
 
     /**
      * Constructor.
      */
-    public ImportResponse(@Nonnull final EngineModel model,
+    public ImportFileResponse(@Nonnull final EngineModel model,
                                  @Nonnull final String adminParamKey,
                                  @Nonnull final String admingParamValue) {
         super(model, adminParamKey, admingParamValue);
@@ -62,17 +64,24 @@ public class ImportResponse extends AbstractResponse {
 
              final String s ="";
             //Here request is the reference of HttpServletRequest.
-               /* wenhua xu
-               import channel from localfile
-            */
-             final String fileName=req.getParameter("fileName");
-            final List<EpicsChannelName> channelList = config.configureChannelsFromFile(fileName);
-
-         //   channelList.addAll(config.configureChannelsFromFile(req.getInputStream()));
+            final List<EpicsChannelName> channelList =config.configureChannelsFromFile(req.getInputStream());
+           // channelList.addAll(config.configureChannelsFromFile(req.getInputStream()));
             ImportResultResponse.setResult(channelList,"");
             resp.sendRedirect(new Url(ImportResultResponse.baseUrl()).url());//ShowChannelResponse.urlTo(name.toString()));
     }
 
+    /** {@inheritDoc} */
+    @Override
+    protected void doPost(@Nonnull final HttpServletRequest req, @Nonnull final HttpServletResponse resp) throws ServletException,
+                                                                                                         IOException {
+        try {
+               fillResponse(req, resp);
+        } catch (final Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+    }
     @Nonnull
     public static String baseUrl() {
         return URL_IMPORT_ACTION;

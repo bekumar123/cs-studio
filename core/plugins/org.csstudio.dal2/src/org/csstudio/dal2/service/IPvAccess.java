@@ -3,6 +3,7 @@ package org.csstudio.dal2.service;
 import java.util.concurrent.TimeUnit;
 
 import org.csstudio.dal2.dv.Characteristics;
+import org.csstudio.dal2.dv.ConnectionState;
 import org.csstudio.dal2.dv.ListenerType;
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
@@ -121,6 +122,11 @@ public interface IPvAccess<T> {
 	 * Returns true, if the pv access is connected. (Only a monitor will create a durable connection.)  
 	 */
 	boolean isConnected();
+	
+	/**
+	 * Returns the state of the connection to the underlying control system. (Only a monitor will create a durable connection.)
+	 */
+	ConnectionState getConnectionState();
 
 	/**
 	 * Returns true if a (last known) native type is available

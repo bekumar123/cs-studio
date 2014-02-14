@@ -21,6 +21,8 @@
  */
 package org.csstudio.archive.common.engine;
 
+import gov.aps.jca.JCALibrary;
+
 import javax.annotation.Nonnull;
 
 import org.csstudio.domain.desy.preferences.AbstractPreference;
@@ -42,7 +44,8 @@ public class ArchiveEnginePreferencesService {
      * @param <T> the type of the preference
      */
     private static final class ArchiveEnginePreference<T> extends AbstractPreference<T>{
-
+        public static final ArchiveEnginePreference<Integer> REG_GROUP_ID =
+                new ArchiveEnginePreference<Integer>("regGroupId", Integer.valueOf(0));
         public static final ArchiveEnginePreference<Integer> WRITE_PERIOD_IN_S =
             new ArchiveEnginePreference<Integer>("writePeriodInS", Integer.valueOf(5));
         public static final ArchiveEnginePreference<Integer> HEARTBEAT_PERIOD_IN_S =
@@ -51,7 +54,22 @@ public class ArchiveEnginePreferencesService {
             new ArchiveEnginePreference<String>("version", "0.0.1-beta");
         public static final ArchiveEnginePreference<String> HTTP_ADMIN_VALUE =
             new ArchiveEnginePreference<String>("httpAdmin", "");
+        /**
+         * @author wxu
+         * set caContext variable value
+         */
 
+        public static final ArchiveEnginePreference<String> CA_CONTEXT_NAME =
+                new ArchiveEnginePreference<String>("caContext",
+                                                    "");
+        /**
+         * @author wxu
+         * set queue size variable value
+         */
+        public static final ArchiveEnginePreference<Integer> QUEUE_WARN_SIZE =
+                new ArchiveEnginePreference<Integer>("queueWarnSize",  Integer.valueOf(50000));
+        public static final ArchiveEnginePreference<Integer> QUEUE_MAXI_SIZE =
+                new ArchiveEnginePreference<Integer>("queueMaxiSize", Integer.valueOf(600000));
         /**
          * Constructor.
          */
@@ -97,6 +115,10 @@ public class ArchiveEnginePreferencesService {
         return ArchiveEnginePreference.WRITE_PERIOD_IN_S.getValue();
     }
     @Nonnull
+    public Integer getRegGroupId() {
+        return ArchiveEnginePreference.REG_GROUP_ID.getValue();
+    }
+    @Nonnull
     public Integer getHeartBeatPeriodInS() {
         return ArchiveEnginePreference.HEARTBEAT_PERIOD_IN_S.getValue();
     }
@@ -104,9 +126,22 @@ public class ArchiveEnginePreferencesService {
     public String getHttpAdminValue() {
         return ArchiveEnginePreference.HTTP_ADMIN_VALUE.getValue();
     }
+    /**
+     * @author wxu
+     * set queue size variable value
+     */
+    @Nonnull
+    public Integer getQueueWarnSize() {
+        return ArchiveEnginePreference.QUEUE_WARN_SIZE.getValue();
+    }
+    @Nonnull
+    public Integer getQueueMaxiSize() {
+        return ArchiveEnginePreference.QUEUE_MAXI_SIZE.getValue();
+    }
     @Nonnull
     public String getHttpAdminKey() {
         return ArchiveEnginePreference.HTTP_ADMIN_VALUE.getKeyAsString();
     }
+
 }
 

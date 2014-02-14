@@ -57,10 +57,18 @@ public class ChannelMonitor<T> extends AbstractChannelOperator implements
 		boolean connected = ev.isConnected();
 
 		if (connected) {
+			ConnectionState state = getChannel().getConnectionState();
+			assert state.isEqualTo(gov.aps.jca.Channel.ConnectionState.CONNECTED) : "Unexpected connection state: " + state;
+			
 			_connected.set(true);
 			LOGGER.debug("Connection changed ({}): connected", name);
 			_listener.connected(name, getNativeType());
 		} else if (_connected.getAndSet(connected)) {
+			
+			ConnectionState state = getChannel().getConnectionState();
+			assert !state.isEqualTo(gov.aps.jca.Channel.ConnectionState.CONNECTED) : "Unexpected connection state: " + state;
+
+			
 			LOGGER.debug("Connection changed ({}): disconnected", name);
 			_listener.disconnected(name);
 

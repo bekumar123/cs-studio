@@ -8,7 +8,7 @@
 
    <launcherArgs>
       <programArgs>-consoleLog -engine Dal2EngineTest -pluginCustomization C:\Users\Arne\Documents\DESY\DAL\master\cs-studio\products\DESY\plugins\org.csstudio.archive.common.engine.product\all_tests.ini</programArgs>
-      <vmArgs>-Djava.awt.headless=true -Djava.util.logging.config.file=log.properties -Xms64m -Xmx256m</vmArgs>
+      <vmArgs>-Djava.awt.headless=true -Djava.util.logging.config.file=log.properties -Xms64m -Xmx256m --XX:-UseSplitVerifier</vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
@@ -42,7 +42,7 @@
       <plugin id="org.apache.commons.el"/>
       <plugin id="org.apache.commons.lang"/>
       <plugin id="org.apache.commons.logging"/>
-      <plugin id="org.apache.jasper" fragment="true"/>
+      <plugin id="org.apache.jasper"/>
       <plugin id="org.apache.log4j"/>
       <plugin id="org.apache.tools.ant"/>
       <plugin id="org.apache.tools.ant.junit"/>

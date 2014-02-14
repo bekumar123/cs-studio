@@ -26,10 +26,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.CheckForNull;
@@ -68,6 +70,8 @@ import org.csstudio.domain.desy.typesupport.TypeSupportException;
 import org.joda.time.Duration;
 import org.joda.time.Hours;
 import org.joda.time.Minutes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -82,6 +86,11 @@ import com.google.inject.Inject;
  * @since 11.11.2010
  */
 public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchiveSampleDao {
+      /**
+    *@author wenhua
+    *neue LOG
+    */
+    private static final Logger LOG = LoggerFactory.getLogger(ArchiveSampleDaoImpl.class);
 
     public static final String TAB_SAMPLE = "sample";
     public static final String TAB_SAMPLE_M = "sample_m";
@@ -150,24 +159,26 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
      */
     @Override
     public <V extends Serializable, T extends IAlarmSystemVariable<V>>
-    void createSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveDaoException {
+    int createSamples(@Nonnull final Collection<IArchiveSample<V, T>> samples) throws ArchiveDaoException {
 
         try {
-            getEngineMgr().submitToBatch(samples);
+            int size = getEngineMgr().submitToBatch(samples);
 
             final List<? extends AbstractReducedDataSample> minuteSamples =
                 generatePerMinuteSamples(samples, _reducedDataMapForMinutes);
             if (minuteSamples.isEmpty()) {
-                return;
+                return size;
             }
             getEngineMgr().submitToBatch(minuteSamples);
 
             final List<? extends AbstractReducedDataSample> hourSamples =
                 generatePerHourSamples(minuteSamples, _reducedDataMapForHours);
             if (hourSamples.isEmpty()) {
-                return;
+                return size;
             }
             getEngineMgr().submitToBatch(hourSamples);
+            
+            return size;
         } catch (final TypeSupportException e) {
             throw new ArchiveDaoException("Type support for sample type could not be found.", e);
         }
@@ -235,9 +246,9 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             final V data = sysVar.getData();
 
             if (ArchiveTypeConversionSupport.isDataTypeOptimizable(data.getClass())) {
-                final Double newValue =
-                    BaseTypeConversionSupport.createDoubleFromValueOrNull(sysVar);
-                if (newValue == null) {
+                final Double newValue = BaseTypeConversionSupport.createDoubleFromValueOrNull(sysVar);
+                if (newValue == null || newValue.isInfinite() || newValue.isNaN()) {
+                    LOG.warn("Channel {} have a error value {} ", sysVar.getName(), sysVar.getData().toString());
                     continue;
                 }
                 final ArchiveChannelId channelId = sample.getChannelId();
@@ -369,20 +380,15 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
                                              type :
                                              SampleRequestTypeUtil.determineRequestType(channel.getDataType(), start, end);
             conn = createConnection();
-            do {
                 stmt = createReadSamplesStatement(conn, channel, start, end, reqType);
                 result = stmt.executeQuery();
                 if (result.next()) {
-                    final Collection<IArchiveSample<V, T>> samples =
-                        createRetrievedSamplesContainer(channel, reqType, result);
-                    return samples;
-                } else if (type == null) { // type == null means use automatic lookup
-                    reqType = reqType.getNextLowerOrderRequestType();
+                    return  createRetrievedSamplesContainer(channel, reqType, result);
                 }
-            } while (type == null && reqType != null); // no other request type of lower order
+            
 
         } catch (final Exception ex) {
-            handleExceptions(RETRIEVAL_FAILED, ex);
+        	handleExceptions(RETRIEVAL_FAILED + "\n" + "ArchiveSampleDaoImpl.retrieveSamples() " + channel.getName(), ex);
         } finally {
             closeSqlResources(result, stmt, conn, "Samples retrieval for " + channel.getName());
         }

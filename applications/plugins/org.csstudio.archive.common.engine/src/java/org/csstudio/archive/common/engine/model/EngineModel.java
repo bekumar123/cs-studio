@@ -13,6 +13,8 @@ import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -70,6 +72,10 @@ public final class EngineModel {
     private TimeInstant _startTime;
 
     private final long _writePeriodInMS;
+    /* wenhua xu
+    _regGroupId
+   */
+    private final int _regGroupId;;
     private final long _heartBeatPeriodInMS;
 
     private final IServiceProvider _provider;
@@ -85,10 +91,12 @@ public final class EngineModel {
 
         _groupMap = new MapMaker().concurrencyLevel(2).makeMap();
         _channelMap = new MapMaker().concurrencyLevel(2).makeMap();
-
-        _writePeriodInMS = 1000*provider.getPreferencesService().getWritePeriodInS();
-        _heartBeatPeriodInMS = 1000*provider.getPreferencesService().getHeartBeatPeriodInS();
-
+        /* wenhua xu
+        init variable value
+       */
+        _writePeriodInMS = 1000 * provider.getPreferencesService().getWritePeriodInS();
+        _heartBeatPeriodInMS = 1000 * provider.getPreferencesService().getHeartBeatPeriodInS();
+        _regGroupId = provider.getPreferencesService().getRegGroupId().intValue();
         _engine = EngineModelConfigurator.findEngineConfByName(_name, _provider);
 
         logHttpHostAndPort(_engine);
@@ -120,6 +128,7 @@ public final class EngineModel {
     public synchronized EngineState getState() {
         return _state;
     }
+
     public synchronized void setState(@Nonnull final EngineState state) {
         _state = state;
     }
@@ -181,14 +190,15 @@ public final class EngineModel {
         setState(EngineState.RUNNING);
 
         checkAndUpdateLastShutdownStatus(_provider, _engine, _channelMap.values());
-
-
-        _writeExecutor = new WriteExecutor(_provider, _engine.getId(), _channelMap.values());
-        _writeExecutor.start(_heartBeatPeriodInMS, _writePeriodInMS);
-
         startChannelGroups(_groupMap.values());
-    }
+          /* wenhua xu
+       WriteExecutor starte Writethread for eache channel Group
+       */
+        _writeExecutor = new WriteExecutor(_provider, _engine.getId(), _channelMap.values(), this);
+        _writeExecutor.start(_heartBeatPeriodInMS, _writePeriodInMS);
+        LOG.info("Engine {} Start",getName());
 
+    }
 
     /**
      * Retrieves the last archiver status from the archive.<br/>
@@ -206,8 +216,7 @@ public final class EngineModel {
      */
     private void checkAndUpdateLastShutdownStatus(@Nonnull final IServiceProvider provider,
                                                   @Nonnull final IArchiveEngine engine,
-                                                  @Nonnull final Collection<ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>> channels)
-                                                  throws EngineModelException {
+                                                  @Nonnull final Collection<ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>> channels) throws EngineModelException {
         try {
             final IArchiveEngineFacade facade = provider.getEngineFacade();
 
@@ -227,8 +236,8 @@ public final class EngineModel {
                                                 EngineMonitorStatus.ON,
                                                 TimeInstantBuilder.fromNow(),
                                                 "Engine Startup");
-
         } catch (@Nonnull final Exception e) {
+            e.printStackTrace();
             handleExceptions(e);
         }
     }
@@ -253,32 +262,46 @@ public final class EngineModel {
      */
     private void checkAndUpdateChannelsStatus(@Nonnull final IArchiveEngineFacade facade,
                                               @Nonnull final IArchiveEngine engine,
-                                              @Nonnull final Collection<ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>> channels)
-                                              throws ArchiveServiceException {
-
-        final TimeInstant latestAliveTime = engine.getLastAliveTime();
-        @SuppressWarnings("rawtypes")
-        final Collection<IArchiveChannelStatus> statuus =
-            facade.getLatestChannelsStatusBy(Collections2.transform(channels,
-                                                                    new Function<ArchiveChannelBuffer, ArchiveChannelId>() {
-                                                                        @Override
-                                                                        @Nonnull
-                                                                        public ArchiveChannelId apply(@Nonnull final ArchiveChannelBuffer input) {
-                                                                            return input.getId();
-                                                                        }
-                                                                    }),
-                                             latestAliveTime.minusSeconds(3600L*24L*7L),
-                                             latestAliveTime);
-
-        for (final IArchiveChannelStatus status : statuus) {
-            if (status != null && status.isConnected()) { // still connected?
-                facade.writeChannelStatusInfo(status.getChannelId(),
-                                              false,
-                                              "Ungraceful engine shutdown",
-                                              latestAliveTime);
+                                              @Nonnull final Collection<ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>> channels) {
+        final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        final Runnable worker = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final TimeInstant latestAliveTime = engine.getLastAliveTime();
+                    @SuppressWarnings("rawtypes")
+                    final Collection<IArchiveChannelStatus> statuus =
+                                                                      facade.getLatestChannelsStatusBy(Collections2
+                                                                                                               .transform(channels,
+                                                                                                                          new Function<ArchiveChannelBuffer, ArchiveChannelId>() {
+                                                                                                                              @Override
+                                                                                                                              @Nonnull
+                                                                                                                              public ArchiveChannelId apply(@Nonnull final ArchiveChannelBuffer input) {
+                                                                                                                                  return input
+                                                                                                                                          .getId();
+                                                                                                                              }
+                                                                                                                          }),
+                                                                                                       latestAliveTime
+                                                                                                               .minusSeconds(3600L * 24L * 7L),
+                                                                                                       latestAliveTime);
+                    for (final IArchiveChannelStatus status : statuus) {
+                        if (status != null && status.isConnected()) { // still connected?
+                            facade.writeChannelStatusInfo(status.getChannelId(),
+                                                          false,
+                                                          "Ungraceful engine shutdown",
+                                                          latestAliveTime);
+                        }
+                    }
+                } catch (final ArchiveServiceException e) {
+                    LOG.error("Exception within service impl. Archive engine heart beat persistence failed.", e);
+                } catch (final Throwable t) {
+                    LOG.error("Unknown throwable thread HeartBeatWorker.");
+                    t.printStackTrace();
+                }
             }
+        };
+        executor.submit(worker);
 
-        }
     }
 
     private void startChannelGroups(@Nonnull final Collection<ArchiveGroup> groups) throws EngineModelException {
@@ -363,7 +386,6 @@ public final class EngineModel {
         setState(EngineState.IDLE);
     }
 
-
     /** Read configuration of model from RDB.
      *  @param port Current HTTPD port
      * @throws EngineModelException
@@ -382,18 +404,31 @@ public final class EngineModel {
             }
 
             final Collection<IArchiveChannelGroup> groups =
-                EngineModelConfigurator.findGroupsForEngine(_engine.getId(), _provider);
+                                                            EngineModelConfigurator.findGroupsForEngine(_engine.getId(),
+                                                                                                        _provider);
 
             for (final IArchiveChannelGroup groupCfg : groups) {
-                final ArchiveGroup group = addGroup(groupCfg);
-                EngineModelConfigurator.configureGroup(_provider, group, _channelMap);
+            	  /* wenhua xu
+                   _regGroupId
+                  */
+                if (_regGroupId > 0 && groupCfg.getId().intValue() == _regGroupId) {
+                    final ArchiveGroup group = addGroup(groupCfg);
+                    EngineModelConfigurator.configureGroup(_provider, group, _channelMap);
+                }
+                if (_regGroupId < 0 && groupCfg.getId().intValue() != -_regGroupId) {
+                    final ArchiveGroup group = addGroup(groupCfg);
+                    EngineModelConfigurator.configureGroup(_provider, group, _channelMap);
+                }
+                if (_regGroupId == 0) {
+                    final ArchiveGroup group = addGroup(groupCfg);
+                    EngineModelConfigurator.configureGroup(_provider, group, _channelMap);
+                }
             }
         } catch (final Exception e) {
             handleExceptions(e);
         }
         setState(EngineState.CONFIGURED);
     }
-
 
     private void handleExceptions(@Nonnull final Exception inE) throws EngineModelException {
         final String msg = "Failure during archive engine configuration retrieval: ";
@@ -416,8 +451,8 @@ public final class EngineModel {
 
     public void clearConfiguration() {
         if (!(getState() == EngineState.IDLE || getState() == EngineState.CONFIGURED)) {
-            throw new IllegalStateException("Clearing configuration only allowed in " +
-                                            EngineState.IDLE.name() + " or " + EngineState.CONFIGURED.name() + " state.");
+            throw new IllegalStateException("Clearing configuration only allowed in " + EngineState.IDLE.name() + " or "
+                                            + EngineState.CONFIGURED.name() + " state.");
         }
         _engine = null;
         _groupMap.clear();
@@ -437,22 +472,23 @@ public final class EngineModel {
 
     @SuppressWarnings("unchecked")
     @Nonnull
-    public ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>
-    configureNewChannel(@Nonnull final EpicsChannelName epicsName,
-                        @Nonnull final String groupName,
-                        @Nullable final String type,
-                        @Nullable final String low,
-                        @Nullable final String high) throws EngineModelException {
+    public ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>> configureNewChannel(@Nonnull final EpicsChannelName epicsName,
+                                                                                                 @Nonnull final String groupName,
+                                                                                                 @Nullable final String type,
+                                                                                                 @Nullable final String low,
+                                                                                                 @Nullable final String high) throws EngineModelException {
 
         ArchiveChannelBuffer<?, ?> channelBuffer = getChannel(epicsName.toString());
         if (channelBuffer != null) {
-            throw new EngineModelException("Channel with name: '" + epicsName.toString() + "' does already exist for this engine.", null);
+            throw new EngineModelException("Channel with name: '" + epicsName.toString()
+                                           + "' does already exist for this engine.", null);
         }
         final ArchiveGroup group = getGroup(groupName);
         if (group == null) {
             throw new EngineModelException("Group with name: '" + groupName + "' does not yet exist for this engine.", null);
         }
-        channelBuffer = EngineModelConfigurator.configureNewChannel(epicsName,
+        channelBuffer =
+                        EngineModelConfigurator.configureNewChannel(epicsName,
                                                                     type,
                                                                     low,
                                                                     high,
@@ -462,27 +498,32 @@ public final class EngineModel {
         return (ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>) channelBuffer;
     }
 
-    public void removeChannelFromConfiguration(@Nonnull final String name) throws EngineModelException{
+    public void removeChannelFromConfiguration(@Nonnull final String name) throws EngineModelException {
         final ArchiveChannelBuffer<?, ?> buffer = getChannel(name);
         if (buffer == null) {
             throw new EngineModelException("Channel '" + name.toString() + "' is unknown!", null);
         }
         if (buffer.getTimeOfMostRecentSample() != null) {
-            throw new EngineModelException("Removal of channel '" + name.toString() + "' not possible!" +
-                                           "\nThere are archived samples for this channel. Do you just like to stop archiving the channel?", null);
+            throw new EngineModelException("Removal of channel '"
+                                                   + name.toString()
+                                                   + "' not possible!"
+                                                   + "\nThere are archived samples for this channel. Do you just like to stop archiving the channel?",
+                                           null);
         }
         buffer.stop("STOP FOR REMOVAL");
         EngineModelConfigurator.removeChannel(name, _channelMap, _groupMap.values(), _provider);
     }
 
-    public void configureNewGroup(@Nonnull final String name,
-                                  @CheckForNull final String desc) throws EngineModelException {
+    public void configureNewGroup(@Nonnull final String name, @CheckForNull final String desc) throws EngineModelException {
         final ArchiveGroup group = getGroup(name);
         if (group != null) {
             throw new EngineModelException("Group '" + name + "' does already exist!", null);
         }
         final IArchiveChannelGroup archGroup =
-            EngineModelConfigurator.configureNewGroup(name, _engine.getId(), desc, _provider);
+                                               EngineModelConfigurator.configureNewGroup(name,
+                                                                                         _engine.getId(),
+                                                                                         desc,
+                                                                                         _provider);
         addGroup(archGroup);
     }
 }

@@ -56,21 +56,19 @@ final class WriteWorker extends AbstractTimeMeasuredRunnable {
     /**
      * See configuration of this logger - if log4j is used - see log4j.properties
      */
-    private static final Logger EMAIL_LOG =
-        LoggerFactory.getLogger("ErrorPerEmailLogger");
-
+    private static final Logger EMAIL_LOG = LoggerFactory.getLogger("ErrorPerEmailLogger");
+    private static boolean hasWarnung = false;
     private final String _name;
     private final Collection<ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>> _channels;
 
     private final long _periodInMS;
     /** Average number of values per write run */
-    private final AverageWithExponentialDecayCache _avgWriteCount =
-        new AverageWithExponentialDecayCache(0.9);
-
+    private final AverageWithExponentialDecayCache _avgWriteCount = new AverageWithExponentialDecayCache(0.9);
 
     private final IServiceProvider _provider;
 
     private TimeInstant _lastWriteTime;
+    private final EngineModel _model;
 
     /**
      * Constructor.
@@ -78,13 +76,15 @@ final class WriteWorker extends AbstractTimeMeasuredRunnable {
     public WriteWorker(@Nonnull final IServiceProvider provider,
                        @Nonnull final String name,
                        @Nonnull final Collection<ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>> channels,
-                       final long periodInMS) {
+                       final long periodInMS,
+                       @Nonnull final EngineModel model) {
         _provider = provider;
         _name = name;
 
         _channels = channels;
 
         _periodInMS = periodInMS;
+        _model = model;
 
         WORKER_LOG.info("{} created with period {}ms", _name, periodInMS);
     }
@@ -95,11 +95,10 @@ final class WriteWorker extends AbstractTimeMeasuredRunnable {
     @Override
     public void measuredRun() {
         try {
-            WORKER_LOG.info("WRITER RUN: {}", _name);
+         //   WORKER_LOG.info("WRITER RUN: {}", _name);
 
             final long written = collectSampleFromBuffersAndWriteToService(_channels);
-
-            WORKER_LOG.info("WRITER WRITTEN: {}", written);
+            WORKER_LOG.debug("WRITER RUN {},  WRITTEN: {}", _name, written);
 
             _lastWriteTime = TimeInstantBuilder.fromNow();
             _avgWriteCount.accumulate(Double.valueOf(written));
@@ -152,8 +151,22 @@ final class WriteWorker extends AbstractTimeMeasuredRunnable {
             ArchiveEngineSampleRescuer.with(samples).rescue();
             return 0;
         }
-        // when there's a service, the service impl handles the rescue of data
-        service.writeSamples(samples);
+        /* wenhua xu
+            * when there's a service, the service impl handles the rescue of data
+            */
+        final int size = service.writeSamples(samples);
+        if (size >provider.getPreferencesService().getQueueWarnSize() ) {
+            if (!hasWarnung) {
+                EMAIL_LOG.info("More than {} samples in  BatchQueue at {}", size, TimeInstantBuilder.fromNow().formatted());
+                hasWarnung = true;
+            }
+            if (hasWarnung && size >provider.getPreferencesService().getQueueMaxiSize()) {
+                EMAIL_LOG.info("MySQL restarted at {}", TimeInstantBuilder.fromNow().formatted());
+                _model.requestShutdown();
+            }
+        } else {
+            hasWarnung = false;
+        }
         return samples.size();
     }
 

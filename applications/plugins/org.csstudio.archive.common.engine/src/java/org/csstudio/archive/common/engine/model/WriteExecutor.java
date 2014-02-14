@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.CheckForNull;
@@ -42,13 +43,14 @@ public class WriteExecutor {
     /** Minimum write period [millis] */
     private static final long MIN_WRITE_PERIOD_MS = 2000;
 
-
     private final Collection<ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>> _channelsView;
 
-    private final ScheduledExecutorService _heartBeatExecutor =
-        Executors.newSingleThreadScheduledExecutor();
-    private final ScheduledExecutorService _writeSamplesExecutor =
-        Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService _heartBeatExecutor = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService _writeSamplesExecutor = Executors.newSingleThreadScheduledExecutor();
+    private final int _cpus = Runtime.getRuntime().availableProcessors();
+
+    private final ScheduledThreadPoolExecutor _executor = (ScheduledThreadPoolExecutor) Executors
+            .newScheduledThreadPool(Math.max(2, _cpus + 1));
 
     private WriteWorker _writeWorker;
     private long _writePeriodInMS;
@@ -56,6 +58,7 @@ public class WriteExecutor {
     private final IServiceProvider _provider;
 
     private final ArchiveEngineId _engineId;
+    private final EngineModel _model;
 
     /**
      * Construct thread for writing to server
@@ -64,10 +67,13 @@ public class WriteExecutor {
      */
     public WriteExecutor(@Nonnull final IServiceProvider provider,
                          @Nonnull final ArchiveEngineId engineId,
-                         @Nonnull final Collection<ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>> collection) {
+                         @Nonnull final Collection<ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>> collection,
+                         @Nonnull final EngineModel model) {
         _provider = provider;
         _engineId = engineId;
         _channelsView = collection;
+        _model = model;
+
     }
 
     public void start(final long pHeartBeatPeriodInMS, final long pWritePeriodInMS) {
@@ -79,12 +85,8 @@ public class WriteExecutor {
 
         _writePeriodInMS = adjustWritePeriod(pWritePeriodInMS, MIN_WRITE_PERIOD_MS);
 
-
-        _writeWorker = submitAndScheduleWriteWorker(_provider,
-                                                    _writePeriodInMS);
-        submitAndScheduleHeartBeatWorker(_engineId,
-                                         _provider,
-                                         pHeartBeatPeriodInMS);
+        _writeWorker = submitAndScheduleWriteWorker(_provider, _writePeriodInMS / 4);
+        submitAndScheduleHeartBeatWorker(_engineId, _provider, pHeartBeatPeriodInMS);
 
     }
 
@@ -93,34 +95,47 @@ public class WriteExecutor {
     private HeartBeatWorker submitAndScheduleHeartBeatWorker(@Nonnull final ArchiveEngineId engineId,
                                                              @Nonnull final IServiceProvider provider,
                                                              final long period) {
-        final HeartBeatWorker heartBeatWorker = new HeartBeatWorker(engineId,
-                                                                    provider);
-        _heartBeatExecutor.scheduleAtFixedRate(heartBeatWorker,
-                                               0L,
-                                               period,
-                                               TimeUnit.MILLISECONDS);
+        final HeartBeatWorker heartBeatWorker = new HeartBeatWorker(engineId, provider);
+        _heartBeatExecutor.scheduleAtFixedRate(heartBeatWorker, 0L, period, TimeUnit.MILLISECONDS);
         return heartBeatWorker;
 
     }
     @Nonnull
-    private WriteWorker submitAndScheduleWriteWorker(@Nonnull final IServiceProvider provider,
-                                                     final long writePeriodInMS) {
-        final WriteWorker writeWorker = new WriteWorker(provider,
+    private WriteWorker submitAndScheduleWriteWorker(@Nonnull final IServiceProvider provider, final long writePeriodInMS) {
+
+        int i=0;
+        /*  final WriteWorker writeWorker = new WriteWorker(provider,
                                                         "Periodic Archive Engine Writer",
                                                         _channelsView,
-                                                        writePeriodInMS);
-        _writeSamplesExecutor.scheduleAtFixedRate(writeWorker,
-                                                  0L,
+                                                        writePeriodInMS,_model);
+        _writeSamplesExecutor.scheduleAtFixedRate(writeWorker, i*10L, writePeriodInMS, TimeUnit.MILLISECONDS);
+        */
+         WriteWorker writeWorker=null;
+       for (final ArchiveGroup g : _model.getGroups()) {
+    	   /* wenhua xu
+    	    write sample for group
+    	   */
+            if(  g.getChannels().size()>0){
+            writeWorker =
+                                            new WriteWorker(provider,
+                                                            "Periodic Archive Engine Writer  " +i,
+                                                            (Collection)g.getChannels(),
                                                   writePeriodInMS,
-                                                  TimeUnit.MILLISECONDS);
+                                                            _model);
+            i++;
+            _writeSamplesExecutor.scheduleAtFixedRate(writeWorker, i*100L, writePeriodInMS / 4, TimeUnit.MILLISECONDS);
+            LOG.info("group {} Start", g.getName());
+            _writeSamplesExecutor = Executors.newSingleThreadScheduledExecutor();
+            }
+            //   return writeWorker;
+        }
         return writeWorker;
     }
 
     private long adjustWritePeriod(final long pWritePeriod, final long minWritePeriodMs) {
         long writePeriod = pWritePeriod;
         if (writePeriod < minWritePeriodMs) {
-            LOG.warn("Adjusting write period from "
-                    + pWritePeriod + " to " + minWritePeriodMs);
+            LOG.warn("Adjusting write period from " + pWritePeriod + " to " + minWritePeriodMs);
             writePeriod = minWritePeriodMs;
         }
         return writePeriod;
@@ -170,11 +185,7 @@ public class WriteExecutor {
 
     private void performFinalWriteBeforeShutdown() {
         final ExecutorService finalWriteExecutor = Executors.newSingleThreadExecutor();
-        finalWriteExecutor.execute(new WriteWorker(_provider,
-                                                   "Shutdown Archive Engine writer",
-                                                   _channelsView,
-                                                   0L));
-
+        finalWriteExecutor.execute(new WriteWorker(_provider, "Shutdown Archive Engine writer", _channelsView, 0L, _model));
 
         final Duration dur = computeAwaitTerminationTime();
         // Await termination (either the average duration or the max termination time.

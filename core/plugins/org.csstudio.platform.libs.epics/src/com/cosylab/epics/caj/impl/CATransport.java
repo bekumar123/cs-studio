@@ -875,6 +875,8 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	 * Probe response (state-of-health message) did not respond - timeout.
 	 */
 	private boolean probeTimeoutDetected = false;
+	
+	private boolean probeTimeoutLogged = false;
 			
 	/**
 	 * Probe lock.
@@ -901,6 +903,8 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	 */
 	public void beaconArrivalNotify()
 	{
+		probeTimeoutLogged = false;
+		
 		if (!probeResponsePending)
 			rescheduleTimer(connectionTimeout);
 	}
@@ -936,13 +940,18 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	{
 		synchronized(probeLock)
 		{
-			if (probeResponsePending)
+			if (probeResponsePending && !channel.isConnected())
 			{
 				probeTimeoutDetected = true;
 				unresponsiveTransport();
 			}
 			else
 			{
+				if (probeResponsePending && !probeTimeoutLogged)
+				{
+					context.getLogger().warning("Missing beacon or echo response from " + socketAddress + ".");
+					probeTimeoutLogged = true;
+				}
 				sendEcho();
 			}
 		}
@@ -955,6 +964,8 @@ public class CATransport implements Transport, ReactorHandler, Timer.TimerRunnab
 	{
 		synchronized(probeLock)
 		{
+			probeTimeoutLogged = false;
+			
 			if (probeResponsePending)
 			{
 				if (probeTimeoutDetected)

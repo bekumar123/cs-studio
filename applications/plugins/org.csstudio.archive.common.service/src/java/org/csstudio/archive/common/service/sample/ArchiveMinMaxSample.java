@@ -64,7 +64,18 @@ public class ArchiveMinMaxSample<V extends Serializable,
         _minimum = min;
         _maximum = max;
     }
-
+    /**
+     * Constructor.
+     */
+    public ArchiveMinMaxSample(@Nonnull final ArchiveChannelId channelId,
+                               @Nonnull final T data,
+                               @Nullable final IAlarm alarm,
+                               @Nonnull final V min,
+                               @Nonnull final V max,final String requstType ) {
+        super(channelId, data, alarm,requstType);
+        _minimum = min;
+        _maximum = max;
+    }
     /**
      * {@inheritDoc}
      */

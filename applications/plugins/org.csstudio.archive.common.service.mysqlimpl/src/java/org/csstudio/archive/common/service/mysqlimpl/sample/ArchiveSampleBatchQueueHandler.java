@@ -60,10 +60,10 @@ import com.google.common.collect.Collections2;
  */
 @SuppressWarnings("rawtypes")
 public class ArchiveSampleBatchQueueHandler extends BatchQueueHandlerSupport<ArchiveSample> {
-
+    static int sampleSize=0;
     static final Logger LOG = LoggerFactory.getLogger(ArchiveSampleBatchQueueHandler.class);
    /**
-    *@author wenhua 
+    *@author wenhua
     *neue feld  in stmt
     */
     private static final String VALUES_WILDCARD = "(?, ?, ?, ?, ?)";
@@ -80,27 +80,32 @@ public class ArchiveSampleBatchQueueHandler extends BatchQueueHandlerSupport<Arc
 
     @Nonnull
       /**
-    *@author wenhua 
+    *@author wenhua
     *neue feld  in stmt
     */
     private static String createSqlStatement(@Nonnull final String databaseName) {
+
         return "INSERT IGNORE INTO " + databaseName + "." + TAB_SAMPLE + " " +
                 "(" + Joiner.on(",").join(COLUMN_CHANNEL_ID, COLUMN_TIME, COLUMN_VALUE,COLUMN_STATUS,COLUMN_SERVERTY)+ ") " +
                 "VALUES " + VALUES_WILDCARD;
     }
 
 
-    /**wenhua neue spalt in db
-     * {@inheritDoc}
-     */
     @Override
     @Nonnull
       /**
-    *@author wenhua 
+    *@author wenhua
     *neue feld  in stmt
+    *neue spalt in db
     */
     public void fillStatement(@Nonnull final PreparedStatement stmt,
                               @Nonnull final ArchiveSample type) throws SQLException, ArchiveDaoException {
+
+        final int size = getQueue().size();
+        if(size-sampleSize>1000 && sampleSize>200000){
+            sampleSize=size;
+            LOG.warn("Queue for ArchiveSample {} is too large ", sampleSize);
+        }
         stmt.setInt(1, type.getChannelId().intValue());
         stmt.setLong(2, type.getSystemVariable().getTimestamp().getNanos());
         if((EpicsAlarm)type.getAlarm()!=null){

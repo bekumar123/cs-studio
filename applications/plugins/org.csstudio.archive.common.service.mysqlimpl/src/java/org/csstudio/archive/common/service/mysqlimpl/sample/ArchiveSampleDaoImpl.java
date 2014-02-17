@@ -55,6 +55,8 @@ import org.csstudio.archive.common.service.sample.IArchiveSample;
 import org.csstudio.archive.common.service.sample.SampleMinMaxAggregator;
 import org.csstudio.archive.common.service.util.ArchiveTypeConversionSupport;
 import org.csstudio.domain.desy.epics.alarm.EpicsAlarm;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarmSeverity;
+import org.csstudio.domain.desy.epics.alarm.EpicsAlarmStatus;
 import org.csstudio.domain.desy.epics.typesupport.EpicsSystemVariableSupport;
 import org.csstudio.domain.desy.system.ControlSystem;
 import org.csstudio.domain.desy.system.ISystemVariable;
@@ -509,7 +511,7 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
         return stmt;
     }
 
-    @SuppressWarnings("unchecked")
+  /*  @SuppressWarnings("unchecked")
     @Nonnull
     private <V extends Serializable, T extends ISystemVariable<V>> IArchiveSample<V, T> createSampleFromQueryResult(@Nonnull final DesyArchiveRequestType type,
                                                                                                                     @Nonnull final IArchiveChannel channel,
@@ -555,6 +557,151 @@ public class ArchiveSampleDaoImpl extends AbstractArchiveDao implements IArchive
             return new ArchiveSample<V, T>(channel.getId(), (T) sysVar, null);
         }
         return new ArchiveMinMaxSample<V, T>(channel.getId(), (T) sysVar, null, min, max);
+    }
+*/
+
+    @SuppressWarnings("unchecked")
+    @Nonnull
+    private <V extends Serializable, T extends ISystemVariable<V>> IArchiveSample<V, T> createSampleFromQueryResult(@Nonnull final DesyArchiveRequestType type,
+                                                                                                                    @Nonnull final IArchiveChannel channel,
+                                                                                                                    @Nonnull final ResultSet result) throws SQLException,
+                                                                                                                                                    ArchiveDaoException,
+                                                                                                                                                    TypeSupportException {
+        final Class<V> typeClass = createDataTypeClass(channel);
+        final long time = result.getLong(COLUMN_TIME);
+        V value = null;
+        V min = null;
+        V max = null;
+        EpicsAlarm alarm = null;
+        switch (type) {
+            case RAW: { // (..., value)
+                if (ArchiveTypeConversionSupport.isDataTypeSerializableCollection(typeClass)) {
+                    value = ArchiveTypeConversionSupport.fromByteArray(result.getBytes(COLUMN_VALUE));
+                    alarm = createAlarm(result);//new EpicsAlarm(EpicsAlarmSeverity.parseSeverity( result.getString(COLUMN_SERVERTY)), EpicsAlarmStatus.parseStatus( result.getString(COLUMN_STATUS)));
+
+                } else {
+                    //  final String s1= result.getString(COLUMN_SERVERTY);
+                    //  final String s2= result.getString(COLUMN_STATUS);
+                    value = ArchiveTypeConversionSupport.fromArchiveString(typeClass, result.getString(COLUMN_VALUE));
+                    alarm = createAlarm(result); // alarm=new EpicsAlarm(EpicsAlarmSeverity.parseSeverity(s1), EpicsAlarmStatus.parseStatus(s2));
+
+                }
+
+                break;
+            }
+            case AVG_PER_MINUTE:
+            case AVG_PER_HOUR: { // (..., avg_val, min_val, max_val)
+                if (channel.getDataType().equals("EpicsEnum")) {
+                    value = ArchiveTypeConversionSupport.fromArchiveString(typeClass, result.getString(COLUMN_VALUE));
+                    alarm = createAlarm(result); //  alarm=new EpicsAlarm(EpicsAlarmSeverity.parseSeverity( result.getString(COLUMN_SERVERTY)), EpicsAlarmStatus.parseStatus( result.getString(COLUMN_STATUS)));
+
+                } else {
+                    value = ArchiveTypeConversionSupport.fromDouble(typeClass, result.getDouble(COLUMN_AVG));
+                    min = ArchiveTypeConversionSupport.fromDouble(typeClass, result.getDouble(COLUMN_MIN));
+                    max = ArchiveTypeConversionSupport.fromDouble(typeClass, result.getDouble(COLUMN_MAX));
+                    alarm = createAlarm(result); //  alarm=new EpicsAlarm(EpicsAlarmSeverity.parseSeverity( result.getString(COLUMN_SERVERTY)), EpicsAlarmStatus.parseStatus( result.getString(COLUMN_STATUS)));
+
+                }
+                break;
+            }
+            default:
+                throw new ArchiveDaoException("Archive request type unknown. Sample could not be created from query", null);
+        }
+
+        final TimeInstant timeInstant = TimeInstantBuilder.fromNanos(time);
+        final IArchiveControlSystem cs = channel.getControlSystem();
+        final ISystemVariable<V> sysVar =
+                                          SystemVariableSupport.create(channel.getName(),
+                                                                       value,
+                                                                       ControlSystem.valueOf(cs.getName(), cs.getType()),
+                                                                       timeInstant,
+                                                                       alarm);
+        if (min == null || max == null) {
+            return new ArchiveSample<V, T>(channel.getId(), (T) sysVar, alarm, type.name());
+        }
+        if (channel.getDataType().equals("EpicsEnum")) {
+            return new ArchiveSample<V, T>(channel.getId(), (T) sysVar, alarm, "RAW");
+        }
+        return new ArchiveMinMaxSample<V, T>(channel.getId(), (T) sysVar, alarm, min, max, type.name());
+    }
+    private EpicsAlarm createAlarm(@Nonnull final ResultSet result) {
+        EpicsAlarm alarm = null;
+        String s = null;
+        String ss = null;
+        try {
+            s = result.getString(COLUMN_STATUS);
+            ss = result.getString(COLUMN_SERVERTY);
+            alarm =
+                    new EpicsAlarm(ss!=null? EpicsAlarmSeverity.parseSeverity(getServerty(Integer.parseInt(ss) % 100)):EpicsAlarmSeverity.parseSeverity(ss),
+                                           s!=null? EpicsAlarmStatus.parseStatus(getStatus(Integer.parseInt(s) % 100)): EpicsAlarmStatus.parseStatus(s));
+
+        } catch (final SQLException e) {
+            alarm = new EpicsAlarm(EpicsAlarmSeverity.parseSeverity(ss), EpicsAlarmStatus.parseStatus(s));
+        }catch (final NumberFormatException e) {
+            alarm = new EpicsAlarm(EpicsAlarmSeverity.parseSeverity(ss), EpicsAlarmStatus.parseStatus(s));
+        }
+        return alarm;
+
+    }
+
+
+    private String getStatus(@Nonnull final Integer id) {
+        if (_statusmap.isEmpty()) {
+            updateAlarm();
+        }
+        return _statusmap.get(id);
+    }
+
+    private String getServerty(@Nonnull final Integer id) {
+        if (_servertymap.isEmpty()) {
+            updateAlarm();
+        }
+        return _servertymap.get(id);
+
+    }
+
+    private void updateAlarm() {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet result = null;
+        final String _selectRawServertyStmt = "Select * FROM " + getDatabaseName() + ".epics_serverty";
+        final String _selectRawStatusStmt = "Select * FROM " + getDatabaseName() + ".epics_status";
+        try {
+            conn = createConnection();
+            stmt = conn.prepareStatement(_selectRawServertyStmt);
+            result = stmt.executeQuery();
+            while (result != null && !result.isAfterLast()) {
+                if (result.next()) {
+                    final Integer i = result.getInt("id");
+                    final String s = result.getString("name");
+                    _servertymap.put(i, s);
+                }
+
+            }
+            if(!result.isClosed()) {
+                result.close();
+            }
+            if(!stmt.isClosed()){ stmt.close();}
+            stmt = conn.prepareStatement(_selectRawStatusStmt);
+            result = stmt.executeQuery();
+            while (result != null && !result.isAfterLast()) {
+                if (result.next()) {
+                    final Integer i = result.getInt("id");
+                    final String s = result.getString("name");
+                    _statusmap.put(i, s);
+                }
+
+            }
+        } catch (final ArchiveConnectionException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (final SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }finally{
+            closeSqlResources(result, stmt, conn, _selectRawServertyStmt);
+        }
+
     }
 
     @SuppressWarnings("unchecked")

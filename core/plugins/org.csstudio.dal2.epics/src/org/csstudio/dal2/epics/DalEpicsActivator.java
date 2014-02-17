@@ -66,26 +66,26 @@ public class DalEpicsActivator implements BundleActivator {
     }
     
     private static void setSystemProperties() {
-        System.setProperty("dal.plugs", "EPICS");
-        System.setProperty("dal.plugs.default", "EPICS");
-        System.setProperty("dal.propertyfactory.EPICS",
-                           "org.csstudio.dal.epics.PropertyFactoryImpl");
+//        System.setProperty("dal.plugs", "EPICS");
+//        System.setProperty("dal.plugs.default", "EPICS");
+//        System.setProperty("dal.propertyfactory.EPICS",
+//                           "org.csstudio.dal.epics.PropertyFactoryImpl");
 //        System.setProperty("com.cosylab.epics.caj.CAJContext.addr_list", "127.0.0.1");
 //        System.setProperty("com.cosylab.epics.caj.CAJContext.addr_list", "epicscpci03 mksherazk");
 //        System.setProperty("com.cosylab.epics.caj.CAJContext.addr_list", "131.169.115.234 131.169.115.236");
 //        System.setProperty("com.cosylab.epics.caj.CAJContext.auto_addr_list", "NO");
-        System.setProperty("com.cosylab.epics.caj.CAJContext.connection_timeout", "30.0");
-        System.setProperty("com.cosylab.epics.caj.CAJContext.beacon_period", "15.0");
-        System.setProperty("com.cosylab.epics.caj.CAJContext.repeater_port", "5065");
+//        System.setProperty("com.cosylab.epics.caj.CAJContext.connection_timeout", "30.0");
+//        System.setProperty("com.cosylab.epics.caj.CAJContext.beacon_period", "15.0");
+//        System.setProperty("com.cosylab.epics.caj.CAJContext.repeater_port", "5065");
 //        System.setProperty("com.cosylab.epics.caj.CAJContext.repeater_port", "6011");
-        System.setProperty("com.cosylab.epics.caj.CAJContext.server_port", "5064");
+//        System.setProperty("com.cosylab.epics.caj.CAJContext.server_port", "5064");
 //        System.setProperty("com.cosylab.epics.caj.CAJContext.server_port", "6010");
-        System.setProperty("com.cosylab.epics.caj.CAJContext.max_array_bytes", "16384");
-        
-		System.setProperty(QueuedEventDispatcher.class.getName() + ".queue_limit", "1000000");
-		System.setProperty(QueuedEventDispatcher.class.getName() + ".channel_queue_limit", "10000");
-		System.setProperty(LatestMonitorOnlyQueuedEventDispatcher.class.getName() + ".queue_limit", "1000000");
-		System.setProperty(LatestMonitorOnlyQueuedEventDispatcher.class.getName() + ".channel_queue_limit", "6000");
+//        System.setProperty("com.cosylab.epics.caj.CAJContext.max_array_bytes", "16384");
+//        
+//		System.setProperty(QueuedEventDispatcher.class.getName() + ".queue_limit", "1000000");
+//		System.setProperty(QueuedEventDispatcher.class.getName() + ".channel_queue_limit", "10000");
+//		System.setProperty(LatestMonitorOnlyQueuedEventDispatcher.class.getName() + ".queue_limit", "1000000");
+//		System.setProperty(LatestMonitorOnlyQueuedEventDispatcher.class.getName() + ".channel_queue_limit", "6000");
 
     }
     

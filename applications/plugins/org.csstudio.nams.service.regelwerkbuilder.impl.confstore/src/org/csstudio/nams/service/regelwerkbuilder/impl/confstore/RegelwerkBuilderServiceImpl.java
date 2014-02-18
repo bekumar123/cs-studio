@@ -9,19 +9,19 @@ import java.util.Set;
 import org.csstudio.nams.common.fachwert.MessageKeyEnum;
 import org.csstudio.nams.common.fachwert.Milliseconds;
 import org.csstudio.nams.common.material.FilterId;
+import org.csstudio.nams.common.material.regelwerk.AndFilterCondition;
 import org.csstudio.nams.common.material.regelwerk.DefaultFilter;
+import org.csstudio.nams.common.material.regelwerk.Filter;
+import org.csstudio.nams.common.material.regelwerk.FilterCondition;
 import org.csstudio.nams.common.material.regelwerk.NotFilterCondition;
 import org.csstudio.nams.common.material.regelwerk.OrFilterCondition;
 import org.csstudio.nams.common.material.regelwerk.ProcessVariableFilterCondition;
 import org.csstudio.nams.common.material.regelwerk.PropertyCompareFilterCondition;
-import org.csstudio.nams.common.material.regelwerk.FilterCondition;
-import org.csstudio.nams.common.material.regelwerk.Filter;
 import org.csstudio.nams.common.material.regelwerk.StringFilterCondition;
 import org.csstudio.nams.common.material.regelwerk.StringFilterConditionOperator;
 import org.csstudio.nams.common.material.regelwerk.TimebasedFilter;
-import org.csstudio.nams.common.material.regelwerk.AndFilterCondition;
-import org.csstudio.nams.common.material.regelwerk.WatchDogFilter;
 import org.csstudio.nams.common.material.regelwerk.TimebasedFilter.TimeoutType;
+import org.csstudio.nams.common.material.regelwerk.WatchDogFilter;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.DefaultFilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.FilterDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.declaration.JunctorConditionType;
@@ -79,18 +79,28 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 					final List<FilterConditionDTO> filterConditions = ((DefaultFilterDTO) filterDTO).getFilterConditions();
 
 					// create a list of first level filterconditions
+					boolean isValidFilter = true;
 					final List<FilterCondition> filterconditions = new LinkedList<FilterCondition>();
 					for (final FilterConditionDTO filterConditionDTO : filterConditions) {
 						try {
 							filterconditions.add(this.createFilterCondition(filterConditionDTO));
-						} catch (Throwable t) {
+						} catch (UnsupportedFilterConditionTypeException t) {
 							RegelwerkBuilderServiceImpl.logger.logErrorMessage(this, "Failed to create filter condition from DTO: " + filterConditionDTO
-									+ " for Filter: " + filterDTO, t);
+									+ " for Filter: " + filterDTO);
+							if (t.getFilterConditionType() == FilterConditionType.TIMEBASED) {
+								// legacy support for timebased filter conditions (needed until all time based conditions have been migrated into time based filters)
+								logger.logErrorMessage(this, "Unsupported filter condition type: " + FilterConditionType.TIMEBASED);
+								isValidFilter = false;
+								break;
+							} else {
+								throw t;
+							}
 						}
 					}
-
-					AndFilterCondition hauptRegel = new AndFilterCondition(filterconditions);
-					regelwerk = new DefaultFilter(regelwerkskennung, hauptRegel);
+					if (isValidFilter) {
+						AndFilterCondition hauptRegel = new AndFilterCondition(filterconditions);
+						regelwerk = new DefaultFilter(regelwerkskennung, hauptRegel);
+					}
 
 				} else if (filterDTO instanceof TimeBasedFilterDTO) {
 					TimeBasedFilterDTO timeBasedFilterDTO = (TimeBasedFilterDTO) filterDTO;
@@ -104,7 +114,10 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 					FilterCondition rootRegel = createFilterCondition(watchDogFilterDTO.getFilterCondition());
 					regelwerk = new WatchDogFilter(regelwerkskennung, rootRegel, Milliseconds.valueOf(watchDogFilterDTO.getTimeout() * 1000));
 				}
-				results.add(regelwerk);
+				
+				if (regelwerk != null) {
+					results.add(regelwerk);
+				}
 			}
 
 		} catch (final Throwable t) {
@@ -114,7 +127,7 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 		return results;
 	}
 
-	protected FilterCondition createFilterCondition(final FilterConditionDTO filterConditionDTO) {
+	protected FilterCondition createFilterCondition(final FilterConditionDTO filterConditionDTO) throws UnsupportedFilterConditionTypeException {
 		final FilterConditionType type = FilterConditionType.valueOf(filterConditionDTO.getClass());
 		switch (type) {
 		//
@@ -131,7 +144,7 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 		case TIMEBASED: {
 			// nach entfernen der zeitbasierten Filterbedingungen darf dieser
 			// Fall nicht mehr eintreten, dann also IAE werfen..
-			throw new IllegalArgumentException("Unsupported FilterType, see " + this.getClass().getPackage() + "." + this.getClass().getName());
+			throw new UnsupportedFilterConditionTypeException(FilterConditionType.TIMEBASED);
 		}
 		case JUNCTOR: {
 			final List<FilterCondition> children = new ArrayList<FilterCondition>(2);
@@ -199,5 +212,21 @@ public class RegelwerkBuilderServiceImpl implements RegelwerkBuilderService {
 		default:
 			throw new IllegalArgumentException("Unsupported FilterType, see " + this.getClass().getPackage() + "." + this.getClass().getName());
 		}
+	}
+	
+	class UnsupportedFilterConditionTypeException extends Exception {
+
+		private static final long serialVersionUID = 4582775255444273290L;
+		private FilterConditionType type;
+		
+		public UnsupportedFilterConditionTypeException(FilterConditionType type) {
+			super(type.toString());
+			this.type = type;
+		}
+		
+		public FilterConditionType getFilterConditionType() {
+			return type;
+		}
+		
 	}
 }

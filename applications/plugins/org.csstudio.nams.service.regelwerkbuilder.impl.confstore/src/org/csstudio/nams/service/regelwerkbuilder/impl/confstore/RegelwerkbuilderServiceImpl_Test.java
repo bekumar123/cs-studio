@@ -39,6 +39,7 @@ import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.fil
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.StringArFilterConditionDTO;
 import org.csstudio.nams.service.configurationaccess.localstore.internalDTOs.filterConditionSpecifics.StringFilterConditionDTO;
 import org.csstudio.nams.service.regelwerkbuilder.declaration.RegelwerksBuilderException;
+import org.csstudio.nams.service.regelwerkbuilder.impl.confstore.RegelwerkBuilderServiceImpl.UnsupportedFilterConditionTypeException;
 import org.csstudio.platform.model.pvs.IProcessVariableAddress;
 import org.csstudio.platform.model.pvs.ValueType;
 import org.csstudio.platform.simpledal.ConnectionException;
@@ -85,13 +86,13 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 	}
 
 	@Test
-	public void testBuildStringCondition() {
+	public void testBuildStringCondition() throws UnsupportedFilterConditionTypeException {
 		assertEquals(childRegel, regelwerkBuilderService
 				.createFilterCondition(childDTO));
 	}
 
 	@Test
-	public void testBuildStringArrayCondition() {
+	public void testBuildStringArrayCondition() throws UnsupportedFilterConditionTypeException {
 		StringArFilterConditionDTO arrayDTO = new StringArFilterConditionDTO();
 		arrayDTO.setKeyValue(MessageKeyEnum.HOST);
 		arrayDTO.setOperatorEnum(StringFilterConditionOperator.OPERATOR_TEXT_EQUAL);
@@ -124,7 +125,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 	}
 
 	@Test
-	public void testBuildJunctorConditionOr() {
+	public void testBuildJunctorConditionOr() throws UnsupportedFilterConditionTypeException {
 		JunctorConditionDTO junctorDTO = new JunctorConditionDTO();
 		junctorDTO.setJunctor(JunctorConditionType.OR);
 		junctorDTO.setFirstFilterCondition(childDTO);
@@ -146,7 +147,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 	}
 
 	@Test
-	public void testBuildJunctorConditionAnd() {
+	public void testBuildJunctorConditionAnd() throws UnsupportedFilterConditionTypeException {
 		JunctorConditionDTO junctorDTO = new JunctorConditionDTO();
 		junctorDTO.setJunctor(JunctorConditionType.AND);
 		junctorDTO.setFirstFilterCondition(childDTO);
@@ -162,7 +163,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 	}
 
 	@Test
-	public void testBuildJunctorCondtionTreeNegation() {
+	public void testBuildJunctorCondtionTreeNegation() throws UnsupportedFilterConditionTypeException {
 		NegationCondForFilterTreeDTO negationDTO = new NegationCondForFilterTreeDTO();
 		negationDTO.setNegatedFilterCondition(childDTO);
 		FilterCondition zielRegel = new NotFilterCondition(childRegel);
@@ -171,7 +172,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 	}
 
 	@Test
-	public void testBuildJunctorConditionTreeAnd() {
+	public void testBuildJunctorConditionTreeAnd() throws UnsupportedFilterConditionTypeException {
 		JunctorCondForFilterTreeDTO junctorDTO = new JunctorCondForFilterTreeDTO();
 		junctorDTO.setOperator(JunctorConditionType.AND);
 		Set<FilterConditionDTO> childConditions = new HashSet<FilterConditionDTO>();
@@ -188,7 +189,7 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 	}
 
 	@Test
-	public void testBuildJunctorConditionTreeOr() {
+	public void testBuildJunctorConditionTreeOr() throws UnsupportedFilterConditionTypeException {
 		JunctorCondForFilterTreeDTO junctorDTO = new JunctorCondForFilterTreeDTO();
 		junctorDTO.setOperator(JunctorConditionType.OR);
 		Set<FilterConditionDTO> childConditions = new HashSet<FilterConditionDTO>();
@@ -337,7 +338,6 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 			@Override
 			public void readValueAsynchronously(IProcessVariableAddress processVariableAddress, ValueType valueType,
 					IProcessVariableValueListener listener) {
-				
 			}
 	
 			@Override
@@ -373,8 +373,6 @@ public class RegelwerkbuilderServiceImpl_Test extends TestCase {
 				// TODO Auto-generated method stub
 				return 0;
 			}
-	
-		
 		};
 	}
 	

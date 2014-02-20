@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Epics
-Bundle-SymbolicName: org.csstudio.dal2.epics
+Bundle-SymbolicName: org.csstudio.dal2.epics;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.csstudio.dal2.epics.DalEpicsActivator
 Bundle-ActivationPolicy: lazy

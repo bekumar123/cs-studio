@@ -28,8 +28,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
+import org.csstudio.dal2.dv.ControlSystemId;
 import org.csstudio.dal2.dv.ListenerType;
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
@@ -38,7 +38,12 @@ import org.csstudio.dal2.service.IDalService;
 import org.csstudio.dal2.service.IPvAccess;
 import org.csstudio.dal2.service.cs.ICsPvAccess;
 import org.csstudio.dal2.service.cs.ICsPvAccessFactory;
-import org.csstudio.servicelocator.ServiceLocator;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.Platform;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of the dal service
@@ -48,23 +53,34 @@ import org.csstudio.servicelocator.ServiceLocator;
  */
 public class DalService implements IDalService {
 
-	private final Logger _logger = Logger.getLogger(getClass().getName());
+	private static final Logger LOG = LoggerFactory.getLogger(PvAccess.class);
 
-	private ICsPvAccessFactory dalPluginService;
+	private Map<ControlSystemId, ICsPvAccessFactory> _dalPlugins = new HashMap<ControlSystemId, ICsPvAccessFactory>();
 	private Map<Key, IPvAccess<?>> _accessPool = new HashMap<Key, IPvAccess<?>>();
 
 	public DalService() {
 
-		// currently there is only the epics implementation so we do not collect
-		// all available implementations as we should
-		dalPluginService = ServiceLocator.getService(ICsPvAccessFactory.class);
-
-		_logger.info("DALService created");
+		IExtensionRegistry extensionRegistry = Platform.getExtensionRegistry();
+		for (IConfigurationElement e : extensionRegistry.getConfigurationElementsFor("org.csstudio.da2.cs"))
+		{
+			 try {
+				ICsPvAccessFactory csFactory = (ICsPvAccessFactory) e.createExecutableExtension("class");
+				ControlSystemId id = csFactory.getControlSystemId();
+				if (_dalPlugins.containsKey(id)) {
+					LOG.error("Multiple dal2 implementations found with identical control system id: {}" + id);
+				} else {
+					_dalPlugins.put(id, csFactory);
+				}
+			} catch (CoreException e1) {
+				LOG.error("Error creating dal2 extensions", e1);
+			}
+		}
+		LOG.info("DALService created");
 	}
 
 	public DalService(ICsPvAccessFactory pluginService) {
 		assert pluginService != null : "Precondition: pluginService != null";
-		dalPluginService = pluginService;
+		_dalPlugins.put(pluginService.getControlSystemId(), pluginService);
 	}
 
 	@Override
@@ -73,7 +89,7 @@ public class DalService implements IDalService {
 				.iterator();
 		while (iterator.hasNext()) {
 			Entry<Key, IPvAccess<?>> entry = iterator.next();
-			entry.getValue().deregisterAllListener();
+			entry.getValue().dispose();
 			iterator.remove();
 		}
 	}
@@ -82,7 +98,7 @@ public class DalService implements IDalService {
 	public void dispose(IPvAccess<?> pvAccess) {
 		assert pvAccess != null;
 
-		pvAccess.deregisterAllListener();
+		pvAccess.dispose();
 
 		Key key = new Key(pvAccess.getPVAddress(), pvAccess.getType(),
 				pvAccess.getListenerType());
@@ -133,17 +149,21 @@ public class DalService implements IDalService {
 		assert timeout > 0 : "Precondition: timeout > 0";
 
 		SynchronizingResponseLister<Type<?>> synchronizingListener = new SynchronizingResponseLister<Type<?>>();
-		dalPluginService.requestNativeType(address, synchronizingListener);
+		getFactory(address).requestNativeType(address, synchronizingListener);
 		return synchronizingListener.getValue(timeout, timeoutUnit);
 	}
 
 	private <T> IPvAccess<T> createPVAccess(PvAddress address, Type<T> type,
 			ListenerType listenerType) {
-		ICsPvAccess<T> pluginPVAccess = dalPluginService.createPVAccess(
+		ICsPvAccess<T> pluginPVAccess = getFactory(address).createPVAccess(
 				address, type);
 		return new PvAccess<T>(pluginPVAccess, type, listenerType);
 	}
 
+	private final ICsPvAccessFactory getFactory(PvAddress address) {
+		return _dalPlugins.get(address.getControlSystem());
+	}
+	
 	private static class Key {
 
 		private final Type<?> _type;

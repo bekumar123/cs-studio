@@ -26,6 +26,7 @@ public class Characteristic<T> {
 	
 	public static final Characteristic<EpicsAlarmSeverity> SEVERITY = new Characteristic<EpicsAlarmSeverity>("SEVERITY", EpicsAlarmSeverity.class);
 	public static final Characteristic<EpicsAlarmStatus> STATUS = new Characteristic<EpicsAlarmStatus>("STATUS", EpicsAlarmStatus.class);
+	
 	public static final Characteristic<Timestamp> TIMESTAMP = new Characteristic<Timestamp>("TIMESTAMP", Timestamp.class);
 	
 	public static final Characteristic<String> HOSTNAME = new Characteristic<String>("HOSTNAME", String.class);

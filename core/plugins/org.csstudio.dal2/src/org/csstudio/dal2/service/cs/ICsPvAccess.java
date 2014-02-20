@@ -51,5 +51,8 @@ public interface ICsPvAccess<T> {
 	 */
 	ConnectionState getConnectionState();
 	
-	
+	/**
+	 * Dispose is called to release all ressources
+	 */
+	void dispose();
 }

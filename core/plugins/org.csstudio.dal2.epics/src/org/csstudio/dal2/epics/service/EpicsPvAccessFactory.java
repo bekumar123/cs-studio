@@ -25,9 +25,12 @@ package org.csstudio.dal2.epics.service;
 
 import gov.aps.jca.Context;
 
+import org.csstudio.dal2.dv.ControlSystemId;
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
+import org.csstudio.dal2.epics.DalEpicsActivator;
 import org.csstudio.dal2.epics.mapping.IEpicsTypeMapping;
+import org.csstudio.dal2.epics.mapping.SimpleTypeMapping;
 import org.csstudio.dal2.service.DalException;
 import org.csstudio.dal2.service.cs.ICsOperationHandle;
 import org.csstudio.dal2.service.cs.ICsPvAccess;
@@ -45,10 +48,20 @@ public class EpicsPvAccessFactory implements ICsPvAccessFactory {
 	private Context _jcaContext;
 	private IEpicsTypeMapping _mapping;
 
+	public EpicsPvAccessFactory() {
+		_mapping = SimpleTypeMapping.getInstance();
+		_jcaContext = DalEpicsActivator.getJcaContext();
+	}
+	
 	public EpicsPvAccessFactory(final Context jcaContext, IEpicsTypeMapping mapping) {
 		_mapping = mapping;
 		assert jcaContext != null : "Precondition: jcaContext != null";
 		_jcaContext = jcaContext;
+	}
+	
+	@Override
+	public ControlSystemId getControlSystemId() {
+		return ControlSystemId.EPICS;
 	}
 
 	@Override

@@ -46,7 +46,7 @@ public class EpicsPvAccess<T> implements ICsPvAccess<T> {
 	/**
 	 * A map with open async requests
 	 */
-	private Map<ICsResponseListener<CsPvData<T>>, AbstractChannelOperator> openRequests = new HashMap<ICsResponseListener<CsPvData<T>>, AbstractChannelOperator>();
+	private Map<ICsResponseListener<CsPvData<T>>, AbstractChannelOperator> _openRequests = new HashMap<ICsResponseListener<CsPvData<T>>, AbstractChannelOperator>();
 
 	private IEpicsTypeMapping _typeMapping;
 
@@ -152,16 +152,27 @@ public class EpicsPvAccess<T> implements ICsPvAccess<T> {
 				_typeMapping, _pv, _type, callback) {
 			@Override
 			protected void onDispose() {
-				openRequests.remove(callback);
+				_openRequests.remove(callback);
 			}
 		};
-		openRequests.put(callback, requester);
+		_openRequests.put(callback, requester);
 		assert requester != null : "Postcondition: result != null";
 		return requester;
 	}
 
 	protected final Context getJcaContext() {
 		return _jcaContext;
+	}
+
+	@Override
+	public void dispose() {
+		if (_monitor != null) {
+			_monitor.dispose();
+		}
+
+		for (AbstractChannelOperator o : _openRequests.values()) {
+			o.dispose();
+		}
 	}
 
 }

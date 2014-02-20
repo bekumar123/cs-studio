@@ -79,6 +79,11 @@ public class PvAccess<T> implements IPvAccess<T> {
 	private AtomicBoolean _connected = new AtomicBoolean(false);
 
 	/**
+	 * The disposed flag
+	 */
+	private AtomicBoolean _disposed = new AtomicBoolean(false);
+
+	/**
 	 * The type of listener used with this pv access
 	 */
 	private ListenerType _listenerType;
@@ -149,6 +154,9 @@ public class PvAccess<T> implements IPvAccess<T> {
 		if (_listener.contains(listener)) {
 			throw new IllegalStateException("Listener allready registred");
 		}
+		if (isDisposed()) {
+			throw new IllegalStateException("Object is disposed");
+		}
 
 		if (_csPvListener == null) {
 			_csPvListener = new CsPvListener(_listenerType);
@@ -192,6 +200,11 @@ public class PvAccess<T> implements IPvAccess<T> {
 	@Override
 	public void getValue(long timeout, TimeUnit unit,
 			final IResponseListener<T> callback) throws DalException {
+
+		if (isDisposed()) {
+			throw new IllegalStateException("Object is disposed");
+		}
+
 		new AsyncValueRequester(_csPvAccess, callback, timeout, unit);
 	}
 
@@ -202,6 +215,11 @@ public class PvAccess<T> implements IPvAccess<T> {
 
 	@Override
 	public T getValue(long timeout, TimeUnit unit) throws DalException {
+
+		if (isDisposed()) {
+			throw new IllegalStateException("Object is disposed");
+		}
+
 		SynchronizingResponseLister<CsPvData<T>> synchronizingListener = new SynchronizingResponseLister<CsPvData<T>>();
 
 		_csPvAccess.getValue(synchronizingListener);
@@ -230,16 +248,35 @@ public class PvAccess<T> implements IPvAccess<T> {
 	public synchronized boolean isConnected() {
 		return _connected.get();
 	}
-	
+
 	@Override
 	public ConnectionState getConnectionState() {
+
+		if (isDisposed()) {
+			return ConnectionState.UNDEFINED;
+		}
+
 		return _csPvAccess.getConnectionState();
 	}
-	
-	
+
+	@Override
+	public void dispose() {
+		deregisterAllListener();
+		_csPvAccess.dispose();
+		_disposed.set(true);
+	}
+
+	@Override
+	public final boolean isDisposed() {
+		return _disposed.get();
+	}
+
 	@Override
 	public String toString() {
-		return "PV Access to " + getPVAddress().getAddress() + " [C:" + (isConnected() ? 1 : 0) + ", T:" + _type + ", V:" + getLastKnownValue() + ", NT:" + getLastKnownNativeType() + "]";
+		return "PV Access to " + getPVAddress().getAddress() + " [C:"
+				+ (isConnected() ? 1 : 0) + ", T:" + _type + ", V:"
+				+ getLastKnownValue() + ", NT:" + getLastKnownNativeType()
+				+ "]";
 	}
 
 	private synchronized void updateLastKnown(CsPvData<T> result) {
@@ -282,8 +319,8 @@ public class PvAccess<T> implements IPvAccess<T> {
 								csOperationHandle.cancel();
 								AsyncValueRequester.this.callback.onTimeout();
 							}
-						} catch (Exception e) {
-							LOG.error("errror handling timeout", e);
+						} catch (Throwable t) {
+							LOG.error("error handling timeout", t);
 						}
 					}
 				}, timeout, unit);
@@ -294,14 +331,22 @@ public class PvAccess<T> implements IPvAccess<T> {
 		public synchronized void onSuccess(CsPvData<T> response) {
 			if (timeoutTask.cancel(false)) {
 				updateLastKnown(response);
-				callback.onSuccess(response.getValue());
+				try {
+					callback.onSuccess(response.getValue());
+				} catch (Throwable t) {
+					LOG.error("Error in callback", t);
+				}
 			}
 		}
 
 		@Override
 		public synchronized void onFailure(Throwable throwable) {
 			if (timeoutTask.cancel(false)) {
-				callback.onFailure(throwable);
+				try {
+					callback.onFailure(throwable);
+				} catch (Throwable t) {
+					LOG.error("Error in callback", t);
+				}
 			}
 		}
 	}
@@ -324,7 +369,11 @@ public class PvAccess<T> implements IPvAccess<T> {
 				_connected.set(true);
 				_lastKnownNativeType = nativeType;
 				for (IPvListener<T> listener : _listener) {
-					listener.connectionChanged(PvAccess.this, true);
+					try {
+						listener.connectionChanged(PvAccess.this, true);
+					} catch (Throwable t) {
+						LOG.error("Error in listener", t);
+					}
 				}
 			}
 		}
@@ -333,7 +382,11 @@ public class PvAccess<T> implements IPvAccess<T> {
 			synchronized (PvAccess.this) {
 				_connected.set(false);
 				for (IPvListener<T> listener : _listener) {
-					listener.connectionChanged(PvAccess.this, false);
+					try {
+						listener.connectionChanged(PvAccess.this, false);
+					} catch (Throwable t) {
+						LOG.error("Error in listener", t);
+					}
 				}
 			}
 		};
@@ -343,7 +396,11 @@ public class PvAccess<T> implements IPvAccess<T> {
 			synchronized (PvAccess.this) {
 				updateLastKnown(data);
 				for (IPvListener<T> listener : _listener) {
-					listener.valueChanged(PvAccess.this, data.getValue());
+					try {
+						listener.valueChanged(PvAccess.this, data.getValue());
+					} catch (Throwable t) {
+						LOG.error("Error in listener", t);
+					}
 				}
 			}
 		}

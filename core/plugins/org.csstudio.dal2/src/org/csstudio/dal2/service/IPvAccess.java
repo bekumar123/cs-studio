@@ -138,4 +138,11 @@ public interface IPvAccess<T> {
 	 */
 	Type<?> getLastKnownNativeType();
 
+	/**
+	 * deregister all listener and free all resources 
+	 */
+	void dispose();
+	
+	boolean isDisposed();
+
 }

@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: DAL2 Simulator
+Bundle-SymbolicName: org.csstudio.dal2.simulator;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.csstudio.dal2;bundle-version="1.0.0",
+ org.slf4j;bundle-version="1.7.2",
+ com.google.common;bundle-version="10.0.1",
+ org.csstudio.domain.desy;bundle-version="1.0.0",
+ org.csstudio.domain.desy.epics;bundle-version="1.0.0"

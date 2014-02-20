@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.csstudio.da2.cs">
+      <controlsystem
+            class="org.csstudio.dal2.simulator.service.SimulatorPvAccessFactory"
+            id="simulator"></controlsystem>
+   </extension>
+
+</plugin>

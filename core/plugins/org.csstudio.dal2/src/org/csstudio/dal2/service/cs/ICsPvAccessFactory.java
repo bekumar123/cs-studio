@@ -23,6 +23,7 @@
  */
 package org.csstudio.dal2.service.cs;
 
+import org.csstudio.dal2.dv.ControlSystemId;
 import org.csstudio.dal2.dv.PvAddress;
 import org.csstudio.dal2.dv.Type;
 import org.csstudio.dal2.service.DalException;
@@ -36,6 +37,11 @@ import org.csstudio.dal2.service.DalException;
  */
 public interface ICsPvAccessFactory {
 
+	/**
+	 * Provides the ID of the specific control system
+	 */
+	ControlSystemId getControlSystemId();
+	
 	/**
 	 * Creates the control system specific PV Access for a given process
 	 * variable with a specific type

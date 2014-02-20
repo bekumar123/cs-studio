@@ -19,19 +19,23 @@ import com.cosylab.epics.caj.CAJContext;
 public class DalEpicsActivator implements BundleActivator {
     
     private static BundleContext context;
+	private static Context _jcaContext;
     
     static BundleContext getContext() {
         return context;
     }
     
+    public static Context getJcaContext() {
+		return _jcaContext;
+	}
+    
     @Override
     public void start(BundleContext bundleContext) throws Exception {
         DalEpicsActivator.context = bundleContext;
         
-        Context jcaContext = newJcaContext();
-        SimpleTypeMapping typeMapping = SimpleTypeMapping.getInstance();
-        EpicsPvAccessFactory pvAccessFactory = new EpicsPvAccessFactory(jcaContext, typeMapping);
-		ServiceLocator.registerService(ICsPvAccessFactory.class, pvAccessFactory);
+        _jcaContext = newJcaContext();
+//        EpicsPvAccessFactory pvAccessFactory = new EpicsPvAccessFactory(_jcaContext, typeMapping);
+//		ServiceLocator.registerService(ICsPvAccessFactory.class, pvAccessFactory);
     }
     
     @Override

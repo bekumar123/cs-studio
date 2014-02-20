@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Stiftung Deutsches Elektronen-Synchrotron,
+ * Copyright (c) 2006 Stiftung Deutsches Elektronen-Synchroton,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
  * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
@@ -19,36 +19,35 @@
  * PROJECT IN THE FILE LICENSE.HTML. IF THE LICENSE IS NOT INCLUDED YOU MAY FIND A COPY
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
  */
-package org.csstudio.dal2.service;
 
-import static org.junit.Assert.assertNotNull;
+package org.csstudio.dal2.simulator.service;
 
-import org.csstudio.dal2.service.cs.ICsPvAccessFactory;
-import org.csstudio.dal2.service.impl.DalServiceFactory;
-import org.csstudio.servicelocator.ServiceLocator;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
 
 /**
- * Test of the dal service factory 
- * 
- * @author jpenning
- * @since 06.09.2012
+ * Simpel interface, which provides values for simulator.
+ *
+ * @author ikriznar
+ *
  */
-public class DalServiceFactoryTest {
+public interface ValueProvider<T>
+{
+	/**
+	 * Returns simulated value.
+	 *
+	 * @return simulated value
+	 *
+	 * @throws DataExchangeException simulated exception
+	 */
+	public T get();
 
-	@Before
-	public void setUp() {
-		ICsPvAccessFactory accessFactory = Mockito.mock(ICsPvAccessFactory.class);
-		ServiceLocator.registerService(ICsPvAccessFactory.class, accessFactory);
-	}
-	
-    @Test
-    public void testCreateDalService() {
-        IDalServiceFactory objectUnderTest = new DalServiceFactory();
-        IDalService dalService = objectUnderTest.newDalService();
-        assertNotNull(dalService);
-    }
-    
+	/**
+	 * Sets value to simulator.
+	 *
+	 * @param value values for simulator
+	 *
+	 * @throws DataExchangeException simulated exception
+	 */
+	public void set(T value);
 }
+
+/* __oOo__ */

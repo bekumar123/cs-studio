@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.MapMaker;
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 
 /**
@@ -55,7 +56,7 @@ import com.google.inject.Inject;
 public class PersistEngineDataManager {
 
 
-  /**wenhua 
+  /**wenhua
      * new LOG for this class
   */
     private static final Logger LOG = LoggerFactory.getLogger(PersistEngineDataManager.class);
@@ -68,17 +69,8 @@ public class PersistEngineDataManager {
     @SuppressWarnings("unused")
     private final boolean haveSampleThread = false;
     private final Map<String, Boolean> batchQueueHandlerMap = new MapMaker().makeMap();
-    private final ScheduledThreadPoolExecutor _executor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(10);//Math.max(2, _cpus + 1)
-    //jhatje 2.2.12: set to 1 Thread
-    //jhatje 22.2.12: back to previous thread number
-    //    private final ScheduledThreadPoolExecutor _executor =
-    //            (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1);
-    
-  /**wenhua 
-     * new Executor for SamplesPersistDataWorker class
-  */
-    private final ScheduledThreadPoolExecutor _writeSamplesExecutor = (ScheduledThreadPoolExecutor) Executors
-            .newScheduledThreadPool(10);
+    private final ScheduledThreadPoolExecutor _executor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(10, new ThreadFactoryBuilder().setNameFormat("PersistEngineWorker_%d").build());
+
     /**
       * Sorted set for submitted periodic workers - decreasing by period
       */
@@ -159,7 +151,7 @@ public class PersistEngineDataManager {
           }
       }
     */
-   /**wenhua 
+   /**wenhua
      * new method for PersistDataWorker  with handler for ChannelGroup
   */
     @SuppressWarnings("rawtypes")
@@ -289,7 +281,7 @@ public class PersistEngineDataManager {
     public void shutdown() {
         _executor.shutdown();
     }
-  /**wenhua 
+  /**wenhua
      * PersistDataWorker  with handler for ChannelGroup
   */
     @SuppressWarnings("rawtypes")

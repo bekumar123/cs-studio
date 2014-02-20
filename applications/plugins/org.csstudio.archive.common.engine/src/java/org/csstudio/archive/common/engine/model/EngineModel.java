@@ -24,9 +24,7 @@ import javax.annotation.concurrent.GuardedBy;
 import org.csstudio.archive.common.engine.service.IServiceProvider;
 import org.csstudio.archive.common.service.ArchiveServiceException;
 import org.csstudio.archive.common.service.IArchiveEngineFacade;
-import org.csstudio.archive.common.service.channel.ArchiveChannelId;
 import org.csstudio.archive.common.service.channelgroup.IArchiveChannelGroup;
-import org.csstudio.archive.common.service.channelstatus.IArchiveChannelStatus;
 import org.csstudio.archive.common.service.engine.IArchiveEngine;
 import org.csstudio.archive.common.service.enginestatus.ArchiveEngineStatus;
 import org.csstudio.archive.common.service.enginestatus.EngineMonitorStatus;
@@ -41,8 +39,6 @@ import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.MapMaker;
 
 /** Data model of the archive engine.
@@ -260,6 +256,7 @@ public final class EngineModel {
      * @param channels
      * @throws ArchiveServiceException
      */
+    @SuppressWarnings("rawtypes")
     private void checkAndUpdateChannelsStatus(@Nonnull final IArchiveEngineFacade facade,
                                               @Nonnull final IArchiveEngine engine,
                                               @Nonnull final Collection<ArchiveChannelBuffer<Serializable, IAlarmSystemVariable<Serializable>>> channels) {
@@ -268,35 +265,18 @@ public final class EngineModel {
             @Override
             public void run() {
                 try {
-                    final TimeInstant latestAliveTime = engine.getLastAliveTime();
-                    @SuppressWarnings("rawtypes")
-                    final Collection<IArchiveChannelStatus> statuus =
-                                                                      facade.getLatestChannelsStatusBy(Collections2
-                                                                                                               .transform(channels,
-                                                                                                                          new Function<ArchiveChannelBuffer, ArchiveChannelId>() {
-                                                                                                                              @Override
-                                                                                                                              @Nonnull
-                                                                                                                              public ArchiveChannelId apply(@Nonnull final ArchiveChannelBuffer input) {
-                                                                                                                                  return input
-                                                                                                                                          .getId();
-                                                                                                                              }
-                                                                                                                          }),
-                                                                                                       latestAliveTime
-                                                                                                               .minusSeconds(3600L * 24L * 7L),
-                                                                                                       latestAliveTime);
-                    for (final IArchiveChannelStatus status : statuus) {
-                        if (status != null && status.isConnected()) { // still connected?
-                            facade.writeChannelStatusInfo(status.getChannelId(),
-                                                          false,
-                                                          "Ungraceful engine shutdown",
-                                                          latestAliveTime);
-                        }
-                    }
+                	 final TimeInstant latestAliveTime = engine.getLastAliveTime();
+                      //write all channels status at latestAliveTime  as  "Ungraceful engine shutdown"
+                     for (final ArchiveChannelBuffer ch : channels) {
+                         facade.writeChannelStatusInfo(ch.getId(),
+                                                       false,
+                                                       "Ungraceful engine shutdown",
+                                                       latestAliveTime);
+                     }
                 } catch (final ArchiveServiceException e) {
                     LOG.error("Exception within service impl. Archive engine heart beat persistence failed.", e);
                 } catch (final Throwable t) {
-                    LOG.error("Unknown throwable thread HeartBeatWorker.");
-                    t.printStackTrace();
+                    LOG.error("Unknown throwable thread HeartBeatWorker.", t);
                 }
             }
         };

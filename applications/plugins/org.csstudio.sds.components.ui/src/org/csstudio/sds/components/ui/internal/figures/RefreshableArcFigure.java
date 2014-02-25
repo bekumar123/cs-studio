@@ -120,8 +120,8 @@ public final class RefreshableArcFigure extends Shape implements IAdaptable {
             gfx.setLineWidth(lineWidth);
             gfx.setLineCap(SWT.CAP_FLAT);
             gfx.setLineJoin(SWT.JOIN_MITER);
-            gfx.drawArc(getBounds().getCropped(
-                    new Insets(lineWidth / 2 - lineWidth % 2 + _borderWidth)), _startAngle, -1*_angle);
+            gfx.drawArc(getBounds().getShrinked(
+                    new Insets((int)Math.ceil(lineWidth / 2.0 + _borderWidth))), _startAngle, -1*_angle);
         }
         _filled = false;
     }

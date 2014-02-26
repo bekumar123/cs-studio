@@ -105,6 +105,8 @@ public abstract class AbstractRunModeBox {
 	 */
 	private HashMap<WidgetProperty, IPropertyChangeListener> _propertyListeners;
 
+	private CssApplicationContext dalBrokerAppContext;
+
 	private IDisplayLoadedCallback callback;
 
 	/**
@@ -155,8 +157,8 @@ public abstract class AbstractRunModeBox {
 								_input.getFilePath(), _input.getAliases());
 						runtimeContext.setRunModeBoxInput(_input);
 						
-						// .. we create a separate broker instance for each running display 
-						runtimeContext.setBroker(SimpleDALBroker.newInstance(new CssApplicationContext("CSS")));
+						dalBrokerAppContext = new CssApplicationContext("CSS");
+						runtimeContext.setBroker(SimpleDALBroker.newInstance(dalBrokerAppContext));
 						LOG.info("SimpleDALBroker instance created");
 						
 						_displayModel.setRuntimeContext(runtimeContext);
@@ -318,8 +320,12 @@ public abstract class AbstractRunModeBox {
 				LOG.info("SimpleDALBroker instance released.");
 				callback.displayClosed();
 			}
-
+			if(dalBrokerAppContext != null) {
+				dalBrokerAppContext.destroy();
+			}
+			
 			// forget all referenced objects
+			dalBrokerAppContext = null;
 			_graphicalViewer = null;
 			_displayModel = null;
 			_disposeListeners = null;

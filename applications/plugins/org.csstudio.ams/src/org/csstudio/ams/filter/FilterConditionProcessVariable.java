@@ -1,23 +1,23 @@
 
-/* 
- * Copyright (c) 2008 Stiftung Deutsches Elektronen-Synchrotron, 
+/*
+ * Copyright (c) 2008 Stiftung Deutsches Elektronen-Synchrotron,
  * Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY.
  *
- * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS. 
- * WITHOUT WARRANTY OF ANY KIND, EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED 
- * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR PARTICULAR PURPOSE AND 
- * NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
- * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
- * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR 
- * THE USE OR OTHER DEALINGS IN THE SOFTWARE. SHOULD THE SOFTWARE PROVE DEFECTIVE 
- * IN ANY RESPECT, THE USER ASSUMES THE COST OF ANY NECESSARY SERVICING, REPAIR OR 
- * CORRECTION. THIS DISCLAIMER OF WARRANTY CONSTITUTES AN ESSENTIAL PART OF THIS LICENSE. 
+ * THIS SOFTWARE IS PROVIDED UNDER THIS LICENSE ON AN "../AS IS" BASIS.
+ * WITHOUT WARRANTY OF ANY KIND, EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED
+ * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
+ * THE USE OR OTHER DEALINGS IN THE SOFTWARE. SHOULD THE SOFTWARE PROVE DEFECTIVE
+ * IN ANY RESPECT, THE USER ASSUMES THE COST OF ANY NECESSARY SERVICING, REPAIR OR
+ * CORRECTION. THIS DISCLAIMER OF WARRANTY CONSTITUTES AN ESSENTIAL PART OF THIS LICENSE.
  * NO USE OF ANY SOFTWARE IS AUTHORIZED HEREUNDER EXCEPT UNDER THIS DISCLAIMER.
- * DESY HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, 
+ * DESY HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS,
  * OR MODIFICATIONS.
- * THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION, 
- * USAGE AND OTHER RIGHTS AND OBLIGATIONS IS INCLUDED WITH THE DISTRIBUTION OF THIS 
- * PROJECT IN THE FILE LICENSE.HTML. IF THE LICENSE IS NOT INCLUDED YOU MAY FIND A COPY 
+ * THE FULL LICENSE SPECIFYING FOR THE SOFTWARE THE REDISTRIBUTION, MODIFICATION,
+ * USAGE AND OTHER RIGHTS AND OBLIGATIONS IS INCLUDED WITH THE DISTRIBUTION OF THIS
+ * PROJECT IN THE FILE LICENSE.HTML. IF THE LICENSE IS NOT INCLUDED YOU MAY FIND A COPY
  * AT HTTP://WWW.DESY.DE/LEGAL/LICENSE.HTM
  */
 
@@ -42,10 +42,10 @@ import org.csstudio.dal.Timestamp;
 
 /**
  * A filter condition based on PV-values.
- * 
+ *
  * This filter takes a DAL-channel-address to access a specific value to be
  * compared to an given value.
- * 
+ *
  * @author C1 WPS / KM, MZ
  */
 public strictfp class FilterConditionProcessVariable implements
@@ -96,7 +96,7 @@ public strictfp class FilterConditionProcessVariable implements
 
 		/**
 		 * Creates a value-representation with given database-id.
-		 * 
+		 *
 		 * @param id
 		 *            The id in database:
 		 */
@@ -106,20 +106,21 @@ public strictfp class FilterConditionProcessVariable implements
 
 		/**
 		 * Returns the database-id of this Operator.
-		 * 
+		 *
 		 * <strong>Pay attention:</strong> Please do never use this method
 		 * outside the DAOs!
 		 */
-		public short asDatabaseId() {
+		@Override
+        public short asDatabaseId() {
 			return _dbid;
 		}
 	}
 
 	/**
 	 * Listener to be informed on PV changes.
-	 * 
+	 *
 	 * @author C1 WPS / KM, MZ
-	 * 
+	 *
 	 * @param <T>
 	 *            Type of expected values.
 	 */
@@ -147,7 +148,8 @@ public strictfp class FilterConditionProcessVariable implements
 		/**
 		 * {@inheritDoc}
 		 */
-		public void connectionStateChanged(ConnectionState connectionState) {
+		@Override
+        public void connectionStateChanged(ConnectionState connectionState) {
 			Log.log(this, Log.DEBUG, "ConnectionState changed, new state: " + connectionState);
 			if (ConnectionState.CONNECTED.equals(connectionState)) {
 				_isConnected = true;
@@ -158,7 +160,7 @@ public strictfp class FilterConditionProcessVariable implements
 
 		/**
 		 * Returns the last received value.
-		 * 
+		 *
 		 * @return Last received value, may be null.
 		 */
 		public T currentValue() {
@@ -175,17 +177,19 @@ public strictfp class FilterConditionProcessVariable implements
 		/**
 		 * {@inheritDoc}
 		 */
-		public void valueChanged(T value, Timestamp timestamp) {
+		@Override
+        public void valueChanged(T value, Timestamp timestamp) {
 			Log.log(this, Log.DEBUG, "Value changed, new Value: " + value.toString());
 			_lastReceivedValue = value;
 		}
 
-		public void errorOccured(String error) {
-			
+		@Override
+        public void errorOccured(String error) {
+
 		}
 
         public void valueChanged(T value) {
-            
+
         }
 	}
 
@@ -194,46 +198,54 @@ public strictfp class FilterConditionProcessVariable implements
 	 */
 	static public enum SuggestedProcessVariableType implements
 			HoldsAnDatabaseId {
-		
+
 		STRING((short) 1, String.class, new Operator[] { Operator.EQUALS,
 				Operator.UNEQUALS }, new Parser<String>() {
-			public String parse(String dbString) {
+			@Override
+            public String parse(String dbString) {
 				return dbString;
 			}
 
-			public String toDbString(Object value) {
+			@Override
+            public String toDbString(Object value) {
 				return (String) value;
 			}
 		}),
-		
+
 		DOUBLE((short) 3, Double.class, Operator.values(),
 				new Parser<Double>() {
-			public Double parse(String dbString) {
-			    
+			@Override
+            public Double parse(String dbString) {
+
 	             // TODO: If the string does not contain a long value, the method Long.valueOf()
                 //       throws a NumberFormatException. That causes an endless loop in the
                 //       AmsDistributor
                 Double result = null;
-                
-                try {
-                    result = Double.valueOf(dbString);
-                } catch(NumberFormatException nfe) {
-                    
-                    Log.log(this, Log.WARN, "[*** NumberFormatException ***]: " + nfe.getMessage());
-                    result = NumberValidator.getCleanDouble(dbString);
-                    Log.log(this, Log.WARN, "Extract from string '" + dbString + "' the value " + result);
-                    if(result == null) {
-                        
-                        // TODO: Sinnvoller Standardwert?
-                        result = new Double(0);
-                        Log.log(this, Log.WARN, "Cannot get a valid number from string '" + dbString + "'. Using default value " + result);
+
+                if (dbString != null) {
+                    try {
+                        result = Double.valueOf(dbString);
+                    } catch(NumberFormatException nfe) {
+
+                        Log.log(this, Log.WARN, "[*** NumberFormatException ***]: " + nfe.getMessage());
+                        result = NumberValidator.getCleanDouble(dbString);
+                        Log.log(this, Log.WARN, "Extract from string '" + dbString + "' the value " + result);
+                        if(result == null) {
+                            // TODO: Sinnvoller Standardwert?
+                            result = new Double(0);
+                            Log.log(this, Log.WARN, "Cannot get a valid number from string '" + dbString + "'. Using default value " + result);
+                        }
                     }
+                } else {
+                    // TODO: Sinnvoller Standardwert?
+                    result = new Double(0);
+                    Log.log(this, Log.WARN, "Cannot get a valid number from string '" + dbString + "'. Using default value " + result);
                 }
-                
                 return result;
 			}
 
-			public String toDbString(Object value) {
+			@Override
+            public String toDbString(Object value) {
 				Double d = (Double) value;
 				return Double.toString(d.doubleValue());
 			}
@@ -241,32 +253,38 @@ public strictfp class FilterConditionProcessVariable implements
 
 		LONG((short) 2, Long.class, Operator.values(),
 				new Parser<Long>() {
-			public Long parse(String dbString) {
-			    
+			@Override
+            public Long parse(String dbString) {
+
 			    // TODO: If the string does not contain a long value, the method Long.valueOf()
 			    //       throws a NumberFormatException. That causes an endless loop in the
 			    //       AmsDistributor
 			    Long result = null;
-			    
-			    try {
-			        result = Long.valueOf(dbString);
-			    } catch(NumberFormatException nfe) {
-			        
-			        Log.log(this, Log.WARN, "[*** NumberFormatException ***]: " + nfe.getMessage());
-			        result = NumberValidator.getCleanLong(dbString);
-			        Log.log(this, Log.WARN, "Extract from string '" + dbString + "' the value " + result);
-			        if(result == null) {
-			            
-			            // TODO: Sinnvoller Standardwert?
-			            result = new Long(0);
-			            Log.log(this, Log.WARN, "Cannot get a valid number from string '" + dbString + "'. Using default value " + result);
-			        }
+
+			    if (dbString != null) {
+    			    try {
+    			        result = Long.valueOf(dbString);
+    			    } catch(NumberFormatException nfe) {
+
+    			        Log.log(this, Log.WARN, "[*** NumberFormatException ***]: " + nfe.getMessage());
+    			        result = NumberValidator.getCleanLong(dbString);
+    			        Log.log(this, Log.WARN, "Extract from string '" + dbString + "' the value " + result);
+    			        if(result == null) {
+    			            // TODO: Sinnvoller Standardwert?
+    			            result = new Long(0);
+    			            Log.log(this, Log.WARN, "Cannot get a valid number from string '" + dbString + "'. Using default value " + result);
+    			        }
+    			    }
+			    } else {
+                    // TODO: Sinnvoller Standardwert?
+                    result = new Long(0);
+                    Log.log(this, Log.WARN, "Cannot get a valid number from string '" + dbString + "'. Using default value " + result);
 			    }
-			    
 				return result;
 			}
 
-			public String toDbString(Object value) {
+			@Override
+            public String toDbString(Object value) {
 				Long l = (Long) value;
 				return Long.toString(l.intValue());
 			}
@@ -300,7 +318,7 @@ public strictfp class FilterConditionProcessVariable implements
 		private Class<?> _suggestedTypeClass;
 
 		private Parser<?> _parser;
-		
+
 		/**
 		 * The comparison operators supported by this type.
 		 */
@@ -308,7 +326,7 @@ public strictfp class FilterConditionProcessVariable implements
 
 		/**
 		 * Creates a value-representation with given database-id.
-		 * 
+		 *
 		 * @param id
 		 *            The id in database:
 		 */
@@ -319,7 +337,7 @@ public strictfp class FilterConditionProcessVariable implements
 			_supportedOperators = supportedOperators;
 			_parser = parser;
 		}
-		
+
 		/**
 		 * Returns the comparison operators supported by this type.
 		 * @return an array of the comparison operators supported by this type.
@@ -334,11 +352,12 @@ public strictfp class FilterConditionProcessVariable implements
 
 		/**
 		 * Returns the database-id of this SuggestedProcessVariableType-Value.
-		 * 
+		 *
 		 * <strong>Pay attention:</strong> Please do never use this method
 		 * outside the DAOs or UI combos!
 		 */
-		public short asDatabaseId() {
+		@Override
+        public short asDatabaseId() {
 			return _dbid;
 		}
 
@@ -352,7 +371,7 @@ public strictfp class FilterConditionProcessVariable implements
 		/**
 		 * Checks if given value is parsable depending on the type of this
 		 * valus.
-		 * 
+		 *
 		 * @param value
 		 *            The value to be checked.
 		 * @return {@code true} if the value is parsable, {@code false}
@@ -376,7 +395,7 @@ public strictfp class FilterConditionProcessVariable implements
 		/**
 		 * Formats the given value as DB-representation depending on the
 		 * suggested type class.
-		 * 
+		 *
 		 * @require this.getSuggestedTypeClass().isAssignableFrom(value.getClass())
 		 */
 		public String toDbString(Object value) {
@@ -393,7 +412,7 @@ public strictfp class FilterConditionProcessVariable implements
 
 	/**
 	 * Timeout to wait for a connection state.
-	 * 
+	 *
 	 * TODO Make this configurable by a preference page.
 	 */
 	private static final int TIMEOUT_OF_CONNECTION_ATTEMP = 5;
@@ -402,9 +421,9 @@ public strictfp class FilterConditionProcessVariable implements
 	 * Called by {@link #init(Connection, int, int)}, introduced to makes this
 	 * filter partly testable (remark: DAL must run on given machine and tested
 	 * channel must be able to access to run a test for this method).
-	 * 
+	 *
 	 * Initialize the filter. Will be called before any call to match.
-	 * 
+	 *
 	 * @param configuration
 	 *            configuration of this filter.
 	 * @param iFilterConditionID
@@ -459,18 +478,20 @@ public strictfp class FilterConditionProcessVariable implements
 	/**
 	 * Loads the filter configuration from the database using
 	 * {@link FilterConditionProcessVariableDAO}.
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
-	public final void init(final Connection conDb, final int filterConditionID,
+	@Override
+    public final void init(final Connection conDb, final int filterConditionID,
 			final int filterID) throws AMSException {
 		try {
 			FilterConditionProcessVariableTObject configuration = FilterConditionProcessVariableDAO
 					.select(conDb, filterConditionID);
-			if (configuration == null)
-				throw new AMSException(
+			if (configuration == null) {
+                throw new AMSException(
 						"FilterConditionProcessVariable.filterConditionID="
 								+ filterConditionID + " not found.");
+            }
 			String processVariableChannelName = configuration
 					.getProcessVariableChannelName();
 			IProcessVariableAddress variableAdress = ProcessVariableAdressFactory
@@ -491,10 +512,11 @@ public strictfp class FilterConditionProcessVariable implements
 	 * Checks if the acutely resulting value of configured DAL-channel matches
 	 * configured limit using configured comparison-method. The message stayed
 	 * unused.
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
-	public boolean match(final MapMessage map) {
+	@Override
+    public boolean match(final MapMessage map) {
 		if (_processVariableChangeListener.isConnected()) {
 			Operator operator = filterConditionConfiguration.getOperator();
 			SuggestedProcessVariableType suggestedtype = filterConditionConfiguration
@@ -504,17 +526,17 @@ public strictfp class FilterConditionProcessVariable implements
 			if (currentValue != null
 					&& suggestedtype.getSuggestedTypeClass().isAssignableFrom(
 							currentValue.getClass())) {
-				
+
 				Log.log(this, Log.DEBUG, "Current value from PV: " + currentValue
 						+ " will be compared to: " + compValue);
-				
+
 				// equals: the default result that will be used if the
 				// currentValue is not an instance of Number. This means that
 				// string-based comparison (equals/unequals) also works, but
 				// support for additional string comparison operators would
 				// have to be added explicitly.
 				boolean equals = compValue.equals(currentValue);
-				
+
 				if (operator.equals(Operator.EQUALS)) {
 					if (currentValue instanceof Number) {
 						BigDecimal compareValueAsBigDecimal = new BigDecimal(
@@ -528,7 +550,7 @@ public strictfp class FilterConditionProcessVariable implements
 						 * not possible to get a higher precision by adding
 						 * zeros behind the point The used double value doesn't
 						 * support more then one trailing zeros
-						 * 
+						 *
 						 * Proposed solution: Introduce a new integer object
 						 * into the configuration TObject and database which
 						 * holds the scale entered in the UI. This is needed
